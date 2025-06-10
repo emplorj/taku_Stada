@@ -418,7 +418,7 @@ footer {
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 3; /* 3行で省略 */
+    -line-clamp: 3; /* 3行で省略 */
     -webkit-box-orient: vertical;
 }
 
