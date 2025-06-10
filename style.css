@@ -1,51 +1,14 @@
-/* トップページに戻るロゴリンクのコンテナ */
-.home-logo-link {
-    position: absolute; /* 親要素（body）に対して絶対配置 */
-    top: 20px;       /* 親要素の上端から20px */
-    left: 20px;      /* 親要素の左端から20px */
-    z-index: 100;    /* 他の要素より前面に表示 */
-    display: block;  /* ブロック要素として扱い、幅と高さを設定可能に */
-    transition: transform 0.3s ease; /* ホバーと表示/非表示のアニメーション (不透明度削除) */
-    /* opacity: 0.8; を削除 - 不透明度はいじらない */
-    /* margin: 20px; を削除 - position: absolute; に変更したため不要 */
-}
-
-/* ホバー時のエフェクト */
-.home-logo-link:hover {
-    transform: scale(1.2); /* ホバーで少し拡大 */
-    /* opacity: 1; を削除 - 不透明度はいじらない */
-}
-
-/* ロゴ画像自体のスタイル */
-.home-logo {
-    width: 80px;  /* ロゴの幅を固定 */
-    height: auto; /* 高さは自動調整し、アスペクト比を維持 */
-    border-radius: 8px; /* 角を少し丸く */
-    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); を削除 - シャドウはつけない */
-}
-
-/* モバイルデバイス向け調整 */
-@media (max-width: 600px) {
-    .home-logo-link {
-        top: 10px; /* モバイルでは上からの位置を小さく */
-        left: 10px; /* モバイルでは左からの位置を小さく */
-        /* margin: 10px; を削除 - position: absolute; に変更したため不要 */
-    }
-    .home-logo {
-        width: 60px; /* 小さい画面ではロゴをさらに小さく */
-    }
-}
-
-
-
+/* ==========================================================================
+   1. 基本スタイル / リセット
+   ========================================================================== */
 html {
     scroll-behavior: smooth; /* スムーズスクロール */
 }
+
 body {
     font-family: 'Inter', 'Yu Gothic', 'Meiryo', sans-serif;
     line-height: 1.6;
     color: #eee; /* 背景色に合わせて文字色を明るく */
-    max-width: 1280px;
     margin: 20px auto;
     padding: 20px;
     background-color: #061144; /* 背景色を変更 */
@@ -53,8 +16,13 @@ body {
     background-image: radial-gradient(circle at 10% 20%, #1a2c6d 0%, rgba(6, 17, 68, 0) 50%),
                       radial-gradient(circle at 90% 80%, #3498db 0%, rgba(6, 17, 68, 0) 50%);
     background-size: 200% 200%; /* アニメーションのために背景を大きくする */
+    overflow-x: hidden; /* .start-title の背景を画面外まで伸ばすため */
     animation: background-pan 60s linear infinite alternate; /* 背景アニメーション */
     position: relative; /* 子要素のposition:fixedを基準にする */
+}
+
+a {
+    color:#87cefa;
 }
 
 @keyframes background-pan {
@@ -65,11 +33,12 @@ body {
         background-position: 100% 100%;
     }
 }
+
+/* ==========================================================================
+   2. 汎用クラス / ヘルパークラス
+   ========================================================================== */
 .center {
     text-align: center;
-}
-a {
-color:#87cefa;
 }
 h1 {
     text-align: center;
@@ -77,6 +46,51 @@ h1 {
     padding-bottom: 10px;
     margin-bottom: 30px;
     color: #f0f0f0; /* タイトル色を明るく */
+}
+
+/* ==========================================================================
+   3. レイアウト構造 (ヘッダー、フッター、メインコンテンツ、サイドメニューの配置)
+   ========================================================================== */
+
+
+.main-content {
+    /* 通常時は目次の分だけマージンを設定 */
+    /* side-menu: left 20px + width 180px + padding 20px*2 = 実効表示幅 220px */
+    /* margin-left = side-menuのleft(20px) + side-menuの実効表示幅(220px) + 間のスペース(20px) */
+    margin-left: 260px;
+}
+
+/* 左側の目次 (配置と基本スタイル) */
+.side-menu {
+    position: fixed;
+    top: 120px; /* 上部からの位置調整 */
+    left: 20px; /* bodyの左パディングの内側に配置 */
+    width: 180px; /* 目次の幅を220pxに設定 */
+    background-color: rgba(6, 17, 68, 0.8); /* 半透明の背景 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* コンテンツより手前に表示 */
+    max-height: calc(100vh - 140px); /* 上下の余白を考慮した最大の高さ */
+    overflow-y: auto; /* 内容が多い場合にスクロール */
+}
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #ccc;
+    color: #f0f0f0; /* 文字色を明るく */
+    font-size: 0.9em;
+}
+
+/* ==========================================================================
+   4. 主要コンテンツブロック (汎用的なテキストブロックなど)
+   ========================================================================== */
+/* CoC Q&A ページ専用のbodyスタイル */
+.body-1080 {
+    max-width: 1080px;
+    /* 中央寄せはbody共通の margin: 20px auto; が適用される */
 }
 
 .plain-text-block {
@@ -88,6 +102,17 @@ h1 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+.additional-info-section h2 {
+    color: #f0f0f0;
+    border-bottom: 1px solid #4a5c9a;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+/* ==========================================================================
+   5. ナビゲーション / UI要素 (目次詳細、ボタン、リンクなど)
+   ========================================================================== */
 /* 地の文内のリンク */
 .plain-text-author-link {
     color: #87cefa; /* 指定された色に設定 */
@@ -98,8 +123,7 @@ h1 {
     text-decoration: underline;
 }
 
-
-/* 質問折りたたみブロックのスタイル */
+/* 質問折りたたみブロック (CoC_Q&A.html) */
 .question-summary-block {
     background-color: #1a2c6d;
     color: #e0e0e0;
@@ -182,6 +206,42 @@ h1 {
 .question-summary-block ul li a:hover {
     color: #3498db; /* ホバーで色を変える */
 }
+
+/* 左側目次の詳細スタイル */
+.side-menu ul {
+    list-style: none;
+    padding: 0;
+}
+.side-menu ul ul {
+    padding-left: 15px; /* ネストされたリストのインデント */
+    margin-top: 5px;    /* ネストされたリストの上のスペース */
+}
+
+.side-menu ul ul li {
+    margin-bottom: 6px; /* ネストされたリストアイテムのマージンを小さく */
+}
+
+.side-menu li {
+    margin-bottom: 8px;
+}
+
+.side-menu a {
+    text-decoration: none;
+    color: #b0c4de; /* 少し明るめの色に変更 */
+    transition: color 0.3s ease;
+    display: block; /* クリック範囲を広げる */
+    padding: 2px 0;
+}
+
+.side-menu a:hover,
+.side-menu a.active { /* JavaScriptでアクティブなリンクをハイライトする場合の準備 */
+    color: #fff;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   6. 特定のコンポーネント / モジュール
+   ========================================================================== */
 
 
 .qa-section {
@@ -285,32 +345,6 @@ h1 {
 }
 .speech-bubble ol {
     list-style-type: decimal;
-}
-
-.note {
-    background-color: #e8f0f7;
-    border-left: 4px solid #3498db;
-    padding: 15px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    color: #333; /* note内の文字色を読みやすく */
-}
-.example {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 4px;
-    color: #333; /* example内の文字色を読みやすく */
-}
-footer {
-    text-align: center;
-    margin-top: 50px;
-    padding-top: 20px;
-    border-top: 1px solid #ccc;
-    color: #f0f0f0; /* 文字色を明るく */
-    font-size: 0.9em;
 }
 
 /* Author Profile Section */
@@ -423,15 +457,6 @@ footer {
     -webkit-box-orient: vertical;
 }
 
-.booth-banner {
-    max-width: 200px; /* バナー画像の幅を固定 (元画像が200x40なので) */
-    height: auto;
-    border-radius: 5px;
-    display: block; /* imgをブロック要素にして中央寄せなどをしやすく */
-    margin-top: 0px; /* 上の要素との間隔を0に */
-}
-
-
 /* Back to Top Button */
 #backToTopBtn {
     display: none; /* Hidden by default */
@@ -459,6 +484,29 @@ footer {
     transform: scale(1);
 }
 
+/* トップページに戻るロゴ (common.jsで挿入) */
+.home-logo-link {
+    position: absolute; /* 親要素（body）に対して絶対配置 */
+    top: 20px;       /* 親要素の上端から20px */
+    left: 20px;      /* 親要素の左端から20px */
+    z-index: 100;    /* 他の要素より前面に表示 */
+    display: block;  /* ブロック要素として扱い、幅と高さを設定可能に */
+    transition: transform 0.3s ease;
+}
+
+.home-logo-link:hover {
+    transform: scale(1.2); /* ホバーで少し拡大 */
+}
+
+.home-logo {
+    width: 120px;  /* ロゴの幅を固定 */
+    height: auto; /* 高さは自動調整し、アスペクト比を維持 */
+    border-radius: 8px; /* 角を少し丸く */
+}
+
+/* ==========================================================================
+   7. 背景 / 装飾要素
+   ========================================================================== */
 /* Particle Canvas */
 #particleCanvas {
     position: fixed;
@@ -470,6 +518,9 @@ footer {
     pointer-events: none; /* Allow clicks/hovers on elements beneath */
 }
 
+/* ==========================================================================
+   8. index.html 固有の要素
+   ========================================================================== */
 /* ロゴ画像を横並びにするためのコンテナ */
 .logo-container {
     display: flex; /* Flexboxを使用して子要素を横並びに */
@@ -485,134 +536,10 @@ footer {
     height: auto;   /* 高さは自動調整 */
 }
 
-/* 左側の目次 */
-.side-menu {
-    position: fixed;
-    top: 120px; /* 上部からの位置調整 */
-    left: 20px;
-    width: 220px; /* 目次の幅 */
-    background-color: rgba(6, 17, 68, 0.8); /* 半透明の背景 */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 1000; /* コンテンツより手前に表示 */
-    max-height: calc(100vh - 140px); /* ビューポートに合わせた最大の高さ */
-    overflow-y: auto; /* 内容が多い場合にスクロール */
-}
-
-.side-menu ul {
-    list-style: none;
-    padding: 0;
-}
-.side-menu ul ul {
-    padding-left: 15px; /* ネストされたリストのインデント */
-    margin-top: 5px;    /* ネストされたリストの上のスペース */
-}
-
-.side-menu ul ul li {
-    margin-bottom: 6px; /* ネストされたリストアイテムのマージンを小さく */
-}
-
-
-.side-menu li {
-    margin-bottom: 8px;
-}
-
-.side-menu a {
-    text-decoration: none;
-    color: #b0c4de; /* 少し明るめの色に変更 */
-    transition: color 0.3s ease;
-    display: block; /* クリック範囲を広げる */
-    padding: 2px 0;
-}
-
-.side-menu a:hover,
-.side-menu a.active { /* JavaScriptでアクティブなリンクをハイライトする場合の準備 */
-    color: #fff;
-    font-weight: bold;
-}
-
-/* メインコンテンツエリア */
-.main-content {
-    margin-left: 260px; /* 目次の幅(220px) + bodyのpadding(20px) + 余白(20px) */
-    /* bodyのpadding: 20pxがあるので、目次の実際のleftは40px。
-       main-contentのmargin-leftは目次のwidth + gapで調整 */
-}
-
-/* 各セクションのアンカーリンク調整 */
-.main-content h2[id],
-.main-content h3[id],
-.main-content .section-title[id] { /* .section-titleにもidが付く場合を考慮 */
-    scroll-margin-top: 80px; /* 固定ヘッダーや上部ロゴの高さを考慮したオフセット */
-}
-
-/* 画面幅が狭い場合の調整 (例: 1024px以下) */
-@media (max-width: 1024px) {
-    .side-menu {
-        display: none; /* 目次を非表示 */
-    }
-    .main-content {
-        margin-left: 0; /* メインコンテンツのマージンをリセット */
-    }
-}
-
-/* メインコンテンツエリア内の特定ブロックに最大幅を設定し中央寄せ */
-.main-content > .plain-text-block,
-.main-content > .additional-info-section,
-.main-content > .question-summary-block,
-.main-content > .code-block-container,
-.main-content > .author-profile {
-    max-width: 1080px;
-    margin-left: auto;
-    margin-right: auto;
-    box-sizing: border-box; /* パディングとボーダーを幅に含める */
-}
-
-/* QAセクションの吹き出しコンテナに最大幅を設定 */
-/* これにより、吹き出し自体が1080pxを超えることはありません */
-.main-content .qa-section .bubble-container {
-    /* max-width を削除し、speech-bubble に移動 */
-    /* max-width: 1080px; */
-    /* bubble-container は flex-grow: 1 を持っているので、
-       qa-section 内で利用可能なスペースを取ります。
-       吹き出しを中央寄せにしたい場合は、speech-bubble に margin: auto を追加 */
-}
-.main-content .qa-section .speech-bubble {
-    max-width: 1080px; /* 吹き出し自体に最大幅を設定 */
-    margin-left: auto; /* 吹き出しをbubble-container内で中央寄せ */
-    margin-right: auto;
-}
-
-/* ゲーム紹介ブロックのスタイル */
-.game-introduction-block {
-    background-color: #1a2c6d; /* 背景色 */
-    color: #e0e0e0; /* 文字色 */
-    padding: 20px; /* 内側の余白 */
-    border-radius: 8px; /* 角丸 */
-    margin-bottom: 30px; /* 下部のマージン */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 影 */
-}
-
-.game-introduction-block h3 {
-    margin-top: 0; /* h3の上マージンを調整 */
-    color: #f0f0f0; /* 見出し色を明るく */
-    padding-bottom: 10px;
-    border-bottom: 1px dashed #4a5c9a; /* 区切り線 */
-}
-
-.game-introduction-block iframe {
-    display: block; /* iframeをブロック要素にしてマージンを有効に */
-    max-width: 100%; /* 親要素の幅に合わせる */
-    height: auto; /* 高さを自動調整（アスペクト比を維持するためには、iframeのwidth/height属性も調整が必要な場合があります） */
-    border: none; /* iframeのデフォルトの枠線を消す */
-    margin: 15px auto 0; /* 上にマージン、左右中央寄せ */
-}
-
-/* 既存の .start-title と .start-title::before を以下で置き換え */
+/* スライドタイトル (index.html) */
 .start-title {
   color: #fff;
   font-size: 1.5em;
-  /* padding: 10px 20px; を調整 */
   padding-top: 10px;
   padding-bottom: 10px;
   padding-left: 20px;
@@ -621,8 +548,6 @@ footer {
   margin-bottom: 1em;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   background-color: #5F7C99; /* デフォルトの背景色、インラインスタイルで上書き可能 */
-
-  /* --- ここからが重要 --- */
   position: relative;
   z-index: 1;
   overflow: visible; /* ::after がはみ出せるように変更 */
@@ -632,25 +557,57 @@ footer {
   box-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* 本体に影を設定 */
 }
 
+/* 各セクションのアンカーリンク調整 */
+.main-content h2[id],
+.main-content h3[id],
+.main-content .section-title[id] { /* .section-titleにもidが付く場合を考慮 */
+    scroll-margin-top: 80px; /* 固定ヘッダーや上部ロゴの高さを考慮したオフセット */
+}
+
 /* .start-title の右側を拡張する疑似要素 */
 .start-title::after {
   content: '';
   position: absolute;
   top: 0;
   left: 100%; /* .start-title の右端から開始 */
-  width: 20px;  /* body の右パディング分 (20px) だけはみ出す */
+  width: 100vw;  /* ビューポート幅全体に伸ばすことで、画面右端まで届くようにする */
   height: 100%;
   background-color: inherit; /* .start-title の背景色を継承 */
   z-index: -1;
 }
 
-/* 追加情報セクション用のスタイル */
-.additional-info-section h2 {
-    color: #f0f0f0;
-    border-bottom: 1px solid #4a5c9a;
-    padding-bottom: 8px;
-    margin-top: 0;
-    margin-bottom: 15px;
+/* ==========================================================================
+   9. メディアクエリ (レスポンシブ対応)
+   ========================================================================== */
+/* 画面幅が狭い場合の調整 (例: 1024px以下) */
+@media (max-width: 1024px) {
+    .side-menu {
+        display: none; /* 目次を非表示 */
+    }
+    .main-content {
+        margin-left: 0; /* メインコンテンツのマージンをリセット */
+    }
+    /* 画面幅が狭い場合のスライド調整 (例: 768px以下) */
+    .main-content iframe {
+        max-width: 90%; /* 親要素に対して90%の幅にするなど、適宜調整 */
+        max-height: 90%; /* 親要素に対して90%の幅にするなど、適宜調整 */
+        /* aspect-ratio は維持されるので、高さも自動的に調整されます */
+    }
+    /* さらに小さい画面 (例: 480px以下) での調整が必要な場合は、
+       別のメディアクエリを追加して max-width をさらに小さくすることも可能です */
+    /* @media (max-width: 480px) { ... } */
+
+}
+
+/* トップページに戻るロゴのモバイル調整 */
+@media (max-width: 600px) {
+    .home-logo-link {
+        top: 10px; /* モバイルでは上からの位置を小さく */
+        left: 10px; /* モバイルでは左からの位置を小さく */
+    }
+    .home-logo {
+        width: 60px; /* 小さい画面ではロゴをさらに小さく */
+    }
 }
 
 .additional-info-section ul {
@@ -660,6 +617,11 @@ footer {
 }
 .additional-info-section ul li {
     margin-bottom: 8px;
+}
+/* additional-info-section内のpタグに含まれるリンクの折り返し設定 */
+.additional-info-section p a {
+    word-break: break-all; /* 長いURLなどがはみ出さないように、単語の途中でも改行する */
+    /* overflow-wrap: break-word; も同様の効果がありますが、word-breakの方が強制力が強い場合があります */
 }
 
 .color-chip {
