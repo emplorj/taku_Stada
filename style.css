@@ -1,3 +1,43 @@
+/* ロゴ画像を横並びにするためのコンテナ */
+.logo-container {
+    display: flex; /* Flexboxを有効にして子要素を横並びに */
+    justify-content: center; /* 中央揃え */
+    align-items: center; /* 縦方向の中央揃え */
+    gap: 20px; /* 画像間の隙間 */
+    margin-top: 20px;
+    margin-bottom: 40px; /* 他のコンテンツとの間にスペースを設ける */
+    flex-wrap: wrap; /* 画面が狭い場合に折り返す */
+}
+
+/* ロゴ画像全体のスタイル */
+.logo-image {
+    max-width: 45%; /* 親要素の幅の45%を最大幅とする（2枚で約90% + gap） */
+    height: auto; /* アスペクト比を維持 */
+    border-radius: 8px; /* 角を丸くする */
+    transition: transform 0.3s ease; /* ホバー時のアニメーション */
+}
+
+/* ホバー時のエフェクト */
+.logo-image:hover {
+    transform: scale(1.05); /* 少し拡大 */
+}
+
+
+
+/* 小さい画面での調整 */
+@media (max-width: 600px) {
+    .logo-container {
+        flex-direction: column; /* 画面が狭い場合は縦並びにする */
+        gap: 15px;
+    }
+
+    .logo-image,
+    .logo-image.mini {
+        max-width: 80%; /* 縦並びになった時に幅を広げる */
+    }
+}
+
+
 html {
     scroll-behavior: smooth; /* スムーズスクロール */
 }
@@ -15,7 +55,6 @@ body {
     background-size: 200% 200%; /* アニメーションのために背景を大きくする */
     animation: background-pan 60s linear infinite alternate; /* 背景アニメーション */
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     position: relative; /* 子要素のposition:fixedを基準にする */
 }
 
@@ -27,7 +66,12 @@ body {
         background-position: 100% 100%;
     }
 }
-
+.center {
+    text-align: center;
+}
+a {
+color:#87cefa;
+}
 h1 {
     text-align: center;
     border-bottom: 2px solid #3498db;
@@ -47,7 +91,6 @@ h1 {
 
 /* 地の文内のリンク */
 .plain-text-author-link {
-    color: #87cefa; /* 指定された色に設定 */
     text-decoration: none;
     font-weight: bold;
 }
@@ -308,7 +351,6 @@ footer {
 }
 
 .author-profile .author-link {
-    color: #87cefa; /* 指定された色に設定 */
     text-decoration: none;
     font-weight: bold;
 }

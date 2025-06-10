@@ -3,14 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>クトゥルフ神話TRPG シナリオスタダ</title>
+    <title>卓スタダ | TRPGシナリオ作成のヒント</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <canvas id="particleCanvas"></canvas>
 
-    <h1>クトゥルフ神話TRPG シナリオスタダ</h1>
+    <header class="main-header">
+        <h1>卓スタダ</h1>
+        <p class="subtitle">TRPGシナリオ作成のスタートダッシュを応援！</p>
+    </header>
+
+    <!-- ロゴ画像を横並びにするためのコンテナ -->
+    <div class="logo-container">
+        <img src="img/卓スタダロゴ.png" alt="卓スタダロゴ" class="logo-image">
+        <img src="img/卓スタダminiロゴ.png" alt="卓スタダミニロゴ" class="logo-image mini">
+    </div>
+
+    <div class="plain-text-block intro-block">
+        <p>TRPGシナリオ作成に悩むあなたへ、<a href="https://twitter.com/haisuikan_trpg" target="_blank" class="plain-text-author-link">はいすいかん(@haisuikan_trpg)</a>さんからの貴重なアドバイスをまとめました。</p>
+        <p>「どんな神話生物を使えばいいの？」「ストーリーの組み立て方が分からない！」といった疑問を解決し、あなたも自信を持ってシナリオを作り始めましょう！</p>
+    </div>
+
+    <!-- 目次セクション -->
+    <section class="contents-section">
+        <h2 class="section-title"><a href="CoC_Q&A.html">✨ クトゥルフ神話TRPG シナリオスタダ</a></h2>
+
+    </section>
+
+    <footer>
+        <p>&copy; 2025 卓スタダ.</p>
+    </footer>
+
+    <!-- Particle Canvas Script (guide.html と共有) -->
+    <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 80;
+        const particleSize = 1.5;
+        const particleColor = 'rgba(255, 255, 255, 0.4)';
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * (particleSize * 2 - particleSize / 2) + particleSize / 2;
+                this.speedX = Math.random() * 0.4 - 0.2;
+                this.speedY = Math.random() * 0.4 - 0.2;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width + this.size) this.x = -this.size;
+                if (this.x < -this.size) this.x = canvas.width + this.size;
+                if (this.y > canvas.height + this.size) this.y = -this.size;
+                if (this.y < -this.size) this.y = canvas.height + this.size;
+            }
+
+            draw() {
+                ctx.fillStyle = particleColor;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+        }
+
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            animateParticles();
+        });
+        window.addEventListener('resize', resizeCanvas);
+    </script>
 
 </body>
 </html>
