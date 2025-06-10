@@ -1,0 +1,428 @@
+html {
+    scroll-behavior: smooth; /* スムーズスクロール */
+}
+body {
+    font-family: 'Inter', 'Yu Gothic', 'Meiryo', sans-serif;
+    line-height: 1.6;
+    color: #eee; /* 背景色に合わせて文字色を明るく */
+    max-width: 1280px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #061144; /* 背景色を変更 */
+    /* 背景グラデーションとアニメーション */
+    background-image: radial-gradient(circle at 10% 20%, #1a2c6d 0%, rgba(6, 17, 68, 0) 50%),
+                      radial-gradient(circle at 90% 80%, #3498db 0%, rgba(6, 17, 68, 0) 50%);
+    background-size: 200% 200%; /* アニメーションのために背景を大きくする */
+    animation: background-pan 60s linear infinite alternate; /* 背景アニメーション */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    position: relative; /* 子要素のposition:fixedを基準にする */
+}
+
+@keyframes background-pan {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+h1 {
+    text-align: center;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+    color: #f0f0f0; /* タイトル色を明るく */
+}
+
+.plain-text-block {
+    background-color: #1a2c6d; /* 地の文ブロックの背景色を少し濃く */
+    color: #e0e0e0; /* 地の文の文字色 */
+    padding: 15px 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 地の文内のリンク */
+.plain-text-author-link {
+    color: #87cefa; /* 指定された色に設定 */
+    text-decoration: none;
+    font-weight: bold;
+}
+.plain-text-author-link:hover {
+    text-decoration: underline;
+}
+
+
+/* 質問折りたたみブロックのスタイル */
+.question-summary-block {
+    background-color: #1a2c6d;
+    color: #e0e0e0;
+    padding: 15px 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.question-summary-block summary {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    outline: none;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #4a5c9a; /* 区切り線 */
+}
+
+.question-summary-block summary h2 {
+    margin: 0;
+    color: #f0f0f0; /* 見出し色を明るく */
+    font-size: 1.5em;
+    flex-grow: 1;
+}
+
+.question-summary-block summary p {
+    margin: 0 15px;
+    font-size: 0.9em;
+    color: #bbb;
+}
+
+.question-summary-block summary .arrow-icon {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid #f0f0f0; /* 下向き矢印 */
+    transition: transform 0.3s ease;
+}
+
+.question-summary-block[open] summary .arrow-icon {
+    transform: rotate(180deg); /* 開いた時に上向き矢印 */
+}
+
+.question-summary-block .questions-list {
+    padding-top: 15px;
+}
+
+.question-summary-block ul {
+    list-style-type: none; /* デフォルトのリストスタイルを無効化 */
+    padding-left: 0;
+    margin-left: 0;
+}
+
+.question-summary-block ul li {
+    position: relative;
+    padding-left: 25px; /* アイコン分のスペース */
+    margin-bottom: 10px;
+}
+
+.question-summary-block ul li.linked-question::before {
+    content: '✨'; /* ワープアイコン */
+    position: absolute;
+    left: 0;
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+.question-summary-block ul li.question-divider {
+    border-bottom: 1px solid #4a5c9a; /* 区切り線 */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.question-summary-block ul li a {
+    color: inherit; /* リンクの色を親要素から継承 */
+    text-decoration: none; /* 下線なし */
+    transition: color 0.2s ease;
+}
+.question-summary-block ul li a:hover {
+    color: #3498db; /* ホバーで色を変える */
+}
+
+
+.qa-section {
+    display: flex; /* アイコンと吹き出しを横並びに */
+    align-items: flex-start; /* アイコンと吹き出しの先頭を揃える */
+    margin-bottom: 40px;
+    gap: 20px; /* アイコンと吹き出しの間のスペース */
+    scroll-margin-top: 50px; /* アンカーリンクで飛んだ際の上余白 */
+}
+
+.speaker-icon-wrapper {
+    position: relative;
+    z-index: 10; /* アイコンを前面に */
+    flex-shrink: 0;
+}
+
+/* 共通のアイコン画像参照、サイズは個別に設定 */
+.speaker-icon {
+    width: 80px; /* アイコンの幅 */
+    height: 80px; /* アイコンの高さ */
+    border-radius: 50%; /* アイコンを丸くする */
+    object-fit: cover; /* 画像の表示方法 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: block; /* aタグ内でimgがinline要素なのでブロック化 */
+}
+
+.bubble-container {
+    flex-grow: 1; /* 残りのスペースを埋める */
+    position: relative;
+    opacity: 0; /* 初期状態: 透明 */
+    transform: translateX(-30px); /* 初期状態: 左に少し隠す */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* アニメーションの設定 */
+    z-index: 5; /* 吹き出しをアイコンより奥に */
+}
+
+.bubble-container.is-visible {
+    opacity: 1; /* 表示状態: 表示 */
+    transform: translateX(0); /* 表示状態: 本来の位置 */
+}
+
+.speech-bubble {
+    background-color: #ffffff; /* 吹き出しの背景色 */
+    border: 1px solid #ddd;
+    border-radius: 12px; /* 全体を丸く */
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: #333; /* 吹き出し内の文字色を読みやすく */
+}
+
+/* 吹き出しのしっぽ (左向きに調整) */
+.speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: 20px; /* 縦位置 */
+    right: 100%; /* 吹き出しの左端に配置 */
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-right-color: #ddd; /* 右向き（左に伸びる）の尻尾 */
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    top: 21px; /* 枠より1pxずらして一体化 */
+    right: 100%; /* 吹き出しの左端に配置 */
+    width: 0;
+    height: 0;
+    border: 9px solid transparent; /* 枠より少し小さく */
+    border-right-color: #ffffff; /* 吹き出しの背景色 */
+    margin-right: 1px; /* 枠と中身の隙間を調整 */
+}
+
+
+/* 吹き出し内のスタイル調整 */
+.speech-bubble h2,
+.speech-bubble h3 {
+    color: #2c3e50;
+    margin-top: 0; /* 吹き出し内の見出しの余白を調整 */
+    margin-bottom: 15px;
+}
+.speech-bubble h2 {
+    font-size: 1.6em;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #ccc;
+}
+.speech-bubble h3 {
+    font-size: 1.3em;
+    color: #3498db;
+    margin-top: 20px;
+}
+.speech-bubble p {
+    margin-bottom: 10px;
+}
+.speech-bubble ul,
+.speech-bubble ol {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+.speech-bubble ol {
+    list-style-type: decimal;
+}
+
+.note {
+    background-color: #e8f0f7;
+    border-left: 4px solid #3498db;
+    padding: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    color: #333; /* note内の文字色を読みやすく */
+}
+.example {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 4px;
+    color: #333; /* example内の文字色を読みやすく */
+}
+footer {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #ccc;
+    color: #f0f0f0; /* 文字色を明るく */
+    font-size: 0.9em;
+}
+
+/* Author Profile Section */
+.author-profile {
+    background-color: #1a2c6d;
+    color: #e0e0e0;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: flex-start; /* アイコンとコンテンツの開始位置を揃える */
+    gap: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 共通のアイコン画像参照、サイズは個別に設定 */
+.author-profile .profile-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid #3498db;
+    background-color: #cccccc; /* Placeholder background */
+}
+
+.author-profile .profile-content {
+    flex-grow: 1;
+}
+
+.author-profile h2 {
+    margin-top: 0;
+    color: #f0f0f0;
+    border-bottom: none;
+    padding-bottom: 0;
+    font-size: 2em; /* 見出しを大きく */
+    font-weight: bold; /* 太字 */
+}
+
+.author-profile .author-link {
+    color: #87cefa; /* 指定された色に設定 */
+    text-decoration: none;
+    font-weight: bold;
+}
+.author-profile .author-link:hover {
+    text-decoration: underline;
+}
+
+/* 代表作のカードスタイル */
+.works-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 10px;
+    display: flex; /* 横並びに */
+    flex-wrap: wrap; /* 折り返し */
+    gap: 20px; /* カード間のスペース */
+    justify-content: center; /* 中央寄せ */
+}
+
+.works-card {
+    background-color: #2c3e50; /* カードの背景色 */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    overflow: hidden; /* 角丸に合わせた画像表示 */
+    width: 200px; /* カードの固定幅 */
+    text-align: center;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.works-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.works-card a {
+    text-decoration: none;
+    color: inherit;
+    display: block; /* カード全体をリンク可能にする */
+}
+
+.works-thumb {
+    width: 100%; /* 親要素に合わせる */
+    height: 200px; /* 画像の高さ固定 */
+    object-fit: cover; /* 画像をはみ出さずに表示 */
+    border-bottom: 1px solid #34495e;
+}
+
+.works-details {
+    padding: 15px;
+    color: #e0e0e0;
+}
+
+.works-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #f0f0f0;
+}
+
+.works-description {
+    font-size: 0.7em;
+    color: #bbb;
+    margin-bottom: 0;
+    height: 3.2em; /* 2行表示の高さに調整 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* 3行で省略 */
+    -webkit-box-orient: vertical;
+}
+
+.booth-banner {
+    max-width: 200px; /* バナー画像の幅を固定 (元画像が200x40なので) */
+    height: auto;
+    border-radius: 5px;
+    display: block; /* imgをブロック要素にして中央寄せなどをしやすく */
+    margin-top: 0px; /* 上の要素との間隔を0に */
+}
+
+
+/* Back to Top Button */
+#backToTopBtn {
+    display: none; /* Hidden by default */
+    position: fixed; /* Fixed/sticky position */
+    bottom: 30px; /* Place the button at the bottom of the page */
+    right: 30px; /* Place the button at the right side */
+    z-index: 100; /* Make sure it does not overlap */
+    border: none; /* Remove borders */
+    outline: none; /* Remove outline */
+    background-color: #3498db; /* Set a background color */
+    color: white; /* Text color */
+    cursor: pointer; /* Add a mouse pointer on hover */
+    padding: 15px; /* Some padding */
+    border-radius: 50%; /* Rounded corners */
+    font-size: 1.8em; /* Increase font size */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+#backToTopBtn.show {
+    display: block; /* Show the button */
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Particle Canvas */
+#particleCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Behind other content */
+    pointer-events: none; /* Allow clicks/hovers on elements beneath */
+}
