@@ -54,7 +54,6 @@ body {
                       radial-gradient(circle at 90% 80%, #3498db 0%, rgba(6, 17, 68, 0) 50%);
     background-size: 200% 200%; /* アニメーションのために背景を大きくする */
     animation: background-pan 60s linear infinite alternate; /* 背景アニメーション */
-    border-radius: 8px;
     position: relative; /* 子要素のposition:fixedを基準にする */
 }
 
@@ -91,6 +90,7 @@ h1 {
 
 /* 地の文内のリンク */
 .plain-text-author-link {
+    color: #87cefa; /* 指定された色に設定 */
     text-decoration: none;
     font-weight: bold;
 }
@@ -351,6 +351,7 @@ footer {
 }
 
 .author-profile .author-link {
+    color: #87cefa; /* 指定された色に設定 */
     text-decoration: none;
     font-weight: bold;
 }
@@ -467,4 +468,237 @@ footer {
     height: 100%;
     z-index: -1; /* Behind other content */
     pointer-events: none; /* Allow clicks/hovers on elements beneath */
+}
+
+/* ロゴ画像を横並びにするためのコンテナ */
+.logo-container {
+    display: flex; /* Flexboxを使用して子要素を横並びに */
+    justify-content: center; /* 中央揃え */
+    align-items: center; /* 垂直方向中央揃え */
+    gap: 20px; /* 画像間のスペース */
+    margin-bottom: 30px; /* 下部のマージン */
+}
+
+/* 個々のロゴ画像のスタイル */
+.logo-image {
+    max-width: 45%; /* ロゴの最大幅 */
+    height: auto;   /* 高さは自動調整 */
+}
+
+/* 左側の目次 */
+.side-menu {
+    position: fixed;
+    top: 120px; /* 上部からの位置調整 */
+    left: 20px;
+    width: 220px; /* 目次の幅 */
+    background-color: rgba(6, 17, 68, 0.8); /* 半透明の背景 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* コンテンツより手前に表示 */
+    max-height: calc(100vh - 140px); /* ビューポートに合わせた最大の高さ */
+    overflow-y: auto; /* 内容が多い場合にスクロール */
+}
+
+.side-menu ul {
+    list-style: none;
+    padding: 0;
+}
+.side-menu ul ul {
+    padding-left: 15px; /* ネストされたリストのインデント */
+    margin-top: 5px;    /* ネストされたリストの上のスペース */
+}
+
+.side-menu ul ul li {
+    margin-bottom: 6px; /* ネストされたリストアイテムのマージンを小さく */
+}
+
+
+.side-menu li {
+    margin-bottom: 8px;
+}
+
+.side-menu a {
+    text-decoration: none;
+    color: #b0c4de; /* 少し明るめの色に変更 */
+    transition: color 0.3s ease;
+    display: block; /* クリック範囲を広げる */
+    padding: 2px 0;
+}
+
+.side-menu a:hover,
+.side-menu a.active { /* JavaScriptでアクティブなリンクをハイライトする場合の準備 */
+    color: #fff;
+    font-weight: bold;
+}
+
+/* メインコンテンツエリア */
+.main-content {
+    margin-left: 260px; /* 目次の幅(220px) + bodyのpadding(20px) + 余白(20px) */
+    /* bodyのpadding: 20pxがあるので、目次の実際のleftは40px。
+       main-contentのmargin-leftは目次のwidth + gapで調整 */
+}
+
+/* 各セクションのアンカーリンク調整 */
+.main-content h2[id],
+.main-content h3[id],
+.main-content .section-title[id] { /* .section-titleにもidが付く場合を考慮 */
+    scroll-margin-top: 80px; /* 固定ヘッダーや上部ロゴの高さを考慮したオフセット */
+}
+
+/* 画面幅が狭い場合の調整 (例: 1024px以下) */
+@media (max-width: 1024px) {
+    .side-menu {
+        display: none; /* 目次を非表示 */
+    }
+    .main-content {
+        margin-left: 0; /* メインコンテンツのマージンをリセット */
+    }
+}
+
+/* メインコンテンツエリア内の特定ブロックに最大幅を設定し中央寄せ */
+.main-content > .plain-text-block,
+.main-content > .additional-info-section,
+.main-content > .question-summary-block,
+.main-content > .code-block-container,
+.main-content > .author-profile {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box; /* パディングとボーダーを幅に含める */
+}
+
+/* QAセクションの吹き出しコンテナに最大幅を設定 */
+/* これにより、吹き出し自体が1080pxを超えることはありません */
+.main-content .qa-section .bubble-container {
+    /* max-width を削除し、speech-bubble に移動 */
+    /* max-width: 1080px; */
+    /* bubble-container は flex-grow: 1 を持っているので、
+       qa-section 内で利用可能なスペースを取ります。
+       吹き出しを中央寄せにしたい場合は、speech-bubble に margin: auto を追加 */
+}
+.main-content .qa-section .speech-bubble {
+    max-width: 1080px; /* 吹き出し自体に最大幅を設定 */
+    margin-left: auto; /* 吹き出しをbubble-container内で中央寄せ */
+    margin-right: auto;
+}
+
+/* ゲーム紹介ブロックのスタイル */
+.game-introduction-block {
+    background-color: #1a2c6d; /* 背景色 */
+    color: #e0e0e0; /* 文字色 */
+    padding: 20px; /* 内側の余白 */
+    border-radius: 8px; /* 角丸 */
+    margin-bottom: 30px; /* 下部のマージン */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 影 */
+}
+
+.game-introduction-block h3 {
+    margin-top: 0; /* h3の上マージンを調整 */
+    color: #f0f0f0; /* 見出し色を明るく */
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #4a5c9a; /* 区切り線 */
+}
+
+.game-introduction-block iframe {
+    display: block; /* iframeをブロック要素にしてマージンを有効に */
+    max-width: 100%; /* 親要素の幅に合わせる */
+    height: auto; /* 高さを自動調整（アスペクト比を維持するためには、iframeのwidth/height属性も調整が必要な場合があります） */
+    border: none; /* iframeのデフォルトの枠線を消す */
+    margin: 15px auto 0; /* 上にマージン、左右中央寄せ */
+}
+
+/* 既存の .start-title と .start-title::before を以下で置き換え */
+.start-title {
+  color: #fff;
+  font-size: 1.5em;
+  /* padding: 10px 20px; を調整 */
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 0; /* 右側は::afterで拡張するため0に */
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  background-color: #5F7C99; /* デフォルトの背景色、インラインスタイルで上書き可能 */
+
+  /* --- ここからが重要 --- */
+  position: relative;
+  z-index: 1;
+  overflow: visible; /* ::after がはみ出せるように変更 */
+  border-radius: 8px 0 0 8px; /* 左側の角丸 */
+  width: 100%; /* .main-content の幅に合わせる */
+  box-sizing: border-box;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* 本体に影を設定 */
+}
+
+/* .start-title の右側を拡張する疑似要素 */
+.start-title::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 100%; /* .start-title の右端から開始 */
+  width: 20px;  /* body の右パディング分 (20px) だけはみ出す */
+  height: 100%;
+  background-color: inherit; /* .start-title の背景色を継承 */
+  z-index: -1;
+}
+
+/* 追加情報セクション用のスタイル */
+.additional-info-section h2 {
+    color: #f0f0f0;
+    border-bottom: 1px solid #4a5c9a;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.additional-info-section ul {
+    list-style-type: disc; /* 通常のリストマーカー */
+    padding-left: 25px; /* 左のパディング */
+    margin-bottom: 15px;
+}
+.additional-info-section ul li {
+    margin-bottom: 8px;
+}
+
+.color-chip {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 1px solid #ccc;
+    margin-right: 0.3em;
+    vertical-align: middle;
+}
+.code-block {
+    background-color: #0d1a50; /* コードブロックの背景色 */
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto; /* 横スクロール可能に */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    border: 1px solid #2a3c7d;
+}
+
+/* コードブロックとコピーボタンのコンテナ */
+.code-block-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.copy-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+.copy-button:hover {
+    background-color: #2980b9;
 }

@@ -73,3 +73,17 @@
             animateParticles();
         });
         window.addEventListener('resize', resizeCanvas);
+
+        // クリップボードにコピーする関数
+        function copyCodeToClipboard(elementId) {
+            const codeElement = document.getElementById(elementId);
+            if (codeElement) {
+                const codeToCopy = codeElement.querySelector('code').innerText;
+                navigator.clipboard.writeText(codeToCopy).then(() => {
+                    alert('コピーしました！');
+                }).catch(err => {
+                    console.error('コピーに失敗しました: ', err);
+                    alert('コピーに失敗しました。');
+                });
+            }
+        }
