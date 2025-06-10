@@ -1,41 +1,41 @@
-/* ロゴ画像を横並びにするためのコンテナ */
-.logo-container {
-    display: flex; /* Flexboxを有効にして子要素を横並びに */
-    justify-content: center; /* 中央揃え */
-    align-items: center; /* 縦方向の中央揃え */
-    gap: 20px; /* 画像間の隙間 */
-    margin-top: 20px;
-    margin-bottom: 40px; /* 他のコンテンツとの間にスペースを設ける */
-    flex-wrap: wrap; /* 画面が狭い場合に折り返す */
-}
-
-/* ロゴ画像全体のスタイル */
-.logo-image {
-    max-width: 45%; /* 親要素の幅の45%を最大幅とする（2枚で約90% + gap） */
-    height: auto; /* アスペクト比を維持 */
-    border-radius: 8px; /* 角を丸くする */
-    transition: transform 0.3s ease; /* ホバー時のアニメーション */
+/* トップページに戻るロゴリンクのコンテナ */
+.home-logo-link {
+    position: absolute; /* 親要素（body）に対して絶対配置 */
+    top: 20px;       /* 親要素の上端から20px */
+    left: 20px;      /* 親要素の左端から20px */
+    z-index: 100;    /* 他の要素より前面に表示 */
+    display: block;  /* ブロック要素として扱い、幅と高さを設定可能に */
+    transition: transform 0.3s ease; /* ホバーと表示/非表示のアニメーション (不透明度削除) */
+    /* opacity: 0.8; を削除 - 不透明度はいじらない */
+    /* margin: 20px; を削除 - position: absolute; に変更したため不要 */
 }
 
 /* ホバー時のエフェクト */
-.logo-image:hover {
-    transform: scale(1.05); /* 少し拡大 */
+.home-logo-link:hover {
+    transform: scale(1.2); /* ホバーで少し拡大 */
+    /* opacity: 1; を削除 - 不透明度はいじらない */
 }
 
+/* ロゴ画像自体のスタイル */
+.home-logo {
+    width: 80px;  /* ロゴの幅を固定 */
+    height: auto; /* 高さは自動調整し、アスペクト比を維持 */
+    border-radius: 8px; /* 角を少し丸く */
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); を削除 - シャドウはつけない */
+}
 
-
-/* 小さい画面での調整 */
+/* モバイルデバイス向け調整 */
 @media (max-width: 600px) {
-    .logo-container {
-        flex-direction: column; /* 画面が狭い場合は縦並びにする */
-        gap: 15px;
+    .home-logo-link {
+        top: 10px; /* モバイルでは上からの位置を小さく */
+        left: 10px; /* モバイルでは左からの位置を小さく */
+        /* margin: 10px; を削除 - position: absolute; に変更したため不要 */
     }
-
-    .logo-image,
-    .logo-image.mini {
-        max-width: 80%; /* 縦並びになった時に幅を広げる */
+    .home-logo {
+        width: 60px; /* 小さい画面ではロゴをさらに小さく */
     }
 }
+
 
 
 html {
