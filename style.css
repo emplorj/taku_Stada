@@ -664,3 +664,194 @@ footer {
 .copy-button:hover {
     background-color: #2980b9;
 }
+
+/* ==========================================================================
+   10. 埋め込みコンテンツ (カレンダーなど)
+   ========================================================================== */
+.calendar-container {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: #1a2c6d; /* 周囲の要素と調和する背景色 */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-container iframe {
+    width: 100%;
+    min-height: 600px; /* カレンダーの最小の高さを指定 */
+    border: none; /* iframeのデフォルトの境界線を削除 */
+    border-radius: 4px; /* iframeの角を少し丸くする */
+}
+
+/* メディアクエリでの調整例 */
+@media (max-width: 768px) {
+    .calendar-container iframe {
+        min-height: 400px; /* 小さい画面では高さを調整 */
+    }
+}
+
+/* Calendar Styles */
+#custom-calendar-container {
+    margin-top: 20px;
+    font-family: sans-serif;
+}
+
+.calendar-nav {
+    display: flex;
+    justify-content: center; /* ボタンと週表示を中央に寄せる */
+    align-items: center;
+    gap: 25px; /* 要素間の間隔を調整 (お好みで変更してください) */
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.calendar-nav button {
+    background-color: #6c757d; /* Bootstrap secondary color */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    line-height: 1; /* Ensure button text is vertically centered */
+}
+
+.calendar-nav button:hover {
+    background-color: #5a6268;
+}
+
+#current-week-display {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #343a40;
+}
+
+#calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #dee2e6; /* Grid lines */
+    border: 1px solid #dee2e6;
+}
+
+.calendar-header-cell,
+.calendar-cell {
+    background-color: #fff;
+    padding: 8px;
+    min-height: 120px; /* Adjust as needed for event text */
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9em;
+    overflow: hidden; /* Prevent content from overflowing cell */
+}
+
+.calendar-header-cell {
+    font-weight: bold;
+    text-align: center;
+    background-color: #e9ecef;
+    min-height: auto;
+    padding: 10px 5px;
+    color: #212529; /* デフォルトの曜日ヘッダー文字色を黒系に */
+}
+
+.calendar-header-cell.sunday-header {
+    background-color: #d9534f; /* 赤系の背景 */
+    color: #fff; /* 文字色を白に */
+    margin-bottom: -1px; /* グリッドのgapを覆う */
+}
+
+.calendar-header-cell.saturday-header {
+    background-color: #428bca; /* 青系の背景 */
+    color: #fff; /* 文字色を白に */
+    margin-bottom: -1px; /* グリッドのgapを覆う */
+}
+
+.date-number {
+    font-weight: bold;
+    margin-bottom: 6px; /* デフォルトの間隔を2px広げる */
+    align-self: flex-start;
+    color: #000000; /* 通常の曜日の日付の色をより明確な黒に */
+}
+
+.calendar-cell.today .today-date-number { /* Applied to the date-number div within a today cell */
+    /* background-color: #ffd700; */ /* 単色背景からグラデーションに変更 */
+    background-image: linear-gradient(to bottom, #FFFACD, #FFD700, #B8860B); /* レモンシフォン -> ゴールド -> ダークゴールデンロッド */
+    color: #212529; /* 文字色は黒のまま */
+    border-radius: 50%;
+    width: 1.8em; /* Adjust size as needed */
+    height: 1.8em; /* Adjust size as needed */
+    display: inline-flex; /* Use inline-flex for better alignment if text is short */
+    align-items: center;
+    justify-content: center;
+    padding: -2px; /* Small padding inside the circle */
+    font-weight: bold; /* 当日を少し強調 */
+    margin-bottom: 3px !important; /* 当日の日付とイベントの間隔を元に戻す (6px - 2px = 4px) */
+}
+
+/* 土日の日付の色 */
+.calendar-cell .sunday-date-number {
+    color: #d9534f; /* 赤系 */
+}
+.calendar-cell .saturday-date-number {
+    color: #428bca; /* 青系 */
+}
+
+/* 過去の日付のスタイル */
+.calendar-cell.past-date {
+    background-color: #666666; /* 背景を少し濃いグレーに */
+    /* color プロパティは個別の要素で設定するため、ここでは不要 */
+}
+.calendar-cell.past-date .date-number {
+    color: #eeeeee; /* 日付の数字を明るい白系に（コントラスト改善） */
+}
+.calendar-cell.past-date .events-container .event-entry {
+    opacity: 0.65; /* 過去のイベントは少し薄く表示 */
+}
+.calendar-cell.past-date .sunday-date-number {
+    color: #853431; /* 過去の日曜日の日付の色を薄く */
+}
+
+.events-container {
+    font-size: 0.85em;
+    line-height: 1.3;
+    overflow-y: auto; /* Allow scrolling for many events in a day */
+    flex-grow: 1; /* Allow events container to take remaining space */
+}
+
+.event-entry {
+    /* background-color is set by JS */
+    border-left: 3px solid; /* border-color is set by JS */
+    padding: 2px 6px; /* 上下のパディングを調整して高さを揃える */
+    margin-bottom: 4px;
+    border-radius: 3px;
+    word-break: break-word;
+    font-size: 1.1em; /* Slightly larger event text */
+    /* color is set by JS based on background */
+}
+
+/* Tooltip Style */
+.event-tooltip {
+    position: absolute;
+    display: none;
+    background-color: #333; /* Dark background for tooltip */
+    color: #fff; /* Light text */
+    padding: 8px 12px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    z-index: 1010; /* Ensure tooltip is above other elements */
+    font-size: 0.85em;
+    line-height: 1.4;
+    max-width: 250px; /* Prevent tooltip from becoming too wide */
+    pointer-events: none; /* Tooltip should not interfere with mouse events */
+}
+
+.event-tooltip .event-duration-info,
+.event-tooltip .event-day-info {
+    margin-top: 4px; /* 上の要素との間隔を少し設ける */
+    /* font-size: 0.9em; */ /* 必要に応じてフォントサイズを調整 */
+    /* color: #cccccc; */   /* 必要に応じて文字色を調整 */
+}
