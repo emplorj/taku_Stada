@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- ★★★ ここから追加 ★★★ -->
+    <button class="hamburger-menu" id="hamburger-menu" aria-label="メニューを開閉する">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="menu-overlay" id="menu-overlay"></div>
     <div id="home-logo-placeholder"></div> <!-- ロゴプレースホルダーは main-content の外 -->
     <canvas id="particleCanvas"></canvas> <!-- パーティクルキャンバスも main-content の外 -->
 
@@ -92,19 +99,28 @@
 
         <div class="plain-text-block additional-info-section">
             <h2 id="content-policy-section">地雷チェックシート</h2>
-            <p>弊社規定のものは、これ: <a href="https://booth.pm/ja/items/3432975" target="_blank">https://booth.pm/ja/items/3432975</a></p>
+            <p>セッション前に参加者間の認識を合わせるため、弊社では規定のものとして下記シートの使用を推奨しています。</p>
+            <ul class="works-list" style="justify-content: flex-start; margin-top: 20px;">
+                
+                <li class="works-card">
+                    
+                    <a href="https://booth.pm/ja/items/3432975" target="_blank">
+                        <img src="https://booth.pximg.net/c/300x300_a2_g5/6852d26d-e396-4782-b31c-192ad0dac15b/i/3432975/df64c1c0-d649-43e6-827b-8e8d4a463ad9_base_resized.jpg" alt="細かすぎる地雷チェックシート サムネイル" class="works-thumb">
+                        <div class="works-details">
+                            <h4 class="works-title">細かすぎる<br>地雷チェックシート</h4>
+                            <p class="works-description">
+                                これを使うと良い
+                            </p>
+                        </div>
+                    </a>
+                </li>
+            </ul>
         </div>
 
         <div class="plain-text-block additional-info-section">
             <h2 id="color-codes-section">スタダのキャラ紹介とかで、共通規格として用いているTRPGシステムと色の組み合わせ</h2>
-            <ul class="color-code-list">
-                <li>クトゥルフ：（緑）<span class="color-chip" style="background-color: #508040;"></span> <code>#508040</code></li>
-                <li>ソード・ワールド：（薄赤）<span class="color-chip" style="background-color: #EA6464;"></span> <code>#EA6464</code></li>
-                <li>ダブルクロス：（赤）<span class="color-chip" style="background-color: #902222;"></span> <code>#902222</code></li>
-                <li>ネクロニカ：（灰）<span class="color-chip" style="background-color: #505050;"></span> <code>#505050</code></li>
-                <li>サタスペ：（オレンジ）<span class="color-chip" style="background-color: #e69138;"></span> <code>#e69138</code></li>
-                <li>銀剣：（暗い青）<span class="color-chip" style="background-color: #0788bb;"></span> <code>#0788bb</code></li>
-                <li>アリアンロッド：（黄色）<span class="color-chip" style="background-color: #8A8000;"></span> <code>#8A8000</code></li>
+            <ul class="color-code-list" id="trpg-color-list">
+                <!-- 色リストはJavaScriptで動的に生成されます -->
             </ul>
             <p>Q.普通の青って使わないん？<br>A. その他が青になりがち。</p>
         </div>
@@ -135,6 +151,77 @@
     <!-- Back to Top Button -->
     <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
     <script src="common.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // TRPGシステムの色リストを生成
+        const colorListContainer = document.getElementById('trpg-color-list');
+        
+        if (colorListContainer && typeof TRPG_SYSTEM_COLORS !== 'undefined') {
+            const systemsToShow = [
+                { displayName: 'クトゥルフ神話TRPG', colorNameDesc: '緑', systemKey: 'CoC' },
+                { displayName: 'クトゥルフ神話TRPG(秘匿)', colorNameDesc: '濃緑', systemKey: 'CoC-㊙' },
+                { displayName: 'ソード・ワールド2.5', colorNameDesc: '薄赤', systemKey: 'SW' },
+                { displayName: 'ダブルクロス The 3rd Edition', colorNameDesc: '赤', systemKey: 'DX3' },
+                { displayName: '永い後日談のネクロニカ', colorNameDesc: '灰', systemKey: 'ネクロニカ' },
+                { displayName: 'サタスペ', colorNameDesc: 'オレンジ', systemKey: 'サタスペ' },
+                { displayName: 'マモノスクランブル', colorNameDesc: '黄橙', systemKey: 'マモブル' },
+                { displayName: '銀剣のステラナイツ', colorNameDesc: '暗い青', systemKey: '銀剣' },
+                { displayName: 'ウマ娘TRPG', colorNameDesc: '桃', systemKey: 'ウマ娘' },
+                { displayName: 'シノビガミ', colorNameDesc: '紫', systemKey: 'シノビガミ' },
+                { displayName: 'アリアンロッドRPG 2E', colorNameDesc: '黄色', systemKey: 'AR' }
+            ];
+
+            systemsToShow.forEach(sys => {
+                const colorCode = TRPG_SYSTEM_COLORS[sys.systemKey] || TRPG_SYSTEM_COLORS['default'];
+                const listItem = document.createElement('li');
+
+                // ★★★ ここから修正 ★★★
+                // flexコンテナとしてレイアウトを制御するためのクラスを追加
+                listItem.classList.add('color-list-item');
+                // ★★★ ここを修正 ★★★
+                // ボタンの位置を code タグの直後に変更
+                listItem.innerHTML = `
+                    <span class="color-list-text">${sys.displayName}：（${sys.colorNameDesc}）</span>
+                    <span class="color-chip" style="background-color: ${colorCode};"></span>
+                    <code class="color-code-text">${colorCode}</code>
+                    <button class="copy-color-button" data-colorcode="${colorCode}" title="カラーコードをコピー">コピー</button>
+                `;
+                // ★★★ 修正はここまで ★★★
+
+    colorListContainer.appendChild(listItem);
+            });
+        } else if (colorListContainer) {
+            colorListContainer.innerHTML = '<li>色定義の読み込みに失敗しました。</li>';
+            console.error('TRPG_SYSTEM_COLORS is not defined or colorListContainer not found.');
+        }
+
+        // ★★★ ここから追加 ★★★
+        // コピーボタンのクリックイベント処理
+        if (colorListContainer) {
+            colorListContainer.addEventListener('click', function(event) {
+                const button = event.target.closest('.copy-color-button');
+                if (button) {
+                    const colorToCopy = button.dataset.colorcode;
+                    navigator.clipboard.writeText(colorToCopy).then(() => {
+                        // コピー成功時のフィードバック
+                        const originalText = button.textContent;
+                        button.textContent = 'OK!';
+                        button.disabled = true; // 連打防止
+                        
+                        // 1.5秒後にボタンの表示を元に戻す
+                        setTimeout(() => {
+                            button.textContent = originalText;
+                            button.disabled = false;
+                        }, 1500);
+                    }).catch(err => {
+                        console.error('カラーコードのコピーに失敗しました: ', err);
+                        alert('コピーに失敗しました。');
+                    });
+                }
+            });
+        }
+    });
+</script>
 
 </body>
 </html>

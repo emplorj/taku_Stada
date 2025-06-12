@@ -334,7 +334,7 @@
     <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
 
     <script src="common.js"></script>
-    <script>
+    <script> // このscriptブロックはBackToTop関連の処理がcommon.jsに集約された場合、一部または全部削除可能です。
         // Scroll animation and Back to Top button scripts
         document.addEventListener('DOMContentLoaded', function() {
             const qaSections = document.querySelectorAll('.qa-section');
@@ -364,22 +364,9 @@
                 observer.observe(section);
             });
 
-            // When the user scrolls down 200px from the top of the document, show the button
-            window.onscroll = function() {scrollFunction()};
-
-            function scrollFunction() {
-                if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-                    backToTopBtn.classList.add('show');
-                } else {
-                    backToTopBtn.classList.remove('show');
-                }
-            }
-
-            // When the user clicks on the button, scroll to the top of the document
-            window.topFunction = function() {
-                document.body.scrollTop = 0; // For Safari
-                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-            }
+            // Back to Top ボタンの表示制御 (scrollFunction) とトップへ戻る機能 (topFunction) は
+            // common.js に集約されました。
+            // そのため、このファイル内の scrollFunction と window.topFunction の定義は不要になります。
         });
     </script>
 

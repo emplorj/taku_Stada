@@ -23,6 +23,7 @@ body {
 
 a {
     color:#87cefa;
+    text-decoration: underline; /* ★ この行を追加 */
 }
 
 @keyframes background-pan {
@@ -409,7 +410,7 @@ footer {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     overflow: hidden; /* 角丸に合わせた画像表示 */
-    width: 200px; /* カードの固定幅 */
+    width: 250px; /* カードの固定幅 */
     text-align: center;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
@@ -427,7 +428,7 @@ footer {
 
 .works-thumb {
     width: 100%; /* 親要素に合わせる */
-    height: 200px; /* 画像の高さ固定 */
+    height: 250px; /* 画像の高さ固定 */
     object-fit: cover; /* 画像をはみ出さずに表示 */
     border-bottom: 1px solid #34495e;
 }
@@ -446,14 +447,13 @@ footer {
 }
 
 .works-description {
-    font-size: 0.7em;
+    font-size: 1em;
     color: #bbb;
     margin-bottom: 0;
     height: 3.2em; /* 2行表示の高さに調整 */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -line-clamp: 3; /* 3行で省略 */
     -webkit-box-orient: vertical;
 }
 
@@ -486,11 +486,11 @@ footer {
 
 /* トップページに戻るロゴ (common.jsで挿入) */
 .home-logo-link {
-    position: absolute; /* 親要素（body）に対して絶対配置 */
-    top: 20px;       /* 親要素の上端から20px */
-    left: 20px;      /* 親要素の左端から20px */
-    z-index: 100;    /* 他の要素より前面に表示 */
-    display: block;  /* ブロック要素として扱い、幅と高さを設定可能に */
+    position: fixed; /* ビューポート基準で固定配置 */
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    display: block;
     transition: transform 0.3s ease;
 }
 
@@ -543,18 +543,19 @@ footer {
   padding-top: 10px;
   padding-bottom: 10px;
   padding-left: 20px;
-  padding-right: 0; /* 右側は::afterで拡張するため0に */
+  padding-right: 0;
   margin-top: 1.5em;
   margin-bottom: 1em;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  background-color: #5F7C99; /* デフォルトの背景色、インラインスタイルで上書き可能 */
+  background-color: #5F7C99;
   position: relative;
   z-index: 1;
-  overflow: visible; /* ::after がはみ出せるように変更 */
-  border-radius: 8px 0 0 8px; /* 左側の角丸 */
-  width: 100%; /* .main-content の幅に合わせる */
+  overflow: visible;
+  border-radius: 8px 0 0 8px;
+  width: 100%;
   box-sizing: border-box;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* 本体に影を設定 */
+  /* box-shadow: 2px 2px 5px rgba(0,0,0,0.3); */ /* ← この行を削除またはコメントアウト */
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4)); /* ★★★ この行を追加 ★★★ */
 }
 
 /* 各セクションのアンカーリンク調整 */
@@ -854,4 +855,218 @@ footer {
     margin-top: 4px; /* 上の要素との間隔を少し設ける */
     /* font-size: 0.9em; */ /* 必要に応じてフォントサイズを調整 */
     /* color: #cccccc; */   /* 必要に応じて文字色を調整 */
+}
+
+/* ==========================================================================
+   11. スマートフォン向けカレンダー調整 (600px以下)
+   ========================================================================== */
+@media (max-width: 600px) {
+    .calendar-nav {
+        gap: 10px; /* ボタンと週表示の間隔を狭める */
+        padding: 6px;
+    }
+    .calendar-nav button {
+        padding: 6px 8px;
+        font-size: 0.9em;
+    }
+    #current-week-display {
+        font-size: 1em;
+    }
+
+    #calendar-grid {
+        gap: 1px; /* 隙間は維持 */
+    }
+
+    .calendar-header-cell {
+        padding: 6px 3px;
+        font-size: 0.75em; /* 曜日ヘッダーの文字を小さく */
+        min-height: auto;
+    }
+
+    .calendar-cell {
+        min-height: 80px; /* セルの最小高さを低く */
+        padding: 4px;
+        font-size: 0.8em; /* セル全体のフォント基準を小さく */
+    }
+
+    .date-number {
+        font-size: 0.9em; /* 日付の数字を少し小さく */
+        margin-bottom: 3px;
+    }
+    .calendar-cell.today .today-date-number {
+        width: 1.6em;
+        height: 1.6em;
+        font-size: 0.9em; /* 当日の日付マーカーも調整 */
+    }
+
+    .events-container {
+        font-size: 0.8em; /* イベントコンテナ内のフォント基準 */
+    }
+    .event-entry {
+        font-size: 0.9em; /* イベント自体の文字を少し小さく */
+        padding: 1px 4px;
+        margin-bottom: 2px;
+        border-left-width: 2px;
+    }
+}
+
+/* style.css の一番下に追加 */
+
+/* ==========================================================================
+   12. ハンバーガーメニュー (モバイル用)
+   ========================================================================== */
+
+/* ハンバーガーアイコンのボタン */
+.hamburger-menu {
+    display: none; /* PCでは非表示 */
+    position: fixed;
+    top: 15px;
+    left: 15px; /* ※home-logo-link と少しずらす */
+    width: 44px;
+    height: 44px;
+    background-color: rgba(6, 17, 68, 0.8);
+    border: 1px solid #3498db;
+    border-radius: 8px;
+    z-index: 2000; /* 最前面に表示 */
+    cursor: pointer;
+}
+/* アイコンの三本線 */
+.hamburger-menu span {
+    display: block;
+    position: absolute;
+    left: 10px;
+    width: 24px;
+    height: 2px;
+    background-color: #fff;
+    transition: all 0.3s;
+}
+.hamburger-menu span:nth-of-type(1) { top: 12px; }
+.hamburger-menu span:nth-of-type(2) { top: 21px; }
+.hamburger-menu span:nth-of-type(3) { top: 30px; }
+
+
+/* メニュー表示時の背景オーバーレイ */
+.menu-overlay {
+    display: none; /* PCでは非表示 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1500; /* メニュー本体よりは下、コンテンツよりは上 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* 透明な時はクリックできないように */
+}
+.menu-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto; /* 表示されたらクリック可能に */
+}
+
+/* メニューを開いている間、背景コンテンツのスクロールを禁止 */
+body.no-scroll {
+    overflow: hidden;
+}
+
+
+/* ==========================================================================
+   13. レスポンシブ調整（メディアクエリの上書き）
+   ========================================================================== */
+@media (max-width: 1024px) {
+    /* --- 既存の .side-menu の display:none を無効化し、新しいスタイルを適用 --- */
+    .side-menu {
+        display: block; /* display:noneを上書き */
+        left: 0;
+        top: 0;
+        width: 250px;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        transform: translateX(-100%); /* 初期状態では画面左外に隠す */
+        transition: transform 0.3s ease-in-out;
+        z-index: 1600; /* オーバーレイより手前に */
+    }
+    /* JSで .is-open クラスが付いたら、画面内にスライドイン */
+    .side-menu.is-open {
+        transform: translateX(0);
+    }
+
+    /* --- ハンバーガーメニューとオーバーレイを表示状態に --- */
+    .hamburger-menu,
+    .menu-overlay {
+        display: block;
+    }
+
+    /* --- トップに戻るロゴの位置を調整 --- */
+    .home-logo-link {
+        top: 10px;
+        left: 70px; /* ハンバーガーアイコンと被らないように右にずらす */
+    }
+    .home-logo {
+        width: 80px;
+    }
+}
+
+
+/* カレンダーナビゲーションボタンのホバーエフェクト */
+.calendar-nav button:hover {
+    background-color: #5a6268;
+    transform: scale(1.05); /* 少し大きくする */
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+/* トップへ戻るボタンのホバーエフェクト */
+#backToTopBtn:hover {
+    background-color: #2980b9; /* 少し濃い青に */
+    transform: scale(1.1); /* 少し大きくする */
+}
+
+/* コピーボタンのホバーエフェクト */
+.copy-button:hover {
+    background-color: #2980b9;
+    opacity: 0.9;
+}
+/* style.css の一番下に追加 */
+
+/* ==========================================================================
+   14. カラーコードリストのスタイル
+   ========================================================================== */
+
+/* 各リストアイテムをFlexboxでレイアウト */
+.color-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7em; /* 要素間の隙間 */
+}
+
+/* カラーコードコピーボタンのスタイル */
+.copy-color-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-family: inherit;
+    line-height: 1.2;
+    transition: all 0.2s ease;
+}
+
+.copy-color-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+.copy-color-button:active {
+    transform: translateY(0);
+}
+
+/* コピー成功時（disabled状態）のスタイル */
+.copy-color-button:disabled {
+    background-color: #6aa84f; /* 成功を伝える緑色に変更 */
+    color: white;
+    cursor: not-allowed;
+    transform: none;
 }
