@@ -279,45 +279,34 @@
             function renderQaDetails(character) {
                 if (!qaDetailsContainer) return;
 
-                // 最初にコンテナの中身を完全に空にする
-                qaDetailsContainer.innerHTML = '';
-
-                // 背景画像用のdivを生成
+                // 背景画像用のHTMLを準備
+                let backgroundDivHtml = '';
                 if (character.imageUrl && character.imageUrl.trim() !== '') {
-                    const backgroundDiv = document.createElement('div');
-                    backgroundDiv.className = 'details-view-background';
-                    backgroundDiv.style.backgroundImage = `url('${character.imageUrl}')`;
-                    qaDetailsContainer.appendChild(backgroundDiv);
+                    backgroundDivHtml = `<div class="details-view-background" style="background-image: url('${character.imageUrl}');"></div>`;
                 }
 
-                // コンテンツ用のラッパーdivを生成
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'details-view-content';
-
-                // コンテンツの中身（ヘッダーとボディ）を生成
+                // コンテンツ用のHTMLを準備
                 const editButtonHtml = `<button class="edit-character-button" title="このキャラクターを編集する"><i class="fas fa-edit"></i></button>`;
-                const headerHtml = `
-        <div class="qa-header">
-            <h2>${character.pcName} ${editButtonHtml}</h2>
-            <p><strong>PL:</strong> ${character.plName} / <strong>システム:</strong> ${character.system}</p>
-            <p><strong>初登場シナリオ:</strong> ${character.firstScenario || 'N/A'}</p>
-        </div>
-    `;
-                const bodyHtml = `
-        <div class="qa-body">
-            ${questions.map((question, index) => {
+                const contentHtml = `
+        <div class="details-view-content">
+            <div class="qa-header">
+                <h2>${character.pcName} ${editButtonHtml}</h2>
+                <p><strong>PL:</strong> ${character.plName} / <strong>システム:</strong> ${character.system}</p>
+                <p><strong>初登場シナリオ:</strong> ${character.firstScenario || 'N/A'}</p>
+            </div>
+            <div class="qa-body">
+                ${questions.map((question, index) => {
                     const answer = (character.answers && character.answers[index]) ? character.answers[index] : '（無回答）';
                     return `<div class="qa-item"><p class="question">${question.replace(/\n/g, '<br>')}</p><p class="answer">${answer.replace(/\n/g, '<br>')}</p></div>`;
                 }).join('')}
+            </div>
         </div>
     `;
 
-                // コンテンツラッパーに中身をセット
-                contentDiv.innerHTML = headerHtml + bodyHtml;
-                // コンテナにコンテンツラッパーを追加
-                qaDetailsContainer.appendChild(contentDiv);
+                // innerHTMLで一気に設定
+                qaDetailsContainer.innerHTML = backgroundDivHtml + contentHtml;
 
-                // 最後にイベントリスナーを設定
+                // イベントリスナーを設定
                 const editButton = qaDetailsContainer.querySelector('.edit-character-button');
                 if (editButton) {
                     editButton.addEventListener('click', () => {
@@ -325,6 +314,7 @@
                     });
                 }
             }
+
             function openEditModal(character) {
                 if (!modal) return;
 

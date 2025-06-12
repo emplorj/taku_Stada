@@ -1453,16 +1453,45 @@ body.no-scroll {
 }
 
 /* ★★★ 詳細表示エリアのスクロール設定を修正 ★★★ */
+/* .qa-details-view のスタイルを修正 */
 .qa-details-view {
     flex-grow: 1;
     background-color: #1a2c6d;
     border-radius: 8px;
-    padding: 25px;
-    /* ★★★ height の指定を削除 ★★★ */
-    /* height: calc(100% - 50px); */
-    height: 95%; /* ← シンプルに100%に */
-    overflow-y: auto;
+    height: 100%;
     box-sizing: border-box;
+    position: relative; /* 子要素のabsolute配置の基準 */
+    overflow: hidden; /* これが重要 */
+    padding: 0; /* paddingはコンテンツ側に */
+}
+
+/* 背景画像用のレイヤー */
+.details-view-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    background-size: cover; 
+    background-repeat: no-repeat;
+    
+    /* ★★★ background-position をパーセンテージで指定 ★★★ */
+    /* X軸（左右）は中央、Y軸（上下）は上から20%の位置を基準にする */
+    background-position: center 10%; 
+    
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+/* コンテンツ用のレイヤー */
+.details-view-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto; /* このレイヤーだけをスクロール */
+    padding: 25px;
+    box-sizing: border-box;
+    /* position や z-index は不要 */
 }
 
 .qa-placeholder {
@@ -1523,39 +1552,41 @@ body.no-scroll {
         overflow-y: auto;
     }
     .qa-details-view {
-    flex-grow: 1;
-    background-color: #1a2c6d; /* ベースとなる背景色 */
-    border-radius: 8px;
-    height: 100%;
-    box-sizing: border-box;
-    position: relative; /* 子要素のabsolute配置の基準 */
-    overflow: hidden; /* はみ出した要素を隠す */
-    /* paddingはコンテンツ側に移すため削除 */
-    padding: 0;
-}
-
-/* 2. 背景画像用のレイヤーのスタイルを新しく定義 */
-.details-view-background {
+        flex-grow: 1;
+        background-color: #1a2c6d;
+        border-radius: 8px;
+        padding: 25px;
+        height: 100%; 
+        overflow-y: auto;
+        box-sizing: border-box; 
+        position: relative; /* 子要素のabsolute配置の基準 */
+        z-index: 1;
+        /* ★★★ background-image関連のスタイルをすべて削除 ★★★ */
+        /* background-size: 40% auto; */
+        /* background-repeat: no-repeat; */
+        /* background-position: top 20px right 20px; */
+    }
+    /* ★★★ 背景画像用のコンテナとimgタグのスタイルを新しく追加 ★★★ */
+.details-background-image-container {
     position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
+    right: 0;
+    width: 50%; /* 右半分のエリアを確保 */
     height: 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center center;
-    opacity: 0.15; /* 画像の透明度 */
-    pointer-events: none; /* このレイヤーがクリック等の邪魔をしないように */
+    display: flex;
+    justify-content: flex-end; /* 画像を右端に寄せる */
+    align-items: flex-start;   /* 画像を上端に寄せる */
+    padding: 20px; /* 内側に少し余白 */
+    box-sizing: border-box;
+    overflow: hidden; /* はみ出し防止 */
+    z-index: -1; /* テキストの背面に配置 */
 }
 
-/* 3. コンテンツ用のレイヤーのスタイルを新しく定義 */
-.details-view-content {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto; /* このレイヤーだけをスクロールさせる */
-    padding: 25px; /* 元々.qa-details-viewにあったpaddingをこちらに設定 */
-    box-sizing: border-box;
-    position: relative; /* z-indexなしでも背景の上に表示されるように */
+.details-background-image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* ★★★ アスペクト比を保ち、コンテナ内に収める ★★★ */
+    opacity: 0.15; /* ★★★ 画像の透明度を15%に設定（お好みで調整） ★★★ */
 }
 }
 
