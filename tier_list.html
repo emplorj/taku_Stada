@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>サプリメントTierリスト - 卓スタダ</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="tier-list.css"> <!-- Tierリスト専用CSSを読み込む -->
+</head>
+
+<body>
+  <div id="home-logo-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="main-content">
+    <header class="page-header">
+      <h1>サプリメントTierリスト</h1>
+      <p class="subtitle">各システムのGM/PLをやる上での個人的なおすすめ度</p>
+    </header>
+
+    <!-- ここに各システムのTierリストが動的に生成される -->
+    <div id="systems-tier-list-container">
+      <p>リストを生成中...</p>
+    </div>
+
+  </div>
+
+  <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
+  <script src="common.js"></script>
+  <script src="tier_list.js"></script>
+
+  <!-- ★★★ ここから詳細モーダルのHTMLを追加 ★★★ -->
+  <div id="book-details-modal" class="book-modal-overlay" style="display: none;">
+    <div class="book-modal-content">
+      <button class="book-modal-close-button">×</button>
+      <div class="book-modal-body">
+        <div class="book-modal-image-area">
+          <!-- JSで画像とリンクをここに挿入 -->
+        </div>
+        <div class="book-modal-info-area">
+          <!-- ★★★ カテゴリ表示用の要素を追加 ★★★ -->
+          <p id="book-modal-category" class="book-modal-category"></p>
+          <h3 id="book-modal-title"></h3>
+
+          <!-- ★★★ 詳細情報をリスト形式に変更 ★★★ -->
+          <dl class="book-modal-details-list">
+            <div>
+              <dt>価格</dt>
+              <dd id="book-modal-price"></dd>
+            </div>
+            <div>
+              <dt>発売日</dt>
+              <dd id="book-modal-release-date"></dd>
+            </div>
+            <div>
+              <dt>略称</dt>
+              <dd id="book-modal-abbreviation"></dd>
+            </div>
+          </dl>
+
+          <div class="book-modal-info-section">
+            <h4>公式解説</h4>
+            <p id="book-modal-official-info"></p>
+          </div>
+          <div class="book-modal-info-section">
+            <h4>見解</h4>
+            <p id="book-modal-info"></p>
+          </div>
+          <div class="book-modal-footer">
+            <a id="book-modal-link" href="#" target="_blank" rel="noopener noreferrer" class="book-modal-button">
+              <i class="fas fa-external-link-alt"></i> BookWalkerで見る
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ★★★ ここまで ★★★ -->
+
+</body>
+
+</html>
