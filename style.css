@@ -632,7 +632,7 @@ footer {
 
 .additional-info-section .update-history-list {
     /* ★★★ 以下の3つのプロパティを追加 ★★★ */
-    max-height: 8em;   /* 1. おおよそ3〜4行分の高さに最大値を制限 */
+    max-height: 7em;   /* 1. おおよそ3〜4行分の高さに最大値を制限 */
     overflow-y: auto;  /* 2. 高さが最大値を超えたら、自動で垂直スクロールバーを表示 */
     padding-right: 10px; /* 3. スクロールバーのスペースを確保 */
 
