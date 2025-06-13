@@ -46,6 +46,14 @@
             <img src="img/卓スタダminiロゴ.png" alt="卓スタダミニロゴ" class="logo-image mini">
         </div>
 
+        <div class="plain-text-block additional-info-section">
+            <h2 id="update-history-section">更新履歴</h2>
+            <!-- ★★★ id="update-history-list" を付け、中身を空にする ★★★ -->
+            <ul id="update-history-list" class="update-history-list">
+                <!-- ここにJavaScriptで履歴が挿入されます -->
+                <p>更新履歴を読み込み中...</p>
+            </ul>
+        </div>
         <h2 id="coc-qa-section" class="section-title start-title"><a href="CoC_Q&A.html">✨ クトゥルフ神話TRPG シナリオスタダ</a></h2>
         <div class="plain-text-block intro-block">
             <p>クトゥルフ神話TRPGシナリオ作成に悩むあなたへ、<a href="https://twitter.com/haisuikan_trpg" target="_blank"
@@ -375,6 +383,46 @@
         }
 
         initializeCalendar();
+        async function loadUpdateHistory() {
+            const historyList = document.getElementById('update-history-list');
+            if (!historyList) return;
+
+            try {
+                // update-history.txt ファイルを読み込む
+                const response = await fetch('update-history.txt');
+                if (!response.ok) {
+                    throw new Error('更新履歴ファイルが見つかりません。');
+                }
+                const text = await response.text();
+
+                // 読み込んだテキストを行ごとに分割
+                const lines = text.trim().split('\n');
+
+                // 「読み込み中...」のメッセージを消す
+                historyList.innerHTML = '';
+
+                // 各行を処理してリスト項目を作成
+                lines.forEach(line => {
+                    if (line.trim() === '') return; // 空の行は無視
+
+                    const parts = line.split(',');
+                    const date = parts[0].trim();
+                    const description = parts.slice(1).join(',').trim(); // カンマ以降をすべて内容とする
+
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${date}:</strong> ${description}`;
+                    historyList.appendChild(li);
+                });
+
+            } catch (error) {
+                historyList.innerHTML = `<li>更新履歴の読み込みに失敗しました。</li>`;
+                console.error(error);
+            }
+        }
+
+        // ページの読み込みが完了したら、更新履歴を読み込む関数を実行
+        loadUpdateHistory();
+
 
     </script>
 </body>
