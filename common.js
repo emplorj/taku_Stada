@@ -1,55 +1,61 @@
-// common.js (最終版)
+// common.js (完全修正版)
 
 // ==========================================================================
 // 1. グローバルスコープの関数と定数
 // ==========================================================================
-
-// TRPGシステム共通の色定義
-const TRPG_SYSTEM_COLORS = {
-    'CoC': '#93c47d',
-    'CoC-㊙': '#6aa84f',
-    'SW': '#ea9999',
-    'SW2.5': '#ea9999',
-    'DX3': '#cc4125',
-    'サタスペ': '#e69138',
-    'マモブル': '#ffe51f',
-    '銀剣': '#0788bb',
-    'ネクロニカ': '#505050',
-    'ウマ娘': '#ffa1d8',
-    'シノビガミ': '#8e7cc3',
-    'AR': '#ffd966', // アリアンロッドと仮定
-    'default': '#007bff' // 未定義システム用のデフォルト色
-};
-
-function topFunction() {
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-}
-function copyCodeToClipboard(elementId) {
-    const codeElement = document.getElementById(elementId);
-    if (codeElement) {
-        const codeToCopy = codeElement.querySelector('code').innerText;
-        navigator.clipboard.writeText(codeToCopy).then(() => {
-            alert('コピーしました！');
-        }).catch(err => {
-            console.error('コピーに失敗しました: ', err);
-            alert('コピーに失敗しました。');
-        });
-    }
-}
+const TRPG_SYSTEM_COLORS = { 'CoC': '#93c47d', 'CoC-㊙': '#6aa84f', 'SW': '#ea9999', 'SW2.5': '#ea9999', 'DX3': '#cc4125', 'サタスペ': '#e69138', 'マモブル': '#ffe51f', '銀剣': '#0788bb', 'ネクロニカ': '#505050', 'ウマ娘': '#ffa1d8', 'シノビガミ': '#8e7cc3', 'AR': '#ffd966', 'default': '#007bff' };
+function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
+function copyCodeToClipboard(elementId) { const codeElement = document.getElementById(elementId); if (codeElement) { const codeToCopy = codeElement.querySelector('code').innerText; navigator.clipboard.writeText(codeToCopy).then(() => { alert('コピーしました！'); }).catch(err => { console.error('コピーに失敗しました: ', err); alert('コピーに失敗しました。'); }); } }
 
 // ==========================================================================
-// 2. DOMContentLoaded イベントリスナー（共通機能のみ）
+// 2. ページ読み込み時の共通処理
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', function() {
-
-    // A. ロゴの動的挿入
-    const placeholder = document.getElementById('home-logo-placeholder');
-    if (placeholder) {
-        placeholder.innerHTML = `<a href="index.html" class="home-logo-link"><img src="img/卓スタダロゴ.png" alt="トップページに戻る" class="home-logo"></a>`;
+    
+    // --- 共通ヘッダーを読み込む ---
+    async function loadHeader() {
+        const placeholder = document.getElementById('header-placeholder');
+        if (!placeholder) return;
+        try {
+            const response = await fetch('header.html');
+            if (response.ok) {
+                const html = await response.text();
+                placeholder.innerHTML = html;
+                // ヘッダー読み込み後に、ロゴとハンバーガーメニューのJSを初期化
+                initializeLogo();
+                initializeHamburgerMenu();
+            } else { console.error('Failed to fetch header.html:', response.statusText); }
+        } catch (error) { console.error('Error fetching header.html:', error); }
     }
 
-    // B. Back to Top ボタンのスクロール制御
+    // --- ロゴの動的挿入 ---
+    function initializeLogo() {
+        const logoPlaceholder = document.getElementById('home-logo-placeholder');
+        if (logoPlaceholder) {
+            logoPlaceholder.innerHTML = `<a href="index.html" class="home-logo-link"><img src="img/卓スタダロゴ.png" alt="トップページに戻る" class="home-logo"></a>`;
+        }
+    }
+
+    // --- ハンバーガーメニューの制御 ---
+    function initializeHamburgerMenu() {
+        const hamburger = document.getElementById('hamburger-menu');
+        const sideMenu = document.getElementById('tableOfContents');
+        const overlay = document.getElementById('menu-overlay');
+        if (hamburger && sideMenu && overlay) {
+            const toggleMenu = (isOpen) => {
+                sideMenu.classList.toggle('is-open', isOpen);
+                overlay.classList.toggle('is-open', isOpen);
+                document.body.classList.toggle('no-scroll', isOpen);
+            };
+            hamburger.addEventListener('click', () => toggleMenu(!sideMenu.classList.contains('is-open')));
+            overlay.addEventListener('click', () => toggleMenu(false));
+            sideMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => setTimeout(() => toggleMenu(false), 150));
+            });
+        }
+    }
+
+    // --- Back to Top ボタンのスクロール制御 ---
     const backToTopBtn = document.getElementById("backToTopBtn");
     if (backToTopBtn) {
         const scrollHandlerForBackToTop = () => {
@@ -63,60 +69,12 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollHandlerForBackToTop();
     }
 
-    // C. ハンバーガーメニューの制御
-    const hamburger = document.getElementById('hamburger-menu');
-    const sideMenu = document.getElementById('tableOfContents');
-    const overlay = document.getElementById('menu-overlay');
-    if (hamburger && sideMenu && overlay) {
-        const toggleMenu = (isOpen) => {
-            sideMenu.classList.toggle('is-open', isOpen);
-            overlay.classList.toggle('is-open', isOpen);
-            document.body.classList.toggle('no-scroll', isOpen);
-        };
-        hamburger.addEventListener('click', () => toggleMenu(!sideMenu.classList.contains('is-open')));
-        overlay.addEventListener('click', () => toggleMenu(false));
-        sideMenu.querySelectorAll('a').forEach(link => { // ★セレクタを 'a' に変更
-            link.addEventListener('click', (e) => {
-                const href = link.getAttribute('href');
-                if (href.startsWith('#')) {
-                    const targetElement = document.getElementById(href.substring(1));
-                    if (targetElement) {
-                        e.preventDefault();
-                        const offsetTop = targetElement.offsetTop - 80;
-                        window.scrollTo({ top: offsetTop, behavior: 'smooth' });
-                    }
-                }
-                // ページ遷移の邪魔にならないよう、少し待ってからメニューを閉じる
-                setTimeout(() => toggleMenu(false), 150);
-            });
-        });
-    }
-    
-    // D. 目次アクティブ状態の更新
-    const sideMenuLinks = document.querySelectorAll('#tableOfContents a[href^="#"]');
-    if (sideMenuLinks.length > 0) {
-        const sections = Array.from(sideMenuLinks).map(link => document.getElementById(link.getAttribute('href').substring(1))).filter(Boolean);
-        if (sections.length > 0) {
-            const scrollHandlerForToc = () => {
-                let currentSectionId = '';
-                const scrollPosition = window.scrollY;
-                sections.forEach(section => {
-                    if (scrollPosition >= section.offsetTop - 100) {
-                        currentSectionId = section.id;
-                    }
-                });
-                sideMenuLinks.forEach(link => {
-                    link.classList.toggle('active', link.getAttribute('href') === `#${currentSectionId}`);
-                });
-            };
-            window.addEventListener('scroll', scrollHandlerForToc);
-            scrollHandlerForToc();
-        }
-    }
+    // --- 初期化の実行 ---
+    loadHeader();
 });
 
 // ==========================================================================
-// 3. パーティクルアニメーション（DOM読み込みとは独立して実行）
+// 3. パーティクルアニメーション
 // ==========================================================================
 const canvas = document.getElementById('particleCanvas');
 if (canvas) {

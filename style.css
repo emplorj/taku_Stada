@@ -133,6 +133,7 @@ footer {
 /* CoC Q&A ページ専用のbodyスタイル */
 .body-1080 {
     max-width: 1080px;
+    margin: 20px auto;
     /* 中央寄せはbody共通の margin: 20px auto; が適用される */
 }
 

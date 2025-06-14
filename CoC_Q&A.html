@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>クトゥルフ神話TRPG シナリオスタダ</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="body-1080">
 
+<body class="body-1080">
+    <div id="header-placeholder"></div>
     <canvas id="particleCanvas"></canvas>
-    <div id="home-logo-placeholder"></div>
 
     <h1>クトゥルフ神話TRPG シナリオスタダ</h1>
 
@@ -18,7 +19,8 @@
         <p>クトゥルフ神話TRPGってシナリオ書くの難しいですよね〜……</p>
         <p>「どんな神話生物を使えばいいの？」「ストーリーの組み立て方が分からない！」「プレイ時間はどのくらいになるの？」などなど、悩みは尽きません。</p>
         <p>そこで今回は、シナリオ作成の「スタダ」をテーマに、皆さんの疑問を募集しました！</p>
-        <p>そして、その質問に答えてくれたのは、なんと！<a href="https://twitter.com/haisuikan_trpg" target="_blank" class="plain-text-author-link">はいすいかん(@haisuikan_trpg)</a>さんだ！</p>
+        <p>そして、その質問に答えてくれたのは、なんと！<a href="https://twitter.com/haisuikan_trpg" target="_blank"
+                class="plain-text-author-link">はいすいかん(@haisuikan_trpg)</a>さんだ！</p>
     </div>
 
     <!-- 著者紹介セクション -->
@@ -29,21 +31,23 @@
         <div class="profile-content">
             <h2>回答者紹介：はいすいかん</h2>
             <p>TRPGシナリオなどを制作・頒布している「はいすいかん」です。</p>
-            <a href="https://fanpla-s.booth.pm/" target="_blank"><img src="https://asset.booth.pm/static-images/banner/468x60_01.png"></a>
+            <a href="https://fanpla-s.booth.pm/" target="_blank"><img
+                    src="https://asset.booth.pm/static-images/banner/468x60_01.png"></a>
             <h3>代表作</h3>
             <ul class="works-list">
                 <li class="works-card">
                     <!-- <a href="https://fanpla-s.booth.pm/items/6541063" target="_blank"> -->
-                        <img src="img/ukihito.png" alt="憂き人の村 サムネイル" class="works-thumb">
-                        <div class="works-details">
-                            <h4 class="works-title">憂き人の村</h4>
-                            <p class="works-description">なんと卓スタダ描き下ろし。<br>初心者もやりやすい<br>クラシックホラー。</p>
-                        </div>
+                    <img src="img/ukihito.png" alt="憂き人の村 サムネイル" class="works-thumb">
+                    <div class="works-details">
+                        <h4 class="works-title">憂き人の村</h4>
+                        <p class="works-description">なんと卓スタダ描き下ろし。<br>初心者もやりやすい<br>クラシックホラー。</p>
+                    </div>
                     <!-- </a> -->
                 </li>
                 <li class="works-card">
                     <a href="https://fanpla-s.booth.pm/items/4930451" target="_blank">
-                        <img src="https://booth.pximg.net/c/300x300_a2_g5/705512e0-95a8-406c-af33-609edd678785/i/5875931/41961283-0478-43f3-b8e7-c6696151127b_base_resized.jpg" alt="瑠璃色の花冠を君に サムネイル" class="works-thumb">
+                        <img src="https://booth.pximg.net/c/300x300_a2_g5/705512e0-95a8-406c-af33-609edd678785/i/5875931/41961283-0478-43f3-b8e7-c6696151127b_base_resized.jpg"
+                            alt="瑠璃色の花冠を君に サムネイル" class="works-thumb">
                         <div class="works-details">
                             <h4 class="works-title">瑠璃色の花冠を君に</h4>
                             <p class="works-description">三人兄弟 × 秘密 × ？？？<br>末っ子の誕生日を祝おう。<br>2PL+KPCの秘匿。</p>
@@ -52,7 +56,8 @@
                 </li>
                 <li class="works-card">
                     <a href="https://fanpla-s.booth.pm/items/5363380" target="_blank">
-                        <img src="https://booth.pximg.net/c/300x300_a2_g5/705512e0-95a8-406c-af33-609edd678785/i/5363380/215c17d1-0615-4b2f-b4f3-c91391fe0dc7_base_resized.jpg" alt="うおーっ！？太刀だと思ったら太刀魚だ！！？ サムネイル" class="works-thumb">
+                        <img src="https://booth.pximg.net/c/300x300_a2_g5/705512e0-95a8-406c-af33-609edd678785/i/5363380/215c17d1-0615-4b2f-b4f3-c91391fe0dc7_base_resized.jpg"
+                            alt="うおーっ！？太刀だと思ったら太刀魚だ！！？ サムネイル" class="works-thumb">
                         <div class="works-details">
                             <h4 class="works-title">うおーっ！？太刀だと思ったら太刀魚だ！！？</h4>
                             <p class="works-description">愛刀が太刀魚に！銃が雁に！<br>短時間で刀と銃が持てる<br>ハチャメチャシナリオ！</p>
@@ -73,20 +78,35 @@
         <div class="questions-list">
             <ul>
                 <p>質問をクリックすれば、対応した回答に飛びます</p>
-                <li class="linked-question question-divider"><a href="#qa-1">どういう神話生物が作るシナリオに出すにあたって合っているかの見極め方<br>クトゥルフルルブの最後の辺りのページを見ればいいんですかね…？神話生物一覧的なページがどこに載っているかが、わからない</a></li>
-                <li class="linked-question"><a href="#qa-4">起承転結の組み立て方<br>参考にしたいのでとりあえずみなさんがどうやって最初のシナリオの枠組みを考えているか、組み立てメモのとり方、などなど教えていただきたいです　現在やりたいことはぼんやりあるのですが、どこから手をつけていいのかが分からない状況…</a></li>
-                <li class="linked-question question-divider"><a href="#qa-2">シナリオの根幹を神話生物・クトゥルフ神話的要素にからめるのがいまだに慣れません</a></li>
+                <li class="linked-question question-divider"><a
+                        href="#qa-1">どういう神話生物が作るシナリオに出すにあたって合っているかの見極め方<br>クトゥルフルルブの最後の辺りのページを見ればいいんですかね…？神話生物一覧的なページがどこに載っているかが、わからない</a>
+                </li>
+                <li class="linked-question"><a
+                        href="#qa-4">起承転結の組み立て方<br>参考にしたいのでとりあえずみなさんがどうやって最初のシナリオの枠組みを考えているか、組み立てメモのとり方、などなど教えていただきたいです　現在やりたいことはぼんやりあるのですが、どこから手をつけていいのかが分からない状況…</a>
+                </li>
+                <li class="linked-question question-divider"><a href="#qa-2">シナリオの根幹を神話生物・クトゥルフ神話的要素にからめるのがいまだに慣れません</a>
+                </li>
                 <li class="linked-question question-divider"><a href="#qa-4">シナリオの広げ方がわからん</a></li>
-                <li class="linked-question"><a href="#qa-2">神話生物ありきでシナリオを作るか、シナリオありきで合った神話生物を乗せるかわからない<br>後者の方法で組んだときに神話生物が合わなかったときにどうしよう…ってなる</a></li>
-                <li class="linked-question question-divider"><a href="#qa-7">あと、クトゥルフといえば謎解きありきみたいな感じで考えてしまっているので、そうじゃなくてもやれるものについて知りたい</a></li>
-                <li class="linked-question question-divider"><a href="#qa-3">そもそもストーリーを作るのが不得意なのでそのコツを一番知りたいかもしれません</a></li>
-                <li class="linked-question question-divider"><a href="#qa-4">どういう感じにシナリオ本文にまとめ上げたらいいのかが分からない<br>シナリオの方向性、大雑把なエンド条件などをシナリオ本文に書こうとするのが難しい</a></li>
+                <li class="linked-question"><a
+                        href="#qa-2">神話生物ありきでシナリオを作るか、シナリオありきで合った神話生物を乗せるかわからない<br>後者の方法で組んだときに神話生物が合わなかったときにどうしよう…ってなる</a>
+                </li>
+                <li class="linked-question question-divider"><a
+                        href="#qa-7">あと、クトゥルフといえば謎解きありきみたいな感じで考えてしまっているので、そうじゃなくてもやれるものについて知りたい</a></li>
+                <li class="linked-question question-divider"><a href="#qa-3">そもそもストーリーを作るのが不得意なのでそのコツを一番知りたいかもしれません</a>
+                </li>
+                <li class="linked-question question-divider"><a
+                        href="#qa-4">どういう感じにシナリオ本文にまとめ上げたらいいのかが分からない<br>シナリオの方向性、大雑把なエンド条件などをシナリオ本文に書こうとするのが難しい</a></li>
                 <li class="linked-question question-divider"><a href="#qa-3">話の流れ……？</a></li>
                 <li class="linked-question"><a href="#qa-4">ストーリーの構成、選択肢の与え方、</a></li>
                 <li class="linked-question question-divider"><a href="#qa-10">人を楽しませる方法</a></li>
-                <li class="linked-question"><a href="#qa-5">①（比較的楽だと思われるCoCですら既に）バランス調整が難しい。程よくヒリつきたいが、簡単にロストはさせたくない。</a></li>
-                <li class="linked-question"><a href="#qa-6">②どこまでシナリオテキストで書き込むべき？公式シナリオなんかは本当に簡潔に描写と何が起こるか、程度書かれてるけど、それだと初心者が回すとき回しにくいような？</a></li>
-                <li class="linked-question"><a href="#qa-9">③最終的に、独りよがりなシナリオになっていないかが分からない。これは人に見てもらうしか無いんだろうけど、皆には回ってほしい。このジレンマをどう解決するか。</a></li>
+                <li class="linked-question"><a
+                        href="#qa-5">①（比較的楽だと思われるCoCですら既に）バランス調整が難しい。程よくヒリつきたいが、簡単にロストはさせたくない。</a></li>
+                <li class="linked-question"><a
+                        href="#qa-6">②どこまでシナリオテキストで書き込むべき？公式シナリオなんかは本当に簡潔に描写と何が起こるか、程度書かれてるけど、それだと初心者が回すとき回しにくいような？</a>
+                </li>
+                <li class="linked-question"><a
+                        href="#qa-9">③最終的に、独りよがりなシナリオになっていないかが分からない。これは人に見てもらうしか無いんだろうけど、皆には回ってほしい。このジレンマをどう解決するか。</a>
+                </li>
                 <li class="linked-question"><a href="#qa-8">④シナリオ書いて、実際の稼働日がどのくらいになるか全く読めない。</a></li>
             </ul>
         </div>
@@ -120,7 +140,8 @@
                 <p>正直1番確実で簡単な方法です。</p>
                 <p>知ってるものの方が知らないものより表現しやすいですし、解釈の幅を広げたり誇張したりもしやすいはずです。</p>
                 <p>例えばミ=ゴ、イス人、ニャルラトホテプなどは色々なシナリオで見かける神話生物達ですが、彼らがよく出てくるのはそれなりの理由があります。</p>
-                <p>人間に対して積極的に関わって来る、敵にも味方にもなりうる、知性があり戯れることもある、便利な道具や呪文を使う、そもそもみんなよく知っていて説明がなくても良い、などなど、使いやすい理由が揃っているのです。</p>
+                <p>人間に対して積極的に関わって来る、敵にも味方にもなりうる、知性があり戯れることもある、便利な道具や呪文を使う、そもそもみんなよく知っていて説明がなくても良い、などなど、使いやすい理由が揃っているのです。
+                </p>
                 <p>特に理由がなければ、最初のうちはマイナーな神話生物よりもよく見る神話生物を使う方が簡単かも知れません。</p>
 
                 <h3>「神話生物を出さない」という選択肢</h3>
@@ -194,7 +215,8 @@
                 <p>ストーリーは文章作品ではなくシナリオにのでガチガチに固める必要はなくて、むしろ少し余白がある方がPCは動きやすいかもです。</p>
                 <p>導線だけ用意するという形ですね。</p>
                 <p>なので、大目標を最初に提示して小目標を次々出す、の流れが分かりやすく進めるかと思います。</p>
-                <p>例として大目標に『改造人間にされたので元に戻りたい』にした場合、小目標1に「改造人間にした人物を探す（探索パート）」→小目標2に「改造人間にした人物をぶっとばす（戦闘パート）」みたいに組んでいくのがわかりやすいかと思います。</p>
+                <p>例として大目標に『改造人間にされたので元に戻りたい』にした場合、小目標1に「改造人間にした人物を探す（探索パート）」→小目標2に「改造人間にした人物をぶっとばす（戦闘パート）」みたいに組んでいくのがわかりやすいかと思います。
+                </p>
                 <p>大目標がないシナリオは何していいかわからないですからね。</p>
                 <p>その点では白い部屋系は確実に『脱出』が大目標なのでわかりやすいのですが、謎解きを作るという別の脳みそが必要になるので初心者ほどシティか半クロの方がおすすめです。</p>
                 <p>謎解きは私が初心者の作るものはあまり好きじゃないのでここでは触れないでおきます。</p>
@@ -274,9 +296,12 @@
                 <p>参考にしてみてください。</p>
                 <p>プレイ時間は全てココフォリア使用のボイセを想定しています。</p>
                 <ul>
-                    <li>『<a href="https://fanpla-s.booth.pm/items/6541063" target="_blank">知らぬが手向け</a>』 2時間〜/17407文字</li>
-                    <li>『<a href="https://fanpla-s.booth.pm/items/6951294" target="_blank">鉛と灰</a>』 2時間半〜3時間/30473文字</li>
-                    <li>『<a href="https://fanpla-s.booth.pm/items/5875931" target="_blank">瑠璃色の花冠を君に</a>』 6〜8時間/55986文字</li>
+                    <li>『<a href="https://fanpla-s.booth.pm/items/6541063" target="_blank">知らぬが手向け</a>』 2時間〜/17407文字
+                    </li>
+                    <li>『<a href="https://fanpla-s.booth.pm/items/6951294" target="_blank">鉛と灰</a>』 2時間半〜3時間/30473文字
+                    </li>
+                    <li>『<a href="https://fanpla-s.booth.pm/items/5875931" target="_blank">瑠璃色の花冠を君に</a>』 6〜8時間/55986文字
+                    </li>
                 </ul>
                 <p>だいたいざっくり1万文字で1時間前後になりそうですね。</p>
             </div>
@@ -324,7 +349,8 @@
     <div class="plain-text-block">
         <p>また、以下よりソード・ワールド2.5やダブルクロス3rdといった、クトゥルフ神話TRPG以外の質問も募集しております。</p>
         <p>こちらの回答はエンJやviwなどになりますが、答えられる範囲で答えるので他のシステムのシナリオも作ってみたいって方はこちらからどうぞ！</p>
-        <h1><a href="https://forms.gle/2vSSnnjh61mZ3hdE6" target="_blank" class="plain-text-author-link">おたよりを送る</a></h1>
+        <h1><a href="https://forms.gle/2vSSnnjh61mZ3hdE6" target="_blank" class="plain-text-author-link">おたよりを送る</a>
+        </h1>
     </div>
     <footer>
         <p>&copy; 2025 卓スタダ.</p>
@@ -336,7 +362,7 @@
     <script src="common.js"></script>
     <script> // このscriptブロックはBackToTop関連の処理がcommon.jsに集約された場合、一部または全部削除可能です。
         // Scroll animation and Back to Top button scripts
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const qaSections = document.querySelectorAll('.qa-section');
             const backToTopBtn = document.getElementById("backToTopBtn");
 
@@ -371,4 +397,5 @@
     </script>
 
 </body>
+
 </html>
