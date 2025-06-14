@@ -1397,3 +1397,122 @@ body.no-scroll {
     }
 }
 
+/* ==========================================================================
+   16. 汎用カスタムセレクトボックス
+   ========================================================================== */
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+    font-family: inherit;
+}
+
+/* ★ PC/タブレット表示時 ★ */
+@media (min-width: 769px) {
+    /* 元の<select>は隠す */
+    .custom-select-wrapper select {
+        display: none;
+    }
+
+    /* 見た目部分のトリガー */
+    .custom-select-trigger {
+        background-color: #0d1a50;
+        color: #eee;
+        border: 1px solid #2a3c7d;
+        border-radius: 4px;
+        padding: 0 10px;
+        font-size: 1em;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        height: 40px;
+        transition: border-color 0.2s;
+    }
+    .custom-select-wrapper.open .custom-select-trigger {
+        border-color: #3498db;
+    }
+    
+    .custom-select-trigger span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 10px;
+    }
+
+    .custom-select-trigger .arrow {
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #ccc;
+        transition: transform 0.2s ease-in-out;
+        flex-shrink: 0;
+    }
+    .custom-select-wrapper.open .custom-select-trigger .arrow {
+        transform: rotate(180deg);
+    }
+
+    /* オプションリスト */
+    .custom-select-options {
+        display: none;
+        position: absolute;
+        top: 105%;
+        left: 0;
+        right: 0;
+        background-color: #1a2c6d;
+        border: 1px solid #3498db;
+        border-radius: 4px;
+        z-index: 3010;
+        max-height: 250px;
+        overflow-y: auto;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .custom-select-wrapper.open .custom-select-options {
+        display: block;
+    }
+
+    .custom-option {
+        padding: 10px 15px;
+        color: #eee;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-bottom: 1px solid #2c3e50;
+    }
+    .custom-option:last-child {
+        border-bottom: none;
+    }
+    .custom-option:hover { background-color: #2c3e50; }
+    .custom-option.selected { background-color: #3498db; color: #fff; font-weight: bold;}
+}
+
+/* ★ スマートフォン表示時 (幅が768px以下) ★ */
+@media (max-width: 768px) {
+    /* カスタムデザインは全て隠す */
+    .custom-select-trigger,
+    .custom-select-options {
+        display: none;
+    }
+    /* OS標準の<select>を表示する */
+    .custom-select-wrapper select {
+        display: block;
+        width: 100%;
+        /* 他の入力欄と見た目を合わせる */
+        background-color: #0d1a50;
+        color: #eee;
+        border: 1px solid #2a3c7d;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 1em;
+        font-family: inherit;
+        box-sizing: border-box;
+        height: 40px;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23cccccc%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E');
+        background-repeat: no-repeat;
+        background-position: right 10px top 50%;
+        background-size: .65em auto;
+    }
+}

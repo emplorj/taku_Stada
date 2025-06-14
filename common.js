@@ -1,4 +1,4 @@
-// common.js (完全修正版)
+// common.js (完全版)
 
 // ==========================================================================
 // 1. グローバルスコープの関数と定数
@@ -12,7 +12,6 @@ function copyCodeToClipboard(elementId) { const codeElement = document.getElemen
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ★★★ 環境に応じて基準パスを決定 ★★★
     const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
     const basePath = isLocal ? '' : '/taku_Stada';
 
@@ -21,20 +20,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const placeholder = document.getElementById('header-placeholder');
         if (!placeholder) return;
         try {
-            const response = await fetch(`${basePath}/header.html`); // パスを修正
+            const response = await fetch(`${basePath}/header.html`);
             if (response.ok) {
                 const html = await response.text();
                 placeholder.innerHTML = html;
                 
-                // ★★★ 読み込んだメニューのリンクを書き換える ★★★
                 const sideMenu = document.getElementById('tableOfContents');
                 if (sideMenu) {
                     const links = sideMenu.querySelectorAll('a');
                     links.forEach(link => {
                         const originalHref = link.getAttribute('href');
-                        // 外部サイトへのリンクは無視
                         if (originalHref.startsWith('http')) return;
-                        // 新しい正しいパスを生成
                         link.href = `${basePath}/${originalHref}`;
                     });
                 }
@@ -66,11 +62,9 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             hamburger.addEventListener('click', () => toggleMenu(!sideMenu.classList.contains('is-open')));
             overlay.addEventListener('click', () => toggleMenu(false));
-            // メニュー内のリンクをクリックしたときの処理は、リンク書き換え後に行うので、ここでは何もしない
         }
     }
 
-    // (以降の Back to Top ボタンの処理は変更なし)
     const backToTopBtn = document.getElementById("backToTopBtn");
     if (backToTopBtn) {
         const scrollHandlerForBackToTop = () => {

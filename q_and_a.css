@@ -1,4 +1,4 @@
-/* q_and_a.css (新規作成) */
+/* q_and_a.css (完全最終版) */
 
 /* ==========================================================================
    Q&Aページ専用スタイル
@@ -260,154 +260,144 @@ h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
 .spoiler-tip { font-size: 0.8em; color: #999; padding-top: 8px; flex-shrink: 0; }
 .spoiler-tip code { background-color: #2c2d32; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
 
-
-/* ==========================================================================
-   テキスト入力欄のスクロールバーを非表示にする
-   ========================================================================== */
-
-/* Chrome, Safari, EdgeなどWebKit系ブラウザ向け */
-.chat-input-wrapper textarea::-webkit-scrollbar {
-    display: none;
-}
-
-/* Firefox向け */
-.chat-input-wrapper textarea {
-    scrollbar-width: none;
-}
-
-/* ボタンの枠と背景を完全にリセット */
 .edit-character-button {
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0 0 0 10px; /* テキストとの間に少し左マージン */
-    cursor: pointer;
-    vertical-align: middle; /* テキストとの垂直位置を合わせる */
+    background: none; border: none; padding: 0; margin: 0 0 0 10px;
+    cursor: pointer; vertical-align: middle;
 }
-
-/* アイコン自体のスタイルを定義 */
 .edit-character-button i {
-    font-size: 1.5em;    /* h2の文字サイズに対する相対的な大きさ */
-    color: #7f8c8d;      /* アイコンの色 */
-    transition: color 0.2s;
-    padding: 5px; /* クリック領域を少しだけ広げる */
+    font-size: 1.5em; color: #7f8c8d; transition: color 0.2s; padding: 5px;
 }
-
-/* ボタンにマウスを乗せたら、アイコンの色を変える */
-.edit-character-button:hover i {
-    color: #3498db;
-}
-
-
-/* q_and_a.css の該当セクションをこちらに置き換えてください */
+.edit-character-button:hover i { color: #3498db; }
 
 /* ==========================================================================
    Q&Aページ ランダム選出機能
    ========================================================================== */
 .randomizer-container {
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-    border-top: 1px dashed #4a5c9a;
-    width: 100%;
+    display: flex; align-items: flex-end; gap: 10px;
+    border-top: 1px dashed #4a5c9a; width: 100%;
 }
 .randomizer-container .form-group > label {
-    min-height: 2.4em;
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
+    min-height: 2.4em; display: flex; align-items: center; margin-bottom: 5px;
 }
-.randomizer-container .result-group {
-    flex-grow: 1;
+.randomizer-container .result-group { flex-grow: 1; }
+#pl-random-input, .random-char-result {
+    height: 48px; font-size: 1.2em; box-sizing: border-box;
 }
-
-/* ★★★ 入力欄と結果表示ボックスの共通スタイル ★★★ */
-#pl-random-input,
-.random-char-result {
-    height: 48px; /* 1. 高さを少し大きく（44px -> 48px） */
-    font-size: 1.2em; /* 2. 文字サイズを少し大きく */
-    box-sizing: border-box; /* paddingとborderを含めて高さを計算 */
-}
-
 .random-select-button {
-    width: 48px;  /* ★ 高さを入力欄と合わせる */
-    height: 48px; /* ★ 高さを入力欄と合わせる */
-    border-radius: 50%;
-    border: none;
-    background-color: #3498db;
-    color: white;
-    font-size: 1.5em;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background-color 0.2s, transform 0.2s;
+    width: 48px; height: 48px; border-radius: 50%; border: none;
+    background-color: #3498db; color: white; font-size: 1.5em;
+    cursor: pointer; flex-shrink: 0; transition: background-color 0.2s, transform 0.2s;
 }
-.random-select-button:hover {
-    background-color: #2980b9;
-    transform: scale(1.1);
-}
-.random-select-button:disabled {
-    background-color: #7f8c8d;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* ★★★ 結果表示ボックス固有のスタイル（min-heightを削除） ★★★ */
+.random-select-button:hover { background-color: #2980b9; transform: scale(1.1); }
+.random-select-button:disabled { background-color: #7f8c8d; cursor: not-allowed; transform: none; }
 .random-char-result {
-    background-color: #0d1a50;
-    border: 1px solid #2a3c7d;
-    border-radius: 4px;
-    padding: 10px 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    color: #ccc;
+    background-color: #0d1a50; border: 1px solid #2a3c7d; border-radius: 4px;
+    padding: 10px 15px; display: flex; flex-direction: column;
+    justify-content: center; color: #ccc;
 }
-.random-char-result.is-selected {
-    animation: result-glow 1s ease-out;
-}
+.random-char-result.is-selected { animation: result-glow 1s ease-out; }
 @keyframes result-glow {
     0% { box-shadow: 0 0 0px rgba(52, 152, 219, 0); }
     50% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.8); }
     100% { box-shadow: 0 0 0px rgba(52, 152, 219, 0); }
 }
+.random-char-result .result-name { font-weight: bold; font-size: 1.2em; color: #fff; }
+.random-char-result .result-prompt { font-size: 0.8em; margin-top: 4px; }
 
-.random-char-result .result-name {
-    font-weight: bold;
-    font-size: 1.2em;
-    color: #fff;
+/* ==========================================================================
+   新規登録モーダル カスタムプルダウン
+   ========================================================================== */
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+    font-family: inherit;
 }
-.random-char-result .result-prompt {
-    font-size: 0.8em;
-    margin-top: 4px;
+.custom-select-trigger {
+    background-color: #0d1a50;
+    color: #eee;
+    border: 1px solid #2a3c7d;
+    border-radius: 4px;
+    padding: 0 10px;
+    font-size: 1em;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    height: 40px;
+    transition: border-color 0.2s, background-color 0.2s, color 0.2s;
 }
+.custom-select-wrapper.open .custom-select-trigger {
+    border-color: #3498db;
+}
+.custom-select-trigger span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+}
+.custom-select-trigger .arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #ccc;
+    transition: transform 0.2s ease-in-out;
+    flex-shrink: 0;
+}
+.custom-select-wrapper.open .custom-select-trigger .arrow {
+    transform: rotate(180deg);
+}
+.custom-select-options {
+    display: none;
+    position: fixed;
+    background-color: #1a2c6d;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+    z-index: 3050;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    max-height: 250px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #2a3c7d #0d1a50;
+}
+.custom-select-options.open {
+    display: block;
+}
+.custom-select-options::-webkit-scrollbar { width: 8px; }
+.custom-select-options::-webkit-scrollbar-track { background: #0d1a50; }
+.custom-select-options::-webkit-scrollbar-thumb { background-color: #2a3c7d; border-radius: 4px; }
+.custom-option {
+    padding: 10px 15px;
+    color: #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #2c3e50;
+}
+.custom-option:last-child { border-bottom: none; }
+.custom-option:hover { background-color: #2c3e50; }
+.custom-option.selected { background-color: #3498db; color: #fff; font-weight: bold; }
+.custom-select-wrapper select { display: none; }
+.form-group.form-group-full-width { grid-column: 1 / -1; }
 
 /* ==========================================================================
    Q&Aページ 回答フォントのスタイル
    ========================================================================== */
-/* デフォルトフォント */
-.answer.font-higashiome-gothic-c {
-    font-family: 'HigashiOme-Gothic-C', sans-serif;
-}
+.answer.font-higashiome-gothic-c, .chat-bubble.answer.font-higashiome-gothic-c { font-family: 'HigashiOme-Gothic-C', sans-serif; }
+.answer.font-noto-serif-jp, .chat-bubble.answer.font-noto-serif-jp { font-family: 'Noto Serif JP', serif; }
+.answer.font-zen-maru-gothic, .chat-bubble.answer.font-zen-maru-gothic { font-family: 'Zen Maru Gothic', sans-serif; }
+.answer.font-yuji-syuku, .chat-bubble.answer.font-yuji-syuku { font-family: 'Yuji Syuku', serif; }
+.answer.font-dotgothic16, .chat-bubble.answer.font-dotgothic16 { font-family: 'DotGothic16', sans-serif; }
+.answer.font-reggae-one, .chat-bubble.answer.font-reggae-one { font-family: 'Reggae One', system-ui; }
+.answer.font-zen-antique-soft, .chat-bubble.answer.font-zen-antique-soft { font-family: 'Zen Antique Soft', serif; }
+.answer.font-wdxl-lubrifont-jp-n, .chat-bubble.answer.font-wdxl-lubrifont-jp-n { font-family: 'WDXL Lubrifont JP N', sans-serif; }
 
-/* Google Fonts */
-.answer.font-noto-serif-jp {
-    font-family: 'Noto Serif JP', serif;
-}
-.answer.font-zen-maru-gothic {
-    font-family: 'Zen Maru Gothic', sans-serif;
-}
-.answer.font-yuji-syuku {
-    font-family: 'Yuji Syuku', serif;
-}
-.answer.font-dotgothic16 {
-    font-family: 'DotGothic16', sans-serif;
-}
-.answer.font-reggae-one {
-    font-family: 'Reggae One', system-ui;
-}
-.answer.font-zen-antique-soft {
-    font-family: 'Zen Antique Soft', serif;
-}
-.answer.font-wdxl-lubrifont-jp-n {
-    font-family: 'WDXL Lubrifont JP N', sans-serif;
-}
+/* 各選択肢のフォントを適用 */
+.custom-option[data-font="Noto Serif JP"] { font-family: 'Noto Serif JP', serif; }
+.custom-option[data-font="Zen Maru Gothic"] { font-family: 'Zen Maru Gothic', sans-serif; }
+.custom-option[data-font="Yuji Syuku"] { font-family: 'Yuji Syuku', serif; }
+.custom-option[data-font="DotGothic16"] { font-family: 'DotGothic16', sans-serif; }
+.custom-option[data-font="Reggae One"] { font-family: 'Reggae One', system-ui; }
+.custom-option[data-font="Zen Antique Soft"] { font-family: 'Zen Antique Soft', serif; }
+.custom-option[data-font="WDXL Lubrifont JP N"] { font-family: 'WDXL Lubrifont JP N', sans-serif; }
