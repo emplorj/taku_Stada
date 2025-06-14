@@ -411,3 +411,19 @@ h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
 .answer.font-wdxl-lubrifont-jp-n {
     font-family: 'WDXL Lubrifont JP N', sans-serif;
 }
+
+/* ==========================================================================
+   カスタムフォント選択プルダウン
+   ========================================================================== */
+
+
+/* 各選択肢のフォントを適用 */
+.custom-option[data-font="Noto Serif JP"] { font-family: 'Noto Serif JP', serif; }
+.custom-option[data-font="Zen Maru Gothic"] { font-family: 'Zen Maru Gothic', sans-serif; }
+.custom-option[data-font="Yuji Syuku"] { font-family: 'Yuji Syuku', serif; }
+.custom-option[data-font="DotGothic16"] { font-family: 'DotGothic16', sans-serif; }
+.custom-option[data-font="Reggae One"] { font-family: 'Reggae One', system-ui; }
+.custom-option[data-font="Zen Antique Soft"] { font-family: 'Zen Antique Soft', serif; }
+.custom-option[data-font="WDXL Lubrifont JP N"] { font-family: 'WDXL Lubrifont JP N', sans-serif; }
+/* デフォルトフォントは基本スタイルを継承 */
+
