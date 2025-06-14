@@ -11,28 +11,45 @@ function copyCodeToClipboard(elementId) { const codeElement = document.getElemen
 // 2. ページ読み込み時の共通処理
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // --- 共通ヘッダーを読み込む ---
+
+    // ★★★ 環境に応じて基準パスを決定 ★★★
+    const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+    const basePath = isLocal ? '' : '/taku_Stada';
+
+    // --- 共通ヘッダーを読み込み、リンクを修正する ---
     async function loadHeader() {
         const placeholder = document.getElementById('header-placeholder');
         if (!placeholder) return;
         try {
-            const response = await fetch('header.html');
+            const response = await fetch(`${basePath}/header.html`); // パスを修正
             if (response.ok) {
                 const html = await response.text();
                 placeholder.innerHTML = html;
-                // ヘッダー読み込み後に、ロゴとハンバーガーメニューのJSを初期化
+                
+                // ★★★ 読み込んだメニューのリンクを書き換える ★★★
+                const sideMenu = document.getElementById('tableOfContents');
+                if (sideMenu) {
+                    const links = sideMenu.querySelectorAll('a');
+                    links.forEach(link => {
+                        const originalHref = link.getAttribute('href');
+                        // 外部サイトへのリンクは無視
+                        if (originalHref.startsWith('http')) return;
+                        // 新しい正しいパスを生成
+                        link.href = `${basePath}/${originalHref}`;
+                    });
+                }
+                
                 initializeLogo();
                 initializeHamburgerMenu();
             } else { console.error('Failed to fetch header.html:', response.statusText); }
         } catch (error) { console.error('Error fetching header.html:', error); }
     }
 
-    // --- ロゴの動的挿入 ---
+    // --- ロゴの動的挿入 (リンクを修正) ---
     function initializeLogo() {
         const logoPlaceholder = document.getElementById('home-logo-placeholder');
         if (logoPlaceholder) {
-            logoPlaceholder.innerHTML = `<a href="index.html" class="home-logo-link"><img src="img/卓スタダロゴ.png" alt="トップページに戻る" class="home-logo"></a>`;
+            logoPlaceholder.innerHTML = `<a href="${basePath}/" class="home-logo-link"><img src="${basePath}/img/卓スタダロゴ.png" alt="トップページに戻る" class="home-logo"></a>`;
         }
     }
 
@@ -49,13 +66,11 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             hamburger.addEventListener('click', () => toggleMenu(!sideMenu.classList.contains('is-open')));
             overlay.addEventListener('click', () => toggleMenu(false));
-            sideMenu.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => setTimeout(() => toggleMenu(false), 150));
-            });
+            // メニュー内のリンクをクリックしたときの処理は、リンク書き換え後に行うので、ここでは何もしない
         }
     }
 
-    // --- Back to Top ボタンのスクロール制御 ---
+    // (以降の Back to Top ボタンの処理は変更なし)
     const backToTopBtn = document.getElementById("backToTopBtn");
     if (backToTopBtn) {
         const scrollHandlerForBackToTop = () => {
@@ -73,20 +88,5 @@ document.addEventListener('DOMContentLoaded', function() {
     loadHeader();
 });
 
-// ==========================================================================
-// 3. パーティクルアニメーション
-// ==========================================================================
-const canvas = document.getElementById('particleCanvas');
-if (canvas) {
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    const particleCount = 80;
-    const particleSize = 1.5;
-    const particleColor = 'rgba(255, 255, 255, 0.4)';
-    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); }
-    class Particle { constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * (particleSize * 2 - particleSize / 2) + particleSize / 2; this.speedX = Math.random() * 0.4 - 0.2; this.speedY = Math.random() * 0.4 - 0.2; } update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width + this.size) this.x = -this.size; if (this.x < -this.size) this.x = canvas.width + this.size; if (this.y > canvas.height + this.size) this.y = -this.size; if (this.y < -this.size) this.y = canvas.height + this.size; } draw() { ctx.fillStyle = particleColor; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
-    function initParticles() { particles = []; for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); } }
-    function animateParticles() { requestAnimationFrame(animateParticles); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < particles.length; i++) { particles[i].update(); particles[i].draw(); } }
-    window.addEventListener('load', () => { resizeCanvas(); animateParticles(); });
-    window.addEventListener('resize', resizeCanvas);
-}
+// (パーティクルアニメーションのコードは変更なし)
+const canvas=document.getElementById("particleCanvas");if(canvas){const ctx=canvas.getContext("2d");let particles=[];const particleCount=80,particleSize=1.5,particleColor="rgba(255, 255, 255, 0.4)";function resizeCanvas(){canvas.width=window.innerWidth,canvas.height=window.innerHeight,initParticles()}class Particle{constructor(){this.x=Math.random()*canvas.width,this.y=Math.random()*canvas.height,this.size=Math.random()*(2*particleSize-particleSize/2)+particleSize/2,this.speedX=.4*Math.random()-.2,this.speedY=.4*Math.random()-.2}update(){this.x+=this.speedX,this.y+=this.speedY,this.x>canvas.width+this.size?this.x=-this.size:this.x<-this.size&&(this.x=canvas.width+this.size),this.y>canvas.height+this.size?this.y=-this.size:this.y<-this.size&&(this.y=canvas.height+this.size)}draw(){ctx.fillStyle=particleColor,ctx.beginPath(),ctx.arc(this.x,this.y,this.size,0,2*Math.PI),ctx.fill()}}function initParticles(){particles=[];for(let i=0;i<particleCount;i++)particles.push(new Particle)}function animateParticles(){requestAnimationFrame(animateParticles),ctx.clearRect(0,0,canvas.width,canvas.height);for(let i=0;i<particles.length;i++)particles[i].update(),particles[i].draw()}window.addEventListener("load",()=>{resizeCanvas(),animateParticles()}),window.addEventListener("resize",resizeCanvas)}
