@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     const getFontClass = fontName => fontName ? `font-${fontName.toLowerCase().replace(/\s/g, '-')}` : '';
+
     function parseCSV(csvText, requiredHeaders) {
         const rows = []; let inQuotes = false; let currentRow = []; let currentField = '';
         const text = csvText.trim().replace(/\r\n|\r/g, '\n');
@@ -81,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataRows = rows.slice(headerIndex + 1);
         return { header, dataRows };
     }
-    const getContrastYIQ = hexcolor => { if (!hexcolor) return "black"; hexcolor = hexcolor.replace("#", ""); if (hexcolor.length !== 6) return "black"; const r = parseInt(hexcolor.substr(0, 2), 16), g = parseInt(hexcolor.substr(2, 2), 16), b = parseInt(hexcolor.substr(4, 2), 16); return ((r * 299) + (g * 587) + (b * 114)) / 1000 >= 128 ? 'black' : 'white'; };
 
     // --- メイン関数 ---
     function renderCharacterList(characters) {
@@ -96,8 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML = `<div class="card-system" style="background-color: ${systemColor};"></div><div class="card-info"><h4 class="card-pc-name">${char.pcName}</h4><p class="card-pl-name">PL: ${char.plName}</p><p class="card-system-name">System: ${char.system}</p></div>`;
             card.addEventListener("click", () => {
                 renderQaDetails(char);
-                document.querySelectorAll(".character-card.active").forEach(c => c.classList.remove("active"));
+                document.querySelectorAll(".character-card").forEach(c => {
+                    c.classList.remove("active");
+                    c.style.backgroundColor = "";
+                    const info = c.querySelector(".card-info");
+                    if (info) { info.style.color = ""; const pcName = info.querySelector('.card-pc-name'); if (pcName) pcName.style.color = ""; }
+                });
                 card.classList.add("active");
+                card.style.backgroundColor = systemColor;
+                const infoText = card.querySelector(".card-info");
+                if (infoText) { const contrastColor = getContrastYIQ(systemColor); infoText.style.color = contrastColor; const pcNameText = infoText.querySelector(".card-pc-name"); if (pcNameText) pcNameText.style.color = contrastColor; }
             });
             dom.characterList.appendChild(card);
         });
@@ -123,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addSpoilerClickListeners(dom.qaDetails);
         dom.qaDetails.querySelector('.edit-character-button')?.addEventListener('click', () => openEditModal(character));
     }
-    
+
     function addChatMessage(message, type, questionIndexForAnswer = null) {
         const row = document.createElement("div");
         row.className = "chat-message-row";
@@ -147,132 +155,42 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.chatContainer.appendChild(row);
         dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight;
     }
-
-    function openEditModal(character) {
-        if (!dom.modal) return;
-        formData = { ...character, isEditing: true };
-        
-        // フォームに既存のデータを設定
-        dom.pcNameInput.value = character.pcName;
-        dom.plNameInput.value = character.plName;
-        dom.systemInput.value = character.system;
-        dom.firstScenarioInput.value = character.firstScenario;
-        dom.imageUrlInput.value = character.imageUrl;
-        dom.fontFamilyInput.value = character.fontFamily || 'HigashiOme-Gothic-C';
-        
-        // ★★★ カスタムプルダウンの表示を両方更新 ★★★
-        if (window.updateCustomSelectDisplay) {
-            window.updateCustomSelectDisplay(dom.systemInput);
-            window.updateCustomSelectDisplay(dom.fontFamilyInput);
-        }
-        answers = {};
-        questions.forEach((q, i) => { answers[`Q${i+1}`] = character.answers[i] || '（無回答）'; });
-        dom.chatContainer.innerHTML = '';
-        questions.forEach((q, i) => { addChatMessage(q, "question"); addChatMessage(answers[`Q${i+1}`], "answer", i); });
-        currentQuestionIndex = questions.length;
-        document.querySelector('.chat-input-area').classList.add('inactive');
-        dom.btnFinish.disabled = false;
-        dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${formData.imageUrl}" alt="Character Image">` : '';
-        document.body.classList.add('modal-open');
-        dom.modal.style.display = 'flex';
-        goToStep(3);
-    }
     
-    function applyFilters() {
-        const plValue = dom.plFilter.value;
-        const systemValue = dom.systemFilter.value;
-        const searchValue = dom.pcSearch.value.trim().toLowerCase();
-        let filtered = allCharacters;
-        if (plValue !== 'all') { filtered = filtered.filter(char => char.plName === plValue); }
-        if (systemValue !== 'all') { filtered = filtered.filter(char => char.system === systemValue); }
-        if (searchValue) { filtered = filtered.filter(char => char.pcName.toLowerCase().includes(searchValue)); }
-        renderCharacterList(filtered);
-        if (dom.qaDetails) dom.qaDetails.innerHTML = '<div class="qa-placeholder"><p>左のリストからキャラクターを選択してください。</p></div>';
-    }
-
-    function setupFilters() {
-        if (!dom.plFilter || !dom.systemFilter) return;
-        const plNames = [...new Set(allCharacters.map(char => char.plName))].filter(Boolean);
-        const systems = [...new Set(allCharacters.map(char => char.system))].filter(Boolean);
-        plNames.sort().forEach(name => { dom.plFilter.innerHTML += `<option value="${name}">${name}</option>`; });
-        systems.sort().forEach(name => { dom.systemFilter.innerHTML += `<option value="${name}">${name}</option>`; });
-        dom.plFilter.addEventListener("change", applyFilters);
-        dom.systemFilter.addEventListener("change", applyFilters);
-        dom.pcSearch.addEventListener("input", applyFilters);
-    }
-
-    function goToStep(stepNumber) {
-        if (dom.wizard) {
-            dom.steps.forEach(step => step.classList.remove("active"));
-            const targetStep = dom.wizard.querySelector(`[data-step="${stepNumber}"]`);
-            if (targetStep) targetStep.classList.add("active");
-        }
-    }
-
-    function enterEditMode(qIndex, bubbleEl) {
-        if (editingState.isEditing) exitEditMode();
-        editingState = { isEditing: true, questionIndex: qIndex, bubbleElement: bubbleEl };
-        let existingAnswer = answers[`Q${qIndex + 1}`];
-        if (existingAnswer === "（無回答）") existingAnswer = "";
-        if (existingAnswer.startsWith("「") && existingAnswer.endsWith("」")) { existingAnswer = existingAnswer.slice(1, -1); }
-        dom.chatInput.value = `「${existingAnswer}」`;
-        dom.btnSendAnswer.textContent = "更新";
-        document.querySelector(".chat-input-area").classList.remove("inactive");
-        dom.wizard.classList.add("editing-active");
-        dom.chatInput.focus();
-        const cursorPos = dom.chatInput.value.length - 1;
-        dom.chatInput.setSelectionRange(cursorPos, cursorPos);
-    }
-
-    function exitEditMode() {
-        if (!editingState.isEditing) return;
-        editingState = { isEditing: false, questionIndex: null, bubbleElement: null };
-        dom.chatInput.value = "";
-        dom.btnSendAnswer.textContent = "送信";
-        dom.wizard.classList.remove("editing-active");
-        if (currentQuestionIndex >= questions.length) {
-            document.querySelector(".chat-input-area").classList.add("inactive");
-        }
-    }
-
-    function askNextQuestion() {
-        exitEditMode();
-        dom.btnFinish.disabled = false;
-        if (currentQuestionIndex < questions.length) {
-            addChatMessage(questions[currentQuestionIndex], "question");
-            dom.chatInput.value = "「」";
-            dom.chatInput.focus();
-            dom.chatInput.setSelectionRange(1, 1);
-            document.querySelector(".chat-input-area").classList.remove("inactive");
-        } else {
-            addChatMessage("全ての質問が完了しました！<br>内容を確認・編集し、よろしければ下の「完了」ボタンを押してください。", "question");
-            document.querySelector(".chat-input-area").classList.add("inactive");
-            dom.chatInput.value = "";
-        }
-    }
+    function getContrastYIQ(hexcolor){if(!hexcolor)return"black";hexcolor=hexcolor.replace("#","");if(6!==hexcolor.length)return"black";const r=parseInt(hexcolor.substr(0,2),16),g=parseInt(hexcolor.substr(2,2),16),b=parseInt(hexcolor.substr(4,2),16);return(299*r+587*g+114*b)/1e3>=128?"black":"white"}
+    function openEditModal(character){if(!dom.modal)return;formData={...character,isEditing:!0},dom.pcNameInput.value=character.pcName,dom.plNameInput.value=character.plName,dom.systemInput.value=character.system,dom.firstScenarioInput.value=character.firstScenario,dom.imageUrlInput.value=character.imageUrl,dom.fontFamilyInput.value=character.fontFamily||"",answers={},questions.forEach((q,i)=>{answers[`Q${i+1}`]=character.answers[i]||"（無回答）"}),dom.chatContainer.innerHTML="",questions.forEach((q,i)=>{addChatMessage(q,"question"),addChatMessage(answers[`Q${i+1}`],"answer",i)}),currentQuestionIndex=questions.length,document.querySelector(".chat-input-area").classList.add("inactive"),dom.btnFinish.disabled=!1,dom.chatImageContainer.innerHTML=formData.imageUrl?`<img src="${formData.imageUrl}" alt="Character Image">`:"",document.body.classList.add("modal-open"),dom.modal.style.display="flex",goToStep(3)}
+    function applyFilters(){const plValue=dom.plFilter.value,systemValue=dom.systemFilter.value,searchValue=dom.pcSearch.value.trim().toLowerCase();let filtered=allCharacters;"all"!==plValue&&(filtered=filtered.filter(char=>char.plName===plValue)),"all"!==systemValue&&(filtered=filtered.filter(char=>char.system===systemValue)),searchValue&&(filtered=filtered.filter(char=>char.pcName.toLowerCase().includes(searchValue))),renderCharacterList(filtered),dom.qaDetails&&(dom.qaDetails.innerHTML='<div class="qa-placeholder"><p>左のリストからキャラクターを選択してください。</p></div>')}
+    function setupFilters(){if(dom.plFilter&&dom.systemFilter){const plNames=[...new Set(allCharacters.map(char=>char.plName))].filter(Boolean),systems=[...new Set(allCharacters.map(char=>char.system))].filter(Boolean);plNames.sort().forEach(name=>{dom.plFilter.innerHTML+=`<option value="${name}">${name}</option>`}),systems.sort().forEach(name=>{dom.systemFilter.innerHTML+=`<option value="${name}">${name}</option>`}),dom.plFilter.addEventListener("change",applyFilters),dom.systemFilter.addEventListener("change",applyFilters),dom.pcSearch.addEventListener("input",applyFilters)}}
+    function goToStep(stepNumber){if(dom.wizard){dom.steps.forEach(step=>step.classList.remove("active"));const targetStep=dom.wizard.querySelector(`[data-step="${stepNumber}"]`);targetStep&&targetStep.classList.add("active")}}
+    function enterEditMode(qIndex,bubbleEl){editingState.isEditing&&exitEditMode(),editingState={isEditing:!0,questionIndex:qIndex,bubbleElement:bubbleEl};let existingAnswer=answers[`Q${qIndex+1}`];"（無回答）"===existingAnswer&&(existingAnswer=""),existingAnswer.startsWith("「")&&existingAnswer.endsWith("」")&&(existingAnswer=existingAnswer.slice(1,-1)),dom.chatInput.value=`「${existingAnswer}」`,dom.btnSendAnswer.textContent="更新";const inputArea=document.querySelector(".chat-input-area");inputArea.classList.remove("inactive"),dom.wizard.classList.add("editing-active"),dom.chatInput.focus();const cursorPos=dom.chatInput.value.length-1;dom.chatInput.setSelectionRange(cursorPos,cursorPos)}
+    function exitEditMode(){editingState.isEditing&&(editingState={isEditing:!1,questionIndex:null,bubbleElement:null},dom.chatInput.value="",dom.btnSendAnswer.textContent="送信",dom.wizard.classList.remove("editing-active"),currentQuestionIndex>=questions.length&&document.querySelector(".chat-input-area").classList.add("inactive"))}
+    function askNextQuestion(){editingState.isEditing&&exitEditMode(),dom.btnFinish.disabled=!1,currentQuestionIndex<questions.length?(addChatMessage(questions[currentQuestionIndex],"question"),dom.chatInput.value="「」",dom.chatInput.focus(),dom.chatInput.setSelectionRange(1,1),document.querySelector(".chat-input-area").classList.remove("inactive")):(addChatMessage("全ての質問が完了しました！<br>内容を確認・編集し、よろしければ下の「完了」ボタンを押してください。","question"),document.querySelector(".chat-input-area").classList.add("inactive"),dom.chatInput.value="")}
     
     function finishAndSubmit() {
         goToStep(4);
-        const submissionData = {};
+        let submissionData = {};
         if (formData.isEditing) {
-            submissionData['ID'] = formData.id;
-            submissionData['システム'] = dom.systemInput.value;
-            submissionData['PL名'] = dom.plNameInput.value;
-            submissionData['PC名'] = dom.pcNameInput.value;
-            submissionData['初登場シナリオ'] = dom.firstScenarioInput.value;
-            submissionData['画像URL'] = dom.imageUrlInput.value;
-            submissionData['フォント'] = dom.fontFamilyInput.value;
-            submissionData.action = "update";
+            submissionData = {
+                'ID': formData.id,
+                'システム': dom.systemInput.value,
+                'PL名': dom.plNameInput.value,
+                'PC名': dom.pcNameInput.value,
+                '初登場シナリオ': dom.firstScenarioInput.value,
+                '画像URL': dom.imageUrlInput.value,
+                'フォント': dom.fontFamilyInput.value,
+                action: "update"
+            };
         } else {
             const maxId = allCharacters.reduce((max, char) => Math.max(max, parseInt(char.id) || 0), 0);
-            submissionData['ID'] = maxId + 1;
-            submissionData['システム'] = dom.systemInput.value;
-            submissionData['PL名'] = dom.plNameInput.value;
-            submissionData['PC名'] = dom.pcNameInput.value;
-            submissionData['初登場シナリオ'] = dom.firstScenarioInput.value;
-            submissionData['画像URL'] = dom.imageUrlInput.value;
-            submissionData['フォント'] = dom.fontFamilyInput.value;
-            submissionData.action = "append";
+            submissionData = {
+                'ID': maxId + 1,
+                'システム': dom.systemInput.value,
+                'PL名': dom.plNameInput.value,
+                'PC名': dom.pcNameInput.value,
+                '初登場シナリオ': dom.firstScenarioInput.value,
+                '画像URL': dom.imageUrlInput.value,
+                'フォント': dom.fontFamilyInput.value,
+                action: "append"
+            };
         }
         questions.forEach((header, i) => {
             if (answers[`Q${i + 1}`] !== undefined) {
@@ -295,280 +213,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function parseQandA(csvText) {
-        const { header, dataRows } = parseCSV(csvText, ["ID", "システム", "PL名", "PC名"]);
-        const idIndex = header.indexOf("ID"), systemIndex = header.indexOf("システム"), plNameIndex = header.indexOf("PL名"), pcNameIndex = header.indexOf("PC名");
-        const firstScenarioIndex = header.indexOf("初登場シナリオ"), imageUrlIndex = header.indexOf("画像URL"), fontIndex = header.indexOf("フォント");
-        const q1Index = header.findIndex(h => h && h.trim().startsWith("Q1")), remarksIndex = header.findIndex(h => h && h.trim().startsWith("※備考"));
-        const qEndIndex = remarksIndex !== -1 ? remarksIndex : header.length;
-        questions = header.slice(q1Index, qEndIndex);
-        return dataRows.map(values => {
-            if (!values[pcNameIndex] || values[pcNameIndex].trim() === '') return null;
-            return {
-                id: values[idIndex],
-                system: values[systemIndex],
-                plName: values[plNameIndex],
-                pcName: values[pcNameIndex],
-                firstScenario: values[firstScenarioIndex],
-                imageUrl: (values[imageUrlIndex] || "").trim(),
-                fontFamily: fontIndex > -1 ? values[fontIndex] || "" : "",
-                answers: values.slice(q1Index, qEndIndex)
-            };
-        }).filter(Boolean);
-    }
+    function parseQandA(csvText){const{header,dataRows}=parseCSV(csvText,["ID","システム","PL名","PC名"]);const idIndex=header.indexOf("ID"),systemIndex=header.indexOf("システム"),plNameIndex=header.indexOf("PL名"),pcNameIndex=header.indexOf("PC名"),firstScenarioIndex=header.indexOf("初登場シナリオ"),imageUrlIndex=header.indexOf("画像URL"),fontIndex=header.indexOf("フォント"),q1Index=header.findIndex(h=>h&&h.trim().startsWith("Q1")),remarksIndex=header.findIndex(h=>h&&h.trim().startsWith("※備考")),qEndIndex=-1!==remarksIndex?remarksIndex:header.length;questions=header.slice(q1Index,qEndIndex);return dataRows.map(values=>values[pcNameIndex]&&""!==values[pcNameIndex].trim()?{id:values[idIndex],system:values[systemIndex],plName:values[plNameIndex],pcName:values[pcNameIndex],firstScenario:values[firstScenarioIndex],imageUrl:(values[imageUrlIndex]||"").trim(),fontFamily:fontIndex>-1?values[fontIndex]||"":"",answers:values.slice(q1Index,qEndIndex)}:null).filter(Boolean)}
+    function parseCharacterCatalog(csvText){const{header,dataRows}=parseCSV(csvText,["PL","PC名","卓名"]);const plIndex=header.indexOf("PL"),pcIndex=header.indexOf("PC名"),takuIndex=header.indexOf("卓名");if(plIndex===-1||pcIndex===-1||takuIndex===-1)throw new Error("キャラ名鑑の必須ヘッダー(PL, PC名, 卓名)が見つかりません。");return dataRows.map(values=>values.length>Math.max(plIndex,pcIndex,takuIndex)&&values[plIndex]&&values[pcIndex]?{plName:values[plIndex].trim(),pcName:values[pcIndex].trim(),systemName:values[takuIndex].trim()}:null).filter(Boolean)}
+    function parseScenarioArchive(csvText){const{header,dataRows}=parseCSV(csvText,["シナリオ名","PL","PC","システム"]);const scenarioIndex=header.indexOf("シナリオ名"),plIndex=header.indexOf("PL"),pcIndex=header.indexOf("PC"),systemIndex=header.indexOf("システム"),archive=[];return dataRows.forEach(values=>{if(values.length>Math.max(scenarioIndex,plIndex,pcIndex,systemIndex)){const pls=(values[plIndex]||"").split(",").map(p=>p.trim()),pcs=(values[pcIndex]||"").split(",").map(p=>p.trim());pls.forEach((pl,index)=>{pl&&pcs[index]&&archive.push({scenarioName:values[scenarioIndex].trim(),plName:pl,pcName:pcs[index],systemName:values[systemIndex].trim()})})}}),archive}
+    function setupFormAutofillListeners(){const pcNameSuggestions=document.getElementById("pc-name-suggestions"),scenarioSuggestions=document.getElementById("scenario-suggestions"),originalSystemOptions=Array.from(dom.systemInput.options).map(opt=>opt.cloneNode(!0));let debounceTimeout;function debounce(func,wait){return function(...args){clearTimeout(debounceTimeout),debounceTimeout=setTimeout(()=>func.apply(this,args),wait)}}
+    function handlePcInput(){const pcValue=dom.pcNameInput.value.trim();if(""===pcValue)return resetFormSelections(),void dom.pcNameInput.classList.remove("invalid");if(resetSuggestions(!0),pcValue.length<1)return;const possibleChars=characterCatalog.filter(c=>c.pcName===pcValue);possibleChars.length>0?(dom.pcNameInput.classList.remove("invalid"),""===dom.plNameInput.value.trim()&&(dom.plNameInput.value=possibleChars[0].plName),updateSystemSuggestions(possibleChars)):dom.pcNameInput.classList.add("invalid")}
+    function handlePlInput(){updatePcSuggestions()}
+    function handleSystemChange(){updatePcSuggestions(),updateScenarioSuggestions(),updateSystemColor()}
+    function updateSystemColor(){const systemValue=dom.systemInput.value;systemValue&&"undefined"!=typeof TRPG_SYSTEM_COLORS?(dom.systemInput.style.backgroundColor=TRPG_SYSTEM_COLORS[systemValue]||TRPG_SYSTEM_COLORS.default,dom.systemInput.style.color=getContrastYIQ(dom.systemInput.style.backgroundColor)):(dom.systemInput.style.backgroundColor="",dom.systemInput.style.color="")}
+    function updatePcSuggestions(){const plValue=dom.plNameInput.value.trim(),systemValue=dom.systemInput.value;pcNameSuggestions.innerHTML="",dom.pcNameInput.classList.remove("invalid");if(plValue){let filteredPcs=characterCatalog.filter(c=>c.plName===plValue);systemValue&&(filteredPcs=filteredPcs.filter(c=>c.systemName.startsWith(systemValue)));const uniquePcs=[...new Set(filteredPcs.map(p=>p.pcName))];0===uniquePcs.length&&systemValue?dom.pcNameInput.classList.add("invalid"):uniquePcs.forEach(pc=>{pcNameSuggestions.appendChild(Object.assign(document.createElement("option"),{value:pc}))})}}
+    function updateSystemSuggestions(possibleChars){const systemsForPc=[...new Set(possibleChars.map(c=>c.systemName.split("-")[0].trim()))];dom.systemInput.innerHTML="",systemsForPc.forEach(system=>{dom.systemInput.appendChild(Object.assign(document.createElement("option"),{value:system,textContent:system}))}),systemsForPc.length>0&&(dom.systemInput.value=systemsForPc[0]),updateScenarioSuggestions(),updateSystemColor()}
+    function updateScenarioSuggestions(){scenarioSuggestions.innerHTML="",dom.firstScenarioInput.value="";const plValue=dom.plNameInput.value.trim(),pcValue=dom.pcNameInput.value.trim(),systemValue=dom.systemInput.value;if(plValue&&pcValue&&systemValue){const scenarios=[...new Set(scenarioArchive.filter(s=>s.plName===plValue&&s.pcName===pcValue&&s.systemName===systemValue).map(s=>s.scenarioName))];scenarios.length>0&&(dom.firstScenarioInput.value=scenarios[0],scenarios.forEach(scenario=>{scenarioSuggestions.appendChild(Object.assign(document.createElement("option"),{value:scenario}))}))}}
+    function resetFormSelections(){pcNameSuggestions.innerHTML="",scenarioSuggestions.innerHTML="",dom.firstScenarioInput.value="",dom.pcNameInput.classList.remove("invalid"),dom.systemInput.innerHTML="",originalSystemOptions.forEach(option=>dom.systemInput.appendChild(option.cloneNode(!0))),dom.systemInput.value="",updateSystemColor(),dom.fontFamilyInput.style.fontFamily=""}
+    function resetSuggestions(keepPcSuggestions=!1){keepPcSuggestions||(pcNameSuggestions.innerHTML=""),scenarioSuggestions.innerHTML="",dom.firstScenarioInput.value=""}
+    dom.pcNameInput.addEventListener("input",debounce(handlePcInput,300)),dom.plNameInput.addEventListener("input",debounce(handlePlInput,300)),dom.systemInput.addEventListener("change",debounce(handleSystemChange,100));dom.fontFamilyInput.addEventListener("change",()=>dom.fontFamilyInput.style.fontFamily=dom.fontFamilyInput.value||"")}
+    function setupFormOptions(csvText){try{const lines=csvText.trim().replace(/\r/g,"").split("\n"),plDataList=document.getElementById("pl-name-suggestions"),systemSelect=document.getElementById("form-system");if(plDataList&&systemSelect){plDataList.innerHTML="",systemSelect.innerHTML='<option value="">システムを選択してください</option>';const plNames=new Set,systems=new Set,excludedSystems=["CoC-㊙"];for(let i=1;i<lines.length;i++){const values=lines[i].split(",");if(!(values.length<3)){values[0].trim()&&plNames.add(values[0].trim());let systemName=values[2].trim();systemName&&(("ｻﾀｽﾍﾟ"===systemName.toLowerCase()||"サタスペ"===systemName.toLowerCase())&&(systemName="サタスペ"),excludedSystems.includes(systemName)||systems.add(systemName))}}[...plNames].sort().forEach(name=>{plDataList.appendChild(Object.assign(document.createElement("option"),{value:name}))}),[...systems].sort().forEach(name=>{systemSelect.appendChild(Object.assign(document.createElement("option"),{value:name,textContent:name}))}),console.log("フォームのPL名とシステムの候補を更新しました。")}}catch(error){console.error("フォームオプションの設定中にエラー:",error)}}
     
-    function parseCharacterCatalog(csvText) {
-        const { header, dataRows } = parseCSV(csvText, ["PL", "PC名", "卓名"]);
-        const plIndex = header.indexOf("PL"), pcIndex = header.indexOf("PC名"), takuIndex = header.indexOf("卓名");
-        if (plIndex === -1 || pcIndex === -1 || takuIndex === -1) throw new Error("キャラ名鑑の必須ヘッダー(PL, PC名, 卓名)が見つかりません。");
-        return dataRows.map(values => values.length > Math.max(plIndex, pcIndex, takuIndex) && values[plIndex] && values[pcIndex] ? { plName: values[plIndex].trim(), pcName: values[pcIndex].trim(), systemName: values[takuIndex].trim() } : null).filter(Boolean);
-    }
-
-    function parseScenarioArchive(csvText) {
-        const { header, dataRows } = parseCSV(csvText, ["シナリオ名", "PL", "PC", "システム"]);
-        const scenarioIndex = header.indexOf("シナリオ名"), plIndex = header.indexOf("PL"), pcIndex = header.indexOf("PC"), systemIndex = header.indexOf("システム"), archive = [];
-        dataRows.forEach(values => { if (values.length > Math.max(scenarioIndex, plIndex, pcIndex, systemIndex)) { const pls = (values[plIndex] || "").split(",").map(p => p.trim()), pcs = (values[pcIndex] || "").split(",").map(p => p.trim()); pls.forEach((pl, index) => { pl && pcs[index] && archive.push({ scenarioName: values[scenarioIndex].trim(), plName: pl, pcName: pcs[index], systemName: values[systemIndex].trim() }) }) } });
-        return archive;
-    }
-    
-    function setupFormAutofillListeners() {
-        const pcNameSuggestions = document.getElementById("pc-name-suggestions");
-        const scenarioSuggestions = document.getElementById("scenario-suggestions");
-        let originalSystemOptions = [];
-        if (dom.systemInput) { originalSystemOptions = Array.from(dom.systemInput.options).map(opt => opt.cloneNode(true)); }
-        let debounceTimeout;
-        function debounce(func, wait) { return function(...args) { clearTimeout(debounceTimeout); debounceTimeout = setTimeout(() => func.apply(this, args), wait); } }
-        function handlePcInput() {
-            const pcValue = dom.pcNameInput.value.trim();
-            if (pcValue === "") { resetFormSelections(); dom.pcNameInput.classList.remove("invalid"); return; }
-            resetSuggestions(true);
-            if (pcValue.length < 1) return;
-            const possibleChars = characterCatalog.filter(c => c.pcName === pcValue);
-            if (possibleChars.length > 0) { dom.pcNameInput.classList.remove("invalid"); if (dom.plNameInput.value.trim() === "") { dom.plNameInput.value = possibleChars[0].plName; } updateSystemSuggestions(possibleChars); }
-            else { dom.pcNameInput.classList.add("invalid"); }
-        }
-        function handlePlInput() { updatePcSuggestions(); }
-        function handleSystemChange() { updatePcSuggestions(); updateScenarioSuggestions(); updateSystemColor(); }
-        function updateSystemColor() {
-            const systemValue = dom.systemInput.value;
-            if (systemValue && typeof TRPG_SYSTEM_COLORS !== "undefined") {
-                dom.systemInput.style.backgroundColor = TRPG_SYSTEM_COLORS[systemValue] || TRPG_SYSTEM_COLORS.default;
-                dom.systemInput.style.color = getContrastYIQ(dom.systemInput.style.backgroundColor);
-            } else { dom.systemInput.style.backgroundColor = ""; dom.systemInput.style.color = ""; }
-        }
-        function updatePcSuggestions() {
-            const plValue = dom.plNameInput.value.trim(), systemValue = dom.systemInput.value;
-            pcNameSuggestions.innerHTML = "";
-            dom.pcNameInput.classList.remove("invalid");
-            if (plValue) {
-                let filteredPcs = characterCatalog.filter(c => c.plName === plValue);
-                if (systemValue) { filteredPcs = filteredPcs.filter(c => c.systemName.startsWith(systemValue)); }
-                const uniquePcs = [...new Set(filteredPcs.map(p => p.pcName))];
-                if (uniquePcs.length === 0 && systemValue) { dom.pcNameInput.classList.add("invalid"); }
-                else { uniquePcs.forEach(pc => { pcNameSuggestions.appendChild(Object.assign(document.createElement("option"), { value: pc })); }); }
-            }
-        }
-        function updateSystemSuggestions(possibleChars) {
-            const systemsForPc = [...new Set(possibleChars.map(c => c.systemName.split("-")[0].trim()))];
-            dom.systemInput.innerHTML = "";
-            systemsForPc.forEach(system => { dom.systemInput.appendChild(Object.assign(document.createElement("option"), { value: system, textContent: system })) });
-            if (systemsForPc.length > 0) { dom.systemInput.value = systemsForPc[0]; }
-            updateScenarioSuggestions();
-            updateSystemColor();
-        }
-        function updateScenarioSuggestions() {
-            scenarioSuggestions.innerHTML = "", dom.firstScenarioInput.value = "";
-            const plValue = dom.plNameInput.value.trim(), pcValue = dom.pcNameInput.value.trim(), systemValue = dom.systemInput.value;
-            if (plValue && pcValue && systemValue) {
-                const scenarios = [...new Set(scenarioArchive.filter(s => s.plName === plValue && s.pcName === pcValue && s.systemName === systemValue).map(s => s.scenarioName))];
-                if (scenarios.length > 0) { dom.firstScenarioInput.value = scenarios[0]; scenarios.forEach(scenario => { scenarioSuggestions.appendChild(Object.assign(document.createElement("option"), { value: scenario })) }); }
-            }
-        }
-        function resetFormSelections() {
-            pcNameSuggestions.innerHTML = "", scenarioSuggestions.innerHTML = "", dom.firstScenarioInput.value = "", dom.pcNameInput.classList.remove("invalid");
-            dom.systemInput.innerHTML = "";
-            originalSystemOptions.forEach(option => dom.systemInput.appendChild(option.cloneNode(true)));
-            dom.systemInput.value = "";
-            updateSystemColor();
-            updateCustomSelectDisplay(dom.fontFamilyInput);
-        }
-        function resetSuggestions(keepPcSuggestions = !1) { if (!keepPcSuggestions) { pcNameSuggestions.innerHTML = ""; } scenarioSuggestions.innerHTML = "", dom.firstScenarioInput.value = ""; }
-        dom.pcNameInput.addEventListener("input", debounce(handlePcInput, 300));
-        dom.plNameInput.addEventListener("input", debounce(handlePlInput, 300));
-        dom.systemInput.addEventListener("change", debounce(handleSystemChange, 100));
-    }
-    
-    function setupFormOptions(csvText) {
-        try {
-            const lines = csvText.trim().replace(/\r/g, "").split("\n");
-            const plDataList = document.getElementById('pl-name-suggestions');
-            const systemSelect = document.getElementById('form-system');
-            if (!plDataList || !systemSelect) return;
-            plDataList.innerHTML = "";
-            systemSelect.innerHTML = '<option value="">システムを選択してください</option>';
-            const plNames = new Set, systems = new Set, excludedSystems = ["CoC-㊙"];
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(",");
-                if (values.length < 3) continue;
-                if (values[0].trim()) plNames.add(values[0].trim());
-                let systemName = values[2].trim();
-                if (systemName) {
-                    if (systemName.toLowerCase() === 'ｻﾀｽﾍﾟ' || systemName.toLowerCase() === 'サタスペ') { systemName = "サタスペ"; }
-                    if (!excludedSystems.includes(systemName)) systems.add(systemName);
-                }
-            }
-            [...plNames].sort().forEach(name => { plDataList.appendChild(Object.assign(document.createElement("option"), { value: name })) });
-            [...systems].sort().forEach(name => { systemSelect.appendChild(Object.assign(document.createElement("option"), { value: name, textContent: name })) });
-        } catch (error) { console.error("フォームオプションの設定中にエラー:", error); }
-    }
-    
-    function initializeCustomSelects() {
-        document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => {
-            const originalSelect = wrapper.querySelector('select');
-            if (!originalSelect) return;
-            if (wrapper.querySelector('.custom-select-trigger')) return;
-
-            const trigger = document.createElement('div');
-            trigger.className = 'custom-select-trigger';
-            trigger.innerHTML = `<span></span><div class="arrow"></div>`;
-            
-            const optionsContainer = document.createElement('div');
-            optionsContainer.className = 'custom-select-options';
-
-            Array.from(originalSelect.options).forEach(optionEl => {
-                const customOption = document.createElement('div');
-                customOption.className = 'custom-option';
-                customOption.textContent = optionEl.textContent;
-                customOption.dataset.value = optionEl.value;
-                const font = optionEl.dataset.font || optionEl.value;
-                customOption.style.fontFamily = `'${font}', sans-serif`;
-
-                customOption.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    originalSelect.value = optionEl.value;
-                    originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                    wrapper.classList.remove('open');
-                });
-                optionsContainer.appendChild(customOption);
-            });
-
-            wrapper.prepend(trigger);
-            wrapper.appendChild(optionsContainer);
-            
-            originalSelect.addEventListener('change', () => updateCustomSelectDisplay(originalSelect));
-            
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                document.querySelectorAll('.custom-select-wrapper.open').forEach(w => {
-                    if (w !== wrapper) w.classList.remove('open');
-                });
-                const rect = trigger.getBoundingClientRect();
-                optionsContainer.style.top = `${rect.bottom}px`;
-                optionsContainer.style.left = `${rect.left}px`;
-                optionsContainer.style.width = `${rect.width}px`;
-                wrapper.classList.toggle('open');
-            });
-            
-            updateCustomSelectDisplay(originalSelect);
-        });
-    }
-
-    function updateCustomSelectDisplay(selectElement) {
-        const wrapper = selectElement.closest('.custom-select-wrapper');
-        if (!wrapper) return;
-        const trigger = wrapper.querySelector('.custom-select-trigger');
-        const selectedOption = selectElement.options[selectElement.selectedIndex];
-        if (trigger && selectedOption) {
-            trigger.querySelector('span').textContent = selectedOption.textContent;
-            const font = selectedOption.dataset.font || selectElement.value;
-            trigger.style.fontFamily = font === 'HigashiOme-Gothic-C' ? '' : `'${font}', sans-serif`;
-        }
-        const optionsContainer = wrapper.querySelector('.custom-select-options');
-        if (optionsContainer) {
-            optionsContainer.querySelectorAll('.custom-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.dataset.value === selectElement.value);
-            });
-        }
-    }
-
     // --- イベントリスナー設定 ---
-    dom.openModalBtn?.addEventListener("click", () => {
-        if (!dom.modal) return;
-        formData = {}; answers = {}; currentQuestionIndex = 0;
-        document.body.classList.add('modal-open');
-        dom.modal.style.display = 'flex';
-        goToStep(1);
-        [dom.pcNameInput, dom.plNameInput, dom.systemInput, dom.firstScenarioInput, dom.imageUrlInput, dom.chatInput, dom.fontFamilyInput].forEach(input => {
-            if (input) input.value = "";
-        });
-        updateCustomSelectDisplay(dom.systemInput);
-        updateCustomSelectDisplay(dom.fontFamilyInput);
-        dom.chatContainer && (dom.chatContainer.innerHTML = '');
-        dom.chatImageContainer && (dom.chatImageContainer.innerHTML = '');
-        document.querySelector(".chat-input-area")?.classList.remove("inactive");
-        if (dom.btnSendAnswer) dom.btnSendAnswer.style.display = 'block';
-        if (dom.btnFinish) dom.btnFinish.disabled = true;
-    });
-    dom.closeModalBtn?.addEventListener("click", () => dom.modal.style.display = "none");
-    dom.modal?.addEventListener("click", e => { if (e.target === dom.modal) dom.modal.style.display = "none" });
-    dom.btnStep1Next?.addEventListener("click", () => { formData.pcName = dom.pcNameInput.value, formData.plName = dom.plNameInput.value, formData.system = dom.systemInput.value, formData.firstScenario = dom.firstScenarioInput.value, formData.fontFamily = dom.fontFamilyInput.value, goToStep(2) });
-    dom.btnStep2Prev?.addEventListener("click", () => goToStep(1));
-    dom.btnStep2Next?.addEventListener("click", () => { formData.imageUrl = dom.imageUrlInput.value, dom.chatImageContainer && (dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${formData.imageUrl}" alt="Character Image">` : ""), goToStep(3), "" === dom.chatContainer.innerHTML.trim() && askNextQuestion() });
-    dom.btnStep3Prev?.addEventListener("click", () => goToStep(2));
-    dom.btnSendAnswer?.addEventListener("click", () => {
-        let answer = dom.chatInput.value.trim();
-        "「」" === answer && (answer = "");
-        const answerToStore = answer || "（無回答）";
-        if (editingState.isEditing) {
-            answers[`Q${editingState.questionIndex + 1}`] = answerToStore;
-            editingState.bubbleElement.innerHTML = applySpoilerFormatting(answerToStore);
-            addSpoilerClickListeners(editingState.bubbleElement);
-            exitEditMode();
-        } else {
-            answers[`Q${currentQuestionIndex + 1}`] = answerToStore;
-            addChatMessage(answerToStore, "answer", currentQuestionIndex);
-            currentQuestionIndex++;
-            dom.chatInput.value = "";
-            askNextQuestion();
-        }
-    });
-    dom.chatInput?.addEventListener("keydown", e => { e.key && "Enter" === e.key && !e.shiftKey && (e.preventDefault(), dom.btnSendAnswer.click()) });
-    dom.btnFinish?.addEventListener("click", finishAndSubmit);
+    dom.openModalBtn?.addEventListener("click",()=>{dom.modal&&(formData={},document.body.classList.add("modal-open"),dom.modal.style.display="flex",goToStep(1),answers={},currentQuestionIndex=0,[dom.pcNameInput,dom.plNameInput,dom.systemInput,dom.firstScenarioInput,dom.imageUrlInput,dom.chatInput,dom.fontFamilyInput].forEach(input=>{input&&(input.value=""),input.id==="form-fontFamily"&&(input.style.fontFamily="")}),dom.chatContainer&&(dom.chatContainer.innerHTML=""),dom.chatInput&&document.querySelector(".chat-input-area").classList.remove("inactive"),dom.btnSendAnswer&&(dom.btnSendAnswer.style.display="block"),dom.btnFinish&&(dom.btnFinish.disabled=!0),dom.chatImageContainer&&(dom.chatImageContainer.innerHTML=""),resetFormSelections())});
+    dom.closeModalBtn?.addEventListener("click",()=>dom.modal.style.display="none");
+    dom.modal?.addEventListener("click",e=>{e.target===dom.modal&&(dom.modal.style.display="none")});
+    dom.btnStep1Next?.addEventListener("click",()=>{formData.pcName=dom.pcNameInput.value,formData.plName=dom.plNameInput.value,formData.system=dom.systemInput.value,formData.firstScenario=dom.firstScenarioInput.value,formData.fontFamily=dom.fontFamilyInput.value,goToStep(2)});
+    dom.btnStep2Prev?.addEventListener("click",()=>goToStep(1));
+    dom.btnStep2Next?.addEventListener("click",()=>{formData.imageUrl=dom.imageUrlInput.value,dom.chatImageContainer&&(dom.chatImageContainer.innerHTML=formData.imageUrl?`<img src="${formData.imageUrl}" alt="Character Image">`:""),goToStep(3),""===dom.chatContainer.innerHTML.trim()&&askNextQuestion()});
+    dom.btnStep3Prev?.addEventListener("click",()=>goToStep(2));
+    dom.btnSendAnswer?.addEventListener("click",()=>{let answer=dom.chatInput.value.trim();"「」"===answer&&(answer="");const answerToStore=answer||"（無回答）";editingState.isEditing?(answers[`Q${editingState.questionIndex+1}`]=answerToStore,editingState.bubbleElement.innerHTML=applySpoilerFormatting(answerToStore),addSpoilerClickListeners(editingState.bubbleElement),exitEditMode()):(answers[`Q${currentQuestionIndex+1}`]=answerToStore,addChatMessage(answerToStore,"answer",currentQuestionIndex),currentQuestionIndex++,dom.chatInput.value="",askNextQuestion())});
+    dom.chatInput?.addEventListener("keydown",e=>{e.key&&"Enter"===e.key&&!e.shiftKey&&(e.preventDefault(),dom.btnSendAnswer.click())});
+    dom.btnFinish?.addEventListener("click",finishAndSubmit);
 
     let drumRollInterval;
     function startRandomSelection(){if(dom.randomCharButton&&dom.plRandomInput&&dom.randomCharResult){const e=dom.plRandomInput.value.trim();if(!e)return void(dom.randomCharResult.textContent="PL名を入力してください。");const t=characterCatalog.filter(t=>t.plName===e);if(0===t.length)return void(dom.randomCharResult.textContent=`「${e}」さんのキャラクターが見つかりません。`);const n=document.getElementById("random-result-label"),o=dom.randomCharResult;dom.randomCharButton.disabled=!0,clearInterval(drumRollInterval),n.textContent="選出中...",drumRollInterval=setInterval(()=>{const e=Math.floor(Math.random()*t.length);o.innerHTML=`<span class="result-name">${t[e].pcName}</span>`},50),setTimeout(()=>{clearInterval(drumRollInterval);const e=Math.floor(Math.random()*t.length),a=t[e];n.textContent="今日はこのキャラのを書いてみよう！",o.innerHTML=`<span class="result-name">${a.pcName}</span>`,o.classList.add("is-selected"),o.addEventListener("animationend",()=>o.classList.remove("is-selected"),{once:!0}),dom.randomCharButton.disabled=!1},2e3)}}
-    dom.randomCharButton?.addEventListener("click", startRandomSelection);
+    dom.randomCharButton?.addEventListener("click",startRandomSelection);
     
     async function initialize(){
         console.log("Q&Aスクリプトの初期化を開始します。");
         try{
-            const [qandaResponse, catalogResponse, archiveResponse, pulldownResponse] = await Promise.all([
-                fetch(SPREADSHEET_URL, { cache: "no-cache" }),
-                fetch(CHAR_CATALOG_URL, { cache: "no-cache" }),
-                fetch(SCENARIO_ARCHIVE_URL, { cache: "no-cache" }),
-                fetch(PULLDOWN_SHEET_URL, { cache: "no-cache" })
-            ]);
-            if (!qandaResponse.ok) throw new Error(`Q&Aデータの取得に失敗: ${qandaResponse.status}`);
-            if (!catalogResponse.ok) throw new Error(`キャラ名鑑データの取得に失敗: ${catalogResponse.status}`);
-            if (!archiveResponse.ok) throw new Error(`シナリオアーカイブの取得に失敗: ${archiveResponse.status}`);
-            if (!pulldownResponse.ok) throw new Error(`プルダウン用データの取得に失敗: ${pulldownResponse.status}`);
-            const [qandaCsv, catalogCsv, archiveCsv, pulldownCsv] = await Promise.all([
-                qandaResponse.text(), catalogResponse.text(), archiveResponse.text(), pulldownResponse.text()
-            ]);
-            allCharacters = parseQandA(qandaCsv);
-            characterCatalog = parseCharacterCatalog(catalogCsv);
-            scenarioArchive = parseScenarioArchive(archiveCsv);
+            const[qandaResponse,catalogResponse,archiveResponse,pulldownResponse]=await Promise.all([fetch(SPREADSHEET_URL,{cache:"no-cache"}),fetch(CHAR_CATALOG_URL,{cache:"no-cache"}),fetch(SCENARIO_ARCHIVE_URL,{cache:"no-cache"}),fetch(PULLDOWN_SHEET_URL,{cache:"no-cache"})]);
+            if(!qandaResponse.ok)throw new Error(`Q&Aデータの取得に失敗: ${qandaResponse.status}`);
+            if(!catalogResponse.ok)throw new Error(`キャラ名鑑データの取得に失敗: ${catalogResponse.status}`);
+            if(!archiveResponse.ok)throw new Error(`シナリオアーカイブの取得に失敗: ${archiveResponse.status}`);
+            if(!pulldownResponse.ok)throw new Error(`プルダウン用データの取得に失敗: ${pulldownResponse.status}`);
+            const[qandaCsv,catalogCsv,archiveCsv,pulldownCsv]=await Promise.all([qandaResponse.text(),catalogResponse.text(),archiveResponse.text(),pulldownResponse.text()]);
+            allCharacters=parseQandA(qandaCsv);
+            characterCatalog=parseCharacterCatalog(catalogCsv);
+            scenarioArchive=parseScenarioArchive(archiveCsv);
             renderCharacterList(allCharacters);
             setupFilters();
             setupFormOptions(pulldownCsv);
             setupFormAutofillListeners();
-            initializeCustomSelects();
-            addSpoilerClickListeners(document.body);
+            addSpoilerClickListeners(dom.spoilerTip);
         } catch(error) {
-            console.error('初期化処理中にエラーが発生しました:', error);
-            if (dom.characterList) {
-                dom.characterList.innerHTML = `<p class="error" style="padding: 15px; font-size: 0.9em;"><strong>データの読み込みに失敗しました</strong><br><br><strong>エラー詳細:</strong><br>${error.message}</p>`;
-            }
+            console.error('初期化処理中にエラーが発生しました:',error);
+            if(dom.characterList) { dom.characterList.innerHTML=`<p class="error" style="padding: 15px; font-size: 0.9em;"><strong>データの読み込みに失敗しました</strong><br><br><strong>エラー詳細:</strong><br>${error.message}</p>`; }
         }
     }
     initialize();
