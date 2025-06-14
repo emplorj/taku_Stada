@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>キャラクターQ&A - 卓スタダ</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="q_and_a.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
@@ -15,38 +16,25 @@
     <canvas id="particleCanvas"></canvas>
 
     <div class="main-content">
-        <!-- ★★★ このヘッダーを <div class="page-content-header"> で囲む ★★★ -->
         <div class="page-content-header">
             <header class="page-header-with-actions">
                 <div class="header-main">
                     <h1>キャラクターQ&A</h1>
-                    <p class="subtitle">これまで紡がれた物語の記録</p>
+                    <p class="subtitle">お前のキャラの以外な一面が見られるかも</p>
                 </div>
             </header>
             <div class="qa-controls plain-text-block">
-                <!-- (フィルター部分は変更なし) -->
-                <div class="filter-group">
-                    <label for="pl-filter">PL名で絞り込み:</label>
-                    <select id="pl-filter">
+                <div class="filter-group"><label for="pl-filter">PL名で絞り込み:</label><select id="pl-filter">
                         <option value="all">すべてのPL</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="system-filter">システムで絞り込み:</label>
-                    <select id="system-filter">
+                    </select></div>
+                <div class="filter-group"><label for="system-filter">システムで絞り込み:</label><select id="system-filter">
                         <option value="all">すべてのシステム</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="pc-search">PC名で検索:</label>
-                    <input type="text" id="pc-search" placeholder="PC名を入力...">
-                </div>
-                <div class="header-actions">
-                    <button id="open-modal-button" class="add-new-button">✨ 新規登録</button>
-                </div>
+                    </select></div>
+                <div class="filter-group"><label for="pc-search">PC名で検索:</label><input type="text" id="pc-search"
+                        placeholder="PC名を入力..."></div>
+                <div class="header-actions"><button id="open-modal-button" class="add-new-button">✨ 新規登録</button></div>
             </div>
         </div>
-
         <div class="qa-main-container" id="qa-main-container">
             <aside class="qa-character-list" id="character-list">
                 <p>キャラクターを読み込み中...</p>
@@ -59,60 +47,53 @@
         </div>
     </div>
 
-    <!-- モーダルウィンドウは、スクリプトより「前」に配置 -->
     <div id="add-character-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <span class="modal-close-button">×</span>
             <div id="wizard-container">
-                <!-- ステップ1: 基本情報 -->
                 <div data-step="1" class="active">
                     <h2>Step 1: 基本情報を入力</h2>
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label for="form-pcName">PC名</label>
-                            <input type="text" id="form-pcName" list="pc-name-suggestions" required autocomplete="off">
-                            <datalist id="pc-name-suggestions"></datalist>
-                        </div>
-                        <div class="form-group">
-                            <label for="form-plName">PL名</label>
-                            <input type="text" id="form-plName" list="pl-name-suggestions" required autocomplete="off">
-                            <datalist id="pl-name-suggestions"></datalist>
-                        </div>
-                        <div class="form-group">
-                            <label for="form-system">システム</label>
-                            <select id="form-system" required autocomplete="off">
+                        <div class="form-group"><label for="form-pcName">PC名</label><input type="text" id="form-pcName"
+                                list="pc-name-suggestions" required autocomplete="off"><datalist
+                                id="pc-name-suggestions"></datalist></div>
+                        <div class="form-group"><label for="form-plName">PL名</label><input type="text" id="form-plName"
+                                list="pl-name-suggestions" required autocomplete="off"><datalist
+                                id="pl-name-suggestions"></datalist></div>
+                        <div class="form-group"><label for="form-system">システム</label><select id="form-system" required
+                                autocomplete="off">
                                 <option value="">システムを選択してください</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="form-firstScenario">初登場シナリオ</label>
-                            <input type="text" id="form-firstScenario" list="scenario-suggestions" autocomplete="off">
-                            <datalist id="scenario-suggestions"></datalist>
-                        </div>
+                            </select></div>
+                        <div class="form-group"><label for="form-firstScenario">初登場シナリオ</label><input type="text"
+                                id="form-firstScenario" list="scenario-suggestions" autocomplete="off"><datalist
+                                id="scenario-suggestions"></datalist></div>
                     </div>
                     <div class="wizard-nav"><span></span><button id="btn-step1-next" class="wizard-btn">次へ</button>
                     </div>
                 </div>
-                <!-- ステップ2: 画像設定 -->
                 <div data-step="2">
                     <h2>Step 2: キャラクター画像</h2>
                     <p class="form-description">画像のURLを入力してください。(例: Imgur,
                         Twitterなど)<br>この画像は質疑応答中に右側に表示されます。<br>discordのだと24時間ぐらいでリンク切れするから注意ね</p>
                     <div class="form-group"><label for="form-imageUrl">画像URL</label><input type="url" id="form-imageUrl"
-                            placeholder="https://example.com/image.png" autocomplete="off">
-                    </div>
+                            placeholder="https://example.com/image.png" autocomplete="off"></div>
                     <div class="wizard-nav"><button id="btn-step2-prev" class="wizard-btn-secondary">戻る</button><button
                             id="btn-step2-next" class="wizard-btn">質疑応答へ進む</button></div>
                 </div>
-                <!-- ステップ3: Q&A対話 -->
                 <div data-step="3">
                     <h2>Step 3: 質疑応答</h2>
                     <div class="chat-grid-container">
                         <div class="chat-main-area">
                             <div class="chat-container" id="chat-container"></div>
                             <div class="chat-input-area">
-                                <textarea id="chat-input" placeholder="回答を入力..." rows="2"></textarea>
+                                <div id="chat-input-wrapper" class="chat-input-wrapper">
+                                    <textarea id="chat-input" placeholder="回答を入力..." rows="1"
+                                        spellcheck="false"></textarea>
+                                </div>
                                 <button id="btn-send-answer" class="wizard-btn">送信</button>
+                            </div>
+                            <div class="spoiler-tip">
+                                <strong>Tips:</strong> ||で囲うとネタバレ防止ができます (例: <span class="spoiler-text">テスト</span>)
                             </div>
                         </div>
                         <div class="chat-character-image" id="chat-character-image"></div>
@@ -120,7 +101,6 @@
                     <div class="wizard-nav"><button id="btn-step3-prev" class="wizard-btn-secondary">戻る</button><button
                             id="btn-finish" class="wizard-btn-finish" disabled>全て完了し登録する</button></div>
                 </div>
-                <!-- ステップ4: 完了画面 -->
                 <div data-step="4">
                     <div class="final-status-container"></div>
                 </div>
@@ -130,748 +110,8 @@
 
     <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
 
-    <!-- すべてのスクリプトは body の一番最後に配置 -->
     <script src="common.js"></script>
-    <!-- q_and_a.html の <script>...</script> 全体をこの内容で置き換える -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.body.classList.add('qa-page-body');
-            const qaMainContainer = document.getElementById('qa-main-container');
-            if (!qaMainContainer) { return; }
-
-            // =========================================================================
-            // 設定項目
-            // =========================================================================
-            const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwEsQe3onyMVVRJxdl_4wrE_VzFgpfs6HBe46eczo1yv3MhKLMK-Ic1A-a44mKtWUT8vQ/exec';
-            const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Q8zZ9pdnw0UkcF3sZ3XFQr4g8ZrgRBNPBzzUT0RmulLMzhgJN4st3fa5h0Gkhqr4gZrt2TxYHaMc/pub?gid=0&single=true&output=csv';
-            const PULLDOWN_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Q8zZ9pdnw0UkcF3sZ3XFQr4g8ZrgRBNPBzzUT0RmulLMzhgJN4st3fa5h0Gkhqr4gZrt2TxYHaMc/pub?gid=1509960675&single=true&output=csv';
-            const CHAR_CATALOG_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv';
-            const SCENARIO_ARCHIVE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=620166307&single=true&output=csv';
-
-            // =========================================================================
-            // DOM要素の取得
-            // =========================================================================
-            const characterListContainer = document.getElementById('character-list');
-            const qaDetailsContainer = document.getElementById('qa-details-view');
-            const plFilter = document.getElementById('pl-filter');
-            const systemFilter = document.getElementById('system-filter');
-            const pcSearch = document.getElementById('pc-search');
-
-            const modal = document.getElementById('add-character-modal');
-            const openModalBtn = document.getElementById('open-modal-button');
-            const closeModalBtn = document.querySelector('.modal-close-button');
-            const wizardContainer = document.getElementById('wizard-container');
-            const steps = wizardContainer.querySelectorAll('[data-step]');
-
-            const pcNameInput = document.getElementById('form-pcName');
-            const plNameInput = document.getElementById('form-plName');
-            const systemInput = document.getElementById('form-system');
-            const firstScenarioInput = document.getElementById('form-firstScenario');
-            const imageUrlInput = document.getElementById('form-imageUrl');
-            const chatContainer = document.getElementById('chat-container');
-            const chatInput = document.getElementById('chat-input');
-            const chatImageContainer = document.getElementById('chat-character-image');
-
-            const btnStep1Next = document.getElementById('btn-step1-next');
-            const btnStep2Prev = document.getElementById('btn-step2-prev');
-            const btnStep2Next = document.getElementById('btn-step2-next');
-            const btnStep3Prev = document.getElementById('btn-step3-prev');
-            const btnSendAnswer = document.getElementById('btn-send-answer');
-            const btnFinish = document.getElementById('btn-finish');
-
-            // =========================================================================
-            // データ保持用の変数
-            // =========================================================================
-            let allCharacters = []; let questions = []; let formData = {}; let answers = {};
-            let currentQuestionIndex = 0;
-            let editingState = { isEditing: false, questionIndex: null, bubbleElement: null };
-            let characterCatalog = []; let scenarioArchive = [];
-
-            // =========================================================================
-            // 汎用CSVパーサー
-            // =========================================================================
-            function parseCSV(csvText, requiredHeaders) {
-                const rows = []; let inQuotes = false; let currentRow = []; let currentField = '';
-                const text = csvText.trim().replace(/\r/g, '');
-                for (let i = 0; i < text.length; i++) {
-                    const char = text[i];
-                    if (char === '"') {
-                        if (inQuotes && text[i + 1] === '"') { currentField += '"'; i++; }
-                        else { inQuotes = !inQuotes; }
-                    } else if (char === ',' && !inQuotes) { currentRow.push(currentField); currentField = ''; }
-                    else if (char === '\n' && !inQuotes) { currentRow.push(currentField); rows.push(currentRow); currentRow = []; currentField = ''; }
-                    else { currentField += char; }
-                }
-                currentRow.push(currentField); rows.push(currentRow);
-
-                const headerIndex = rows.findIndex(row => requiredHeaders.every(h => row.includes(h)));
-                if (headerIndex === -1) {
-                    throw new Error(`ヘッダー行（${requiredHeaders.join(', ')} を含む行）が見つかりません。`);
-                }
-                const header = rows[headerIndex];
-                const dataRows = rows.slice(headerIndex + 1);
-                return { header, dataRows };
-            }
-
-            // =========================================================================
-            // 関数定義
-            // =========================================================================
-            // (renderCharacterList, renderQaDetails, applyFilters, setupFilters, goToStep, addChatMessage, enterEditMode, exitEditMode, askNextQuestion, finishAndSubmit は変更なしのため省略)
-            function getContrastYIQ(hexcolor) {
-                if (!hexcolor) return 'black'; // hexcolorが不正な場合のエラー回避
-                hexcolor = hexcolor.replace("#", "");
-                if (hexcolor.length !== 6) return 'black'; // 長さが不正な場合
-                const r = parseInt(hexcolor.substr(0, 2), 16);
-                const g = parseInt(hexcolor.substr(2, 2), 16);
-                const b = parseInt(hexcolor.substr(4, 2), 16);
-                const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-                return (yiq >= 128) ? 'black' : 'white';
-            }
-
-            function renderCharacterList(characters) {
-                if (!characterListContainer) return;
-                characterListContainer.innerHTML = '';
-                if (characters.length === 0) {
-                    characterListContainer.innerHTML = '<p class="no-results">該当するキャラクターがいません。</p>';
-                    return;
-                }
-                characters.forEach(char => {
-                    const card = document.createElement('div');
-                    card.className = 'character-card';
-                    card.dataset.id = char.id;
-                    const systemColor = (typeof TRPG_SYSTEM_COLORS !== 'undefined' && TRPG_SYSTEM_COLORS[char.system]) ? TRPG_SYSTEM_COLORS[char.system] : '#007bff';
-
-                    card.innerHTML = `<div class="card-system" style="background-color: ${systemColor};"></div><div class="card-info"><h4 class="card-pc-name">${char.pcName}</h4><p class="card-pl-name">PL: ${char.plName}</p><p class="card-system-name">System: ${char.system}</p></div>`;
-
-                    card.addEventListener('click', () => {
-                        renderQaDetails(char);
-
-                        // すべてのカードからactiveクラスとインラインスタイルを削除
-                        document.querySelectorAll('.character-card').forEach(c => {
-                            c.classList.remove('active');
-                            c.style.backgroundColor = '';
-                            const info = c.querySelector('.card-info');
-                            if (info) {
-                                // ★★★ info の color だけでなく、中の要素の色もリセットする ★★★
-                                info.style.color = '';
-                                const pcName = info.querySelector('.card-pc-name');
-                                if (pcName) pcName.style.color = ''; // リセット
-                            }
-                        });
-
-                        // クリックされたカードにactiveクラスを追加し、色を設定
-                        card.classList.add('active');
-                        card.style.backgroundColor = systemColor;
-
-                        const infoText = card.querySelector('.card-info');
-                        if (infoText) {
-                            const contrastColor = getContrastYIQ(systemColor);
-                            infoText.style.color = contrastColor;
-
-                            // ★★★ PC名の色も明示的に設定する（太字などに対応するため） ★★★
-                            const pcNameText = infoText.querySelector('.card-pc-name');
-                            if (pcNameText) pcNameText.style.color = contrastColor;
-                        }
-                    });
-                    characterListContainer.appendChild(card);
-                });
-            }
-
-            function renderQaDetails(character) {
-                if (!qaDetailsContainer) return;
-
-                // 背景画像用のHTMLを準備
-                let backgroundDivHtml = '';
-                if (character.imageUrl && character.imageUrl.trim() !== '') {
-                    backgroundDivHtml = `<div class="details-view-background" style="background-image: url('${character.imageUrl}');"></div>`;
-                }
-
-                // コンテンツ用のHTMLを準備
-                const editButtonHtml = `<button class="edit-character-button" title="このキャラクターを編集する"><i class="fas fa-edit"></i></button>`;
-                const contentHtml = `
-        <div class="details-view-content">
-            <div class="qa-header">
-                <h2>${character.pcName} ${editButtonHtml}</h2>
-                <p><strong>PL:</strong> ${character.plName} / <strong>システム:</strong> ${character.system}</p>
-                <p><strong>初登場シナリオ:</strong> ${character.firstScenario || 'N/A'}</p>
-            </div>
-            <div class="qa-body">
-                ${questions.map((question, index) => {
-                    const answer = (character.answers && character.answers[index]) ? character.answers[index] : '（無回答）';
-                    return `<div class="qa-item"><p class="question">${question.replace(/\n/g, '<br>')}</p><p class="answer">${answer.replace(/\n/g, '<br>')}</p></div>`;
-                }).join('')}
-            </div>
-        </div>
-    `;
-
-                // innerHTMLで一気に設定
-                qaDetailsContainer.innerHTML = backgroundDivHtml + contentHtml;
-
-                // イベントリスナーを設定
-                const editButton = qaDetailsContainer.querySelector('.edit-character-button');
-                if (editButton) {
-                    editButton.addEventListener('click', () => {
-                        openEditModal(character);
-                    });
-                }
-            }
-
-            function openEditModal(character) {
-                if (!modal) return;
-
-                // --- 編集モードであることをグローバル変数に設定 ---
-                formData = { // formDataをリセットしてから設定
-                    isEditing: true,
-                    id: character.id,
-                    pcName: character.pcName,
-                    plName: character.plName,
-                    system: character.system,
-                    firstScenario: character.firstScenario,
-                    imageUrl: character.imageUrl,
-                };
-
-                // --- フォームの各入力欄にも既存のデータを反映させておく ---
-                // (ユーザーが「戻る」ボタンで確認・編集できるようにするため)
-                pcNameInput.value = character.pcName;
-                plNameInput.value = character.plName;
-                systemInput.value = character.system;
-                firstScenarioInput.value = character.firstScenario;
-                imageUrlInput.value = character.imageUrl;
-
-                // --- 既存の回答を読み込む ---
-                answers = {}; // 一旦リセット
-                questions.forEach((q, index) => {
-                    const questionKey = `Q${index + 1}`;
-                    answers[questionKey] = character.answers[index] || '（無回答）';
-                });
-
-                // --- チャットUIを構築 ---
-                chatContainer.innerHTML = '';
-                // 編集時は、質問と回答を交互に即時表示
-                questions.forEach((question, index) => {
-                    const questionKey = `Q${index + 1}`;
-                    addChatMessage(question, 'question');
-                    addChatMessage(answers[questionKey], 'answer', index);
-                });
-                // ★★★ この行を追加 ★★★
-                currentQuestionIndex = questions.length;
-
-                // チャット入力エリアの状態を整える
-                const inputArea = document.querySelector('.chat-input-area');
-                inputArea.classList.add('inactive'); // 最初は非アクティブ
-                btnFinish.disabled = false; // 完了ボタンは最初から有効
-
-                // キャラクター画像を表示
-                if (chatImageContainer) {
-                    chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${formData.imageUrl}" alt="Character Image">` : '';
-                }
-
-                // --- モーダルを開いて、直接Step3に移動 ---
-                document.body.classList.add('modal-open');
-                modal.style.display = 'flex';
-                goToStep(3); // ★★★ いきなりStep3から開始 ★★★
-            }
-            function applyFilters() { const plValue = plFilter.value; const systemValue = systemFilter.value; const searchValue = pcSearch.value.trim().toLowerCase(); let filtered = allCharacters; if (plValue !== 'all') filtered = filtered.filter(char => char.plName === plValue); if (systemValue !== 'all') filtered = filtered.filter(char => char.system === systemValue); if (searchValue) filtered = filtered.filter(char => char.pcName.toLowerCase().includes(searchValue)); renderCharacterList(filtered); if (qaDetailsContainer) qaDetailsContainer.innerHTML = '<div class="qa-placeholder"><p>左のリストからキャラクターを選択してください。</p></div>'; }
-            function setupFilters() { if (!plFilter || !systemFilter) return; const plNames = [...new Set(allCharacters.map(char => char.plName))].filter(Boolean); const systems = [...new Set(allCharacters.map(char => char.system))].filter(Boolean); plNames.sort().forEach(name => { plFilter.innerHTML += `<option value="${name}">${name}</option>`; }); systems.sort().forEach(name => { systemFilter.innerHTML += `<option value="${name}">${name}</option>`; }); plFilter.addEventListener('change', applyFilters); systemFilter.addEventListener('change', applyFilters); pcSearch.addEventListener('input', applyFilters); }
-            function goToStep(stepNumber) { if (!wizardContainer) return; steps.forEach(step => step.classList.remove('active')); const targetStep = wizardContainer.querySelector(`[data-step="${stepNumber}"]`); if (targetStep) targetStep.classList.add('active'); }
-            function addChatMessage(message, type, questionIndexForAnswer = null) { const row = document.createElement('div'); row.className = 'chat-message-row'; const bubbleContainer = document.createElement('div'); bubbleContainer.className = 'chat-bubble-container'; const bubble = document.createElement('div'); bubble.className = `chat-bubble ${type}`; bubble.innerHTML = message.replace(/\n/g, '<br>'); bubbleContainer.appendChild(bubble); if (type === 'answer' && questionIndexForAnswer !== null) { const editButton = document.createElement('button'); editButton.className = 'edit-answer-button'; editButton.innerHTML = '<i class="fa-solid fa-pen"></i>'; editButton.title = 'この回答を編集する'; editButton.onclick = () => { enterEditMode(questionIndexForAnswer, bubble); }; bubbleContainer.appendChild(editButton); } row.appendChild(bubbleContainer); chatContainer.appendChild(row); chatContainer.scrollTop = chatContainer.scrollHeight; }
-            function enterEditMode(qIndex, bubbleEl) {
-                if (editingState.isEditing) {
-                    exitEditMode();
-                }
-
-                editingState = { isEditing: true, questionIndex: qIndex, bubbleElement: bubbleEl };
-
-                // ★★★ 修正箇所 ★★★
-                let existingAnswer = answers[`Q${qIndex + 1}`] === '（無回答）' ? '' : answers[`Q${qIndex + 1}`];
-                // 既に「」で囲まれている場合は、中身だけを抽出
-                if (existingAnswer.startsWith('「') && existingAnswer.endsWith('」')) {
-                    existingAnswer = existingAnswer.slice(1, -1);
-                }
-
-                chatInput.value = `「${existingAnswer}」`;
-                // ★★★ ここまで ★★★
-
-                btnSendAnswer.textContent = '更新';
-
-                const inputArea = document.querySelector('.chat-input-area');
-                inputArea.classList.remove('inactive');
-                wizardContainer.classList.add('editing-active');
-
-                // ★★★ カーソルを「」の間に移動させる処理 ★★★
-                chatInput.focus();
-                // setSelectionRangeは focus() の後に呼び出す
-                const cursorPos = chatInput.value.length - 1; // 末尾の」の前の位置
-                chatInput.setSelectionRange(cursorPos, cursorPos);
-            }
-            function exitEditMode() { if (!editingState.isEditing) return; editingState = { isEditing: false, questionIndex: null, bubbleElement: null }; chatInput.value = ''; btnSendAnswer.textContent = '送信'; wizardContainer.classList.remove('editing-active'); if (currentQuestionIndex >= questions.length) { document.querySelector('.chat-input-area').classList.add('inactive'); } }
-            function askNextQuestion() {
-                if (editingState.isEditing) {
-                    exitEditMode();
-                }
-                btnFinish.disabled = false;
-
-                if (currentQuestionIndex < questions.length) {
-                    addChatMessage(questions[currentQuestionIndex], 'question');
-
-                    // ★★★ 修正箇所 ★★★
-                    chatInput.value = '「」'; // デフォルトで「」を入力
-                    chatInput.focus();
-                    // カーソルを「」の間に移動
-                    chatInput.setSelectionRange(1, 1);
-                    // ★★★ ここまで ★★★
-
-                    document.querySelector('.chat-input-area').classList.remove('inactive');
-                } else {
-                    addChatMessage("全ての質問が完了しました！<br>内容を確認・編集し、よろしければ下の「完了」ボタンを押してください。", 'question');
-                    document.querySelector('.chat-input-area').classList.add('inactive');
-                    // ★★★ 全問完了時はテキストボックスを空にする ★★★
-                    chatInput.value = '';
-                }
-            }
-            function finishAndSubmit() {
-                const finalStatusContainer = document.querySelector('[data-step="4"] .final-status-container');
-                if (!finalStatusContainer) return;
-                goToStep(4);
-
-                const finalData = {
-                    pcName: pcNameInput.value,
-                    plName: plNameInput.value,
-                    system: systemInput.value,
-                    firstScenario: firstScenarioInput.value,
-                    imageUrl: imageUrlInput.value,
-                    ...answers
-                };
-
-                if (formData.isEditing) {
-                    finalData.id = formData.id;
-                    finalData.action = 'update';
-                } else {
-                    const maxId = allCharacters.reduce((max, char) => Math.max(max, parseInt(char.id) || 0), 0);
-                    finalData.id = maxId + 1;
-                    finalData.action = 'append';
-                }
-
-                finalStatusContainer.innerHTML = `<div class="loader"></div><h2>登録処理中...</h2><p>データを書き込んでいます...</p>`;
-
-                // ★★★ 修正点：fetchのオプションを no-cors に変更 ★★★
-                fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // CORSのチェックをせず、リクエストを「撃ちっぱなし」にするモード
-                    cache: 'no-cache',
-                    headers: {
-                        'Content-Type': 'text/plain;charset=UTF-8', // Content-Typeは残す
-                    },
-                    body: JSON.stringify(finalData)
-                })
-                    .then(() => {
-                        // ★★★ 修正点：thenブロックで常に成功として扱う ★★★
-                        console.log("GASへの送信リクエストが完了しました。");
-                        finalStatusContainer.innerHTML = `<p class="success" style="font-size: 2.5em; margin: 0;">✔️</p><h2 class="success">登録リクエストを送信しました！</h2><p>数秒後にデータが反映されます。ページをリロードして確認してください。</p>`;
-                        formData.isEditing = false;
-                    })
-                    .catch(error => {
-                        // ★★★ 修正点：catchブロックは、本当にネットワークに接続できない場合のエラー処理とする ★★★
-                        console.error('GASへの送信でネットワークエラー:', error);
-                        finalStatusContainer.innerHTML = `<p class="error" style="font-size: 2.5em; margin: 0;">❌</p><h2 class="error">ネットワークエラー</h2><p>サーバーに接続できませんでした。インターネット接続を確認してください。</p>`;
-                        formData.isEditing = false;
-                    });
-            }
-
-            // 各データソース用のパーサー
-            function parseQandA(csvText) {
-                const { header, dataRows } = parseCSV(csvText, ['ID', 'システム', 'PL名', 'PC名']);
-                const idIndex = header.indexOf('ID'), systemIndex = header.indexOf('システム'), plNameIndex = header.indexOf('PL名'), pcNameIndex = header.indexOf('PC名'), firstScenarioIndex = header.indexOf('初登場シナリオ'), imageUrlIndex = header.indexOf('画像URL');
-                const q1Index = header.findIndex(h => h && h.trim().startsWith('Q1')), remarksIndex = header.findIndex(h => h && h.trim().startsWith('※備考'));
-                const qEndIndex = remarksIndex !== -1 ? remarksIndex : header.length;
-                questions = header.slice(q1Index, qEndIndex);
-                return dataRows.map(values => { if (!values[pcNameIndex] || values[pcNameIndex].trim() === '') return null; return { id: values[idIndex], system: values[systemIndex], plName: values[plNameIndex], pcName: values[pcNameIndex], firstScenario: values[firstScenarioIndex], imageUrl: (values[imageUrlIndex] || '').trim(), answers: values.slice(q1Index, qEndIndex) }; }).filter(Boolean);
-            }
-            function parseCharacterCatalog(csvText) {
-                // ★★★ ヘッダーの必須項目を「卓名」に変更 ★★★
-                const { header, dataRows } = parseCSV(csvText, ['PL', 'PC名', '卓名']);
-
-                const plIndex = header.indexOf('PL');
-                const pcIndex = header.indexOf('PC名');
-                // ★★★ 「卓名」列のインデックスを取得 ★★★
-                const takuIndex = header.indexOf('卓名');
-
-                if ([plIndex, pcIndex, takuIndex].includes(-1)) {
-                    throw new Error(`キャラ名鑑の必須ヘッダー(PL, PC名, 卓名)が見つかりません。`);
-                }
-
-                return dataRows.map(values => {
-                    if (values.length > Math.max(plIndex, pcIndex, takuIndex) && values[plIndex] && values[pcIndex]) {
-                        return {
-                            plName: values[plIndex].trim(),
-                            pcName: values[pcIndex].trim(),
-                            // ★★★ 「卓名」列の値を systemNameとして保存 ★★★
-                            systemName: values[takuIndex].trim()
-                        };
-                    }
-                    return null;
-                }).filter(Boolean);
-            }
-            function parseScenarioArchive(csvText) {
-                // ★★★ ヘッダーに「卓名」の代わりに「システム」を追加 ★★★
-                const { header, dataRows } = parseCSV(csvText, ['シナリオ名', 'PL', 'PC', 'システム']);
-                const scenarioIndex = header.indexOf('シナリオ名');
-                const plIndex = header.indexOf('PL');
-                const pcIndex = header.indexOf('PC');
-                const systemIndex = header.indexOf('システム'); // ★★★ 「システム」のインデックスを取得 ★★★
-
-                const archive = [];
-                dataRows.forEach(values => {
-                    if (values.length > Math.max(scenarioIndex, plIndex, pcIndex, systemIndex)) {
-                        const pls = (values[plIndex] || '').split(',').map(p => p.trim());
-                        const pcs = (values[pcIndex] || '').split(',').map(p => p.trim());
-                        pls.forEach((pl, index) => {
-                            if (pl && pcs[index]) {
-                                archive.push({
-                                    scenarioName: values[scenarioIndex].trim(),
-                                    plName: pl,
-                                    pcName: pcs[index],
-                                    systemName: values[systemIndex].trim() // ★★★ systemNameとして「システム」を保存 ★★★
-                                });
-                            }
-                        });
-                    }
-                });
-                return archive;
-            }
-            // <script>タグ内の setupFormAutofillListeners 関数を、この内容でまるごと置き換える
-
-            function setupFormAutofillListeners() {
-                const pcNameSuggestions = document.getElementById('pc-name-suggestions');
-                const scenarioSuggestions = document.getElementById('scenario-suggestions');
-                const originalSystemOptions = Array.from(systemInput.options).map(opt => opt.cloneNode(true));
-
-                let debounceTimeout;
-                function debounce(func, wait) {
-                    return function (...args) { clearTimeout(debounceTimeout); debounceTimeout = setTimeout(() => func.apply(this, args), wait); };
-                }
-
-                pcNameInput.addEventListener('input', debounce(handlePcInput, 300));
-                plNameInput.addEventListener('input', debounce(handlePlInput, 300));
-                systemInput.addEventListener('change', debounce(handleSystemChange, 100));
-
-                function handlePcInput() {
-                    const pcValue = pcNameInput.value.trim();
-
-                    // PC名が空になったらリセット
-                    if (pcValue === '') {
-                        resetFormSelections();
-                        pcNameInput.classList.remove('invalid'); // invalidクラスも削除
-                        return;
-                    }
-
-                    resetSuggestions(true);
-                    if (pcValue.length < 1) return;
-
-                    const possibleChars = characterCatalog.filter(c => c.pcName === pcValue);
-
-                    // ★★★ 修正点：PC名が存在するかどうかでスタイルを切り替え ★★★
-                    if (possibleChars.length > 0) {
-                        pcNameInput.classList.remove('invalid'); // 存在するのでinvalidクラスを削除
-                        if (plNameInput.value.trim() === '') {
-                            plNameInput.value = possibleChars[0].plName;
-                        }
-                        updateSystemSuggestions(possibleChars);
-                    } else {
-                        pcNameInput.classList.add('invalid'); // 存在しないのでinvalidクラスを追加
-                    }
-                }
-
-                function handlePlInput() {
-                    updatePcSuggestions();
-                }
-
-                function handleSystemChange() {
-                    updatePcSuggestions();
-                    updateScenarioSuggestions();
-                    // ★★★ 修正点：システム選択時に背景色を変更 ★★★
-                    updateSystemColor();
-                }
-
-                // ★★★ 新しい関数：システムの背景色を更新 ★★★
-                function updateSystemColor() {
-                    const systemValue = systemInput.value;
-                    if (systemValue && typeof TRPG_SYSTEM_COLORS !== 'undefined') {
-                        const color = TRPG_SYSTEM_COLORS[systemValue] || TRPG_SYSTEM_COLORS['default'];
-                        systemInput.style.backgroundColor = color;
-                        // 背景色に合わせて文字色を白か黒に自動調整
-                        const contrastColor = getContrastYIQ(color);
-                        systemInput.style.color = contrastColor;
-                    } else {
-                        // 未選択の場合はデフォルトの色に戻す
-                        systemInput.style.backgroundColor = '';
-                        systemInput.style.color = '';
-                    }
-                }
-
-
-
-                function updatePcSuggestions() {
-                    const plValue = plNameInput.value.trim();
-                    const systemValue = systemInput.value;
-                    pcNameSuggestions.innerHTML = '';
-
-                    // PC名入力欄のinvalid状態を一旦リセット
-                    pcNameInput.classList.remove('invalid');
-
-                    if (plValue) {
-                        let filteredPcs = characterCatalog.filter(c => c.plName === plValue);
-
-                        // システムが選択されていれば、さらに絞り込む
-                        if (systemValue) {
-                            filteredPcs = filteredPcs.filter(c => c.systemName.startsWith(systemValue));
-                        }
-
-                        const uniquePcs = [...new Set(filteredPcs.map(p => p.pcName))];
-
-                        // ★★★ 修正点：候補が0件の場合の処理を追加 ★★★
-                        if (uniquePcs.length === 0 && systemValue) {
-                            // システムが選択されているのに候補が0件の場合、PC名入力欄をinvalidにする
-                            pcNameInput.classList.add('invalid');
-                        } else {
-                            // 候補が1件以上ある場合は、候補リストを作成
-                            uniquePcs.forEach(pc => {
-                                pcNameSuggestions.appendChild(Object.assign(document.createElement('option'), { value: pc }));
-                            });
-                        }
-                    }
-                }
-
-                function updateSystemSuggestions(possibleChars) {
-                    const systemsForPc = [...new Set(possibleChars.map(c => c.systemName.split('-')[0].trim()))];
-                    systemInput.innerHTML = '';
-                    systemsForPc.forEach(system => {
-                        systemInput.appendChild(Object.assign(document.createElement('option'), { value: system, textContent: system }));
-                    });
-
-                    if (systemsForPc.length > 0) {
-                        systemInput.value = systemsForPc[0];
-                    }
-                    updateScenarioSuggestions();
-                    updateSystemColor(); // システム候補更新後にも色を適用
-                }
-
-                function updateScenarioSuggestions() {
-                    // (この関数は変更なし)
-                    scenarioSuggestions.innerHTML = '';
-                    firstScenarioInput.value = '';
-                    const plValue = plNameInput.value.trim();
-                    const pcValue = pcNameInput.value.trim();
-                    const systemValue = systemInput.value;
-                    if (plValue && pcValue && systemValue) {
-                        const scenarios = [...new Set(scenarioArchive.filter(s => s.plName === plValue && s.pcName === pcValue && s.systemName === systemValue).map(s => s.scenarioName))];
-                        if (scenarios.length > 0) {
-                            firstScenarioInput.value = scenarios[0];
-                            scenarios.forEach(scenario => { scenarioSuggestions.appendChild(Object.assign(document.createElement('option'), { value: scenario })); });
-                        }
-                    }
-                }
-
-                function resetFormSelections() {
-                    pcNameSuggestions.innerHTML = '';
-                    scenarioSuggestions.innerHTML = '';
-                    firstScenarioInput.value = '';
-                    pcNameInput.classList.remove('invalid'); // invalidクラスもリセット
-
-                    systemInput.innerHTML = '';
-                    originalSystemOptions.forEach(option => systemInput.appendChild(option.cloneNode(true)));
-                    systemInput.value = "";
-                    updateSystemColor(); // 色もリセット
-                }
-
-                function resetSuggestions(keepPcSuggestions = false) {
-                    if (!keepPcSuggestions) { pcNameSuggestions.innerHTML = ''; }
-                    scenarioSuggestions.innerHTML = '';
-                    firstScenarioInput.value = '';
-                }
-            }
-
-            function setupFormOptions(csvText) {
-                try {
-                    const lines = csvText.trim().replace(/\r/g, '').split('\n');
-                    const plDataList = document.getElementById('pl-name-suggestions');
-                    const systemSelect = document.getElementById('form-system');
-                    if (!plDataList || !systemSelect) return;
-
-                    plDataList.innerHTML = '';
-                    // 選択肢の初期状態を保存する前に、一旦クリア
-                    systemSelect.innerHTML = '<option value="">システムを選択してください</option>';
-
-                    const plNames = new Set();
-                    const systems = new Set();
-
-                    // 除外したいシステムのリスト
-                    const excludedSystems = ['CoC-㊙'];
-
-                    for (let i = 1; i < lines.length; i++) {
-                        const values = lines[i].split(',');
-                        if (values.length < 3) continue;
-
-                        if (values[0].trim()) plNames.add(values[0].trim());
-
-                        let systemName = values[2].trim();
-                        if (systemName) {
-                            // ★★★ 修正点1: 「サタスペ」を全角に統一 ★★★
-                            if (systemName.toLowerCase() === 'ｻﾀｽﾍﾟ' || systemName.toLowerCase() === 'サタスペ') {
-                                systemName = 'サタスペ';
-                            }
-
-                            // ★★★ 修正点2: 除外リストに含まれていないかチェック ★★★
-                            if (!excludedSystems.includes(systemName)) {
-                                systems.add(systemName);
-                            }
-                        }
-                    }
-
-                    [...plNames].sort().forEach(name => { plDataList.appendChild(Object.assign(document.createElement('option'), { value: name })); });
-
-                    // ソート済みのシステムリストをプルダウンに追加
-                    [...systems].sort().forEach(name => {
-                        systemSelect.appendChild(Object.assign(document.createElement('option'), { value: name, textContent: name }));
-                    });
-
-                    console.log("フォームのPL名とシステムの候補を更新しました。");
-
-                } catch (error) {
-                    console.error("フォームオプションの設定中にエラー:", error);
-                }
-            }
-
-            // =========================================================================
-            // イベントリスナー設定
-            // =========================================================================
-            if (openModalBtn) {
-                openModalBtn.addEventListener('click', () => {
-                    if (!modal) return;
-
-                    // ★★★ formData を完全にリセット ★★★
-                    formData = {};
-
-                    document.body.classList.add('modal-open');
-                    modal.style.display = 'flex';
-                    goToStep(1);
-                    // (以下、フォームリセットの処理は変更なし)
-                    answers = {}; currentQuestionIndex = 0;
-                    [pcNameInput, plNameInput, systemInput, firstScenarioInput, imageUrlInput, chatInput].forEach(input => { if (input) input.value = ''; });
-                    if (chatContainer) chatContainer.innerHTML = '';
-                    if (chatInput) document.querySelector('.chat-input-area').classList.remove('inactive');
-                    if (btnSendAnswer) btnSendAnswer.style.display = 'block';
-                    if (btnFinish) btnFinish.disabled = true;
-                    if (chatImageContainer) chatImageContainer.innerHTML = '';
-                    resetFormSelections();
-                });
-            }
-            if (closeModalBtn) closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
-            if (modal) modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
-            if (btnStep1Next) btnStep1Next.addEventListener('click', () => { formData.pcName = pcNameInput.value; formData.plName = plNameInput.value; formData.system = systemInput.value; formData.firstScenario = firstScenarioInput.value; goToStep(2); });
-            if (btnStep2Prev) btnStep2Prev.addEventListener('click', () => goToStep(1));
-            if (btnStep2Next) {
-                btnStep2Next.addEventListener('click', () => {
-                    // 画像URLをformDataに保存
-                    formData.imageUrl = imageUrlInput.value;
-                    if (chatImageContainer) {
-                        chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${formData.imageUrl}" alt="Character Image">` : '';
-                    }
-
-                    // ★★★ 修正点：チャットUIを再構築する処理を削除 ★★★
-                    /*
-                    chatContainer.innerHTML = ''; 
-                    currentQuestionIndex = 0; 
-                    answers = {};
-                    */
-
-                    goToStep(3);
-
-                    // ★★★ 修正点：チャットが空の場合のみ、質問を開始する ★★★
-                    if (chatContainer.innerHTML.trim() === '') {
-                        askNextQuestion();
-                    }
-                });
-            }
-            if (btnStep3Prev) {
-                btnStep3Prev.addEventListener('click', () => {
-                    // ★★★ exitEditMode() の呼び出しを削除 ★★★
-                    // exitEditMode(); 
-                    goToStep(2);
-                });
-            }
-            if (btnSendAnswer) {
-                btnSendAnswer.addEventListener('click', () => {
-                    let answer = chatInput.value.trim();
-
-                    // ★★★ 修正箇所：空の「」かどうかをチェック ★★★
-                    if (answer === '「」') {
-                        answer = ''; // 空として扱う
-                    }
-
-                    const answerToStore = answer || '（無回答）';
-
-                    if (editingState.isEditing) {
-                        // (以下、変更なし)
-                        answers[`Q${editingState.questionIndex + 1}`] = answerToStore;
-                        editingState.bubbleElement.innerHTML = answerToStore.replace(/\n/g, '<br>');
-                        exitEditMode();
-                    } else {
-                        answers[`Q${currentQuestionIndex + 1}`] = answerToStore;
-                        addChatMessage(answerToStore, 'answer', currentQuestionIndex);
-                        currentQuestionIndex++;
-                        chatInput.value = '';
-                        askNextQuestion();
-                    }
-                });
-            }
-            if (chatInput) chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btnSendAnswer.click(); } });
-            if (btnFinish) btnFinish.addEventListener('click', finishAndSubmit);
-
-            // =========================================================================
-            // 初期化処理
-            // =========================================================================
-            async function initialize() {
-                console.log("Q&Aスクリプトの初期化を開始します。");
-                try {
-                    const [qandaResponse, catalogResponse, archiveResponse, pulldownResponse] = await Promise.all([
-                        fetch(SPREADSHEET_URL, { cache: "no-cache" }),
-                        fetch(CHAR_CATALOG_URL, { cache: "no-cache" }),
-                        fetch(SCENARIO_ARCHIVE_URL, { cache: "no-cache" }),
-                        fetch(PULLDOWN_SHEET_URL, { cache: "no-cache" })
-                    ]);
-                    if (!qandaResponse.ok) throw new Error(`Q&Aデータの取得に失敗: ${qandaResponse.status}`);
-                    if (!catalogResponse.ok) throw new Error(`キャラ名鑑データの取得に失敗: ${catalogResponse.status}`);
-                    if (!archiveResponse.ok) throw new Error(`シナリオアーカイブの取得に失敗: ${archiveResponse.status}`);
-                    if (!pulldownResponse.ok) throw new Error(`プルダウン用データの取得に失敗: ${pulldownResponse.status}`);
-
-                    const [qandaCsv, catalogCsv, archiveCsv, pulldownCsv] = await Promise.all([
-                        qandaResponse.text(), catalogResponse.text(), archiveResponse.text(), pulldownResponse.text()
-                    ]);
-
-                    allCharacters = parseQandA(qandaCsv);
-                    console.log(`Q&Aデータ: ${allCharacters.length}件`);
-                    characterCatalog = parseCharacterCatalog(catalogCsv);
-                    console.log(`キャラ名鑑データ: ${characterCatalog.length}件`);
-                    scenarioArchive = parseScenarioArchive(archiveCsv);
-                    console.log(`シナリオアーカイブデータ: ${scenarioArchive.length}件`);
-
-                    renderCharacterList(allCharacters);
-                    setupFilters();
-                    setupFormOptions(pulldownCsv);
-                    setupFormAutofillListeners();
-
-                    console.log("初期化が正常に完了しました。");
-                } catch (error) {
-                    console.error('初期化処理中にエラーが発生しました:', error);
-                    if (characterListContainer) {
-                        characterListContainer.innerHTML = `<p class="error" style="padding: 15px; font-size: 0.9em;"><strong>データの読み込みに失敗しました</strong><br><br><strong>エラー詳細:</strong><br>${error.message}</p>`;
-                    }
-                }
-            }
-            initialize();
-        });
-    </script>
+    <script src="q_and_a.js"></script>
 </body>
 
 </html>
