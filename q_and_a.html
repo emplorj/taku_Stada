@@ -33,8 +33,21 @@
                 <div class="filter-group"><label for="pc-search">PC名で検索:</label><input type="text" id="pc-search"
                         placeholder="PC名を入力..."></div>
                 <div class="header-actions"><button id="open-modal-button" class="add-new-button">✨ 新規登録</button></div>
+
+                <div class="randomizer-container">
+                    <div class="form-group">
+                        <label for="pl-random-input">PL名からランダム選出:</label>
+                        <input type="text" id="pl-random-input" placeholder="PL名を入力...">
+                    </div>
+                    <button id="random-char-button" class="random-select-button" title="選出開始！">▶</button>
+                    <div class="form-group result-group">
+                        <label id="random-result-label" for="random-char-result">今日のイチオシ:</label>
+                        <div id="random-char-result" class="random-char-result"></div>
+                    </div>
+                </div>
             </div>
         </div>
+
         <div class="qa-main-container" id="qa-main-container">
             <aside class="qa-character-list" id="character-list">
                 <p>キャラクターを読み込み中...</p>
@@ -86,7 +99,7 @@
                         <div class="chat-main-area">
                             <div class="chat-container" id="chat-container"></div>
                             <div class="chat-input-area">
-                                <div id="chat-input-wrapper" class="chat-input-wrapper">
+                                <div class="chat-input-wrapper">
                                     <textarea id="chat-input" placeholder="回答を入力..." rows="1"
                                         spellcheck="false"></textarea>
                                 </div>

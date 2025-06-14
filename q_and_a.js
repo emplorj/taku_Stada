@@ -1,9 +1,11 @@
 // q_and_a.js (完全修正版)
 
 document.addEventListener('DOMContentLoaded', () => {
+    // このページがQ&Aページでなければ何もしない
     if (!document.getElementById('qa-main-container')) return;
-    document.body.classList.add('qa-page-body');
 
+    document.body.classList.add('qa-page-body');
+    
     // --- 定数定義 ---
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwEsQe3onyMVVRJxdl_4wrE_VzFgpfs6HBe46eczo1yv3MhKLMK-Ic1A-a44mKtWUT8vQ/exec';
     const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Q8zZ9pdnw0UkcF3sZ3XFQr4g8ZrgRBNPBzzUT0RmulLMzhgJN4st3fa5h0Gkhqr4gZrt2TxYHaMc/pub?gid=0&single=true&output=csv';
@@ -17,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let editingState = { isEditing: false, questionIndex: null, bubbleElement: null };
     let characterCatalog = [], scenarioArchive = [];
 
-    // --- DOM要素の取得 ---
+    // --- DOM要素の取得 (ランダム選出機能の要素も追加) ---
     const dom = {
         characterList: document.getElementById('character-list'),
         qaDetails: document.getElementById('qa-details-view'),
@@ -44,9 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
         btnStep3Prev: document.getElementById('btn-step3-prev'),
         btnSendAnswer: document.getElementById('btn-send-answer'),
         btnFinish: document.getElementById('btn-finish'),
+        plRandomInput: document.getElementById('pl-random-input'),
+        randomCharButton: document.getElementById('random-char-button'),
+        randomCharResult: document.getElementById('random-char-result')
     };
 
-    // --- ヘルパー関数 ---
+    // (中略: ヘルパー関数とメイン関数は変更なし)
     const applySpoilerFormatting = text => {
         if (!text) return '';
         const escaped = text.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
@@ -58,57 +63,18 @@ document.addEventListener('DOMContentLoaded', () => {
             spoiler.addEventListener('click', e => { e.stopPropagation(); spoiler.classList.add('is-revealed'); }, { once: true });
         });
     };
-    const autoResizeTextarea = () => {
-        dom.chatInput.style.height = 'auto';
-        dom.chatInput.style.height = (dom.chatInput.scrollHeight) + 'px';
-    };
-
-    // --- メイン関数 ---
-    function renderQaDetails(character) {
-        if (!dom.qaDetails) return;
-        let backgroundDivHtml = character.imageUrl ? `<div class="details-view-background" style="background-image: url('${character.imageUrl}');"></div>` : '';
-        
-        const editButtonHtml = `<button class="edit-character-button" title="このキャラクターを編集する"><i class="fas fa-edit"></i></button>`;
-        
-        const contentHtml = `
+    function renderQaDetails(character){if(!dom.qaDetails)return;let backgroundDivHtml=character.imageUrl?`<div class="details-view-background" style="background-image: url('${character.imageUrl}');"></div>`:"";const editButtonHtml=`<button class="edit-character-button" title="このキャラクターを編集する"><i class="fas fa-pen"></i></button>`,contentHtml=`
             <div class="details-view-content">
                 <div class="qa-header">
                     <h2>${character.pcName} ${editButtonHtml}</h2>
                     <p><strong>PL:</strong> ${character.plName} / <strong>システム:</strong> ${character.system}</p>
-                    <p><strong>初登場シナリオ:</strong> ${character.firstScenario || 'N/A'}</p>
+                    <p><strong>初登場シナリオ:</strong> ${character.firstScenario||"N/A"}</p>
                 </div>
                 <div class="qa-body">
-                    ${questions.map((q, i) => `<div class="qa-item"><p class="question">${q.replace(/\n/g, '<br>')}</p><p class="answer">${applySpoilerFormatting(character.answers[i] || '（無回答）')}</p></div>`).join('')}
+                    ${questions.map((q,i)=>`<div class="qa-item"><p class="question">${q.replace(/\n/g,"<br>")}</p><p class="answer">${applySpoilerFormatting(character.answers[i]||"（無回答）")}</p></div>`).join("")}
                 </div>
-            </div>`;
-        dom.qaDetails.innerHTML = backgroundDivHtml + contentHtml;
-        addSpoilerClickListeners(dom.qaDetails);
-        dom.qaDetails.querySelector('.edit-character-button')?.addEventListener('click', () => openEditModal(character));
-    }
-    // (以降の関数定義は省略)
-    
-    function addChatMessage(message, type, questionIndexForAnswer = null) {
-        const row = document.createElement('div');
-        row.className = 'chat-message-row';
-        const bubbleContainer = document.createElement('div');
-        bubbleContainer.className = 'chat-bubble-container';
-        const bubble = document.createElement('div');
-        bubble.className = `chat-bubble ${type}`;
-        bubble.innerHTML = applySpoilerFormatting(message);
-        addSpoilerClickListeners(bubble);
-        bubbleContainer.appendChild(bubble);
-        if (type === 'answer' && questionIndexForAnswer !== null) {
-            const editButton = document.createElement('button');
-            editButton.className = 'edit-answer-button';
-            editButton.innerHTML = '<i class="fa-solid fa-pen"></i>';
-            editButton.title = 'この回答を編集する';
-            editButton.onclick = () => enterEditMode(questionIndexForAnswer, bubble);
-            bubbleContainer.appendChild(editButton);
-        }
-        row.appendChild(bubbleContainer);
-        dom.chatContainer.appendChild(row);
-        dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight;
-    }
+            </div>`;dom.qaDetails.innerHTML=backgroundDivHtml+contentHtml,addSpoilerClickListeners(dom.qaDetails),dom.qaDetails.querySelector(".edit-character-button")?.addEventListener("click",()=>openEditModal(character))}
+    function addChatMessage(message,type,questionIndexForAnswer=null){const row=document.createElement("div");row.className="chat-message-row";const bubbleContainer=document.createElement("div");bubbleContainer.className="chat-bubble-container";const bubble=document.createElement("div");bubble.className=`chat-bubble ${type}`,bubble.innerHTML=applySpoilerFormatting(message),addSpoilerClickListeners(bubble),bubbleContainer.appendChild(bubble),"answer"===type&&null!==questionIndexForAnswer&&(()=>{const editButton=document.createElement("button");editButton.className="edit-answer-button",editButton.innerHTML='<i class="fa-solid fa-pen"></i>',editButton.title="この回答を編集する",editButton.onclick=()=>enterEditMode(questionIndexForAnswer,bubble),bubbleContainer.appendChild(editButton)})(),row.appendChild(bubbleContainer),dom.chatContainer.appendChild(row),dom.chatContainer.scrollTop=dom.chatContainer.scrollHeight}
     function parseCSV(csvText,requiredHeaders){const rows=[];let inQuotes=!1,currentRow=[],currentField="";const text=csvText.trim().replace(/\r/g,"");for(let i=0;i<text.length;i++){const char=text[i];if('"'===char)inQuotes&&'"'===text[i+1]?(currentField+='"',i++):inQuotes=!inQuotes;else if(","===char&&!inQuotes)currentRow.push(currentField),currentField="";else if("\n"===char&&!inQuotes)currentRow.push(currentField),rows.push(currentRow),currentRow=[],currentField="";else currentField+=char}currentRow.push(currentField),rows.push(currentRow);const headerIndex=rows.findIndex(row=>requiredHeaders.every(h=>row.includes(h)));if(-1===headerIndex)throw new Error(`ヘッダー行（${requiredHeaders.join(", ")} を含む行）が見つかりません。`);const header=rows[headerIndex],dataRows=rows.slice(headerIndex+1);return{header,dataRows}}
     function getContrastYIQ(hexcolor){if(!hexcolor)return"black";hexcolor=hexcolor.replace("#","");if(6!==hexcolor.length)return"black";const r=parseInt(hexcolor.substr(0,2),16),g=parseInt(hexcolor.substr(2,2),16),b=parseInt(hexcolor.substr(4,2),16);return(299*r+587*g+114*b)/1e3>=128?"black":"white"}
     function renderCharacterList(characters){if(!dom.characterList)return;dom.characterList.innerHTML="";if(0===characters.length)return void(dom.characterList.innerHTML='<p class="no-results">該当するキャラクターがいません。</p>');characters.forEach(char=>{const card=document.createElement("div");card.className="character-card",card.dataset.id=char.id;const systemColor="undefined"!=typeof TRPG_SYSTEM_COLORS&&TRPG_SYSTEM_COLORS[char.system]?TRPG_SYSTEM_COLORS[char.system]:"#007bff";card.innerHTML=`<div class="card-system" style="background-color: ${systemColor};"></div><div class="card-info"><h4 class="card-pc-name">${char.pcName}</h4><p class="card-pl-name">PL: ${char.plName}</p><p class="card-system-name">System: ${char.system}</p></div>`,card.addEventListener("click",()=>{renderQaDetails(char),document.querySelectorAll(".character-card").forEach(c=>{c.classList.remove("active"),c.style.backgroundColor="";const info=c.querySelector(".card-info");if(info){info.style.color="";const pcName=info.querySelector(".card-pc-name");pcName&&(pcName.style.color="")}
@@ -117,9 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyFilters(){const plValue=dom.plFilter.value,systemValue=dom.systemFilter.value,searchValue=dom.pcSearch.value.trim().toLowerCase();let filtered=allCharacters;"all"!==plValue&&(filtered=filtered.filter(char=>char.plName===plValue)),"all"!==systemValue&&(filtered=filtered.filter(char=>char.system===systemValue)),searchValue&&(filtered=filtered.filter(char=>char.pcName.toLowerCase().includes(searchValue))),renderCharacterList(filtered),dom.qaDetails&&(dom.qaDetails.innerHTML='<div class="qa-placeholder"><p>左のリストからキャラクターを選択してください。</p></div>')}
     function setupFilters(){if(dom.plFilter&&dom.systemFilter){const plNames=[...new Set(allCharacters.map(char=>char.plName))].filter(Boolean),systems=[...new Set(allCharacters.map(char=>char.system))].filter(Boolean);plNames.sort().forEach(name=>{dom.plFilter.innerHTML+=`<option value="${name}">${name}</option>`}),systems.sort().forEach(name=>{dom.systemFilter.innerHTML+=`<option value="${name}">${name}</option>`}),dom.plFilter.addEventListener("change",applyFilters),dom.systemFilter.addEventListener("change",applyFilters),dom.pcSearch.addEventListener("input",applyFilters)}}
     function goToStep(stepNumber){if(dom.wizard){dom.steps.forEach(step=>step.classList.remove("active"));const targetStep=dom.wizard.querySelector(`[data-step="${stepNumber}"]`);targetStep&&targetStep.classList.add("active")}}
-    function enterEditMode(qIndex,bubbleEl){editingState.isEditing&&exitEditMode(),editingState={isEditing:!0,questionIndex:qIndex,bubbleElement:bubbleEl};let existingAnswer="（無回答）"===answers[`Q${qIndex+1}`]?"":answers[`Q${qIndex+1}`];existingAnswer.startsWith("「")&&existingAnswer.endsWith("」")&&(existingAnswer=existingAnswer.slice(1,-1)),dom.chatInput.value=`「${existingAnswer}」`,dom.btnSendAnswer.textContent="更新";const inputArea=document.querySelector(".chat-input-area");inputArea.classList.remove("inactive"),dom.wizard.classList.add("editing-active"),dom.chatInput.focus();const cursorPos=dom.chatInput.value.length-1;dom.chatInput.setSelectionRange(cursorPos,cursorPos),autoResizeTextarea()}
-    function exitEditMode(){editingState.isEditing&&(editingState={isEditing:!1,questionIndex:null,bubbleElement:null},dom.chatInput.value="",dom.btnSendAnswer.textContent="送信",dom.wizard.classList.remove("editing-active"),currentQuestionIndex>=questions.length&&document.querySelector(".chat-input-area").classList.add("inactive"),autoResizeTextarea())}
-    function askNextQuestion(){editingState.isEditing&&exitEditMode(),dom.btnFinish.disabled=!1,currentQuestionIndex<questions.length?(addChatMessage(questions[currentQuestionIndex],"question"),dom.chatInput.value="「」",dom.chatInput.focus(),dom.chatInput.setSelectionRange(1,1),document.querySelector(".chat-input-area").classList.remove("inactive")):(addChatMessage("全ての質問が完了しました！<br>内容を確認・編集し、よろしければ下の「完了」ボタンを押してください。","question"),document.querySelector(".chat-input-area").classList.add("inactive"),dom.chatInput.value=""),autoResizeTextarea()}
+    function enterEditMode(qIndex,bubbleEl){editingState.isEditing&&exitEditMode(),editingState={isEditing:!0,questionIndex:qIndex,bubbleElement:bubbleEl};let existingAnswer="（無回答）"===answers[`Q${qIndex+1}`]?"":answers[`Q${qIndex+1}`];existingAnswer.startsWith("「")&&existingAnswer.endsWith("」")&&(existingAnswer=existingAnswer.slice(1,-1)),dom.chatInput.value=`「${existingAnswer}」`,dom.btnSendAnswer.textContent="更新";const inputArea=document.querySelector(".chat-input-area");inputArea.classList.remove("inactive"),dom.wizard.classList.add("editing-active"),dom.chatInput.focus();const cursorPos=dom.chatInput.value.length-1;dom.chatInput.setSelectionRange(cursorPos,cursorPos)}
+    function exitEditMode(){editingState.isEditing&&(editingState={isEditing:!1,questionIndex:null,bubbleElement:null},dom.chatInput.value="",dom.btnSendAnswer.textContent="送信",dom.wizard.classList.remove("editing-active"),currentQuestionIndex>=questions.length&&document.querySelector(".chat-input-area").classList.add("inactive"))}
+    function askNextQuestion(){editingState.isEditing&&exitEditMode(),dom.btnFinish.disabled=!1,currentQuestionIndex<questions.length?(addChatMessage(questions[currentQuestionIndex],"question"),dom.chatInput.value="「」",dom.chatInput.focus(),dom.chatInput.setSelectionRange(1,1),document.querySelector(".chat-input-area").classList.remove("inactive")):(addChatMessage("全ての質問が完了しました！<br>内容を確認・編集し、よろしければ下の「完了」ボタンを押してください。","question"),document.querySelector(".chat-input-area").classList.add("inactive"),dom.chatInput.value="")}
     function finishAndSubmit(){const finalStatusContainer=document.querySelector('[data-step="4"] .final-status-container');if(finalStatusContainer){goToStep(4);const finalData={pcName:dom.pcNameInput.value,plName:dom.plNameInput.value,system:dom.systemInput.value,firstScenario:dom.firstScenarioInput.value,imageUrl:dom.imageUrlInput.value,...answers};formData.isEditing?(finalData.id=formData.id,finalData.action="update"):(finalData.id=allCharacters.reduce((max,char)=>Math.max(max,parseInt(char.id)||0),0)+1,finalData.action="append"),finalStatusContainer.innerHTML='<div class="loader"></div><h2>登録処理中...</h2><p>データを書き込んでいます...</p>',fetch(GAS_WEB_APP_URL,{method:"POST",mode:"no-cors",cache:"no-cache",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(finalData)}).then(()=>{console.log("GASへの送信リクエストが完了しました。"),finalStatusContainer.innerHTML='<p class="success" style="font-size: 2.5em; margin: 0;">✔️</p><h2 class="success">登録リクエストを送信しました！</h2><p>数秒後にデータが反映されます。ページをリロードして確認してください。</p>',formData.isEditing=!1}).catch(error=>{console.error("GASへの送信でネットワークエラー:",error),finalStatusContainer.innerHTML='<p class="error" style="font-size: 2.5em; margin: 0;">❌</p><h2 class="error">ネットワークエラー</h2><p>サーバーに接続できませんでした。インターネット接続を確認してください。</p>',formData.isEditing=!1})}}
     function parseQandA(csvText){const{header,dataRows}=parseCSV(csvText,["ID","システム","PL名","PC名"]),idIndex=header.indexOf("ID"),systemIndex=header.indexOf("システム"),plNameIndex=header.indexOf("PL名"),pcNameIndex=header.indexOf("PC名"),firstScenarioIndex=header.indexOf("初登場シナリオ"),imageUrlIndex=header.indexOf("画像URL"),q1Index=header.findIndex(h=>h&&h.trim().startsWith("Q1")),remarksIndex=header.findIndex(h=>h&&h.trim().startsWith("※備考")),qEndIndex=-1!==remarksIndex?remarksIndex:header.length;return questions=header.slice(q1Index,qEndIndex),dataRows.map(values=>values[pcNameIndex]&&""!==values[pcNameIndex].trim()?{id:values[idIndex],system:values[systemIndex],plName:values[plNameIndex],pcName:values[pcNameIndex],firstScenario:values[firstScenarioIndex],imageUrl:(values[imageUrlIndex]||"").trim(),answers:values.slice(q1Index,qEndIndex)}:null).filter(Boolean)}
     function parseCharacterCatalog(csvText){const{header,dataRows}=parseCSV(csvText,["PL","PC名","卓名"]),plIndex=header.indexOf("PL"),pcIndex=header.indexOf("PC名"),takuIndex=header.indexOf("卓名");if([-1].includes(plIndex,pcIndex,takuIndex))throw new Error("キャラ名鑑の必須ヘッダー(PL, PC名, 卓名)が見つかりません。");return dataRows.map(values=>values.length>Math.max(plIndex,pcIndex,takuIndex)&&values[plIndex]&&values[pcIndex]?{plName:values[plIndex].trim(),pcName:values[pcIndex].trim(),systemName:values[takuIndex].trim()}:null).filter(Boolean)}
@@ -148,12 +114,44 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.btnSendAnswer?.addEventListener("click",()=>{let answer=dom.chatInput.value.trim();"「」"===answer&&(answer="");const answerToStore=answer||"（無回答）";editingState.isEditing?(answers[`Q${editingState.questionIndex+1}`]=answerToStore,editingState.bubbleElement.innerHTML=applySpoilerFormatting(answerToStore),addSpoilerClickListeners(editingState.bubbleElement),exitEditMode()):(answers[`Q${currentQuestionIndex+1}`]=answerToStore,addChatMessage(answerToStore,"answer",currentQuestionIndex),currentQuestionIndex++,dom.chatInput.value="",askNextQuestion())});
     dom.chatInput?.addEventListener("keydown",e=>{e.key&&"Enter"===e.key&&!e.shiftKey&&(e.preventDefault(),dom.btnSendAnswer.click())});
     dom.btnFinish?.addEventListener("click",finishAndSubmit);
-    dom.chatInput?.addEventListener('input', autoResizeTextarea); // テキストボックスの高さ自動調整
+    dom.chatInput?.addEventListener('input', () => autoResizeTextarea());
 
-    // ★★★ Tips内のサンプルにもネタバレ機能を適用 ★★★
-    if(dom.spoilerTip) {
-        addSpoilerClickListeners(dom.spoilerTip);
+    // ★★★ ランダム選出機能 ★★★
+    let drumRollInterval;
+    function startRandomSelection() {
+        if (!dom.randomCharButton || !dom.plRandomInput || !dom.randomCharResult) return;
+        const plName = dom.plRandomInput.value.trim();
+        if (!plName) {
+            dom.randomCharResult.textContent = 'PL名を入力してください。';
+            return;
+        }
+        const candidates = characterCatalog.filter(char => char.plName === plName);
+        if (candidates.length === 0) {
+            dom.randomCharResult.textContent = `「${plName}」さんのキャラクターが見つかりません。`;
+            return;
+        }
+        const resultLabel = document.getElementById('random-result-label');
+        const resultBox = dom.randomCharResult;
+        dom.randomCharButton.disabled = true;
+        clearInterval(drumRollInterval);
+        resultLabel.textContent = '選出中...';
+        drumRollInterval = setInterval(() => {
+            const randomIndex = Math.floor(Math.random() * candidates.length);
+            resultBox.innerHTML = `<span class="result-name">${candidates[randomIndex].pcName}</span>`;
+        }, 50);
+
+        setTimeout(() => {
+            clearInterval(drumRollInterval);
+            const finalIndex = Math.floor(Math.random() * candidates.length);
+            const finalCharacter = candidates[finalIndex];
+            resultLabel.textContent = '今日はこいつに聞いてみよう！';
+            resultBox.innerHTML = `<span class="result-name">${finalCharacter.pcName}</span>`;
+            resultBox.classList.add('is-selected');
+            resultBox.addEventListener('animationend', () => resultBox.classList.remove('is-selected'), { once: true });
+            dom.randomCharButton.disabled = false;
+        }, 2000);
     }
+    dom.randomCharButton?.addEventListener('click', startRandomSelection);
     
     // --- 初期化処理 ---
     async function initialize(){
@@ -167,18 +165,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const[qandaCsv,catalogCsv,archiveCsv,pulldownCsv]=await Promise.all([qandaResponse.text(),catalogResponse.text(),archiveResponse.text(),pulldownResponse.text()]);
             
             allCharacters=parseQandA(qandaCsv);
-            console.log(`Q&Aデータ: ${allCharacters.length}件`);
-            
-            // ★★★★★ ここがエラーの原因でした ★★★★★
-            characterCatalog=parseCharacterCatalog(catalogCsv); // `csvText` を `catalogCsv` に修正
-            
-            console.log(`キャラ名鑑データ: ${characterCatalog.length}件`);
+            characterCatalog=parseCharacterCatalog(catalogCsv);
             scenarioArchive=parseScenarioArchive(archiveCsv);
-            console.log(`シナリオアーカイブデータ: ${scenarioArchive.length}件`);
+            
             renderCharacterList(allCharacters);
             setupFilters();
             setupFormOptions(pulldownCsv);
             setupFormAutofillListeners();
+            addSpoilerClickListeners(dom.spoilerTip); // ★★★ Tipsのネタバレ機能をここで初期化 ★★★
             console.log("初期化が正常に完了しました。");
         } catch(error) {
             console.error('初期化処理中にエラーが発生しました:',error);
