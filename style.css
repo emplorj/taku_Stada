@@ -73,8 +73,9 @@ a {
 .center {
     text-align: center;
 }
+
 h1 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+    font-family: 'vdl-logojrblack', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
     text-align: center;
     border-bottom: 2px solid #3498db;
     padding-bottom: 10px;
@@ -1515,4 +1516,23 @@ body.no-scroll {
         background-position: right 10px top 50%;
         background-size: .65em auto;
     }
+}
+
+
+/* ==========================================================================
+   汎用フォントクラス (Adobe Fonts)
+   ========================================================================== */
+
+/* ペン字風 (VDL PenGentle B) */
+.font-pengentle {
+    font-family: vdl-pengentle, sans-serif;
+font-weight: 700;
+font-style: normal;
+}
+
+/* ロゴJrブラック (Adobe Fonts) */
+.wf-active .font-logojrblack {
+    font-family: vdl-logojrblack, sans-serif;
+    font-weight: 900;
+    font-style: normal;
 }

@@ -1,5 +1,3 @@
-// q_and_a.js (完全版・省略なし)
-
 document.addEventListener('DOMContentLoaded', () => {
     // このページがQ&Aページでなければ何もしない
     if (!document.getElementById('qa-main-container')) return;
@@ -50,8 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
         randomCharResult: document.getElementById('random-char-result')
     };
 
+    // --- ヘルパー関数 ---
     const getContrastYIQ = hexcolor => { if (!hexcolor) return "black"; hexcolor = hexcolor.replace("#", ""); if (hexcolor.length !== 6) return "black"; const r = parseInt(hexcolor.substr(0, 2), 16), g = parseInt(hexcolor.substr(2, 2), 16), b = parseInt(hexcolor.substr(4, 2), 16); return ((r * 299) + (g * 587) + (b * 114)) / 1000 >= 128 ? 'black' : 'white'; };
-
     const applySpoilerFormatting = text => {
         if (!text) return '';
         const escaped = text.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
@@ -64,6 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     const getFontClass = fontName => fontName ? `font-${fontName.toLowerCase().replace(/\s/g, '-')}` : '';
+    function createProxiedUrl(originalUrl) {
+        if (!originalUrl || !originalUrl.includes('imgur.com')) return originalUrl;
+        return `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`;
+    }
     function parseCSV(csvText, requiredHeaders) {
         const rows = []; let inQuotes = false; let currentRow = []; let currentField = '';
         const text = csvText.trim().replace(/\r\n|\r/g, '\n');
@@ -84,14 +86,74 @@ document.addEventListener('DOMContentLoaded', () => {
         return { header, dataRows };
     }
     
+    // --- メイン関数 ---
     function renderCharacterList(characters) {
         if (!dom.characterList) return;
         dom.characterList.innerHTML = "";
-        if (characters.length === 0) { dom.characterList.innerHTML = '<p class="no-results">該当するキャラクターがいません。</p>'; return; }
+        if (characters.length === 0) {
+            dom.characterList.innerHTML = '<p class="no-results">該当するキャラクターがいません。</p>';
+            return;
+        }
+
         characters.forEach(char => {
             const card = document.createElement("div");
             card.className = "character-card";
             card.dataset.id = char.id;
+
+            if (char.imageUrl) {
+                const proxiedImageUrl = createProxiedUrl(char.imageUrl);
+                card.style.backgroundImage = `url('${proxiedImageUrl}')`;
+                card.classList.add('has-bg-image');
+                card.style.backgroundRepeat = 'no-repeat';
+
+                const img = new Image();
+                img.onload = function() {
+                    const aspectRatio = this.naturalWidth / this.naturalHeight;
+                    const x = aspectRatio;
+                    let bgSize, hOffset, vOffset;
+
+                    if (x < 0.5) {
+                    // --- 【ルールA】 縦長の立ち絵 (aspectRatio < 0.7) ---
+                        // 狙い: 縦に長いほど、顔が上に来るように垂直オフセットを小さくする
+                        // y = ax^2 + bx + c の二次関数でフィットさせる
+                        hOffset = (-150 * x * x) + (60 * x) + 60;  // 右へのずらし量
+                        vOffset = (150 * x * x) - (230 * x) + 120; // 下へのずらし量
+                        bgSize = '70%';
+
+                    } else if (x <= 0.8) {
+                        // --- 【ルールB】 バストアップ・ (0.7 <= aspectRatio <= 1.1) ---
+                        // 狙い: 顔アイコンやバストアップを中央に寄せるための調整
+                        // y = mx + b の一次関数でフィットさせる
+                        hOffset = (35 * x) + 14; // 右へのずらし量
+                        vOffset = (25 * x) + 15; // 下へのずらし量
+                        bgSize = '70%';
+
+                    }  else if (x <= 1.1) {
+                        // --- 【ルールB】 バストアップ・正方形 (0.7 <= aspectRatio <= 1.1) ---
+                        // 狙い: 顔アイコンやバストアップを中央に寄せるための調整
+                        // y = mx + b の一次関数でフィットさせる
+                        hOffset = (35 * x) + 34; // 右へのずらし量
+                        vOffset = (25 * x) + 15; // 下へのずらし量
+                        bgSize = '100%';
+
+                    } else {
+                        // --- 【ルールC】 横長の画像 (aspectRatio > 1.1) ---
+                        // 狙い: 画像全体を見せつつ、右側のキャラクターを優先
+                        bgSize = 'cover';
+                        hOffset = 120; // 固定値が最も安定
+                        vOffset = 35;  // 固定値が最も安定
+                    }
+                    
+                    card.style.backgroundSize = bgSize;
+                    card.style.backgroundPosition = `right -${hOffset}px top -${vOffset}px`;
+                };
+                img.onerror = function() {
+                    card.style.backgroundSize = 'cover';
+                    card.style.backgroundPosition = 'center';
+                };
+                img.src = proxiedImageUrl;
+            }
+
             const systemColor = typeof TRPG_SYSTEM_COLORS !== 'undefined' && TRPG_SYSTEM_COLORS[char.system] ? TRPG_SYSTEM_COLORS[char.system] : "#007bff";
             card.innerHTML = `<div class="card-system" style="background-color: ${systemColor};"></div><div class="card-info"><h4 class="card-pc-name">${char.pcName}</h4><p class="card-pl-name">PL: ${char.plName}</p><p class="card-system-name">System: ${char.system}</p></div>`;
             card.addEventListener("click", () => {
@@ -105,7 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderQaDetails(character) {
         if (!dom.qaDetails) return;
-        let backgroundDivHtml = character.imageUrl ? `<div class="details-view-background" style="background-image: url('${character.imageUrl}');"></div>` : '';
+        let backgroundDivHtml = '';
+        if (character.imageUrl) {
+            const proxiedImageUrl = createProxiedUrl(character.imageUrl);
+            backgroundDivHtml = `<div class="details-view-background" style="background-image: url('${proxiedImageUrl}');"></div>`;
+        }
         const editButtonHtml = `<button class="edit-character-button" title="このキャラクターを編集する"><i class="fas fa-pen"></i></button>`;
         const fontClass = getFontClass(character.fontFamily);
         const contentHtml = `
@@ -133,9 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let bubbleClassName = `chat-bubble ${type}`;
         if (type === 'answer') {
             const fontClass = getFontClass(dom.fontFamilyInput.value);
-            if (fontClass) {
-                bubbleClassName += ` ${fontClass}`;
-            }
+            if (fontClass) bubbleClassName += ` ${fontClass}`;
         }
         bubble.className = bubbleClassName;
         bubble.innerHTML = applySpoilerFormatting(message);
@@ -174,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentQuestionIndex = questions.length;
         document.querySelector('.chat-input-area').classList.add('inactive');
         dom.btnFinish.disabled = false;
-        dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${formData.imageUrl}" alt="Character Image">` : '';
+        dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${createProxiedUrl(formData.imageUrl)}" alt="Character Image">` : '';
         document.body.classList.add('modal-open');
         dom.modal.style.display = 'flex';
         goToStep(3);
@@ -185,9 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const systemValue = dom.systemFilter.value;
         const searchValue = dom.pcSearch.value.trim().toLowerCase();
         let filtered = allCharacters;
-        if (plValue !== 'all') { filtered = filtered.filter(char => char.plName === plValue); }
-        if (systemValue !== 'all') { filtered = filtered.filter(char => char.system === systemValue); }
-        if (searchValue) { filtered = filtered.filter(char => char.pcName.toLowerCase().includes(searchValue)); }
+        if (plValue !== 'all') filtered = filtered.filter(char => char.plName === plValue);
+        if (systemValue !== 'all') filtered = filtered.filter(char => char.system === systemValue);
+        if (searchValue) filtered = filtered.filter(char => char.pcName.toLowerCase().includes(searchValue));
         renderCharacterList(filtered);
         if (dom.qaDetails) dom.qaDetails.innerHTML = '<div class="qa-placeholder"><p>左のリストからキャラクターを選択してください。</p></div>';
     }
@@ -216,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editingState = { isEditing: true, questionIndex: qIndex, bubbleElement: bubbleEl };
         let existingAnswer = answers[`Q${qIndex + 1}`];
         if (existingAnswer === "（無回答）") existingAnswer = "";
-        if (existingAnswer.startsWith("「") && existingAnswer.endsWith("」")) { existingAnswer = existingAnswer.slice(1, -1); }
+        if (existingAnswer.startsWith("「") && existingAnswer.endsWith("」")) existingAnswer = existingAnswer.slice(1, -1);
         dom.chatInput.value = `「${existingAnswer}」`;
         dom.btnSendAnswer.textContent = "更新";
         document.querySelector(".chat-input-area").classList.remove("inactive");
@@ -276,36 +340,25 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         questions.forEach((questionHeader, i) => {
             const answerKey = `Q${i + 1}`;
-            if (answers[answerKey] !== undefined) {
-                submissionData[questionHeader] = answers[answerKey];
-            }
+            if (answers[answerKey] !== undefined) submissionData[questionHeader] = answers[answerKey];
         });
-        
         const finalStatusContainer = document.querySelector('[data-step="4"] .final-status-container');
         finalStatusContainer.innerHTML = '<div class="loader"></div><h2>登録処理中...</h2><p>データをスプレッドシートに書き込んでいます...</p>';
-        
-        // ★★★ ここからが修正箇所です ★★★
         fetch(GAS_WEB_APP_URL, {
             method: 'POST',
-            mode: 'no-cors', // GASとの通信のための「応答を待たない」モード
+            mode: 'no-cors',
             cache: 'no-cache',
-            headers: {
-                // 'Content-Type': 'application/json' は no-corsモードでは不要なため削除
-            },
             body: JSON.stringify(submissionData),
         })
         .then(() => {
-            // no-corsモードでは、リクエストが送信できれば成功とみなす
             finalStatusContainer.innerHTML = '<p class="success" style="font-size: 2.5em; margin: 0;">✔️</p><h2 class="success">登録リクエストを送信しました！</h2><p>数秒後にデータが反映されます。ページをリロードして確認してください。</p>';
             formData.isEditing = false;
         })
         .catch(error => {
-            // ここでキャッチされるのは、オフラインなどの純粋なネットワークエラーのみ
             console.error('GASへの送信でネットワークエラー:', error);
             finalStatusContainer.innerHTML = `<p class="error" style="font-size: 2.5em; margin: 0;">❌</p><h2 class="error">ネットワークエラー</h2><p>サーバーに接続できませんでした。インターネット接続を確認してください。</p>`;
             formData.isEditing = false;
         });
-        // ★★★ 修正箇所はここまでです ★★★
     }
 
     function parseQandA(csvText) {
@@ -318,14 +371,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return dataRows.map(values => {
             if (!values[pcNameIndex] || values[pcNameIndex].trim() === '') return null;
             return {
-                id: values[idIndex],
-                system: values[systemIndex],
-                plName: values[plNameIndex],
-                pcName: values[pcNameIndex],
-                firstScenario: values[firstScenarioIndex],
-                imageUrl: (values[imageUrlIndex] || "").trim(),
-                fontFamily: fontIndex > -1 ? values[fontIndex] || "" : "",
-                answers: values.slice(q1Index, qEndIndex)
+                id: values[idIndex], system: values[systemIndex], plName: values[plNameIndex], pcName: values[pcNameIndex],
+                firstScenario: values[firstScenarioIndex], imageUrl: (values[imageUrlIndex] || "").trim(),
+                fontFamily: fontIndex > -1 ? values[fontIndex] || "" : "", answers: values.slice(q1Index, qEndIndex)
             };
         }).filter(Boolean);
     }
@@ -397,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dom.systemInput.value = "";
             buildCustomOptions(dom.systemInput);
         }
-        function resetSuggestions(keepPcSuggestions = false) { if (!keepPcSuggestions) { pcNameSuggestions.innerHTML = ""; } scenarioSuggestions.innerHTML = "", dom.firstScenarioInput.value = ""; }
+        function resetSuggestions(keepPcSuggestions = false) { if (!keepPcSuggestions) pcNameSuggestions.innerHTML = ""; scenarioSuggestions.innerHTML = "", dom.firstScenarioInput.value = ""; }
         dom.pcNameInput.addEventListener("input", debounce(handlePcInput, 300));
         dom.plNameInput.addEventListener("input", debounce(handlePlInput, 300));
         dom.systemInput.addEventListener("change", debounce(handleSystemChange, 100));
@@ -418,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (values[0].trim()) plNames.add(values[0].trim());
                 let systemName = values[2].trim();
                 if (systemName) {
-                    if (systemName.toLowerCase() === 'ｻﾀｽﾍﾟ' || systemName.toLowerCase() === 'サタスペ') { systemName = "サタスペ"; }
+                    if (systemName.toLowerCase() === 'ｻﾀｽﾍﾟ' || systemName.toLowerCase() === 'サタスペ') systemName = "サタスペ";
                     if (!excludedSystems.includes(systemName)) systems.add(systemName);
                 }
             }
@@ -431,29 +479,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => {
             const originalSelect = wrapper.querySelector('select');
             if (!originalSelect || wrapper.dataset.initialized) return;
-
             wrapper.querySelector('.custom-select-trigger')?.remove();
-            if (originalSelect.customOptionsContainer) {
-                originalSelect.customOptionsContainer.remove();
-            }
-
+            if (originalSelect.customOptionsContainer) originalSelect.customOptionsContainer.remove();
             const trigger = document.createElement('div');
             trigger.className = 'custom-select-trigger';
             trigger.innerHTML = `<span></span><div class="arrow"></div>`;
             wrapper.appendChild(trigger);
-            
             const optionsContainer = document.createElement('div');
             optionsContainer.className = 'custom-select-options';
             document.body.appendChild(optionsContainer);
-            
             originalSelect.customOptionsContainer = optionsContainer;
-
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isAlreadyOpen = optionsContainer.classList.contains('open');
                 document.querySelectorAll('.custom-select-options.open').forEach(oc => oc.classList.remove('open'));
                 document.querySelectorAll('.custom-select-wrapper.open').forEach(w => w.classList.remove('open'));
-
                 if (!isAlreadyOpen) {
                     wrapper.classList.add('open');
                     optionsContainer.classList.add('open');
@@ -463,11 +503,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     optionsContainer.style.width = `${rect.width}px`;
                 }
             });
-            
             originalSelect.addEventListener('change', () => window.updateCustomSelectDisplay(originalSelect));
             wrapper.dataset.initialized = 'true';
         });
-
         window.addEventListener('click', () => {
             document.querySelectorAll('.custom-select-options.open').forEach(oc => oc.classList.remove('open'));
             document.querySelectorAll('.custom-select-wrapper.open').forEach(w => w.classList.remove('open'));
@@ -478,7 +516,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectElement || !selectElement.customOptionsContainer) return;
         const optionsContainer = selectElement.customOptionsContainer;
         optionsContainer.innerHTML = '';
-        
         Array.from(selectElement.options).forEach(optionEl => {
             const customOption = document.createElement('div');
             customOption.className = 'custom-option';
@@ -488,7 +525,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (font && font !== 'HigashiOme-Gothic-C') {
                 customOption.style.fontFamily = `'${font}', sans-serif`;
             }
-            
             customOption.addEventListener('click', (e) => {
                 e.stopPropagation();
                 selectElement.value = optionEl.value;
@@ -520,7 +556,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  trigger.style.borderColor = '';
                  trigger.style.color = '';
             }
-            
             if (selectElement.id === 'form-fontFamily') {
                  const font = selectedOption.dataset.font || selectedOption.value;
                  trigger.style.fontFamily = (font && font !== 'HigashiOme-Gothic-C') ? `'${font}', sans-serif` : '';
@@ -559,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.modal?.addEventListener("click", e => { if (e.target === dom.modal) dom.modal.style.display = "none" });
     dom.btnStep1Next?.addEventListener("click", () => { formData.pcName = dom.pcNameInput.value, formData.plName = dom.plNameInput.value, formData.system = dom.systemInput.value, formData.firstScenario = dom.firstScenarioInput.value, formData.fontFamily = dom.fontFamilyInput.value, goToStep(2) });
     dom.btnStep2Prev?.addEventListener("click", () => goToStep(1));
-    dom.btnStep2Next?.addEventListener("click", () => { formData.imageUrl = dom.imageUrlInput.value, dom.chatImageContainer && (dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${formData.imageUrl}" alt="Character Image">` : ""), goToStep(3), "" === dom.chatContainer.innerHTML.trim() && askNextQuestion() });
+    dom.btnStep2Next?.addEventListener("click", () => { formData.imageUrl = dom.imageUrlInput.value, dom.chatImageContainer && (dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${createProxiedUrl(formData.imageUrl)}" alt="Character Image">` : ""), goToStep(3), "" === dom.chatContainer.innerHTML.trim() && askNextQuestion() });
     dom.btnStep3Prev?.addEventListener("click", () => goToStep(2));
     dom.btnSendAnswer?.addEventListener("click", () => {
         let answer = dom.chatInput.value.trim();
@@ -589,7 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Q&Aスクリプトの初期化を開始します。");
         try{
             setupCustomSelects();
-
             const [qandaResponse, catalogResponse, archiveResponse, pulldownResponse] = await Promise.all([
                 fetch(SPREADSHEET_URL, { cache: "no-cache" }),
                 fetch(CHAR_CATALOG_URL, { cache: "no-cache" }),

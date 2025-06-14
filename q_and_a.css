@@ -59,6 +59,7 @@
     box-sizing: border-box; 
 }
 .character-card {
+    position: relative; /* 疑似要素を配置する基準点にする */
     display: flex;
     align-items: center;
     background-color: #1a2c6d;
@@ -67,10 +68,14 @@
     cursor: pointer;
     transition: background-color 0.2s, transform 0.2s;
     overflow: hidden;
+    z-index: 1; /* 重なりの基準を設定 */
 }
 .character-card:hover {
-    background-color: #2c3e50;
     transform: translateY(-2px);
+}
+/* 背景画像が「ない」カードにのみ、背景色を変更するホバー効果を適用 */
+.character-card:not(.has-bg-image):hover {
+    background-color: #2c3e50;
 }
 .character-card.active {
     box-shadow: 0 0 12px rgba(80, 180, 255, 0.8);
@@ -79,15 +84,29 @@
 .character-card.active .card-pc-name {
     color: #fff;
 }
-.card-system {
-    width: 8px;
-    align-self: stretch;
+
+.card-info { 
+    padding: 10px 15px;
+    position: relative; /* z-indexを効かせるため */
+    z-index: 3; /* グラデーションより手前に表示 */
 }
-.card-info { padding: 10px 15px; }
-.card-pc-name { margin: 0 0 5px 0; font-size: 1.1em; color: inherit; }
+.card-pc-name { margin: 0 0 5px 0; font-size: 1.1em; color: inherit; font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+ }
 .card-pl-name,
 .card-system-name { margin: 0; font-size: 0.8em; color: inherit; }
-
+.character-card.has-bg-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* テキストがある左側55%を覆い、75%地点で透明になるグラデーション */
+    background: linear-gradient(to right, rgba(26, 44, 109, 0.9) 20%, transparent 75%);
+    z-index: 2; /* 背景画像(z-index: 1)とテキスト(z-index: 3)の間に配置 */
+    border-radius: inherit; /* カードの角丸に合わせる */
+    pointer-events: none; /* グラデーションがクリックの邪魔をしないようにする */
+}
 .qa-details-view {
     flex-grow: 1;
     background-color: #1a2c6d;
@@ -160,7 +179,6 @@
 /* ==========================================================================
    新規登録モーダル
    ========================================================================== */
-body.modal-open { overflow: hidden; }
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
@@ -304,83 +322,43 @@ h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
 .random-char-result .result-name { font-weight: bold; font-size: 1.2em; color: #fff; }
 .random-char-result .result-prompt { font-size: 0.8em; margin-top: 4px; }
 
-/* ==========================================================================
-   新規登録モーダル カスタムプルダウン
-   ========================================================================== */
-.custom-select-wrapper {
-    position: relative;
-    width: 100%;
-    font-family: inherit;
-}
-.custom-select-trigger {
-    background-color: #0d1a50;
-    color: #eee;
-    border: 1px solid #2a3c7d;
-    border-radius: 4px;
-    padding: 0 10px;
-    font-size: 1em;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    box-sizing: border-box;
-    height: 40px;
-    transition: border-color 0.2s, background-color 0.2s, color 0.2s;
-}
-.custom-select-wrapper.open .custom-select-trigger {
-    border-color: #3498db;
-}
-.custom-select-trigger span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 10px;
-}
-.custom-select-trigger .arrow {
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #ccc;
-    transition: transform 0.2s ease-in-out;
-    flex-shrink: 0;
-}
-.custom-select-wrapper.open .custom-select-trigger .arrow {
-    transform: rotate(180deg);
-}
-.custom-select-options {
-    display: none;
-    position: fixed;
-    background-color: #1a2c6d;
-    border: 1px solid #3498db;
-    border-radius: 4px;
-    z-index: 3050;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    max-height: 250px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #2a3c7d #0d1a50;
-}
-.custom-select-options.open {
-    display: block;
-}
-.custom-select-options::-webkit-scrollbar { width: 8px; }
-.custom-select-options::-webkit-scrollbar-track { background: #0d1a50; }
-.custom-select-options::-webkit-scrollbar-thumb { background-color: #2a3c7d; border-radius: 4px; }
-.custom-option {
-    padding: 10px 15px;
-    color: #eee;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    border-bottom: 1px solid #2c3e50;
-}
-.custom-option:last-child { border-bottom: none; }
-.custom-option:hover { background-color: #2c3e50; }
-.custom-option.selected { background-color: #3498db; color: #fff; font-weight: bold; }
-.custom-select-wrapper select { display: none; }
 .form-group.form-group-full-width { grid-column: 1 / -1; }
+/* ==========================================================================
+   背景画像付きキャラクターカードのスタイル
+   ========================================================================== */
 
+/* 背景画像があるカードのテキストは常に白にする */
+.character-card.has-bg-image .card-info,
+.character-card.has-bg-image .card-pc-name,
+.character-card.has-bg-image .card-pl-name,
+.character-card.has-bg-image .card-system-name {
+    color: #fff;
+}
+
+/* 文字に影を付けて、どんな背景画像の上でも読みやすくする */
+.character-card.has-bg-image .card-info {
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+}
+/* システムカラーバーが常に最前面に表示されるようにする */
+.card-system {
+    width: 8px;
+    align-self: stretch;
+    position: relative; /* z-indexを有効にするため */
+    z-index: 4;         /* テキスト(3)やグラデーション(2)より手前に配置 */
+}
+.character-card.has-bg-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 左側40%は不透明、65%地点で完全に透明になる滑らかなグラデーション */
+    background: linear-gradient(to right, #1a2c6d 40%, rgba(26, 44, 109, 0) 65%);
+    z-index: 2; /* 背景画像(1)とテキスト(3)の間に配置 */
+    border-radius: inherit;
+    pointer-events: none;
+}
 /* ==========================================================================
    Q&Aページ 回答フォントのスタイル
    ========================================================================== */
@@ -392,6 +370,19 @@ h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
 .answer.font-reggae-one, .chat-bubble.answer.font-reggae-one { font-family: 'Reggae One', system-ui; }
 .answer.font-zen-antique-soft, .chat-bubble.answer.font-zen-antique-soft { font-family: 'Zen Antique Soft', serif; }
 .answer.font-wdxl-lubrifont-jp-n, .chat-bubble.answer.font-wdxl-lubrifont-jp-n { font-family: 'WDXL Lubrifont JP N', sans-serif; }
+.wf-active .answer.font-vdl-logojrblack,.chat-bubble.answer.font-vdl-logojrblack {
+    font-family: "vdl-logojrblack", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
+
+/* ペン字風 (Adobe Fonts) */
+.answer.font-vdl-pengentle-b,
+.chat-bubble.answer.font-vdl-pengentle-b {
+    font-family: "vdl-pengentle", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
 
 /* 各選択肢のフォントを適用 */
 .custom-option[data-font="Noto Serif JP"] { font-family: 'Noto Serif JP', serif; }
@@ -401,3 +392,13 @@ h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
 .custom-option[data-font="Reggae One"] { font-family: 'Reggae One', system-ui; }
 .custom-option[data-font="Zen Antique Soft"] { font-family: 'Zen Antique Soft', serif; }
 .custom-option[data-font="WDXL Lubrifont JP N"] { font-family: 'WDXL Lubrifont JP N', sans-serif; }
+.custom-option[data-font="vdl-pengentle"] {
+    font-family: "vdl-pengentle", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+.wf-active .custom-option[data-font="vdl-logojrblack"] {
+    font-family: 'vdl-logojrblack', sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
