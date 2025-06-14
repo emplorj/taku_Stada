@@ -278,6 +278,15 @@ footer {
     transition: color 0.3s ease;
     display: block; /* クリック範囲を広げる */
     padding: 2px 0;
+    display: flex;         /* 1. Flexboxを有効にして、中の要素（アイコンとテキスト）を横並びに */
+    align-items: center;   /* 2. アイコンとテキストを垂直方向の中央に揃える */
+}
+.menu-icon {
+    height: 1.2em;      /* 高さを文字サイズに合わせる (お好みで調整) */
+    width: 1.2em;       /* 幅を文字サイズに合わせる (お好みで調整) */
+    margin-right: 0.5em;  /* アイコンとテキストの間に余白を作る */
+    object-fit: contain;  /* 画像のアスペクト比を保つ */
+    transform: translateY(-5px);
 }
 
 .side-menu a:hover,
