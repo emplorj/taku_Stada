@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="q_and_a.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Serif+JP:wght@400;700&family=Reggae+One&family=Yuji+Syuku&family=Zen+Antique+Soft&family=Zen+Maru+Gothic:wght@400;700&family=WDXL+Lubrifont+JP+N&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
@@ -20,7 +27,7 @@
             <header class="page-header-with-actions">
                 <div class="header-main">
                     <h1>キャラクターQ&A</h1>
-                    <p class="subtitle">お前のキャラの以外な一面が見られるかも　<a
+                    <p class="subtitle">お前のキャラの以外な一面が見られるかも <a
                             href="https://docs.google.com/spreadsheets/d/1RJrUdz6QbYc_N1X0gub8zdixEIy_8KyV3exf6A9Smoc/edit?gid=0"
                             target="_blank">Googleスプレッドシート（元データ）</a></p>
                 </div>
@@ -35,21 +42,17 @@
                 <div class="filter-group"><label for="pc-search">PC名で検索:</label><input type="text" id="pc-search"
                         placeholder="PC名を入力..."></div>
                 <div class="header-actions"><button id="open-modal-button" class="add-new-button">✨ 新規登録</button></div>
-
                 <div class="randomizer-container">
-                    <div class="form-group">
-                        <label for="pl-random-input">PL名からランダム選出:</label>
-                        <input type="text" id="pl-random-input" placeholder="PL名を入力...">
-                    </div>
+                    <div class="form-group"><label for="pl-random-input">PL名からランダム選出:</label><input type="text"
+                            id="pl-random-input" placeholder="PL名を入力..."></div>
                     <button id="random-char-button" class="random-select-button" title="選出開始！">▶</button>
-                    <div class="form-group result-group">
-                        <label id="random-result-label" for="random-char-result">今日のイチオシ:</label>
+                    <div class="form-group result-group"><label id="random-result-label"
+                            for="random-char-result">今日のイチオシ:</label>
                         <div id="random-char-result" class="random-char-result"></div>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="qa-main-container" id="qa-main-container">
             <aside class="qa-character-list" id="character-list">
                 <p>キャラクターを読み込み中...</p>
@@ -77,8 +80,21 @@
                                 id="pl-name-suggestions"></datalist></div>
                         <div class="form-group"><label for="form-system">システム</label><select id="form-system" required
                                 autocomplete="off">
-                                <option value="">システムを選択してください</option>
+                                <option value="">システムを選択</option>
                             </select></div>
+                        <div class="form-group">
+                            <label for="form-fontFamily">回答フォント</label>
+                            <select id="form-fontFamily" autocomplete="off">
+                                <option value="HigashiOme-Gothic-C">デフォルト (東青梅ゴシック)</option>
+                                <option value="Noto Serif JP">明朝体 (Noto Serif JP)</option>
+                                <option value="Zen Maru Gothic">丸ゴシック (Zen Maru Gothic)</option>
+                                <option value="Yuji Syuku">手書き風 (Yuji Syuku)</option>
+                                <option value="DotGothic16">ドット絵風 (DotGothic16)</option>
+                                <option value="Reggae One">レゲエ風 (Reggae One)</option>
+                                <option value="Zen Antique Soft">アンティーク (Zen Antique Soft)</option>
+                                <option value="WDXL Lubrifont JP N">カクカク (滑油字)</option>
+                            </select>
+                        </div>
                         <div class="form-group"><label for="form-firstScenario">初登場シナリオ</label><input type="text"
                                 id="form-firstScenario" list="scenario-suggestions" autocomplete="off"><datalist
                                 id="scenario-suggestions"></datalist></div>
@@ -101,15 +117,12 @@
                         <div class="chat-main-area">
                             <div class="chat-container" id="chat-container"></div>
                             <div class="chat-input-area">
-                                <div class="chat-input-wrapper">
-                                    <textarea id="chat-input" placeholder="回答を入力..." rows="1"
-                                        spellcheck="false"></textarea>
-                                </div>
-                                <button id="btn-send-answer" class="wizard-btn">送信</button>
+                                <div class="chat-input-wrapper"><textarea id="chat-input" placeholder="回答を入力..."
+                                        rows="1" spellcheck="false"></textarea></div><button id="btn-send-answer"
+                                    class="wizard-btn">送信</button>
                             </div>
-                            <div class="spoiler-tip">
-                                <strong>Tips:</strong> ||で囲うとネタバレ防止ができます (例: <span class="spoiler-text">テスト</span>)
-                            </div>
+                            <div class="spoiler-tip"><strong>Tips:</strong> <code>||</code>で囲うとネタバレ防止ができます (例: <span
+                                    class="spoiler-text">テスト</span>)</div>
                         </div>
                         <div class="chat-character-image" id="chat-character-image"></div>
                     </div>
@@ -122,9 +135,7 @@
             </div>
         </div>
     </div>
-
     <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
-
     <script src="common.js"></script>
     <script src="q_and_a.js"></script>
 </body>

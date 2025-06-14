@@ -380,3 +380,34 @@ h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
     font-size: 0.8em;
     margin-top: 4px;
 }
+
+/* ==========================================================================
+   Q&Aページ 回答フォントのスタイル
+   ========================================================================== */
+/* デフォルトフォント */
+.answer.font-higashiome-gothic-c {
+    font-family: 'HigashiOme-Gothic-C', sans-serif;
+}
+
+/* Google Fonts */
+.answer.font-noto-serif-jp {
+    font-family: 'Noto Serif JP', serif;
+}
+.answer.font-zen-maru-gothic {
+    font-family: 'Zen Maru Gothic', sans-serif;
+}
+.answer.font-yuji-syuku {
+    font-family: 'Yuji Syuku', serif;
+}
+.answer.font-dotgothic16 {
+    font-family: 'DotGothic16', sans-serif;
+}
+.answer.font-reggae-one {
+    font-family: 'Reggae One', system-ui;
+}
+.answer.font-zen-antique-soft {
+    font-family: 'Zen Antique Soft', serif;
+}
+.answer.font-wdxl-lubrifont-jp-n {
+    font-family: 'WDXL Lubrifont JP N', sans-serif;
+}
