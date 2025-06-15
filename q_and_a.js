@@ -1,3 +1,5 @@
+// q_and_a.js (完全最終版・備考機能追加)
+
 document.addEventListener('DOMContentLoaded', () => {
     // このページがQ&Aページでなければ何もしない
     if (!document.getElementById('qa-main-container')) return;
@@ -15,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentQuestionIndex = 0;
     let editingState = { isEditing: false, questionIndex: null, bubbleElement: null };
     let characterCatalog = [], scenarioArchive = [];
+    const REMARKS_HEADER = '※備考等'; // 備考欄のヘッダー名を定数化
 
     const dom = {
         characterList: document.getElementById('character-list'),
@@ -47,6 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
         randomCharButton: document.getElementById('random-char-button'),
         randomCharResult: document.getElementById('random-char-result')
     };
+
+    if (dom.openModalBtn) {
+        dom.openModalBtn.disabled = true;
+        dom.openModalBtn.textContent = "データ読込中...";
+    }
 
     // --- ヘルパー関数 ---
     const getContrastYIQ = hexcolor => { if (!hexcolor) return "black"; hexcolor = hexcolor.replace("#", ""); if (hexcolor.length !== 6) return "black"; const r = parseInt(hexcolor.substr(0, 2), 16), g = parseInt(hexcolor.substr(2, 2), 16), b = parseInt(hexcolor.substr(4, 2), 16); return ((r * 299) + (g * 587) + (b * 114)) / 1000 >= 128 ? 'black' : 'white'; };
@@ -85,21 +93,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataRows = rows.slice(headerIndex + 1);
         return { header, dataRows };
     }
+    function scrollToChatBottom() {
+        if (dom.chatContainer) {
+            // requestAnimationFrameを使い、ブラウザの描画更新の直後に実行させる
+            requestAnimationFrame(() => {
+                dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight;
+            });
+        }
+    }
     
     // --- メイン関数 ---
     function renderCharacterList(characters) {
         if (!dom.characterList) return;
         dom.characterList.innerHTML = "";
-        if (characters.length === 0) {
-            dom.characterList.innerHTML = '<p class="no-results">該当するキャラクターがいません。</p>';
-            return;
-        }
-
+        if (characters.length === 0) { dom.characterList.innerHTML = '<p class="no-results">該当するキャラクターがいません。</p>'; return; }
         characters.forEach(char => {
             const card = document.createElement("div");
             card.className = "character-card";
             card.dataset.id = char.id;
-
             if (char.imageUrl) {
                 const proxiedImageUrl = createProxiedUrl(char.imageUrl);
                 card.style.backgroundImage = `url('${proxiedImageUrl}')`;
@@ -116,25 +127,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     // --- 【ルールA】 縦長の立ち絵 (aspectRatio < 0.7) ---
                         // 狙い: 縦に長いほど、顔が上に来るように垂直オフセットを小さくする
                         // y = ax^2 + bx + c の二次関数でフィットさせる
-                        hOffset = (-150 * x * x) + (60 * x) + 60;  // 右へのずらし量
-                        vOffset = (150 * x * x) - (230 * x) + 120; // 下へのずらし量
+                        hOffset = (-150 * x * x) + (60 * x) + 50;  // 右へのずらし量
+                        vOffset = (150 * x * x) - (230 * x) + 80; // 下へのずらし量
                         bgSize = '70%';
 
                     } else if (x <= 0.8) {
                         // --- 【ルールB】 バストアップ・ (0.7 <= aspectRatio <= 1.1) ---
                         // 狙い: 顔アイコンやバストアップを中央に寄せるための調整
                         // y = mx + b の一次関数でフィットさせる
-                        hOffset = (35 * x) + 14; // 右へのずらし量
-                        vOffset = (25 * x) + 15; // 下へのずらし量
+                        hOffset = (25 * x) + 24; // 右へのずらし量
+                        vOffset = (45 * x) - 5; // 下へのずらし量
                         bgSize = '70%';
 
                     }  else if (x <= 1.1) {
                         // --- 【ルールB】 バストアップ・正方形 (0.7 <= aspectRatio <= 1.1) ---
                         // 狙い: 顔アイコンやバストアップを中央に寄せるための調整
                         // y = mx + b の一次関数でフィットさせる
-                        hOffset = (35 * x) + 34; // 右へのずらし量
-                        vOffset = (25 * x) + 15; // 下へのずらし量
-                        bgSize = '100%';
+                        hOffset = (15 * x) + 34; // 右へのずらし量
+                        vOffset = (25 * x) + 5; // 下へのずらし量
+                        bgSize = '80%';
 
                     } else {
                         // --- 【ルールC】 横長の画像 (aspectRatio > 1.1) ---
@@ -153,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 img.src = proxiedImageUrl;
             }
-
             const systemColor = typeof TRPG_SYSTEM_COLORS !== 'undefined' && TRPG_SYSTEM_COLORS[char.system] ? TRPG_SYSTEM_COLORS[char.system] : "#007bff";
             card.innerHTML = `<div class="card-system" style="background-color: ${systemColor};"></div><div class="card-info"><h4 class="card-pc-name">${char.pcName}</h4><p class="card-pl-name">PL: ${char.plName}</p><p class="card-system-name">System: ${char.system}</p></div>`;
             card.addEventListener("click", () => {
@@ -167,30 +177,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderQaDetails(character) {
         if (!dom.qaDetails) return;
-        let backgroundDivHtml = '';
+        dom.qaDetails.style.backgroundImage = '';
+        dom.qaDetails.classList.remove('has-bg-image');
         if (character.imageUrl) {
             const proxiedImageUrl = createProxiedUrl(character.imageUrl);
-            backgroundDivHtml = `<div class="details-view-background" style="background-image: url('${proxiedImageUrl}');"></div>`;
+            dom.qaDetails.style.backgroundImage = `url('${proxiedImageUrl}')`;
+            dom.qaDetails.classList.add('has-bg-image');
+            const img = new Image();
+            img.onload = function() {
+                const aspectRatio = this.naturalWidth / this.naturalHeight;
+                let bgSize, bgPos;
+                if (aspectRatio <= 1.2) {
+                    bgSize = '600px auto';
+                    bgPos = 'top right 60px';
+                } else {
+                    bgSize = 'cover';
+                    bgPos = 'center center';
+                }
+                dom.qaDetails.style.backgroundSize = bgSize;
+                dom.qaDetails.style.backgroundPosition = bgPos;
+            };
+            img.onerror = function() {
+                dom.qaDetails.style.backgroundSize = 'cover';
+                dom.qaDetails.style.backgroundPosition = 'center';
+            };
+            img.src = proxiedImageUrl;
         }
         const editButtonHtml = `<button class="edit-character-button" title="このキャラクターを編集する"><i class="fas fa-pen"></i></button>`;
         const fontClass = getFontClass(character.fontFamily);
-        const contentHtml = `
-            <div class="details-view-content">
+        let contentHtml = `<div class="details-view-content">
                 <div class="qa-header">
                     <h2>${character.pcName} ${editButtonHtml}</h2>
                     <p><strong>PL:</strong> ${character.plName} / <strong>システム:</strong> ${character.system}</p>
                     <p><strong>初登場シナリオ:</strong> ${character.firstScenario || 'N/A'}</p>
                 </div>
                 <div class="qa-body">
-                    ${questions.map((q, i) => `<div class="qa-item"><p class="question">${q.replace(/\n/g, '<br>')}</p><p class="answer ${fontClass}">${applySpoilerFormatting(character.answers[i] || '（無回答）')}</p></div>`).join('')}
-                </div>
-            </div>`;
-        dom.qaDetails.innerHTML = backgroundDivHtml + contentHtml;
-        addSpoilerClickListeners(dom.qaDetails);
-        dom.qaDetails.querySelector('.edit-character-button')?.addEventListener('click', () => openEditModal(character));
+                    ${questions.map((q, i) => `<div class="qa-item"><p class="question">${q.replace(/\n/g, '<br>')}</p><p class="answer ${fontClass}">${applySpoilerFormatting(character.answers[i] || '（無回答）')}</p></div>`).join('')}`;
+        
+        if (character.remarks) {
+            contentHtml += `<div class="qa-item"><p class="question">${REMARKS_HEADER}</p><p class="answer ${fontClass}">${applySpoilerFormatting(character.remarks)}</p></div>`;
+        }
+        contentHtml += `</div></div>`;
+        dom.qaDetails.innerHTML = contentHtml;
+        const contentWrapper = dom.qaDetails.querySelector('.details-view-content');
+        addSpoilerClickListeners(contentWrapper);
+        contentWrapper.querySelector('.edit-character-button')?.addEventListener('click', () => openEditModal(character));
     }
     
-    function addChatMessage(message, type, questionIndexForAnswer = null) {
+    function addChatMessage(message, type, questionIndexForAnswer = null, isSpecial = false) {
         const row = document.createElement("div");
         row.className = "chat-message-row";
         const bubbleContainer = document.createElement("div");
@@ -201,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const fontClass = getFontClass(dom.fontFamilyInput.value);
             if (fontClass) bubbleClassName += ` ${fontClass}`;
         }
+        if (isSpecial) bubbleClassName += ' special-question';
         bubble.className = bubbleClassName;
         bubble.innerHTML = applySpoilerFormatting(message);
         addSpoilerClickListeners(bubble);
@@ -215,34 +250,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         row.appendChild(bubbleContainer);
         dom.chatContainer.appendChild(row);
-        dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight;
+
+        scrollToChatBottom();
     }
 
     function openEditModal(character) {
-        if (!dom.modal) return;
-        formData = { ...character, isEditing: true };
-        dom.pcNameInput.value = character.pcName;
-        dom.plNameInput.value = character.plName;
-        dom.systemInput.value = character.system;
-        dom.firstScenarioInput.value = character.firstScenario;
-        dom.imageUrlInput.value = character.imageUrl;
-        dom.fontFamilyInput.value = character.fontFamily || 'HigashiOme-Gothic-C';
-        if (window.updateCustomSelectDisplay) {
-            window.updateCustomSelectDisplay(dom.systemInput);
-            window.updateCustomSelectDisplay(dom.fontFamilyInput);
-        }
-        answers = {};
-        questions.forEach((q, i) => { answers[`Q${i+1}`] = character.answers[i] || '（無回答）'; });
-        dom.chatContainer.innerHTML = '';
-        questions.forEach((q, i) => { addChatMessage(q, "question"); addChatMessage(answers[`Q${i+1}`], "answer", i); });
-        currentQuestionIndex = questions.length;
-        document.querySelector('.chat-input-area').classList.add('inactive');
-        dom.btnFinish.disabled = false;
-        dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${createProxiedUrl(formData.imageUrl)}" alt="Character Image">` : '';
-        document.body.classList.add('modal-open');
-        dom.modal.style.display = 'flex';
-        goToStep(3);
+    if (!dom.modal) return;
+    formData = { ...character, isEditing: true };
+    dom.pcNameInput.value = character.pcName;
+    dom.plNameInput.value = character.plName;
+    dom.systemInput.value = character.system;
+    dom.firstScenarioInput.value = character.firstScenario;
+    dom.imageUrlInput.value = character.imageUrl;
+    dom.fontFamilyInput.value = character.fontFamily || 'HigashiOme-Gothic-C';
+    if (window.updateCustomSelectDisplay) {
+        window.updateCustomSelectDisplay(dom.systemInput);
+        window.updateCustomSelectDisplay(dom.fontFamilyInput);
     }
+    answers = {};
+    questions.forEach((q, i) => { answers[`Q${i+1}`] = character.answers[i] || '（無回答）'; });
+    formData.remarks = character.remarks || '';
+    dom.chatContainer.innerHTML = '';
+    questions.forEach((q, i) => { addChatMessage(q, "question"); addChatMessage(answers[`Q${i+1}`], "answer", i); });
+    addChatMessage("最後に、何か備考があれば教えてください。（なければ空欄でOK）", "question", null, true);
+    addChatMessage(formData.remarks, "answer", questions.length);
+
+    const chatGrid = dom.chatContainer.closest('.chat-grid-container');
+    if (chatGrid) chatGrid.style.minHeight = '400px';
+
+    currentQuestionIndex = questions.length + 1;
+    document.querySelector('.chat-input-area').classList.add('inactive');
+    dom.btnSendAnswer.disabled = true;
+    dom.btnFinish.disabled = false;
+
+    dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${createProxiedUrl(formData.imageUrl)}" alt="Character Image">` : '';
+    document.body.classList.add('modal-open');
+    dom.modal.style.display = 'flex';
+    goToStep(3);
+
+    // ★★★ ここが修正箇所です ★★★
+    // モーダルの表示アニメーション(0.5秒)が終わるのを待ってからスクロールする
+    setTimeout(scrollToChatBottom, 510);
+}
     
     function applyFilters() {
         const plValue = dom.plFilter.value;
@@ -278,16 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function enterEditMode(qIndex, bubbleEl) {
         if (editingState.isEditing) exitEditMode();
         editingState = { isEditing: true, questionIndex: qIndex, bubbleElement: bubbleEl };
-        let existingAnswer = answers[`Q${qIndex + 1}`];
+        let existingAnswer = (qIndex === questions.length) ? formData.remarks : answers[`Q${qIndex + 1}`];
         if (existingAnswer === "（無回答）") existingAnswer = "";
-        if (existingAnswer.startsWith("「") && existingAnswer.endsWith("」")) existingAnswer = existingAnswer.slice(1, -1);
-        dom.chatInput.value = `「${existingAnswer}」`;
+        dom.chatInput.value = existingAnswer;
         dom.btnSendAnswer.textContent = "更新";
+        dom.btnSendAnswer.disabled = false;
         document.querySelector(".chat-input-area").classList.remove("inactive");
         dom.wizard.classList.add("editing-active");
         dom.chatInput.focus();
-        const cursorPos = dom.chatInput.value.length - 1;
-        dom.chatInput.setSelectionRange(cursorPos, cursorPos);
     }
 
     function exitEditMode() {
@@ -296,58 +343,62 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.chatInput.value = "";
         dom.btnSendAnswer.textContent = "送信";
         dom.wizard.classList.remove("editing-active");
-        if (currentQuestionIndex >= questions.length) {
+        if (currentQuestionIndex > questions.length) {
             document.querySelector(".chat-input-area").classList.add("inactive");
+            dom.btnSendAnswer.disabled = true;
         }
     }
 
     function askNextQuestion() {
-        exitEditMode();
-        dom.btnFinish.disabled = false;
-        if (currentQuestionIndex < questions.length) {
-            addChatMessage(questions[currentQuestionIndex], "question");
-            dom.chatInput.value = "「」";
-            dom.chatInput.focus();
-            dom.chatInput.setSelectionRange(1, 1);
-            document.querySelector(".chat-input-area").classList.remove("inactive");
-        } else {
-            addChatMessage("全ての質問が完了しました！<br>内容を確認・編集し、よろしければ下の「完了」ボタンを押してください。", "question");
-            document.querySelector(".chat-input-area").classList.add("inactive");
-            dom.chatInput.value = "";
-        }
+    exitEditMode();
+    dom.btnFinish.disabled = false;
+    
+    if (currentQuestionIndex < questions.length) {
+        addChatMessage(questions[currentQuestionIndex], "question");
+        dom.chatInput.placeholder = "回答を入力...";
+        dom.chatInput.value = "「」";
+        dom.chatInput.focus();
+        dom.chatInput.setSelectionRange(1, 1);
+    
+    } else if (currentQuestionIndex === questions.length) {
+        addChatMessage("最後に、何か備考があれば教えてください。（なければ空欄でOK）", "question", null, true);
+        dom.chatInput.placeholder = "備考を入力...";
+        dom.chatInput.value = "";
+        dom.chatInput.focus();
+
+    } else {
+        addChatMessage("全ての質問が完了しました！<br>内容を確認・編集し、よろしければ下の「完了」ボタンを押してください。", "question", null, true);
+        document.querySelector(".chat-input-area").classList.add("inactive");
+        dom.btnSendAnswer.disabled = true;
+        dom.chatInput.value = "";
     }
+}
     
     function finishAndSubmit() {
         goToStep(4);
         let submissionData = formData.isEditing ? {
-            action: "update",
-            'ID': formData.id,
-            'システム': dom.systemInput.value,
-            'PL名': dom.plNameInput.value,
-            'PC名': dom.pcNameInput.value,
-            '初登場シナリオ': dom.firstScenarioInput.value,
-            '画像URL': dom.imageUrlInput.value,
-            'フォント': dom.fontFamilyInput.value,
+            action: "update", 'ID': formData.id,
         } : {
-            action: "append",
-            'ID': allCharacters.reduce((max, char) => Math.max(max, parseInt(char.id) || 0), 0) + 1,
-            'システム': dom.systemInput.value,
-            'PL名': dom.plNameInput.value,
-            'PC名': dom.pcNameInput.value,
-            '初登場シナリオ': dom.firstScenarioInput.value,
-            '画像URL': dom.imageUrlInput.value,
-            'フォント': dom.fontFamilyInput.value,
+            action: "append", 'ID': allCharacters.reduce((max, char) => Math.max(max, parseInt(char.id) || 0), 0) + 1,
         };
+        Object.assign(submissionData, {
+            'システム': dom.systemInput.value, 'PL名': dom.plNameInput.value, 'PC名': dom.pcNameInput.value,
+            '初登場シナリオ': dom.firstScenarioInput.value, '画像URL': dom.imageUrlInput.value, 'フォント': dom.fontFamilyInput.value,
+        });
         questions.forEach((questionHeader, i) => {
             const answerKey = `Q${i + 1}`;
             if (answers[answerKey] !== undefined) submissionData[questionHeader] = answers[answerKey];
         });
+        
+        // ★★★ 修正点3: undefinedでないことを確認して備考を追加 ★★★
+        if (formData.remarks !== undefined) {
+            submissionData[REMARKS_HEADER] = formData.remarks;
+        }
+        
         const finalStatusContainer = document.querySelector('[data-step="4"] .final-status-container');
         finalStatusContainer.innerHTML = '<div class="loader"></div><h2>登録処理中...</h2><p>データをスプレッドシートに書き込んでいます...</p>';
         fetch(GAS_WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            cache: 'no-cache',
+            method: 'POST', mode: 'no-cors', cache: 'no-cache',
             body: JSON.stringify(submissionData),
         })
         .then(() => {
@@ -365,7 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const { header, dataRows } = parseCSV(csvText, ["ID", "システム", "PL名", "PC名"]);
         const idIndex = header.indexOf("ID"), systemIndex = header.indexOf("システム"), plNameIndex = header.indexOf("PL名"), pcNameIndex = header.indexOf("PC名");
         const firstScenarioIndex = header.indexOf("初登場シナリオ"), imageUrlIndex = header.indexOf("画像URL"), fontIndex = header.indexOf("フォント");
-        const q1Index = header.findIndex(h => h && h.trim().startsWith("Q1")), remarksIndex = header.findIndex(h => h && h.trim().startsWith("※備考"));
+        const remarksIndex = header.indexOf(REMARKS_HEADER);
+        const q1Index = header.findIndex(h => h && h.trim().startsWith("Q1"));
         const qEndIndex = remarksIndex !== -1 ? remarksIndex : header.length;
         questions = header.slice(q1Index, qEndIndex);
         return dataRows.map(values => {
@@ -373,7 +425,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return {
                 id: values[idIndex], system: values[systemIndex], plName: values[plNameIndex], pcName: values[pcNameIndex],
                 firstScenario: values[firstScenarioIndex], imageUrl: (values[imageUrlIndex] || "").trim(),
-                fontFamily: fontIndex > -1 ? values[fontIndex] || "" : "", answers: values.slice(q1Index, qEndIndex)
+                fontFamily: fontIndex > -1 ? values[fontIndex] || "" : "",
+                remarks: remarksIndex > -1 ? values[remarksIndex] || "" : "",
+                answers: values.slice(q1Index, qEndIndex)
             };
         }).filter(Boolean);
     }
@@ -563,7 +617,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 trigger.style.fontFamily = '';
             }
         }
-        
         if (optionsContainer) {
             optionsContainer.querySelectorAll('.custom-option').forEach(opt => {
                 opt.classList.toggle('selected', opt.dataset.value === selectElement.value);
@@ -587,33 +640,73 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.chatContainer && (dom.chatContainer.innerHTML = '');
         dom.chatImageContainer && (dom.chatImageContainer.innerHTML = '');
         document.querySelector(".chat-input-area")?.classList.remove("inactive");
-        if (dom.btnSendAnswer) dom.btnSendAnswer.style.display = 'block';
+        if (dom.btnSendAnswer) {
+            dom.btnSendAnswer.style.display = 'block';
+            dom.btnSendAnswer.disabled = false;
+        }
         if (dom.btnFinish) dom.btnFinish.disabled = true;
     });
     dom.closeModalBtn?.addEventListener("click", () => dom.modal.style.display = "none");
     dom.modal?.addEventListener("click", e => { if (e.target === dom.modal) dom.modal.style.display = "none" });
     dom.btnStep1Next?.addEventListener("click", () => { formData.pcName = dom.pcNameInput.value, formData.plName = dom.plNameInput.value, formData.system = dom.systemInput.value, formData.firstScenario = dom.firstScenarioInput.value, formData.fontFamily = dom.fontFamilyInput.value, goToStep(2) });
     dom.btnStep2Prev?.addEventListener("click", () => goToStep(1));
-    dom.btnStep2Next?.addEventListener("click", () => { formData.imageUrl = dom.imageUrlInput.value, dom.chatImageContainer && (dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${createProxiedUrl(formData.imageUrl)}" alt="Character Image">` : ""), goToStep(3), "" === dom.chatContainer.innerHTML.trim() && askNextQuestion() });
+    dom.btnStep2Next?.addEventListener("click", () => {
+        formData.imageUrl = dom.imageUrlInput.value;
+        const proxiedImageUrl = createProxiedUrl(formData.imageUrl);
+
+        dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${proxiedImageUrl}" alt="Character Image">` : '';
+        
+        let mobileImageHtml = '';
+        if (formData.imageUrl) {
+            mobileImageHtml = `<div class="qa-image-viewer-mobile"><img src="${proxiedImageUrl}" alt="Character Image"></div>`;
+        }
+        const step3Container = dom.wizard.querySelector('[data-step="3"]');
+        step3Container.querySelector('.qa-image-viewer-mobile')?.remove();
+        if (mobileImageHtml) {
+            step3Container.insertAdjacentHTML('afterbegin', mobileImageHtml);
+        }
+
+        goToStep(3);
+        if ("" === dom.chatContainer.innerHTML.trim()) {
+            askNextQuestion();
+            // ★★★ こちらにも同様の遅延処理を追加 ★★★
+            setTimeout(scrollToChatBottom, 510);
+        }
+    });
     dom.btnStep3Prev?.addEventListener("click", () => goToStep(2));
     dom.btnSendAnswer?.addEventListener("click", () => {
         let answer = dom.chatInput.value.trim();
-        "「」" === answer && (answer = "");
-        const answerToStore = answer || "（無回答）";
+        // ★★★ 修正点1: 「」だけの場合も空文字として扱う ★★★
+        if (answer === "「」") {
+            answer = "";
+        }
+
         if (editingState.isEditing) {
-            answers[`Q${editingState.questionIndex + 1}`] = answerToStore;
-            editingState.bubbleElement.innerHTML = applySpoilerFormatting(answerToStore);
+            const qIndex = editingState.questionIndex;
+            if (qIndex === questions.length) { 
+                formData.remarks = answer || ''; // 備考の更新
+            } else {
+                answers[`Q${qIndex + 1}`] = answer || "（未回答）";
+            }
+            editingState.bubbleElement.innerHTML = applySpoilerFormatting(answer || "（未回答）");
             addSpoilerClickListeners(editingState.bubbleElement);
             exitEditMode();
         } else {
-            answers[`Q${currentQuestionIndex + 1}`] = answerToStore;
-            addChatMessage(answerToStore, "answer", currentQuestionIndex);
+            if (currentQuestionIndex < questions.length) {
+                const answerToStore = answer || "（未回答）";
+                answers[`Q${currentQuestionIndex + 1}`] = answerToStore;
+                addChatMessage(answerToStore, "answer", currentQuestionIndex);
+            } else {
+                // ★★★ 修正点2: 備考をformDataに直接保存 ★★★
+                formData.remarks = answer || '';
+                addChatMessage(answer || '（未回答）', "answer", currentQuestionIndex);
+            }
             currentQuestionIndex++;
             dom.chatInput.value = "";
             askNextQuestion();
         }
     });
-    dom.chatInput?.addEventListener("keydown", e => { e.key && "Enter" === e.key && !e.shiftKey && (e.preventDefault(), dom.btnSendAnswer.click()) });
+    dom.chatInput?.addEventListener("keydown", e => { if (e.key && "Enter" === e.key && !e.shiftKey) { e.preventDefault(), dom.btnSendAnswer.click() }});
     dom.btnFinish?.addEventListener("click", finishAndSubmit);
 
     let drumRollInterval;
@@ -647,10 +740,17 @@ document.addEventListener('DOMContentLoaded', () => {
             buildCustomOptions(dom.fontFamilyInput);
             setupFormAutofillListeners();
             addSpoilerClickListeners(document.body);
+            if (dom.openModalBtn) {
+                dom.openModalBtn.disabled = false;
+                dom.openModalBtn.textContent = "＋ 新規キャラクターを登録";
+            }
         } catch(error) {
             console.error('初期化処理中にエラーが発生しました:', error);
             if (dom.characterList) {
                 dom.characterList.innerHTML = `<p class="error" style="padding: 15px; font-size: 0.9em;"><strong>データの読み込みに失敗しました</strong><br><br><strong>エラー詳細:</strong><br>${error.message}</p>`;
+            }
+            if (dom.openModalBtn) {
+                dom.openModalBtn.textContent = "読込エラー";
             }
         }
     }

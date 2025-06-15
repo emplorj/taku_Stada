@@ -3,231 +3,99 @@
 /* ==========================================================================
    Q&Aページ専用スタイル
    ========================================================================== */
-.qa-page-body {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-.qa-page-body .main-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-.qa-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    align-items: center;
-    margin-bottom: 15px;
-    flex-shrink: 0;
-}
-.filter-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.qa-controls label {
-    font-size: 0.9em;
-    color: #ccc;
-}
-.qa-controls select,
-.qa-controls input {
-    background-color: #0d1a50;
-    color: #eee;
-    border: 1px solid #2a3c7d;
-    border-radius: 4px;
-    padding: 8px;
-    font-size: 0.9em;
-}
-.qa-main-container {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    flex-grow: 1;
-    overflow: hidden;
-}
-.qa-character-list {
-    width: 300px;
-    flex-shrink: 0;
-    height: 99%;
-    overflow-y: auto;
-    background-color: rgba(6, 17, 68, 0.5);
-    border-radius: 8px;
-    padding: 10px;
-    box-sizing: border-box; 
-}
-.character-card {
-    position: relative; /* 疑似要素を配置する基準点にする */
-    display: flex;
-    align-items: center;
-    background-color: #1a2c6d;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-    overflow: hidden;
-    z-index: 1; /* 重なりの基準を設定 */
-}
-.character-card:hover {
-    transform: translateY(-2px);
-}
-/* 背景画像が「ない」カードにのみ、背景色を変更するホバー効果を適用 */
-.character-card:not(.has-bg-image):hover {
-    background-color: #2c3e50;
-}
-.character-card.active {
-    box-shadow: 0 0 12px rgba(80, 180, 255, 0.8);
-    transform: scale(1.02);
-}
-.character-card.active .card-pc-name {
-    color: #fff;
-}
-
-.card-info { 
-    padding: 10px 15px;
-    position: relative; /* z-indexを効かせるため */
-    z-index: 3; /* グラデーションより手前に表示 */
-}
-.card-pc-name { margin: 0 0 5px 0; font-size: 1.1em; color: inherit; font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
- }
-.card-pl-name,
-.card-system-name { margin: 0; font-size: 0.8em; color: inherit; }
-.character-card.has-bg-image::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* テキストがある左側55%を覆い、75%地点で透明になるグラデーション */
-    background: linear-gradient(to right, rgba(26, 44, 109, 0.9) 20%, transparent 75%);
-    z-index: 2; /* 背景画像(z-index: 1)とテキスト(z-index: 3)の間に配置 */
-    border-radius: inherit; /* カードの角丸に合わせる */
-    pointer-events: none; /* グラデーションがクリックの邪魔をしないようにする */
-}
-.qa-details-view {
-    flex-grow: 1;
-    background-color: #1a2c6d;
-    border-radius: 8px;
-    height: 99%;
-    box-sizing: border-box;
-    position: relative;
-    overflow: hidden;
-    padding: 0;
-}
-.details-view-background {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-size: cover; 
-    background-repeat: no-repeat;
-    background-position: center 10%; 
-    opacity: 0.15;
-    pointer-events: none;
-}
-.details-view-content {
-    width: 100%; height: 100%;
-    overflow-y: auto;
-    padding: 25px;
-    box-sizing: border-box;
-}
-.qa-placeholder {
-    display: flex; justify-content: center; align-items: center;
-    height: 100%; min-height: 200px; color: #888;
-}
-.qa-header h2 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
-    margin-top: 0; color: #3498db;
-}
-.qa-body { margin-top: 20px; }
-.qa-item { margin-bottom: 25px; }
-.qa-item .question {
-    font-weight: bold; color: #b0c4de;
-    margin-bottom: 5px; border-left: 3px solid #3498db; padding-left: 10px;
-}
-.qa-item .answer {
-    margin: 0 0 0 13px; color: #e0e0e0;
-    white-space: pre-wrap;
-}
-
-@media (max-width: 900px) {
-    .qa-page-body { height: auto; overflow: auto; }
-    .qa-page-body .main-content { height: auto; overflow: visible; }
-    .qa-main-container { flex-direction: column; height: auto; overflow: visible; }
-    .qa-character-list { width: 100%; height: 30vh; }
-    .qa-details-view { flex-grow: 1; padding: 25px; height: auto; }
-}
+.qa-page-body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.qa-page-body .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+.qa-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
+.filter-group { display: flex; align-items: center; gap: 8px; }
+.qa-controls label { font-size: 0.9em; color: #ccc; }
+.qa-controls select, .qa-controls input { background-color: #0d1a50; color: #eee; border: 1px solid #2a3c7d; border-radius: 4px; padding: 8px; font-size: 0.9em; }
+.qa-main-container { display: flex; gap: 20px; align-items: flex-start; flex-grow: 1; overflow: hidden; }
+.qa-character-list { width: 300px; flex-shrink: 0; height: 99%; overflow-y: auto; background-color: rgba(6, 17, 68, 0.5); border-radius: 8px; padding: 10px; box-sizing: border-box; }
 
 /* ==========================================================================
-   新規登録ボタン
+   キャラクターカード
    ========================================================================== */
-.add-new-button,
-#open-modal-button {
-    display: inline-block; padding: 10px 20px;
-    background-color: #e67e22; color: #fff; text-decoration: none;
-    font-weight: bold; border-radius: 5px; border: none;
-    cursor: pointer; transition: background-color 0.3s, transform 0.2s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    font-family: inherit; font-size: 1em;
-}
-.add-new-button:hover,
-#open-modal-button:hover {
-    background-color: #d35400; transform: translateY(-2px);
-}
+.character-card { position: relative; display: flex; align-items: center; background-color: #1a2c6d; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: transform 0.2s; overflow: hidden; z-index: 1; }
+.character-card:not(.has-bg-image) { transition: background-color 0.2s, transform 0.2s; }
+.character-card:hover { transform: translateY(-2px); }
+.character-card:not(.has-bg-image):hover { background-color: #2c3e50; }
+.character-card.active { box-shadow: 0 0 12px rgba(80, 180, 255, 0.8); transform: scale(1.02); }
+.character-card.active .card-pc-name { color: #fff; }
+.card-system { position: relative; z-index: 4; width: 8px; align-self: stretch; }
+.card-info { position: relative; z-index: 3; padding: 10px 15px; }
+.card-pc-name { margin: 0 0 5px 0; font-size: 1.1em; color: inherit; font-family: 'Corporate-Logo-Bold', sans-serif; }
+.card-pl-name, .card-system-name { margin: 0; font-size: 0.8em; color: inherit; }
+.character-card.has-bg-image .card-info { color: #fff; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8); }
+.character-card.has-bg-image::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, #1a2c6d 40%, rgba(26, 44, 109, 0) 65%); z-index: 2; border-radius: inherit; pointer-events: none; }
+
+/* ==========================================================================
+   Q&A詳細ビュー
+   ========================================================================== */
+.qa-details-view { flex-grow: 1; height: 99%; border-radius: 8px; background-color: #1a2c6d; overflow: hidden; display: flex; position: relative; z-index: 1; background-repeat: no-repeat; }
+.qa-details-view.has-bg-image::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(26, 44, 109, 0.7), rgba(26, 44, 109, 0.7)); z-index: -1; pointer-events: none; }
+.details-view-content { width: 100%; height: 100%; overflow-y: auto; padding: 25px; box-sizing: border-box; position: relative; z-index: 3; background-color: transparent; }
+.qa-placeholder { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; color: #888; }
+.qa-header h2 { font-family: 'Corporate-Logo-Bold', sans-serif; margin-top: 0; color: #3498db; }
+.qa-body { margin-top: 20px; }
+.qa-item { margin-bottom: 25px; }
+.qa-item .question { font-weight: bold; color: #b0c4de; margin-bottom: 5px; border-left: 3px solid #3498db; padding-left: 10px; }
+.qa-item .answer { margin: 0 0 0 13px; color: #e0e0e0; white-space: pre-wrap; }
+
+/* ==========================================================================
+   ランダム選出機能
+   ========================================================================== */
+.randomizer-container { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 20px; border-top: 1px dashed #4a5c9a; padding-top: 15px; width: 100%; }
+.randomizer-group { display: flex; flex-direction: column; gap: 5px; }
+.randomizer-group.input-group { flex: 1 1 auto; min-width: 250px; }
+.randomizer-group.result-group { flex: 3 1 0; min-width: 300px; }
+.randomizer-action { display: flex; align-items: center; gap: 10px; }
+.randomizer-action input { flex-grow: 1; }
+#pl-random-input, .random-char-result { height: 44px; font-size: 1.1em; box-sizing: border-box; padding: 10px; }
+.random-select-button { width: 44px; height: 48px; border-radius: 50%; border: none; background-color: #3498db; color: white; font-size: 1.5em; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s, transform 0.2s; }
+.random-select-button:hover { background-color: #2980b9; transform: scale(1.1); }
+.random-select-button:disabled { background-color: #7f8c8d; cursor: not-allowed; transform: none; }
+.random-char-result { background-color: #0d1a50; border: 1px solid #2a3c7d; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; color: #ccc; }
+.random-char-result.is-selected { animation: result-glow 1s ease-out; }
+@keyframes result-glow { 0% { box-shadow: 0 0 0px rgba(52, 152, 219, 0); } 50% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.8); } 100% { box-shadow: 0 0 0px rgba(52, 152, 219, 0); } }
+.random-char-result .result-name { font-weight: bold; font-size: 1.1em; color: #fff; }
 
 /* ==========================================================================
    新規登録モーダル
    ========================================================================== */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 3000; padding: 20px; box-sizing: border-box;
-    backdrop-filter: blur(5px);
-}
-.modal-content {
-    background-color: #1a2c6d; padding: 30px 40px; border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-    width: 100%; max-width: 800px; max-height: 90vh;
-    position: relative; border: 1px solid #3498db;
-    display: flex; flex-direction: column;
-}
-.modal-close-button {
-    position: absolute; top: 15px; right: 20px;
-    font-size: 2em; font-weight: bold; color: #aaa;
-    cursor: pointer; transition: color 0.2s; z-index: 10;
-}
+.add-new-button, #open-modal-button { display: inline-block; padding: 10px 20px; background-color: #e67e22; color: #fff; text-decoration: none; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; transition: background-color 0.3s, transform 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: inherit; font-size: 1em; }
+.add-new-button:hover, #open-modal-button:hover { background-color: #d35400; transform: translateY(-2px); }
+body.modal-open { overflow: hidden; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 3000; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px); }
+.modal-content { background-color: #1a2c6d; padding: 30px 40px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); width: 100%; max-width: 800px; max-height: 90vh; position: relative; border: 1px solid #3498db; display: flex; flex-direction: column; }
+.modal-close-button { position: absolute; top: 15px; right: 20px; font-size: 2em; font-weight: bold; color: #aaa; cursor: pointer; transition: color 0.2s; z-index: 10; }
 .modal-close-button:hover { color: #fff; }
-.modal-content h2 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
-    margin-top: 0; color: #e67e22; flex-shrink: 0;
+.modal-content h2 { font-family: 'Corporate-Logo-Bold', sans-serif; margin-top: 0; color: #e67e22; flex-shrink: 0; }
+#wizard-container {
+    display: flex;
+    flex-direction: column;
+    max-height: 75vh;
+    flex-grow: 1;
+    min-height: 0; /* flexの子要素が正しく縮むためのおまじない */
 }
-[data-step] { display: none; flex-direction: column; flex-grow: 1; overflow: hidden; }
-[data-step].active { display: flex; animation: fadeIn 0.5s; }
-[data-step="3"].active { height: 550px; min-height: 550px; }
-[data-step="4"].active { justify-content: center; align-items: center; text-align: center; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.form-description { font-size: 0.9em; color: #ccc; margin-bottom: 20px; }
+[data-step] { display: none; flex-direction: column; }
+[data-step].active { display: flex; animation: fadeIn 0.5s; }
+[data-step="3"].active {
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.5s;
+}
+[data-step="4"].active { justify-content: center; align-items: center; text-align: center; flex-grow: 1; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
 .form-group { display: flex; flex-direction: column; min-width: 0; }
 .form-group label { margin-bottom: 5px; font-size: 0.9em; color: #b0c4de; }
-.form-group input, .form-group textarea, .form-group select {
-    background-color: #0d1a50; color: #eee; border: 1px solid #2a3c7d;
-    border-radius: 4px; padding: 10px; font-size: 1em;
-    font-family: inherit; width: 100%; box-sizing: border-box;
-}
-.wizard-nav {
-    margin-top: auto; padding-top: 20px; border-top: 1px solid #2c3e50;
-    display: flex; justify-content: space-between; align-items: center;
-    flex-shrink: 0;
-}
-.wizard-btn, .wizard-btn-secondary, .wizard-btn-finish {
-    border: none; padding: 12px 30px; font-size: 1.1em;
-    font-weight: bold; border-radius: 5px; cursor: pointer;
-    transition: all 0.3s;
-}
+.form-group input, .form-group textarea { background-color: #0d1a50; color: #eee; border: 1px solid #2a3c7d; border-radius: 4px; padding: 10px; font-size: 1em; font-family: inherit; width: 100%; box-sizing: border-box; }
+.form-group.form-group-full-width { grid-column: 1 / -1; }
+.wizard-nav { margin-top: auto; padding-top: 20px; border-top: 1px solid #2c3e50; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.wizard-btn, .wizard-btn-secondary, .wizard-btn-finish { border: none; padding: 12px 30px; font-size: 1.1em; font-weight: bold; border-radius: 5px; cursor: pointer; transition: all 0.3s; }
 .wizard-btn { background-color: #3498db; color: #fff; }
 .wizard-btn:hover { background-color: #2980b9; }
 .wizard-btn-secondary { background-color: transparent; border: 1px solid #7f8c8d; color: #7f8c8d; }
@@ -237,7 +105,14 @@
 .wizard-btn:disabled, .wizard-btn-finish:disabled { background-color: #7f8c8d; cursor: not-allowed; }
 
 /* --- チャットUI --- */
-.chat-grid-container { display: grid; grid-template-columns: 1fr 200px; gap: 20px; flex-grow: 1; overflow: hidden; }
+.chat-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 20px;
+    flex-grow: 1;
+    overflow: hidden;
+    height: 50vh;
+}
 .chat-character-image { display: flex; justify-content: center; align-items: center; }
 .chat-character-image img { max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 8px; }
 .chat-bubble { padding: 10px 15px; border-radius: 15px; max-width: 95%; line-height: 1.5; word-break: break-word; }
@@ -252,116 +127,53 @@
 h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
 .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* --- ネタバレ隠しスタイル --- */
-.spoiler-text {
-    background-color: #2c2d32; color: #2c2d32; padding: 0 0.4em;
-    border-radius: 4px; user-select: none; transition: color 0.3s ease;
-}
+.spoiler-text { background-color: #2c2d32; color: #2c2d32; padding: 0 0.4em; border-radius: 4px; user-select: none; transition: color 0.3s ease; }
 .spoiler-text:hover { cursor: pointer; }
 .spoiler-text.is-revealed { color: #fff; cursor: default; user-select: text; }
-
-/* --- チャット入力エリア --- */
-.chat-main-area { display: flex; flex-direction: column; min-height: 0; }
+.chat-main-area { display: flex; flex-direction: column; flex-grow: 1; min-height: 0; }
 .chat-container { flex-grow: 1; overflow-y: auto; background-color: #0d1a50; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
 .chat-input-area { flex-shrink: 0; padding-top: 15px; display: flex; gap: 10px; align-items: flex-end; }
 .chat-input-wrapper { flex-grow: 1; }
-.chat-input-wrapper textarea {
-    width: 100%; min-height: 44px; max-height: 9rem;
-    background-color: #0d1a50; color: #eee; border: 1px solid #2a3c7d;
-    border-radius: 4px; padding: 10px; font-size: 1em;
-    font-family: inherit; line-height: 1.5; resize: none;
-    box-sizing: border-box; overflow-y: auto;
-    white-space: pre-wrap; word-wrap: break-word;
-}
-.chat-input-area button { padding: 10px 20px; font-size: 1em; flex-shrink: 0; height: 44px; }
+.chat-input-wrapper textarea { width: 100%; min-height: 48px; max-height: 9rem; background-color: #0d1a50; color: #eee; border: 1px solid #2a3c7d; border-radius: 4px; padding: 10px; font-size: 1em; font-family: inherit; line-height: 1.5; resize: none; box-sizing: border-box; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; vertical-align: bottom; }
+.chat-input-wrapper textarea::-webkit-scrollbar { display: none; }
+.chat-input-wrapper textarea { scrollbar-width: none; }
+.chat-input-area button { padding: 10px 20px; font-size: 1em; flex-shrink: 0; height: 48px; }
 .spoiler-tip { font-size: 0.8em; color: #999; padding-top: 8px; flex-shrink: 0; }
 .spoiler-tip code { background-color: #2c2d32; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
-
-.edit-character-button {
-    background: none; border: none; padding: 0; margin: 0 0 0 10px;
-    cursor: pointer; vertical-align: middle;
-}
-.edit-character-button i {
-    font-size: 1.5em; color: #7f8c8d; transition: color 0.2s; padding: 5px;
-}
+.edit-character-button { background: none; border: none; padding: 0; margin: 0 0 0 10px; cursor: pointer; vertical-align: middle; }
+.edit-character-button i { font-size: 1.5em; color: #7f8c8d; transition: color 0.2s; padding: 5px; }
 .edit-character-button:hover i { color: #3498db; }
-
-/* ==========================================================================
-   Q&Aページ ランダム選出機能
-   ========================================================================== */
-.randomizer-container {
-    display: flex; align-items: flex-end; gap: 10px;
-    border-top: 1px dashed #4a5c9a; width: 100%;
-}
-.randomizer-container .form-group > label {
-    min-height: 2.4em; display: flex; align-items: center; margin-bottom: 5px;
-}
-.randomizer-container .result-group { flex-grow: 1; }
-#pl-random-input, .random-char-result {
-    height: 48px; font-size: 1.2em; box-sizing: border-box;
-}
-.random-select-button {
-    width: 48px; height: 48px; border-radius: 50%; border: none;
-    background-color: #3498db; color: white; font-size: 1.5em;
-    cursor: pointer; flex-shrink: 0; transition: background-color 0.2s, transform 0.2s;
-}
-.random-select-button:hover { background-color: #2980b9; transform: scale(1.1); }
-.random-select-button:disabled { background-color: #7f8c8d; cursor: not-allowed; transform: none; }
-.random-char-result {
-    background-color: #0d1a50; border: 1px solid #2a3c7d; border-radius: 4px;
-    padding: 10px 15px; display: flex; flex-direction: column;
-    justify-content: center; color: #ccc;
-}
-.random-char-result.is-selected { animation: result-glow 1s ease-out; }
-@keyframes result-glow {
-    0% { box-shadow: 0 0 0px rgba(52, 152, 219, 0); }
-    50% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.8); }
-    100% { box-shadow: 0 0 0px rgba(52, 152, 219, 0); }
-}
-.random-char-result .result-name { font-weight: bold; font-size: 1.2em; color: #fff; }
-.random-char-result .result-prompt { font-size: 0.8em; margin-top: 4px; }
-
-.form-group.form-group-full-width { grid-column: 1 / -1; }
-/* ==========================================================================
-   背景画像付きキャラクターカードのスタイル
-   ========================================================================== */
-
-/* 背景画像があるカードのテキストは常に白にする */
-.character-card.has-bg-image .card-info,
-.character-card.has-bg-image .card-pc-name,
-.character-card.has-bg-image .card-pl-name,
-.character-card.has-bg-image .card-system-name {
-    color: #fff;
-}
-
-/* 文字に影を付けて、どんな背景画像の上でも読みやすくする */
-.character-card.has-bg-image .card-info {
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
-}
-/* システムカラーバーが常に最前面に表示されるようにする */
-.card-system {
-    width: 8px;
-    align-self: stretch;
-    position: relative; /* z-indexを有効にするため */
-    z-index: 4;         /* テキスト(3)やグラデーション(2)より手前に配置 */
-}
-.character-card.has-bg-image::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
+.chat-bubble.special-question {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #4a5c9a;
     width: 100%;
-    height: 100%;
-    /* 左側40%は不透明、65%地点で完全に透明になる滑らかなグラデーション */
-    background: linear-gradient(to right, #1a2c6d 40%, rgba(26, 44, 109, 0) 65%);
-    z-index: 2; /* 背景画像(1)とテキスト(3)の間に配置 */
-    border-radius: inherit;
-    pointer-events: none;
+    border-radius: 6px;
+    background-color: transparent;
+    text-align: center;
+    color: #9ab;
 }
 /* ==========================================================================
-   Q&Aページ 回答フォントのスタイル
+   カスタムプルダウンと回答フォント
    ========================================================================== */
+.custom-select-wrapper { position: relative; width: 100%; font-family: inherit; }
+.custom-select-trigger { background-color: #0d1a50; color: #eee; border: 1px solid #2a3c7d; border-radius: 4px; padding: 0 10px; font-size: 1em; cursor: pointer; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 40px; transition: border-color 0.2s, background-color 0.2s, color 0.2s; }
+.custom-select-wrapper.open .custom-select-trigger { border-color: #3498db; }
+.custom-select-trigger span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+.custom-select-trigger .arrow { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #ccc; transition: transform 0.2s ease-in-out; flex-shrink: 0; }
+.custom-select-wrapper.open .custom-select-trigger .arrow { transform: rotate(180deg); }
+.custom-select-options { display: none; position: fixed; background-color: #1a2c6d; border: 1px solid #3498db; border-radius: 4px; z-index: 3050; box-shadow: 0 4px 10px rgba(0,0,0,0.3); max-height: 250px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #2a3c7d #0d1a50; }
+.custom-select-options.open { display: block; }
+.custom-select-options::-webkit-scrollbar { width: 8px; }
+.custom-select-options::-webkit-scrollbar-track { background: #0d1a50; }
+.custom-select-options::-webkit-scrollbar-thumb { background-color: #2a3c7d; border-radius: 4px; }
+.custom-option { padding: 10px 15px; color: #eee; cursor: pointer; transition: background-color 0.2s; border-bottom: 1px solid #2c3e50; }
+.custom-option:last-child { border-bottom: none; }
+.custom-option:hover { background-color: #2c3e50; }
+.custom-option.selected { background-color: #3498db; color: #fff; font-weight: bold; }
+.custom-select-wrapper select { display: none; }
+
+/* --- 回答フォントのスタイル定義 --- */
 .answer.font-higashiome-gothic-c, .chat-bubble.answer.font-higashiome-gothic-c { font-family: 'HigashiOme-Gothic-C', sans-serif; }
 .answer.font-noto-serif-jp, .chat-bubble.answer.font-noto-serif-jp { font-family: 'Noto Serif JP', serif; }
 .answer.font-zen-maru-gothic, .chat-bubble.answer.font-zen-maru-gothic { font-family: 'Zen Maru Gothic', sans-serif; }
@@ -370,21 +182,10 @@ h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
 .answer.font-reggae-one, .chat-bubble.answer.font-reggae-one { font-family: 'Reggae One', system-ui; }
 .answer.font-zen-antique-soft, .chat-bubble.answer.font-zen-antique-soft { font-family: 'Zen Antique Soft', serif; }
 .answer.font-wdxl-lubrifont-jp-n, .chat-bubble.answer.font-wdxl-lubrifont-jp-n { font-family: 'WDXL Lubrifont JP N', sans-serif; }
-.wf-active .answer.font-vdl-logojrblack,.chat-bubble.answer.font-vdl-logojrblack {
-    font-family: "vdl-logojrblack", sans-serif;
-    font-weight: 900;
-    font-style: normal;
-}
+.wf-active .answer.font-vdl-logojrblack, .wf-active .chat-bubble.answer.font-vdl-logojrblack { font-family: "vdl-logojrblack", sans-serif; font-weight: 900; font-style: normal; }
+.wf-active .answer.font-vdl-pengentle-b, .wf-active .chat-bubble.answer.font-vdl-pengentle-b { font-family: "vdl-pengentle", sans-serif; font-weight: 700; font-style: normal; }
 
-/* ペン字風 (Adobe Fonts) */
-.answer.font-vdl-pengentle-b,
-.chat-bubble.answer.font-vdl-pengentle-b {
-    font-family: "vdl-pengentle", sans-serif;
-    font-weight: 700;
-    font-style: normal;
-}
-
-/* 各選択肢のフォントを適用 */
+/* --- カスタムプルダウンのプレビュー用フォント --- */
 .custom-option[data-font="Noto Serif JP"] { font-family: 'Noto Serif JP', serif; }
 .custom-option[data-font="Zen Maru Gothic"] { font-family: 'Zen Maru Gothic', sans-serif; }
 .custom-option[data-font="Yuji Syuku"] { font-family: 'Yuji Syuku', serif; }
@@ -392,13 +193,36 @@ h2.success { color: #2ecc71; } h2.error { color: #e74c3c; }
 .custom-option[data-font="Reggae One"] { font-family: 'Reggae One', system-ui; }
 .custom-option[data-font="Zen Antique Soft"] { font-family: 'Zen Antique Soft', serif; }
 .custom-option[data-font="WDXL Lubrifont JP N"] { font-family: 'WDXL Lubrifont JP N', sans-serif; }
-.custom-option[data-font="vdl-pengentle"] {
-    font-family: "vdl-pengentle", sans-serif;
-    font-weight: 700;
-    font-style: normal;
+.wf-active .custom-option[data-font="vdl-logojrblack"] { font-family: "vdl-logojrblack", sans-serif; font-weight: 900; font-style: normal; }
+.wf-active .custom-option[data-font="vdl-pengentle"] { font-family: "vdl-pengentle", sans-serif; font-weight: 700; font-style: normal; }
+
+/* ==========================================================================
+   スマホ表示用の追加調整
+   ========================================================================== */
+@media (max-width: 900px) {
+    .qa-page-body { height: auto; overflow: auto; }
+    .qa-page-body .main-content { height: auto; overflow: visible; }
+    .qa-main-container { flex-direction: column; height: auto; overflow: visible; }
+    .qa-character-list { width: 100%; height: 30vh; flex-shrink: 0; }
+    .qa-details-view { width: 100%; height: 65vh; overflow: hidden; display: flex; }
+    .details-view-content { height: 100%; overflow-y: auto; }
+    .qa-placeholder { min-height: 30vh; }
+    .qa-image-viewer-container { display: none; }
+    .qa-image-viewer-mobile { width: 100%; height: 40vh; overflow: hidden; margin-bottom: 20px; border-radius: 8px; }
+    .qa-image-viewer-mobile img { width: 100%; height: 100%; object-fit: contain; }
+    /* PC用の画像コンテナはスマホでは非表示に */
+    .qa-image-viewer-container { display: none; }
+    
+    /* 質疑応答のグリッドを1カラムに変更 */
+    .chat-grid-container {
+        grid-template-columns: 1fr;
+    }
+    /* PC用のキャラクター画像表示エリアはスマホでは使わない */
+    .chat-character-image {
+        display: none;
+    }
 }
-.wf-active .custom-option[data-font="vdl-logojrblack"] {
-    font-family: 'vdl-logojrblack', sans-serif;
-    font-weight: 900;
-    font-style: normal;
+@media (max-width: 768px) {
+    .randomizer-container { flex-direction: column; align-items: stretch; gap: 15px; }
+    .randomizer-group { min-width: 100%; }
 }

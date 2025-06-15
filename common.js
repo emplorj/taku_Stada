@@ -1,3 +1,31 @@
+(function(d) {
+    var config = {
+        kitId: 'wia6iii',
+        scriptTimeout: 3000,
+        async: true
+    },
+    h = d.documentElement,
+    t = setTimeout(function() {
+        h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+    }, config.scriptTimeout),
+    tk = d.createElement("script"),
+    f = false,
+    s = d.getElementsByTagName("script")[0],
+    a;
+    h.className += " wf-loading";
+    tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+    tk.async = true;
+    tk.onload = tk.onreadystatechange = function() {
+        a = this.readyState;
+        if (f || a && a != "complete" && a != "loaded") return;
+        f = true;
+        clearTimeout(t);
+        try {
+            Typekit.load(config)
+        } catch (e) {}
+    };
+    s.parentNode.insertBefore(tk, s)
+})(document);
 // common.js (完全版)
 
 // ==========================================================================
@@ -6,6 +34,45 @@
 const TRPG_SYSTEM_COLORS = { 'CoC': '#93c47d', 'CoC-㊙': '#6aa84f', 'SW': '#ea9999', 'SW2.5': '#ea9999', 'DX3': '#cc4125', 'サタスペ': '#e69138', 'マモブル': '#ffe51f', '銀剣': '#0788bb', 'ネクロニカ': '#505050', 'ウマ娘': '#ffa1d8', 'シノビガミ': '#8e7cc3', 'AR': '#ffd966', 'default': '#007bff' };
 function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
 function copyCodeToClipboard(elementId) { const codeElement = document.getElementById(elementId); if (codeElement) { const codeToCopy = codeElement.querySelector('code').innerText; navigator.clipboard.writeText(codeToCopy).then(() => { alert('コピーしました！'); }).catch(err => { console.error('コピーに失敗しました: ', err); alert('コピーに失敗しました。'); }); } }
+
+/**
+ * CSV文字列を解析し、行の配列として返します。
+ * - ダブルクォート内のカンマや改行は無視します。
+ * - 連続するダブルクォート ("") は単一のダブルクォートとして扱います。
+ * @param {string} csvText 解析するCSV文字列。
+ * @returns {string[][]} 各行が文字列の配列である2次元配列。
+ */
+function parseCsvToArray(csvText) {
+    const rows = [];
+    let inQuotes = false;
+    let currentRow = [];
+    let currentField = "";
+    const text = csvText.trim().replace(/\r\n|\r/g, "\n"); // 改行コードを統一
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (char === '"') {
+            if (inQuotes && text[i + 1] === '"') { // エスケープされたダブルクォート
+                currentField += '"';
+                i++; // 次の文字をスキップ
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === "," && !inQuotes) {
+            currentRow.push(currentField);
+            currentField = "";
+        } else if (char === "\n" && !inQuotes) {
+            currentRow.push(currentField);
+            rows.push(currentRow);
+            currentRow = [];
+            currentField = "";
+        } else {
+            currentField += char;
+        }
+    }
+    currentRow.push(currentField); // 最後のフィールドを追加
+    rows.push(currentRow); // 最後の行を追加
+    return rows;
+}
 
 // ==========================================================================
 // 2. ページ読み込み時の共通処理

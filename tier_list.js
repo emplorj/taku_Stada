@@ -50,8 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // (中略: parseRobustCSV, formatTextWithMarkdown, groupBy は変更なし)
-    function parseRobustCSV(csvText){const rows=[];let inQuotes=!1,currentRow=[],currentField="";const text=csvText.trim().replace(/\r\n|\r/g,"\n");for(let i=0;i<text.length;i++){const char=text[i];if('"'===char)inQuotes&&'"'===text[i+1]?(currentField+='"',i++):inQuotes=!inQuotes;else if(","===char&&!inQuotes)currentRow.push(currentField),currentField="";else if("\n"===char&&!inQuotes)currentRow.push(currentField),rows.push(currentRow),currentRow=[],currentField="";else currentField+=char}return currentRow.push(currentField),rows.push(currentRow),rows}
+    // (中略: formatTextWithMarkdown, groupBy は変更なし)
     function formatTextWithMarkdown(text){return text?text.replace(/^! (.*$)/gim,'<p class="custom-highlight-text">$1</p>').replace(/^# (.*$)/gim,"<h4>$1</h4>").replace(/^## (.*$)/gim,"<h5>$1</h5>").replace(/^### (.*$)/gim,"<h6>$1</h6>").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>"):"";}
     function groupBy(array,key){return array.reduce((result,currentValue)=>((result[currentValue[key]]=result[currentValue[key]]||[]).push(currentValue),result),{})}
     
@@ -211,7 +210,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // (中略: closeBookModal, buildAllTierLists は変更なし)
-    function closeBookModal(){if(modal){modal.style.display="none";document.body.classList.remove("modal-open")}}async function buildAllTierLists(){try{mainContainer.innerHTML="<p>リストを生成中...</p>";const response=await fetch(TIER_LIST_CSV_URL,{cache:"no-cache"});if(!response.ok)throw new Error("Tierリストデータの取得に失敗");const csvText=await response.text(),allRows=parseRobustCSV(csvText),header=allRows[0],dataRows=allRows.slice(1);if(!["system","rankOrder","title","imageUrl","bookUrl"].every(h=>header.includes(h)))throw new Error(`CSVヘッダーに必須項目（system, rankOrder, title, imageUrl, bookUrl）がありません。`);const headerMap={};header.forEach((h,i)=>{headerMap[h.trim()]=i});const allBooks=dataRows.map(row=>{const book={};return Object.keys(headerMap).forEach(key=>{book[key]=(row[headerMap[key]]||"").trim()}),book}).filter(book=>book.system&&book.system.trim()!==""),systems=groupBy(allBooks,"system");generateHtml(systems)}catch(error){console.error("Tierリストの生成に失敗しました:",error),mainContainer.innerHTML=`<p class="error">リストの表示に失敗しました。<br>${error.message}</p>`}}
+    function closeBookModal(){if(modal){modal.style.display="none";document.body.classList.remove("modal-open")}}
+    async function buildAllTierLists(){
+        try{
+            mainContainer.innerHTML="<p>リストを生成中...</p>";
+            const response=await fetch(TIER_LIST_CSV_URL,{cache:"no-cache"});
+            if(!response.ok)throw new Error("Tierリストデータの取得に失敗");
+            const csvText=await response.text(),allRows=parseCsvToArray(csvText),header=allRows[0],dataRows=allRows.slice(1); // parseCsvToArray を使用
+            if(!["system","rankOrder","title","imageUrl","bookUrl"].every(h=>header.includes(h)))throw new Error(`CSVヘッダーに必須項目（system, rankOrder, title, imageUrl, bookUrl）がありません。`);const headerMap={};header.forEach((h,i)=>{headerMap[h.trim()]=i});const allBooks=dataRows.map(row=>{const book={};return Object.keys(headerMap).forEach(key=>{book[key]=(row[headerMap[key]]||"").trim()}),book}).filter(book=>book.system&&book.system.trim()!==""),systems=groupBy(allBooks,"system");generateHtml(systems)}catch(error){console.error("Tierリストの生成に失敗しました:",error),mainContainer.innerHTML=`<p class="error">リストの表示に失敗しました。<br>${error.message}</p>`}
+    }
 
     if (closeModalBtn) { closeModalBtn.addEventListener('click', closeBookModal); }
     if (modalOverlay) { modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) { closeBookModal(); } }); }

@@ -9,25 +9,11 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="q_and_a.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Serif+JP:wght@400;700&family=Reggae+One&family=Yuji+Syuku&family=Zen+Antique+Soft&family=Zen+Maru+Gothic:wght@400;700&family=WDXL+Lubrifont+JP+N&display=swap"
         rel="stylesheet">
-
-    <!-- ★★★ ここにAdobe Fontsのスクリプトを追加 ★★★ -->
-    <script>
-        (function (d) {
-            var config = {
-                kitId: 'wia6iii',
-                scriptTimeout: 3000,
-                async: true
-            },
-                h = d.documentElement, t = setTimeout(function () { h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive"; }, config.scriptTimeout), tk = d.createElement("script"), f = false, s = d.getElementsByTagName("script")[0], a; h.className += " wf-loading"; tk.src = 'https://use.typekit.net/' + config.kitId + '.js'; tk.async = true; tk.onload = tk.onreadystatechange = function () { a = this.readyState; if (f || a && a != "complete" && a != "loaded") return; f = true; clearTimeout(t); try { Typekit.load(config) } catch (e) { } }; s.parentNode.insertBefore(tk, s)
-        })(document);
-    </script>
 </head>
 
 <body>
@@ -54,11 +40,15 @@
                         placeholder="PC名を入力..."></div>
                 <div class="header-actions"><button id="open-modal-button" class="add-new-button">✨ 新規登録</button></div>
                 <div class="randomizer-container">
-                    <div class="form-group"><label for="pl-random-input">PL名からランダム選出:</label><input type="text"
-                            id="pl-random-input" placeholder="PL名を入力..."></div>
-                    <button id="random-char-button" class="random-select-button" title="選出開始！">▶</button>
-                    <div class="form-group result-group"><label id="random-result-label"
-                            for="random-char-result">今日のイチオシ:</label>
+                    <div class="randomizer-group input-group">
+                        <label for="pl-random-input">PL名からランダム選出:</label>
+                        <div class="randomizer-action">
+                            <input type="text" id="pl-random-input" placeholder="PL名を入力...">
+                            <button id="random-char-button" class="random-select-button" title="選出開始！">▶</button>
+                        </div>
+                    </div>
+                    <div class="randomizer-group result-group">
+                        <label id="random-result-label">今日のイチオシ:</label>
                         <div id="random-char-result" class="random-char-result"></div>
                     </div>
                 </div>
@@ -69,6 +59,7 @@
                 <p>キャラクターを読み込み中...</p>
             </aside>
             <main class="qa-details-view" id="qa-details-view">
+                <!-- JSがこの中にコンテンツを動的に生成します -->
                 <div class="qa-placeholder">
                     <p>左のリストからキャラクターを選択してください。</p>
                 </div>
@@ -82,14 +73,19 @@
                 <div data-step="1" class="active">
                     <h2>Step 1: 基本情報を入力</h2>
                     <div class="form-grid">
-                        <div class="form-group"><label for="form-pcName">PC名</label><input type="text" id="form-pcName"
-                                list="pc-name-suggestions" required autocomplete="off"><datalist
-                                id="pc-name-suggestions"></datalist></div>
-                        <div class="form-group"><label for="form-plName">PL名</label><input type="text" id="form-plName"
-                                list="pl-name-suggestions" required autocomplete="off"><datalist
-                                id="pl-name-suggestions"></datalist></div>
+                        <!-- 1行目 -->
+                        <div class="form-group">
+                            <label for="form-plName">PL名</label>
+                            <input type="text" id="form-plName" list="pl-name-suggestions" required
+                                autocomplete="off"><datalist id="pl-name-suggestions"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="form-pcName">PC名</label>
+                            <input type="text" id="form-pcName" list="pc-name-suggestions" required
+                                autocomplete="off"><datalist id="pc-name-suggestions"></datalist>
+                        </div>
 
-                        <!-- ▼▼▼ システム選択 ▼▼▼ -->
+                        <!-- 2行目 -->
                         <div class="form-group">
                             <label for="form-system">システム</label>
                             <div class="custom-select-wrapper">
@@ -99,15 +95,19 @@
                             </div>
                         </div>
 
-                        <!-- ▼▼▼ 回答フォントのカスタムプルダウン ▼▼▼ -->
+                        <!-- 3行目 ★ご要望に合わせて配置を変更★ -->
+                        <div class="form-group">
+                            <label for="form-firstScenario">初登場シナリオ</label>
+                            <input type="text" id="form-firstScenario" list="scenario-suggestions"
+                                autocomplete="off"><datalist id="scenario-suggestions"></datalist>
+                        </div>
                         <div class="form-group">
                             <label for="form-fontFamily">回答フォント</label>
                             <div class="custom-select-wrapper">
                                 <select id="form-fontFamily" autocomplete="off">
                                     <option value="HigashiOme-Gothic-C" data-font="HigashiOme-Gothic-C">デフォルト (東青梅ゴシック)
                                     </option>
-                                    <option value="VDL-LogoJrBlack" data-font="vdl-logojrblack">ロゴJrブラック
-                                    </option>
+                                    <option value="VDL-LogoJrBlack" data-font="vdl-logojrblack">ロゴJrブラック</option>
                                     <option value="VDL-PenGentle-B" data-font="vdl-pengentle">ペン字風 (VDL PenGentle)
                                     </option>
                                     <option value="Noto Serif JP" data-font="Noto Serif JP">明朝体 (Noto Serif JP)</option>
@@ -123,18 +123,10 @@
                                 </select>
                             </div>
                         </div>
-
-                        <!-- ▼▼▼ 初登場シナリオを幅いっぱいに ▼▼▼ -->
-                        <div class="form-group form-group-full-width">
-                            <label for="form-firstScenario">初登場シナリオ</label>
-                            <input type="text" id="form-firstScenario" list="scenario-suggestions"
-                                autocomplete="off"><datalist id="scenario-suggestions"></datalist>
-                        </div>
                     </div>
                     <div class="wizard-nav"><span></span><button id="btn-step1-next" class="wizard-btn">次へ</button>
                     </div>
                 </div>
-                <!-- (以降のステップは変更なし) -->
                 <div data-step="2">
                     <h2>Step 2: キャラクター画像</h2>
                     <p class="form-description">画像のURLを入力してください。(例: Imgur,ccfolia,
@@ -154,7 +146,7 @@
                                         rows="1" spellcheck="false"></textarea></div><button id="btn-send-answer"
                                     class="wizard-btn">送信</button>
                             </div>
-                            <div class="spoiler-tip"><strong>Tips:</strong> <code>||</code>で囲うとネタバレ防止ができます (例: <span
+                            <div class="spoiler-tip"><strong>Tips:</strong> ||で囲うとネタバレ防止ができます (例: <span
                                     class="spoiler-text">テスト</span>)</div>
                         </div>
                         <div class="chat-character-image" id="chat-character-image"></div>
