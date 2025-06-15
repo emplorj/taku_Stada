@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnFinish: document.getElementById('btn-finish'),
         plRandomInput: document.getElementById('pl-random-input'),
         randomCharButton: document.getElementById('random-char-button'),
-        randomCharResult: document.getElementById('random-char-result')
+        randomCharResult: document.getElementById('random-char-result'),
+        reloadButton: document.getElementById('reload-button')
     };
 
     if (dom.openModalBtn) {
@@ -656,15 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${proxiedImageUrl}" alt="Character Image">` : '';
         
-        let mobileImageHtml = '';
-        if (formData.imageUrl) {
-            mobileImageHtml = `<div class="qa-image-viewer-mobile"><img src="${proxiedImageUrl}" alt="Character Image"></div>`;
-        }
-        const step3Container = dom.wizard.querySelector('[data-step="3"]');
-        step3Container.querySelector('.qa-image-viewer-mobile')?.remove();
-        if (mobileImageHtml) {
-            step3Container.insertAdjacentHTML('afterbegin', mobileImageHtml);
-        }
+        // モバイル用の画像表示処理を削除し、PC版の表示に影響が出ないようにする
 
         goToStep(3);
         if ("" === dom.chatContainer.innerHTML.trim()) {
@@ -712,6 +705,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let drumRollInterval;
     function startRandomSelection(){if(dom.randomCharButton&&dom.plRandomInput&&dom.randomCharResult){const e=dom.plRandomInput.value.trim();if(!e)return void(dom.randomCharResult.textContent="PL名を入力してください。");const t=characterCatalog.filter(t=>t.plName===e);if(0===t.length)return void(dom.randomCharResult.textContent=`「${e}」さんのキャラクターが見つかりません。`);const n=document.getElementById("random-result-label"),o=dom.randomCharResult;dom.randomCharButton.disabled=!0,clearInterval(drumRollInterval),n.textContent="選出中...",drumRollInterval=setInterval(()=>{const e=Math.floor(Math.random()*t.length);o.innerHTML=`<span class="result-name">${t[e].pcName}</span>`},50),setTimeout(()=>{clearInterval(drumRollInterval);const e=Math.floor(Math.random()*t.length),a=t[e];n.textContent="今日はこのキャラのを書いてみよう！",o.innerHTML=`<span class="result-name">${a.pcName}</span>`,o.classList.add("is-selected"),o.addEventListener("animationend",()=>o.classList.remove("is-selected"),{once:!0}),dom.randomCharButton.disabled=!1},2e3)}}
     dom.randomCharButton?.addEventListener("click", startRandomSelection);
+
+    dom.reloadButton?.addEventListener('click', () => {
+        // 既存のリストをクリアし、ローディング表示にする
+        if (dom.characterList) {
+            dom.characterList.innerHTML = '<p>キャラクターを再読み込み中...</p>';
+        }
+        if (dom.qaDetails) {
+            dom.qaDetails.innerHTML = '<div class="qa-placeholder"><p>左のリストからキャラクターを選択してください。</p></div>';
+        }
+        // フィルターをリセット
+        if(dom.plFilter) dom.plFilter.innerHTML = '<option value="all">すべてのPL</option>';
+        if(dom.systemFilter) dom.systemFilter.innerHTML = '<option value="all">すべてのシステム</option>';
+        if(dom.pcSearch) dom.pcSearch.value = '';
+
+        // 再初期化
+        initialize();
+    });
     
     async function initialize(){
         console.log("Q&Aスクリプトの初期化を開始します。");
