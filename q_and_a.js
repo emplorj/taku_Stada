@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dom.btnFinish) dom.btnFinish.disabled = true;
     });
     dom.closeModalBtn?.addEventListener("click", () => dom.modal.style.display = "none");
-    dom.modal?.addEventListener("click", e => { if (e.target === dom.modal) dom.modal.style.display = "none" });
+    // dom.modal?.addEventListener("click", e => { if (e.target === dom.modal) dom.modal.style.display = "none" });
     dom.btnStep1Next?.addEventListener("click", () => { formData.pcName = dom.pcNameInput.value, formData.plName = dom.plNameInput.value, formData.system = dom.systemInput.value, formData.firstScenario = dom.firstScenarioInput.value, formData.fontFamily = dom.fontFamilyInput.value, goToStep(2) });
     dom.btnStep2Prev?.addEventListener("click", () => goToStep(1));
     dom.btnStep2Next?.addEventListener("click", () => {
