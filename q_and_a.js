@@ -128,24 +128,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     // --- 【ルールA】 縦長の立ち絵 (aspectRatio < 0.7) ---
                         // 狙い: 縦に長いほど、顔が上に来るように垂直オフセットを小さくする
                         // y = ax^2 + bx + c の二次関数でフィットさせる
-                        hOffset = (-150 * x * x) + (60 * x) + 50;  // 右へのずらし量
-                        vOffset = (150 * x * x) - (230 * x) + 80; // 下へのずらし量
+                        hOffset = (-150 * x * x) + (60 * x) + 60;  // 右へのずらし量
+                        vOffset = (150 * x * x) - (230 * x) + 120; // 下へのずらし量
                         bgSize = '70%';
 
                     } else if (x <= 0.8) {
                         // --- 【ルールB】 バストアップ・ (0.7 <= aspectRatio <= 1.1) ---
                         // 狙い: 顔アイコンやバストアップを中央に寄せるための調整
                         // y = mx + b の一次関数でフィットさせる
-                        hOffset = (25 * x) + 24; // 右へのずらし量
-                        vOffset = (45 * x) - 5; // 下へのずらし量
+                        hOffset = (35 * x) + 14; // 右へのずらし量
+                        vOffset = (25 * x) + 15; // 下へのずらし量
                         bgSize = '70%';
 
                     }  else if (x <= 1.1) {
                         // --- 【ルールB】 バストアップ・正方形 (0.7 <= aspectRatio <= 1.1) ---
                         // 狙い: 顔アイコンやバストアップを中央に寄せるための調整
                         // y = mx + b の一次関数でフィットさせる
-                        hOffset = (15 * x) + 34; // 右へのずらし量
-                        vOffset = (25 * x) + 5; // 下へのずらし量
+                        hOffset = (35 * x) + 34; // 右へのずらし量
+                        vOffset = (25 * x) + 15; // 下へのずらし量
                         bgSize = '80%';
 
                     } else {
@@ -657,7 +657,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dom.chatImageContainer.innerHTML = formData.imageUrl ? `<img src="${proxiedImageUrl}" alt="Character Image">` : '';
         
-        // モバイル用の画像表示処理を削除し、PC版の表示に影響が出ないようにする
+        let mobileImageHtml = '';
+        if (formData.imageUrl) {
+            mobileImageHtml = `<div class="qa-image-viewer-mobile"><img src="${createProxiedUrl(formData.imageUrl)}" alt="Character Image"></div>`;
+        }
+        const step3Container = dom.wizard.querySelector('[data-step="3"]');
+        step3Container.querySelector('.qa-image-viewer-mobile')?.remove();
+        if (mobileImageHtml) {
+            step3Container.insertAdjacentHTML('afterbegin', mobileImageHtml);
+        }
 
         goToStep(3);
         if ("" === dom.chatContainer.innerHTML.trim()) {
