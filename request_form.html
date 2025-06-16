@@ -13,7 +13,6 @@
         kitId: 'wia6iii',
         scriptTimeout: 3000,
         async: true,
-        // ★★★ ここを追加：フォント読み込み完了時にJS関数を呼び出す ★★★
         active: function () {
           window.dispatchEvent(new Event('typekit-loaded'));
         }
@@ -24,7 +23,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
-<body>
+<body class="page-request-form">
   <div id="header-placeholder"></div>
   <canvas id="particleCanvas"></canvas>
 
@@ -41,22 +40,49 @@
           <label for="title-input">依頼タイトル</label>
           <input type="text" id="title-input" value="ヒドラ討伐ソロ！">
         </div>
-        <div class="form-group">
+        <div class="form-group form-group-inline">
           <label for="level-input">推奨レベル</label>
           <input type="text" id="level-input" value="推奨Lv:12～13">
         </div>
         <div class="form-group">
           <label for="content-input">依頼内容</label>
           <textarea id="content-input" rows="5">助けてくれよ～ハニ～……
-これ以上大変なことになると、苦しいんだぜ…</textarea>
+これ以上大変なことになると、苦しいぜ…</textarea>
         </div>
-        <div class="form-group">
+        <div class="form-group form-group-inline">
           <label for="reward-input">報酬</label>
-          <input type="text" id="reward-input" value="1人1500ガメル">
+          <input type="text" id="reward-input" value="1[人]4000[ガメル]">
         </div>
-        <div class="form-group">
+        <div class="form-group form-group-inline">
           <label for="requester-input">依頼人</label>
           <input type="text" id="requester-input" value="Jin Emplor">
+        </div>
+        <div class="form-group">
+          <div class="help-text">
+            <p>TIPS: <code>[テキスト]</code>で囲むと文字が小さくなります。<code>[[二重]]</code>のように重ねがけも可能です。<code>\[</code>でエスケープできます。</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="toggle-container">
+            <div class="checkbox-group">
+              <input type="checkbox" id="bg-logo-toggle" class="switch">
+              <label for="bg-logo-toggle">卓スタダロゴ</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="bg-stamp-toggle" class="switch">
+              <label for="bg-stamp-toggle">済印</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="pin-toggle" class="switch">
+              <label for="pin-toggle">押しピン表示</label>
+            </div>
+            <div class="checkbox-group" id="pin-direction-group">
+              <input type="radio" name="pin-direction" id="pin-up" value="ue" checked>
+              <label for="pin-up">上向き</label>
+              <input type="radio" name="pin-direction" id="pin-down" value="shita">
+              <label for="pin-down">下向き</label>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <button id="download-btn" class="add-new-button">依頼書を画像として保存</button>
@@ -65,27 +91,34 @@
 
       <!-- 右側のプレビューパネル -->
       <main class="preview-panel">
-        <div id="preview-area" class="request-form-paper">
-          <div class="title-container">
-            <div id="title-display" class="title-text"></div>
-          </div>
-          <div class="request-body">
-            <div id="level-display" class="level-text"></div>
-            <div id="content-title-display" class="section-title content-title">依頼内容</div>
-            <div id="content-display" class="content-text"></div>
-            <div class="spacer"></div>
-            <div id="reward-display" class="section-title reward-text">
-              <span class="label">報酬:</span>
-              <span class="value"></span>
+        <div id="preview-area">
+          <div class="request-form-paper">
+            <div class="title-container">
+              <div id="title-display" class="title-text"></div>
             </div>
-            <div id="requester-display" class="section-title requester-text">
-              <span class="label">依頼人:</span>
-              <span class="value"></span>
+            <div class="request-body">
+              <div id="level-display" class="level-text"></div>
+              <div id="content-title-display" class="section-title content-title">依頼内容</div>
+              <div id="content-display" class="content-text"></div>
+              <div class="spacer"></div>
+              <div id="reward-display" class="section-title reward-text">
+                <span class="label">報酬:</span>
+                <span class="value"></span>
+              </div>
+              <div id="requester-display" class="section-title requester-text">
+                <span class="label">依頼人:</span>
+                <span class="value"></span>
+              </div>
             </div>
+            <img src="img/yakikomi_logo.png" id="logo-image">
+            <img src="img/yakikomi_stamp.png" id="stamp-image">
+            <img src="img/pin_ue.png" id="pin-image" class="draggable-pin" style="display: none;">
           </div>
         </div>
-      </main>
     </div>
+  </div>
+  </main>
+  </div>
   </div>
 
   <script src="common.js"></script>
