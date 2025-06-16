@@ -54,7 +54,7 @@
 
 .preview-panel {
     flex: 1.5;
-    min-width: 400px;
+    min-width: 674px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -62,8 +62,7 @@
 
 .request-form-paper {
     position: relative;
-    width: 100%;
-    max-width: 674px;
+    width: 674px;
     aspect-ratio: 674 / 782;
     background-image: url('img/依頼書テンプレ.png');
     background-size: contain;
@@ -114,11 +113,11 @@
 }
 
 .section-title {
-    font-size: 40px;
+    font-size: 42px;
 }
 
 .level-text {
-    font-size: 36px;
+    font-size: 32px;
     margin-bottom: 25px;
 }
 
@@ -146,7 +145,7 @@
 .content-text {
     width: 100%;
     max-width: 540px;
-    font-size: 32px;
+    font-size: 28px;
     text-align: justify;
     text-align-last: left;
     line-height: 1; /* 行間を詰める */
@@ -192,12 +191,17 @@
 }
 
 
-@media (max-width: 900px) {
-    .preview-panel { min-width: 100%; }
-    .request-form-paper {
+@media (max-width: 1100px) {
+    .creator-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .controls-panel, .preview-panel {
         width: 100%;
-        height: auto;
-        aspect-ratio: 674 / 782;
-        background-size: contain;
+        max-width: 674px; /* preview-panelの幅に合わせる */
+        min-width: unset;
+    }
+    .preview-panel {
+      margin-top: 20px;
     }
 }

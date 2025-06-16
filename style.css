@@ -1536,3 +1536,148 @@ font-style: normal;
     font-weight: 900;
     font-style: normal;
 }
+/* ==========================================================================
+   17. ツールカードリスト
+   ========================================================================== */
+
+.tool-author-header {
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+    color: #3498db;
+    margin-top: 40px;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #2c3e50;
+    width: 100%;
+}
+
+.tool-author-header:first-of-type {
+    margin-top: 20px;
+}
+
+.tool-card-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.tool-card {
+    background-color: transparent; /* カードの背景をなくす */
+    border-radius: 0;
+    overflow: visible;
+    transition: none;
+    display: block;
+    height: auto;
+    margin-bottom: 15px; /* 各ツールの間隔 */
+    border-bottom: 1px dashed #4a5c9a; /* 区切り線 */
+    padding-bottom: 15px;
+}
+
+.tool-card:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.tool-card a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.tool-card-title {
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+}
+
+.tool-card-description {
+    font-size: 0.9em;
+    color: #bdc3c7;
+    flex-grow: 1;
+    margin-bottom: 15px;
+}
+
+.tool-card-url {
+    font-size: 0.8em;
+    color: #87cefa;
+    word-break: break-all;
+    margin-top: auto; /* URLをカードの下部に配置 */
+}
+/* ==========================================================================
+   18. Q&Aページ 背景透かし
+   ========================================================================== */
+
+.background-image-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* コンテンツの背面に配置 */
+    pointer-events: none; /* クリックを透過させる */
+    display: none; /* 初期状態は非表示 */
+    justify-content: center;
+    align-items: center;
+}
+
+.background-image-container.visible {
+    display: flex;
+}
+
+.background-image-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('img/依頼書テンプレ.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.5; /* 紙のテクスチャの透明度 */
+}
+
+.bg-logo {
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    width: 25%;
+    max-width: 300px;
+    opacity: 0.4;
+    mix-blend-mode: hard-light;
+}
+
+.bg-stamp {
+    position: absolute;
+    bottom: 10%;
+    right: 15%;
+    width: 20%;
+    max-width: 250px;
+    mix-blend-mode: color-burn;
+}
+
+.background-toggle-switch {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: rgba(6, 17, 68, 0.8);
+    padding: 10px 15px;
+    border-radius: 8px;
+    z-index: 1001; /* 他のUIより手前に */
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9em;
+}
+
+.background-toggle-switch input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}

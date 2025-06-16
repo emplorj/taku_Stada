@@ -20,9 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 調整関数 ---
 
     // タイトルのフォントサイズを調整
-    const adjustTitleFontSize = () => {
+    const adjustTitleFontSize = (maxFontSize) => {
         if (!titleDisplay || !titleContainer) return;
-        const maxFontSize = 72;
         titleDisplay.style.fontSize = `${maxFontSize}px`;
 
         requestAnimationFrame(() => {
@@ -41,11 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 報酬・依頼人のフォントサイズを同期調整
-    const adjustSyncedFontSize = () => {
+    const adjustSyncedFontSize = (maxFontSize) => {
         if (!rewardDisplay || !requesterDisplay) return;
         const elements = [rewardDisplay, requesterDisplay];
-        const maxFontSize = 48;
-
+        
         elements.forEach(el => {
             el.style.fontSize = `${maxFontSize}px`;
         });
@@ -69,14 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 更新関数 ---
 
     const updateAll = () => {
+        // 画面幅に応じて基準フォントサイズを切り替え
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const titleMaxFontSize = isMobile ? 52 : 72;
+        const sectionMaxFontSize = isMobile ? 32 : 42;
+
         if (titleInput) titleDisplay.innerText = titleInput.value;
         if (levelInput) levelDisplay.innerText = levelInput.value;
         if (contentInput) contentDisplay.innerHTML = contentInput.value.replace(/\n/g, '<br>');
         if (rewardInput) rewardValueDisplay.innerText = rewardInput.value;
         if (requesterInput) requesterValueDisplay.innerText = requesterInput.value;
 
-        adjustTitleFontSize();
-        adjustSyncedFontSize();
+        adjustTitleFontSize(titleMaxFontSize);
+        adjustSyncedFontSize(sectionMaxFontSize);
     };
 
     // --- イベントリスナーの設定 (一度だけ登録) ---
