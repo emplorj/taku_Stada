@@ -14,160 +14,71 @@
     <link
         href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Serif+JP:wght@400;700&family=Reggae+One&family=Yuji+Syuku&family=Zen+Antique+Soft&family=Zen+Maru+Gothic:wght@400;700&family=WDXL+Lubrifont+JP+N&display=swap"
         rel="stylesheet">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
     <div id="header-placeholder"></div>
     <canvas id="particleCanvas"></canvas>
+
     <div class="main-content">
-        <div class="page-content-header">
-            <header class="page-header-with-actions">
-                <div class="header-main">
-                    <h1>キャラクターQ&A</h1>
-                    <p class="subtitle">お前のキャラの以外な一面が見られるかも <a
-                            href="https://docs.google.com/spreadsheets/d/1RJrUdz6QbYc_N1X0gub8zdixEIy_8KyV3exf6A9Smoc/edit?gid=0"
-                            target="_blank">Googleスプレッドシート（元データ）</a></p>
+        <header class="page-header-with-actions">
+            <h1>依頼書ジェネレーター</h1>
+            <p class="subtitle">オリジナルの依頼書を作成して画像として保存できます。</p>
+        </header>
+
+        <div class="creator-container">
+            <!-- 左側の入力パネル -->
+            <aside class="controls-panel">
+                <div class="form-group">
+                    <label for="title-input">依頼タイトル</label>
+                    <input type="text" id="title-input" value="ヒドラ討伐ソロ！">
                 </div>
-            </header>
-            <div class="qa-controls plain-text-block">
-                <div class="filter-group"><label for="pl-filter">PL名で絞り込み:</label><select id="pl-filter">
-                        <option value="all">すべてのPL</option>
-                    </select></div>
-                <div class="filter-group"><label for="system-filter">システムで絞り込み:</label><select id="system-filter">
-                        <option value="all">すべてのシステム</option>
-                    </select></div>
-                <div class="filter-group"><label for="pc-search">PC名で検索:</label><input type="text" id="pc-search"
-                        placeholder="PC名を入力..."></div>
-                <div class="header-actions">
-                    <button id="open-modal-button" class="add-new-button">✨ 新規登録</button>
-                    <button id="reload-button" class="reload-button" title="シートを再読み込み"><i class="fa fa-refresh"
-                            aria-hidden="true"></i></button>
+                <div class="form-group">
+                    <label for="level-input">推奨レベル</label>
+                    <input type="text" id="level-input" value="推奨Lv:12～13">
                 </div>
-                <div class="randomizer-container">
-                    <div class="randomizer-group input-group">
-                        <label for="pl-random-input">PL名からランダム選出:</label>
-                        <div class="randomizer-action">
-                            <input type="text" id="pl-random-input" placeholder="PL名を入力...">
-                            <button id="random-char-button" class="random-select-button" title="選出開始！">▶</button>
-                        </div>
-                    </div>
-                    <div class="randomizer-group result-group">
-                        <label id="random-result-label">今日のイチオシ:</label>
-                        <div id="random-char-result" class="random-char-result"></div>
-                    </div>
+                <div class="form-group">
+                    <label for="content-input">依頼内容</label>
+                    <textarea id="content-input" rows="5">助けてくれよ～ハニ～……
+これ以上大変なことになると、苦しいんだぜ…</textarea>
                 </div>
-            </div>
-        </div>
-        <div class="qa-main-container" id="qa-main-container">
-            <aside class="qa-character-list" id="character-list">
-                <p>キャラクターを読み込み中...</p>
+                <div class="form-group">
+                    <label for="reward-input">報酬</label>
+                    <input type="text" id="reward-input" value="1人1500ガメル">
+                </div>
+                <div class="form-group">
+                    <label for="requester-input">依頼人</label>
+                    <input type="text" id="requester-input" value="Jin Emplor">
+                </div>
+                <div class="form-group">
+                    <button id="download-btn" class="add-new-button">依頼書を画像として保存</button>
+                </div>
             </aside>
-            <main class="qa-details-view" id="qa-details-view">
-                <!-- JSがこの中にコンテンツを動的に生成します -->
-                <div class="qa-placeholder">
-                    <p>左のリストからキャラクターを選択してください。</p>
+
+            <!-- 右側のプレビューパネル -->
+            <main class="preview-panel">
+                <div id="preview-area" class="request-form-paper">
+                    <div id="title-display" class="title-text"></div>
+                    <div id="level-display" class="level-text"></div>
+                    <div class="section-title content-title">✓ 依頼内容</div>
+                    <div id="content-display" class="content-text"></div>
+                    <div id="reward-display" class="section-title reward-text">
+                        <span class="label">✓ 報酬:</span>
+                        <span class="value"></span>
+                    </div>
+                    <div id="requester-display" class="section-title requester-text">
+                        <span class="label">✓ 依頼人:</span>
+                        <span class="value"></span>
+                    </div>
                 </div>
             </main>
         </div>
     </div>
-    <div id="add-character-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <span class="modal-close-button">×</span>
-            <div id="wizard-container">
-                <div data-step="1" class="active">
-                    <h2>Step 1: 基本情報を入力</h2>
-                    <div class="form-grid">
-                        <!-- 1行目 -->
-                        <div class="form-group">
-                            <label for="form-plName">PL名</label>
-                            <input type="text" id="form-plName" list="pl-name-suggestions" required
-                                autocomplete="off"><datalist id="pl-name-suggestions"></datalist>
-                        </div>
-                        <div class="form-group">
-                            <label for="form-pcName">PC名</label>
-                            <input type="text" id="form-pcName" list="pc-name-suggestions" required
-                                autocomplete="off"><datalist id="pc-name-suggestions"></datalist>
-                        </div>
 
-                        <!-- 2行目 -->
-                        <div class="form-group">
-                            <label for="form-system">システム</label>
-                            <div class="custom-select-wrapper">
-                                <select id="form-system" required autocomplete="off">
-                                    <option value="">システムを選択してください</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- 3行目 ★ご要望に合わせて配置を変更★ -->
-                        <div class="form-group">
-                            <label for="form-firstScenario">初登場シナリオ</label>
-                            <input type="text" id="form-firstScenario" list="scenario-suggestions"
-                                autocomplete="off"><datalist id="scenario-suggestions"></datalist>
-                        </div>
-                        <div class="form-group">
-                            <label for="form-fontFamily">回答フォント</label>
-                            <div class="custom-select-wrapper">
-                                <select id="form-fontFamily" autocomplete="off">
-                                    <option value="HigashiOme-Gothic-C" data-font="HigashiOme-Gothic-C">デフォルト (東青梅ゴシック)
-                                    </option>
-                                    <option value="Noto Serif JP" data-font="Noto Serif JP">明朝体 (Noto Serif JP)</option>
-                                    <option value="Zen Maru Gothic" data-font="Zen Maru Gothic">丸ゴシック (Zen Maru Gothic)
-                                    </option>
-                                    <option value="Yuji Syuku" data-font="Yuji Syuku">手書き風 (Yuji Syuku)</option>
-                                    <option value="VDL-PenGentle-B" data-font="vdl-pengentle">ペン字風 (VDL PenGentle)
-                                    </option>
-                                    <option value="DotGothic16" data-font="DotGothic16">ドット絵風 (DotGothic16)</option>
-                                    <option value="Reggae One" data-font="Reggae One">トゲトゲ (Reggae One)</option>
-                                    <option value="Zen Antique Soft" data-font="Zen Antique Soft">Zen Antique
-                                        Soft</option>
-                                    <option value="pigmo-00" data-font="pigmo-00">ロキ（ピグモ 00）</option>
-                                    <option value="VDL-LogoJrBlack" data-font="vdl-logojrblack">ロゴJrブラック</option>
-                                    <option value="WDXL Lubrifont JP N" data-font="WDXL Lubrifont JP N">縦長カクカク (滑油字)
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="wizard-nav"><span></span><button id="btn-step1-next" class="wizard-btn">次へ</button>
-                    </div>
-                </div>
-                <div data-step="2">
-                    <h2>Step 2: キャラクター画像</h2>
-                    <p class="form-description">画像のURLを入力してください。(例: ccfolia,
-                        Twitter,Imgurなど)<br>この画像は質疑応答中に右側に表示されます。<br>discordのだと24時間ぐらいでリンク切れするから非推奨</p>
-                    <div class="form-group"><label for="form-imageUrl">画像URL</label><input type="url" id="form-imageUrl"
-                            placeholder="https://example.com/image.png" autocomplete="off"></div>
-                    <div class="wizard-nav"><button id="btn-step2-prev" class="wizard-btn-secondary">戻る</button><button
-                            id="btn-step2-next" class="wizard-btn">質疑応答へ進む</button></div>
-                </div>
-                <div data-step="3">
-                    <h2>Step 3: 質疑応答</h2>
-                    <div class="chat-grid-container">
-                        <div class="chat-main-area">
-                            <div class="chat-container" id="chat-container"></div>
-                            <div class="chat-input-area">
-                                <div class="chat-input-wrapper"><textarea id="chat-input" placeholder="回答を入力..."
-                                        rows="1" spellcheck="false"></textarea></div><button id="btn-send-answer"
-                                    class="wizard-btn">送信</button>
-                            </div>
-                            <div class="spoiler-tip"><strong>Tips:</strong> ||で囲うとネタバレ防止ができます (例: <span
-                                    class="spoiler-text">テスト</span>)</div>
-                        </div>
-                        <div class="chat-character-image" id="chat-character-image"></div>
-                    </div>
-                    <div class="wizard-nav"><button id="btn-step3-prev" class="wizard-btn-secondary">戻る</button><button
-                            id="btn-finish" class="wizard-btn-finish" disabled>保存</button></div>
-                </div>
-                <div data-step="4">
-                    <div class="final-status-container"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
     <script src="common.js"></script>
-    <script src="q_and_a.js"></script>
+    <script src="request_form.js"></script>
 </body>
 
 </html>

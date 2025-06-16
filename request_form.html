@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>依頼書ジェネレーター - 卓スタダ</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="request_form.css">
+  <script>
+    (function (d) {
+      var config = {
+        kitId: 'wia6iii',
+        scriptTimeout: 3000,
+        async: true,
+        // ★★★ ここを追加：フォント読み込み完了時にJS関数を呼び出す ★★★
+        active: function () {
+          window.dispatchEvent(new Event('typekit-loaded'));
+        }
+      },
+        h = d.documentElement, t = setTimeout(function () { h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive"; }, config.scriptTimeout), tk = d.createElement("script"), f = false, s = d.getElementsByTagName("script")[0], a; h.className += " wf-loading"; tk.src = 'https://use.typekit.net/' + config.kitId + '.js'; tk.async = true; tk.onload = tk.onreadystatechange = function () { a = this.readyState; if (f || a && a != "complete" && a != "loaded") return; f = true; clearTimeout(t); try { Typekit.load(config) } catch (e) { } }; s.parentNode.insertBefore(tk, s)
+    })(document);
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+  <div id="header-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="main-content">
+    <header class="page-header-with-actions">
+      <h1>依頼書ジェネレーター</h1>
+      <p class="subtitle">オリジナルの依頼書を作成して画像として保存できます。</p>
+    </header>
+
+    <div class="creator-container">
+      <!-- 左側の入力パネル -->
+      <aside class="controls-panel">
+        <div class="form-group">
+          <label for="title-input">依頼タイトル</label>
+          <input type="text" id="title-input" value="ヒドラ討伐ソロ！">
+        </div>
+        <div class="form-group">
+          <label for="level-input">推奨レベル</label>
+          <input type="text" id="level-input" value="推奨Lv:12～13">
+        </div>
+        <div class="form-group">
+          <label for="content-input">依頼内容</label>
+          <textarea id="content-input" rows="5">助けてくれよ～ハニ～……
+これ以上大変なことになると、苦しいんだぜ…</textarea>
+        </div>
+        <div class="form-group">
+          <label for="reward-input">報酬</label>
+          <input type="text" id="reward-input" value="1人1500ガメル">
+        </div>
+        <div class="form-group">
+          <label for="requester-input">依頼人</label>
+          <input type="text" id="requester-input" value="Jin Emplor">
+        </div>
+        <div class="form-group">
+          <button id="download-btn" class="add-new-button">依頼書を画像として保存</button>
+        </div>
+      </aside>
+
+      <!-- 右側のプレビューパネル -->
+      <main class="preview-panel">
+        <div id="preview-area" class="request-form-paper">
+          <div class="title-container">
+            <div id="title-display" class="title-text"></div>
+          </div>
+          <div class="request-body">
+            <div id="level-display" class="level-text"></div>
+            <div id="content-title-display" class="section-title content-title">依頼内容</div>
+            <div id="content-display" class="content-text"></div>
+            <div class="spacer"></div>
+            <div id="reward-display" class="section-title reward-text">
+              <span class="label">報酬:</span>
+              <span class="value"></span>
+            </div>
+            <div id="requester-display" class="section-title requester-text">
+              <span class="label">依頼人:</span>
+              <span class="value"></span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="request_form.js"></script>
+</body>
+
+</html>
