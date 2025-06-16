@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const processedContent = processUnits(contentInput.value);
             contentDisplay.innerHTML = processedContent.replace(/\n/g, '<br>');
             // 表示されている高さから行数を計算
-            const lineHeight = 24; // CSSで指定した値
+            const lineHeight = 28; // CSSで指定した値
             const scrollHeight = contentDisplay.scrollHeight;
             const lineCount = Math.round(scrollHeight / lineHeight);
 
