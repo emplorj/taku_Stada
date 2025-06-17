@@ -102,30 +102,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
                 
-                initializeLogo();
                 initializeHamburgerMenu();
             } else { console.error('Failed to fetch header.html:', response.statusText); }
         } catch (error) { console.error('Error fetching header.html:', error); }
     }
 
-    // --- ロゴの動的挿入 (リンクを修正) ---
-    function initializeLogo() {
-        const logoPlaceholder = document.getElementById('home-logo-placeholder');
-        if (logoPlaceholder) {
-            logoPlaceholder.innerHTML = `<a href="${basePath}/" class="home-logo-link"><img src="${basePath}/img/卓スタダロゴ.png" alt="トップページに戻る" class="home-logo"></a>`;
-        }
-    }
 
     // --- ハンバーガーメニューの制御 ---
     function initializeHamburgerMenu() {
         const hamburger = document.getElementById('hamburger-menu');
         const sideMenu = document.getElementById('tableOfContents');
         const overlay = document.getElementById('menu-overlay');
+        const menuLogoContainer = document.querySelector('.menu-logo-container');
+
         if (hamburger && sideMenu && overlay) {
             const toggleMenu = (isOpen) => {
+                hamburger.classList.toggle('is-open', isOpen);
                 sideMenu.classList.toggle('is-open', isOpen);
                 overlay.classList.toggle('is-open', isOpen);
                 document.body.classList.toggle('no-scroll', isOpen);
+
+                if (isOpen) {
+                    // メニューが開いた時
+                }
             };
             hamburger.addEventListener('click', () => toggleMenu(!sideMenu.classList.contains('is-open')));
             overlay.addEventListener('click', () => toggleMenu(false));

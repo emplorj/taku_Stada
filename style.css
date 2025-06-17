@@ -36,6 +36,8 @@
 
 html {
     scroll-behavior: smooth;
+    width: 100%;
+    overflow-x: hidden;
 }
 body {
     font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
@@ -44,6 +46,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #061144;
+    width: 100%;
     /* (以下、背景関連のスタイルは変更なし) */
     background-image: radial-gradient(circle at 10% 20%, #1a2c6d 0%, rgba(6, 17, 68, 0) 50%),
                       radial-gradient(circle at 90% 80%, #3498db 0%, rgba(6, 17, 68, 0) 50%);
@@ -93,7 +96,7 @@ h1 {
     /* 左側メニューの幅(約240px) + 余白(20px) = 260px のマージンを確保 */
     margin-left: 260px; 
     min-width: 320px;
-    transition: margin-left 0.3s ease-in-out;
+    transition: margin-left 0.3s ease-in-out, transform 0.3s ease-in-out;
     padding: 20px 20px 0 20px;
     box-sizing: border-box;
     height: 100%;
@@ -107,7 +110,7 @@ h1 {
 /* 左側の目次 (配置と基本スタイル) */
 .side-menu {
     position: fixed; /* 画面に固定 */
-    top: 100px;      /* 上からの位置 */
+    top: 20px;      /* 上からの位置 */
     left: 20px;      /* 左からの位置 */
     width: 180px;    /* メニューの基本幅 */
     padding: 20px;   /* 内側の余白 */
@@ -258,6 +261,8 @@ footer {
 .side-menu ul {
     list-style: none;
     padding: 0;
+    margin: 0;
+    padding-top: 15px; /* ロゴコンテナとの間に余白を設ける */
 }
 .side-menu ul ul {
     padding-left: 15px; /* ネストされたリストのインデント */
@@ -287,13 +292,23 @@ footer {
     width: 1.2em;       /* 幅を文字サイズに合わせる (お好みで調整) */
     margin-right: 0.5em;  /* アイコンとテキストの間に余白を作る */
     object-fit: contain;  /* 画像のアスペクト比を保つ */
-    transform: translateY(-5px);
+    transform: translateY(-2px);
 }
 
 .side-menu a:hover,
 .side-menu a.active { /* JavaScriptでアクティブなリンクをハイライトする場合の準備 */
     color: #fff;
     font-weight: bold;
+}
+
+/* サイドメニューのもくじタイトル */
+.side-menu h2 {
+    margin: 0 0 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #4a5c9a;
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+    font-size: 1.2em;
+    color: #fff;
 }
 
 /* ==========================================================================
@@ -545,25 +560,6 @@ footer {
     transform: scale(1);
 }
 
-/* トップページに戻るロゴ (common.jsで挿入) */
-.home-logo-link {
-    position: fixed; /* ビューポート基準で固定配置 */
-    top: 20px;
-    left: 20px;
-    z-index: 100;
-    display: block;
-    transition: transform 0.3s ease;
-}
-
-.home-logo-link:hover {
-    transform: scale(1.2); /* ホバーで少し拡大 */
-}
-
-.home-logo {
-    width: 120px;  /* ロゴの幅を固定 */
-    height: auto; /* 高さは自動調整し、アスペクト比を維持 */
-    border-radius: 8px; /* 角を少し丸く */
-}
 
 /* ==========================================================================
    7. 背景 / 装飾要素
@@ -671,7 +667,7 @@ footer {
         display: block;
         position: fixed;
         top: 15px;
-        left: 15px;
+        left: 19px; /* 20px(メニューの見え幅) - 1px(枠線) */
         width: 44px;
         height: 44px;
         background-color: rgba(6, 17, 68, 0.8);
@@ -737,13 +733,6 @@ footer {
 
     /* === その他の要素の調整 === */
     /* トップに戻るロゴの位置を調整 */
-    .home-logo-link {
-        top: 10px;
-        left: 70px; /* ハンバーガーアイコンと被らないように右にずらす */
-    }
-    .home-logo {
-        width: 80px;
-    }
 }
 
 
@@ -778,18 +767,6 @@ footer {
    小型スマートフォン向け追加調整 (画面幅 600px 以下)
    -------------------------------------------------------------------------- */
 @media (max-width: 600px) {
-    .home-logo-link {
-        top: 15px;
-        left: 15px;
-    }
-    .home-logo {
-        width: 60px;
-    }
-
-    /* ハンバーガーメニューをロゴの上に配置 */
-    .hamburger-menu {
-        top: 80px; /* ロゴの下あたり */
-    }
 
     /* カレンダーのナビゲーションとセルのスタイルを調整 */
     .calendar-nav {
@@ -837,15 +814,6 @@ footer {
 }
 
 /* トップページに戻るロゴのモバイル調整 */
-@media (max-width: 1080px) {
-    .home-logo-link {
-        top: 10px; /* モバイルでは上からの位置を小さく */
-        left: 10px; /* モバイルでは左からの位置を小さく */
-    }
-    .home-logo {
-        width: 60px; /* 小さい画面ではロゴをさらに小さく */
-    }
-}
 
 .additional-info-section ul {
     list-style-type: disc; /* 通常のリストマーカー */
@@ -1165,14 +1133,16 @@ footer {
     display: none; /* PCでは非表示 */
     position: fixed;
     top: 15px;
-    left: 15px; /* ※home-logo-link と少しずらす */
+    left: 19px; /* 初期位置はメニューの見える部分の右隣、1px重ねる */
     width: 44px;
     height: 44px;
-    background-color: rgba(6, 17, 68, 0.8);
+    background-color: rgba(6, 17, 68, 0.95);
     border: 1px solid #3498db;
-    border-radius: 8px;
-    z-index: 2000; /* 最前面に表示 */
+    border-left: none; /* 左の線は消してメニューの線とつなげる */
+    border-radius: 0 8px 8px 0; /* 右側だけ角丸 */
+    z-index: 1601;
     cursor: pointer;
+    transition: transform 0.3s ease-in-out;
 }
 /* アイコンの三本線 */
 .hamburger-menu span {
@@ -1183,10 +1153,45 @@ footer {
     height: 2px;
     background-color: #fff;
     transition: all 0.3s;
+    transform-origin: center;
 }
-.hamburger-menu span:nth-of-type(1) { top: 12px; }
-.hamburger-menu span:nth-of-type(2) { top: 21px; }
-.hamburger-menu span:nth-of-type(3) { top: 30px; }
+.hamburger-menu span:nth-of-type(1) {
+    top: 12px;
+}
+.hamburger-menu span:nth-of-type(2) {
+    top: 21px;
+}
+.hamburger-menu span:nth-of-type(3) {
+    top: 30px;
+}
+
+/* キーフレームアニメーションの定義 */
+@keyframes spin-and-blur-1 {
+    0% { transform: translateY(0) rotate(0); filter: blur(0); }
+    50% { filter: blur(1.5px); }
+    100% { transform: translateY(9px) rotate(585deg); filter: blur(0); } /* 540 + 45 */
+}
+@keyframes spin-and-blur-2 {
+    0% { transform: scale(1); opacity: 1; filter: blur(0); }
+    50% { transform: scale(0.5); opacity: 0.5; filter: blur(1px); }
+    100% { transform: scale(0); opacity: 0; filter: blur(0); }
+}
+@keyframes spin-and-blur-3 {
+    0% { transform: translateY(0) rotate(0); filter: blur(0); }
+    50% { filter: blur(1.5px); }
+    100% { transform: translateY(-9px) rotate(-585deg); filter: blur(0); } /* -540 - 45 */
+}
+
+/* メニューオープン時のアニメーション適用 */
+.hamburger-menu.is-open span:nth-of-type(1) {
+    transform: translateY(9px) rotate(45deg);
+}
+.hamburger-menu.is-open span:nth-of-type(2) {
+    opacity: 0;
+}
+.hamburger-menu.is-open span:nth-of-type(3) {
+    transform: translateY(-9px) rotate(-45deg);
+}
 
 
 /* メニュー表示時の背景オーバーレイ */
@@ -1217,40 +1222,47 @@ body.no-scroll {
 /* ==========================================================================
    13. レスポンシブ調整（メディアクエリの上書き）
    ========================================================================== */
-@media (max-width: 1024px) {
-    /* --- 既存の .side-menu の display:none を無効化し、新しいスタイルを適用 --- */
-    .side-menu {
-        display: block; /* display:noneを上書き */
-        left: 0;
-        top: 0;
-        width: 250px;
-        height: 100%;
-        max-height: 100vh;
-        border-radius: 0;
-        transform: translateX(-100%); /* 初期状態では画面左外に隠す */
-        transition: transform 0.3s ease-in-out;
-        z-index: 1600; /* オーバーレイより手前に */
-    }
-    /* JSで .is-open クラスが付いたら、画面内にスライドイン */
-    .side-menu.is-open {
-        transform: translateX(0);
+@media (max-width: 1080px) {
+    .main-content {
+        margin-left: 0;
     }
 
-    /* --- ハンバーガーメニューとオーバーレイを表示状態に --- */
-    .hamburger-menu,
+    /* === ハンバーガーメニュー関連のスタイル === */
+    .hamburger-menu {
+        display: block;
+    }
+
     .menu-overlay {
         display: block;
     }
 
-    /* --- トップに戻るロゴの位置を調整 --- */
-    .home-logo-link {
-        
-        top: 10px;
-        left: 70px; /* ハンバーガーアイコンと被らないように右にずらす */
+    .side-menu {
+        display: block;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 220px;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        background-color: rgba(6, 17, 68, 0.95);
+        border-right: 1px solid #3498db;
+        transform: translateX(calc(-100% + 20px)); /* 20pxだけ見えるように */
+        transition: transform 0.3s ease-in-out;
+        z-index: 1600;
+        padding: 20px;
+        padding-top: 20px; /* 上下のpaddingを統一 */
+        box-sizing: border-box;
     }
-    .home-logo {
-        width: 80px;
+    .side-menu.is-open {
+        transform: translateX(0);
     }
+
+    body.no-scroll .hamburger-menu {
+        transform: translateX(200px); /* 220px(メニュー幅) - 20px(初期見え幅) = 200px スライド */
+    }
+
+    /* === その他の要素の調整 === */
 }
 
 
@@ -1661,6 +1673,7 @@ font-style: normal;
     mix-blend-mode: color-burn;
 }
 
+
 .background-toggle-switch {
     position: fixed;
     bottom: 20px;
@@ -1680,4 +1693,18 @@ font-style: normal;
     width: 18px;
     height: 18px;
     cursor: pointer;
+}
+/* メニュー内ロゴのスタイル */
+.menu-logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #4a5c9a;
+}
+
+.menu-logo {
+    max-width: 100%;
+    height: auto;
 }
