@@ -126,7 +126,7 @@
         <div class="plain-text-block additional-info-section">
             <h2 id="ccfolia-tools-section">◆ココフォリアツール</h2>
             <ul class="tool-card-list" id="tool-card-list-container">
-                <!-- ここにJavaScriptでカードが挿入されます -->
+                <!-- ここにJavaScriptでOGPカードが挿入されます -->
             </ul>
         </div>
 
@@ -220,119 +220,117 @@
             }
         });
 
-        // --- ツールカードリスト生成 ---
+        // --- OGPカードリスト生成 ---
         const toolData = [
-            {
-                url: "https://ccfolia.com/rooms/6584j5uuj",
-                title: "楽屋ココフォリア",
-                description: "雑にダイスを振ったり、テストしたりする部屋です。",
-                displayUrl: "ccfolia.com",
-                author: "おれ・ココフォリア"
-            },
-            {
-                url: "https://kurian.websozai.jp/charaPiece/top",
-                title: "キャラシコピペツール (CoC, SW等)",
-                description: "主要なTRPGシステムのキャラクターシート情報をココフォリアのコマに変換します。",
-                displayUrl: "kurian.websozai.jp",
-                author: "クウリャン様"
-            },
-            {
-                url: "https://script.google.com/macros/s/AKfycbwUPjuiBEGUrfrKcKZCrRAqiB7V687tbA5uxy7PbKxSkgMGnoIMob7yK0PNEvBoUcbTTA/exec",
-                title: "キャラシコピペツール (DX3rd, サタスペ等)",
-                description: "DX3rdやサタスペ、ネクロニカなどのキャラクターシートをコマ情報に変換します。",
-                displayUrl: "script.google.com",
-                author: "おれ"
-            },
-            {
-                url: "https://docs.google.com/spreadsheets/d/1jMnjoqxiJZanm6L9-HsXw1crxBdQB_SZQgM4O8Tk7MM/",
-                title: "ダブルクロス コンボジェネレーター",
-                description: "ダブルクロスのコンボ作成を支援するスプレッドシートです。",
-                displayUrl: "docs.google.com",
-                author: "おれ"
-            },
-            {
-                url: "https://docs.google.com/presentation/d/1ZHHNs_yR37joGYSBiYfQ_C_mwmhdFNHmxkA7fItBkKs/edit#slide=id.g2710a927f4d_0_5",
-                title: "ダブルクロス コンボジェネレーター (説明)",
-                description: "コンボジェネレーターの使い方の説明スライドです。",
-                displayUrl: "docs.google.com",
-                author: "おれ"
-            },
-            {
-                url: "https://docs.google.com/spreadsheets/d/1MifivHkro_g2S_9QFYJoCa4eBaSNw-JqoEexGCEr41w/edit?usp=sharing",
-                title: "シナリオテンプレ／CoC（あばれぢから）",
-                description: "クトゥルフ神話TRPGのシナリオ作成用テンプレートです。",
-                displayUrl: "docs.google.com",
-                author: "あばれぢから"
-            },
-            {
-                url: "https://sirubedon.github.io/TextConverter/",
-                title: "テキストコンバーター",
-                description: "テキストのフォーマット変換など、様々な加工ができます。",
-                displayUrl: "sirubedon.github.io",
-                author: "しるべ"
-            },
-            {
-                url: "https://sirubedon.github.io/ccfolia-log-to-xlsx/",
-                title: "ココフォリアログ→Excel変換",
-                description: "ココフォリアのチャットログをExcel形式のファイルに変換します。",
-                displayUrl: "sirubedon.github.io",
-                author: "しるべ"
-            },
-            {
-                url: "https://sirubedon.github.io/CCfoliaLogConverterWithImages/",
-                title: "ココフォリア/Tekeyログ整形 (画像埋込)",
-                description: "チャットログを整形し、発言者のアイコン画像を埋め込みます。",
-                displayUrl: "sirubedon.github.io",
-                author: "しるべ"
-            },
-            {
-                url: "https://x.com/qxoiUioxp/status/1898323502731796480",
-                title: "動画→動く画像(APNG)変換",
-                description: "動画ファイルを、ココフォリアで使えるアニメーションPNGに変換します。",
-                displayUrl: "x.com",
-                author: "しるべ"
-            }
+            { url: "https://ccfolia.com/rooms/6584j5uuj", title: "楽屋ココフォリア", author: "おれ・ココフォリア" },
+            { url: "https://kurian.websozai.jp/charaPiece/top", title: "キャラシコピペツール (CoC, SW等)", author: "クウリャン様" },
+            { url: "https://script.google.com/macros/s/AKfycbwUPjuiBEGUrfrKcKZCrRAqiB7V687tbA5uxy7PbKxSkgMGnoIMob7yK0PNEvBoUcbTTA/exec", title: "キャラシコピペツール (DX3rd, サタスペ等)", author: "おれ" },
+            { url: "https://docs.google.com/spreadsheets/d/1jMnjoqxiJZanm6L9-HsXw1crxBdQB_SZQgM4O8Tk7MM/", title: "ダブルクロス コンボジェネレーター", author: "おれ" },
+            { url: "https://docs.google.com/presentation/d/1ZHHNs_yR37joGYSBiYfQ_C_mwmhdFNHmxkA7fItBkKs/edit#slide=id.g2710a927f4d_0_5", title: "ダブルクロス コンボジェネレーター (説明)", author: "おれ" },
+            { url: "https://docs.google.com/spreadsheets/d/1MifivHkro_g2S_9QFYJoCa4eBaSNw-JqoEexGCEr41w/edit?usp=sharing", title: "シナリオテンプレ／CoC（あばれぢから）", author: "あばれぢから" },
+            { url: "https://sirubedon.github.io/TextConverter/", title: "テキストコンバーター", author: "しるべ" },
+            { url: "https://sirubedon.github.io/ccfolia-log-to-xlsx/", title: "ココフォリアログ→Excel変換", author: "しるべ" },
+            { url: "https://sirubedon.github.io/CCfoliaLogConverterWithImages/", title: "ココフォリア/Tekeyログ整形 (画像埋込)", author: "しるべ" },
+            { url: "https://x.com/qxoiUioxp/status/1898323502731796480", title: "動画→動く画像(APNG)変換", author: "しるべ" }
         ];
 
         const toolCardContainer = document.getElementById('tool-card-list-container');
+
         if (toolCardContainer) {
-            // データを作者でグループ化
             const groupedByAuthor = toolData.reduce((acc, tool) => {
                 const author = tool.author || 'その他';
-                if (!acc[author]) {
-                    acc[author] = [];
-                }
+                if (!acc[author]) acc[author] = [];
                 acc[author].push(tool);
                 return acc;
             }, {});
 
-            // 作者ごとにセクションを作成してカードを描画
             for (const author in groupedByAuthor) {
-                // 作者名の小見出しを作成
                 const authorHeader = document.createElement('h3');
                 authorHeader.className = 'tool-author-header';
                 authorHeader.textContent = author;
                 toolCardContainer.appendChild(authorHeader);
 
-                // その作者のツールカードリストを作成
                 const authorToolList = document.createElement('ul');
                 authorToolList.className = 'tool-card-list';
 
                 groupedByAuthor[author].forEach(tool => {
-                    const card = document.createElement('li');
-                    card.className = 'tool-card';
-                    card.innerHTML = `
-                        <a href="${tool.url}" target="_blank" rel="noopener noreferrer">
-                            <div class="tool-card-content">
-                                <h4 class="tool-card-title">${tool.title}</h4>
-                                <p class="tool-card-description">${tool.description}</p>
-                                <span class="tool-card-url">${tool.displayUrl}</span>
-                            </div>
-                        </a>
-                    `;
-                    authorToolList.appendChild(card);
+                    const wrapper = document.createElement('li');
+                    wrapper.className = 'ogp-card-wrapper';
+
+                    const originalTitle = document.createElement('h4');
+                    originalTitle.className = 'ogp-card-original-title';
+                    originalTitle.textContent = tool.title;
+                    wrapper.appendChild(originalTitle);
+
+                    const cardPlaceholder = document.createElement('div');
+                    cardPlaceholder.className = 'ogp-card';
+                    cardPlaceholder.innerHTML = `<a href="${tool.url}" target="_blank" rel="noopener noreferrer"><div class="ogp-card-content"><p>読み込み中...</p></div></a>`;
+                    wrapper.appendChild(cardPlaceholder);
+
+                    authorToolList.appendChild(wrapper);
+
+                    fetchOgpData(tool.url, cardPlaceholder);
                 });
                 toolCardContainer.appendChild(authorToolList);
+            }
+        }
+
+        async function fetchOgpData(url, placeholderElement) {
+            const defaultImage = 'img/icon.png';
+            try {
+                const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+                const html = await response.text();
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const getMetaContent = (prop, attr = 'property') => {
+                    const el = doc.querySelector(`meta[${attr}="${prop}"]`);
+                    return el ? el.getAttribute('content') : '';
+                };
+
+                const title = getMetaContent('og:title') || doc.querySelector('title')?.textContent || 'タイトル不明';
+                const description = getMetaContent('og:description') || getMetaContent('description', 'name') || '';
+                let imageUrl = getMetaContent('og:image');
+
+                // 相対URLを絶対URLに変換
+                if (imageUrl && !imageUrl.startsWith('http')) {
+                    const urlObj = new URL(url);
+                    imageUrl = new URL(imageUrl, urlObj.origin).href;
+                }
+
+                const displayUrl = new URL(url).hostname;
+
+                const cardHtml = `
+                    <a href="${url}" target="_blank" rel="noopener noreferrer">
+                        <div class="ogp-card-image">
+                            <img src="${imageUrl || defaultImage}" alt="サイトのプレビュー画像" onerror="this.onerror=null;this.src='img/icon.png';">
+                        </div>
+                        <div class="ogp-card-content">
+                            <h4 class="ogp-card-title">${title}</h4>
+                            <p class="ogp-card-description">${description}</p>
+                            <span class="ogp-card-url">${displayUrl}</span>
+                        </div>
+                    </a>
+                `;
+                placeholderElement.innerHTML = cardHtml;
+
+            } catch (error) {
+                console.error('OGP取得エラー:', url, error);
+                const displayUrl = new URL(url).hostname;
+                const errorHtml = `
+                    <a href="${url}" target="_blank" rel="noopener noreferrer">
+                        <div class="ogp-card-image">
+                            <img src="img/icon.png" alt="サイトのプレビュー画像">
+                        </div>
+                        <div class="ogp-card-content">
+                            <h4 class="ogp-card-title">${displayUrl}</h4>
+                            <p class="ogp-card-description">情報の取得に失敗しました。</p>
+                            <span class="ogp-card-url">${displayUrl}</span>
+                        </div>
+                    </a>
+                `;
+                placeholderElement.innerHTML = errorHtml;
             }
         }
 
