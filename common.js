@@ -91,29 +91,35 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 const html = await response.text();
                 placeholder.innerHTML = html;
-                
-                const sideMenu = document.getElementById('tableOfContents');
-                if (sideMenu) {
-                    const links = sideMenu.querySelectorAll('a');
-                    links.forEach(link => {
-                        const originalHref = link.getAttribute('href');
-                        if (originalHref.startsWith('http')) return;
-                        link.href = `${basePath}/${originalHref}`;
-                    });
-                }
-                
-                initializeHamburgerMenu();
+
+                // DOMの準備が整うのを待ってから初期化処理を実行
+                setTimeout(() => {
+                    const sideMenu = document.getElementById('tableOfContents');
+                    if (sideMenu) {
+                        const links = sideMenu.querySelectorAll('a');
+                        links.forEach(link => {
+                            const originalHref = link.getAttribute('href');
+                            if (originalHref && !originalHref.startsWith('http') && !originalHref.startsWith('#')) {
+                                const url = new URL(link.href);
+                                if(url.pathname.endsWith('.html')) {
+                                   link.href = `${basePath}/${originalHref}`;
+                                }
+                            }
+                        });
+                    }
+                    initializeHamburgerMenu();
+                    initializeSubMenu();
+                }, 0);
+
             } else { console.error('Failed to fetch header.html:', response.statusText); }
         } catch (error) { console.error('Error fetching header.html:', error); }
     }
-
 
     // --- ハンバーガーメニューの制御 ---
     function initializeHamburgerMenu() {
         const hamburger = document.getElementById('hamburger-menu');
         const sideMenu = document.getElementById('tableOfContents');
         const overlay = document.getElementById('menu-overlay');
-        const menuLogoContainer = document.querySelector('.menu-logo-container');
 
         if (hamburger && sideMenu && overlay) {
             const toggleMenu = (isOpen) => {
@@ -121,14 +127,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 sideMenu.classList.toggle('is-open', isOpen);
                 overlay.classList.toggle('is-open', isOpen);
                 document.body.classList.toggle('no-scroll', isOpen);
-
-                if (isOpen) {
-                    // メニューが開いた時
-                }
             };
             hamburger.addEventListener('click', () => toggleMenu(!sideMenu.classList.contains('is-open')));
             overlay.addEventListener('click', () => toggleMenu(false));
         }
+    }
+
+    // --- サブメニューの制御 ---
+    function initializeSubMenu() {
+        const submenuTriggers = document.querySelectorAll('.submenu-trigger');
+        submenuTriggers.forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.classList.toggle('active');
+                const submenu = this.nextElementSibling;
+                if (submenu && submenu.classList.contains('submenu')) {
+                    if (submenu.style.maxHeight) {
+                        submenu.style.maxHeight = null;
+                    } else {
+                        submenu.style.maxHeight = submenu.scrollHeight + "px";
+                    }
+                }
+            });
+        });
     }
 
     const backToTopBtn = document.getElementById("backToTopBtn");

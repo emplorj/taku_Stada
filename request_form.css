@@ -169,7 +169,6 @@
     font-size: 72px;
     text-align: center;
     white-space: nowrap;
-    letter-spacing: -0.15em;
 }
 
 .title-container {
@@ -230,7 +229,6 @@
     text-align-last: left;
     white-space: pre-wrap;
     line-height: 28px;
-    letter-spacing: -0.08em;
     max-height: 325px;
     overflow-y: hidden;
     flex-shrink: 0;

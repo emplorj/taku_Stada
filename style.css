@@ -42,6 +42,7 @@ html {
 body {
     font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
     line-height: 1.6;
+    font-feature-settings: "palt";
     color: #eee;
     margin: 0;
     padding: 0;
@@ -94,7 +95,7 @@ h1 {
 
 .main-content {
     /* 左側メニューの幅(約240px) + 余白(20px) = 260px のマージンを確保 */
-    margin-left: 260px; 
+    margin-left: 260px;
     min-width: 320px;
     transition: margin-left 0.3s ease-in-out, transform 0.3s ease-in-out;
     padding: 20px 20px 0 20px;
@@ -147,7 +148,7 @@ footer {
     color: #e0e0e0; /* 地の文の文字色 */
     padding: 15px 25px;
     border-radius: 8px;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
@@ -265,6 +266,7 @@ footer {
     margin: 0;
     padding-top: 15px; /* ロゴコンテナとの間に余白を設ける */
 }
+
 .side-menu ul ul {
     padding-left: 15px; /* ネストされたリストのインデント */
     margin-top: 5px;    /* ネストされたリストの上のスペース */
@@ -275,7 +277,7 @@ footer {
 }
 
 .side-menu li {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .side-menu a {
@@ -604,8 +606,6 @@ footer {
 
   padding-left: 20px;
   padding-right: 0;
-  margin-top: 1em;
-  margin-bottom: 1em;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   background-color: #5F7C99;
   position: relative;
@@ -1785,4 +1785,46 @@ font-style: normal;
     font-size: 1.2em;
     color: #ffffff;
     margin: 0 0 10px 0;
+}
+/* ==========================================================================
+   21. サイドメニュー サブメニュー
+   ========================================================================== */
+.side-menu .has-submenu > .submenu-trigger {
+    position: relative;
+}
+
+.side-menu .has-submenu > .submenu-trigger::after {
+    content: '▶';
+    position: absolute;
+    left: 0; /* アイコンと同じ左端に配置 */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7em;
+    color: #b0c4de;
+    transition: transform 0.3s ease;
+}
+
+.side-menu .has-submenu > .submenu-trigger.active::after {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.side-menu .submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+    box-sizing: border-box;
+}
+
+.side-menu .has-submenu > .submenu-trigger {
+    padding-left: 1.7em; /* 矢印のスペースを確保 */
+}
+
+.side-menu .submenu li a {
+    font-size: 0.9em;
+    color: #9ab5d9;
+    padding-left: 1.7em; /* 他の項目とインデントを合わせる */
 }
