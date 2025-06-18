@@ -16,16 +16,17 @@
 .creator-container {
     display: flex;
     gap: 20px;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     align-items: flex-start;
     justify-content: center;
 }
 
 .controls-panel {
-    min-width: 400px;
+    min-width: 320px;
     max-width: 900px;
-    flex-shrink: 0; /* パネルが縮まないようにする */
+    flex-shrink: 1; /* パネルが縮むようにする */
+    flex-grow: 1; /* 余裕があれば広がるようにする */
     height: 742px; /* プレビューパネルと高さを合わせる */
     background-color: #1a2c6d;
     overflow-y: auto; /* 内容が溢れた場合にスクロール */
