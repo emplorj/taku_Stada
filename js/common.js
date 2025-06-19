@@ -82,6 +82,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
     const basePath = isLocal ? '' : '/taku_Stada';
 
+   // --- Faviconを動的に挿入する ---
+   function injectFaviconLinks() {
+       const head = document.head;
+       const favicons = [
+           { rel: 'icon', href: `${basePath}/img/favicon.ico` },
+           { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${basePath}/img/favicon-32x32.png` },
+           { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${basePath}/img/favicon-16x16.png` },
+           { rel: 'apple-touch-icon', sizes: '180x180', href: `${basePath}/img/apple-touch-icon.png` }
+       ];
+
+       favicons.forEach(faviconInfo => {
+           const link = document.createElement('link');
+           Object.keys(faviconInfo).forEach(key => {
+               link.setAttribute(key, faviconInfo[key]);
+           });
+           head.appendChild(link);
+       });
+   }
+
     // --- 共通ヘッダーを読み込み、リンクを修正する ---
     async function loadHeader() {
         const placeholder = document.getElementById('header-placeholder');
@@ -167,6 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- 初期化の実行 ---
     loadHeader();
+   injectFaviconLinks();
 });
 
 // (パーティクルアニメーションのコードは変更なし)
