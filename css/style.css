@@ -4,7 +4,7 @@
 /* ★★★ @font-face の定義をすべてこの内容に置き換えてください ★★★ */
 @font-face {
     font-family: 'HigashiOme-Gothic-C';
-    src: url('fonts/HigashiOme-Gothic-C.woff2') format('woff2'); /* こちらは変換後のwoff2 */
+    src: url('../fonts/HigashiOme-Gothic-C.woff2') format('woff2'); /* こちらは変換後のwoff2 */
     font-weight: normal;
     font-style: normal;
     font-display: swap; 
@@ -12,7 +12,7 @@
 
 @font-face {
     font-family: 'Corporate-Logo-Bold';
-    src: url('fonts/Corporate-Logo-Bold-ver3.woff2') format('woff2'); /* こちらもwoff2 */
+    src: url('../fonts/Corporate-Logo-Bold-ver3.woff2') format('woff2'); /* こちらもwoff2 */
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -20,14 +20,22 @@
 
 @font-face {
     font-family: 'Vermin Vibes V';
-    src: url('fonts/Vermin Vibes V.otf') format('opentype');
+    src: url('../fonts/Vermin Vibes V.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Makinas-4-Flat';
-    src: url('fonts/Makinas-4-Flat.woff2') format('woff2');
+    src: url('../fonts/Makinas-4-Flat.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'HGSoueiKakuGothicUB';
+    src: url('../fonts/hgrsgu.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
