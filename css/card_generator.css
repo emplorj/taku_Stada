@@ -188,6 +188,16 @@
     .preview-panel { margin-top: 20px; }
 }
 
+@media (max-width: 479px) {
+    .preview-panel {
+        width: 100%;
+        overflow: hidden;
+    }
+    #preview-area {
+        transform-origin: top left;
+    }
+}
+
 /* ライトテーマUI用のスタイル */
 .light-theme-ui .controls-panel label { color: #2c3e50; text-shadow: none; }
 .light-theme-ui .color-description { color: #34495e; }

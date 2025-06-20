@@ -20,8 +20,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const stampImage = document.getElementById('stamp-image');
     
     const titleContainer = document.querySelector('.title-container');
+    const previewPanel = document.querySelector('.preview-panel');
+    const requestFormPaper = document.querySelector('.request-form-paper');
 
     // --- 調整関数 ---
+
+    // プレビューエリアのスケールを調整
+    const scalePreview = () => {
+        if (!previewPanel || !requestFormPaper) return;
+
+        const baseWidth = 674; // 基準となる幅
+        const containerWidth = previewPanel.offsetWidth;
+
+        if (containerWidth < baseWidth) {
+            const scale = containerWidth / baseWidth;
+            requestFormPaper.style.transform = `scale(${scale})`;
+            // スケールに合わせてコンテナの高さを調整
+            previewPanel.style.height = `${requestFormPaper.offsetHeight * scale}px`;
+        } else {
+            requestFormPaper.style.transform = 'none';
+            previewPanel.style.height = 'auto';
+        }
+    };
 
     // タイトルのフォントサイズを調整
     const adjustTitleFontSize = (maxFontSize) => {
@@ -151,11 +171,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    window.addEventListener('resize', updateAll);
-    window.addEventListener('typekit-loaded', updateAll, { once: true });
+    window.addEventListener('resize', () => {
+        updateAll();
+        scalePreview();
+    });
+    window.addEventListener('typekit-loaded', () => {
+        updateAll();
+        scalePreview();
+    }, { once: true });
 
     // 初期表示
     updateAll();
+    scalePreview();
 
 
     // --- ダウンロード処理 ---
@@ -165,15 +192,17 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadBtn.addEventListener('click', () => {
             downloadBtn.textContent = '画像を生成中...';
             downloadBtn.disabled = true;
-            
-            const targetWidth = 674;
-            const actualWidth = previewArea.offsetWidth;
-            const scale = targetWidth / actualWidth;
 
+            // スケールを一時的にリセット
+            const originalTransform = previewArea.style.transform;
+            previewArea.style.transform = 'none';
+            
+            // html2canvasはスケールリセット後に実行
+            // スケールオプションは常に1でOK（CSSでサイズが固定されているため）
             html2canvas(previewArea, {
                 backgroundColor: null,
                 useCORS: true,
-                scale: scale
+                scale: 1 // 元の解像度でキャプチャ
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = '依頼書.png';
@@ -185,6 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }).finally(() => {
                 downloadBtn.textContent = '依頼書を画像として保存';
                 downloadBtn.disabled = false;
+                // スケールを元に戻す
+                previewArea.style.transform = originalTransform;
             });
         });
     }

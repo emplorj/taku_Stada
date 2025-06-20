@@ -237,7 +237,10 @@
             const defaultImage = 'img/icon.png';
             try {
                 const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
-                const html = await response.text();
+                let html = await response.text();
+
+                // Preload link tags are removed to prevent warnings in the console.
+                html = html.replace(/<link[^>]*rel="preload"[^>]*>/gi, '');
 
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');

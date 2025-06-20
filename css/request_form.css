@@ -144,7 +144,7 @@
     position: relative;
     width: 674px;
     aspect-ratio: 674 / 782;
-    background-image: url('img/依頼書テンプレ.png');
+    background-image: url('../img/依頼書テンプレ.png');
     background-size: contain;
     background-repeat: no-repeat;
     color: #202020;
@@ -303,6 +303,18 @@
       margin-top: 20px;
     }
     .page-header-with-actions {
+    }
+}
+
+@media (max-width: 673px) {
+    .preview-panel {
+        /* プレビューパネルがコンテナの幅を超えないように */
+        width: 100%;
+        overflow: hidden;
+    }
+    .request-form-paper {
+        /* スケーリングの基点を左上に設定 */
+        transform-origin: top left;
     }
 }
 

@@ -676,7 +676,7 @@ footer {
         display: block;
         position: fixed;
         top: 15px;
-        left: 19px; /* 20px(メニューの見え幅) - 1px(枠線) */
+        left: 9px; /* 20px(メニューの見え幅) - 1px(枠線) */
         width: 44px;
         height: 44px;
         background-color: rgba(6, 17, 68, 0.8);
@@ -1142,7 +1142,7 @@ footer {
     display: none; /* PCでは非表示 */
     position: fixed;
     top: 15px;
-    left: 19px; /* 初期位置はメニューの見える部分の右隣、1px重ねる */
+    left: 9px; /* 初期位置はメニューの見える部分の右隣、1px重ねる */
     width: 44px;
     height: 44px;
     background-color: rgba(6, 17, 68, 0.95);
@@ -1256,7 +1256,7 @@ body.no-scroll {
         border-radius: 0;
         background-color: rgba(6, 17, 68, 0.95);
         border-right: 1px solid #3498db;
-        transform: translateX(calc(-100% + 20px)); /* 20pxだけ見えるように */
+        transform: translateX(calc(-100% + 10px)); /* 20pxだけ見えるように */
         transition: transform 0.3s ease-in-out;
         z-index: 1600;
         padding: 20px;

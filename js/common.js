@@ -184,9 +184,78 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollHandlerForBackToTop();
     }
 
+    // --- Swiperスライダーの初期化 ---
+    function initializeSwiperSlider() {
+        const worksLists = document.querySelectorAll('.works-list-container'); // 親コンテナを対象にする
+        if (worksLists.length === 0) return;
+
+        let swiperInstances = [];
+
+        const setupSwiper = () => {
+            const isMobile = window.innerWidth <= 1080;
+
+            if (isMobile) {
+                // スマホ表示: スライダーを初期化
+                if (swiperInstances.length > 0) return; // 既に初期化済みなら何もしない
+
+                worksLists.forEach(container => {
+                    const list = container.querySelector('ul');
+                    if (!list) return;
+                    
+                    list.classList.add('swiper');
+                    const items = Array.from(list.children);
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'swiper-wrapper';
+                    items.forEach(item => {
+                        item.classList.add('swiper-slide');
+                        wrapper.appendChild(item);
+                    });
+                    list.appendChild(wrapper);
+
+                    const swiper = new Swiper(list, {
+                        loop: true,
+                        slidesPerView: 'auto',
+                        spaceBetween: 15,
+                        centeredSlides: true,
+                        autoplay: {
+                            delay: 2500,
+                            disableOnInteraction: false,
+                        },
+                    });
+                    swiperInstances.push(swiper);
+                });
+            } else {
+                // PC表示: スライダーを破棄
+                if (swiperInstances.length === 0) return; // 破棄済みなら何もしない
+
+                swiperInstances.forEach(swiper => swiper.destroy(true, true));
+                swiperInstances = [];
+            }
+        };
+
+        // Swiperライブラリの読み込み（一度だけ）
+        if (!document.querySelector('script[src*="swiper"]')) {
+            const swiperCss = document.createElement('link');
+            swiperCss.rel = 'stylesheet';
+            swiperCss.href = 'https://unpkg.com/swiper/swiper-bundle.min.css';
+            document.head.appendChild(swiperCss);
+
+            const swiperJs = document.createElement('script');
+            swiperJs.src = 'https://unpkg.com/swiper/swiper-bundle.min.js';
+            document.head.appendChild(swiperJs);
+            
+            swiperJs.onload = setupSwiper;
+        } else {
+            setupSwiper();
+        }
+
+        window.addEventListener('resize', setupSwiper);
+    }
+
     // --- 初期化の実行 ---
     loadHeader();
-   injectFaviconLinks();
+    injectFaviconLinks();
+    initializeSwiperSlider();
 });
 
 // (パーティクルアニメーションのコードは変更なし)

@@ -31,6 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const batchProgress = document.getElementById('batch-progress');
     const imageFolderUpload = document.getElementById('image-folder-upload');
     const imageFolderName = document.getElementById('image-folder-name');
+    const apngOverlayUpload = document.getElementById('apng-overlay-upload');
+    const apngFileName = document.getElementById('apng-file-name');
+    const downloadApngBtn = document.getElementById('download-apng-btn');
+    const previewPanel = document.querySelector('.preview-panel');
+    const previewArea = document.getElementById('preview-area');
 
     // 状態管理
     let isDragging = false, startX, startY;
@@ -39,9 +44,24 @@ document.addEventListener('DOMContentLoaded', () => {
     let imageState = { x: 0, y: 0, scale: 1 };
     let colorNameToIdMap = {};
     let imageFitDirection;
+    let apngOverlayData = null;
 
     const cardColorData = { "赤カード": { name: "赤", description: "BAD EVENT", color: "#990000", hover: "#7a0000", textColor: "#FFFFFF" }, "青カード": { name: "青", description: "GOOD EVENT", color: "#3366CC", hover: "#2851a3", textColor: "#FFFFFF" }, "緑カード": { name: "緑", description: "取得可能", color: "#009933", hover: "#007a29", textColor: "#FFFFFF" }, "黄カード": { name: "黄", description: "金銭、トレジャー", color: "#FFCC66", hover: "#d9ad52", textColor: "#2c3e50" }, "橙カード": { name: "橙", description: "その他", color: "#996633", hover: "#7a5229", textColor: "#FFFFFF" }, "紫カード": { name: "紫", description: "エネミー等", color: "#663366", hover: "#522952", textColor: "#FFFFFF" }, "白カード": { name: "白", description: "RPで切り抜ける", color: "#CCCCCC", hover: "#a3a3a3", textColor: "#2c3e50" }, "黒カード": { name: "黒", description: "フィールド", color: "#333333", hover: "#1a1a1a", textColor: "#FFFFFF" }, "虹カード": { name: "虹", description: "合体/激ヤバ", color: 'linear-gradient(45deg, #e74c3c, #f1c40f, #2ecc71, #3498db, #9b59b6)', hover: 'linear-gradient(45deg, #c0392b, #e67e22, #27ae60, #2980b9, #8e44ad)', textColor: "#FFFFFF" } };
     const cardTypes = { "": { name: "標準" }, "CF": { name: "文字枠なし" }, "FF": { name: "フルフレーム" }, "FFCF": { name: "フルフレーム & 文字枠なし" } };
+
+    function scalePreview() {
+        if (!previewPanel || !previewArea) return;
+        const baseWidth = 480;
+        const containerWidth = previewPanel.offsetWidth;
+        if (containerWidth < baseWidth) {
+            const scale = containerWidth / baseWidth;
+            previewArea.style.transform = `scale(${scale})`;
+            previewPanel.style.height = `${previewArea.offsetHeight * scale}px`;
+        } else {
+            previewArea.style.transform = 'none';
+            previewPanel.style.height = 'auto';
+        }
+    }
 
     function initialize() {
         Object.entries(cardColorData).forEach(([id, details]) => {
@@ -65,10 +85,14 @@ document.addEventListener('DOMContentLoaded', () => {
         batchFileUpload.addEventListener('change', handleBatchFileUpload);
         imageFolderUpload.addEventListener('change', handleImageFolderUpload);
         batchDownloadBtn.addEventListener('click', processBatchDownload);
+        apngOverlayUpload.addEventListener('change', handleApngUpload);
+        downloadApngBtn.addEventListener('click', generateApngCard);
         document.getElementById('background-select-group').style.display = 'none';
         updatePreview();
         resetImage();
         setupFontSpecAnimation();
+        window.addEventListener('resize', scalePreview);
+        scalePreview();
     }
 
     function updatePreview() {
@@ -283,12 +307,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalButtonText = button.textContent;
         button.textContent = '生成中...';
         button.disabled = true;
-    
+
         const elementsToHide = [cardNameContent, effectDisplay, flavorDisplay, flavorSpeakerDisplay, cardImage];
         
         if (isTemplate) {
             elementsToHide.forEach(el => el.style.visibility = 'hidden');
         }
+
+        const originalTransform = previewArea.style.transform;
+        previewArea.style.transform = 'none';
     
         document.fonts.ready.then(() => {
             console.log('全てのフォントの準備が完了しました。画像生成を開始します。');
@@ -315,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 button.textContent = originalButtonText;
                 button.disabled = false;
+                previewArea.style.transform = originalTransform;
             });
         });
     }
@@ -571,4 +599,94 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initialize();
+
+    function handleApngUpload(e) {
+        const file = e.target.files[0];
+        if (file) {
+            apngFileName.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                apngOverlayData = e.target.result;
+                downloadApngBtn.disabled = false;
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            apngFileName.textContent = '選択されていません';
+            apngOverlayData = null;
+            downloadApngBtn.disabled = true;
+        }
+    }
+
+    async function generateApngCard() {
+        if (!apngOverlayData) {
+            alert('キラキラ素材(APNG)を選択してください。');
+            return;
+        }
+
+        downloadApngBtn.textContent = 'APNGを生成中...';
+        downloadApngBtn.disabled = true;
+
+        try {
+            // 1. ベースとなるカード画像をhtml2canvasで取得
+            const baseCanvas = await html2canvas(cardContainer, {
+                backgroundColor: null,
+                useCORS: true,
+                scale: 1 // 等倍でキャプチャ
+            });
+            const baseCtx = baseCanvas.getContext('2d');
+
+            // 2. キラキラAPNGをデコード
+            const overlayApng = UPNG.decode(apngOverlayData);
+            const framesData = UPNG.toRGBA8(overlayApng);
+
+            const newFrames = [];
+            const { width, height } = baseCanvas;
+
+            // 3. フレームごとに合成
+            for (let i = 0; i < framesData.length; i++) {
+                const frame = framesData[i];
+                const frameCanvas = document.createElement('canvas');
+                frameCanvas.width = width;
+                frameCanvas.height = height;
+                const frameCtx = frameCanvas.getContext('2d');
+
+                // ベース画像を描画
+                frameCtx.drawImage(baseCanvas, 0, 0);
+
+                // キラキラフレームを描画
+                const overlayImageData = new ImageData(new Uint8ClampedArray(frame), overlayApng.width, overlayApng.height);
+                
+                // 一時的なキャンバスを使ってリサイズしてから描画
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = overlayApng.width;
+                tempCanvas.height = overlayApng.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.putImageData(overlayImageData, 0, 0);
+                
+                frameCtx.drawImage(tempCanvas, 0, 0, width, height);
+
+                // 合成したフレームの画像データを取得
+                newFrames.push(frameCtx.getImageData(0, 0, width, height).data.buffer);
+            }
+
+            // 4. 新しいAPNGとしてエンコード
+            const newApngBuffer = UPNG.encode(newFrames, width, height, 0, overlayApng.frames.map(f => f.delay));
+
+            // 5. ダウンロード
+            const blob = new Blob([newApngBuffer], { type: 'image/png' });
+            const link = document.createElement('a');
+            const fileName = `${(cardNameInput.value || 'custom_card').replace(/[()`]/g, '')}_kira.png`;
+            link.download = fileName;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+
+        } catch (err) {
+            console.error('APNGの生成に失敗しました。', err);
+            alert('APNGの生成中にエラーが発生しました。コンソールを確認してください。');
+        } finally {
+            downloadApngBtn.textContent = 'キラカード (APNG) を保存';
+            downloadApngBtn.disabled = false;
+        }
+    }
 });

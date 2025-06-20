@@ -26,6 +26,7 @@
     })(document);
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://unpkg.com/upng-js"></script>
 </head>
 
 <body class="page-card-creator">
@@ -139,6 +140,17 @@
               <label for="high-res-checkbox">高画質</label>
             </div>
           </div>
+        </div>
+        <div class="form-group">
+          <label for="apng-overlay-upload">キラキラ素材 (APNG)</label>
+          <div class="image-upload-controls">
+            <label for="apng-overlay-upload" class="custom-file-upload">APNG選択</label>
+            <input type="file" id="apng-overlay-upload" accept=".png" style="display: none;">
+            <span id="apng-file-name" class="file-name-display">選択されていません</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <button id="download-apng-btn" class="add-new-button" disabled>キラカード (APNG) を保存</button>
         </div>
         <div class="batch-processing-section">
           <h2>一括生成</h2>
