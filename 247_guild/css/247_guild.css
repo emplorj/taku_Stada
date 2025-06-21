@@ -1,264 +1,156 @@
 :root {
-  --primary-color: #8B4513; /* 鞍褐色 */
-  --secondary-color: #B22222; /* ファイアブリック */
-  --background-color: #f4f1e9;
+  --primary-color: #B22222; /* ファイアブリック (ニシナさんの色) */
+  --wood-color: #8B4513; /* 茶色を木材の色として定義 */
+  --accent-color: #506DB9; /* 新しいアクセントカラー */
   --text-color: #3a2d2d;
-  --accent-color: #4D68B0; /* 落ち着いた青 */
 }
 body {
-    font-family: sans-serif;
+    font-family: 'Noto Serif JP', serif;
     margin: 0;
-    background-color: #f4f1e9; /* 少し古びた紙のような色 */
-    color: #3a2d2d; /* 暗い茶色 */
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+a {
+    color: #6495ed; /* リンク色を暗めに変更 */
+}
+.page-header {
+    background-color: rgba(58, 45, 45, 0.9);
+    backdrop-filter: blur(5px);
+    padding: 0.5rem 2rem;
+    text-align: center;
+    position: fixed; /* ヘッダーを常に固定 */
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* paddingを含めて幅を100%に */
+}
+.page-header.scrolled {
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  background-color: rgba(58, 45, 45, 0.98);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.logo-img {
+  height: 40px;
+  transition: height 0.3s ease;
+}
+.page-header.scrolled .logo-img {
+  height: 30px;
+}
+.logo-text {
+  font-family: 'Cinzel', serif;
+  font-size: 1.8rem;
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  display: block;
+}
+.page-header.scrolled .logo-text {
+  font-size: 1.5rem;
+}
+
+h1, h2, h3 {
+  font-family: 'Cinzel', serif;
 }
 
 main {
-    padding: 2rem;
+  padding: 2rem;
 }
 
 #hero {
     text-align: center;
     padding: 4rem 1rem;
-    background-image: url('../../img/hachimakiBG.png');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../../img/hachimakiBG.png');
     background-size: cover;
     background-position: center;
     border-radius: 10px;
     color: white;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    font-family: 'Noto Serif JP', serif;
 }
-
 #hero h1 {
-    font-size: 2.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 3.5rem;
     margin-bottom: 1rem;
-    font-family: 'Times New Roman', serif;
     text-shadow: 2px 2px 4px #000000;
-    border-bottom: none;
+    border-bottom: none; /* h1のアンダーラインを消す */
 }
-
 #hero h2 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-family: 'Cinzel', serif;
 }
-
 #hero p {
     font-size: 1.2rem;
     margin-bottom: 2rem;
 }
 
-.cta-button {
-    display: inline-block;
-    background-color: #B22222; /* 赤 */
-    color: white;
-    padding: 1rem 2rem;
-    text-decoration: none;
-    font-size: 1.2rem;
-    font-weight: bold;
-    border-radius: 5px;
-    transition: background-color 0.3s, border-color 0.3s;
-    border-bottom: 4px solid #800000; /* 暗い赤 */
-}
-
-.cta-button:hover {
-    background-color: #DC143C; /* 明るい赤 */
-    border-bottom-color: #5FE5EA; /* アクセントカラー */
-}
-
-.page-header {
-    background-color: rgba(58, 45, 45, 0.85);
-    backdrop-filter: blur(5px);
-    padding: 1rem 0;
-    text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    width: 100%;
-}
-
-.card-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: center;
-}
-
-/* --- メンバーカード --- */
-.member-card {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    width: 250px;
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.member-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
-.member-card img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 1rem;
-    border: 3px solid #8B4513;
-}
-
-.member-card h3 {
-    margin: 0 0 0.5rem 0;
-    color: #3a2d2d;
-}
-
-.member-spec {
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-}
-
-.member-desc {
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-
-/* --- 依頼カード --- */
-.request-card {
-    background-color: #fff;
-    border-left: 5px solid var(--accent-color);
-    border-radius: 5px;
-    padding: 1.5rem;
-    width: 100%;
-    max-width: 800px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: relative;
-}
-
-.request-card h3 {
-    margin-top: 0;
-}
-
-.request-meta {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 1rem;
-}
-
-.request-status {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    padding: 0.3rem 0.8rem;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: white;
-}
-
-.request-status.available {
-    background-color: #28a745; /* 緑 */
-}
-
-.request-status.unavailable {
-    background-color: #6c757d; /* グレー */
-}
-
-/* --- 依頼書メーカーのスタイル上書き --- */
-.page-request-form-guild .controls-panel {
-    background-color: #4a3d3d; /* 暗い茶色系 */
-    border: 2px solid #8B4513;
-}
-
-.page-request-form-guild .controls-panel label {
-    color: #f4f1e9; /* 古びた紙の色 */
-}
-
-.page-request-form-guild .controls-panel input,
-.page-request-form-guild .controls-panel textarea {
-    background-color: #3a2d2d;
-    color: #f4f1e9;
-    border: 1px solid #8B4513;
-}
-
-.page-request-form-guild .controls-panel input:focus,
-.page-request-form-guild .controls-panel textarea:focus {
-    border-color: #5FE5EA; /* アクセントカラー */
-    box-shadow: 0 0 8px rgba(95, 229, 234, 0.5);
-}
-
-.page-request-form-guild .controls-panel .add-new-button {
-    background: linear-gradient(145deg, #8B4513, #B22222);
-    border: 2px solid #5FE5EA;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-}
-
-.page-request-form-guild .controls-panel .add-new-button:hover {
-    border-color: white;
-}
-
-.page-request-form-guild .help-text {
-    background-color: rgba(40, 30, 30, 0.7);
-    border-color: #8B4513;
-    color: #f4f1e9;
-}
-
-.page-request-form-guild .help-text code {
-    background-color: #3a2d2d;
-}
-
 .page-nav a {
     color: white;
-    margin: 0 20px;
+    margin: 0 10px; /* メニュー間のマージンを調整 */
     text-decoration: none;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1rem; /* フォントサイズを少し小さく */
     transition: color 0.3s;
+    white-space: nowrap; /* メニューが改行されないように */
 }
-
 .page-nav a:hover {
-    color: #5FE5EA; /* アクセントカラー */
+  color: var(--accent-color);
 }
 
 .content-section {
     padding: 4rem 2rem;
-    margin: 0 auto;
-    max-width: 900px;
+    margin: 0 auto 2rem auto;
+    max-width: 80vw;
     background-color: rgba(244, 241, 233, 0.8);
-    margin-bottom: 2rem;
     border-radius: 8px;
 }
 
 .content-section h2 {
     font-size: 2.2rem;
-    color: #8B4513;
+    color: var(--primary-color);
     border-bottom: 3px solid var(--accent-color);
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
 }
 
-footer {
-    background-color: #3a2d2d; /* 暗い茶色 */
-    color: white;
-    text-align: center;
-    padding: 1rem 0;
-    position: relative; /* fixedから変更 */
-    width: 100%;
-    bottom: 0;
-}
 .content-section h2 i {
-    margin-right: 1rem;
-    color: var(--accent-color);
+  margin-right: 1rem;
+  color: var(--accent-color);
 }
-/* --- ギルド規約 --- */
+
+.sub-heading {
+  font-size: 1.8rem;
+  color: var(--primary-color);
+  border-bottom: 2px dotted var(--primary-color);
+  padding-bottom: 0.5rem;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+}
+.sub-heading i {
+  margin-right: 1rem;
+}
+
+/* ギルド規約 */
 .guild-rules {
+.section-desc {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #5a4d4d;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
   list-style-type: none;
   padding-left: 0;
   counter-reset: rule-counter;
 }
-
 .guild-rules li {
   counter-increment: rule-counter;
   margin-bottom: 1rem;
@@ -266,7 +158,6 @@ footer {
   position: relative;
   line-height: 1.6;
 }
-
 .guild-rules li::before {
   content: counter(rule-counter);
   position: absolute;
@@ -283,25 +174,458 @@ footer {
   line-height: 1.8rem;
 }
 
-/* --- ギルドの日常・名物 --- */
-.life-item {
+/* 施設案内 */
+#facilities .facility-item {
   margin-bottom: 2.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px dashed var(--primary-color);
+  padding-left: 1rem;
+  border-left: 4px solid var(--wood-color);
 }
-
-.life-item:last-child {
-  border-bottom: none;
+#facilities .facility-item:last-child {
+  margin-bottom: 0;
 }
-
-.life-item h3 {
+#facilities .facility-item h3 {
   font-family: 'Cinzel', serif;
-  color: var(--secondary-color);
+  color: var(--primary-color);
   font-size: 1.6rem;
   margin-top: 0;
+  margin-bottom: 0.8rem;
 }
-
-.life-item p {
+#facilities .facility-item h3 i {
+  margin-right: 0.8rem;
+  color: var(--wood-color);
+}
+#facilities .facility-item p {
   line-height: 1.8;
   font-size: 1.1rem;
+  padding-left: 2.6rem;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* メンバーカード */
+.member-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 250px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s, opacity 0.4s, width 0.4s;
+}
+.member-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+.member-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top;
+    margin-bottom: 1rem;
+    border: 3px solid var(--wood-color);
+}
+.member-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #3a2d2d;
+}
+.member-spec {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+.member-desc {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.member-card.hidden {
+    transform: scale(0.5);
+    opacity: 0;
+    width: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* フィルタリングボタン */
+.filter-container {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.filter-btn {
+  background-color: #fff;
+  border: 2px solid var(--wood-color);
+  color: var(--wood-color);
+  padding: 0.5rem 1.5rem;
+  margin: 0 0.5rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+.filter-btn:hover, .filter-btn.active {
+  background-color: var(--wood-color);
+  color: white;
+}
+
+/* 依頼カード用コンテナ調整 */
+.card-container.request-list {
+  flex-direction: column;
+  align-items: center;
+}
+/* 依頼カード */
+.request-card {
+    background-color: #fff;
+    border-left: 5px solid var(--accent-color);
+    border-radius: 5px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+}
+.request-card h3 {
+    margin-top: 0;
+}
+.request-meta {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1rem;
+}
+.request-status {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+}
+.request-status.available {
+    background-color: #28a745;
+}
+.request-status.unavailable {
+    background-color: #6c757d;
+}
+
+/* 依頼書ページ用スタイル上書き */
+.page-request-form-guild .controls-panel {
+    background-color: #4a3d3d;
+    border: 2px solid var(--wood-color);
+}
+.page-request-form-guild .controls-panel label {
+    color: #f4f1e9;
+}
+.page-request-form-guild .controls-panel input,
+.page-request-form-guild .controls-panel textarea {
+    background-color: #3a2d2d;
+    color: #f4f1e9;
+    border: 1px solid var(--wood-color);
+}
+.page-request-form-guild .controls-panel input:focus,
+.page-request-form-guild .controls-panel textarea:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(218, 165, 32, 0.5);
+}
+.page-request-form-guild .controls-panel .add-new-button {
+    background: linear-gradient(145deg, #5FE5EA, #B22222);
+    border: 2px solid var(--accent-color);
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+.page-request-form-guild .controls-panel .add-new-button:hover {
+    border-color: white;
+}
+.page-request-form-guild .help-text {
+    background-color: rgba(40, 30, 30, 0.7);
+    border-color: var(--wood-color);
+    color: #f4f1e9;
+}
+.page-request-form-guild .help-text code {
+    background-color: #3a2d2d;
+}
+
+/* 地図UI */
+.map-ui-container {
+  margin: 2rem 0;
+  border: 3px solid #6b5b4a;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 0 10px rgba(0,0,0,0.3);
+  overflow: hidden; /* 画像の角丸を有効にするため */
+}
+.map-image {
+  width: 100%;
+  height: auto;
+  display: block; /* 画像下の余分なスペースを削除 */
+}
+
+footer {
+    background-color: #3a2d2d;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    position: relative;
+    width: 100%;
+    bottom: 0;
+}
+.page-nav a.active {
+    color: var(--accent-color); /* アクティブなリンクをアクセントカラーで表示 */
+    text-shadow: 0 0 5px var(--accent-color);
+}
+/* スタートダッシュキャンペーン */
+.start-dash-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.start-dash-img-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.start-dash-logo {
+  max-width: 250px;
+  height: auto;
+}
+
+.start-dash-box {
+  max-width: 200px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.start-dash-desc {
+  flex: 2;
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .start-dash-container {
+    flex-direction: column;
+  }
+  .start-dash-desc {
+    margin-top: 2rem;
+  }
+}
+/* ギルドニュース */
+.guild-news-container {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px dashed var(--primary-color);
+}
+
+.news-headline {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--secondary-color);
+  margin-bottom: 1.5rem;
+}
+
+.news-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.flyer-image {
+  flex: 0 0 200px;
+  max-width: 200px;
+  height: auto;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+  transform: rotate(-5deg);
+  transition: transform 0.3s ease;
+}
+
+.flyer-image:hover {
+    transform: rotate(0deg) scale(1.1);
+}
+
+.caption {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #5a4d4d;
+  padding-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .news-content {
+    flex-direction: column;
+    align-items: center;
+  }
+  .flyer-image {
+    margin-bottom: 1.5rem;
+    transform: rotate(0deg);
+  }
+}
+/* 箱のキャプション */
+.box-caption {
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+  text-align: center;
+  margin-top: 0.2rem;
+  font-weight: bold;
+}
+/* ロゴのキャプション */
+.logo-caption {
+  font-size: 0.9rem;
+  color: #5a4d4d;
+  text-align: center;
+  margin-top: 0.2rem;
+  font-style: italic;
+  font-weight: bold;
+}
+.img-nishina {
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+/* 掲示板 */
+#post-form-container {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 1px solid #ddd;
+}
+
+#post-form-container h3 {
+  margin-top: 0;
+  color: var(--primary-color);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: 'Noto Serif JP', serif;
+}
+
+.submit-btn {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-family: 'Cinzel', serif;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+#posts-container h3 {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+.post {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+  border-left: 5px solid var(--accent-color);
+}
+
+.post h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-family: 'Cinzel', serif;
+}
+
+.post-meta {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+/* スプレッドシート */
+.spreadsheet-container {
+  margin-top: 2rem;
+  border: 3px solid var(--wood-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.spreadsheet-container iframe {
+  width: 100%;
+  height: 500px;
+  border: none;
+}
+
+/* 地図情報ページ */
+#location-details {
+  margin-top: 2rem;
+}
+
+.location-category {
+  margin-bottom: 2.5rem;
+}
+
+.location-category h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.8rem;
+  color: var(--secondary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.location-category h3 i {
+  margin-right: 1rem;
+}
+
+.location-item {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  border-left: 3px solid var(--accent-color);
+}
+
+.location-item h4 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.3rem;
+  color: var(--text-color);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.location-item p {
+  margin-top: 0;
+  line-height: 1.7;
 }

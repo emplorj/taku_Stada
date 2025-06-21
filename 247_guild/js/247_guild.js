@@ -1,11 +1,9 @@
-// 247_guild.js
-// このページ専用のJavaScriptコードを記述します。
-
 document.addEventListener('DOMContentLoaded', function() {
-  const header = document.querySelector('.page-header');
 
+  // --- ヘッダーのスクロールエフェクト ---
+  const header = document.querySelector('.page-header');
   if (header) {
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', () => {
       if (window.scrollY > 50) {
         header.classList.add('scrolled');
       } else {
@@ -14,84 +12,58 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // CSVからキャラクターを読み込む
-  loadCharactersFromCSV();
-});
-
-async function loadCharactersFromCSV() {
-  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1134936986&single=true&output=csv';
-  const staffContainer = document.getElementById('staff-container');
-  const membersContainer = document.getElementById('members-container');
-
-  if (!staffContainer || !membersContainer) {
-    console.error('表示コンテナが見つかりません。');
-    return;
+  // --- メンバーのフィルタリング機能 ---
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const memberCards = document.querySelectorAll('.member-list .member-card');
+  
+  if (filterButtons.length > 0 && memberCards.length > 0) {
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // アクティブなボタンのスタイルを切り替え
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        const filter = button.dataset.filter; // 'all', '前衛', '後衛', 'その他'
+        
+        memberCards.forEach(card => {
+          const role = card.dataset.role;
+          
+          // フィルタに一致するか、フィルタが'all'なら表示
+          if (filter === 'all' || filter === role) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
   }
 
-  const displayError = (message) => {
-    const errorMessage = `<p style="color: red; font-weight: bold;">${message}</p>`;
-    staffContainer.innerHTML = errorMessage;
-    membersContainer.innerHTML = errorMessage;
-  };
+  // --- 掲示板機能 ---
+  const postForm = document.getElementById('post-form');
+  if (postForm) {
+    postForm.addEventListener('submit', function (e) {
+      e.preventDefault();
 
-  staffContainer.innerHTML = '<p>スタッフ情報を読み込み中...</p>';
-  membersContainer.innerHTML = '<p>メンバー情報を読み込み中...</p>';
+      const name = this.elements.name.value;
+      const title = this.elements.title.value;
+      const body = this.elements.body.value;
+      const date = new Date().toLocaleDateString('ja-JP');
 
-  try {
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`;
-    const response = await fetch(proxyUrl);
-
-    if (!response.ok) {
-      throw new Error(`サーバーからの応答エラー: ${response.status} ${response.statusText}`);
-    }
-
-    const csvText = await response.text();
-    if (!csvText) {
-      throw new Error('CSVデータの取得に成功しましたが、内容が空です。');
-    }
-
-    const characters = parseCsvToArray(csvText);
-    if (!characters || characters.length <= 1) {
-        throw new Error('CSVデータの解析に失敗したか、データがヘッダー行のみです。');
-    }
-
-    // Clear loading messages
-    staffContainer.innerHTML = '';
-    membersContainer.innerHTML = '';
-
-    // ヘッダー行をスキップ
-    const characterData = characters.slice(1);
-    
-    const staffToPrepend = [];
-    const staticStaff = Array.from(staffContainer.children); // 既存の静的スタッフを取得
-
-    characterData.forEach(character => {
-      const [name, pl, race, mainSkill, subSkill, description, imageUrl] = character;
-      if (!name) return;
-
-      const card = document.createElement('div');
-      card.className = 'member-card';
-      const spec = `${race} / ${mainSkill}${subSkill ? '・' + subSkill : ''}`;
-      const placeholderImg = 'https://via.placeholder.com/150';
-
-      card.innerHTML = `
-        <img src="${imageUrl || placeholderImg}" alt="${name}の画像">
-        <h3>${name}</h3>
-        <p class="member-spec">${spec}</p>
-        <p class="member-desc">${description}</p>
+      const newPost = document.createElement('div');
+      newPost.classList.add('post');
+      newPost.innerHTML = `
+        <h4>${title}</h4>
+        <p class="post-meta">投稿者: ${name} | ${date}</p>
+        <p>${body.replace(/\n/g, '<br>')}</p>
       `;
 
-      if (name === 'ミカ・ニシナ' || name === 'ゾロメ') {
-        staffToPrepend.push(card);
-      } else {
-        membersContainer.appendChild(card);
-      }
-    });
-    
-    staffContainer.prepend(...staffToPrepend, ...staticStaff);
+      const postsContainer = document.getElementById('posts-container');
+      postsContainer.insertBefore(newPost, postsContainer.children[1]);
 
-  } catch (error) {
-    console.error('キャラクター情報の読み込みに失敗しました:', error);
-    displayError(`読み込みエラー: ${error.message}`);
+      this.reset();
+      this.elements.name.value = '名無しの冒険者';
+    });
   }
-}
+
+});
