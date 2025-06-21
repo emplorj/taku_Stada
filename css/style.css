@@ -491,6 +491,8 @@ footer {
     justify-content: center; /* 中央寄せ */
 }
 
+
+
 .works-card {
     background-color: #2c3e50; /* カードの背景色 */
     border-radius: 8px;
@@ -1835,4 +1837,29 @@ font-style: normal;
     font-size: 0.9em;
     color: #9ab5d9;
     padding-left: 1.7em; /* 他の項目とインデントを合わせる */
+}
+/* ==========================================================================
+   22. Swiper スライダー調整 (CoC_Q&A.html)
+   ========================================================================== */
+@media (max-width: 1080px) {
+    .author-profile .works-list-container {
+        overflow: hidden;
+        width: 60vw;
+        margin: 0 auto;
+        display: flex; /* 中の要素を中央揃えにするため */
+        align-items: center; /* 垂直方向の中央揃え */
+    }
+
+    .author-profile .works-list.swiper {
+        padding: 20px 0;
+    }
+
+    .author-profile .works-list .swiper-slide {
+        width: 250px;
+        height: auto;
+    }
+
+    .author-profile .works-list .swiper-wrapper {
+        transition-timing-function: linear !important;
+    }
 }

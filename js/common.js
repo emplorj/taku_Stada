@@ -140,6 +140,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const sideMenu = document.getElementById('tableOfContents');
         const overlay = document.getElementById('menu-overlay');
 
+        if (document.body.dataset.noSidemenu) {
+            if (hamburger) hamburger.style.display = 'none';
+            if (sideMenu) sideMenu.style.display = 'none';
+            if (overlay) overlay.style.display = 'none';
+            return;
+        }
+
         if (hamburger && sideMenu && overlay) {
             const toggleMenu = (isOpen) => {
                 hamburger.classList.toggle('is-open', isOpen);
@@ -184,24 +191,46 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollHandlerForBackToTop();
     }
 
-    // --- Swiperスライダーの初期化 ---
+// --- Swiperスライダーの初期化 ---
     function initializeSwiperSlider() {
-        const worksLists = document.querySelectorAll('.works-list-container'); // 親コンテナを対象にする
+        const worksLists = document.querySelectorAll('.works-list-container');
         if (worksLists.length === 0) return;
 
-        let swiperInstances = [];
+        let swiperInstances = new Map();
 
         const setupSwiper = () => {
             const isMobile = window.innerWidth <= 1080;
 
-            if (isMobile) {
-                // スマホ表示: スライダーを初期化
-                if (swiperInstances.length > 0) return; // 既に初期化済みなら何もしない
+            worksLists.forEach(container => {
+                const list = container.querySelector('ul.works-list');
+                if (!list) return;
 
-                worksLists.forEach(container => {
-                    const list = container.querySelector('ul');
-                    if (!list) return;
+                const isInitialized = swiperInstances.has(container);
+
+                if (isMobile) {
+                    if (isInitialized) return;
+
+                    // Save original state if not already saved
+                    if (!container.dataset.originalHtml) {
+                        container.dataset.originalHtml = list.innerHTML;
+                    }
+
+                    // Duplicate items to ensure seamless loop
+                    const originalItemsHTML = container.dataset.originalHtml;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = originalItemsHTML;
+                    const originalNodes = Array.from(tempDiv.childNodes).filter(node => node.nodeType === 1);
                     
+                    list.innerHTML = ''; // Clear the list
+                    
+                    // Duplicate 4 times for a total of 12 items (3 * 4)
+                    for (let i = 0; i < 4; i++) {
+                        originalNodes.forEach(item => {
+                           list.appendChild(item.cloneNode(true));
+                        });
+                    }
+
+                    // Prepare Swiper structure
                     list.classList.add('swiper');
                     const items = Array.from(list.children);
                     const wrapper = document.createElement('div');
@@ -218,23 +247,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         spaceBetween: 15,
                         centeredSlides: true,
                         autoplay: {
-                            delay: 2500,
+                            delay: 0,
                             disableOnInteraction: false,
                         },
+                        speed: 8000,
                     });
-                    swiperInstances.push(swiper);
-                });
-            } else {
-                // PC表示: スライダーを破棄
-                if (swiperInstances.length === 0) return; // 破棄済みなら何もしない
+                    swiperInstances.set(container, swiper);
 
-                swiperInstances.forEach(swiper => swiper.destroy(true, true));
-                swiperInstances = [];
-            }
+                } else {
+                    // Destroy swiper and restore original HTML
+                    if (!isInitialized) return;
+
+                    const swiper = swiperInstances.get(container);
+                    swiper.destroy(true, true);
+                    swiperInstances.delete(container);
+
+                    if (container.dataset.originalHtml) {
+                        list.innerHTML = container.dataset.originalHtml;
+                        list.classList.remove('swiper');
+                    }
+                }
+            });
         };
 
-        // Swiperライブラリの読み込み（一度だけ）
-        if (!document.querySelector('script[src*="swiper"]')) {
+        if (typeof Swiper === 'undefined') {
             const swiperCss = document.createElement('link');
             swiperCss.rel = 'stylesheet';
             swiperCss.href = 'https://unpkg.com/swiper/swiper-bundle.min.css';
@@ -244,12 +280,14 @@ document.addEventListener('DOMContentLoaded', function() {
             swiperJs.src = 'https://unpkg.com/swiper/swiper-bundle.min.js';
             document.head.appendChild(swiperJs);
             
-            swiperJs.onload = setupSwiper;
+            swiperJs.onload = () => {
+                setupSwiper();
+                window.addEventListener('resize', setupSwiper);
+            };
         } else {
             setupSwiper();
+            window.addEventListener('resize', setupSwiper);
         }
-
-        window.addEventListener('resize', setupSwiper);
     }
 
     // --- 初期化の実行 ---

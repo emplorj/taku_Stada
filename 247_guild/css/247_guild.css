@@ -1,0 +1,307 @@
+:root {
+  --primary-color: #8B4513; /* 鞍褐色 */
+  --secondary-color: #B22222; /* ファイアブリック */
+  --background-color: #f4f1e9;
+  --text-color: #3a2d2d;
+  --accent-color: #4D68B0; /* 落ち着いた青 */
+}
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f1e9; /* 少し古びた紙のような色 */
+    color: #3a2d2d; /* 暗い茶色 */
+}
+
+main {
+    padding: 2rem;
+}
+
+#hero {
+    text-align: center;
+    padding: 4rem 1rem;
+    background-image: url('../../img/hachimakiBG.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+#hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-family: 'Times New Roman', serif;
+    text-shadow: 2px 2px 4px #000000;
+    border-bottom: none;
+}
+
+#hero h2 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+#hero p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.cta-button {
+    display: inline-block;
+    background-color: #B22222; /* 赤 */
+    color: white;
+    padding: 1rem 2rem;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s, border-color 0.3s;
+    border-bottom: 4px solid #800000; /* 暗い赤 */
+}
+
+.cta-button:hover {
+    background-color: #DC143C; /* 明るい赤 */
+    border-bottom-color: #5FE5EA; /* アクセントカラー */
+}
+
+.page-header {
+    background-color: rgba(58, 45, 45, 0.85);
+    backdrop-filter: blur(5px);
+    padding: 1rem 0;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+}
+
+/* --- メンバーカード --- */
+.member-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 250px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.member-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.member-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 3px solid #8B4513;
+}
+
+.member-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #3a2d2d;
+}
+
+.member-spec {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.member-desc {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+
+/* --- 依頼カード --- */
+.request-card {
+    background-color: #fff;
+    border-left: 5px solid var(--accent-color);
+    border-radius: 5px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.request-card h3 {
+    margin-top: 0;
+}
+
+.request-meta {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.request-status {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+}
+
+.request-status.available {
+    background-color: #28a745; /* 緑 */
+}
+
+.request-status.unavailable {
+    background-color: #6c757d; /* グレー */
+}
+
+/* --- 依頼書メーカーのスタイル上書き --- */
+.page-request-form-guild .controls-panel {
+    background-color: #4a3d3d; /* 暗い茶色系 */
+    border: 2px solid #8B4513;
+}
+
+.page-request-form-guild .controls-panel label {
+    color: #f4f1e9; /* 古びた紙の色 */
+}
+
+.page-request-form-guild .controls-panel input,
+.page-request-form-guild .controls-panel textarea {
+    background-color: #3a2d2d;
+    color: #f4f1e9;
+    border: 1px solid #8B4513;
+}
+
+.page-request-form-guild .controls-panel input:focus,
+.page-request-form-guild .controls-panel textarea:focus {
+    border-color: #5FE5EA; /* アクセントカラー */
+    box-shadow: 0 0 8px rgba(95, 229, 234, 0.5);
+}
+
+.page-request-form-guild .controls-panel .add-new-button {
+    background: linear-gradient(145deg, #8B4513, #B22222);
+    border: 2px solid #5FE5EA;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+.page-request-form-guild .controls-panel .add-new-button:hover {
+    border-color: white;
+}
+
+.page-request-form-guild .help-text {
+    background-color: rgba(40, 30, 30, 0.7);
+    border-color: #8B4513;
+    color: #f4f1e9;
+}
+
+.page-request-form-guild .help-text code {
+    background-color: #3a2d2d;
+}
+
+.page-nav a {
+    color: white;
+    margin: 0 20px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+.page-nav a:hover {
+    color: #5FE5EA; /* アクセントカラー */
+}
+
+.content-section {
+    padding: 4rem 2rem;
+    margin: 0 auto;
+    max-width: 900px;
+    background-color: rgba(244, 241, 233, 0.8);
+    margin-bottom: 2rem;
+    border-radius: 8px;
+}
+
+.content-section h2 {
+    font-size: 2.2rem;
+    color: #8B4513;
+    border-bottom: 3px solid var(--accent-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+footer {
+    background-color: #3a2d2d; /* 暗い茶色 */
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    position: relative; /* fixedから変更 */
+    width: 100%;
+    bottom: 0;
+}
+.content-section h2 i {
+    margin-right: 1rem;
+    color: var(--accent-color);
+}
+/* --- ギルド規約 --- */
+.guild-rules {
+  list-style-type: none;
+  padding-left: 0;
+  counter-reset: rule-counter;
+}
+
+.guild-rules li {
+  counter-increment: rule-counter;
+  margin-bottom: 1rem;
+  padding-left: 2.5rem;
+  position: relative;
+  line-height: 1.6;
+}
+
+.guild-rules li::before {
+  content: counter(rule-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  font-weight: bold;
+  font-family: 'Cinzel', serif;
+  line-height: 1.8rem;
+}
+
+/* --- ギルドの日常・名物 --- */
+.life-item {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px dashed var(--primary-color);
+}
+
+.life-item:last-child {
+  border-bottom: none;
+}
+
+.life-item h3 {
+  font-family: 'Cinzel', serif;
+  color: var(--secondary-color);
+  font-size: 1.6rem;
+  margin-top: 0;
+}
+
+.life-item p {
+  line-height: 1.8;
+  font-size: 1.1rem;
+}

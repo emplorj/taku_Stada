@@ -1,14 +1,6 @@
 /* request_form.css (完全最終版) */
 
 /* style.cssの汎用スタイルを上書き */
-.main-content {
-    padding: 20px !important;
-}
-
-.page-header-with-actions {
-    transition: margin-left 0.3s ease-in-out;
-}
-
 .page-header-with-actions .subtitle {
     font-family: 'Makinas-4-Flat', sans-serif;
 }
