@@ -651,3 +651,10 @@ footer {
   margin-top: 0;
   line-height: 1.7;
 }
+
+/* ギルドページ専用の背景 */
+body.guild-background {
+    background-color: #3a2d2d;
+    background-image: radial-gradient(circle at 10% 20%, #4a3d3d 0%, rgba(58, 45, 45, 0) 50%),
+                      radial-gradient(circle at 90% 80%, #6b5b4a 0%, rgba(58, 45, 45, 0) 50%);
+}
