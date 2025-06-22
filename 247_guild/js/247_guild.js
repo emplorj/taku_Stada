@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cl:          row[8] ? row[8].trim() : '', // CL (AL)
       })).filter(adv => adv.name && adv.appearances && !isNaN(parseInt(adv.appearances, 10)));
 
-      const featuredCandidates = adventurers.filter(adv => parseInt(adv.appearances, 10) >= 2);
+      const featuredCandidates = adventurers.filter(adv => parseInt(adv.appearances, 10) >= 1);
 
       if (featuredCandidates.length === 0) {
         container.innerHTML = '<p>注目の冒険者さんは現在いません。</p>';
