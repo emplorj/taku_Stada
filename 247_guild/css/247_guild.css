@@ -3,6 +3,7 @@
   --wood-color: #8B4513; /* 茶色を木材の色として定義 */
   --accent-color: #506DB9; /* 新しいアクセントカラー */
   --text-color: #3a2d2d;
+  --background-color: #D3B8AE; /* レンガのような背景色 */
 }
 body {
     font-family: 'Noto Serif JP', serif;
@@ -114,7 +115,7 @@ main {
 
 .content-section h2 {
     font-size: 2.2rem;
-    color: var(--primary-color);
+    color: var(--accent-color);
     border-bottom: 3px solid var(--accent-color);
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
@@ -127,8 +128,8 @@ main {
 
 .sub-heading {
   font-size: 1.8rem;
-  color: var(--primary-color);
-  border-bottom: 2px dotted var(--primary-color);
+  color: var(--accent-color);
+  border-bottom: 2px dotted var(--accent-color);
   padding-bottom: 0.5rem;
   margin-top: 3rem;
   margin-bottom: 1.5rem;
@@ -178,21 +179,21 @@ main {
 #facilities .facility-item {
   margin-bottom: 2.5rem;
   padding-left: 1rem;
-  border-left: 4px solid var(--wood-color);
+  border-left: 4px solid var(--accent-color);
 }
 #facilities .facility-item:last-child {
   margin-bottom: 0;
 }
 #facilities .facility-item h3 {
   font-family: 'Cinzel', serif;
-  color: var(--primary-color);
+  color: var(--accent-color);
   font-size: 1.6rem;
   margin-top: 0;
   margin-bottom: 0.8rem;
 }
 #facilities .facility-item h3 i {
   margin-right: 0.8rem;
-  color: var(--wood-color);
+  color: var(--accent-color);
 }
 #facilities .facility-item p {
   line-height: 1.8;
@@ -201,11 +202,10 @@ main {
 }
 
 .card-container {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 280px);
     gap: 2rem;
     justify-content: center;
-    align-items: flex-start;
 }
 
 /* メンバーカード */
@@ -213,7 +213,7 @@ main {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
-    width: 250px;
+    width: 250px; /* Grid-container will handle the width */
     padding: 1.5rem;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -278,6 +278,7 @@ main {
 
 /* 依頼カード用コンテナ調整 */
 .card-container.request-list {
+  display: flex;
   flex-direction: column;
   align-items: center;
 }
@@ -384,44 +385,41 @@ footer {
 /* スタートダッシュキャンペーン */
 .start-dash-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 2rem;
   margin-top: 2rem;
 }
 
-.start-dash-img-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.start-dash-logo {
-  max-width: 250px;
-  height: auto;
-}
-
-.start-dash-box {
-  max-width: 200px;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
 .start-dash-desc {
-  flex: 2;
   font-size: 1.1rem;
   line-height: 1.8;
+  order: 1; /* 説明を先に表示 */
+}
+
+.start-dash-img-container {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  order: 2; /* 画像を後に表示 */
+  align-items: flex-start;
+}
+
+.start-dash-img-container > div {
+  text-align: center;
+  max-width: 250px;
+}
+
+.start-dash-logo, .start-dash-box {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
 }
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
-  .start-dash-container {
+  .start-dash-img-container {
     flex-direction: column;
-  }
-  .start-dash-desc {
-    margin-top: 2rem;
+    align-items: center;
   }
 }
 /* ギルドニュース */
@@ -440,18 +438,24 @@ footer {
 }
 
 .news-content {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 200px 1fr; /* 画像エリアの幅を固定 */
+  align-items: center;
   gap: 1.5rem;
+  margin-bottom: 2rem; /* セクション間の余白を追加 */
 }
 
 .flyer-image {
-  flex: 0 0 200px;
-  max-width: 200px;
+  max-width: 150px;
   height: auto;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
   transform: rotate(-5deg);
   transition: transform 0.3s ease;
+  justify-self: center;
+}
+
+.flyer-image.special-size {
+  max-width: 200px;
 }
 
 .flyer-image:hover {
