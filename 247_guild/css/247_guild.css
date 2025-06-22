@@ -31,11 +31,7 @@ a {
     transition: all 0.3s ease;
     box-sizing: border-box; /* paddingを含めて幅を100%に */
 }
-.page-header.scrolled {
-  padding-top: 0.2rem;
-  padding-bottom: 0.2rem;
-  background-color: rgba(58, 45, 45, 0.98);
-}
+
 .logo {
   display: flex;
   align-items: center;
@@ -45,18 +41,13 @@ a {
   height: 40px;
   transition: height 0.3s ease;
 }
-.page-header.scrolled .logo-img {
-  height: 30px;
-}
+
 .logo-text {
   font-family: 'Cinzel', serif;
   font-size: 1.8rem;
   color: white;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
   display: block;
-}
-.page-header.scrolled .logo-text {
-  font-size: 1.5rem;
 }
 
 h1, h2, h3 {
@@ -683,4 +674,219 @@ body.guild-background {
   color: #ddd;
   font-family: 'Cinzel', serif;
   /* ALの文字はHTML側で追加されたため、::beforeは不要 */
+}
+
+/* ===================================================
+   ギルドサイト専用ハンバーガーメニュー (上書き用)
+   =================================================== */
+
+/* メディアクエリで囲み、特定の画面幅でのみ適用する */
+@media (max-width: 1080px) {
+
+    /* --- ハンバーガーボタン本体 --- */
+    .hamburger-menu {
+        display: block;
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        left: auto;
+        width: 50px;
+        height: 50px;
+        background-color: rgba(58, 45, 45, 0.9);
+        border: 1px solid #B22222;
+        border-radius: 8px;
+        z-index: 2000;
+        cursor: pointer;
+        animation: none !important;
+    }
+
+    /* --- 三本線（通常時） --- */
+    .hamburger-menu span {
+        display: block;
+        position: absolute;
+        width: 60%;
+        height: 2px;
+        left: 20%;
+        background-color: #fff;
+        border-radius: 1px;
+        transition: all 0.3s ease-in-out;
+        animation: none !important;
+        transform: none;
+        opacity: 1;
+    }
+
+    .hamburger-menu span:nth-of-type(1) {
+        top: 13px;
+    }
+
+    .hamburger-menu span:nth-of-type(2) {
+        top: 24px;
+    }
+
+    .hamburger-menu span:nth-of-type(3) {
+        top: 35px;
+    }
+
+
+    /* --- ×印（メニューオープン時） --- */
+    .hamburger-menu.is-open span:nth-of-type(1) {
+        top: 24px;
+        transform: rotate(45deg);
+    }
+
+    .hamburger-menu.is-open span:nth-of-type(2) {
+        opacity: 0;
+        transform: none;
+    }
+
+    .hamburger-menu.is-open span:nth-of-type(3) {
+        top: 24px;
+        transform: rotate(-45deg);
+    }
+
+    /* --- 背景オーバーレイ --- */
+    .menu-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1500;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .menu-overlay.is-open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* --- メニュー本体 --- */
+    /* ギルドサイトのHTMLに合わせて .page-nav を対象にします */
+    .page-header .page-nav {
+        position: fixed;
+        top: 0;
+        right: -280px; /* 初期状態では画面右外 */
+        left: auto;
+        width: 250px;
+        height: 100%;
+        padding: 80px 20px 20px 20px;
+        background-color: rgba(58, 45, 45, 0.98);
+        backdrop-filter: blur(5px);
+        z-index: 1600;
+        transition: right 0.4s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    /* JavaScript側でbodyにクラスを付けて表示を切り替えることを想定 */
+    body.side-menu-open .page-header .page-nav {
+        right: 0; /* スライドイン */
+    }
+
+    .page-header .page-nav a {
+        padding: 10px;
+        font-size: 1.1rem;
+        width: 100%;
+        border-radius: 5px;
+    }
+    .page-header .page-nav a:hover {
+        background-color: rgba(178, 34, 34, 0.5);
+    }
+}
+/* ===================================================
+   ギルドサイト専用ハンバーガーメニュー (上書き用)
+   =================================================== */
+
+/* --- ボタンとメニューの基本設定 --- */
+.hamburger-menu {
+  display: none; /* PCでは非表示 */
+}
+.menu-overlay {
+  display: none; /* ギルドページでは共通のオーバーレイは使わない */
+}
+
+
+/* --- スマートフォン表示 (幅が1080px以下) --- */
+@media (max-width: 1080px) {
+
+  /* --- ヘッダーのナビゲーションを隠す --- */
+  .page-header .page-nav {
+    position: fixed;
+    top: 0;
+    right: -100%; /* 初期状態は画面の右外 */
+    width: 250px;
+    height: 100vh;
+    padding: 80px 20px 20px;
+    background-color: rgba(58, 45, 45, 0.98);
+    backdrop-filter: blur(5px);
+    z-index: 1500;
+    transition: right 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  /* --- メニューオープン時のナビゲーション --- */
+  body.side-menu-open .page-header .page-nav {
+    right: 0; /* 画面右からスライドイン */
+  }
+
+  /* --- ハンバーガーボタンを表示 --- */
+  .hamburger-menu {
+    display: block;
+    position: fixed; /* ヘッダー追従ではなく画面に固定 */
+    top: 6px;
+    right: 15px;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    z-index: 2000;
+    cursor: pointer;
+    /* 共通CSSのアニメーションを無効化 */
+    animation: none !important; 
+  }
+
+  /* --- ボタンの三本線 --- */
+  .hamburger-menu span {
+    display: block;
+    position: absolute;
+    width: 60%;
+    height: 2px;
+    left: 20%;
+    background-color: #fff;
+    border-radius: 1px;
+    transition: all 0.3s ease-in-out;
+    /* 共通CSSのスタイルをリセット */
+    transform: none;
+    opacity: 1;
+    animation: none !important;
+  }
+  .hamburger-menu span:nth-of-type(1) { top: 13px; }
+  .hamburger-menu span:nth-of-type(2) { top: 24px; }
+  .hamburger-menu span:nth-of-type(3) { top: 35px; }
+
+  /* --- ×印（メニューオープン時）--- */
+  .hamburger-menu.is-open span:nth-of-type(1) {
+    top: 24px;
+    transform: rotate(45deg);
+  }
+  .hamburger-menu.is-open span:nth-of-type(2) {
+    opacity: 0;
+  }
+  .hamburger-menu.is-open span:nth-of-type(3) {
+    top: 24px;
+    transform: rotate(-45deg);
+  }
+
+  /* --- メニューオープン時に背景をスクロールさせない --- */
+  body.side-menu-open {
+    overflow: hidden;
+  }
 }

@@ -81,3 +81,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
   setupFeaturedAdventurers();
 });
+
+/* ===================================================
+   ギルドサイト専用ハンバーガーメニュー機能
+   =================================================== */
+document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.querySelector('.hamburger-menu');
+    const nav = document.querySelector('.page-nav');
+    const body = document.body;
+
+    if (hamburger && nav) {
+        hamburger.addEventListener('click', function() {
+            // ボタンとbodyにクラスを付け外しする
+            hamburger.classList.toggle('is-open');
+            body.classList.toggle('side-menu-open');
+        });
+    }
+});
