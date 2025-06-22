@@ -54,11 +54,11 @@ body {
     color: #eee;
     margin: 0;
     padding: 0;
-    background-color: #3a2d2d;
+    background-color: #061144;
     width: 100%;
     /* (以下、背景関連のスタイルは変更なし) */
-    background-image: radial-gradient(circle at 10% 20%, #4a3d3d 0%, rgba(58, 45, 45, 0) 50%),
-                      radial-gradient(circle at 90% 80%, #6b5b4a 0%, rgba(58, 45, 45, 0) 50%);
+    background-image: radial-gradient(circle at 10% 20%, #1a2c6d 0%, rgba(6, 17, 68, 0) 50%),
+                      radial-gradient(circle at 90% 80%, #3498db 0%, rgba(6, 17, 68, 0) 50%);
     background-size: 200% 200%;
     overflow-x: hidden;
     animation: background-pan 60s linear infinite alternate;
