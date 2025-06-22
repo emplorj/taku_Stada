@@ -1863,3 +1863,56 @@ font-style: normal;
         transition-timing-function: linear !important;
     }
 }
+/* ==========================================================================
+   注目の冒険者さん セクション
+   ========================================================================== */
+.adventurer-card {
+    background-color: #f9f9f9;
+    border-left: 5px solid #ea9999; /* SWのテーマカラー */
+    transition: all 0.3s ease;
+}
+
+.adventurer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.adventurer-card .works-details {
+    padding: 15px;
+}
+
+.adventurer-card .works-title {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.adventurer-pl {
+    font-size: 0.8em;
+    color: #666;
+    font-weight: normal;
+}
+
+.adventurer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.adventurer-meta span {
+    background-color: #fff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+}
+
+.adventurer-card .works-description {
+    font-size: 0.9em;
+    color: #555;
+    line-height: 1.6;
+    margin-top: 10px;
+    border-top: 1px dashed #ddd;
+    padding-top: 10px;
+}

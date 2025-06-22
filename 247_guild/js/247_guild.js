@@ -12,58 +12,72 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // --- メンバーのフィルタリング機能 ---
-  const filterButtons = document.querySelectorAll('.filter-btn');
-  const memberCards = document.querySelectorAll('.member-list .member-card');
-  
-  if (filterButtons.length > 0 && memberCards.length > 0) {
-    filterButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        // アクティブなボタンのスタイルを切り替え
-        filterButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        
-        const filter = button.dataset.filter; // 'all', '前衛', '後衛', 'その他'
-        
-        memberCards.forEach(card => {
-          const role = card.dataset.role;
-          
-          // フィルタに一致するか、フィルタが'all'なら表示
-          if (filter === 'all' || filter === role) {
-            card.classList.remove('hidden');
-          } else {
-            card.classList.add('hidden');
-          }
-        });
+  // --- 注目の冒険者さん 機能 (REVISED) ---
+  const setupFeaturedAdventurers = async () => {
+    const container = document.querySelector('#members .member-list');
+    if (!container) return;
+    container.innerHTML = '<p>読み込み中...</p>';
+
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1134936986&single=true&output=csv';
+
+    try {
+      const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(csvUrl)}`);
+      if (!response.ok) throw new Error(`CSVの取得に失敗: ${response.statusText}`);
+      const csvText = await response.text();
+
+      // Use a simple split-based parser, assuming no newlines within fields.
+      const allRows = csvText.trim().split('\n').map(row => row.split(','));
+      const dataRows = allRows.slice(2); // Skip first two rows
+
+      const adventurers = dataRows.map(row => ({
+        name:        row[5] ? row[5].trim() : '',
+        appearances: row[6] ? row[6].trim() : '',
+        pl:          row[4] ? row[4].trim() : '',
+        race:        row[7] ? row[7].trim() : '',
+        birth:       row[11] ? row[11].trim() : '', // '生まれ'
+        cl:          row[8] ? row[8].trim() : '', // CL (AL)
+      })).filter(adv => adv.name && adv.appearances && !isNaN(parseInt(adv.appearances, 10)));
+
+      const featuredCandidates = adventurers.filter(adv => parseInt(adv.appearances, 10) >= 2);
+
+      if (featuredCandidates.length === 0) {
+        container.innerHTML = '<p>注目の冒険者さんは現在いません。</p>';
+        return;
+      }
+
+      const shuffled = featuredCandidates.sort(() => 0.5 - Math.random());
+      const selectedAdventurers = shuffled.slice(0, Math.min(3, shuffled.length));
+
+      container.innerHTML = '';
+      selectedAdventurers.forEach(adv => {
+        const card = createAdventurerCard(adv);
+        container.appendChild(card);
       });
-    });
-  }
 
-  // --- 掲示板機能 ---
-  const postForm = document.getElementById('post-form');
-  if (postForm) {
-    postForm.addEventListener('submit', function (e) {
-      e.preventDefault();
+    } catch (error) {
+      console.error('注目の冒険者さん機能でエラー:', error);
+      container.innerHTML = '<p>情報の読み込みに失敗しました。</p>';
+    }
+  };
 
-      const name = this.elements.name.value;
-      const title = this.elements.title.value;
-      const body = this.elements.body.value;
-      const date = new Date().toLocaleDateString('ja-JP');
+  const createAdventurerCard = (adventurer) => {
+    const card = document.createElement('div');
+    card.className = 'member-card adventurer-feature-card';
 
-      const newPost = document.createElement('div');
-      newPost.classList.add('post');
-      newPost.innerHTML = `
-        <h4>${title}</h4>
-        <p class="post-meta">投稿者: ${name} | ${date}</p>
-        <p>${body.replace(/\n/g, '<br>')}</p>
-      `;
+    const name = adventurer.name || '名前不明';
+    const plName = adventurer.pl || 'PL不明';
+    const race = adventurer.race || '種族不明';
+    const birth = adventurer.birth || '生まれ不明';
+    const cl = adventurer.cl || '?';
 
-      const postsContainer = document.getElementById('posts-container');
-      postsContainer.insertBefore(newPost, postsContainer.children[1]);
+    card.innerHTML = `
+        <div class="adventurer-level">Lv${cl}</div>
+        <h3>${name}</h3>
+        <p class="member-spec">${race} / ${birth}</p>
+        <p class="pl-name">PL: ${plName}</p>
+    `;
+    return card;
+  };
 
-      this.reset();
-      this.elements.name.value = '名無しの冒険者';
-    });
-  }
-
+  setupFeaturedAdventurers();
 });

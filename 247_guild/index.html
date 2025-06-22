@@ -244,51 +244,11 @@
     <section id="members" class="content-section">
       <h2><i class="fa-solid fa-shield-halved"></i> 注目の冒険者さん</h2>
       <p class="section-desc">
-        当ギルドでは、普通の知名度や冒険者ランクとは別に、個人の戦闘能力や依頼達成への貢献度を総合的に評価する独自の指標（1～15段階）を設けているみたいです。これのおかげで、それぞれの実力に合った依頼を紹介しやすくなってるんですね。ちなみに、今ギルド内で最高段階に到達している冒険者さんはいるみたいですけど、まだ誰も到達したことがない16段階目に到達した人はいないそうです。いつか現れるんでしょうかねぇ…！
+        当ギルドでは、普通の知名度や冒険者ランクとは別に、個人の戦闘能力や依頼達成への貢献度を総合的に評価する独自の指標（1～15段階）を設けているみたいです。これのおかげで、それぞれの実力に合った依頼を紹介しやすくなってるんですね。ちなみに、今ギルド内で最高段階に到達している冒険者さんはいるみたいですけど、まだ誰も到達したことがない16段階目に到達した人はいないそうです。いつか現れるんでしょうかねぇ…！<br>
+        最近特に活躍が目覚ましい冒険者さんたちを、ギルド受付のゾロメが独断と偏見でピックアップ！次なる伝説を作るのは、この中の誰かかも…？
       </p>
-      <div class="filter-container">
-        <button class="filter-btn active" data-filter="all">全員</button>
-        <button class="filter-btn" data-filter="前衛">前衛</button>
-        <button class="filter-btn" data-filter="後衛">後衛</button>
-        <button class="filter-btn" data-filter="その他">その他</button>
-      </div>
       <div class="card-container member-list">
-        <div class="member-card" data-role="前衛">
-          <img src="https://via.placeholder.com/150" alt="アデルの画像">
-          <h3>アーデルハイト</h3>
-          <p class="member-spec">人間 / フェンサー</p>
-          <p class="member-desc">高貴なる振る舞いと圧倒的な戦闘力を兼ね備えた、ギルドのエースの一人です。「ヒドラ討伐ソロ」を達成した腕前を持つと伺っております。</p>
-        </div>
-        <div class="member-card" data-role="前衛">
-          <img src="https://via.placeholder.com/150" alt="ハンナの画像">
-          <h3>ハンナ</h3>
-          <p class="member-spec">ドワーフ / ファイター</p>
-          <p class="member-desc">鍛冶屋の祖父を持つ元気な少女です。両手利きのバスタードソードで敵をなぎ倒します。仲間思いで、パーティのムードメーカーでもあるそうです。</p>
-        </div>
-        <div class="member-card" data-role="前衛">
-          <img src="https://via.placeholder.com/150" alt="リミヤの画像">
-          <h3>リミヤ</h3>
-          <p class="member-spec">ナイトメア / グラップラー</p>
-          <p class="member-desc">物静かながら、いざという時には頼りになる拳士です。魔力を乗せた一撃は強敵すらも粉砕するとのこと。優しい心の持ち主です。</p>
-        </div>
-        <div class="member-card" data-role="後衛">
-          <img src="https://via.placeholder.com/150" alt="ケイルの画像">
-          <h3>ケイル・ブロンコリリー</h3>
-          <p class="member-spec">メリア / プリースト</p>
-          <p class="member-desc">ミルタバル神に仕える陽気な神官です。豊富な知識で仲間を導き、その回復魔法はパーティの生命線となります。</p>
-        </div>
-        <div class="member-card" data-role="後衛">
-          <img src="https://via.placeholder.com/150" alt="ニーディルの画像">
-          <h3>ニーディル</h3>
-          <p class="member-spec">エルフ / マギテック</p>
-          <p class="member-desc">自慢のガンで敵を撃ち抜く魔動機師です。自信家ですが、その腕は確かです。精密作業も得意で、鍵開けなどでも活躍します。</p>
-        </div>
-        <div class="member-card" data-role="前衛">
-          <img src="https://via.placeholder.com/150" alt="フィアの画像">
-          <h3>フィアンマ・トポリーナ</h3>
-          <p class="member-spec">フロウライト / ファイター</p>
-          <p class="member-desc">炎武帝グレンダールを信仰する、珍しいフロウライトの戦士です。牢獄から解放されたばかりらしく、冒険者としての日々を楽しんでいるようです。</p>
-        </div>
+        <!-- ここにJavaScriptでキャラクターカードが挿入されます -->
       </div>
     </section>
 
@@ -296,65 +256,92 @@
       <h2><i class="fa-solid fa-bullhorn"></i> 募集中依頼です～</h2>
       <div class="card-container request-list">
         <div class="request-card">
-          <h3>蛮族退治</h3>
+          <div class="request-card-header">
+            <h3>蛮族退治</h3>
+            <span class="request-status available">募集中</span>
+          </div>
           <p class="request-meta"><strong>依頼人:</strong> チェルシー・ソロウ | <strong>報酬:</strong> 500ガメル | <strong>Lv:</strong>
             1～2</p>
           <p class="request-desc">
             「この近くに蛮族が棲みつき、こちらの様子をうかがっているようなのです。何度追い払っても、どこからかすぐに現れて困っています」「いつ襲ってくるか不安なので、拠点を見つけて退治をお願いします」</p>
-          <span class="request-status available">募集中</span>
         </div>
         <div class="request-card">
-          <h3>建造物修理</h3>
+          <div class="request-card-header">
+            <h3>建造物修理</h3>
+            <span class="request-status available">募集中</span>
+          </div>
           <p class="request-meta"><strong>依頼人:</strong> ブロン・ビューエル | <strong>報酬:</strong> 1,500ガメル | <strong>Lv:</strong>
             3～4</p>
           <p class="request-desc">
             「町はずれにある、宗教的に重要な建物が最近魔物に攻撃され、壊れている。どうやら自分の棲み処として使いやすくしているようです。これを修理し、もしまた魔物に襲われたなら討伐してください」</p>
-          <span class="request-status available">募集中</span>
         </div>
         <div class="request-card">
-          <h3>舞姫の護送</h3>
+          <div class="request-card-header">
+            <h3>舞姫の護送</h3>
+            <span class="request-status available">募集中</span>
+          </div>
           <p class="request-meta"><strong>依頼人:</strong> ドルネシア | <strong>報酬:</strong> 3,000ガメル | <strong>Lv:</strong> 5～6
           </p>
           <p class="request-desc">「舞台の一環で隣国を訪ねる必要ができた。でも道中には、放置された魔動機が暴走しているエリアがある。護衛を頼めるかな？」</p>
-          <span class="request-status available">募集中</span>
         </div>
         <div class="request-card">
-          <h3>闇ギルドに潜入！</h3>
+          <div class="request-card-header">
+            <h3>闇ギルドに潜入！</h3>
+            <span class="request-status available">募集中</span>
+          </div>
           <p class="request-meta"><strong>依頼人:</strong> ニコ | <strong>報酬:</strong> 4,500ガメル | <strong>Lv:</strong> 7～8
           </p>
           <p class="request-desc">「最近、非公認のギルド（通称・闇ギルド）が街の権力者と癒着しているらしい。親玉を見つけて逮捕してくれ」</p>
-          <span class="request-status available">募集中</span>
         </div>
         <div class="request-card">
-          <h3>小包の配達</h3>
+          <div class="request-card-header">
+            <h3>小包の配達</h3>
+            <span class="request-status available">募集中</span>
+          </div>
           <p class="request-meta"><strong>依頼人:</strong> ルヴェリカ | <strong>報酬:</strong> 1,000ガメル | <strong>Lv:</strong> 3～4
           </p>
           <p class="request-desc">「この小包を友人のもとまで配達してもらいたい。ただ、道中には凶暴な獣が出没するから気をつけて」</p>
-          <span class="request-status available">募集中</span>
         </div>
         <div class="request-card">
-          <h3>邪教の調査</h3>
+          <div class="request-card-header">
+            <h3>邪教の調査</h3>
+            <span class="request-status available">募集中</span>
+          </div>
           <p class="request-meta"><strong>依頼人:</strong> ブロン・ビューエル | <strong>報酬:</strong> 3,000ガメル | <strong>Lv:</strong>
             5～6</p>
           <p class="request-desc">
             「街で邪教の神官が人々をたぶらかしている。奴はこれまでに何人も生贄として殺しています。犯人を特定し、止めてください。最悪、命を奪うことになっても仕方ありませんが、もし生きたまま捕縛できたなら、報酬を上乗せいたします」
           </p>
-          <span class="request-status available">募集中</span>
         </div>
         <div class="request-card">
-          <h3>同志を救え！</h3>
-          <p class="request-meta"><strong>依頼人:</strong> イジドア | <strong>報酬:</strong> 4,500ガメル | <strong>Lv:</strong> 7～8
+          <div class="request-card-header">
+            <h3>同志を救え！</h3>
+            <span class="request-status available">募集中</span>
+          </div>
+          <p class="request-meta"><strong>依頼人:</strong> イシドア | <strong>報酬:</strong> 4,500ガメル | <strong>Lv:</strong> 7～8
           </p>
           <p class="request-desc">「森の中の遺跡へ出かけた冒険者が戻ってこない。消息を確認しに行き、生きていたなら連れ戻してほしい」</p>
-          <span class="request-status available">募集中</span>
         </div>
         <div class="request-card">
-          <h3>魔獣の棲み処</h3>
+          <div class="request-card-header">
+            <h3>魔獣の棲み処</h3>
+            <span class="request-status available">募集中</span>
+          </div>
           <p class="request-meta"><strong>依頼人:</strong> ドノヴァン・D・ドーン | <strong>報酬:</strong> 7,000ガメル |
             <strong>Lv:</strong> 9～
           </p>
           <p class="request-desc">「交易路の途中にある遺跡に、魔獣が棲みついてしまった。商人たちを片っ端から襲う凶暴な魔物だが、どうにかして倒してほしい」</p>
-          <span class="request-status available">募集中</span>
+        </div>
+        <div class="request-card">
+          <div class="request-card-header">
+            <h3>ヒドラ討伐ソロ！</h3>
+            <span class="request-status available">募集中</span>
+          </div>
+          <p class="request-meta"><strong>依頼人:</strong> ？？？ | <strong>報酬:</strong> 4,000ガメル | <strong>人数:</strong> 1人限定
+            |
+            <strong>Lv:</strong> 12～
+          </p>
+          <p class="request-desc">「ヒドラがあちこちで出現している。費用や環境の問題で、1人しか呼べない。助けてほしい。」</p>
         </div>
       </div>
       <details>
@@ -367,51 +354,63 @@
         </p>
         <div class="card-container request-list">
           <div class="request-card">
-            <h3>帝路追想 スターダストアビス</h3>
+            <div class="request-card-header">
+              <h3>帝路追想 スターダストアビス</h3>
+              <span class="request-status unavailable">達成済</span>
+            </div>
             <p class="request-meta"><strong>達成者:</strong> ミカ・ニシナ | <strong>脅威度:</strong> 不明</p>
             <p class="request-desc">
               ギルドの地下に突然現れた奈落の魔域の調査と鎮圧です。ニシナさんが自ら出向いて、過去の冒険の記憶が形になったっていう脅威を退けて、ギルドの危機を救ったそうです。<br><small>（でも、この一件でかかった経費は4万ガメルを超えて、ギルドの財政をさらに圧迫したって聞いてます…本当に大丈夫なんですかね…）</small>
             </p>
-            <span class="request-status unavailable">達成済</span>
           </div>
           <div class="request-card">
-            <h3>お前らvs邪教</h3>
+            <div class="request-card-header">
+              <h3>お前らvs邪教</h3>
+              <span class="request-status unavailable">達成済</span>
+            </div>
             <p class="request-meta"><strong>達成者:</strong> フランキー, ラリッサ, コルヴォ, ベニート, セルベル</p>
             <p class="request-desc">
               「雷の教団」って名乗る邪教の団体を討伐した依頼ですね。キルヒア神殿からの依頼で、冒険者さんたちが見事な連携で教祖のチスって人を捕まえて、その野望を打ち砕いたそうです。私もこの依頼の受付をしたんですよ～！皆さん、すごく強かったです…。
             </p>
-            <span class="request-status unavailable">達成済</span>
           </div>
           <div class="request-card">
-            <h3>ヒドラ討伐ソロ！</h3>
+            <div class="request-card-header">
+              <h3>ヒドラ討伐ソロ！</h3>
+              <span class="request-status unavailable">達成済</span>
+            </div>
             <p class="request-meta"><strong>達成者:</strong> アーデルハイト, ミカ・ニシナ, スヴェトラーナ, 他</p>
             <p class="request-desc">
               色々な理由で発生する、すっごく難しい単独任務です。ギルドの強い冒険者さんたちがこれに挑戦して、見事に撃退した記録がいくつか残ってるみたいです。腕に自信のある方は、次の脅威に備えておいてくださいね。
             </p>
-            <span class="request-status unavailable">達成済</span>
           </div>
           <div class="request-card">
-            <h3>離れ御殿の大掃除</h3>
+            <div class="request-card-header">
+              <h3>離れ御殿の大掃除</h3>
+              <span class="request-status unavailable">達成済</span>
+            </div>
             <p class="request-meta"><strong>達成者:</strong> オリヴィエ, マゼリィ, メア, ユト, マリアン</p>
             <p class="request-desc">
               オダチン侯爵っていう方の別荘に巣食った魔物をやっつける依頼だったみたいです。途中で奈落に飲み込まれるっていう大変なこともあったみたいですけど、それも乗り越えて、無事に依頼を達成したそうです。すごいですよね…。
             </p>
-            <span class="request-status unavailable">達成済</span>
           </div>
           <div class="request-card">
-            <h3>旧ワーグハイプ地下水道の調査</h3>
+            <div class="request-card-header">
+              <h3>旧ワーグハイプ地下水道の調査</h3>
+              <span class="request-status unavailable">達成済</span>
+            </div>
             <p class="request-meta"><strong>達成者:</strong> ジムノペディ, アンリ, シェイナ, ファウナ, ヘロン</p>
             <p class="request-desc">
               遺跡ギルドからの依頼で、旧ワーグハイプ遺跡の地下水道を調査したみたいです。奥の方で待ち構えていた強力な魔動機を壊して、地下に眠っていた大きな施設の存在を明らかにしたそうですよ。</p>
-            <span class="request-status unavailable">達成済</span>
           </div>
           <div class="request-card">
-            <h3>侭造幻域 ベネポレンス</h3>
+            <div class="request-card-header">
+              <h3>侭造幻域 ベネポレンス</h3>
+              <span class="request-status unavailable">達成済</span>
+            </div>
             <p class="request-meta"><strong>達成者:</strong> ステファニー, フェイ, シュリア, ゾロメ</p>
             <p class="request-desc">
               ジンとかいう変なんが作り出した、謎の魔域の踏破依頼です。初陣だった私も無理やり参加させられましたが、皆さんの協力もあって、なんとか最深部のボスを撃破しました。道中、色々な顔のジンが出てきて本当に悪夢のようでした……。もう二度と行きたくないですね…。
             </p>
-            <span class="request-status unavailable">達成済</span>
           </div>
         </div>
     </section>
@@ -489,7 +488,7 @@
     </section>
   </main>
   <footer>
-    <p>© 冒険者ギルド「帝国の鉢巻」亭</p>
+    <p>© 冒険者ギルド「帝国の鉢巻」,ゾロメ・ベストマン</p>
   </footer>
   <script src="../js/common.js"></script>
   <script src="js/247_guild.js"></script>
