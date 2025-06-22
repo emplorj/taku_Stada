@@ -1270,7 +1270,7 @@ body.no-scroll {
     }
 
     body.no-scroll .hamburger-menu {
-        transform: translateX(200px); /* 220px(メニュー幅) - 20px(初期見え幅) = 200px スライド */
+        transform: translateX(210px); /* 220px(メニュー幅) - 20px(初期見え幅) = 200px スライド */
     }
 
     /* === その他の要素の調整 === */
