@@ -131,9 +131,9 @@ main {
 }
 .hero-logo {
   position: absolute;
-  bottom: 5%;
-  right: 5%;
-  width: 450px;
+  bottom: 0%;
+  right: 0%;
+  width: 550px;
   height: auto;
   opacity: 0.65;
   pointer-events: none;
