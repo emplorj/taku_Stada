@@ -547,6 +547,9 @@ footer p {
 
 /* --- 画面幅が1080px以下の場合 --- */
 @media (max-width: 1080px) {
+  .page-header{
+    padding: 0.5rem 4rem;
+  }
   /* ハンバーガーメニューを表示 */
   .hamburger-menu {
     display: block;
@@ -623,14 +626,14 @@ footer p {
 @media (max-width: 768px) {
   /* ヒーローセクション */
   #hero {
-    padding: 4rem 1rem;
+    padding: 1rem 1rem;
   }
   .hero-logo {
     position: static; 
     display: block;
-    margin: 0 auto 2rem auto;
-    width: 150px;
-    opacity: 0.8;
+    margin: 0 auto 1rem auto;
+    width: 250px;
+    opacity: 1;
     transform: none;
   }
   #hero h1 {
