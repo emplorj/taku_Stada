@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('header-loaded', function() {
 
   // --- ヘッダーのスクロールエフェクト ---
   const header = document.querySelector('.page-header');
@@ -177,13 +177,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const smoothScrollTo = (targetId) => {
       const targetElement = document.querySelector(targetId);
       if (targetElement) {
+        console.log('Target Element:', targetElement);
         const headerOffset = document.querySelector('.page-header').offsetHeight; // ヘッダーの高さを取得
         const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
         const offsetPosition = elementPosition - headerOffset - 20; // ヘッダーと少し余白を考慮
+        console.log('Calculated Offset Position:', offsetPosition);
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth"
+          behavior: 'smooth'
         });
       }
     };
@@ -216,8 +218,9 @@ document.addEventListener('DOMContentLoaded', function() {
           // 見取り図の場合のクリック処理
           if (hotspotLink) {
             // ホットスポットがクリックされたら施設案内へジャンプ
-            event.preventDefault(); // デフォルトのリンク動作をキャンセル
-            smoothScrollTo(hotspotLink.getAttribute('href'));
+            //event.preventDefault(); // デフォルトのリンク動作をキャンセル
+            // CSS側でスクロールを制御するため、JSでの処理は不要に。
+            // smoothScrollTo(hotspotLink.getAttribute('href'));
           } else if (window.innerWidth <= 768) {
             // ホットスポット以外がクリックされ、かつスマホ表示の場合のみ拡大
             openModal(imageToZoom);
@@ -226,7 +229,8 @@ document.addEventListener('DOMContentLoaded', function() {
           // 地図の場合のクリック処理
           if (hotspotLink) {
             event.preventDefault();
-            smoothScrollTo(hotspotLink.getAttribute('href'));
+            // CSS側でスクロールを制御するため、JSでの処理は不要に。
+            // smoothScrollTo(hotspotLink.getAttribute('href'));
           } else if (window.innerWidth <= 768) {
             // ホットスポット以外がクリックされ、かつスマホ表示の場合のみ拡大
             openModal(imageToZoom);

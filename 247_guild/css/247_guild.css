@@ -6,21 +6,54 @@
   --background-color: #ab6c52; /* 背景色（レンガ） */
   --content-background-color: rgba(244, 241, 233, 0.85); /* コンテンツ背景（羊皮紙） */
   --accent-color: #6495ed; /* アクセントカラー（リンクなど） */
+  --header-height: 80px;
 }
+
 html {
-    background-color: #3a2d2d !important; /* HTMLの背景色をフッターと同じ色に強制的に設定 */
+  height: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-height);
 }
-html, body {
-    margin: 0;
-    padding: 0; /* ブラウザのデフォルトマージン・パディングをリセット */
-    height: 100%; /* HTMLとbodyがビューポートの高さ全体を占めるように */
+
+body.guild-background {
+  color: var(--text-color) !important;
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  font-family: 'Noto Serif JP', serif;
+  
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  margin: 0;
+  padding-top: var(--header-height); /* 固定ヘッダー分のスペースを確保 */
+  box-sizing: border-box;
 }
-body {
-    font-family: 'Noto Serif JP', serif;
-    color: var(--text-color);
-    background: #3a2d2d !important; /* body全体の背景をフッターと同じ色に強制的に設定 */
-    overflow-y: scroll; /* コンテンツがはみ出た場合にスクロールバーを表示 */
-    overflow-x: hidden; /* 横方向のスクロールバーを非表示 */
+
+main {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex-shrink: 0;
+  background-color: #3a2d2d;
+  color: white;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  gap: 0.5rem;
+}
+footer p {
+  margin: 0;
+}
+.footer-logo {
+  height: 25px;
+  width: auto;
+  opacity: 0.8;
 }
 
 
@@ -31,40 +64,16 @@ body.modal-open {
 a {
     color: var(--accent-color);
 }
-/* ===================================================
-   ギルド見取り図セクション
-   =================================================== */
-.floor-plan-container {
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background-color: #fff; /* 白い紙のような背景 */
-  border: 4px solid var(--wood-color); /* 木のフレームのような枠線 */
-  border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
 
-.floor-plan-image {
-  width: 100%;
-  height: auto;
-  border-radius: 4px; /* 画像の角を少し丸める */
-}
-
-.floor-plan-caption {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #666;
-  font-style: italic;
-}
 /* ===================================================
    ヘッダー
    =================================================== */
 .page-header {
     background-color: rgba(58, 45, 45, 0.9);
     backdrop-filter: blur(5px);
-    padding: 0.5rem 2rem;
+    padding: 1.2rem 2rem;
     text-align: center;
-    position: fixed; /* ヘッダーを常に固定 */
+    position: fixed;
     width: 100%;
     top: 0;
     left: 0;
@@ -73,7 +82,8 @@ a {
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s ease;
-    box-sizing: border-box; /* paddingを含めて幅を100%に */
+    box-sizing: border-box;
+    height: var(--header-height);
 }
 .logo {
   display: flex;
@@ -93,23 +103,23 @@ a {
 }
 .page-nav a {
     color: white;
-    margin: 0 10px; /* メニュー間のマージンを調整 */
+    margin: 0 10px;
     text-decoration: none;
     font-weight: bold;
-    font-size: 1rem; /* フォントサイズを少し小さく */
+    font-size: 1rem;
     transition: color 0.3s;
-    white-space: nowrap; /* メニューが改行されないように */
+    white-space: nowrap;
 }
 .page-nav a:hover {
   color: var(--accent-color);
 }
 .page-nav a.active {
-    color: var(--secondary-color); /* アクティブなリンクをアクセントカラーで表示 */
+    color: var(--secondary-color);
     text-shadow: 0 0 5px var(--secondary-color);
 }
 
 /* ===================================================
-   メインコンテンツ & ヒーローセクション
+   ヒーローセクション
    =================================================== */
 
 #hero {
@@ -121,12 +131,12 @@ a {
     border-radius: 10px;
     color: white;
     font-family: 'Noto Serif JP', serif;
-    position: relative; /* 子要素を配置する基準点にする */
+    position: relative;
 }
 #hero h1,
 #hero h2,
 #hero p {
-  position: relative; /* z-indexを有効にするため */
+  position: relative;
   z-index: 1;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
 }
@@ -158,7 +168,7 @@ a {
    汎用セクション & カードスタイル
    =================================================== */
 .content-section {
-    padding: 4rem 2rem;
+    padding: 1rem 2rem;
     margin: 0 auto 2rem auto;
     max-width: 80vw;
     background-color: var(--content-background-color);
@@ -196,26 +206,26 @@ a {
 /* ===================================================
    施設案内
    =================================================== */
-#facilities .facility-item {
+#guild-facilities .facility-item {
   margin-bottom: 2.5rem;
   padding-left: 1rem;
   border-left: 4px solid var(--secondary-color);
 }
-#facilities .facility-item:last-child {
+#guild-facilities .facility-item:last-child {
   margin-bottom: 0;
 }
-#facilities .facility-item h3 {
+#guild-facilities .facility-item h3 {
   font-family: 'Cinzel', serif;
   color: var(--secondary-color);
   font-size: 1.6rem;
   margin-top: 0;
   margin-bottom: 0.8rem;
 }
-#facilities .facility-item h3 i {
+#guild-facilities .facility-item h3 i {
   margin-right: 0.8rem;
   color: var(--secondary-color);
 }
-#facilities .facility-item p {
+#guild-facilities .facility-item p {
   line-height: 1.8;
   font-size: 1.1rem;
   padding-left: 2.6rem;
@@ -450,7 +460,7 @@ a {
 .map-ui-container {
   margin-bottom: 2rem;
 }
-.map-image {
+.map-image, .floor-plan-image {
   width: 100%;
   height: auto;
   border-radius: 8px;
@@ -461,46 +471,45 @@ a {
 /* ===================================================
    見取り図ホットスポット
    =================================================== */
-.floor-plan-hotspot, .map-hotspot { /* 見取り図と地図のホットスポット共通スタイル */
+.floor-plan-hotspot, .map-hotspot {
   position: absolute;
   display: block;
-  z-index: 10; /* 画像より手前 */
-  /* background-color: rgba(255, 255, 0, 0.3); /* デバッグ用 */
-  pointer-events: none; /* ホットスポットの親要素はマウスイベントを透過させる */
+  z-index: 10;
 }
+
 /* map-container-clickableにmap-with-hotspotsクラスがある場合、ズームアイコンを非表示にする */
 .map-container-clickable.map-with-hotspots .map-zoom-icon {
   display: none;
 }
 
-.floor-plan-hotspot a, .map-hotspot a { /* ホットスポット内のリンク要素 */
+.floor-plan-hotspot a, .map-hotspot a {
   display: block;
   width: 100%;
   height: 100%;
   text-decoration: none;
   position: relative;
-  pointer-events: auto; /* リンク要素自体はマウスイベントを受け付ける */
-  cursor: pointer; /* カーソルをポインターにする */
-  transition: background-color 0.3s ease; /* ホバー時の背景色変化 */
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  cursor: pointer;
 }
 
 .floor-plan-hotspot a:hover, .map-hotspot a:hover {
-  background-color: rgba(255, 255, 255, 0.5); /* ホバーで薄くハイライト */
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
-.floor-plan-hotspot a i, .map-hotspot a i { /* ホットスポット内のアイコン */
+.floor-plan-hotspot a i, .map-hotspot a i {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 2.5rem; /* アイコンサイズ */
-  color: rgba(255, 255, 255, 0.7); /* アイコンの色 */
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.7);
   text-shadow: 0 0 5px rgba(0,0,0,0.5);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.floor-plan-hotspot a:hover i, .map-hotspot a:hover i { /* ホバーでアイコンを表示 */
+.floor-plan-hotspot a:hover i, .map-hotspot a:hover i {
   opacity: 1;
 }
 /* ===================================================
@@ -510,15 +519,15 @@ a {
   position: relative;
   cursor: pointer;
   overflow: hidden;
-  border-radius: 8px; /* 画像の角丸と合わせる */
+  border-radius: 8px;
 }
 
-.map-container-clickable img { /* .map-image から img に変更し、見取り図にも適用 */
+.map-container-clickable img {
   display: block;
   transition: transform 0.3s ease;
 }
 
-.map-container-clickable:hover img { /* 同様に変更 */
+.map-container-clickable:hover img {
   transform: scale(1.03);
 }
 
@@ -544,7 +553,7 @@ a {
 }
 
 .map-modal {
-  display: none; /* 初期状態では非表示 */
+  display: none;
   position: fixed;
   z-index: 2500;
   padding-top: 20px;
@@ -584,45 +593,39 @@ a {
    =================================================== */
 
 #location-details .location-item h4 {
-  font-family: 'Cinzel', serif; /* 他の見出しとフォントを統一 */
-  color: var(--primary-color);  /* ニシナさんの赤色で見出しを強調 */
-  border-bottom: 2px dotted var(--wood-color); /* 木材色の点線を追加 */
+  font-family: 'Cinzel', serif;
+  color: var(--primary-color);
+  border-bottom: 2px dotted var(--wood-color);
   margin-bottom: 1rem;
-  
-  /* アイコンを配置するための準備 */
   position: relative;
   padding-left: 1em; 
 }
-/* カテゴリ見出し(h3)のスタイルを、より目立つように変更 */
 #access .location-category h3 {
   font-family: 'Cinzel', serif;
   font-size: 1.8rem;
-  color: var(--primary-color); /* 目立つ赤色に変更 */
-  border-bottom: 2px dotted var(--wood-color); /* アクセントの点線 */
+  color: var(--primary-color);
+  border-bottom: 2px dotted var(--wood-color);
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
 }
 #access .location-category h3 i {
   margin-right: 1rem;
-  color: var(--primary-color); /* アイコンも同じ色に */
+  color: var(--primary-color);
 }
 
-/* 項目名(h4)のスタイルを、シンプルで分かりやすく変更 */
 #access .location-item h4 {
-  font-family: 'Noto Serif JP', serif; /* 通常のテキストフォントに戻す */
+  font-family: 'Noto Serif JP', serif;
   font-size: 1.3rem;
-  color: var(--text-color); /* 通常のテキストカラーに */
-  font-weight: 700; /* 太字にして少し強調 */
-  border-bottom: none; /* 下線を削除 */
-  margin-bottom: 0.5rem; /* 下の余白を少し詰める */
+  color: var(--text-color);
+  font-weight: 700;
+  border-bottom: none;
+  margin-bottom: 0.5rem;
 }
 
-/* Font Awesomeのアイコンをh4の左に追加 */
 #location-details .location-item h4::before {
-  font-family: "Font Awesome 6 Free"; /* Font Awesomeのフォントを指定 */
-  font-weight: 900; /* Solidアイコンを指定 */
-  content: "\f3c5"; /* 本のアイコン (適当なものに変えてもOKです) */
-  
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  content: "\f3c5";
   position: absolute;
   left: 0;
   top: 55%;
@@ -644,7 +647,6 @@ a {
   height: 500px;
   border: none;
 }
-/* --- 地図モーダルの閉じるボタン --- */
 .map-modal-close {
   position: absolute;
   top: 15px;
@@ -666,39 +668,11 @@ a {
   from {transform:scale(0)}
   to {transform:scale(1)}
 }
-/* body.guild-background の背景色はhtml, bodyで設定されるため削除 */
-
-/* ===================================================
-   フッター
-   =================================================== */
-footer {
-  background-color: #3a2d2d;
-  color: white;
-  text-align: center;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* ▼▼▼ ここから変更・追加 ▼▼▼ */
-  flex-direction: column; /* ★常に縦並びにします */
-  padding-top: 1.5rem;    /* 上下の余白を確保 */
-  padding-bottom: 1.5rem;
-  gap: 0.5rem;            /* ロゴとテキストの隙間 */
-}
-footer p {
-  margin: 0;
-}
-.footer-logo {
-  height: 25px;
-  width: auto;
-  opacity: 0.8;
-}
 
 /* ===================================================
    レスポンシブ & スマートフォン向け設定
    =================================================== */
 
-/* --- ハンバーガーメニューの基本設定 --- */
 .hamburger-menu {
   display: none;
 }
@@ -715,29 +689,23 @@ footer p {
     }
 }
 
-/* ===================================================
-   PC表示でのホバーエフェクト無効化
-   =================================================== */
 @media (min-width: 959px) {
-  /* 画面幅が1025px以上の時（PCを想定） */
   .map-container-clickable:hover img {
-    transform: none; /* 拡大を無効化 */
+    transform: none;
   }
 
   .map-container-clickable:hover .map-zoom-icon {
-    opacity: 0; /* 虫眼鏡アイコンも表示しない */
+    opacity: 0;
   }
 
   .map-container-clickable {
-    cursor: default; /* カーソルを通常に戻す */
+    cursor: default;
   }
 }
-/* --- 画面幅が1080px以下の場合 --- */
 @media (max-width: 1080px) {
   .page-header{
     padding: 0.5rem 4rem;
   }
-  /* ハンバーガーメニューを表示 */
   .hamburger-menu {
     display: block;
     position: fixed;
@@ -764,7 +732,6 @@ footer p {
   .hamburger-menu span:nth-of-type(2) { top: 24px; }
   .hamburger-menu span:nth-of-type(3) { top: 35px; }
 
-  /* 開いた時のスタイル */
   .hamburger-menu.is-open span:nth-of-type(1) {
     top: 24px;
     transform: rotate(45deg);
@@ -775,7 +742,6 @@ footer p {
     transform: rotate(-45deg);
   }
 
-  /* メニュー本体のスタイル */
   .page-header .page-nav {
     position: fixed;
     top: 0;
@@ -809,18 +775,15 @@ footer p {
   }
 }
 
-/* --- 画面幅が768px以下の場合 --- */
 @media (max-width: 768px) {
-  /* セクションの余白を全体的に調整し、カードの寄りも修正 */
   .content-section {
     padding: 3rem 1rem;
   }
 
   .content-section h2 {
-    font-size: 2.0rem; /* スマホ表示でフォントサイズを調整 */
+    font-size: 2.0rem;
   }
 
-  /* ヒーローセクション */
   #hero {
     padding: 1rem 1rem;
   }
@@ -836,13 +799,11 @@ footer p {
     font-size: 2.5rem;
   }
   
-  /* ウワサ欄 */
   .news-content {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 
-  /* 依頼カード */
   .card-container.request-list {
     grid-template-columns: 1fr;
   }
@@ -856,15 +817,13 @@ footer p {
     font-size: 0.85rem;
   }
 
-  /* メンバーカードなど、汎用コンテナを1列に */
   .card-container {
     grid-template-columns: 1fr;
   }
   .member-card {
-    width: auto; /* 幅を自動調整して1列に収める */
+    width: auto;
   }
 
-  /* 地図モーダル（スマホ用調整） */
   .map-modal-content {
     width: 100%;
     max-height: 80vh;
@@ -873,22 +832,4 @@ footer p {
     top: 10px;
     right: 20px;
   }
-  
-}
-
-
-/* ===================================================
-   フッター固定＆ヘッダー重なり解消 (最終版)
-   =================================================== */
-
-/* body全体をflexコンテナにし、画面の高さいっぱいに広げる */
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh; /* ビューポートの高さ全体を最低限の高さとする */
-}
-
-/* ヘッダーの高さ分、mainコンテンツの開始位置を押し下げる  */
-main {
-  flex-grow: 1; /* ★これが重要！残りの空間をすべて埋めます */
 }

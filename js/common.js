@@ -80,16 +80,16 @@ function parseCsvToArray(csvText) {
 document.addEventListener('DOMContentLoaded', function() {
 
     const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-    const basePath = isLocal ? '' : '/taku_Stada/'; // GitHub Pagesのベースパスに末尾のスラッシュを追加
+    const basePath = isLocal ? '' : '/taku_Stada';
 
    // --- Faviconを動的に挿入する ---
    function injectFaviconLinks() {
        const head = document.head;
        const favicons = [
-           { rel: 'icon', href: `${basePath}img/favicon.ico` },
-           { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${basePath}img/favicon-32x32.png` },
-           { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${basePath}img/favicon-16x16.png` },
-           { rel: 'apple-touch-icon', sizes: '180x180', href: `${basePath}img/apple-touch-icon.png` }
+           { rel: 'icon', href: `${basePath}/img/favicon.ico` },
+           { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${basePath}/img/favicon-32x32.png` },
+           { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${basePath}/img/favicon-16x16.png` },
+           { rel: 'apple-touch-icon', sizes: '180x180', href: `${basePath}/img/apple-touch-icon.png` }
        ];
 
        favicons.forEach(faviconInfo => {
@@ -110,15 +110,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 let html = await response.text();
 
-                // HTML文字列内のパスを正規表現で置換
-                // img src, link href, meta content の / で始まるパスを basePath で置換
-                html = html.replace(/(src|href|content)="(?!https?:\/\/)(?!data:)(?!#)(\/[^"]*)"/g, (match, attr, path) => {
-                    if (path === '/') { // ルートへのリンクはbasePathのみにする
-                        return `${attr}="${basePath}"`;
-                    }
-                    // /img/ のようなパスを basePath + img/ に変換 (basePathに末尾スラッシュがあるので先頭スラッシュを削除)
-                    return `${attr}="${basePath}${path.substring(1)}"`;
-                });
+                // GitHub Pages環境でのみパスを書き換える
+                if (basePath) {
+                  html = html.replace(/(src|href|content)="(?!https?:\/\/)(?!data:)(?!#)(\/[^"]*)"/g, (match, attr, path) => {
+                      if (path === '/') {
+                          return `${attr}="${basePath}"`;
+                      }
+                      return `${attr}="${basePath}${path}"`;
+                  });
+                }
 
                 placeholder.innerHTML = html;
 
@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     initializeHamburgerMenu();
                     initializeSubMenu();
+                    window.dispatchEvent(new Event('header-loaded')); // カスタムイベントを発火
                 }, 0);
 
             } else { console.error('Failed to fetch header.html:', response.statusText); }
