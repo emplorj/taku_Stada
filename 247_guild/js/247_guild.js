@@ -12,6 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // --- 「戻る」リンクのパスを修正 (GitHub Pages対応) ---
+  // common.jsで定義されたbasePathを利用
+  const backLink = document.querySelector('.page-nav a[href="../index.html"]');
+  if (backLink && typeof basePath !== 'undefined') {
+    backLink.href = basePath + '/index.html';
+  }
+
   // --- 注目の冒険者さん 機能 (REVISED) ---
   const setupFeaturedAdventurers = async () => {
     const container = document.querySelector('#members .member-list');

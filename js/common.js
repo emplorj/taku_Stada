@@ -115,13 +115,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     const sideMenu = document.getElementById('tableOfContents');
                     if (sideMenu) {
+                        const menuLogoLink = sideMenu.querySelector('.menu-logo-container a');
+                        if (menuLogoLink && menuLogoLink.getAttribute('href') === '/') {
+                            menuLogoLink.href = basePath + '/'; // プロジェクトのルートURLに設定
+                        }
+
                         const links = sideMenu.querySelectorAll('a');
                         links.forEach(link => {
                             const originalHref = link.getAttribute('href');
                             if (originalHref && !originalHref.startsWith('http') && !originalHref.startsWith('#')) {
-                                const url = new URL(link.href);
-                                if(url.pathname.endsWith('.html')) {
-                                   link.href = `${basePath}/${originalHref}`;
+                                if (originalHref === '247_guild/') { // 247_guild/ へのリンクを特別に処理
+                                    link.href = `${basePath}/247_guild/`;
+                                } else {
+                                    const url = new URL(link.href);
+                                    if(url.pathname.endsWith('.html')) {
+                                       link.href = `${basePath}/${originalHref}`;
+                                    }
                                 }
                             }
                         });
