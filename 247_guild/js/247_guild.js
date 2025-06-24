@@ -80,21 +80,121 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   setupFeaturedAdventurers();
-});
+  /* ===================================================
+     ギルドサイト専用ハンバーガーメニュー機能
+     =================================================== */
+  const hamburger = document.querySelector('.hamburger-menu');
+  const nav = document.querySelector('.page-nav');
+  const body = document.body;
 
-/* ===================================================
-   ギルドサイト専用ハンバーガーメニュー機能
-   =================================================== */
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.querySelector('.hamburger-menu');
-    const nav = document.querySelector('.page-nav');
+  if (hamburger && nav) {
+    // メニューを閉じる共通関数
+    const closeMenu = () => {
+      hamburger.classList.remove('is-open');
+      body.classList.remove('side-menu-open');
+    };
+
+    // ハンバーガーボタンクリックでメニューを開閉
+    hamburger.addEventListener('click', function() {
+      hamburger.classList.toggle('is-open');
+      body.classList.toggle('side-menu-open');
+    });
+
+    // ナビゲーションリンククリックでメニューを閉じる
+    const navLinks = nav.querySelectorAll('a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // メニュー外をクリックでメニューを閉じる
+    document.addEventListener('click', function(event) {
+      // メニューが開いている場合、かつ、クリックされた要素が
+      // ナビゲーションメニュー内でもハンバーガーボタン内でもない場合
+      if (body.classList.contains('side-menu-open') &&
+          !nav.contains(event.target) &&
+          !hamburger.contains(event.target)) {
+        closeMenu();
+      }
+    });
+  }
+
+  /* ===================================================
+     地図モーダル機能
+     =================================================== */
+  const mapModal = document.getElementById('map-modal');
+  if (mapModal) {
+    const modalImg = document.getElementById('modal-map-image');
+    const closeModal = document.querySelector('.map-modal-close');
     const body = document.body;
+    
+    // スムーズスクロール関数
+    const smoothScrollTo = (targetId) => {
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        const headerOffset = document.querySelector('.page-header').offsetHeight; // ヘッダーの高さを取得
+        const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+        const offsetPosition = elementPosition - headerOffset - 20; // ヘッダーと少し余白を考慮
 
-    if (hamburger && nav) {
-        hamburger.addEventListener('click', function() {
-            // ボタンとbodyにクラスを付け外しする
-            hamburger.classList.toggle('is-open');
-            body.classList.toggle('side-menu-open');
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
         });
-    }
+      }
+    };
+
+    // モーダルを開く共通関数
+    const openModal = (imageElement) => {
+      if (imageElement) {
+        mapModal.style.display = 'block';
+        modalImg.src = imageElement.src;
+        body.classList.add('modal-open');
+      }
+    };
+
+    // モーダルを閉じる共通関数
+    const closeMapModal = () => {
+      mapModal.style.display = 'none';
+      body.classList.remove('modal-open');
+    };
+
+    // クリック可能な全てのコンテナ (地図と見取り図) にイベントリスナーを設定
+    const clickableContainers = document.querySelectorAll('.map-container-clickable');
+    clickableContainers.forEach(container => {
+      container.addEventListener('click', (event) => {
+        // クリックされた要素がホットスポットのリンクかどうかを判定
+        // floor-plan-hotspot と map-hotspot の両方に対応
+        const hotspotLink = event.target.closest('.floor-plan-hotspot a') || event.target.closest('.map-hotspot a');
+        const imageToZoom = container.querySelector('img');
+
+        if (container.id === 'floor-plan-clickable') {
+          // 見取り図の場合のクリック処理
+          if (hotspotLink) {
+            // ホットスポットがクリックされたら施設案内へジャンプ
+            event.preventDefault(); // デフォルトのリンク動作をキャンセル
+            smoothScrollTo(hotspotLink.getAttribute('href'));
+          } else if (window.innerWidth <= 768) {
+            // ホットスポット以外がクリックされ、かつスマホ表示の場合のみ拡大
+            openModal(imageToZoom);
+          }
+        } else if (container.id === 'map-container') {
+          // 地図の場合のクリック処理
+          if (hotspotLink) {
+            event.preventDefault();
+            smoothScrollTo(hotspotLink.getAttribute('href'));
+          } else if (window.innerWidth <= 768) {
+            // ホットスポット以外がクリックされ、かつスマホ表示の場合のみ拡大
+            openModal(imageToZoom);
+          }
+        }
+      });
+    });
+
+    // 閉じるイベントの設定
+    closeModal.addEventListener('click', closeMapModal);
+    mapModal.addEventListener('click', (event) => {
+      if (event.target === mapModal) {
+        closeMapModal();
+      }
+    });
+  }
 });

@@ -25,14 +25,14 @@
     <nav class="page-nav">
       <a href="../index.html">戻る</a>
       <a href="#about">ギルド概要</a>
-      <a href="#requests">依頼一覧</a>
-      <a href="#news-rumors">お知らせ</a>
-      <a href="#members">メンバー</a>
-      <a href="#facilities">施設案内</a>
-      <a href="#access">周辺地図</a>
+      <a href="#requests">依頼掲示板</a>
+      <a href="#news-rumors">ギルド掲示板</a>
+      <a href="#members">メンバー紹介</a>
+      <a href="#floor-plan">施設案内</a>
+      <a href="#access">周辺情報</a>
       <a href="request_form.html">依頼書作成</a>
     </nav>
-    <button class="hamburger-menu" aria-label="メニューを開閉する">
+    <button class="hamburger-menu" type="button" aria-label="メニューを開閉する">
       <span></span>
       <span></span>
       <span></span>
@@ -342,7 +342,7 @@
           <h3>ラズヒェル・リリベラード</h3>
           <p class="member-spec">ナイトメア / 魔動機技師</p>
           <p class="member-desc">
-            ギルドお抱えの優秀な魔動機技師です。皆からはリリさんって呼ばれているようですね～。サバナイ地方のご出身で、昔はニシナさん、ポポロさんたちとパーティを組んで冒険を共にされていたそうです。地下の工房で冒険者が持ち込む魔動機の修理や改造を一手に引き受けています。自身の発明品のテストを依頼してくることもありますし、時には自作の便利な道具を譲ってくださることもあるみたいですよ。
+            ギルドお抱えの優秀な魔動機技師です。皆からはリリさんって呼ばれているようですね～。サバナイ地方のご出身で、昔はニシナさん、ポポロさんたちとパーティを組んで冒険を共にされていたそうです。地下の工房で冒険者が持ち込む魔動機の修理や改造を一手に引き受けています。自身の発明品のテストを依頼してくることもありますし、時には自作の便利な道具を譲ってくださることもあるみたいですよ。戦闘面では、二丁拳銃を使ってくるそうです。
           </p>
         </div>
         <div class="member-card">
@@ -350,7 +350,7 @@
           <h3>ポポロ・リック</h3>
           <p class="member-spec">グラスランナー / 先輩冒険者</p>
           <p class="member-desc">
-            新人冒険者の案内役を務めることが多い、面倒見の良い先輩です。サバナイ地方のご出身で、ニシナさんやリリさんたちとは同じパーティの仲間だったとか。斥候としての腕は一流で、数々の修羅場をくぐり抜けてきたと伺っております。
+            新人冒険者の案内役を務めることが多い、面倒見の良い先輩です。マカジャハットのご出身で、ニシナさんやリリさんたちとは同じパーティの仲間だったとか。斥候としての腕は一流で、数々の修羅場をくぐり抜けてきたと伺っております。戦闘面では、回避しながら囮攻撃を使ってくるそうです。
           </p>
         </div>
         <div class="member-card">
@@ -409,82 +409,134 @@
         ニシナさんがどこからかギルドの見取り図を持ってきたみたいです。ちょっと古いみたいなので、反映されてない箇所はあるようですが、どこに何があるか把握するのに便利そうですね。実は、地下や2階以上も含めると広そうな気もしますね……
       </p>
       <div class="floor-plan-container">
-        <!-- ここに見取り図の画像ファイルを指定してください -->
-        <img src="../img/hachimaki1F.png" alt="帝国の鉢巻 ギルド1階層" class="floor-plan-image">
-        <p class="floor-plan-caption">※ 画像をクリックすると、各施設案内の項目にジャンプします（…という機能も、いつか追加できると良いですね！）</p>
+        <div id="floor-plan-clickable" class="map-container-clickable">
+          <img src="../img/hachimaki1F.png" alt="帝国の鉢巻 ギルド1階層" class="floor-plan-image">
+          <!-- 見取り図のホットスポット (リンク先を各施設に修正しました) -->
+
+          <!-- 受付カウンター -->
+          <div class="floor-plan-hotspot" style="top: 62.22%; left: 40.38%; width: 11.54%; height: 8.89%;">
+            <a href="#facility-reception" title="受付カウンター"><i class="fa-solid fa-scroll"></i></a>
+          </div>
+          <!-- 併設酒場 -->
+          <div class="floor-plan-hotspot" style="top: 57.78%; left: 71.15%; width: 26.92%; height: 37.78%;">
+            <a href="#facility-bar" title="併設酒場"><i class="fa-solid fa-beer-mug-empty"></i></a>
+          </div>
+          <!-- マガジンラック -->
+          <div class="floor-plan-hotspot" style="top: 51.11%; left: 71.15%; width: 5.77%; height: 4.44%;">
+            <a href="#facility-magazine-rack" title="マガジンラック"><i class="fa-solid fa-book"></i></a>
+          </div>
+          <!-- ギルドマスター室 -->
+          <div class="floor-plan-hotspot" style="top: 0%; left: 28.85%; width: 36.54%; height: 33.33%;">
+            <a href="#facility-master-room" title="ギルドマスター室"><i class="fa-solid fa-key"></i></a>
+          </div>
+          <!-- 工房 -->
+          <div class="floor-plan-hotspot" style="top: 37.78%; left: 1.92%; width: 23.08%; height: 20%;">
+            <a href="#facility-workshop" title="工房"><i class="fa-solid fa-cogs"></i></a>
+          </div>
+          <!-- 資料室 -->
+          <div class="floor-plan-hotspot" style="top: 62.22%; left: 1.92%; width: 19.23%; height: 13.33%;">
+            <a href="#facility-library" title="資料室"><i class="fa-solid fa-book-open"></i></a>
+          </div>
+          <!-- 談話室 -->
+          <div class="floor-plan-hotspot" style="top: 82.22%; left: 1.92%; width: 7.69%; height: 13.33%;">
+            <a href="#facility-lounge" title="談話室"><i class="fa-solid fa-people-group"></i></a>
+          </div>
+          <!-- 訓練場 -->
+          <div class="floor-plan-hotspot" style="top: 17.78%; left: 65.38%; width: 28.85%; height: 17.78%;">
+            <a href="#facility-training" title="訓練場"><i class="fa-solid fa-dumbbell"></i></a>
+          </div>
+          <!-- 地下醸造所と未踏遺跡 -->
+          <div class="floor-plan-hotspot" style="top: 53.33%; left: 42.31%; width: 7.69%; height: 4.44%;">
+            <a href="#facility-brewery-ruins" title="地下醸造所と未踏遺跡"><i class="fa-solid fa-wine-bottle"></i></a>
+          </div>
+          <!-- 厩舎 -->
+          <div class="floor-plan-hotspot" style="top: 2.22%; left: 65.38%; width: 28.85%; height: 13.33%;">
+            <a href="#facility-stable" title="厩舎"><i class="fa-solid fa-horse"></i></a>
+          </div>
+          <div class="floor-plan-hotspot" style="top: 80%; left: 11.54%; width: 9.62%; height: 15.56%;">
+            <a href="#facility-storage" title="倉庫"><i class="fa-solid fa-boxes-stacked"></i></a>
+          </div>
+        </div>
+        <p class="floor-plan-caption">※ 画像をクリックすると拡大表示されます。<br>各施設エリアをクリックすると、施設案内の詳細へジャンプします。</p>
       </div>
     </section>
 
     <!-- 7. 施設案内 -->
     <section id="facilities" class="content-section">
       <h2><i class="fa-solid fa-map-signs"></i>施設案内</h2>
-      <div class="facility-item">
+      <div id="facility-bar" class="facility-item">
         <h3><i class="fa-solid fa-beer-mug-empty"></i>併設酒場</h3>
         <p>
           ギルド1階に併設された酒場です。冒険者の皆さんの憩いの場になってます。名物は「山盛りポテト」と独特の風味を持つ「ルートビア」ですが、ポテトの塩加減は日によって結構違うみたいですね…。普段は、ピリピリするぐらい塩が効いています。最近はニシナさんの気まぐれで、自家製ワインやヒドラ酒が振る舞われることもあるって聞いてます。そういえば、あそこって名前あるんでしょうか……？私も知らないんですよね。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-magazine-rack" class="facility-item">
         <h3><i class="fa-solid fa-book"></i>マガジンラック</h3>
         <p>
           酒場の隅にある本棚です。冒険者向けのガイドブックや、過去の依頼に関する資料などが置いてあって、誰でも自由に読むことができます。特に、冒険者登録の際に渡される「この世界で生きていくための手引書」3冊は、いつでもここで読み返すことができます。基本的な知識や様々な技能について書かれているので、冒険の合間に目を通しておくと、きっと役に立つと思いますよ。…私もちゃんと読み直さないとですね。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-lodging" class="facility-item">
         <h3><i class="fa-solid fa-bed"></i>宿泊施設</h3>
         <p>
           ギルドの2階以上は冒険者さん向けの宿泊施設になっています。依頼を受けている冒険者さんは無料で泊まれるんですよ。それ以外の方も、採算を考えてるとは思えないくらい安い料金で泊まれるので、たくさんの冒険者さんの拠点になってるみたいです。本当に、経営が心配になっちゃいます…。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-training" class="facility-item">
         <h3><i class="fa-solid fa-dumbbell"></i>訓練場</h3>
         <p>
           中庭には模擬戦用の木人や的が置いてある訓練場があります。10秒でどのくらいダメージを出せるのかも計測してくれるらしいです～。ニシナさんは将来、過去の依頼データをもとにした擬似的な魔域での訓練施設も作りたいって言ってるみたいですけど、またお金がかかりそうですねぇ…。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-workshop" class="facility-item">
         <h3><i class="fa-solid fa-cogs"></i>工房</h3>
         <p>
           1階の左奥に魔動機技師のリリさん専用の工房があって、冒険者さんたちの武具の修理や改造を全部やってくれてるんです。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-storage" class="facility-item">
+        <h3><i class="fa-solid fa-boxes-stacked"></i>倉庫</h3>
+        <p>
+          ギルドで使う備品とか、冒険者さんが持ち帰った素材なんかを保管している場所です。ニシナさんの"私物"（と称するガラクタ…いえ、発明品？）で、もうパンク寸前だってリリさんがボヤいてました…。たまに整理の依頼が出ることもあるので、力仕事が得意な方はぜひ！
+        </p>
+      </div>
+      <div id="facility-brewery-ruins" class="facility-item">
         <h3><i class="fa-solid fa-wine-bottle"></i>地下醸造所と未踏遺跡</h3>
         <p>
           ギルドの地下には、ニシナさんこだわりのワインや、ヒドラを原料にした特殊なお酒を造って熟成させてる醸造所があるんです。さらにその奥、地下3階から先はまだ誰も入ったことがない未探索の遺跡が広がっていて、ギルド最大の謎になってるみたいです。なんでも、入るたびに構造が変わるとか。落とし物をした時などに、ちょっと怖いですよね…。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-reception" class="facility-item">
         <h3><i class="fa-solid fa-scroll"></i>受付カウンター</h3>
         <p>依頼の受注や達成報告、報酬の受け渡しはここで行います。普段はニシナさんや他の職員さんが対応していますが、最近は私もお手伝いさせてもらっています～。まだまだ不慣れですけど、一生懸命頑張りますね！</p>
       </div>
-      <div class="facility-item">
+      <div id="facility-master-room" class="facility-item">
         <h3><i class="fa-solid fa-key"></i>ギルドマスター室</h3>
         <p>1階の奥にあるニシナさんの私室です。中から時々、不思議な機械の音が聞こえてくることがあります。高い発明スキルで、いつも何か新しいものを開発しているみたいですよ。…また赤字の原因が増えたりしないといいんですけど。</p>
       </div>
-      <div class="facility-item">
+      <div id="facility-library" class="facility-item">
         <h3><i class="fa-solid fa-book-open"></i>資料室</h3>
         <p>
           過去の依頼記録や周辺地域の地図、一般的な魔物に関する文献などが保管されています。冒険者なら誰でも自由に閲覧できますよ。さらに、特定の魔物の生態や強力なアイテムの来歴、各戦闘流派の成り立ちなどを深く掘り下げた、より専門的な書物も所蔵されています。冒険者の皆さんもたまには目を通してくれると嬉しいですねぇ。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-lounge" class="facility-item">
         <h3><i class="fa-solid fa-people-group"></i>談話室</h3>
         <p>
           冒険者たちが作戦会議をしたり、情報交換をしたりするのに使う部屋です。資料室のすぐ下にある部屋ですね。食堂がリニューアルされてからは、こちらよりも食堂で話される方が多いらしいですね～。私もまだ入ったことないかもしれません。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-stable" class="facility-item">
         <h3><i class="fa-solid fa-horse"></i>厩舎</h3>
         <p>ギルドの裏手には、馬や騎獣を預かってくれる厩舎があります。長期の遠征に出る冒険者さんたちがよく利用していますね。ライダーの方でしたら、だいぶお世話になるところかもしれませんねぇ。</p>
       </div>
-      <div class="facility-item">
+      <div id="facility-submarine" class="facility-item">
         <h3><i class="fa-solid fa-water"></i>潜水艦「コルト・コーリーヴス号」</h3>
         <p>
           最近、氷海の海底から引き揚げられた魔動機文明時代の潜水艦です。リリさんの手によって整備され、今ではギルドの貴重な移動手段となっています。水中での活動が可能になり、冒険の幅がぐっと広がりました！…私、乗り物酔いするんですけど、大丈夫ですかねぇ。
         </p>
       </div>
-      <div class="facility-item">
+      <div id="facility-airship" class="facility-item">
         <h3><i class="fa-solid fa-plane-up"></i>飛行船「ニシナちゃん号」</h3>
         <p>ギルドが所有する飛行船です。以前の冒険で大破したそうですが、最近修理が終わって、また空を飛べるようになったみたいですよ。これで、雲海の上にある浮遊島にも行けるようになりました！</p>
       </div>
@@ -497,52 +549,55 @@
         ハーヴェス周辺の施設や、冒険者さんたちから報告があった危険地帯の情報をまとめています。依頼の準備や情報収集に役立ててくださいね～。
       </p>
       <div class="map-ui-container">
-        <img src="https://pbs.twimg.com/media/ErxfHEOVoAMyj9D?format=jpg&name=medium" alt="ギルド周辺の地図" class="map-image">
+        <div id="map-container" class="map-container-clickable map-with-hotspots">
+          <img src="https://pbs.twimg.com/media/ErxfHEOVoAMyj9D?format=jpg&name=medium" alt="ギルド周辺の地図"
+            class="map-image">
+
+        </div>
       </div>
 
       <div id="location-details">
         <div class="location-category">
           <h3><i class="fa-solid fa-store"></i>街の施設</h3>
-          <div class="location-item">
+          <div id="location-steel-soul" class="location-item">
             <h4>武具屋「鋼の魂」</h4>
             <p>ハーヴェスで一番の品揃えを誇る武具屋です。店主は頑固ですが、腕は確かですよ。</p>
           </div>
-          <div class="location-item">
+          <div id="location-general-store" class="location-item">
             <h4>道具屋「何でも屋」</h4>
             <p>回復薬から魔動機の部品まで、冒険に必要なものは大体ここで揃います。たまに掘り出し物があるとか…？</p>
           </div>
-          <div class="location-item">
+          <div id="location-nishina-diner" class="location-item">
             <h4>ニシナちゃん食堂</h4>
             <p>ギルドマスターのミカ・ニシナさんが経営するとっても美味しい食堂です！ギルドの名物にもなっているみたいで、私たち冒険者が宣伝やお手伝いの依頼を受けることもあるんですよ～。</p>
           </div>
         </div>
         <div class="location-category">
           <h3><i class="fa-solid fa-skull-crossbones"></i>危険地帯</h3>
-
-          <div class="location-item">
+          <div id="location-eunice-islands" class="location-item">
             <h4>ユーニーズ浮遊島群</h4>
             <p>
               雲海の上、高度2000m以上に浮かぶ島々です。ギルド所有の飛行船「ニシナちゃん号」でしか到達できません。高高度であるため、気圧の変化や強風、そして足場の悪い場所が多く、常に滑落の危険が伴います。また、地上では見られない毒性植物や、古代神の分体といった未知の脅威も確認されていますので、探索には最大限の注意が必要です。
             </p>
           </div>
-          <div class="location-item">
+          <div id="location-colt-ruins" class="location-item">
             <h4>コルト・コーリーヴス氷下遺跡</h4>
             <p>
               極寒の氷海、その水面下に存在する魔動機文明時代の潜水艦の残骸です。内部は常に氷点下30度以下という過酷な環境で、まともな装備なしでは数分と活動できません。水中からしか侵入できず、内部には正体不明のアンデッドが徘徊しているため、生半可な覚悟で近づくべき場所ではありません。
             </p>
           </div>
-          <div class="location-item">
+          <div id="location-guild-b3" class="location-item">
             <h4>ギルド地下3階以降</h4>
             <p>ギルドの地下、醸造所のさらに奥に広がる未探索の遺跡です。入るたびに構造が変わるという報告もあり、非常に危険です。十分な準備と覚悟がなければ、決して足を踏み入れないでください。</p>
           </div>
         </div>
         <div class="location-category">
           <h3><i class="fa-solid fa-star"></i>特殊な場所</h3>
-          <div class="location-item">
+          <div id="location-healing-spring" class="location-item">
             <h4>回復の泉</h4>
             <p>森の奥深くにあると言われている泉です。その水を飲むと傷が癒えると言われていますが、見つけるのは大変みたいです。</p>
           </div>
-          <div class="location-item">
+          <div id="location-hidden-treasure" class="location-item">
             <h4>隠された宝箱</h4>
             <p>廃墟のどこかに、古代の宝が眠る宝箱があるという噂です。罠が仕掛けられている可能性が高いので、腕利きの斥候さんと一緒じゃないと危ないですよ！</p>
           </div>
@@ -551,6 +606,13 @@
     </section>
 
   </main>
+
+  <!-- 地図拡大表示用モーダル -->
+  <div id="map-modal" class="map-modal">
+    <span class="map-modal-close">&times;</span>
+    <img class="map-modal-content" id="modal-map-image">
+    <div class="map-modal-caption">ピンチ操作で拡大・縮小できます</div>
+  </div>
 
   <footer>
     <img src="../img/hachimaki.svg" alt="" class="footer-logo">

@@ -7,10 +7,26 @@
   --content-background-color: rgba(244, 241, 233, 0.85); /* コンテンツ背景（羊皮紙） */
   --accent-color: #6495ed; /* アクセントカラー（リンクなど） */
 }
+html {
+    background-color: #3a2d2d !important; /* HTMLの背景色をフッターと同じ色に強制的に設定 */
+}
+html, body {
+    margin: 0;
+    padding: 0; /* ブラウザのデフォルトマージン・パディングをリセット */
+    height: 100%; /* HTMLとbodyがビューポートの高さ全体を占めるように */
+}
 body {
     font-family: 'Noto Serif JP', serif;
-    margin: 0;
     color: var(--text-color);
+    background: #3a2d2d !important; /* body全体の背景をフッターと同じ色に強制的に設定 */
+    overflow-y: scroll; /* コンテンツがはみ出た場合にスクロールバーを表示 */
+    overflow-x: hidden; /* 横方向のスクロールバーを非表示 */
+}
+
+
+/* モーダル表示中の背景スクロールを禁止 */
+body.modal-open {
+  overflow: hidden;
 }
 a {
     color: var(--accent-color);
@@ -95,9 +111,7 @@ a {
 /* ===================================================
    メインコンテンツ & ヒーローセクション
    =================================================== */
-main {
-  padding: 2rem;
-}
+
 #hero {
     text-align: center;
     padding: 4rem 1rem 12rem 1rem; 
@@ -415,7 +429,7 @@ main {
   bottom: -15px;
   background-image: url('/img/依頼書テンプレ.png');
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background-size: 70% 85%;
   background-position: center;
   z-index: 0;
   transform: rotate(-5deg);
@@ -429,6 +443,141 @@ main {
 .flyer-image-container:hover .flyer-image,
 .flyer-image-container:hover::before {
   transform: rotate(0deg) scale(1.1);
+}
+/* ===================================================
+   周辺地域情報 地図
+   =================================================== */
+.map-ui-container {
+  margin-bottom: 2rem;
+}
+.map-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 3px solid var(--wood-color);
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+/* ===================================================
+   見取り図ホットスポット
+   =================================================== */
+.floor-plan-hotspot, .map-hotspot { /* 見取り図と地図のホットスポット共通スタイル */
+  position: absolute;
+  display: block;
+  z-index: 10; /* 画像より手前 */
+  /* background-color: rgba(255, 255, 0, 0.3); /* デバッグ用 */
+  pointer-events: none; /* ホットスポットの親要素はマウスイベントを透過させる */
+}
+/* map-container-clickableにmap-with-hotspotsクラスがある場合、ズームアイコンを非表示にする */
+.map-container-clickable.map-with-hotspots .map-zoom-icon {
+  display: none;
+}
+
+.floor-plan-hotspot a, .map-hotspot a { /* ホットスポット内のリンク要素 */
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  position: relative;
+  pointer-events: auto; /* リンク要素自体はマウスイベントを受け付ける */
+  cursor: pointer; /* カーソルをポインターにする */
+  transition: background-color 0.3s ease; /* ホバー時の背景色変化 */
+}
+
+.floor-plan-hotspot a:hover, .map-hotspot a:hover {
+  background-color: rgba(255, 255, 255, 0.5); /* ホバーで薄くハイライト */
+}
+
+.floor-plan-hotspot a i, .map-hotspot a i { /* ホットスポット内のアイコン */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem; /* アイコンサイズ */
+  color: rgba(255, 255, 255, 0.7); /* アイコンの色 */
+  text-shadow: 0 0 5px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.floor-plan-hotspot a:hover i, .map-hotspot a:hover i { /* ホバーでアイコンを表示 */
+  opacity: 1;
+}
+/* ===================================================
+   地図クリック拡大機能 (モーダル)
+   =================================================== */
+.map-container-clickable {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 8px; /* 画像の角丸と合わせる */
+}
+
+.map-container-clickable img { /* .map-image から img に変更し、見取り図にも適用 */
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.map-container-clickable:hover img { /* 同様に変更 */
+  transform: scale(1.03);
+}
+
+.map-zoom-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.map-container-clickable:hover .map-zoom-icon {
+  opacity: 1;
+}
+
+.map-modal {
+  display: none; /* 初期状態では非表示 */
+  position: fixed;
+  z-index: 2500;
+  padding-top: 20px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.9);
+  box-sizing: border-box;
+}
+
+.map-modal-content {
+  margin: auto;
+  display: block;
+  width: 95%;
+  max-width: 1200px;
+  height: auto;
+  max-height: 85vh;
+  object-fit: contain;
+  animation-name: zoom;
+  animation-duration: 0.4s;
+}
+
+.map-modal-caption {
+  margin: 10px auto 0;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  font-size: 1rem;
 }
 /* ===================================================
    周辺地域情報 h4 スタイルの強化
@@ -495,24 +644,46 @@ main {
   height: 500px;
   border: none;
 }
-body.guild-background {
-    background-color: var(--background-color);
+/* --- 地図モーダルの閉じるボタン --- */
+.map-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+  cursor: pointer;
 }
+
+.map-modal-close:hover,
+.map-modal-close:focus {
+  color: #bbb;
+  text-decoration: none;
+}
+
+@keyframes zoom {
+  from {transform:scale(0)}
+  to {transform:scale(1)}
+}
+/* body.guild-background の背景色はhtml, bodyで設定されるため削除 */
 
 /* ===================================================
    フッター
    =================================================== */
 footer {
-    background-color: #3a2d2d;
-    color: white;
-    text-align: center;
-    padding: 1rem 0;
-    position: relative;
-    width: 100%;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #3a2d2d;
+  color: white;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* ▼▼▼ ここから変更・追加 ▼▼▼ */
+  flex-direction: column; /* ★常に縦並びにします */
+  padding-top: 1.5rem;    /* 上下の余白を確保 */
+  padding-bottom: 1.5rem;
+  gap: 0.5rem;            /* ロゴとテキストの隙間 */
 }
 footer p {
   margin: 0;
@@ -520,7 +691,6 @@ footer p {
 .footer-logo {
   height: 25px;
   width: auto;
-  margin-right: 10px;
   opacity: 0.8;
 }
 
@@ -545,6 +715,23 @@ footer p {
     }
 }
 
+/* ===================================================
+   PC表示でのホバーエフェクト無効化
+   =================================================== */
+@media (min-width: 959px) {
+  /* 画面幅が1025px以上の時（PCを想定） */
+  .map-container-clickable:hover img {
+    transform: none; /* 拡大を無効化 */
+  }
+
+  .map-container-clickable:hover .map-zoom-icon {
+    opacity: 0; /* 虫眼鏡アイコンも表示しない */
+  }
+
+  .map-container-clickable {
+    cursor: default; /* カーソルを通常に戻す */
+  }
+}
 /* --- 画面幅が1080px以下の場合 --- */
 @media (max-width: 1080px) {
   .page-header{
@@ -624,6 +811,15 @@ footer p {
 
 /* --- 画面幅が768px以下の場合 --- */
 @media (max-width: 768px) {
+  /* セクションの余白を全体的に調整し、カードの寄りも修正 */
+  .content-section {
+    padding: 3rem 1rem;
+  }
+
+  .content-section h2 {
+    font-size: 2.0rem; /* スマホ表示でフォントサイズを調整 */
+  }
+
   /* ヒーローセクション */
   #hero {
     padding: 1rem 1rem;
@@ -631,7 +827,7 @@ footer p {
   .hero-logo {
     position: static; 
     display: block;
-    margin: 0 auto 1rem auto;
+    margin: 1rem auto 0rem auto;
     width: 250px;
     opacity: 1;
     transform: none;
@@ -653,14 +849,47 @@ footer p {
   .request-card {
     padding: 1rem;
   }
-  #requests.content-section {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
   .request-card h3 {
     font-size: 1.1rem;
   }
   .request-meta {
     font-size: 0.85rem;
   }
+
+  /* メンバーカードなど、汎用コンテナを1列に */
+  .card-container {
+    grid-template-columns: 1fr;
+  }
+  .member-card {
+    width: auto; /* 幅を自動調整して1列に収める */
+  }
+
+  /* 地図モーダル（スマホ用調整） */
+  .map-modal-content {
+    width: 100%;
+    max-height: 80vh;
+  }
+  .map-modal-close {
+    top: 10px;
+    right: 20px;
+  }
+  
+}
+
+
+/* ===================================================
+   フッター固定＆ヘッダー重なり解消 (最終版)
+   =================================================== */
+
+/* body全体をflexコンテナにし、画面の高さいっぱいに広げる */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* ビューポートの高さ全体を最低限の高さとする */
+}
+
+/* ヘッダーの高さ分、mainコンテンツの開始位置を押し下げる */
+main {
+  padding-top: 80px; /* ヘッダーの高さ分＋αの余白 */
+  flex-grow: 1; /* ★これが重要！残りの空間をすべて埋めます */
 }
