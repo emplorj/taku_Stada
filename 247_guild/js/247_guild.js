@@ -16,7 +16,45 @@ document.addEventListener('DOMContentLoaded', function() {
   // common.jsで定義されたbasePathを利用
   const backLink = document.querySelector('.page-nav a[href="../index.html"]');
   if (backLink && typeof basePath !== 'undefined') {
-    backLink.href = basePath + '/'; // プロジェクトのルートURLに直接リンク
+    backLink.href = basePath; // プロジェクトのルートURLに直接リンク (basePathに末尾スラッシュがあるのでこれでOK)
+  }
+
+  // --- 247_guild/index.html内のパスを修正 (GitHub Pages対応) ---
+  if (typeof basePath !== 'undefined') {
+    // CSSリンクの修正
+    const cssLinks = document.querySelectorAll('link[rel="stylesheet"][href^="../"]');
+    cssLinks.forEach(link => {
+      const originalHref = link.getAttribute('href');
+      if (originalHref) {
+        link.href = basePath + originalHref.replace('../', '');
+      }
+    });
+
+    // 画像パスの修正
+    const images = document.querySelectorAll('img[src^="../"]');
+    images.forEach(img => {
+      const originalSrc = img.getAttribute('src');
+      if (originalSrc) {
+        img.src = basePath + originalSrc.replace('../', '');
+      }
+    });
+
+    // リンクの修正 (a[href^="../"] または a[href^="."])
+    const links = document.querySelectorAll('a[href^="../"], a[href^="./"]');
+    links.forEach(link => {
+      const originalHref = link.getAttribute('href');
+      if (originalHref) {
+        if (originalHref === '../index.html') { // index.htmlへのリンクはbasePathのみにする
+          link.href = basePath;
+        } else if (originalHref.startsWith('../')) {
+          link.href = basePath + originalHref.replace('../', '');
+        } else if (originalHref.startsWith('./')) {
+          // ./ は現在のディレクトリなので、247_guild/index.html から見て 247_guild/request_form.html のようになる
+          // basePath + 247_guild/request_form.html となるように修正
+          link.href = basePath + '247_guild/' + originalHref.replace('./', '');
+        }
+      }
+    });
   }
 
   // --- 注目の冒険者さん 機能 (REVISED) ---

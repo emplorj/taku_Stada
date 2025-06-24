@@ -80,16 +80,16 @@ function parseCsvToArray(csvText) {
 document.addEventListener('DOMContentLoaded', function() {
 
     const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-    const basePath = isLocal ? '' : '/taku_Stada';
+    const basePath = isLocal ? '' : '/taku_Stada/'; // GitHub Pagesのベースパスに末尾のスラッシュを追加
 
    // --- Faviconを動的に挿入する ---
    function injectFaviconLinks() {
        const head = document.head;
        const favicons = [
-           { rel: 'icon', href: `${basePath}/img/favicon.ico` },
-           { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${basePath}/img/favicon-32x32.png` },
-           { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${basePath}/img/favicon-16x16.png` },
-           { rel: 'apple-touch-icon', sizes: '180x180', href: `${basePath}/img/apple-touch-icon.png` }
+           { rel: 'icon', href: `${basePath}img/favicon.ico` },
+           { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${basePath}img/favicon-32x32.png` },
+           { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${basePath}img/favicon-16x16.png` },
+           { rel: 'apple-touch-icon', sizes: '180x180', href: `${basePath}img/apple-touch-icon.png` }
        ];
 
        favicons.forEach(faviconInfo => {
@@ -108,51 +108,26 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch(`${basePath}/header.html`);
             if (response.ok) {
-                const html = await response.text();
+                let html = await response.text();
+
+                // HTML文字列内のパスを正規表現で置換
+                // img src, link href, meta content の / で始まるパスを basePath で置換
+                html = html.replace(/(src|href|content)="(?!https?:\/\/)(?!data:)(?!#)(\/[^"]*)"/g, (match, attr, path) => {
+                    // /img/ のようなパスを basePath + img/ に変換 (basePathに末尾スラッシュがあるので先頭スラッシュを削除)
+                    return `${attr}="${basePath}${path.substring(1)}"`;
+                });
+
                 placeholder.innerHTML = html;
 
                 // DOMの準備が整うのを待ってから初期化処理を実行
                 setTimeout(() => {
-                    // header.html内のすべての内部リンクと画像パスを修正
-                    const headerContent = placeholder; // header.htmlが挿入された要素
-
-                    // OGP画像
+                    // header.html内のリンクと画像パスはHTML文字列置換で修正済みなので、ここでは追加のDOM操作は不要
+                    // ただし、OGP画像はhead要素にあるため、別途処理が必要
                     const ogImageMeta = document.querySelector('meta[property="og:image"]');
                     if (ogImageMeta && ogImageMeta.content.startsWith('/')) {
                         ogImageMeta.content = basePath + ogImageMeta.content;
                     }
 
-                    // Favicon
-                    const faviconLinks = document.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]');
-                    faviconLinks.forEach(link => {
-                        const originalHref = link.getAttribute('href');
-                        if (originalHref && originalHref.startsWith('/')) {
-                            link.href = basePath + originalHref;
-                        }
-                    });
-
-                    // header.html内の画像
-                    const headerImages = headerContent.querySelectorAll('img[src^="/"]');
-                    headerImages.forEach(img => {
-                        const originalSrc = img.getAttribute('src');
-                        if (originalSrc && originalSrc.startsWith('/')) {
-                            img.src = basePath + originalSrc;
-                        }
-                    });
-
-                    // header.html内のリンク
-                    const headerLinks = headerContent.querySelectorAll('a[href^="/"]');
-                    headerLinks.forEach(link => {
-                        const originalHref = link.getAttribute('href');
-                        if (originalHref && originalHref.startsWith('/') && !originalHref.startsWith('//')) { // 絶対パスかつプロトコル相対でない場合
-                            link.href = basePath + originalHref;
-                        }
-                    });
-
-                    const sideMenu = document.getElementById('tableOfContents');
-                    if (sideMenu) {
-                        // sideMenu内のリンクはheaderLinksで既に処理されているはずなので、ここでは追加の処理は不要
-                    }
                     initializeHamburgerMenu();
                     initializeSubMenu();
                 }, 0);
