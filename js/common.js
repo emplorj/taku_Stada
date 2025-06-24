@@ -113,27 +113,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // DOMの準備が整うのを待ってから初期化処理を実行
                 setTimeout(() => {
+                    // header.html内のすべての内部リンクと画像パスを修正
+                    const headerContent = placeholder; // header.htmlが挿入された要素
+
+                    // OGP画像
+                    const ogImageMeta = document.querySelector('meta[property="og:image"]');
+                    if (ogImageMeta && ogImageMeta.content.startsWith('/')) {
+                        ogImageMeta.content = basePath + ogImageMeta.content;
+                    }
+
+                    // Favicon
+                    const faviconLinks = document.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]');
+                    faviconLinks.forEach(link => {
+                        const originalHref = link.getAttribute('href');
+                        if (originalHref && originalHref.startsWith('/')) {
+                            link.href = basePath + originalHref;
+                        }
+                    });
+
+                    // header.html内の画像
+                    const headerImages = headerContent.querySelectorAll('img[src^="/"]');
+                    headerImages.forEach(img => {
+                        const originalSrc = img.getAttribute('src');
+                        if (originalSrc && originalSrc.startsWith('/')) {
+                            img.src = basePath + originalSrc;
+                        }
+                    });
+
+                    // header.html内のリンク
+                    const headerLinks = headerContent.querySelectorAll('a[href^="/"]');
+                    headerLinks.forEach(link => {
+                        const originalHref = link.getAttribute('href');
+                        if (originalHref && originalHref.startsWith('/') && !originalHref.startsWith('//')) { // 絶対パスかつプロトコル相対でない場合
+                            link.href = basePath + originalHref;
+                        }
+                    });
+
                     const sideMenu = document.getElementById('tableOfContents');
                     if (sideMenu) {
-                        const menuLogoLink = sideMenu.querySelector('.menu-logo-container a');
-                        if (menuLogoLink && menuLogoLink.getAttribute('href') === '/') {
-                            menuLogoLink.href = basePath + '/'; // プロジェクトのルートURLに設定
-                        }
-
-                        const links = sideMenu.querySelectorAll('a');
-                        links.forEach(link => {
-                            const originalHref = link.getAttribute('href');
-                            if (originalHref && !originalHref.startsWith('http') && !originalHref.startsWith('#')) {
-                                if (originalHref === '247_guild/') { // 247_guild/ へのリンクを特別に処理
-                                    link.href = `${basePath}/247_guild/`;
-                                } else {
-                                    const url = new URL(link.href);
-                                    if(url.pathname.endsWith('.html')) {
-                                       link.href = `${basePath}/${originalHref}`;
-                                    }
-                                }
-                            }
-                        });
+                        // sideMenu内のリンクはheaderLinksで既に処理されているはずなので、ここでは追加の処理は不要
                     }
                     initializeHamburgerMenu();
                     initializeSubMenu();

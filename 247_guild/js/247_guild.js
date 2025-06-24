@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // common.jsで定義されたbasePathを利用
   const backLink = document.querySelector('.page-nav a[href="../index.html"]');
   if (backLink && typeof basePath !== 'undefined') {
-    backLink.href = basePath + '/index.html';
+    backLink.href = basePath + '/'; // プロジェクトのルートURLに直接リンク
   }
 
   // --- 注目の冒険者さん 機能 (REVISED) ---
