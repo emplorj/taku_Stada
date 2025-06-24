@@ -113,6 +113,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // HTML文字列内のパスを正規表現で置換
                 // img src, link href, meta content の / で始まるパスを basePath で置換
                 html = html.replace(/(src|href|content)="(?!https?:\/\/)(?!data:)(?!#)(\/[^"]*)"/g, (match, attr, path) => {
+                    if (path === '/') { // ルートへのリンクはbasePathのみにする
+                        return `${attr}="${basePath}"`;
+                    }
                     // /img/ のようなパスを basePath + img/ に変換 (basePathに末尾スラッシュがあるので先頭スラッシュを削除)
                     return `${attr}="${basePath}${path.substring(1)}"`;
                 });

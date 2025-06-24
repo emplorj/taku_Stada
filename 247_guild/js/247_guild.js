@@ -40,17 +40,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // リンクの修正 (a[href^="../"] または a[href^="."])
-    const links = document.querySelectorAll('a[href^="../"], a[href^="./"]');
+    const links = document.querySelectorAll('a[href^="../"], a[href^="./"], a[href$="index.html"]'); // index.htmlで終わるリンクも対象に
     links.forEach(link => {
       const originalHref = link.getAttribute('href');
       if (originalHref) {
-        if (originalHref === '../index.html') { // index.htmlへのリンクはbasePathのみにする
+        const url = new URL(link.href); // ブラウザが解決した絶対URLを取得
+        const pathname = url.pathname; // パス名部分を取得
+
+        if (pathname.endsWith('index.html')) { // index.htmlへのリンクはbasePathのみにする
           link.href = basePath;
         } else if (originalHref.startsWith('../')) {
           link.href = basePath + originalHref.replace('../', '');
         } else if (originalHref.startsWith('./')) {
-          // ./ は現在のディレクトリなので、247_guild/index.html から見て 247_guild/request_form.html のようになる
-          // basePath + 247_guild/request_form.html となるように修正
           link.href = basePath + '247_guild/' + originalHref.replace('./', '');
         }
       }
