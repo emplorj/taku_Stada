@@ -21,14 +21,14 @@
         <img src="../img/hachimaki.svg" alt="帝国の鉢巻亭 紋章" class="logo-img">
         <span class="logo-text">帝国の鉢巻</span>
       </div>
-      <!-- ナビゲーションの順番もセクションに合わせて変更しました -->
       <nav class="page-nav">
         <a href="../">戻る</a>
         <a href="#about">ギルド概要</a>
+        <a href="#guild-rules">ギルドの心得</a>
         <a href="#requests">依頼掲示板</a>
         <a href="#news-rumors">ギルド掲示板</a>
         <a href="#members">メンバー紹介</a>
-        <a href="#floor-plan">施設案内</a>
+        <a href="#guild-facilities">施設案内</a>
         <a href="#access">周辺情報</a>
         <a href="request_form.html">依頼書作成</a>
       </nav>
@@ -40,7 +40,7 @@
     </header>
 
     <main>
-      <!-- 1. ヒーローセクション (変更なし) -->
+      <!-- 1. ヒーローセクション -->
       <section id="hero">
         <img src="../img/hachimaki.svg" class="hero-logo" alt="">
         <h1>冒険者ギルド「帝国の鉢巻」</h1>
@@ -49,7 +49,7 @@
           腕に覚えのある方、一攫千金を夢見る方、どなたでも歓迎いたします～。依頼をこなして、有名になってみませんか？</p>
       </section>
 
-      <!-- 2. ギルド概要 (変更なし) -->
+      <!-- 2. ギルド概要 -->
       <section id="about" class="content-section">
         <h2><i class="fa-solid fa-scroll"></i>ギルド概要</h2>
         <p>
@@ -60,7 +60,42 @@
         </p>
       </section>
 
-      <!-- 3. 依頼一覧 (ここへ移動) -->
+      <!-- 2. ギルドの心得 -->
+      <section id="guild-rules" class="content-section">
+        <h2><i class="fa-solid fa-gavel"></i>ギルドの心得</h2>
+        <p class="section-desc">
+          私たちは、冒険者の皆さんの自由な活動を尊重しています。ですから、厳しくて細かいルールで皆さんを縛るつもりはありません。でも、全員が気持ちよくギルドを利用するために、いくつか心に留めておいてほしいことがあるんです。
+        </p>
+        <ul class="rules-list">
+          <li class="rule-item">
+            <h4><i class="fa-solid fa-file-signature"></i> 依頼の受注と報告について</h4>
+            <p>お仕事の受注や、達成した後の報告は、必ず受付カウンターにいる私たちギルド職員にお願いしますね！皆さんの功績を、しっかり記録させてください。</p>
+          </li>
+          <li class="rule-item">
+            <h4><i class="fa-solid fa-coins"></i> 報酬について</h4>
+            <p>
+              依頼書に書かれている報酬額は、冒険者の皆さんの<strong>手取り額</strong>です。ギルドへの手数料などは、ニシナさんが裏でうまくやってくれている（はずな）ので、皆さんが気にする必要はありません。書かれている金額を、そのままお渡ししますので、ご安心ください！
+            </p>
+          </li>
+          <li class="rule-item">
+            <h4><i class="fa-solid fa-hand-fist"></i> 揉めごとについて</h4>
+            <p>
+              ギルド内での私闘は、もちろん禁止です。もし何かトラブルがあったら、私たち職員か、ギルドマスターに相談してください。…ただ、どうしても拳で語り合いたい！という場合は、お互いの合意の上で、訓練場を使ってくださいね。大怪我だけはしないでくださいよ！
+            </p>
+          </li>
+          <li class="rule-item">
+            <h4><i class="fa-solid fa-shield-halved"></i> ギルドの名誉について</h4>
+            <p>街での振る舞いには、少しだけ気をつけてくださいね。皆さんは「帝国の鉢巻」の看板を背負う、誇りある冒険者です。周りの人に迷惑をかけて、ギルドの評判を落とすようなことだけは、しないでくれると嬉しいです。</p>
+          </li>
+          <li class="rule-item">
+            <h4><i class="fa-solid fa-people-group"></i> パーティでの冒険について</h4>
+            <p>高難易度の依頼に挑むときは、なるべくパーティを組むことを強くお勧めします。もちろん、ソロで挑戦する腕利きの先輩もいますが、その場合はすべて「自己責任」ということになりますから、準備は万全にお願いしますね！
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 3. 依頼一覧 -->
       <section id="requests" class="content-section">
         <h2><i class="fa-solid fa-bullhorn"></i>募集中依頼です～</h2>
         <div class="card-container request-list">
@@ -249,7 +284,7 @@
         </details>
       </section>
 
-      <!-- 4. お知らせとウワサ (IDを変更し、内容をまとめる意図を示唆) -->
+      <!-- 4. お知らせとウワサ -->
       <section id="news-rumors" class="content-section">
         <h2><i class="fa-solid fa-map-pin"></i>ギルド掲示板</h2>
         <div class="start-dash-container">
@@ -364,8 +399,38 @@
           </div>
         </div>
       </section>
+      <!-- 5. よくある質問 (新規追加) -->
+      <section id="faq" class="content-section">
+        <h2><i class="fa-solid fa-circle-question"></i>よくある質問</h2>
+        <div class="faq-container">
+          <details class="faq-item">
+            <summary>冒険者ランクが上がったら特典はありますか？</summary>
+            <div class="faq-answer">
+              <p>
+                はい、もちろんです！ランクが上がると、より難しくて報酬の高い依頼を受けられるようになります。ギルド施設の優先利用や、時にはギルドマスターからの特別な名指し依頼が舞い込むこともありますよ。高ランクの方だけが挑戦できる「ヒドラ討伐ソロ」のような依頼も掲示されますので、腕を磨く大きな目標になると思います！
+              </p>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>ギルド内でトラブルが起きたらどうなりますか？</summary>
+            <div class="faq-answer">
+              <p>
+                まずは私のようなギルド職員が仲裁に入ります。それでも収まらない場合は…なぜかジンさんが現れて場をかき回したりしますが、最終的にはギルドマスターやベテラン冒険者の方々が場を収めてくれます。正式な決闘制度はありませんが、当事者同士が納得の上で「訓練場で模擬戦をして、スッキリした方がお酒をおごる」という形で解決することは、たまにあるみたいですね。
+              </p>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>ギルドの外観はどんな感じですか？</summary>
+            <div class="faq-answer">
+              <p>
+                私たちのギルドは、元々この場所にあった未知の時代の遺跡を調査するために建てられた、という歴史があるんです。なので、皆さんが利用する酒場などは温かみのある木造ですが、ギルドマスター室など奥の方は、石造りの遺跡そのものだったりします。建物の一部にはツタも絡まっていて、歴史を感じさせる、知る人ぞ知る活気のある場所、という感じですね！
+              </p>
+            </div>
+          </details>
+        </div>
+      </section>
 
-      <!-- 5. 注目の冒険者 -->
+      <!-- 6. 注目の冒険者 -->
       <section id="members" class="content-section">
         <h2><i class="fa-solid fa-shield-halved"></i>注目の冒険者さん</h2>
         <p class="section-desc">
@@ -377,7 +442,7 @@
         </div>
       </section>
 
-      <!-- 6. ギルドスタッフ -->
+      <!-- 7. ギルドスタッフ -->
       <section id="staff" class="content-section">
         <h2><i class="fa-solid fa-users-gear"></i>ギルドスタッフ</h2>
         <div class="card-container">
@@ -515,7 +580,7 @@
         </div>
       </section>
 
-      <!-- 7. 施設案内 -->
+      <!-- 8. 施設案内 -->
       <section id="guild-facilities" class="content-section">
         <h2><i class="fa-solid fa-map-signs"></i>施設案内</h2>
         <div id="facility-bar" class="facility-item">
@@ -597,7 +662,7 @@
         </div>
       </section>
 
-      <!-- 8. 周辺地域情報 -->
+      <!-- 9. 周辺地域情報 -->
       <section id="access" class="content-section">
         <h2><i class="fa-solid fa-map-location-dot"></i>周辺地域情報</h2>
         <p class="section-desc">
@@ -660,6 +725,73 @@
         </div>
       </section>
 
+      <!-- 10. サバナイ地方コラム (新規追加) -->
+      <section id="sabanae-column" class="content-section">
+        <h2><i class="fa-solid fa-atlas"></i>サバナイ地方コラム</h2>
+        <p class="section-desc">
+          ギルドマスターのニシナさんをはじめ、当ギルドにはサバナイ地方に所縁のある者が多く在籍しています。この地のことを知っておくと、冒険の中で何か役に立つことがあるかもしれませんよ…？
+        </p>
+        <div id="sabanae-map" class="sabanae-map-container map-container-clickable">
+          <img src="../img/sabanai.png" alt="サバナイ地方の地図" class="sabanae-map-image">
+          <div class="map-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
+        </div>
+        <div class="column-container">
+          <!-- 概要 -->
+          <details class="column-details">
+            <summary>
+              <h3><i class="fa-solid fa-globe-americas"></i> サバナイ地方の概要</h3>
+            </summary>
+            <div class="details-content">
+              <p>
+                ラクシアに存在する大州のひとつで、その全域が管理神「ニューベア」を崇める"ジェイサバ"という国家によって統治されています。アルフレイムなど他の大州からは多少離れていますが、全く交流がない訳ではなく、結構来訪者もいるみたいですね。野球が国民的な娯楽で、日常会話にもその用語が出てくるのが面白いところです。
+              </p>
+            </div>
+          </details>
+
+          <!-- 統治機構 -->
+          <details class="column-details">
+            <summary>
+              <h3><i class="fa-solid fa-landmark"></i> 統治機構と『執行者』</h3>
+            </summary>
+            <div class="details-content">
+              <p>サバナイは、管理神ニューベアから権能を分け与えられた「執行者（オペレーター）」と呼ばれる複数の統治者によって治められています。執行者には以下の4つの分類があり、それぞれが各地を治めています。</p>
+              <ul>
+                <li><strong>ジャッジ：</strong>罪人に裁きを与える、戦闘向きの執行者です。公明正大でなければならない厳しい役職のようです。該当者には「"裂傷の翼"」という方がいるとか。</li>
+                <li>
+                  <strong>スコアラー：</strong>あらゆる物事を記録する力を持つ、非戦闘員が多い執行者です。膨大な知識を持つため、他の権力者から狙われることも多いと聞きます。こちらも「"裂傷の翼"」が該当者、と言われていますが…一人で二つも兼任できるなんて、すごいですね…。
+                </li>
+                <li><strong>クーリエ：</strong>詳細は秘匿されていますが、開拓や鉄道網を牛耳っている謎の多い執行者です。サバナイの物流を陰で支えているのかもしれません。</li>
+                <li>
+                  <strong>ガーディアン：</strong>特定の土地を護る執行者で、縄張り意識が強く、勢力争いを行うことが多いみたいですね。ニシナさんの出身地であるガニメデ帝国の皇帝や、南方大陸にいらっしゃる方という方がこのガーディアンにあたります。
+                </li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- 主要な勢力 -->
+          <details class="column-details">
+            <summary>
+              <h3><i class="fa-solid fa-flag"></i> 主要な勢力と組織</h3>
+            </summary>
+            <div class="details-content">
+              <p>サバナイには、執行者が治める地域の他にも、様々な組織や勢力が存在します。それぞれが複雑に関係しあっているみたいですね。</p>
+              <ul>
+                <li><strong>ガニメデ帝国：</strong>皇帝ガニメデが治める、ニシナさんの出身国です。人種や種族を問わず、様々な文化が混じり合う良くも悪くも雑多な帝国で、魔動機や魔物の研究が盛んらしいです。
+                </li>
+                <li><strong>東方大陸諸侯連合：</strong>バラグラードを盟主とする、官僚貴族たちの連合体です。</li>
+                <li><strong>フォッシュベルク：</strong>東方大陸にありながら、独自の地位を築いている工業都市。傭兵派遣公社「FPSF」は特に有名で、火薬を用いた銃が特徴的らしいです～。</li>
+                <li><strong>南方統治局：</strong>「執行者」が力で支配する南方大陸の機関です。蛮族を中心とした治安維持部隊を持っているとか。</li>
+                <li>
+                  <strong>サバナイ12氏族：</strong>サバナイに古くから存在する12の大きな氏族です。彼らは大きく二つの連合に分かれて、常に互いの力を競い合っているそうですよ。「巨人の氏族」や「虎の氏族」といった、動物や力強い象徴を掲げているのが特徴で、氏族間の対抗意識はものすごいらしく、その競い合いはサバナイで最も人気のある娯楽になっているとか…。
+                </li>
+                <li><strong>ギルド『ハロッズ』：</strong>バッ島北部に本部を構える、サバナイで最もメジャーな冒険者ギルドです。私たちのギルドとは、ライバル…になるんでしょうか？</li>
+                <li><strong>遺跡ギルド：</strong>ドゥーチェスという街にあり、遺跡の調査を専門にしているギルドです。コーカーさんという方が代表みたいですね。</li>
+              </ul>
+            </div>
+          </details>
+
+        </div>
+      </section>
     </main>
 
     <!-- 地図拡大表示用モーダル -->

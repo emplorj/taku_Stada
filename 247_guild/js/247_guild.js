@@ -235,9 +235,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // ホットスポット以外がクリックされ、かつスマホ表示の場合のみ拡大
             openModal(imageToZoom);
           }
+        } else if (container.id === 'sabanae-map') {
+          // サバナイ地図の場合のクリック処理
+          if (window.innerWidth <= 768) {
+            openModal(imageToZoom);
+          }
         }
-      });
-    });
+       });
+     });
 
     // 閉じるイベントの設定
     closeModal.addEventListener('click', closeMapModal);
