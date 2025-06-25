@@ -16,7 +16,6 @@
 
 <body data-no-sidemenu="true" class="guild-background">
   <div class="page-wrapper">
-    <div id="header-placeholder"></div>
     <header class="page-header">
       <div class="logo">
         <img src="../img/hachimaki.svg" alt="帝国の鉢巻亭 紋章" class="logo-img">
@@ -173,6 +172,19 @@
             達成した依頼の報告書は、冒険者さんたちの功績がちゃんと目に見えるように、っていうニシナさんの方針でギルドの<a
               href="https://amzn.asia/d/hjhIeZu">大きい青いファイル</a>にファイリングされています。ここではその一部を掲示しています。全ての報告書はギルドで閲覧できますので、興味のある方はお声がけくださいね～。
           </p>
+          <a href="https://www.dropbox.com/scl/fo/lnuvslrnsqqyye3ka3dfa/APfMlkTTNNrt9Lgnx5sOOVA?rlkey=na6d29bfk2p7vpdz9g862o6fi&st=rremkhn3&dl=0"
+            target="_blank" rel="noopener noreferrer" class="rich-link-card">
+            <div class="rich-link-icon">
+              <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <div class="rich-link-content">
+              <div class="rich-link-title">ギルド内にあるファイルだ…</div>
+              <div class="rich-link-description">過去の依頼や冒険の全記録はこちらから閲覧できます。（Dropbox）</div>
+            </div>
+            <div class="rich-link-arrow">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </div>
+          </a>
           <div class="card-container request-list">
             <div class="request-card">
               <div class="request-card-header">
@@ -247,6 +259,7 @@
               ギルドマスターの発案で始まった、新人冒険者さん向けの特別キャンペーンです！これは将来ギルドの戦力を向上させるための投資らしく、新人さんは無料で様々なアイテムが当たるくじ引き（スタダボーナス）に挑戦できるんですよ。ニシナさん曰く「赤字覚悟！出血大サービス！」とのことで、時にはライフォス神殿のような外部の組織と連携して行われることもあるみたいです。これまでには「陽光の魔符」や「酒の種」、「スモークグラファー」といった珍しい品々が出たという記録も残ってるみたいですけど…。
             </p>
           </div>
+
           <div class="start-dash-img-container">
             <div>
               <img src="../img/卓スタダロゴ.png" alt="スタートダッシュキャンペーン ロゴ" class="start-dash-logo">
@@ -256,6 +269,35 @@
               <img src="../img/Blackbox.png" alt="スタートダッシュキャンペーンの箱" class="start-dash-box">
               <p class="box-caption">こ、怖い…！何が出るかは開けてのお楽しみ、だそうです…。私、こういうの苦手なんですよねぇ。</p>
             </div>
+          </div>
+        </div>
+        <div class="dice-roll-section">
+          <p class="dice-roll-intro">実際に試してみましょうか…</p>
+          <div class="dice-roll-container" data-items='{
+                "11": { "price": 980, "name": "熱狂の酒" },
+                "12": { "price": 1200, "name": "迷わずのチョーク" },
+                "13": { "price": 1000, "name": "北向きの針" },
+                "14": { "price": 500, "name": "酒の種(50粒)" },
+                "15": { "price": 800, "name": "ミスティックインク" },
+                "16": { "price": 1000, "name": "望遠鏡" },
+                "22": { "price": 770, "name": "気になる案山子Ⅰ" },
+                "23": { "price": 1300, "name": "太陽神のハンガー" },
+                "24": { "price": 600, "name": "恋人の呼び笛、恋人の受信機×2セット" },
+                "25": { "price": 400, "name": "悪魔の血盤" },
+                "26": { "price": 500, "name": "ネズミ玉×5" },
+                "33": { "price": 1000, "name": "マナチャージクリスタル（2点）" },
+                "34": { "price": 700, "name": "我慢比べのワンド" },
+                "35": { "price": 1500, "name": "甘え鳴きのチョーカー" },
+                "36": { "price": 500, "name": "アンロックキー×5" },
+                "44": { "price": 1000, "name": "月光の魔符Ⅰ×2" },
+                "45": { "price": 1000, "name": "サングラス" },
+                "46": { "price": 500, "name": "ジャックの豆×5" },
+                "55": { "price": 1700, "name": "スモークグラファー" },
+                "56": { "price": 1360, "name": "魔香のパイプ" },
+                "66": { "price": 1000, "name": "陽光の魔符Ⅰ×2" }
+              }'>
+            <button class="dice-roll-button">2d6を振る</button>
+            <div class="dice-roll-result"></div>
           </div>
         </div>
         <div class="guild-news-container">
@@ -633,6 +675,7 @@
     </footer>
     <script src="../js/common.js"></script>
     <script src="js/247_guild.js"></script>
+    <script src="../js/dice_roller.js"></script>
   </div>
 </body>
 

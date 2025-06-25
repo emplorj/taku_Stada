@@ -1,4 +1,4 @@
-window.addEventListener('header-loaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
 
   // --- ヘッダーのスクロールエフェクト ---
   const header = document.querySelector('.page-header');

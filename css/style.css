@@ -268,11 +268,15 @@ footer {
 }
 
 /* 左側目次の詳細スタイル */
-.side-menu ul {
+nav.side-menu ul, nav.side-menu li {
     list-style: none;
+    list-style-type: none;
     padding: 0;
     margin: 0;
-    padding-top: 15px; /* ロゴコンテナとの間に余白を設ける */
+}
+
+nav.side-menu > ul {
+    padding-top: 15px;
 }
 
 .side-menu ul ul {
@@ -280,11 +284,11 @@ footer {
     margin-top: 5px;    /* ネストされたリストの上のスペース */
 }
 
-.side-menu ul ul li {
+.side-menu .submenu li {
     margin-bottom: 6px; /* ネストされたリストアイテムのマージンを小さく */
 }
 
-.side-menu li {
+.side-menu > ul > li {
     margin-bottom: 4px;
 }
 
@@ -1583,6 +1587,10 @@ font-style: normal;
     margin: 0 0 20px 0;
 }
 
+.ogp-card-wrapper {
+    list-style-type: none;
+}
+
 .tool-card {
     background-color: transparent; /* カードの背景をなくす */
     border-radius: 0;
@@ -1827,6 +1835,8 @@ font-style: normal;
     overflow: hidden;
     transition: max-height 0.4s ease-in-out;
     box-sizing: border-box;
+    padding-left: 15px; /* インデント */
+    margin-top: 5px;
 }
 
 .side-menu .has-submenu > .submenu-trigger {
@@ -1915,4 +1925,67 @@ font-style: normal;
     margin-top: 10px;
     border-top: 1px dashed #ddd;
     padding-top: 10px;
+}
+/* リッチリンクカード */
+.rich-link-card {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-decoration: none;
+  color: #24292e;
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.rich-link-card:hover {
+  background-color: #f6f8fa;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.rich-link-icon {
+  font-size: 2rem;
+  color: #0366d6;
+  margin-right: 16px;
+  width: 40px;
+  text-align: center;
+}
+
+.rich-link-content {
+  flex-grow: 1;
+}
+
+.rich-link-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.rich-link-description {
+  font-size: 0.9rem;
+  color: #586069;
+  margin: 0;
+}
+
+.rich-link-arrow {
+  font-size: 1rem;
+  color: #586069;
+  transition: transform 0.2s ease-in-out;
+}
+
+.rich-link-card:hover .rich-link-arrow {
+  transform: translateX(4px);
+}
+
+/* OGPカードラッパー内の手動カード */
+.ogp-card-wrapper .rich-link-card.manual-ogp {
+    margin-bottom: 0;
+}
+.rich-link-author {
+  font-size: 0.85rem;
+  color: #6a737d;
+  margin-top: 8px;
+  text-align: right;
 }
