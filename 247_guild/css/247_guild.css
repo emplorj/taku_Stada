@@ -738,6 +738,85 @@ a {
   margin: 2rem auto;
   text-align: center; /* 中の画像を中央に配置しやすくします */
 }
+/* ===================================================
+   ギルドの心得セクション
+   =================================================== */
+#guild-rules .section-desc {
+  text-align: center;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 3rem; /* 見出しとリストの間の余白 */
+}
+
+.rules-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.rule-item {
+  margin-bottom: 2.5rem;
+  padding-left: 1.5rem;
+  border-left: 4px solid var(--primary-color); /* 強調のために赤色の線を使ってみました */
+}
+
+.rule-item:last-child {
+  margin-bottom: 0;
+}
+
+.rule-item h4 {
+  font-family: 'Cinzel', serif;
+  color: var(--primary-color); /* 見出しも赤色で統一 */
+  font-size: 1.4rem;
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+}
+
+.rule-item h4 i {
+  margin-right: 0.8rem;
+  width: 1.2em; /* アイコンの幅を確保して、テキストのガタつきを防ぎます */
+  text-align: center;
+}
+
+.rule-item p {
+  padding-left: 2.8rem; /* h4のアイコンとテキストのインデントに合わせます */
+  line-height: 1.8;
+  margin-top: 0;
+}
+/* ===================================================
+   よくある質問 (FAQ) セクション
+   =================================================== */
+.faq-container {
+  margin-top: 2rem;
+}
+
+.faq-item {
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid #c9c1b3;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.faq-item[open] {
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.faq-item summary {
+  padding: 1rem 1.5rem;
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  color: var(--secondary-color);
+  cursor: pointer;
+  list-style-position: inside;
+  font-weight: 700;
+}
+
+.faq-answer {
+  padding: 0 1.5rem 1.5rem 3rem;
+  line-height: 1.8;
+}
 
 /* ===================================================
    サバナイ地方コラム
@@ -1147,55 +1226,4 @@ a {
     transform: scale(1);
     opacity: 1;
   }
-}
-/* リッチリンクカード */
-.rich-link-card {
-  display: flex;
-  align-items: center;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin: 2rem 0;
-  text-decoration: none;
-  color: inherit;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.rich-link-card:hover {
-  background-color: #e9ecef;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.rich-link-icon {
-  font-size: 2.5rem;
-  color: #007bff; /* Dropbox blue */
-  margin-right: 1.5rem;
-}
-
-.rich-link-content {
-  flex-grow: 1;
-}
-
-.rich-link-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #343a40;
-  margin-bottom: 0.25rem;
-}
-
-.rich-link-description {
-  font-size: 0.95rem;
-  color: #6c757d;
-}
-
-.rich-link-arrow {
-  font-size: 1.2rem;
-  color: #6c757d;
-  transition: transform 0.3s;
-}
-
-.rich-link-card:hover .rich-link-arrow {
-  transform: translateX(5px);
 }
