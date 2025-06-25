@@ -818,79 +818,7 @@ a {
   line-height: 1.8;
 }
 
-/* ===================================================
-   サバナイ地方コラム
-   =================================================== */
-.sabanae-map-container {
-  margin: 2rem auto;
-  border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  overflow: hidden; /* 画像の角を丸くするため */
-}
-.sabanae-map-container a {
-  display: block;
-  position: relative;
-}
-.sabanae-map-image {
-  width: 100%;
-  height: auto;
-  display: block; /* 画像下の余分な隙間を削除 */
-}
-.sabanae-map-container:hover .map-zoom-icon {
-  opacity: 1;
-}
 
-.column-container {
-  margin-top: 2rem;
-}
-
-.column-details {
-  background-color: rgba(255, 255, 255, 0.6);
-  border: 1px solid #c9c1b3;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
-}
-
-.column-details[open] {
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.column-details summary {
-  padding: 1rem 1.5rem;
-  font-family: 'Cinzel', serif;
-  font-size: 1.3rem;
-  color: var(--secondary-color);
-  cursor: pointer;
-  list-style-position: inside;
-}
-
-.column-details summary h3 {
-  display: inline;
-  font-size: inherit;
-  margin: 0;
-  border: none;
-  font-weight: 700;
-}
-
-.column-details summary i {
-  margin-right: 0.8rem;
-}
-
-.details-content {
-  padding: 0 1.5rem 1.5rem 3rem;
-  line-height: 1.8;
-}
-
-.details-content ul {
-  list-style-type: disc;
-  padding-left: 20px;
-}
-
-.details-content li {
-  margin-bottom: 0.5rem;
-}
 /* ===================================================
    レスポンシブ & スマートフォン向け設定
    =================================================== */
