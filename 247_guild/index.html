@@ -12,6 +12,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+JP:wght@400;700&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
 
 <body data-no-sidemenu="true" class="guild-background">
@@ -201,6 +203,29 @@
             <p class="request-desc">「ヒドラがあちこちで出現している。費用や環境の問題で、1人しか呼べない。助けてほしい。」</p>
           </div>
         </div>
+        <div class="hydra-solo-showcase">
+          <h4 class="showcase-title">"ヒドラ討伐ソロ！" 挑戦者たちの記録</h4>
+          <!-- Swiper -->
+          <div class="swiper hydra-swiper">
+            <div class="swiper-wrapper">
+              <!-- Slides -->
+              <div class="swiper-slide"><img src="hydra/1.png" alt="アーデルハイト・フォン・アーレンス" loading="lazy"></div>
+              <div class="swiper-slide"><img src="hydra/2.png" alt="スヴェトラーナ・ドチュニコヴァ" loading="lazy"></div>
+              <div class="swiper-slide"><img src="hydra/3.png" alt="エフィアルティア" loading="lazy"></div>
+              <div class="swiper-slide"><img src="hydra/4.png" alt="イヌニク" loading="lazy"></div>
+              <div class="swiper-slide"><img src="hydra/5.png" alt="ミカ・ニシナ" loading="lazy"></div>
+              <div class="swiper-slide"><img src="hydra/6.png" alt="ジーニス・ゲオルロッテ" loading="lazy"></div>
+              <div class="swiper-slide"><img src="hydra/7.png" alt="ロイ・マグナス" loading="lazy"></div>
+              <div class="swiper-slide"><img src="hydra/8.png" alt="ガマネー・コチョバキン" loading="lazy"></div>
+            </div>
+            <!-- If we need pagination -->
+            <div class="swiper-pagination"></div>
+
+            <!-- If we need navigation buttons -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+          </div>
+        </div>
         <details>
           <summary class="sub-heading">
             <i class="fa-solid fa-book-bookmark"></i>達成済み依頼の報告書です
@@ -222,6 +247,8 @@
               <i class="fa-solid fa-arrow-up-right-from-square"></i>
             </div>
           </a>
+          </p>
+
           <div class="card-container request-list">
             <div class="request-card">
               <div class="request-card-header">

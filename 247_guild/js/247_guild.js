@@ -253,3 +253,55 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+/* ===================================================
+   ヒドラスライドショー初期化
+   =================================================== */
+document.addEventListener('DOMContentLoaded', function() {
+  // Swiperライブラリが読み込まれているか確認
+  if (typeof Swiper !== 'undefined') {
+    const hydraSwiper = new Swiper('.hydra-swiper', {
+      // --- 基本設定 ---
+      loop: true,           // ループ再生を有効に
+      centeredSlides: true, // アクティブなスライドを中央に配置
+      
+      // --- 自動再生 ---
+      autoplay: {
+        delay: 2000,                  // 4秒ごとにスライド
+        disableOnInteraction: false,  // ユーザーが操作した後も自動再生を続ける
+        pauseOnMouseEnter: true,      // マウスが乗ったら停止
+      },
+      
+      // --- ページネーション（下部の丸いボタン） ---
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true, // クリックでそのスライドに飛べるように
+      },
+
+      // --- ナビゲーション（左右の矢印） ---
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+
+      // --- 画面サイズごとの設定（レスポンシブ） ---
+      breakpoints: {
+        // 画面幅が640px以上の場合
+        640: {
+          slidesPerView: 1,
+          spaceBetween: 20 // スライド間の余白
+        },
+        // 画面幅が768px以上の場合
+        768: {
+          slidesPerView: 2,
+          spaceBetween: 15
+        },
+        // 画面幅が1024px以上の場合
+        1024: {
+          slidesPerView: 4,
+          spaceBetween: 10 // ★間隔を少し詰めました
+        }
+      }
+    });
+  }
+});
