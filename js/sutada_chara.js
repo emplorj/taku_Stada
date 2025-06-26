@@ -61,7 +61,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             new Swiper(slideshowId, {
                 // --- 基本設定 ---
                 loop: true, // ループさせる
-                slidesPerView: 'auto', // スライドの幅を自動調整
+                slidesPerView: 3, // スライドの幅を自動調整
+                slidesPerGroup: 3, // スライドのグループ数
                 spaceBetween: 1, // スライド間の余白
 
                 // --- 速度・アニメーション設定 ---
@@ -127,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // スライドショーのHTMLを生成する関数
 function generateSlideshowHtml(config, imagePaths, index) {
     const slideshowId = `swiper-container-${index}`;
-    const slides = [...imagePaths, ...imagePaths].map(path => `
+    const slides = [...imagePaths, ...imagePaths, ...imagePaths].map(path => `
         <div class="swiper-slide">
             <img src="${path}" alt="Character Image" loading="lazy" onclick="openModal(this.src)">
         </div>
