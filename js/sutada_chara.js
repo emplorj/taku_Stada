@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 spaceBetween: 1, // スライド間の余白
 
                 // --- 速度・アニメーション設定 ---
-                speed: 4000, // アニメーション速度（ミリ秒）。数値を小さくすると速くなります。
+                speed: 8000, // アニメーション速度（ミリ秒）。数値を小さくすると速くなります。
                 
                 // --- 自動再生とインタラクション（ここが重要） ---
                 autoplay: {

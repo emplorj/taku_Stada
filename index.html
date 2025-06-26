@@ -27,14 +27,8 @@
         </header>
 
         <div class="logo-container">
-            <img src="img/卓スタダロゴ.png" alt="卓スタダロゴ" class="logo-image">
-            <img src="img/卓スタダminiロゴ.png" alt="卓スタダミニロゴ" class="logo-image mini">
-        </div>
-
-        <div class="youtube-container">
-            <iframe src="https://www.youtube.com/embed/WjgfwpW2yHg" title="YouTube video player" frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen></iframe>
+            <img src="img/卓スタダロゴ.png" alt="卓スタダロゴ" class="logo-image" id="main-logo">
+            <img src="img/卓スタダminiロゴ.png" alt="卓スタダミニロゴ" class="logo-image mini" id="mini-logo">
         </div>
 
         <h2 id="coc-qa-section" class="section-title start-title"><a href="CoC_Q&A.html">✨ クトゥルフ神話TRPG シナリオスタダ</a></h2>
@@ -43,19 +37,23 @@
                     class="plain-text-author-link"
                     rel="noopener noreferrer">はいすいかん(@haisuikan_trpg)</a>さんからのアドバイスをまとめました。</p>
             <p>「どんな神話生物を使えばいいの？」「ストーリーの組み立て方が分からない！」といった疑問を解決し、自作シナリオを回そう！</p>
+            <ul class="tool-card-list" id="coc-qa-links-container">
+                <!-- CoC Q&A links will be inserted here by JavaScript -->
+            </ul>
         </div>
 
         <h2 id="schedule-section" class="section-title start-title"><a href="schedule.html">📅 予定</a></h2>
         <div class="plain-text-block intro-block">
             <p>今後のセッション予定などを確認できます。</p>
-            <a href="https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
-                target="_blank" rel="noopener noreferrer">デイコード</a>： 予定の入力を行う</li>
+            <ul class="tool-card-list" id="schedule-links-container">
+                <!-- Schedule links will be inserted here by JavaScript -->
+            </ul>
         </div>
 
-        <h2 id="slides-section" class="section-title start-title"><a href="slides.html">📖 スライド置き場</a></h2>
+        <h2 id="slides-section" class="start-title"><a href="slides.html">📖 スライド置き場</a></h2>
         <div class="plain-text-block intro-block">
             <p>TRPGのルール説明スライドとかを雑に置いとく場所。</p>
-            <p>「これどんなんだっけ？」って時にでも見てってや。</p>
+            <p>「これどんなんだっけ？」って時にでも見てね</p>
             <ul class="link-list">
                 <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vSOxfzmGJTdTEXXiXOHIxlueVIfbG9Xuq8NSrv0wrgwLUHV84OfLRcyU-I0WjLSXYFfMJEfcubHJ9KR/pub?start=false&loop=true&delayms=3000"
                         target="_blank" rel="noopener noreferrer">はじめよう　クトゥルフ神話RPG</a></li>
@@ -68,22 +66,15 @@
             </ul>
         </div>
 
-        <div class="plain-text-block additional-info-section">
-            <h2 id="archive-section">◆アーカイブ</h2>
-            <ul>
-                <li><a href="https://docs.google.com/spreadsheets/d/17wStGJ37GjaINrjZMFZgmacYOPeH9F8ZiahhtJd_nxI/"
-                        target="_blank" rel="noopener noreferrer">スプレッドシート</a>: 卓の履歴や、キャラのまとめ、PLの所持ルールブックなんかをここに記す</li>
-                <li><a href="https://www.dropbox.com/scl/fo/lnuvslrnsqqyye3ka3dfa/APfMlkTTNNrt9Lgnx5sOOVA?rlkey=t5ltutxf80yqz8p499dae7loj&dl=0"
-                        target="_blank" rel="noopener noreferrer">ログ置き場（Dropbox）</a>
-                    <p style="font-size: 0.9em; margin-top: 0.3em;">終わったシナリオのログが一元的にみられたらいいねってところ。(Discord: <a
-                            href="https://discord.com/channels/641914997894807552/1212090718387044503" target="_blank"
-                            rel="noopener noreferrer">該当チャンネル</a>)</p>
-                </li>
+        <h2 id="archive-section" class="start-title">アーカイブ</h2>
+        <div class="plain-text-block intro-block">
+            <ul class="tool-card-list" id="archive-links-container">
+                <!-- Archive links will be inserted here by JavaScript -->
             </ul>
         </div>
 
-        <div class="plain-text-block additional-info-section">
-            <h2 id="char-qa-sheet-section">◆あなたのキャラへの質問一覧シート</h2>
+        <h2 id="char-qa-sheet-section" class="start-title">あなたのキャラへの質問一覧シート</h2>
+        <div class="plain-text-block intro-block">
             <ul>
                 <li><a href="q_and_a.html">キャラクターQ&Aページ</a>: ここでキャラクターの回答を閲覧・新規登録できます。</li>
                 <li><a href="https://docs.google.com/spreadsheets/d/1RJrUdz6QbYc_N1X0gub8zdixEIy_8KyV3exf6A9Smoc/edit?gid=0"
@@ -91,27 +82,17 @@
             </ul>
         </div>
 
-        <div class="plain-text-block additional-info-section">
-            <h2 id="ccfolia-tools-section">◆ココフォリアツール</h2>
+        <h2 id="ccfolia-tools-section" class="start-title">ツール</h2>
+        <div class="plain-text-block intro-block">
             <ul class="tool-card-list" id="tool-card-list-container">
                 <!-- ここにJavaScriptでOGPカードが挿入されます -->
             </ul>
         </div>
 
-        <div class="plain-text-block additional-info-section">
-            <h2 id="content-policy-section">地雷チェックシート</h2>
-            <p>セッション前に参加者間の認識を合わせるため、弊社では規定のものとして下記シートの使用を推奨しています。</p>
-            <ul class="works-list" style="justify-content: flex-start; margin-top: 20px;">
-                <li class="works-card">
-                    <a href="https://booth.pm/ja/items/3432975" target="_blank" rel="noopener noreferrer">
-                        <img src="https://booth.pximg.net/c/300x300_a2_g5/6852d26d-e396-4782-b31c-192ad0dac15b/i/3432975/df64c1c0-d649-43e6-827b-8e8d4a463ad9_base_resized.jpg"
-                            alt="細かすぎる地雷チェックシート サムネイル" class="works-thumb">
-                        <div class="works-details">
-                            <h4 class="works-title">細かすぎる<br>地雷チェックシート</h4>
-                            <p class="works-description">これを使うと良い</p>
-                        </div>
-                    </a>
-                </li>
+        <h2 id="content-policy-section" class="start-title">地雷チェックシート</h2>
+        <div class="plain-text-block intro-block">
+            <ul class="tool-card-list" id="content-policy-container">
+                <!-- Content policy links will be inserted here by JavaScript -->
             </ul>
         </div>
 
@@ -121,10 +102,10 @@
             <p>Q.普通の青って使わないん？<br>A. その他が青になりがち。</p>
         </div>
 
-        <div class="plain-text-block additional-info-section">
-            <h2 id="yutosheet-template-section"><a href="https://yutorize.2-d.jp/" target="_blank"
-                    rel="noopener noreferrer">ゆとシート</a>用パーソナル情報テンプレ
-            </h2>
+        <h2 id="yutosheet-template-section" class="start-title"><a href="https://yutorize.2-d.jp/" target="_blank"
+                rel="noopener noreferrer">ゆとシート</a>用パーソナル情報テンプレ
+        </h2>
+        <div class="plain-text-block intro-block">
             <p>お手持ちのゆとシートの「容姿・経歴」とか「その他」とかの枠にでも付け加えてもらえると助かります<br>
                 入れたい情報に沿って、同じ形式で情報を追加してってください（好きなものとか、弱点とか！）</p>
             <div class="code-block-container">
@@ -182,6 +163,21 @@
                 });
             }
 
+            // --- ロゴクリックイベント ---
+            const mainLogo = document.getElementById('main-logo');
+            const miniLogo = document.getElementById('mini-logo');
+
+            if (mainLogo) {
+                mainLogo.addEventListener('click', function () {
+                    window.location.href = 'sutada_chara.html';
+                });
+            }
+
+            if (miniLogo) {
+                miniLogo.addEventListener('click', function () {
+                    window.location.href = 'sutada_chara.html#coc-mini-section'; // miniCoCのセクションIDに合わせる
+                });
+            }
         });
 
         // --- OGPカードリスト生成 ---
@@ -191,8 +187,6 @@
             { category: "キャラクターシート", url: "https://script.google.com/macros/s/AKfycbwUPjuiBEGUrfrKcKZCrRAqiB7V687tbA5uxy7PbKxSkgMGnoIMob7yK0PNEvBoUcbTTA/exec", title: "キャラシコピペツール (DX3rd, サタスペ等)", author: "おれ", manual: true, description: "Google Apps Script製のキャラクターシート整形ツール。", icon: "fa-solid fa-file-lines" },
             { category: "キャラクターシート", url: "https://docs.google.com/spreadsheets/d/1jMnjoqxiJZanm6L9-HsXw1crxBdQB_SZQgM4O8Tk7MM/", title: "ダブルクロス コンボジェネレーター", author: "おれ", manual: true, description: "Googleスプレッドシート上で動作するコンボビルダー。", icon: "fa-solid fa-table-cells" },
             { category: "キャラクターシート", url: "https://docs.google.com/presentation/d/1ZHHNs_yR37joGYSBiYfQ_C_mwmhdFNHmxkA7fItBkKs/edit#slide=id.g2710a927f4d_0_5", title: "ダブルクロス コンボジェネレーター (説明)", author: "おれ", manual: true, description: "コンボジェネレーターの使い方を解説したスライド。", icon: "fa-solid fa-person-chalkboard" },
-            { category: "シナリオ作成", url: "https://docs.google.com/spreadsheets/d/1MifivHkro_g2S_9QFYJoCa4eBaSNw-JqoEexGCEr41w/edit?usp=sharing", title: "シナリオテンプレ／CoC（あばれぢから）", author: "あばれぢから", manual: true, description: "クトゥルフ神話TRPGのシナリオ作成用テンプレート。", icon: "fa-solid fa-file-pen" },
-            { category: "ログ・テキスト整形", url: "https://sirubedon.github.io/TextConverter/", title: "テキストコンバーター", author: "しるべ", manual: true, description: "テキストの整形や変換を行う多機能ツール。", icon: "fa-solid fa-font" },
             { category: "ログ・テキスト整形", url: "https://sirubedon.github.io/ccfolia-log-to-xlsx/", title: "ココフォリアログ→Excel変換", author: "しるべ", manual: true, description: "ココフォリアのログをExcel形式に変換します。", icon: "fa-solid fa-file-excel" },
             { category: "ログ・テキスト整形", url: "https://sirubedon.github.io/CCfoliaLogConverterWithImages/", title: "ココフォリア/Tekeyログ整形 (画像埋込)", author: "しるべ", manual: true, description: "ログに画像サムネイルを埋め込んで整形します。", icon: "fa-solid fa-image" },
             { category: "立ち絵", url: "https://x.com/qxoiUioxp/status/1898323502731796480", title: "動画→動く画像(APNG)変換", author: "しるべ", manual: true, description: "動画ファイルをAPNG形式にオンラインで変換します。", icon: "fa-solid fa-film" },
@@ -239,22 +233,109 @@
             }
         }
 
-        function renderManualCard(tool, placeholderElement) {
+        // --- Schedule Links Generation ---
+        const scheduleData = [
+            { url: "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw", title: "デイコード", description: "キャラシサイトと連携した日程調整ツール。予定の入力はこちらから。", icon: "fa-solid fa-calendar-plus", manual: true }
+        ];
+
+        const scheduleLinksContainer = document.getElementById('schedule-links-container');
+
+        if (scheduleLinksContainer) {
+            scheduleData.forEach(item => {
+                const wrapper = document.createElement('li');
+                wrapper.className = 'ogp-card-wrapper';
+                const cardPlaceholder = document.createElement('div');
+                renderManualCard(item, cardPlaceholder);
+                wrapper.appendChild(cardPlaceholder);
+                scheduleLinksContainer.appendChild(wrapper);
+            });
+        }
+
+        // --- Archive Links Generation ---
+        const archiveData = [
+            { url: "https://docs.google.com/spreadsheets/d/17wStGJ37GjaINrjZMFZgmacYOPeH9F8ZiahhtJd_nxI/", title: "スプレッドシート", description: "卓の履歴や、キャラのまとめ、PLの所持ルールブックなんかをここに記す", icon: "/img/spreadsheet.svg", manual: true },
+            { url: "https://www.dropbox.com/scl/fo/lnuvslrnsqqyye3ka3dfa/APfMlkTTNNrt9Lgnx5sOOVA?rlkey=t5ltutxf80yqz8p499dae7loj&dl=0", title: "ログ置き場（Dropbox）", description: "終わったシナリオのログが一元的にみられたらいいねってところ。(Discord: 該当チャンネル)", icon: "fa-brands fa-dropbox", manual: true }
+        ];
+
+        const archiveLinksContainer = document.getElementById('archive-links-container');
+
+        if (archiveLinksContainer) {
+            archiveData.forEach(item => {
+                const wrapper = document.createElement('li');
+                wrapper.className = 'ogp-card-wrapper';
+                const cardPlaceholder = document.createElement('div');
+                renderManualCard(item, cardPlaceholder); // Use renderManualCard for these
+                wrapper.appendChild(cardPlaceholder);
+                archiveLinksContainer.appendChild(wrapper);
+            });
+        }
+
+        // --- Content Policy Link Generation ---
+        const contentPolicyData = [
+            { url: "https://booth.pm/ja/items/3432975", title: "細かすぎる地雷チェックシート", description: "セッション前に参加者間の認識を合わせるため、弊社では規定のものとして下記シートの使用を推奨しています。", icon: "fa-solid fa-file-shield", manual: true }
+        ];
+
+        const contentPolicyContainer = document.getElementById('content-policy-container');
+
+        if (contentPolicyContainer) {
+            contentPolicyData.forEach(item => {
+                const wrapper = document.createElement('li');
+                wrapper.className = 'ogp-card-wrapper';
+                const cardPlaceholder = document.createElement('div');
+                renderManualCard(item, cardPlaceholder);
+                wrapper.appendChild(cardPlaceholder);
+                contentPolicyContainer.appendChild(wrapper);
+            });
+        }
+
+        // --- CoC Q&A Links Generation ---
+        const cocQaData = [
+            { url: "https://docs.google.com/spreadsheets/d/1MifivHkro_g2S_9QFYJoCa4eBaSNw-JqoEexGCEr41w/edit?usp=sharing", title: "シナリオテンプレ／CoC", description: "クトゥルフ神話TRPGのシナリオ作成用テンプレート。（作：あばれぢから）", icon: "fa-solid fa-file-pen", manual: true }
+        ];
+
+        const cocQaLinksContainer = document.getElementById('coc-qa-links-container');
+
+        if (cocQaLinksContainer) {
+            cocQaData.forEach(item => {
+                const wrapper = document.createElement('li');
+                wrapper.className = 'ogp-card-wrapper';
+                const cardPlaceholder = document.createElement('div');
+                renderManualCard(item, cardPlaceholder);
+                wrapper.appendChild(cardPlaceholder);
+                cocQaLinksContainer.appendChild(wrapper);
+            });
+        }
+        async function renderManualCard(tool, placeholderElement) {
+            let iconHtml = `<i class="${tool.icon || 'fa-solid fa-link'}"></i>`; // デフォルトアイコン
+
+            if (tool.icon && tool.icon.endsWith('.svg')) {
+                try {
+                    const response = await fetch(tool.icon);
+                    const svgText = await response.text();
+                    iconHtml = svgText; // SVGの内容を直接挿入
+                } catch (error) {
+                    console.error('SVGの読み込みエラー:', tool.icon, error);
+                    iconHtml = `<i class="fa-solid fa-link"></i>`; // エラー時はデフォルトアイコン
+                }
+            } else if (tool.icon && tool.icon.endsWith('.png')) {
+                iconHtml = `<img src="${tool.icon}" alt="icon" class="menu-icon">`;
+            }
+
             const cardHtml = `
-                <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="rich-link-card manual-ogp">
-                    <div class="rich-link-icon">
-                        <i class="${tool.icon || 'fa-solid fa-link'}"></i>
-                    </div>
-                    <div class="rich-link-content">
-                        <div class="rich-link-title">${tool.title}</div>
-                        <div class="rich-link-description">${tool.description || ''}</div>
-                        <div class="rich-link-author">by ${tool.author || '不明'}</div>
-                    </div>
-                    <div class="rich-link-arrow">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </div>
-                </a>
-            `;
+        <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="rich-link-card manual-ogp">
+            <div class="rich-link-icon">
+                ${iconHtml}
+            </div>
+            <div class="rich-link-content">
+                <div class="rich-link-title">${tool.title}</div>
+                <div class="rich-link-description">${tool.description || ''}</div>
+                ${tool.author ? `<div class="rich-link-author">by ${tool.author}</div>` : ''}
+            </div>
+            <div class="rich-link-arrow">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </div>
+        </a>
+    `;
             placeholderElement.innerHTML = cardHtml;
             placeholderElement.className = ''; // remove .ogp-card
         }
@@ -318,9 +399,6 @@
                 placeholderElement.innerHTML = errorHtml;
             }
         }
-
-
-
     </script>
 </body>
 

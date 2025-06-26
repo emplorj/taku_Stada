@@ -133,11 +133,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     initializeHamburgerMenu();
                     initializeSubMenu();
+                    injectSvgIcons(); // SVGアイコンを挿入する関数を呼び出す
                     window.dispatchEvent(new Event('header-loaded')); // カスタムイベントを発火
                 }, 0);
 
             } else { console.error('Failed to fetch header.html:', response.statusText); }
         } catch (error) { console.error('Error fetching header.html:', error); }
+    }
+
+    // --- SVGアイコンを動的に挿入する ---
+    async function injectSvgIcons() {
+        const svgPlaceholders = document.querySelectorAll('.menu-icon-svg');
+        for (const placeholder of svgPlaceholders) {
+            const svgPath = placeholder.dataset.svgPath;
+            if (svgPath) {
+                try {
+                    // basePath を考慮してSVGファイルをフェッチ
+                    const response = await fetch(`${basePath}${svgPath}`);
+                    if (response.ok) {
+                        const svgText = await response.text();
+                        placeholder.innerHTML = svgText;
+                        // SVG要素にクラスを追加してCSSでスタイルを適用できるようにする
+                        const svgElement = placeholder.querySelector('svg');
+                        if (svgElement) {
+                            svgElement.classList.add('menu-icon');
+                        }
+                    } else {
+                        console.error('Failed to fetch SVG:', svgPath, response.statusText);
+                        // エラー時は代替テキストやアイコンを表示
+                        placeholder.innerHTML = `<i class="fa-solid fa-file"></i>`;
+                    }
+                } catch (error) {
+                    console.error('Error fetching SVG:', svgPath, error);
+                    placeholder.innerHTML = `<i class="fa-solid fa-file"></i>`;
+                }
+            }
+        }
     }
 
     // --- ハンバーガーメニューの制御 ---

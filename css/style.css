@@ -303,7 +303,7 @@ nav.side-menu > ul {
     width: 1.2em;       /* 幅を文字サイズに合わせる (お好みで調整) */
     margin-right: 0.5em;  /* アイコンとテキストの間に余白を作る */
     object-fit: contain;  /* 画像のアスペクト比を保つ */
-    transform: translateY(-2px);
+    fill: currentColor;
 }
 
 .side-menu a:hover,
@@ -604,6 +604,7 @@ nav.side-menu > ul {
 .logo-image {
     max-width: 45%; /* ロゴの最大幅 */
     height: auto;   /* 高さは自動調整 */
+    cursor: pointer; /* マウスオーバー時にポインターを表示 */
 }
 
 /* YouTube埋め込み動画コンテナ */
