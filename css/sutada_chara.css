@@ -1,0 +1,231 @@
+/* フッターが追従しないように、bodyとhtmlのheightを自動調整 */
+html, body {
+    height: 100%; /* スクロールバーを機能させるために100%に戻す */
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* sutada_chara.htmlのフッターの固定を解除 */
+body > footer {
+    position: static !important; /* importantでstyle.cssの指定を上書き */
+    margin-top: 40px !important;
+}
+
+/* Swiperコンテナのスタイル */
+.swiper {
+    width: 100%; /* ラッパーにpaddingを指定するため100%に */
+    height: 30vh;      /* 縦幅を画面の30%に */
+    margin: 20px auto;
+}
+
+.slideshow-wrapper {
+    width: 100%;
+    /* 横幅を広げる */
+    margin: 20px auto;
+    box-sizing: border-box;
+    position: relative;
+}
+
+
+/* スライドのスタイル */
+.swiper-slide {
+    height: 100%;
+    width: auto !important; /* Swiper.jsのslidesPerView:'auto'と連携 */
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px; /* スライド間のマージン */
+}
+
+/* スライド内画像のスタイル */
+.swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* アスペクト比を保ち、画像全体を表示 */
+}
+
+/* ファイル名を非表示にする */
+.slide-title {
+    display: none;
+}
+
+/* セクションタイトル */
+.section-title {
+    padding: 14px 20px 5px 20px;
+    color: white;
+    margin-bottom: 10px; /* スライダーとの間隔を調整 */
+    text-align: center;
+    position: relative;
+}
+
+.start-title::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -100vw; /* ビューポートの幅だけ右にずらす */
+    width: 100vw; /* ビューポートの幅と同じ幅を持つ */
+    height: 100%;
+    background-color: inherit; /* 親要素の背景色を継承 */
+    z-index: -1; /* テキストの背後に配置 */
+}
+
+.bg-coc { background-color: #93c47d; }
+.bg-sw { background-color: #ea9999; }
+.bg-dx { background-color: #cc4125; }
+.bg-nc { background-color: #505050; }
+.bg-coc-mini { background-color: #93c47d; }
+
+
+/* ナビゲーションボタンを非表示にする */
+.slideshow-wrapper .swiper-button-prev,
+.slideshow-wrapper .swiper-button-next {
+    display: none;
+}
+
+/* ページネーション（ドット）を非表示にする */
+.swiper-pagination {
+    display: none;
+}
+
+/* アニメーションを常に滑らかにする */
+.swiper-wrapper {
+    transition-timing-function: linear !important;
+}
+
+.character-summary-images {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.character-summary-images h2 {
+    margin-bottom: 20px;
+}
+
+.character-summary-images img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.all-characters {
+    margin-top: 60px;
+}
+
+.main-content {
+    box-sizing: border-box; /* paddingを幅に含める */
+}
+
+/* _noで終わる画像のスタイル */
+.character-summary-images img[src$="_no.png"] {
+    height: 80vh;
+    width: auto;
+    object-fit: contain;
+}
+
+/* 全集合の見出しスタイル */
+.all-characters h2 {
+    font-size: 2.5em; /* フォントサイズを大きく */
+    color: #333; /* 色を濃く */
+    margin-bottom: 30px; /* 下のマージンを増やす */
+    border-bottom: 2px solid #eee; /* 下線を追加 */
+    padding-bottom: 10px; /* 下線とテキストの間に余白 */
+}
+
+/* details/summary スタイル */
+.summary-image-details {
+    margin: 20px auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    max-width: 800px; /* まとめ画像の最大幅 */
+    text-align: left;
+}
+
+.summary-image-details summary {
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px;
+    outline: none;
+}
+
+.summary-image-details summary:hover {
+    color: #007bff;
+}
+
+.summary-image-content {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.summary-image-content img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* 中央寄せのためにブロック要素に */
+    margin: 0 auto; /* 中央寄せ */
+}
+/* モーダル（背景） */
+.modal {
+    display: none; /* デフォルトでは非表示 */
+    position: fixed; /* 画面に固定 */
+    z-index: 1000; /* 他の要素より前面に */
+    left: 0;
+    top: 0;
+    width: 100%; /* 全幅 */
+    height: 100%; /* 全高 */
+    overflow: auto; /* 必要に応じてスクロール可能に */
+    background-color: rgba(0,0,0,0.9); /* 半透明の黒背景 */
+    align-items: center; /* 垂直方向中央揃え */
+    justify-content: center; /* 水平方向中央揃え */
+}
+
+/* モーダルコンテンツ（画像） */
+.modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%; /* 最大幅 */
+    max-height: 90%; /* 最大高さ */
+    object-fit: contain; /* アスペクト比を維持して表示 */
+}
+
+/* 閉じるボタン */
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+/* モーダルアニメーション */
+@keyframes zoomInBounce {
+    0% {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* モーダルコンテンツにアニメーションを適用 */
+.modal-content {
+    animation: zoomInBounce 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+}

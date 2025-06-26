@@ -42,27 +42,29 @@
 }
 
 
-html {
-    scroll-behavior: smooth;
-    width: 100%;
-    overflow-x: hidden;
+html, body {
+    min-height: 100%; /* Make html and body take full viewport height */
+    margin: 0;
+    padding: 0;
+    /* overflow: hidden; */ /* Prevent main scrollbar initially, let main-content handle it */
 }
+
 body {
     font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
     line-height: 1.6;
     font-feature-settings: "palt";
     color: #eee;
-    margin: 0;
-    padding: 0;
     background-color: #061144;
-    width: 100%;
-    /* (以下、背景関連のスタイルは変更なし) */
+    /* Background styles remain */
     background-image: radial-gradient(circle at 10% 20%, #1a2c6d 0%, rgba(6, 17, 68, 0) 50%),
                       radial-gradient(circle at 90% 80%, #3498db 0%, rgba(6, 17, 68, 0) 50%);
     background-size: 200% 200%;
-    overflow-x: hidden;
     animation: background-pan 60s linear infinite alternate;
     position: relative;
+
+    display: flex; /* Make body a flex container */
+    flex-direction: column; /* Stack children vertically */
+    overflow-y: auto; /* Add this line to allow body to scroll */
 }
 
 a {
@@ -108,9 +110,8 @@ h1 {
     transition: margin-left 0.3s ease-in-out, transform 0.3s ease-in-out;
     padding: 20px 20px 0 20px;
     box-sizing: border-box;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    flex-grow: 1; /* Allow main-content to grow and take available space */
+    overflow-y: auto; /* Add scrollbar only to main-content if needed */
     overflow-x: hidden; /* ::after要素のはみ出しをクリップ */
 }
 .page-content-header {
@@ -134,7 +135,8 @@ h1 {
 
 footer {
     text-align: center;
-    margin-top: 50px;
+    /* margin-top: auto; /* Push footer to the bottom */ 
+    flex-shrink: 0; /* Prevent footer from shrinking */
     padding-top: 20px;
     border-top: 1px solid #ccc;
     color: #f0f0f0;
@@ -144,12 +146,6 @@ footer {
 /* ==========================================================================
    4. 主要コンテンツブロック (汎用的なテキストブロックなど)
    ========================================================================== */
-/* CoC Q&A ページ専用のbodyスタイル */
-.body-1080 {
-    max-width: 1080px;
-    margin: 20px auto;
-    /* 中央寄せはbody共通の margin: 20px auto; が適用される */
-}
 
 .plain-text-block {
     background-color: #1a2c6d; /* 地の文ブロックの背景色を少し濃く */
@@ -608,6 +604,21 @@ nav.side-menu > ul {
 .logo-image {
     max-width: 45%; /* ロゴの最大幅 */
     height: auto;   /* 高さは自動調整 */
+}
+
+/* YouTube埋め込み動画コンテナ */
+.youtube-container {
+    max-width: 960px; /* PCでの最大幅 */
+    margin: 20px auto 30px; /* 上下のマージンと左右中央揃え */
+    width: 100%;
+}
+
+.youtube-container iframe {
+    display: block; /* 中央揃えや幅指定を確実にするため */
+    width: 100%;
+    aspect-ratio: 16 / 9; /* 縦横比を16:9に固定 */
+    height: auto; /* 高さは自動調整 */
+    border: none; /* frameborder属性の代わりにCSSで指定 */
 }
 
 /* スライドタイトル (index.html) */

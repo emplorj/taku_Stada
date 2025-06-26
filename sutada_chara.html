@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卓スタダ キャラクター紹介</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="css/sutada_chara.css">
+
+    <!-- ▼▼▼ 修正箇所 ▼▼▼ -->
+    <style>
+        /* 
+         * 汎用CSS(style.css)で設定されているflexレイアウトをこのページでのみ解除し、
+         * フッターがコンテンツの長さに応じて自然に末尾に配置されるようにします。
+         */
+        body {
+            display: block;
+            /* flexを解除 */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <h1>卓スタダ キャラクター紹介</h1>
+            <p class="subtitle">卓スタダに登場した人たち</p>
+        </header>
+
+        <h3 class="section-title start-title">キャラクター紹介</h3>
+        <div id="slideshows-container"></div>
+    </div>
+
+    <footer>
+        <p>© 2025 卓スタダ.</p>
+    </footer>
+
+    <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
+    <script src="js/common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="js/sutada_chara.js"></script>
+    <!-- モーダルオーバーレイ -->
+    <div id="imageModal" class="modal">
+        <span class="close-button">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+</body>
+
+</html>
