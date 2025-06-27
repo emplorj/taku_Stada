@@ -86,10 +86,10 @@ document.addEventListener('DOMContentLoaded', function() {
    function injectFaviconLinks() {
        const head = document.head;
        const favicons = [
-           { rel: 'icon', href: `${basePath}/img/favicon.ico` },
-           { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${basePath}/img/favicon-32x32.png` },
-           { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${basePath}/img/favicon-16x16.png` },
-           { rel: 'apple-touch-icon', sizes: '180x180', href: `${basePath}/img/apple-touch-icon.png` }
+           { rel: 'icon', href: `${basePath}/img/favicon/favicon.ico` },
+           { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${basePath}/img/favicon/favicon-32x32.png` },
+           { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${basePath}/img/favicon/favicon-16x16.png` },
+           { rel: 'apple-touch-icon', sizes: '180x180', href: `${basePath}/img/favicon/apple-touch-icon.png` }
        ];
 
        favicons.forEach(faviconInfo => {
