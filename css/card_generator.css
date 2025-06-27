@@ -107,8 +107,8 @@ html, body {
 #card-name-container {
     position: absolute;
     top: 46px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 50%; /* 元に戻す */
+    transform: translateX(-50%); /* 元に戻す */
     width: 392px;
     height: 56px;
     background-image: url('../Card_asset/タイトル.png');
@@ -116,7 +116,7 @@ html, body {
     background-repeat: no-repeat;
     z-index: 10;
     display: flex;
-    justify-content: center;
+    justify-content: center; /* 元に戻す */
     align-items: center;
 }
 /* カード名のテキストコンテンツのスタイルを調整 */
@@ -125,10 +125,11 @@ html, body {
     font-family: 'RocknRoll One', sans-serif;
     font-size: 28px;
     white-space: nowrap;
-    transform-origin: center;
+    transform-origin: center; /* 元に戻す */
     color: #000;
     line-height: 1;
     max-width: 334px; /* テキストが表示される最大幅 */
+    text-align: center; /* 元に戻す */
 }
 
 /* ★★★ ここからが最終的なレイアウト修正です ★★★ */
@@ -143,40 +144,47 @@ html, body {
     line-height: 1;
     max-width: 334px;
 }
-
+/* ★★★ 新しく追加するルール ★★★ */
+/* 伸縮するテキストを保持する、内側の要素のスタイル */
+#card-name-content .scaler {
+display: inline-block; /* transformを適用するために必要 */
+transform-origin: center; /* 元に戻す */
+white-space: nowrap; /* テキストが改行しないようにする */
+font-family: 'RocknRoll One', sans-serif;
+font-size: 28px;
+color: #000;
+line-height: 1;
+}
 /* 1. 【ルビがない文字】専用のスタイル */
 #card-name-content .no-ruby {
-    padding-top: 0; 
-    position: relative;
-    top: -3px; /* 修正: -4px から -3px へ (下に1px移動) */
+padding-top: 0;
+position: relative;
+top: -3px;
 }
-
 /* 2. 【ルビがある部分】の親コンテナのスタイル */
 #card-name-content ruby {
-    display: inline-block;
-    vertical-align: baseline;
-    position: relative;
+display: inline-block;
+vertical-align: baseline;
+position: relative;
 }
-
 /* 3. 【ルビの親文字】専用のスタイル */
 #card-name-content rb {
-    display: inline-block;
-    padding-top: 14px; 
-    line-height: 1;
-    position: relative;
-    top: -3px; /* 修正: -4px から -3px へ (下に1px移動) */
+display: inline-block;
+padding-top: 14px;
+line-height: 1;
+position: relative;
+top: -3px;
 }
-
 /* 4. 【ルビ文字】専用のスタイル */
 #card-name-content rt {
-    position: absolute;
-    top: -1px;
-    left: 50%;
-    transform: translateX(calc(-50%));
-    font-family: 'RocknRoll One', sans-serif;
-    font-size: 14px;
-    line-height: 1;
-    white-space: nowrap;
+position: absolute;
+top: -1px;
+left: 50%; /* 元に戻す */
+transform: translateX(calc(-50% + 1px)); /* 元に戻す */
+/* font-familyは.scalerから継承されます */
+font-size: 14px;
+line-height: 1;
+white-space: nowrap;
 }
 
 #card-name-content.is-plain-text-only .no-ruby {

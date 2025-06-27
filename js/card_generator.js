@@ -85,63 +85,63 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeManipulationTarget = 'base'; // 'base' または 'overlay'
 
     const cardColorData = {
-        "赤カード": {
+        "赤": {
             name: "赤",
             description: "BAD EVENT",
             color: "#990000",
             hover: "#7a0000",
             textColor: "#FFFFFF"
         },
-        "青カード": {
+        "青": {
             name: "青",
             description: "GOOD EVENT",
             color: "#3366CC",
             hover: "#2851a3",
             textColor: "#FFFFFF"
         },
-        "緑カード": {
+        "緑": {
             name: "緑",
             description: "取得可能",
             color: "#009933",
             hover: "#007a29",
             textColor: "#FFFFFF"
         },
-        "黄カード": {
+        "黄": {
             name: "黄",
             description: "金銭、トレジャー",
             color: "#FFCC66",
             hover: "#d9ad52",
             textColor: "#2c3e50"
         },
-        "橙カード": {
+        "橙": {
             name: "橙",
             description: "その他",
             color: "#996633",
             hover: "#7a5229",
             textColor: "#FFFFFF"
         },
-        "紫カード": {
+        "紫": {
             name: "紫",
             description: "エネミー等",
             color: "#663366",
             hover: "#522952",
             textColor: "#FFFFFF"
         },
-        "白カード": {
+        "白": {
             name: "白",
             description: "RPで切り抜ける",
             color: "#CCCCCC",
             hover: "#a3a3a3",
             textColor: "#2c3e50"
         },
-        "黒カード": {
+        "黒": {
             name: "黒",
             description: "フィールド",
             color: "#333333",
             hover: "#1a1a1a",
             textColor: "#FFFFFF"
         },
-        "虹カード": {
+        "虹": {
             name: "虹",
             description: "合体/激ヤバ",
             color: 'linear-gradient(45deg, #e74c3c, #f1c40f, #2ecc71, #3498db, #9b59b6)',
@@ -182,10 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function initialize() {
         Object.entries(cardColorData).forEach(([id, details]) => {
             cardColorSelect.add(new Option(`${details.name}：${details.description}`, id));
-            colorNameToIdMap[details.name] = id;
+            colorNameToIdMap[id] = id; // "赤カード" -> "赤カード"
+            colorNameToIdMap[details.name] = id; // "赤" -> "赤カード"
         });
         Object.entries(cardTypes).forEach(([key, details]) => cardTypeSelect.add(new Option(details.name, key)));
-        cardColorSelect.value = "青カード";
+        cardColorSelect.value = "青";
         cardTypeSelect.value = "";
         ['change', 'input'].forEach(event => {
             [cardColorSelect, cardTypeSelect, backgroundSelect, cardNameInput, effectInput, flavorInput, flavorSpeakerInput]
@@ -262,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
         void imageContainer.offsetHeight;
         imageContainer.style.transition = '';
 
-        let templateName = selectedColorId;
+        let templateName = `${selectedColorId}カード`; // テンプレート名に「カード」を追加
         const isFullFrame = selectedType === 'FF' || selectedType === 'FFCF';
 
         const isDefaultImage = cardImage.src.includes('now_painting');
@@ -330,53 +331,79 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(setupImageForDrag);
     }
 
-    // ★★★ これが全てのバグを解決する、最後の、真のupdateCardName関数です ★★★
     function updateCardName(text) {
-        // 1. バッククォート（`）を区切り文字として、文字列を「通常部分」と「ルビ指定部分」に分割します。
-        const segments = text.split('`');
-        
-        // 2. 分割した各部分を、正しいHTMLに変換していきます。
-        const htmlParts = segments.map((segment, index) => {
-            // 分割した結果、奇数番目(1, 3, 5...)の要素が「ルビ指定部分」となります。
-            if (index % 2 === 1) {
-                // ルビ指定部分を、さらに「親文字」と「ルビ文字」に分解します。
-                const rubyMatch = segment.match(/(.+?)\((.+)\)/);
-                if (rubyMatch) {
-                    // rubyMatchは ["全体", "親文字", "ルビ文字"] という配列です。
-                    // 正しくインデックス(1と2)を使って取り出します。
-                    const baseText = rubyMatch[1];
-                    const rubyText = rubyMatch[2];
-                    return `<ruby><rb>${baseText}</rb><rt>${rubyText}</rt></ruby>`;
-                }
+    // 1. これまでのHTML生成ロジックは、そのまま使用します。
+    const segments = text.split('`');
+    const htmlParts = segments.map((segment, index) => {
+        if (index % 2 === 1) {
+            const rubyMatch = segment.match(/(.+?)\((.+)\)/);
+            if (rubyMatch) {
+                const baseText = rubyMatch[1];
+                const rubyText = rubyMatch[2];
+                return `<ruby><rb>${baseText}</rb><rt>${rubyText}</rt></ruby>`;
             }
-            // 偶数番目の要素、またはルビの形式が正しくない部分は、全て「通常部分」として扱います。
-            // HTMLエンティティのエスケープを追加して、安全性を高めます。
-            const escapedSegment = segment.replace(/</g, '<').replace(/>/g, '>');
-            return `<span class="no-ruby">${escapedSegment}</span>`;
-        });
-    
-        // 3. 生成したHTMLの各部分を、ブラウザの単語連結問題を回避するための「ゼロ幅スペース」で結合します。
-        const finalHtml = htmlParts.join('\u200B');
-        cardNameContent.innerHTML = finalHtml;
-
-        // ★★★ ここからが今回の修正箇所です ★★★
-        // 4. 生成したHTMLに<ruby>タグが含まれるかチェックし、クラスを付け外しする
-        if (finalHtml.includes('<ruby>')) {
-            cardNameContent.classList.remove('is-plain-text-only');
-        } else {
-            cardNameContent.classList.add('is-plain-text-only');
         }
-        // ★★★ ここまでが修正箇所です ★★★
+        const escapedSegment = segment.replace(/</g, '<').replace(/>/g, '>');
+        return `<span class="no-ruby">${escapedSegment}</span>`;
+    });
+    const finalHtml = htmlParts.join('\u200B');
 
-        // 5. 水平スケール調整（変更なし）
-        requestAnimationFrame(() => {
-            const contentEl = cardNameContent;
-            const availableWidth = contentEl.clientWidth;
-            const trueTextWidth = contentEl.scrollWidth;
-            const scaleX = (trueTextWidth > availableWidth) ? (availableWidth / trueTextWidth) : 1;
-            contentEl.style.transform = `scaleX(${scaleX})`;
+    // ★★★ ここからが新しいアーキテクチャです ★★★
+    // 2. 生成したHTMLを、伸縮専用の<span class="scaler">で囲み、状態管理クラスも適用します。
+    const hasRuby = finalHtml.includes('<ruby>');
+    const cardNameClass = hasRuby ? '' : 'is-plain-text-only';
+    cardNameContent.className = cardNameClass; // クラスを一度リセットしてから設定
+    cardNameContent.innerHTML = `<span class="scaler">${finalHtml}</span>`;
+
+    // 3. スケール計算を実行します。
+    requestAnimationFrame(() => {
+        const containerEl = cardNameContainer; // #card-name-container
+        const contentEl = cardNameContent; // #card-name-content
+        const scalerEl = contentEl.querySelector('.scaler'); // .scaler
+
+        if (!scalerEl) return; // 安全装置
+
+        const availableWidth = contentEl.clientWidth; // #card-name-contentの幅 (334px)
+        const trueTextWidth = scalerEl.scrollWidth; // .scalerの本来の幅
+
+        // CSSプロパティを直接操作するための変数
+        let containerLeft = '50%';
+        let containerTransformX = '-50%';
+        let contentTextAlign = 'center';
+        let scalerTransformOrigin = 'center';
+        let rtLeft = '50%';
+        let rtTransformX = 'calc(-50% + 1px)';
+        let scalerTransform = 'none';
+
+        // 中身の幅が、箱の幅を超えている場合のみ、縮小処理と左寄せを行います。
+        if (trueTextWidth > availableWidth) {
+            const scaleX = availableWidth / trueTextWidth;
+            scalerTransform = `scaleX(${scaleX})`;
+
+            // テキストが長くなった場合、左寄せに切り替える
+            containerLeft = '44px'; // テキストボックスと同じ左端
+            containerTransformX = '0';
+            contentTextAlign = 'left';
+            scalerTransformOrigin = 'left';
+            rtLeft = '0';
+            rtTransformX = '0';
+        }
+
+        // スタイルを適用
+        containerEl.style.left = containerLeft;
+        containerEl.style.transform = `translateX(${containerTransformX})`;
+        contentEl.style.textAlign = contentTextAlign;
+        scalerEl.style.transformOrigin = scalerTransformOrigin;
+        scalerEl.style.transform = scalerTransform;
+
+        // ルビのスタイルも動的に変更
+        const rtElements = contentEl.querySelectorAll('rt');
+        rtElements.forEach(rt => {
+            rt.style.left = rtLeft;
+            rt.style.transform = `translateX(${rtTransformX})`;
         });
-    }
+    });
+}
 
 
     function handleImageUpload(e) {
@@ -672,8 +699,88 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function createSparkleApngBlob() {
+        const baseImageElements = [backgroundImage, cardTemplateImage, imageContainer, overlayImageContainer];
+        const textElements = [cardNameContainer, textBoxContainer];
+
+        textElements.forEach(el => el.style.opacity = 0);
+        sparkleOverlayImage.style.display = 'none';
+        await new Promise(r => setTimeout(r, 100));
+        const baseCanvas = await html2canvas(cardContainer, {
+            backgroundColor: null,
+            useCORS: true,
+            scale: 1
+        });
+
+        textElements.forEach(el => el.style.opacity = 1);
+        baseImageElements.forEach(el => el.style.opacity = 0);
+        await new Promise(r => setTimeout(r, 100));
+
+        const textCanvas = await html2canvas(cardContainer, {
+            backgroundColor: null,
+            useCORS: true,
+            scale: 1
+        });
+
+        const sparkleBuffer = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'Card_asset/加算してキラキラ.png', true);
+            xhr.responseType = 'arraybuffer';
+            xhr.onload = function() {
+                if (this.status === 200 || this.status === 0) resolve(this.response);
+                else reject(new Error(`キラキラ素材の読み込みに失敗しました (HTTP Status: ${this.status})`));
+            };
+            xhr.onerror = () => reject(new Error('キラキラ素材の読み込みでネットワークエラーが発生しました。'));
+            xhr.send();
+        });
+
+        let sparkleApng = UPNG.decode(sparkleBuffer);
+        const sparkleFrames = UPNG.toRGBA8(sparkleApng);
+        const newFrames = [];
+        const {
+            width,
+            height
+        } = baseCanvas;
+
+        for (let i = 0; i < sparkleFrames.length; i++) {
+            const frameData = sparkleFrames[i];
+            const frameCanvas = document.createElement('canvas');
+            frameCanvas.width = width;
+            frameCanvas.height = height;
+            const frameCtx = frameCanvas.getContext('2d');
+
+            frameCtx.drawImage(baseCanvas, 0, 0);
+
+            const tempSparkleCanvas = document.createElement('canvas');
+            tempSparkleCanvas.width = sparkleApng.width;
+            tempSparkleCanvas.height = sparkleApng.height;
+            tempSparkleCanvas.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(frameData), sparkleApng.width, sparkleApng.height), 0, 0);
+
+            frameCtx.globalCompositeOperation = 'lighter';
+            frameCtx.drawImage(tempSparkleCanvas, 0, 0, width, height);
+            frameCtx.globalCompositeOperation = 'source-over';
+            frameCtx.drawImage(textCanvas, 0, 0);
+
+            newFrames.push(frameCtx.getImageData(0, 0, width, height).data.buffer);
+        }
+
+        const delays = sparkleApng.frames.map(f => f.delay);
+        const newApngBuffer = UPNG.encode(newFrames, width, height, 0, delays);
+        const blob = new Blob([newApngBuffer], {
+            type: 'image/png'
+        });
+
+        // 元の表示状態に戻す
+        textElements.forEach(el => el.style.opacity = 1);
+        baseImageElements.forEach(el => el.style.opacity = 1);
+        sparkleOverlayImage.style.display = sparkleCheckbox.checked ? 'block' : 'none';
+
+        return blob;
+    }
+
     async function generateSparkleApng() {
         const button = downloadBtn;
+        const originalButtonText = button.textContent;
         button.textContent = 'キラAPNGを生成中...';
         button.disabled = true;
 
@@ -682,98 +789,22 @@ document.addEventListener('DOMContentLoaded', () => {
         previewPanel.style.transform = 'none';
         previewWrapper.style.height = 'auto';
 
-        const baseImageElements = [backgroundImage, cardTemplateImage, imageContainer, overlayImageContainer];
-        const textElements = [cardNameContainer, textBoxContainer];
-
         try {
-            textElements.forEach(el => el.style.opacity = 0);
-            sparkleOverlayImage.style.display = 'none';
-            await new Promise(r => setTimeout(r, 100));
-            const baseCanvas = await html2canvas(cardContainer, {
-                backgroundColor: null,
-                useCORS: true,
-                scale: 1
-            });
-
-            textElements.forEach(el => el.style.opacity = 1);
-            baseImageElements.forEach(el => el.style.opacity = 0);
-            await new Promise(r => setTimeout(r, 100));
-
-            const textCanvas = await html2canvas(cardContainer, {
-                backgroundColor: null,
-                useCORS: true,
-                scale: 1
-            });
-
-            const sparkleBuffer = await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', 'Card_asset/加算してキラキラ.png', true);
-                xhr.responseType = 'arraybuffer';
-                xhr.onload = function() {
-                    if (this.status === 200 || this.status === 0) resolve(this.response);
-                    else reject(new Error(`キラキラ素材の読み込みに失敗しました (HTTP Status: ${this.status})`));
-                };
-                xhr.onerror = () => reject(new Error('キラキラ素材の読み込みでネットワークエラーが発生しました。'));
-                xhr.send();
-            });
-
-            let sparkleApng = UPNG.decode(sparkleBuffer);
-            const sparkleFrames = UPNG.toRGBA8(sparkleApng);
-            const newFrames = [];
-            const {
-                width,
-                height
-            } = baseCanvas;
-
-            for (let i = 0; i < sparkleFrames.length; i++) {
-                const frameData = sparkleFrames[i];
-                const frameCanvas = document.createElement('canvas');
-                frameCanvas.width = width;
-                frameCanvas.height = height;
-                const frameCtx = frameCanvas.getContext('2d');
-
-                frameCtx.drawImage(baseCanvas, 0, 0);
-
-                const tempSparkleCanvas = document.createElement('canvas');
-                tempSparkleCanvas.width = sparkleApng.width;
-                tempSparkleCanvas.height = sparkleApng.height;
-                tempSparkleCanvas.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(frameData), sparkleApng.width, sparkleApng.height), 0, 0);
-
-                frameCtx.globalCompositeOperation = 'lighter';
-                frameCtx.drawImage(tempSparkleCanvas, 0, 0, width, height);
-                frameCtx.globalCompositeOperation = 'source-over';
-                frameCtx.drawImage(textCanvas, 0, 0);
-
-                newFrames.push(frameCtx.getImageData(0, 0, width, height).data.buffer);
-            }
-
-            const delays = sparkleApng.frames.map(f => f.delay);
-            const newApngBuffer = UPNG.encode(newFrames, width, height, 0, delays);
-            const blob = new Blob([newApngBuffer], {
-                type: 'image/png'
-            });
-
+            const blob = await createSparkleApngBlob();
             const link = document.createElement('a');
             const fileName = `${(cardNameInput.value || 'custom_card').replace(/[()`]/g, '')}_kira.png`;
             link.download = fileName;
             link.href = URL.createObjectURL(blob);
             link.click();
             URL.revokeObjectURL(link.href);
-
         } catch (err) {
             console.error('キラAPNGの生成に失敗しました。', err);
             alert(`キラAPNGの生成中にエラーが発生しました。\n詳細: ${err.message}`);
         } finally {
-            button.textContent = 'カードを保存';
+            button.textContent = originalButtonText;
             button.disabled = false;
             previewPanel.style.transform = originalTransform;
             previewWrapper.style.height = originalWrapperHeight;
-
-            const allElements = [...baseImageElements, ...textElements];
-            allElements.forEach(el => {
-                if (el) el.style.opacity = 1;
-            });
-            sparkleOverlayImage.style.display = sparkleCheckbox.checked ? 'block' : 'none';
         }
     }
 
@@ -875,13 +906,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (file.name.endsWith('.json')) {
                     rawData = JSON.parse(content);
                     rawData.forEach(item => item.sparkle = item.sparkle === true);
-                    batchData = rawData;
+                    batchData = rawData.map(item => {
+                        // 背景記号の変換ロジックを追加
+                        let backgroundValue = item.background || '';
+                        if (backgroundValue === '◇') {
+                            backgroundValue = 'hologram_geometric.png';
+                        } else if (backgroundValue === '☆') {
+                            backgroundValue = 'hologram_glitter.png';
+                        }
+                        return {
+                            ...item,
+                            background: backgroundValue
+                        };
+                    });
                 } else if (file.name.endsWith('.csv')) {
                     rawData = parseCsv(content);
                     batchData = rawData.map(item => {
                         const colorName = item['色'] || '';
-                        const cardId = colorNameToIdMap[colorName] || '青カード';
+                        const cardId = colorNameToIdMap[colorName] || '青'; // デフォルト値を「青」に変更
                         const sparkleValue = (item['キラ'] || 'false').toLowerCase();
+
+                        // 背景記号の変換ロジックを追加
+                        let backgroundValue = item['背景'] || '';
+                        if (backgroundValue === '◇') {
+                            backgroundValue = 'hologram_geometric.png';
+                        } else if (backgroundValue === '☆') {
+                            backgroundValue = 'hologram_glitter.png';
+                        }
+
                         return {
                             cardName: item['カード名'] || '',
                             effect: item['効果説明'] || '',
@@ -890,7 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             color: cardId,
                             image: item['イラスト'] || '',
                             type: item['タイプ'] || '',
-                            background: item['背景'] || '',
+                            background: backgroundValue, // 変換後の値を設定
                             sparkle: ['true', '1', 'yes', 'はい', 'on'].includes(sparkleValue)
                         };
                     });
@@ -940,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePreviewFromData(data) {
-        cardColorSelect.value = data.color || '青カード';
+        cardColorSelect.value = data.color || '青'; // デフォルト値を「青」に変更
         cardTypeSelect.value = data.type || '';
         backgroundSelect.value = data.background || '';
         cardNameInput.value = data.cardName || '';
