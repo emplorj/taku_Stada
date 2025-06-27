@@ -333,5 +333,100 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSwiperSlider();
 });
 
+async function renderManualCard(tool, placeholderElement) {
+    let iconHtml = `<i class="${tool.icon || 'fa-solid fa-link'}"></i>`; // デフォルトアイコン
+
+    if (tool.icon && tool.icon.endsWith('.svg')) {
+        try {
+            const response = await fetch(tool.icon);
+            const svgText = await response.text();
+            iconHtml = svgText; // SVGの内容を直接挿入
+        } catch (error) {
+            console.error('SVGの読み込みエラー:', tool.icon, error);
+            iconHtml = `<i class="fa-solid fa-link"></i>`; // エラー時はデフォルトアイコン
+        }
+    } else if (tool.icon && tool.icon.endsWith('.png')) {
+        iconHtml = `<img src="${tool.icon}" alt="icon" class="menu-icon">`;
+    }
+
+    const cardHtml = `
+        <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="rich-link-card manual-ogp">
+            <div class="rich-link-icon">
+                ${iconHtml}
+            </div>
+            <div class="rich-link-content">
+                <div class="rich-link-title">${tool.title}</div>
+                <div class="rich-link-description">${tool.description || ''}</div>
+                ${tool.author ? `<div class="rich-link-author">by ${tool.author}</div>` : ''}
+            </div>
+            <div class="rich-link-arrow">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </div>
+        </a>
+    `;
+    placeholderElement.innerHTML = cardHtml;
+    placeholderElement.className = ''; // remove .ogp-card
+}
+
+async function fetchOgpData(url, placeholderElement) {
+    const defaultImage = 'img/icon.png';
+    try {
+        const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+        let html = await response.text();
+
+        html = html.replace(/<link[^>]*rel="preload"[^>]*>/gi, '');
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const getMetaContent = (prop, attr = 'property') => {
+            const el = doc.querySelector(`meta[${attr}="${prop}"]`);
+            return el ? el.getAttribute('content') : '';
+        };
+
+        const title = getMetaContent('og:title') || doc.querySelector('title')?.textContent || 'タイトル不明';
+        const description = getMetaContent('og:description') || getMetaContent('description', 'name') || '';
+        let imageUrl = getMetaContent('og:image');
+
+        if (imageUrl && !imageUrl.startsWith('http')) {
+            const urlObj = new URL(url);
+            imageUrl = new URL(imageUrl, urlObj.origin).href;
+        }
+
+        const displayUrl = new URL(url).hostname;
+
+        const cardHtml = `
+            <a href="${url}" target="_blank" rel="noopener noreferrer">
+                <div class="ogp-card-image">
+                    <img src="${imageUrl || defaultImage}" alt="サイトのプレビュー画像" onerror="this.onerror=null;this.src='img/icon.png';">
+                </div>
+                <div class="ogp-card-content">
+                    <h4 class="ogp-card-title">${title}</h4>
+                    <p class="ogp-card-description">${description}</p>
+                    <span class="ogp-card-url">${displayUrl}</span>
+                </div>
+            </a>
+        `;
+        placeholderElement.innerHTML = cardHtml;
+
+    } catch (error) {
+        console.error('OGP取得エラー:', url, error);
+        const displayUrl = new URL(url).hostname;
+        const errorHtml = `
+            <a href="${url}" target="_blank" rel="noopener noreferrer">
+                <div class="ogp-card-image">
+                    <img src="img/icon.png" alt="サイトのプレビュー画像">
+                </div>
+                <div class="ogp-card-content">
+                    <h4 class="ogp-card-title">${displayUrl}</h4>
+                    <p class="ogp-card-description">情報の取得に失敗しました。</p>
+                    <span class="ogp-card-url">${displayUrl}</span>
+                </div>
+            </a>
+        `;
+        placeholderElement.innerHTML = errorHtml;
+    }
+}
+
 // (パーティクルアニメーションのコードは変更なし)
 const canvas=document.getElementById("particleCanvas");if(canvas){const ctx=canvas.getContext("2d");let particles=[];const particleCount=80,particleSize=1.5,particleColor="rgba(255, 255, 255, 0.4)";function resizeCanvas(){canvas.width=window.innerWidth,canvas.height=window.innerHeight,initParticles()}class Particle{constructor(){this.x=Math.random()*canvas.width,this.y=Math.random()*canvas.height,this.size=Math.random()*(2*particleSize-particleSize/2)+particleSize/2,this.speedX=.4*Math.random()-.2,this.speedY=.4*Math.random()-.2}update(){this.x+=this.speedX,this.y+=this.speedY,this.x>canvas.width+this.size?this.x=-this.size:this.x<-this.size&&(this.x=canvas.width+this.size),this.y>canvas.height+this.size?this.y=-this.size:this.y<-this.size&&(this.y=canvas.height+this.size)}draw(){ctx.fillStyle=particleColor,ctx.beginPath(),ctx.arc(this.x,this.y,this.size,0,2*Math.PI),ctx.fill()}}function initParticles(){particles=[];for(let i=0;i<particleCount;i++)particles.push(new Particle)}function animateParticles(){requestAnimationFrame(animateParticles),ctx.clearRect(0,0,canvas.width,canvas.height);for(let i=0;i<particles.length;i++)particles[i].update(),particles[i].draw()}window.addEventListener("load",()=>{resizeCanvas(),animateParticles()}),window.addEventListener("resize",resizeCanvas)}
