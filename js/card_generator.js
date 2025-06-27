@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             colorNameToIdMap[details.name] = id;
         });
         Object.entries(cardTypes).forEach(([key, details]) => cardTypeSelect.add(new Option(details.name, key)));
-        cardColorSelect.value = "赤カード";
+        cardColorSelect.value = "青カード";
         cardTypeSelect.value = "";
         ['change', 'input'].forEach(event => {
             [cardColorSelect, cardTypeSelect, backgroundSelect, cardNameInput, effectInput, flavorInput, flavorSpeakerInput]
@@ -287,84 +287,76 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleZoom(e) { e.preventDefault(); const scaleAmount = 0.1; const delta = e.deltaY > 0 ? -1 : 1; const oldScale = imageState.scale; imageState.scale = Math.max(1, Math.min(imageState.scale + delta * scaleAmount, 3)); const rect = imageContainer.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; imageState.x = mouseX - (mouseX - imageState.x) * (imageState.scale / oldScale); imageState.y = mouseY - (mouseY - imageState.y) * (imageState.scale / oldScale); clampImagePosition(); updateImageTransform(); updateDraggableCursor(); }
     function clampImagePosition() { const containerWidth = imageContainer.offsetWidth; const containerHeight = imageContainer.offsetHeight; const scaledWidth = cardImage.offsetWidth * imageState.scale; const scaledHeight = cardImage.offsetHeight * imageState.scale; const min_x = Math.min(0, containerWidth - scaledWidth); const max_x = 0; const min_y = Math.min(0, containerHeight - scaledHeight); const max_y = 0; imageState.x = Math.max(min_x, Math.min(max_x, imageState.x)); imageState.y = Math.max(min_y, Math.min(max_y, imageState.y)); }
     
-    // ★★★ ここからが修正箇所 ★★★
-    // html2canvasの出力時に文字間隔を強制するヘルパー関数
     const forceLetterSpacingOnClone = (clonedDoc) => {
-    const originalEl = document.getElementById('effect-display');
-    const clonedEl = clonedDoc.getElementById('effect-display');
+    // 【STEP 1】ご指示に基づき、#card-name-content の設定を追加
+    const offsets = {
+        '#card-name-content': 4, // ★追加：下に2pxずらす
+        '#effect-display': 1,
+        '#flavor-display': 3,
+        '#flavor-speaker-display': 2
+    };
 
-    if (originalEl && clonedEl) {
-        // --- STEP 1: 元の要素で、一文字ごとの正確な座標を測定 ---
+    for (const selector of Object.keys(offsets)) {
+        const originalEl = document.querySelector(selector);
+        const clonedEl = clonedDoc.querySelector(selector);
+        const yOffset = offsets[selector];
 
-        // 測定の前に、元のテキストとスタイルを保持
-        const originalText = originalEl.innerText;
-        const computedStyle = window.getComputedStyle(originalEl);
-        const originalInnerHTML = originalEl.innerHTML;
+        if (originalEl && clonedEl) {
+            // テキストがない場合は、余計な処理をせず終了
+            if (originalEl.innerText.trim().length === 0) continue;
 
-        // 測定用のコンテナを一時的にクリア
-        originalEl.innerHTML = '';
+            originalEl.normalize();
 
-        // テキストを一文字ずつ<span>で囲み、座標を測定できる状態にする
-        const charSpans = [];
-        for (const char of originalText) {
-            if (char === '\n') {
-                originalEl.appendChild(document.createElement('br'));
-                continue;
+            const charPositions = [];
+            const containerRect = originalEl.getBoundingClientRect();
+            const walker = document.createTreeWalker(originalEl, Node.FILTER_TEXT, null, false);
+
+            while (walker.nextNode()) {
+                const textNode = walker.currentNode;
+                if (textNode.textContent.trim().length === 0) continue;
+
+                for (let i = 0; i < textNode.length; i++) {
+                    try {
+                        const range = document.createRange();
+                        range.setStart(textNode, i);
+                        range.setEnd(textNode, i + 1);
+                        const rect = range.getBoundingClientRect();
+                        charPositions.push({
+                            char: textNode.textContent[i],
+                            x: rect.left - containerRect.left,
+                            y: rect.top - containerRect.top
+                        });
+                    } catch (e) {
+                        console.warn(`座標測定エラー: 文字 '${textNode.textContent[i]}' をスキップ。`, e);
+                    }
+                }
             }
-            const span = document.createElement('span');
-            span.textContent = char;
-            // 測定中はインラインブロックにしておく
-            span.style.display = 'inline-block';
-            originalEl.appendChild(span);
-            charSpans.push(span);
-        }
-
-        // 親コンテナの左上の座標を取得
-        const containerRect = originalEl.getBoundingClientRect();
-        
-        // 各文字の相対座標を保存する配列
-        const charPositions = charSpans.map(span => {
-            const spanRect = span.getBoundingClientRect();
-            return {
-                char: span.textContent,
-                // 親コンテナからの相対X, Y座標を計算
-                x: spanRect.left - containerRect.left,
-                y: spanRect.top - containerRect.top
-            };
-        });
-
-        // 測定が終わったら、元の要素の見た目を元に戻す（非常に重要）
-        originalEl.innerHTML = originalInnerHTML;
-
-
-        // --- STEP 2: クローンされた要素に、測定した座標で文字を再配置 ---
-
-        // クローン要素を、絶対座標のコンテナとして機能するように設定
-        clonedEl.innerHTML = ''; // 中身を完全にクリア
-        clonedEl.style.position = 'relative'; // 子要素のabsoluteの基準点にする
-        // 元のpaddingは文字の開始位置に影響するため、ここで適用しておく
-        clonedEl.style.padding = computedStyle.padding;
-
-        // 測定した座標データを元に、一文字ずつ絶対座標で配置
-        charPositions.forEach(pos => {
-            const span = clonedDoc.createElement('span');
-            span.textContent = pos.char;
-
-            // スタイルを完全再現
-            span.style.fontFamily = computedStyle.fontFamily;
-            span.style.fontSize = computedStyle.fontSize;
-            span.style.fontWeight = computedStyle.fontWeight;
-            span.style.color = computedStyle.color;
-
-            // 測定した絶対座標で配置
-            span.style.position = 'absolute';
-            span.style.left = `${pos.x}px`;
-            span.style.top = `${pos.y}px`;
             
-            clonedEl.appendChild(span);
-        });
+            const computedStyle = window.getComputedStyle(originalEl);
+            clonedEl.style.color = 'transparent';
+            clonedEl.style.position = 'relative';
+
+            charPositions.forEach(pos => {
+                if (pos.char === '\n' || pos.char === '\r') return;
+                
+                const span = clonedDoc.createElement('span');
+                span.textContent = pos.char;
+                span.style.fontFamily = computedStyle.fontFamily;
+                span.style.fontSize = computedStyle.fontSize;
+                span.style.fontWeight = computedStyle.fontWeight;
+                // 色は元のスタイルから取得し、透明を上書きする
+                span.style.color = computedStyle.color;
+                span.style.position = 'absolute';
+                span.style.left = `${pos.x}px`;
+                // 調整されたオフセット値を適用
+                span.style.top = `${pos.y + yOffset}px`;
+                
+                clonedEl.appendChild(span);
+            });
+        }
     }
 };
+
     function downloadCard(isTemplate = false) {
         if (!isTemplate && sparkleCheckbox.checked) {
             generateSparkleApng();
@@ -519,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     rawData = parseCsv(content);
                     batchData = rawData.map(item => {
                         const colorName = item['色'] || '';
-                        const cardId = colorNameToIdMap[colorName] || '赤カード';
+                        const cardId = colorNameToIdMap[colorName] || '青カード';
                         const sparkleValue = (item['キラ'] || 'false').toLowerCase();
                         return {
                             cardName: item['カード名'] || '',
@@ -579,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePreviewFromData(data) {
-        cardColorSelect.value = data.color || '赤カード';
+        cardColorSelect.value = data.color || '青カード';
         cardTypeSelect.value = data.type || '';
         backgroundSelect.value = data.background || '';
         cardNameInput.value = data.cardName || '';
