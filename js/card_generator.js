@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const delta = e.deltaY > 0 ? -1 : 1;
         const oldScale = state.scale;
 
-        state.scale = Math.max(0.1, Math.min(state.scale + delta * scaleAmount, 5));
+        state.scale = Math.max(1, Math.min(state.scale + delta * scaleAmount, 3));
 
         const rect = container.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
