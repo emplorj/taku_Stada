@@ -25,11 +25,22 @@
 
 #card-template-image { width: 100%; height: 100%; z-index: 3; }
 #background-image { width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+#sparkle-overlay-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 5; /* 画像(1)とテンプレ(3)の上、テキスト(10, 20)の下 */
+    mix-blend-mode: lighten; /* 加算合成 */
+    pointer-events: none;
+}
 .card-text { position: absolute; box-sizing: border-box; text-align: center; color: #000; white-space: pre-wrap; word-wrap: break-word; z-index: 10; pointer-events: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-smooth: always; }
 
-/* ★ 修正点: カード名のコンテナを正しく絶対配置する */
+/* カード名のコンテナを正しく絶対配置する */
 #card-name-container {
-    position: absolute; /* positionをabsoluteに修正 */
+    position: absolute;
     top: 46px;
     left: 50%;
     transform: translateX(-50%);
@@ -43,7 +54,7 @@
     justify-content: center;
     align-items: center;
 }
-/* ★ 修正点: カード名のテキストコンテンツのスタイルを調整 */
+/* カード名のテキストコンテンツのスタイルを調整 */
 #card-name-content {
     position: relative;
     top: 2.5px;
@@ -55,7 +66,7 @@
     line-height: 1;
     max-width: 334px; /* テキストが表示される最大幅 */
 }
-/* ★ 修正点: ルビと通常テキストの縦位置を揃えるための堅牢なスタイル */
+/* ルビと通常テキストの縦位置を揃えるための堅牢なスタイル */
 #card-name-content ruby {
     position: relative;
     display: inline-block;
@@ -78,6 +89,7 @@
 }
 
 /* カードタイプ別スタイル */
+/* CF(文字枠なし)タイプ時のカード名スタイル */
 .title-styled {
     -webkit-text-stroke: 2px white;
     text-stroke: 2px white;
@@ -85,12 +97,20 @@
     text-shadow: 0 0 7px rgba(255, 255, 255, 1);
 }
 
-/* フルフレーム時のテキストシャドウ */
+/* FF(フルフレーム)タイプ時のテキストスタイル */
 .textbox-styled .card-text {
-    text-shadow: 0px 0px 0.6px rgba(255, 255, 255, 0.8);
+  color: #000;
+  text-shadow:
+    1px 0 0 white, -1px 0 0 white, 0 1px 0 white, 0 -1px 0 white,
+    1px 1px 0 white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white,
+    2px 2px 4px rgba(0, 0, 0, 0.5);
+  -webkit-text-stroke: 0;
+  text-stroke: 0;
+  paint-order: normal;
 }
 
-/* ★★★ テキストボックスのレイアウト（全座標を最終確定） ★★★ */
+
+/* テキストボックスのレイアウト（全座標を最終確定） */
 #text-box-container {
     position: absolute;
     left: 44px;
@@ -113,14 +133,14 @@
     font-weight: 100;
     font-style: normal;
     color: rgb(0, 0, 0);
-    letter-spacing: -0.02em;
     line-height: 1.25;
     text-align: left;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    font-feature-settings: "palt";
     padding: 0 16px;
     margin-bottom: 5px; /* フレーバーテキストとの間に余白を確保 */
+    letter-spacing: 1px; /* プレビュー用の自然な文字間 */
+    font-feature-settings: "palt"; /* プレビュー用に日本語の文字詰めを有効化 */
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 #flavor-group {
@@ -140,6 +160,8 @@
     text-align: left;
     padding: 0 28px;
     margin-bottom: 5px;
+    letter-spacing: 0.05em; /* プレビュー用の自然な文字間 */
+    font-feature-settings: "palt";
 }
 
 #flavor-display > .inner-text {
@@ -147,9 +169,8 @@
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    word-break: break-all;
+    word-break: break-word;
     overflow-wrap: break-word;
-    font-feature-settings: "palt";
 }
 
 /* フレーバー話者 */
@@ -164,10 +185,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-feature-settings: "palt";
     padding: 0 21px;
     height: 25px;
+    letter-spacing: 0.05em; /* プレビュー用の自然な文字間 */
+    font-feature-settings: "palt";
 }
+
 
 /* 画像コンテナとアップロードコントロール */
 #image-container { position: absolute; top: 0; left: 0; width: 480px; height: 480px; z-index: 1; overflow: hidden; cursor: default; transition: height 0.3s ease; }

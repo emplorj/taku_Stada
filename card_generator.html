@@ -26,7 +26,11 @@
     })(document);
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- UPNG.jsが依存するpako.jsを先に追加 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <script src="https://unpkg.com/upng-js"></script>
+
 </head>
 
 <body class="page-card-creator">
@@ -108,7 +112,7 @@
         </div>
         <div class="form-group">
           <label for="card-name-input">カード名（ルビ記法: `漢字(かんじ)`）</label>
-          <input type="text" id="card-name-input" value="バトル！">
+          <input type="text" id="card-name-input" value="意外な授かり物">
         </div>
         <div class="form-group">
           <label>カード画像</label>
@@ -121,7 +125,7 @@
         </div>
         <div class="form-group">
           <label for="effect-input">効果（説明）</label>
-          <textarea id="effect-input" rows="4">即座に戦闘が起きる。</textarea>
+          <textarea id="effect-input" rows="4">アイテムを1つ拾う。</textarea>
         </div>
         <div class="form-group">
           <label for="flavor-input">フレーバーテキスト</label>
@@ -139,18 +143,11 @@
               <input type="checkbox" id="high-res-checkbox">
               <label for="high-res-checkbox">高画質</label>
             </div>
+            <div class="checkbox-container">
+              <input type="checkbox" id="sparkle-checkbox">
+              <label for="sparkle-checkbox">キラキラ</label>
+            </div>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="apng-overlay-upload">キラキラ素材 (APNG)</label>
-          <div class="image-upload-controls">
-            <label for="apng-overlay-upload" class="custom-file-upload">APNG選択</label>
-            <input type="file" id="apng-overlay-upload" accept=".png" style="display: none;">
-            <span id="apng-file-name" class="file-name-display">選択されていません</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <button id="download-apng-btn" class="add-new-button" disabled>キラカード (APNG) を保存</button>
         </div>
         <div class="batch-processing-section">
           <h2>一括生成</h2>
@@ -175,27 +172,64 @@
             <div id="batch-progress" class="progress-display" style="display: none;"></div>
           </div>
         </div>
+        <!-- ★★★ ここからが修正箇所 ★★★ -->
         <details class="batch-spec-details">
-          <summary>CSV/JSONフォーマットのお手本</summary>
+          <summary>【クリックで展開】CSV/JSONフォーマットの詳細な書き方</summary>
           <div class="spec-content">
-            <p>以下のヘッダー/キーを持つCSVまたはJSONファイルを使用できます。</p>
-            <strong>日本語CSVヘッダー:</strong>
-            <pre><code>カード名,効果説明,フレーバー,フレーバー名,色,イラスト</code></pre>
-            <strong>JSONキー (英語):</strong>
-            <pre><code>{
-  "cardName": "...",
-  "effect": "...",
-  "flavor": "...",
-  "speaker": "...",
-  "color": "赤カード",
-  "type": "FF",
-  "background": "hologram_glitter.png",
-  "image": "path/to/image.png"
-}</code></pre>
-            <p class="note">※日本語CSVの場合、「色」の列には`テンプレ/赤カード.png`のように記述してください。<br>※JSONの場合、`color`キーには`赤カード`のように拡張子なしで指定します。
-            </p>
+            <h4>CSVファイルの書き方</h4>
+            <p>1行目にヘッダー（列名）を書き、2行目以降にカードのデータを1行ずつ記述します。</p>
+            <strong>1行目: ヘッダー (この順番で記述してください)</strong>
+            <pre><code>カード名,色,タイプ,背景,イラスト,効果説明,フレーバー,フレーバー名,キラ</code></pre>
+            <strong>2行目以降: カードデータの例</strong>
+            <pre><code>一撃必殺,赤カード,,,"images/sword.png","このカードは敵を即座に倒す。","「これで終わりだ！」,英雄,false
+伝説の秘宝,虹カード,FF,hologram_geometric.png,"items/treasure.png",ゲームに勝利する。,,,true
+ただの石,白カード,,,,何の効果もない。,,,</code></pre>
+
+            <h5>各列の詳細説明</h5>
+            <ul>
+              <li><strong>カード名</strong>: (必須) カードの名前。ルビ記法も使えます例: `超新星(スーパーノヴァ)`)</li>
+              <li><strong>色</strong>: (必須) ドロップダウンリストにある色名。例: `赤カード`, `青カード`, `虹カード`</li>
+              <li><strong>タイプ</strong>: (任意) カードの見た目を変更します。空欄の場合は「標準」になります。
+                <ul>
+                  <li>`FF`: 画像がカード全体に表示される「フルフレーム」</li>
+                  <li>`CF`: カード名に白い縁取りが付く「文字枠なし」</li>
+                  <li>`FFCF`: 上記の両方を適用</li>
+                </ul>
+              </li>
+              <li><strong>背景</strong>: (任意) 画像が透過PNGの場合の背景。例: `hologram_glitter.png`</li>
+              <li><strong>イラスト</strong>: (任意) カード画像のファイル名。手順2でアップロードしたフォルダ内にある必要があります。</li>
+              <li><strong>効果説明, フレーバー, フレーバー名</strong>: (任意) それぞれのテキスト。</li>
+              <li><strong>キラ</strong>: (任意) キラカードにするかどうか。`true`を指定するとキラカード(APNG)になります。`false`または空欄の場合は通常のカード(PNG)になります。
+              </li>
+            </ul>
+
+            <hr style="margin: 20px 0; border-color: var(--theme-border);">
+
+            <h4>JSONファイルの書き方</h4>
+            <p>キーと値をセットにしたオブジェクトの配列として記述します。</p>
+            <pre><code>[
+  {
+    "cardName": "伝説の秘宝",
+    "color": "虹カード",
+    "type": "FF",
+    "background": "hologram_geometric.png",
+    "image": "items/treasure.png",
+    "effect": "ゲームに勝利する。",
+    "flavor": "",
+    "speaker": "",
+    "sparkle": true
+  },
+  {
+    "cardName": "ただの石",
+    "color": "白カード",
+    "effect": "何の効果もない。",
+    "sparkle": false
+  }
+]</code></pre>
+            <p class="note">※JSONでは、指定しないキーは自動的に空欄またはデフォルト値（`sparkle`は`false`）として扱われます。</p>
           </div>
         </details>
+        <!-- ★★★ ここまでが修正箇所 ★★★ -->
       </aside>
 
       <!-- 右側のプレビューパネル -->
@@ -203,6 +237,7 @@
         <div id="preview-area">
           <div id="card-container">
             <img id="background-image" src="" alt="カード背景" style="display: none;">
+            <img id="sparkle-overlay-image" src="Card_asset/加算してキラキラ.webp" alt="キラキラエフェクト" style="display: none;">
             <img id="card-template-image" src="Card_asset/テンプレ/青カード.png" alt="カードテンプレート">
             <div id="image-container">
               <img id="card-image" src="Card_asset/now_painting.png" alt="カード画像">
