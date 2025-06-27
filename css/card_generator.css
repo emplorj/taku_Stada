@@ -308,6 +308,16 @@ white-space: nowrap;
 .secondary-button:hover { background-color: #5a6268; }
 .add-new-button { margin-top: 30px; width: 100%; padding: 15px; font-size: 1.2em; font-weight: bold; color: #f0e6d2; background: linear-gradient(145deg, #1a2940, #2c3e50); border: 2px solid #c8a464; border-radius: 10px; text-shadow: 0 0 5px rgba(255, 223, 150, 0.8), 1px 1px 2px rgba(0,0,0,0.7); box-shadow: 0 0 12px rgba(173, 216, 230, 0.6), inset 0 0 6px rgba(173, 216, 230, 0.4), 0 4px 8px rgba(0,0,0,0.3); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer; }
 .add-new-button:hover { transform: translateY(-3px) scale(1.02); border-color: #f1d699; }
+.add-new-button:disabled {
+   opacity: 0.5; /* 半透明にする */
+   cursor: not-allowed; /* カーソルを禁止マークにする */
+   box-shadow: none; /* シャドウをなくす */
+   text-shadow: none; /* テキストシャドウをなくす */
+   transform: none; /* ホバー時の変形を無効にする */
+   border-color: #5a6268; /* 枠線の色を暗くする */
+   background: #333; /* 背景色を暗くする */
+   color: #aaa; /* 文字色を暗くする */
+}
 
 /* ===============================================
    一括生成セクションのアコーディオンUIスタイル
