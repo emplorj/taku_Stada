@@ -106,8 +106,8 @@
         <div class="form-group" id="background-select-group">
           <label for="background-select">カードの背景</label>
           <select id="background-select">
-            <option value="hologram_glitter.png">ホログラム（粒子）</option>
             <option value="hologram_geometric.png">ホログラム（幾何学）</option>
+            <option value="hologram_glitter.png">ホログラム（粒子）</option>
           </select>
         </div>
         <div class="form-group">
@@ -121,6 +121,29 @@
             <input type="file" id="image-upload" accept="image/*" style="display: none;">
             <span id="image-file-name" class="file-name-display">選択されていません</span>
             <button id="reset-image-btn" class="secondary-button">リセット</button>
+            <button id="reset-image-position-btn" class="secondary-button">座標リセット</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>上絵画像</label>
+          <div class="image-upload-controls">
+            <label for="overlay-image-upload" class="custom-file-upload">選択</label>
+            <input type="file" id="overlay-image-upload" accept="image/*" style="display: none;">
+            <span id="overlay-image-file-name" class="file-name-display">選択されていません</span>
+            <button id="reset-overlay-image-btn" class="secondary-button">リセット</button>
+            <button id="reset-overlay-position-btn" class="secondary-button">座標リセット</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>編集モード</label>
+          <!-- ★★★ トグルスイッチのコンテナを追加 ★★★ -->
+          <div class="toggle-switch-container">
+            <input type="radio" id="edit-mode-base" name="edit-mode" value="base" checked>
+            <label for="edit-mode-base">イラスト</label>
+
+            <input type="radio" id="edit-mode-overlay" name="edit-mode" value="overlay">
+            <label for="edit-mode-overlay">上絵</label>
           </div>
         </div>
         <div class="form-group">
@@ -149,30 +172,39 @@
             </div>
           </div>
         </div>
-        <div class="batch-processing-section">
-          <h2>一括生成</h2>
-          <div class="form-group">
-            <label for="batch-file-upload">1. CSV / JSON ファイルを選択</label>
-            <div class="image-upload-controls">
-              <label for="batch-file-upload" class="custom-file-upload">ファイル選択</label>
-              <input type="file" id="batch-file-upload" accept=".csv,.json" style="display: none;">
-              <span id="batch-file-name" class="file-name-display">選択されていません</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="image-folder-upload">2. カード画像フォルダを選択 (任意)</label>
-            <div class="image-upload-controls">
-              <label for="image-folder-upload" class="custom-file-upload">フォルダ選択</label>
-              <input type="file" id="image-folder-upload" webkitdirectory directory multiple style="display: none;">
-              <span id="image-folder-name" class="file-name-display">選択されていません</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <button id="batch-download-btn" class="add-new-button" disabled>ZIPで一括保存</button>
-            <div id="batch-progress" class="progress-display" style="display: none;"></div>
-          </div>
-        </div>
+
         <!-- ★★★ ここからが修正箇所 ★★★ -->
+        <!-- .batch-processing-section全体を<details>タグで囲む -->
+        <details class="batch-processing-details" open> <!-- PCではデフォルトで開くように open 属性を追加 -->
+          <!-- h2をsummaryに置き換える -->
+          <summary>
+            <h2>一括生成</h2>
+          </summary>
+          <div class="batch-processing-section">
+            <div class="form-group">
+              <label for="batch-file-upload">1. CSV / JSON ファイルを選択</label>
+              <div class="image-upload-controls">
+                <label for="batch-file-upload" class="custom-file-upload">ファイル選択</label>
+                <input type="file" id="batch-file-upload" accept=".csv,.json" style="display: none;">
+                <span id="batch-file-name" class="file-name-display">選択されていません</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="image-folder-upload">2. カード画像フォルダを選択 (任意)</label>
+              <div class="image-upload-controls">
+                <label for="image-folder-upload" class="custom-file-upload">フォルダ選択</label>
+                <input type="file" id="image-folder-upload" webkitdirectory directory multiple style="display: none;">
+                <span id="image-folder-name" class="file-name-display">選択されていません</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <button id="batch-download-btn" class="add-new-button" disabled>ZIPで一括保存</button>
+              <div id="batch-progress" class="progress-display" style="display: none;"></div>
+            </div>
+          </div>
+        </details>
+        <!-- ★★★ ここまでが修正箇所 ★★★ -->
+
         <details class="batch-spec-details">
           <summary>【クリックで展開】CSV/JSONフォーマットの詳細な書き方</summary>
           <div class="spec-content">
@@ -233,28 +265,35 @@
       </aside>
 
       <!-- 右側のプレビューパネル -->
-      <main class="preview-panel">
-        <div id="preview-area">
-          <div id="card-container">
-            <img id="background-image" src="" alt="カード背景" style="display: none;">
-            <img id="sparkle-overlay-image" src="Card_asset/加算してキラキラ.webp" alt="キラキラエフェクト" style="display: none;">
-            <img id="card-template-image" src="Card_asset/テンプレ/青カード.png" alt="カードテンプレート">
-            <div id="image-container">
-              <img id="card-image" src="Card_asset/now_painting.png" alt="カード画像">
-            </div>
-            <div id="card-name-container" class="card-text">
-              <div id="card-name-content"></div>
-            </div>
-            <div id="text-box-container">
-              <div id="flavor-group">
-                <div id="flavor-display" class="card-text"></div>
-                <div id="flavor-speaker-display" class="card-text"></div>
+      <div class="preview-wrapper">
+        <main class="preview-panel">
+          <div id="preview-area">
+            <div id="card-container">
+              <img id="background-image" src="" alt="カード背景" style="display: none;">
+              <img id="sparkle-overlay-image" src="Card_asset/加算してキラキラ.webp" alt="キラキラエフェクト" style="display: none;">
+              <img id="card-template-image" src="Card_asset/テンプレ/青カード.png" alt="カードテンプレート">
+              <div id="image-container">
+                <img id="card-image" src="Card_asset/now_painting.png" alt="カード画像">
               </div>
-              <div id="effect-display" class="card-text"></div>
+
+              <div id="overlay-image-container">
+                <img id="overlay-image" src="" alt="上絵画像" style="display: none;">
+              </div>
+
+              <div id="card-name-container" class="card-text">
+                <div id="card-name-content"></div>
+              </div>
+              <div id="text-box-container">
+                <div id="flavor-group">
+                  <div id="flavor-display" class="card-text"></div>
+                  <div id="flavor-speaker-display" class="card-text"></div>
+                </div>
+                <div id="effect-display" class="card-text"></div>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   </div>
 

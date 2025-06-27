@@ -1,9 +1,31 @@
 /* card_generator.css */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
 @font-face { font-family: 'hgrsgu'; src: url('../fonts/hgrsgu.woff2') format('woff2'); font-weight: normal; font-style: normal; }
 
-.main-content { padding: 20px !important; }
+.main-content {
+    padding: 20px !important;
+    flex-grow: 1; /* main-contentが利用可能なスペースを埋めるようにする */
+}
+.page-card-creator { /* bodyに適用されるクラス */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* ビューポートの高さ全体を占めるようにする */
+    overflow-y: auto; /* bodyをスクロールコンテナにする */
+}
 .page-header-with-actions .subtitle { font-family: 'Makinas-4-Flat', sans-serif; }
-.creator-container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; align-items: flex-start; justify-content: center; }
+.creator-container {
+    display: flex;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: flex-start;
+    justify-content: center;
+    /* height: 100%; /* 親の高さに合わせる - stickyと競合する可能性があるので削除 */
+}
 .controls-panel { min-width: 320px; max-width: 900px; flex-shrink: 1; flex-grow: 1; background-color: var(--theme-bg-main, #1a2c6d); overflow-y: auto; padding: 20px 25px; border-radius: 8px; transition: background-color 0.3s; }
 .form-group-inline { display: flex; gap: 15px; align-items: center; }
 .form-group-item { flex: 1; }
@@ -12,7 +34,21 @@
 .controls-panel input, .controls-panel textarea, .controls-panel select { width: 100%; box-sizing: border-box; background-color: var(--theme-bg-dark, #0d1a50); color: #eee; border: 1px solid var(--theme-border, #2a3c7d); border-radius: 4px; padding: 10px; font-size: 1em; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s; }
 .controls-panel input:focus, .controls-panel textarea:focus, .controls-panel select:focus { border-color: #3498db; box-shadow: 0 0 8px rgba(52, 152, 219, 0.5); outline: none; }
 .controls-panel textarea { resize: vertical; min-height: 80px; }
-.preview-panel { flex-shrink: 0; min-width: 0; display: flex; justify-content: center; align-items: flex-start; }
+.preview-wrapper {
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+/* プレビューパネル本体：常に固定幅を維持する「ステージ」 */
+.preview-panel {
+    width: 480px;
+    height: 720px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    /* スケーリングの基点を左上隅に固定（非常に重要） */
+    transform-origin: top left;
+}
 .download-options { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
 .download-options .add-new-button { flex-grow: 1; padding: 12px 15px; }
 .download-options .secondary-button { flex-grow: 1; }
@@ -36,8 +72,37 @@
     mix-blend-mode: lighten; /* 加算合成 */
     pointer-events: none;
 }
-.card-text { position: absolute; box-sizing: border-box; text-align: center; color: #000; white-space: pre-wrap; word-wrap: break-word; z-index: 10; pointer-events: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-smooth: always; }
+.card-text { 
+    z-index: 30; /* テキストが最前面に来るように値を大きくする */
+    /* 他のプロパティは変更しない */
+    position: absolute; 
+    box-sizing: border-box; 
+    text-align: center; 
+    color: #000; 
+    white-space: pre-wrap; 
+    word-wrap: break-word; 
+    pointer-events: none; 
+    -webkit-font-smoothing: antialiased; 
+    -moz-osx-font-smoothing: grayscale; 
+    font-smooth: always; 
+}
+#overlay-image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 480px;
+    height: 720px; /* カード全体を覆うサイズ */
+    z-index: 20; /* ご指定の通り、テキスト(30)より下、カード名(10)より上 */
+    overflow: hidden;
+    pointer-events: none; /* マウスイベントはプレビューエリア全体で受けるため */
+}
 
+/* 上絵画像本体のスタイル */
+#overlay-image {
+    position: absolute;
+    transform-origin: center;
+    pointer-events: none;
+}
 /* カード名のコンテナを正しく絶対配置する */
 #card-name-container {
     position: absolute;
@@ -49,7 +114,7 @@
     background-image: url('../Card_asset/タイトル.png');
     background-position: center;
     background-repeat: no-repeat;
-    z-index: 20;
+    z-index: 10;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,7 +122,6 @@
 /* カード名のテキストコンテンツのスタイルを調整 */
 #card-name-content {
     position: relative;
-    top: 2.5px;
     font-family: 'RocknRoll One', sans-serif;
     font-size: 28px;
     white-space: nowrap;
@@ -66,26 +130,58 @@
     line-height: 1;
     max-width: 334px; /* テキストが表示される最大幅 */
 }
-/* ルビと通常テキストの縦位置を揃えるための堅牢なスタイル */
-#card-name-content ruby {
+
+/* ★★★ ここからが最終的なレイアウト修正です ★★★ */
+
+#card-name-content {
     position: relative;
-    display: inline-block;
-    vertical-align: bottom; /* ベースラインを揃えやすくする */
-}
-#card-name-content rb, #card-name-content .no-ruby {
-    display: inline-block;
-    padding-top: 14px; /* ルビ用の余白 */
+    font-family: 'RocknRoll One', sans-serif;
+    font-size: 28px;
+    white-space: nowrap;
+    transform-origin: center;
+    color: #000;
     line-height: 1;
+    max-width: 334px;
 }
+
+/* 1. 【ルビがない文字】専用のスタイル */
+#card-name-content .no-ruby {
+    padding-top: 0; 
+    position: relative;
+    top: -3px; /* 修正: -4px から -3px へ (下に1px移動) */
+}
+
+/* 2. 【ルビがある部分】の親コンテナのスタイル */
+#card-name-content ruby {
+    display: inline-block;
+    vertical-align: baseline;
+    position: relative;
+}
+
+/* 3. 【ルビの親文字】専用のスタイル */
+#card-name-content rb {
+    display: inline-block;
+    padding-top: 14px; 
+    line-height: 1;
+    position: relative;
+    top: -3px; /* 修正: -4px から -3px へ (下に1px移動) */
+}
+
+/* 4. 【ルビ文字】専用のスタイル */
 #card-name-content rt {
     position: absolute;
-    top: 0;
+    top: -1px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(calc(-50%));
     font-family: 'RocknRoll One', sans-serif;
     font-size: 14px;
     line-height: 1;
     white-space: nowrap;
+}
+
+#card-name-content.is-plain-text-only .no-ruby {
+    /* デフォルトのtop: -3px;から、さらに下に5px移動させる */
+    top: 1px; 
 }
 
 /* カードタイプ別スタイル */
@@ -202,21 +298,86 @@
 .custom-file-upload:hover { background: var(--button-hover-bg, #2980b9); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
 .secondary-button { background-color: #6c757d; color: white; border: 1px solid #5a6268; }
 .secondary-button:hover { background-color: #5a6268; }
-.add-new-button { width: 100%; padding: 15px; font-size: 1.2em; font-weight: bold; color: #f0e6d2; background: linear-gradient(145deg, #1a2940, #2c3e50); border: 2px solid #c8a464; border-radius: 10px; text-shadow: 0 0 5px rgba(255, 223, 150, 0.8), 1px 1px 2px rgba(0,0,0,0.7); box-shadow: 0 0 12px rgba(173, 216, 230, 0.6), inset 0 0 6px rgba(173, 216, 230, 0.4), 0 4px 8px rgba(0,0,0,0.3); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer; }
+.add-new-button { margin-top: 30px; width: 100%; padding: 15px; font-size: 1.2em; font-weight: bold; color: #f0e6d2; background: linear-gradient(145deg, #1a2940, #2c3e50); border: 2px solid #c8a464; border-radius: 10px; text-shadow: 0 0 5px rgba(255, 223, 150, 0.8), 1px 1px 2px rgba(0,0,0,0.7); box-shadow: 0 0 12px rgba(173, 216, 230, 0.6), inset 0 0 6px rgba(173, 216, 230, 0.4), 0 4px 8px rgba(0,0,0,0.3); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer; }
 .add-new-button:hover { transform: translateY(-3px) scale(1.02); border-color: #f1d699; }
+
+/* ===============================================
+   一括生成セクションのアコーディオンUIスタイル
+   =============================================== */
+.batch-processing-details > summary {
+    cursor: pointer;
+    list-style: none;
+    /* display: flex は不要になったので削除 */
+}
+
+.batch-processing-details > summary::-webkit-details-marker {
+    display: none; 
+}
+
+/* ★★★ h2自体をアイコンとテキストのコンテナとする ★★★ */
+.batch-processing-details > summary > h2 {
+    display: inline-block;
+    color: #c8a464;
+    margin-bottom: 0;
+    /* line-heightを明示的に設定（これが基準になる） */
+    line-height: 1.5; 
+}
+
+/* h2の直前のアイコンとして三角を配置 */
+.batch-processing-details > summary > h2::before {
+    content: '▶';
+    color: #c8a464;
+    font-size: 0.9em;
+    transition: transform 0.2s ease-in-out;
+    /* ★★★ ここが重要 ★★★ */
+    display: inline-block; /* h2の行の高さに影響を与えるようにする */
+    margin-right: 10px;  /* アイコンとテキストの間隔 */
+    vertical-align: middle; /* テキストに対して垂直中央に配置 */
+}
+
+/* detailsが開いているときだけ、アイコンを90度回転させる */
+.batch-processing-details[open] > summary > h2::before {
+    transform: rotate(90deg);
+}
+
+/* 開いたときに、summaryの下に適切なマージンを追加 */
+.batch-processing-details[open] > summary {
+    margin-bottom: 15px;
+}
+
+/* 元のセクションのスタイル調整は変更なし */
+.batch-processing-section {
+    margin-top: 0;
+    padding-top: 10px;
+    border-top: none;
+}
+
+/* フォーカススタイルも変更なし */
+.batch-processing-details > summary:focus-visible {
+    outline: 2px solid var(--button-bg, #3498db);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
 
 @media (max-width: 1360px) {
     .creator-container { flex-direction: column; align-items: center; }
-    .controls-panel, .preview-panel { width: 100%; max-width: 480px; min-width: unset; }
-    .preview-panel { margin-top: 20px; }
+    .controls-panel, .preview-wrapper { 
+        width: 100%; 
+        max-width: 480px; 
+        min-width: unset; 
+    }
+    .preview-wrapper { /* .preview-panel ではなく .preview-wrapper */
+        margin-top: 20px;
+    }
 }
 
 @media (max-width: 479px) {
-    .preview-panel {
+    .preview-wrapper { /* .preview-panel ではなく .preview-wrapper */
         width: 100%;
         overflow: hidden;
     }
     #preview-area {
+        /* 縮小の基点を左上隅に固定する（非常に重要） */
         transform-origin: top left;
     }
 }
@@ -280,8 +441,6 @@
 
 /* Batch Processing Section */
 .batch-processing-section {
-    margin-top: 30px;
-    padding-top: 20px;
     border-top: 1px solid var(--theme-border, #2a3c7d);
 }
 .batch-processing-section h2 {
@@ -333,4 +492,65 @@
 }
 .light-theme-ui .batch-spec-details .note {
     color: #7f8c8d;
+}
+/* ===============================================
+   編集モードのトグルスイッチUIスタイル
+   =============================================== */
+
+/* トグルスイッチ全体のコンテナ */
+.toggle-switch-container {
+    display: flex;
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden; /* 角丸をキレイに見せるため */
+    border: 1px solid var(--theme-border, #2a3c7d);
+}
+
+/* 元のラジオボタンは完全に非表示にする */
+.toggle-switch-container input[type="radio"] {
+    display: none;
+}
+
+/* ラベルをボタンのように見せるための基本スタイル */
+.toggle-switch-container label {
+    flex-grow: 1; /* コンテナ幅に合わせて均等に広がる */
+    padding: 10px 15px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    color: #bdc3c7; /* 非選択時の文字色 */
+    background-color: var(--theme-bg-dark, #0d1a50); /* 非選択時の背景色 */
+    transition: background-color 0.2s ease, color 0.2s ease;
+    user-select: none;
+}
+
+/* ★★★ ここがトグル機能の核心 ★★★ */
+/* チェックされたラジオボタンの直後にあるラベルのスタイルを変更 */
+.toggle-switch-container input[type="radio"]:checked + label {
+    /* 選択時のスタイル */
+    color: var(--button-color, #FFFFFF);
+    background-color: var(--button-bg, #3498db);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+/* ホバー時のスタイル（任意ですが推奨） */
+.toggle-switch-container input[type="radio"]:not(:checked) + label:hover {
+    background-color: var(--theme-bg-main, #1a2c6d);
+}
+@media (min-width: 1361px) {
+  /* 親コンテナの配置ルールを、スティッキーが機能するように変更 */
+
+
+  /* プレビューラッパーをスティッキーに設定 */
+  .preview-wrapper {
+    /* 親がstretchでも、自分は引き伸ばされずに上端に配置されるようにする */
+    /* align-self: flex-start; /* stickyと競合する可能性があるので削除 */ 
+    
+    /* 要素をスティッキーに設定 */
+    position: -webkit-sticky;
+    position: sticky;
+    
+    /* 画面の上から20pxの位置で固定 */
+    top: 20px;
+  }
 }
