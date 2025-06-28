@@ -42,6 +42,22 @@
 }
 
 
+:root {
+    --color-coc: #93c47d;
+    --color-coc-secret: #6aa84f;
+    --color-sw: #ea9999;
+    --color-sw2-5: #ea9999; /* SWと同じ */
+    --color-dx3: #cc4125;
+    --color-nechronica: #505050;
+    --color-satasupe: #e69138;
+    --color-mamoburu: #ffe51f;
+    --color-gin剣: #0788bb;
+    --color-umamusume: #ffa1d8;
+    --color-shinobigami: #8e7cc3;
+    --color-ar: #ffd966;
+    --color-default: #007bff;
+}
+
 html, body {
     min-height: 100%; /* Make html and body take full viewport height */
     margin: 0;
@@ -156,14 +172,6 @@ footer {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.additional-info-section h2 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
-    color: #f0f0f0;
-    border-bottom: 1px solid #4a5c9a;
-    padding-bottom: 8px;
-    margin-top: 0;
-    margin-bottom: 15px;
-}
 
 /* ==========================================================================
    5. ナビゲーション / UI要素 (目次詳細、ボタン、リンクなど)
@@ -645,6 +653,10 @@ nav.side-menu > ul {
   display: flex;
   align-items: center;
 }
+.start-title i.fa-solid {
+   position: relative;
+   top: -5px;
+}
 /* 各セクションのアンカーリンク調整 */
 .main-content h2[id],
 .main-content h3[id],
@@ -664,18 +676,6 @@ nav.side-menu > ul {
   z-index: -1;
 }
 
-.additional-info-section .update-history-list {
-    /* ★★★ 以下の3つのプロパティを追加 ★★★ */
-    max-height: 7em;   /* 1. おおよそ3〜4行分の高さに最大値を制限 */
-    overflow-y: auto;  /* 2. 高さが最大値を超えたら、自動で垂直スクロールバーを表示 */
-    padding-right: 10px; /* 3. スクロールバーのスペースを確保 */
-
-    /* (↓以下は既存のスタイルなので、変更は不要です) */
-    list-style: none; 
-    padding-left: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-}
 /* ==========================================================================
    9. メディアクエリ (レスポンシブ対応)
    ========================================================================== */
@@ -842,24 +842,6 @@ nav.side-menu > ul {
 
 /* トップページに戻るロゴのモバイル調整 */
 
-.additional-info-section ul {
-    list-style-type: disc; /* 通常のリストマーカー */
-    padding-left: 25px; /* 左のパディング */
-    margin-bottom: 15px;
-}
-.additional-info-section ul li {
-    margin-bottom: 8px;
-}
-/* additional-info-section内のpタグに含まれるリンクの折り返し設定 */
-.additional-info-section p a {
-    word-break: break-all; /* 長いURLなどがはみ出さないように、単語の途中でも改行する */
-    /* overflow-wrap: break-word; も同様の効果がありますが、word-breakの方が強制力が強い場合があります */
-}
-
-/* color-codes-section に Corporate-Logo-Bold を適用（要素全体を想定） */
-.color-codes-section {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
-}
 
 .color-chip {
     display: inline-block;
@@ -1981,11 +1963,12 @@ font-style: normal;
   color: #586069;
   margin: 0;
 }
-
 .rich-link-arrow {
   font-size: 1rem;
   color: #586069;
   transition: transform 0.2s ease-in-out;
+  align-self: center;
+  margin-left: 16px;
 }
 
 .rich-link-card:hover .rich-link-arrow {
@@ -2001,4 +1984,93 @@ font-style: normal;
   color: #6a737d;
   margin-top: 8px;
   text-align: right;
+}
+
+.system-introduction {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* デフォルト（スマホ含む） */
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+@media (min-width: 1081px) { /* PCサイズ（1080pxより大きい場合） */
+    .system-introduction {
+        grid-template-columns: repeat(4, 1fr); /* 最大4列 */
+    }
+}
+
+.system-card {
+    background-color: #0d1a50; /* 少し濃い背景色 */
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 影を追加 */
+}
+
+.system-card h4 {
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+    font-size: 1.3em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    line-height: 1.3; /* 行の高さを調整 */
+    min-height: 2.6em; /* 2行分の高さを確保 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 8px; /* 線区切りのための下パディング */
+    border-bottom: 1px solid #4a5c9a; /* 線区切り */
+    width: 100%; /* 線をカード幅いっぱいに */
+}
+
+.system-card img {
+    width: 100%; /* 親要素の幅いっぱいに */
+    height: auto; /* アスペクト比を維持 */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    object-fit: cover; /* 画像がカードに収まるように調整 */
+}
+
+.system-card p {
+    font-size: 0.9em;
+    color: #e0e0e0;
+    text-align: left;
+    line-height: 1.7;
+}
+
+/* ==========================================================================
+   23. 画像とテキストの分割レイアウト
+   ========================================================================== */
+.split-content {
+    display: flex;
+    flex-wrap: wrap; /* 必要に応じて折り返す */
+    gap: 20px; /* テキストと画像の間隔 */
+    align-items: flex-start; /* 上揃え */
+}
+
+.split-content .text-content {
+    flex: 1 1 55%; /* 55%の幅を占め、必要に応じて伸縮 */
+    min-width: 300px; /* 最小幅を設定して、狭い画面でのレイアウト崩れを防ぐ */
+}
+
+.split-content .image-content {
+    flex: 1 1 40%; /* 40%の幅を占め、必要に応じて伸縮 */
+    text-align: center; /* 画像を中央寄せ */
+    min-width: 250px; /* 最小幅を設定 */
+}
+
+.split-content .image-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .split-content .text-content,
+    .split-content .image-content {
+        flex: 1 1 100%; /* スマートフォンでは縦に並べる */
+    }
 }

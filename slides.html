@@ -23,7 +23,6 @@
     <header class="main-header">
       <h1>なんかいろいろスライド</h1>
       <p class="subtitle">0からでも始めてみたいあなたに……</p>
-      <div id="cthulhu-guide-card-placeholder"></div>
     </header>
 
     <h3 class="start-title bg-coc">はじめよう　クトゥルフ神話RPG</h3>
@@ -56,17 +55,7 @@
   <script src="js/common.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      const cthulhuGuideData = {
-        url: "https://product.kadokawa.co.jp/cthulhu/play/entry-499828.html",
-        title: '3分でわかる"クトゥルフ神話TRPG"',
-        description: "KADOKAWAによるクトゥルフ神話TRPGの紹介ページです。",
-        icon: "fa-solid fa-book-open",
-        manual: true
-      };
-      const placeholder = document.getElementById('cthulhu-guide-card-placeholder');
-      if (placeholder && typeof renderManualCard !== 'undefined') {
-        renderManualCard(cthulhuGuideData, placeholder);
-      }
+      // No page-specific scripts needed for now
     });
   </script>
 </body>
