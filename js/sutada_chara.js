@@ -161,7 +161,7 @@ function generateSummaryHtml(imagePath, title) {
 // サーバーサイドAPIがない場合のフォールバック関数
 async function getImagePaths(index) {
     const basePath = "img/sutada_display/";
-    const gameFolders = ["スタダCoC紹介/", "スタダSW紹介/", "スタダDX紹介/", "スタダNC紹介/", "スタダminiCoC紹介/"];
+    const gameFolders = ["coc/", "sw/", "dx/", "nc/", "mini_coc/"];
     const allImageData = [
         [ /* CoC */
             "A1_takayuki.png", "A2_miotsukusi.png", "A3_poriko.png", "A4_mochitani.png", "A5_nakoji.png",
