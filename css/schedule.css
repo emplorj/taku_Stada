@@ -361,7 +361,6 @@ input[type="checkbox"].switch:checked::after{
 
 /* ★★★ 修正：グループ内のフィルターコンテナのスタイル ★★★ */
 .filter-group-container .filter-container {
-    flex: 1 1 300px; /* 横幅を均等に分けつつ、最小幅は約300pxに */
     margin-top: 0;
     margin-bottom: 0; /* 親コンテナでマージンを管理するためリセット */
 }
@@ -438,7 +437,7 @@ input[type="checkbox"].switch:checked::after{
 .daycord-table th,
 .daycord-table td {
     border: 1px solid #2c3e50;
-    padding: 8px 10px;
+    padding: 4px 4px;
     text-align: center;
 }
 
