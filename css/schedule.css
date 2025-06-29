@@ -352,18 +352,33 @@ input[type="checkbox"].switch:checked::after{
 /* ==========================================================================
    27. フィルタリング機能
    ========================================================================== */
+/* ★★★ 追加：2つのプルダウンをまとめる親コンテナのスタイル ★★★ */
+.filter-group-container {
+    display: flex;         /* 子要素を横並びにする */
+    flex-wrap: wrap;       /* 画面が狭くなったら折り返す */
+    gap: 20px;             /* 横の隙間を20pxに設定 */
+}
+
+/* ★★★ 修正：グループ内のフィルターコンテナのスタイル ★★★ */
+.filter-group-container .filter-container {
+    flex: 1 1 300px; /* 横幅を均等に分けつつ、最小幅は約300pxに */
+    margin-top: 0;
+    margin-bottom: 0; /* 親コンテナでマージンを管理するためリセット */
+}
+
+/* 従来のフィルターコンテナ（参加者選択など） */
 .filter-container {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-top: 15px;
-    margin-bottom: 25px;
     color: #e0e0e0;
     font-size: 1em;
 }
 
 #name-filter-select,
-#scenario-filter-select { /* ★ 変更点: #scenario-filter-select を追加 */
+#scenario-filter-select,
+#preset-filter-select {
     background-color: #0d1a50;
     color: #eee;
     border: 1px solid #2a3c7d;
@@ -372,15 +387,24 @@ input[type="checkbox"].switch:checked::after{
     font-size: 0.9em;
     font-family: inherit;
     flex-grow: 1;
-    max-width: 300px;
+    max-width: 400px; /* 最大幅を少し広げる */
     cursor: pointer;
 }
 
 #name-filter-select:focus,
-#scenario-filter-select:focus { /* ★ 変更点: #scenario-filter-select:focus を追加 */
+#scenario-filter-select:focus,
+#preset-filter-select:focus {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+/* ★★★ 追加：スマホ表示用のスタイル ★★★ */
+@media (max-width: 768px) {
+    .filter-group-container {
+        flex-direction: column; /* 横並びを縦並びに変更 */
+        gap: 15px;              /* 縦の隙間を調整 */
+    }
 }
 
 /* ==========================================================================
@@ -393,9 +417,9 @@ input[type="checkbox"].switch:checked::after{
 #daycord-table-container h4,
 #availability-results-container h4 {
     font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', sans-serif;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     border-bottom: 1px solid #4a5c9a;
-    padding-bottom: 10px;
+    padding-bottom: 5px;
 }
 
 #daycord-table-container .table-wrapper {
@@ -429,15 +453,25 @@ input[type="checkbox"].switch:checked::after{
 }
 
 /* ★ 参加者名の列は横書きのままにする */
+/* ★ 参加者名の列は横書きのままにする（共通設定）*/
 .daycord-table thead th:first-child,
 .daycord-table tbody td:first-child {
     writing-mode: horizontal-tb;
-    background-color: #34495e; /* 左端のヘッダー色を少し変える */
     font-weight: bold;
-    min-width: 100px; /* 参加者名の幅を確保 */
-    position: sticky; /* ★ 名前列を横スクロールに追従させる */
+    min-width: 100px;
+    position: sticky;
     left: 0;
     z-index: 1;
+}
+
+/* ★ ヘッダーの固定列の背景色 */
+.daycord-table thead th:first-child {
+    background-color: #34495e;
+}
+
+/* ★ ボディの固定列（参加者名）の背景色 */
+.daycord-table tbody td:first-child {
+    background-color: #1a2c6d; /* 背景を不透明にして、下のコンテンツが透けないようにする */
 }
 
 
@@ -626,8 +660,8 @@ input[type="checkbox"].switch:checked::after{
    30. デイコード記号説明
    ========================================================================== */
 #daycord-legend {
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
     background-color: #0d1a50;
     padding: 15px 20px;
     border-radius: 8px;
@@ -683,8 +717,8 @@ input[type="checkbox"].switch:checked::after{
     content: attr(data-tooltip);
     position: absolute;
     bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    transform: none;
     background-color: #333;
     color: #fff;
     padding: 5px 10px;
@@ -700,67 +734,61 @@ input[type="checkbox"].switch:checked::after{
     opacity: 1;
     visibility: visible;
 }
-.consecutive-days {
-    background-color: #2c3e50;
+
+
+/* ==========================================================================
+   32. デイコード表の個別スタイル
+   ========================================================================== */
+.daycord-table tbody tr:nth-child(even) {
+    background-color: rgba(44, 62, 80, 0.1);
+}
+.daycord-table tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.2) !important;
+}
+.daycord-table td {
+    vertical-align: middle;
+    text-align: center;
+}
+.daycord-table td.has-other-event {
+    background-color: rgba(200, 50, 80, 0.15);
+}
+.daycord-status-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    padding: 0.3em 0.75em;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: bold;
+    line-height: 1.2;
+    min-width: 34px;
+    white-space: nowrap;
+}
+.daycord-status-tag.status-o,
+.daycord-status-tag.status-maru,
+.daycord-status-tag.status-sankaku,
+.daycord-status-tag.status-batsu,
+.daycord-status-tag.status-shikaku {
+    color: #fff;
+}
+.daycord-status-tag.status-o { background-color: #3298dc; }
+.daycord-status-tag.status-maru { background-color: #5cb85c; }
+.daycord-status-tag.status-sankaku { background-color: #ffdd57; color: rgba(0,0,0,0.7); }
+.daycord-status-tag.status-batsu { background-color: #f14668; }
+.daycord-status-tag.status-shikaku { background-color: #00d1b2; }
+.daycord-status-tag.status-hyphen { background-color: #f5f5f5; color: #7a7a7a; }
+.daycord-event-entry {
+    padding: 2px 4px;
+    margin-bottom: 2px;
     border-radius: 4px;
-    padding: 2px 5px;
-    margin: 0 2px;
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    font-size: 0.9em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: help;
 }
-
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-    /* 予定リストテーブルがはみ出す場合は横スクロールを許可 */
-    .schedule-list-container {
-        overflow-x: auto;
-    }
-    .schedule-table {
-        min-width: 600px;
-    }
-}
-
-@media (max-width: 600px) {
-    /* カレンダーのナビゲーションとセルのスタイルを調整 */
-    .calendar-nav {
-        gap: 10px;
-        padding: 6px;
-    }
-    .calendar-nav button {
-        padding: 6px 8px;
-        font-size: 0.9em;
-    }
-    #current-week-display {
-        font-size: 1em;
-    }
-    #calendar-grid {
-        gap: 1px;
-    }
-    .calendar-header-cell {
-        padding: 6px 3px;
-        font-size: 0.75em;
-        min-height: auto;
-    }
-    .calendar-cell {
-        min-height: 80px;
-        padding: 4px;
-        font-size: 0.8em;
-    }
-    .date-number {
-        font-size: 0.9em;
-        margin-bottom: 3px;
-    }
-    .calendar-cell.today .today-date-number {
-        width: 1.6em;
-        height: 1.6em;
-        font-size: 0.9em;
-    }
-    .events-container {
-        font-size: 0.8em;
-    }
-    .event-entry {
-        font-size: 0.9em;
-        padding: 1px 4px;
-        margin-bottom: 2px;
-        border-left-width: 2px;
-    }
+.daycord-event-entry:last-child {
+    margin-bottom: 0;
 }

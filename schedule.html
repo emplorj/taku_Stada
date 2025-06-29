@@ -34,7 +34,6 @@
         <label for="name-filter-select">絞り込み:</label>
         <select id="name-filter-select">
           <option value="">全員</option>
-          <!-- 参加者名はJavaScriptによってここに追加されます -->
         </select>
       </div>
       <div id="custom-calendar-container">
@@ -68,15 +67,23 @@
           href="https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
           target="_blank" rel="noopener noreferrer">デイコード</a>: 予定の入力はこちらから</p>
 
-      <!-- ▼▼▼ ここから挿入 ▼▼▼ -->
-      <div class="filter-container">
-        <label for="scenario-filter-select">シナリオから参加者を読込:</label>
-        <select id="scenario-filter-select">
-          <option value="">-- シナリオを選択 --</option>
-          <!-- JavaScriptでシナリオ名がここに追加されます -->
-        </select>
+      <!-- ▼▼▼ このブロックで2つのプルダウンを囲む ▼▼▼ -->
+      <div class="filter-group-container">
+        <div class="filter-container">
+          <label for="scenario-filter-select">シナリオから参加者を読込:</label>
+          <select id="scenario-filter-select">
+            <option value="">-- シナリオを選択 --</option>
+          </select>
+        </div>
+
+        <div class="filter-container">
+          <label for="preset-filter-select">プリセットから参加者を読込:</label>
+          <select id="preset-filter-select">
+            <option value="">-- プリセットを選択 --</option>
+          </select>
+        </div>
       </div>
-      <!-- ▲▲▲ ここまで挿入 ▲▲▲ -->
+      <!-- ▲▲▲ ここまで ▲▲▲ -->
 
       <div class="daycord-filter-wrapper">
         <div class="filter-container participant-selector-container">
@@ -89,7 +96,6 @@
           </div>
         </div>
         <div id="selected-participants-container">
-          <!-- 選択された参加者はJavaScriptによってここに追加されます -->
         </div>
       </div>
 
@@ -130,7 +136,6 @@
       <div id="daycord-table-container">
         <h4>デイコード出欠表</h4>
         <div class="table-wrapper">
-          <!-- デイコードのテーブルはJavaScriptによってここに生成されます -->
           <p>デイコードの情報を読み込み中です...</p>
         </div>
       </div>
