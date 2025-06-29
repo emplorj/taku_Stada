@@ -2073,3 +2073,126 @@ font-style: normal;
         flex: 1 1 100%; /* スマートフォンでは縦に並べる */
     }
 }
+
+/* ==========================================================================
+   24. トグルボタン (秘匿シナリオ非表示ボタンなど)
+   ========================================================================== */
+.toggle-button {
+    background-color: #3498db; /* デフォルトの背景色 */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    margin-top: 10px; /* 上の要素との間隔 */
+    margin-bottom: 20px; /* 下の要素との間隔 */
+    display: inline-block; /* 必要に応じて幅を調整できるように */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.toggle-button:hover {
+    background-color: #2980b9; /* ホバー時の背景色 */
+    transform: translateY(-2px); /* 少し浮き上がるエフェクト */
+}
+
+.toggle-button.active {
+    background-color: #6aa84f; /* アクティブ時の背景色 (CoC-㊙の色に合わせる) */
+    transform: translateY(0); /* 浮き上がりをリセット */
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); /* 押し込まれたような影 */
+}
+
+.toggle-button.active:hover {
+    background-color: #5a9a40; /* アクティブ時のホバー色 */
+}
+
+/* ==========================================================================
+   25. 共通スイッチ型チェックボックス
+   ========================================================================== */
+input[type="checkbox"].switch{
+  position: relative;
+  appearance: none;
+  background-color: #f2f2f2;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 28px;
+  border: 2px solid #bababa;
+  border-radius: calc(infinity * 1px);
+  transition: 250ms ease-out;
+  vertical-align: middle;
+  outline: 2px solid transparent;
+}
+input[type="checkbox"].switch:focus-visible{
+  outline-color: #0043fc;
+}
+input[type="checkbox"].switch::after{
+  content:"";
+  background-color: #fff;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  box-shadow: 0px 0px 3px #6b6b6b;
+  width: 24px;
+  height: 24px;
+  border-radius: calc(infinity * 1px);
+  transition: 200ms ease-out;
+}
+input[type="checkbox"].switch:active::after{
+  background-color: #f2f2f2;
+}
+input[type="checkbox"].switch:checked{
+  background-color: #00db07;
+  border-color: #00db07;
+}
+input[type="checkbox"].switch:checked::after{
+  left: 16px;
+}
+
+/* ==========================================================================
+   26. トグルスイッチコンテナ
+   ========================================================================== */
+.toggle-switch-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* チェックボックスとラベルの間隔 */
+    margin-top: 15px;
+    margin-bottom: 25px;
+    color: #e0e0e0; /* ラベルの文字色 */
+    font-size: 1em;
+}
+
+/* ==========================================================================
+   24. トグルボタン (秘匿シナリオ非表示ボタンなど)
+   ========================================================================== */
+.toggle-button {
+    background-color: #3498db; /* デフォルトの背景色 */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    margin-top: 10px; /* 上の要素との間隔 */
+    margin-bottom: 20px; /* 下の要素との間隔 */
+    display: inline-block; /* 必要に応じて幅を調整できるように */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.toggle-button:hover {
+    background-color: #2980b9; /* ホバー時の背景色 */
+    transform: translateY(-2px); /* 少し浮き上がるエフェクト */
+}
+
+.toggle-button.active {
+    background-color: #6aa84f; /* アクティブ時の背景色 (CoC-㊙の色に合わせる) */
+    transform: translateY(0); /* 浮き上がりをリセット */
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); /* 押し込まれたような影 */
+}
+
+.toggle-button.active:hover {
+    background-color: #5a9a40; /* アクティブ時のホバー色 */
+}

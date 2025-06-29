@@ -13,6 +13,8 @@ function initializeCalendar() {
   const prevWeekButton = document.getElementById('prev-week');
   const nextWeekButton = document.getElementById('next-week');
   const currentWeekDisplay = document.getElementById('current-week-display');
+  const toggleSecretEventsButton = document.getElementById('toggle-secret-events-btn'); // 新しいボタン
+  let isSecretEventsHidden = false; // 秘匿シナリオ非表示の状態
   const DAYS_IN_WEEK = 7;
   const WEEKS_TO_DISPLAY = 4;
   let tooltipElement;
@@ -60,12 +62,20 @@ function initializeCalendar() {
       allEvents.sort((a, b) => a.date.getTime() - b.date.getTime()); // 再度ソート
       currentStartDate = getSundayOfGivenDate(new Date());
       renderCalendar();
-      renderScheduleList(allEvents);
+      renderScheduleList(); // allEventsを直接渡すのではなく、関数内でフィルタリング
     } catch (error) {
       console.error("Error fetching or parsing CSV:", error);
       if (calendarGrid) calendarGrid.innerHTML = "<p>予定の読み込みに失敗しました。</p>";
     }
   }
+
+  // 秘匿シナリオ表示/非表示の切り替え
+  function toggleSecretEvents() {
+    isSecretEventsHidden = toggleSecretEventsButton.checked; // チェックボックスの状態を直接反映
+    renderCalendar();
+    renderScheduleList();
+  }
+
   function parseGoogleSheetCSV(csvText) {
     const rows = parseCsvToArray(csvText); // common.jsの関数を利用
     const events = [];
@@ -136,7 +146,11 @@ function initializeCalendar() {
       const cell = document.createElement('div'); cell.className = 'calendar-cell'; cell.dataset.cellDate = formatDateToDash(tempDate);
       const dateNumberDiv = document.createElement('div'); dateNumberDiv.className = 'date-number'; dateNumberDiv.textContent = tempDate.getDate(); cell.appendChild(dateNumberDiv);
       const dayOfWeek = tempDate.getDay(); if (dayOfWeek === 0) dateNumberDiv.classList.add('sunday-date-number'); else if (dayOfWeek === 6) dateNumberDiv.classList.add('saturday-date-number');
-      const eventsOnThisDay = allEvents.filter(event => tempDate.getTime() >= event.date.getTime() && tempDate.getTime() <= event.endDate.getTime());
+      
+      // 秘匿シナリオのフィルタリングを適用
+      const filteredEvents = isSecretEventsHidden ? allEvents.filter(event => event.system !== 'CoC-㊙') : allEvents;
+      const eventsOnThisDay = filteredEvents.filter(event => tempDate.getTime() >= event.date.getTime() && tempDate.getTime() <= event.endDate.getTime());
+      
       if (eventsOnThisDay.length > 0) {
         const eventsContainer = document.createElement('div'); eventsContainer.className = 'events-container';
         eventsOnThisDay.forEach(event => {
@@ -155,11 +169,15 @@ function initializeCalendar() {
       calendarGrid.appendChild(cell); tempDate.setDate(tempDate.getDate() + 1);
     }
   }
-  function renderScheduleList(events) {
+  function renderScheduleList() { // 引数からeventsを削除
     const scheduleBody = document.getElementById('schedule-list-body'); if (!scheduleBody) return;
     const today = new Date(); today.setHours(0, 0, 0, 0);
+    
+    // 秘匿シナリオのフィルタリングを適用
+    const filteredEvents = isSecretEventsHidden ? allEvents.filter(event => event.system !== 'CoC-㊙') : allEvents;
+
     const seriesMap = new Map();
-    events.forEach(event => { const participantsKey = event.participants ? [...event.participants].sort().join(',') : ''; const seriesKey = `${(event.eventName || '').trim()}|${(event.system || '').trim()}|${(event.gm || '').trim()}|${participantsKey}`; if (!seriesMap.has(seriesKey) && event.seriesEndDate.getTime() >= today.getTime()) { seriesMap.set(seriesKey, { system: event.system, eventName: event.eventName, startDate: event.seriesStartDate, endDate: event.seriesEndDate, gm: event.gm, participants: event.participants }); } });
+    filteredEvents.forEach(event => { const participantsKey = event.participants ? [...event.participants].sort().join(',') : ''; const seriesKey = `${(event.eventName || '').trim()}|${(event.system || '').trim()}|${(event.gm || '').trim()}|${participantsKey}`; if (!seriesMap.has(seriesKey) && event.seriesEndDate.getTime() >= today.getTime()) { seriesMap.set(seriesKey, { system: event.system, eventName: event.eventName, startDate: event.seriesStartDate, endDate: event.seriesEndDate, gm: event.gm, participants: event.participants }); } });
     const futureSeries = Array.from(seriesMap.values()); futureSeries.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
     scheduleBody.innerHTML = ''; if (futureSeries.length === 0) { scheduleBody.innerHTML = '<tr><td colspan="5">今後の予定はありません。</td></tr>'; return; }
     const dateFormatter = new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric', weekday: 'short' });
@@ -178,7 +196,9 @@ function initializeCalendar() {
     let seriesMinDate = null, seriesMaxDate = null;
     const targetDate = new Date(target.closest('.calendar-cell').dataset.cellDate + 'T00:00:00');
     const targetParticipantsArray = participantsString ? participantsString.split(', ').map(p => p.trim()) : [];
-    const eventBlock = allEvents.find(ev => targetDate.getTime() >= ev.date.getTime() && targetDate.getTime() <= ev.endDate.getTime() && ev.eventName === eventName && ev.system === system && (ev.gm || '') === (gm || '') && areParticipantArraysEqual(ev.participants, targetParticipantsArray));
+    // 秘匿シナリオのフィルタリングを適用
+    const filteredEvents = isSecretEventsHidden ? allEvents.filter(event => event.system !== 'CoC-㊙') : allEvents;
+    const eventBlock = filteredEvents.find(ev => targetDate.getTime() >= ev.date.getTime() && targetDate.getTime() <= ev.endDate.getTime() && ev.eventName === eventName && ev.system === system && (ev.gm || '') === (gm || '') && areParticipantArraysEqual(ev.participants, targetParticipantsArray));
     if (eventBlock && eventBlock.seriesStartDate && eventBlock.seriesEndDate) { seriesMinDate = eventBlock.seriesStartDate; seriesMaxDate = eventBlock.seriesEndDate; }
     if (!tooltipElement) { tooltipElement = document.createElement('div'); tooltipElement.className = 'event-tooltip'; document.body.appendChild(tooltipElement); }
     let tooltipContent = ''; if (gm) tooltipContent += `<strong>GM:</strong> ${gm}<br>`; if (participantsString) tooltipContent += `<strong>PL:</strong> ${participantsString}<br>`;
@@ -194,6 +214,14 @@ function initializeCalendar() {
     calendarGrid.addEventListener('mouseover', showTooltip);
     calendarGrid.addEventListener('mouseout', hideTooltip);
     calendarGrid.addEventListener('mousemove', (e) => { if (tooltipElement && tooltipElement.style.display === 'block') { tooltipElement.style.left = `${e.pageX + 15}px`; tooltipElement.style.top = `${e.pageY + 15}px`; } });
+  }
+  // 新しいチェックボックスのイベントリスナーを追加
+  if (toggleSecretEventsButton) {
+    toggleSecretEventsButton.addEventListener('change', () => { // 'click' から 'change' に変更
+      toggleSecretEvents();
+    });
+    // チェックボックスの初期状態を設定 (秘匿シナリオはデフォルトで表示なので、チェックボックスはオフ)
+    toggleSecretEventsButton.checked = isSecretEventsHidden;
   }
   fetchEventsAndRenderCalendar();
 }
