@@ -43,33 +43,36 @@ function copyCodeToClipboard(elementId) { const codeElement = document.getElemen
  */
 function parseCsvToArray(csvText) {
     const rows = [];
-    let inQuotes = false;
-    let currentRow = [];
-    let currentField = "";
-    const text = csvText.trim().replace(/\r\n|\r/g, "\n"); // 改行コードを統一
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        if (char === '"') {
-            if (inQuotes && text[i + 1] === '"') { // エスケープされたダブルクォート
-                currentField += '"';
-                i++; // 次の文字をスキップ
+    // 改行コードを統一し、最後の改行を削除
+    const text = csvText.trim().replace(/\r\n|\r/g, "\n");
+    // 各行を処理
+    text.split('\n').forEach(line => {
+        const fields = [];
+        let inQuote = false;
+        let fieldBuffer = '';
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                if (inQuote && i + 1 < line.length && line[i + 1] === '"') {
+                    // エスケープされたダブルクォート ("")
+                    fieldBuffer += '"';
+                    i++; // 次の文字をスキップ
+                } else {
+                    // ダブルクォートの開始または終了
+                    inQuote = !inQuote;
+                }
+            } else if (char === ',' && !inQuote) {
+                // カンマ区切り（ダブルクォートの外）
+                fields.push(fieldBuffer);
+                fieldBuffer = '';
             } else {
-                inQuotes = !inQuotes;
+                // 通常の文字
+                fieldBuffer += char;
             }
-        } else if (char === "," && !inQuotes) {
-            currentRow.push(currentField);
-            currentField = "";
-        } else if (char === "\n" && !inQuotes) {
-            currentRow.push(currentField);
-            rows.push(currentRow);
-            currentRow = [];
-            currentField = "";
-        } else {
-            currentField += char;
         }
-    }
-    currentRow.push(currentField); // 最後のフィールドを追加
-    rows.push(currentRow); // 最後の行を追加
+        fields.push(fieldBuffer); // 最後のフィールドを追加
+        rows.push(fields);
+    });
     return rows;
 }
 

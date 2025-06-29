@@ -43,19 +43,19 @@
 
 
 :root {
-    --color-coc: #93c47d;
-    --color-coc-secret: #6aa84f;
+    --color-coc: #93c47d; /* CoC */
+    --color-coc-secret: #6aa84f; /* CoC-㊙ */
     --color-sw: #ea9999;
     --color-sw2-5: #ea9999; /* SWと同じ */
-    --color-dx3: #cc4125;
-    --color-nechronica: #505050;
-    --color-satasupe: #e69138;
-    --color-mamoburu: #ffe51f;
-    --color-gin剣: #0788bb;
-    --color-umamusume: #ffa1d8;
-    --color-shinobigami: #8e7cc3;
-    --color-ar: #ffd966;
-    --color-default: #007bff;
+    --color-dx3: #cc4125; /* DX3 */
+    --color-nechronica: #505050; /* ネクロニカ */
+    --color-satasupe: #e69138; /* サタスペ */
+    --color-mamoburu: #ffe51f; /* マモブル */
+    --color-stellar: #0788bb; /* ステラナイツ */
+    --color-umamusume: #ffa1d8; /* ウマ娘 */
+    --color-shinobigami: #8e7cc3; /* シノビガミ */
+    --color-ar: #ffd966; /* アリアンロッド */
+    --color-default: #007bff; /* デフォルト色 */
 }
 
 html, body {
@@ -1403,7 +1403,6 @@ body.no-scroll {
     padding: 3px 8px;
     border-radius: 4px;
     font-size: 0.8em; /* タグ内のフォントは基本フォントを継承 */
-    font-weight: bold;
     margin-right: 8px;
     line-height: 1.2;
     vertical-align: middle;

@@ -17,6 +17,33 @@ function initializeCalendar() {
   const WEEKS_TO_DISPLAY = 4;
   let tooltipElement;
 
+  // CSS変数からTRPGシステムの色を取得し、TRPG_SYSTEM_COLORSオブジェクトを構築
+  const TRPG_SYSTEM_COLORS = {};
+  const rootStyles = getComputedStyle(document.documentElement);
+
+  // CSS変数名とTRPGシステム名のマッピングを定義
+  const cssVarToSystemMap = {
+    '--color-coc': 'CoC',
+    '--color-coc-secret': 'CoC-㊙',
+    '--color-dx3': 'DX3',
+    '--color-sw': 'SW', // SWとSW2.5は同じ色
+    '--color-sw2-5': 'SW2.5',
+    '--color-nechronica': 'ネクロニカ',
+    '--color-satasupe': 'サタスペ',
+    '--color-mamoburu': 'マモブル',
+    '--color-stellar': '銀剣',
+    '--color-ar': 'AR2E', // AR2Eは--color-arを使用
+    '--color-default': 'default'
+  };
+
+  for (const cssVar in cssVarToSystemMap) {
+    const systemName = cssVarToSystemMap[cssVar];
+    const color = rootStyles.getPropertyValue(cssVar).trim();
+    if (color) {
+      TRPG_SYSTEM_COLORS[systemName] = color;
+    }
+  }
+
   async function fetchEventsAndRenderCalendar() {
     const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=783716063&single=true&output=csv';
     try {
@@ -24,12 +51,13 @@ function initializeCalendar() {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const csvText = await response.text();
       let parsedEvents = parseGoogleSheetCSV(csvText);
+      allEvents = mergeConsecutiveEvents(parsedEvents);
+      // マージされたイベントに対してシリーズ情報を付与
       const getSeriesKey = (event) => { const participantsKey = event.participants ? [...event.participants].sort().join(',') : ''; return `${(event.eventName || '').trim()}|${(event.system || '').trim()}|${(event.gm || '').trim()}|${participantsKey}`; };
       const seriesMap = new Map();
-      parsedEvents.forEach(event => { const key = getSeriesKey(event); if (!seriesMap.has(key)) seriesMap.set(key, []); seriesMap.get(key).push(event); });
+      allEvents.forEach(event => { const key = getSeriesKey(event); if (!seriesMap.has(key)) seriesMap.set(key, []); seriesMap.get(key).push(event); });
       seriesMap.forEach(series => { series.sort((a, b) => a.date.getTime() - b.date.getTime()); const seriesDates = series.map(e => e.date); series.forEach((event, index) => { event.dayInSeries = index + 1; event.seriesDates = seriesDates; event.seriesStartDate = series[0].date; event.seriesEndDate = series[series.length - 1].date; }); });
-      allEvents = mergeConsecutiveEvents(parsedEvents);
-      allEvents.sort((a, b) => a.date.getTime() - b.date.getTime());
+      allEvents.sort((a, b) => a.date.getTime() - b.date.getTime()); // 再度ソート
       currentStartDate = getSundayOfGivenDate(new Date());
       renderCalendar();
       renderScheduleList(allEvents);
@@ -135,7 +163,14 @@ function initializeCalendar() {
     const futureSeries = Array.from(seriesMap.values()); futureSeries.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
     scheduleBody.innerHTML = ''; if (futureSeries.length === 0) { scheduleBody.innerHTML = '<tr><td colspan="5">今後の予定はありません。</td></tr>'; return; }
     const dateFormatter = new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric', weekday: 'short' });
-    futureSeries.forEach(series => { const row = document.createElement('tr'); const systemColor = TRPG_SYSTEM_COLORS[series.system] || TRPG_SYSTEM_COLORS['default']; const textColor = getContrastYIQ(systemColor); row.innerHTML = `<td><span class="schedule-system-tag" style="background-color:${systemColor}; color:${textColor};">${series.system}</span>『${series.eventName}』</td><td>${dateFormatter.format(series.startDate)}</td><td>${dateFormatter.format(series.endDate)}</td><td>${series.gm || 'N/A'}</td><td>${series.participants.join(', ') || 'N/A'}</td>`; scheduleBody.appendChild(row); });
+    futureSeries.forEach(series => {
+      const row = document.createElement('tr');
+      // TRPG_SYSTEM_COLORSから適切な色を取得
+      const systemColor = TRPG_SYSTEM_COLORS[series.system] || TRPG_SYSTEM_COLORS['default'];
+      const textColor = getContrastYIQ(systemColor);
+      row.innerHTML = `<td><span class="schedule-system-tag" style="background-color:${systemColor}; color:${textColor};">${series.system}</span>『${series.eventName}』</td><td>${dateFormatter.format(series.startDate)}</td><td>${dateFormatter.format(series.endDate)}</td><td>${series.gm || 'N/A'}</td><td>${series.participants.join(', ') || 'N/A'}</td>`;
+      scheduleBody.appendChild(row);
+    });
   }
   function showTooltip(event) {
     const target = event.target.closest('.event-entry'); if (!target) return;
