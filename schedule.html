@@ -68,20 +68,27 @@
           target="_blank" rel="noopener noreferrer">デイコード</a>: 予定の入力はこちらから</p>
 
       <p>参加者を読み込み</p>
-      <!-- ▼▼▼ このブロックで2つのプルダウンを囲む ▼▼▼ -->
       <div class="filter-group-container">
         <div class="filter-container">
           <label for="scenario-filter-select">シナリオから:</label>
-          <select id="scenario-filter-select">
-            <option value="">-- シナリオを選択 --</option>
-          </select>
+          <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+          <div class="select-wrapper">
+            <select id="scenario-filter-select">
+              <option value="">-- シナリオを選択 --</option>
+            </select>
+          </div>
+          <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
         </div>
 
         <div class="filter-container">
           <label for="preset-filter-select">プリセットから:</label>
-          <select id="preset-filter-select">
-            <option value="">-- プリセットを選択 --</option>
-          </select>
+          <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+          <div class="select-wrapper">
+            <select id="preset-filter-select">
+              <option value="">-- プリセットを選択 --</option>
+            </select>
+          </div>
+          <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
         </div>
       </div>
       <!-- ▲▲▲ ここまで ▲▲▲ -->

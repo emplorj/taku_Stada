@@ -374,7 +374,10 @@ input[type="checkbox"].switch:checked::after{
     color: #e0e0e0;
     font-size: 1em;
 }
-
+.filter-container label {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
 #name-filter-select,
 #scenario-filter-select,
 #preset-filter-select {
@@ -385,8 +388,9 @@ input[type="checkbox"].switch:checked::after{
     padding: 8px 10px;
     font-size: 0.9em;
     font-family: inherit;
-    flex-grow: 1;
-    max-width: 400px; /* 最大幅を少し広げる */
+    width: 100%; /*  <-- これを追加 */
+    max-width: 400px;
+    min-width: 0; 
     cursor: pointer;
 }
 
@@ -397,12 +401,21 @@ input[type="checkbox"].switch:checked::after{
     border-color: #3498db;
     box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
 }
-
+.select-wrapper {
+    position: relative;
+    flex-grow: 1; /* 親コンテナ内で伸びる役割をselectから移譲 */
+    overflow: hidden; /* このラッパーからはみ出した要素を隠す（最重要） */
+    min-width: 0;     /* 柔軟に縮むようにする */
+}
 /* ★★★ 追加：スマホ表示用のスタイル ★★★ */
 @media (max-width: 768px) {
     .filter-group-container {
         flex-direction: column; /* 横並びを縦並びに変更 */
         gap: 15px;              /* 縦の隙間を調整 */
+    }
+    /* ▼▼▼ このブロックを新しく追加してください ▼▼▼ */
+    .filter-group-container .filter-container {
+        flex-basis: auto; /* PC用の最小幅指定をリセット */
     }
 }
 
@@ -790,4 +803,60 @@ input[type="checkbox"].switch:checked::after{
 }
 .daycord-event-entry:last-child {
     margin-bottom: 0;
+}
+
+/* ==========================================================================
+   35. スマホ向け予定リスト最適化 (768px以下)
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* Hide the original table header on mobile */
+    .schedule-table thead {
+        display: none;
+    }
+
+    /* Make each table row a separate card */
+    .schedule-table tr {
+        display: block;
+        border: 1px solid #4a5c9a;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        background-color: rgba(44, 62, 80, 0.2);
+    }
+    .schedule-table tbody tr:hover {
+        background-color: rgba(44, 62, 80, 0.5); /* Adjust hover for cards */
+    }
+
+    /* Make each cell a full-width block */
+    .schedule-table td {
+        display: block;
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #2c3e50; /* Separator line inside the card */
+        text-align: left; /* Ensure text is left-aligned */
+    }
+
+    /* Remove the dashed line between columns on mobile */
+    .schedule-table td {
+        border-right: none;
+    }
+
+    /* Remove the separator from the last item in a card */
+    .schedule-table td:last-child {
+        border-bottom: none;
+    }
+
+    /* Display the data-label before the cell's content */
+    .schedule-table td[data-label]::before {
+        content: attr(data-label) "： "; /* The label text and a separator */
+        font-weight: bold;
+        display: block; /* Display label on its own line for clarity */
+        margin-bottom: 5px;
+        color: #bdc3c7; /* A slightly lighter color for the label */
+    }
+
+    /* Ensure the participant list wraps correctly */
+    .schedule-table td[data-label="参加者"] {
+        word-wrap: break-word;
+        white-space: normal;
+    }
 }
