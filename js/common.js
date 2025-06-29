@@ -76,19 +76,6 @@ function parseCsvToArray(csvText) {
     return rows;
 }
 
-/**
- * 2つの日付が連続しているか（date2がdate1の翌日か）を判定します。
- * @param {Date} date1 基準となる日付。
- * @param {Date} date2 比較する日付。
- * @returns {boolean} 翌日であればtrue、そうでなければfalse。
- */
-function isNextDay(date1, date2) {
-  const nextDay = new Date(date1);
-  nextDay.setDate(nextDay.getDate() + 1);
-  return nextDay.getFullYear() === date2.getFullYear() &&
-         nextDay.getMonth() === date2.getMonth() &&
-         nextDay.getDate() === date2.getDate();
-}
 
 // ==========================================================================
 // 2. ページ読み込み時の共通処理
