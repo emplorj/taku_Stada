@@ -24,15 +24,17 @@
       <p class="subtitle">今後のセッション予定など</p>
     </header>
 
-    <div class="plain-text-block additional-info-section">
-      <ul>
-        <li><a
-            href="https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
-            target="_blank" rel="noopener noreferrer">デイコード</a>: 予定の入力を行う</li>
-      </ul>
+    <div id="calendar-section" class="plain-text-block additional-info-section">
       <div class="toggle-switch-container">
         <input type="checkbox" id="toggle-secret-events-btn" class="switch">
         <label for="toggle-secret-events-btn">秘匿シナリオを非表示にする</label>
+      </div>
+      <div class="filter-container">
+        <label for="name-filter-select">絞り込み:</label>
+        <select id="name-filter-select">
+          <option value="">全員</option>
+          <!-- 参加者名はJavaScriptによってここに追加されます -->
+        </select>
       </div>
       <div id="custom-calendar-container">
         <div class="calendar-nav">
@@ -59,6 +61,69 @@
       </div>
     </div>
 
+    <div id="daycode-section" class="plain-text-block additional-info-section">
+      <h3>デイコード日程調整</h3>
+      <p><a
+          href="https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
+          target="_blank" rel="noopener noreferrer">デイコード</a>: 予定の入力はこちらから</p>
+      <div class="daycode-filter-wrapper">
+        <div class="filter-container participant-selector-container">
+          <label for="daycode-name-select">参加者を選択:</label>
+          <div class="participant-selector">
+            <select id="daycode-name-select">
+              <option value="">-- 名前を選択 --</option>
+            </select>
+            <button id="add-participant-btn" class="control-btn" title="参加者を追加">+</button>
+          </div>
+        </div>
+        <div id="selected-participants-container">
+          <!-- 選択された参加者はJavaScriptによってここに追加されます -->
+        </div>
+      </div>
+
+      <details id="daycode-legend">
+        <summary>
+          <h4>記号の説明</h4>
+        </summary>
+        <ul>
+          <li><span class="legend-symbol">◎</span>: 全日OK</li>
+          <li><span class="legend-symbol">〇</span>: 夜(20-21時以降)参加可能</li>
+          <li><span class="legend-symbol">△</span>: 夜(20-21時以降)参加可能 (遅刻の可能性あり)</li>
+          <li><span class="legend-symbol">▢</span>: 昼間のみ参加可能</li>
+          <li><span class="legend-symbol">×</span>: 参加不可</li>
+          <li><span class="legend-symbol">－</span>: 未定・未入力</li>
+        </ul>
+      </details>
+
+      <div id="availability-results-container">
+        <h4>候補日</h4>
+        <div class="availability-line">
+          <span class="line-label line-yoyu" data-tooltip="全員が夜参加可能（◎, 〇）">余裕</span>
+          <p id="results-yoyu">参加者を選択してください</p>
+        </div>
+        <div class="availability-line">
+          <span class="line-label line-dakyo" data-tooltip="遅刻者ありで夜参加可能（◎, 〇, △）">妥協</span>
+          <p id="results-dakyo">参加者を選択してください</p>
+        </div>
+        <div class="availability-line">
+          <span class="line-label line-ichimatsu" data-tooltip="未定者込みで夜参加可能（◎, 〇, △, －）">一抹</span>
+          <p id="results-ichimatsu">参加者を選択してください</p>
+        </div>
+        <div class="availability-line">
+          <span class="line-label line-hiru" data-tooltip="全員が昼参加可能（◎, ▢）">昼</span>
+          <p id="results-hiru">参加者を選択してください</p>
+        </div>
+      </div>
+
+      <div id="daycode-table-container">
+        <h4>デイコード出欠表</h4>
+        <div class="table-wrapper">
+          <!-- デイコードのテーブルはJavaScriptによってここに生成されます -->
+          <p>デイコードの情報を読み込み中です...</p>
+        </div>
+      </div>
+    </div>
+
     <footer>
       <p>© 2025 卓スタダ.</p>
     </footer>
@@ -66,7 +131,8 @@
 
   <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
   <script src="js/common.js" defer></script>
-  <script src="js/schedule.js" defer></script>
+  <script src="js/calendar.js" defer></script>
+  <script src="js/daycode.js" defer></script>
 </body>
 
 </html>

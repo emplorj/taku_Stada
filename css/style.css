@@ -2196,3 +2196,399 @@ input[type="checkbox"].switch:checked::after{
 .toggle-button.active:hover {
     background-color: #5a9a40; /* アクティブ時のホバー色 */
 }
+
+/* ==========================================================================
+   27. フィルタリング機能
+   ========================================================================== */
+.filter-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    color: #e0e0e0;
+    font-size: 1em;
+}
+
+#name-filter-input {
+    background-color: #0d1a50;
+    color: #eee;
+    border: 1px solid #2a3c7d;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 0.9em;
+    font-family: inherit;
+    flex-grow: 1; /* 横幅を可能な限り広げる */
+    max-width: 300px; /* 最大幅を指定 */
+}
+
+#name-filter-input::placeholder {
+    color: #8899c0;
+}
+
+#name-filter-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+/* ==========================================================================
+   27. フィルタリング機能
+   ========================================================================== */
+.filter-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    color: #e0e0e0;
+    font-size: 1em;
+}
+
+#name-filter-select { /* ★セレクタをinputからselectに変更 */
+    background-color: #0d1a50;
+    color: #eee;
+    border: 1px solid #2a3c7d;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 0.9em;
+    font-family: inherit;
+    flex-grow: 1;
+    max-width: 300px;
+    cursor: pointer; /* ★カーソルをポインターに変更 */
+}
+
+#name-filter-select::placeholder { /* ★input用だったので削除してもOK */
+    color: #8899c0;
+}
+
+#name-filter-select:focus { /* ★セレクタをinputからselectに変更 */
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+/* ==========================================================================
+   28. デイコード日程調整機能 (更新)
+   ========================================================================== */
+#daycode-table-container {
+    margin-top: 20px;
+}
+
+#daycode-table-container h4,
+#availability-results-container h4 {
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', sans-serif;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #4a5c9a;
+    padding-bottom: 10px;
+}
+
+#daycode-table-container .table-wrapper {
+    overflow-x: auto;
+}
+
+.daycode-table {
+    width: 100%;
+    min-width: 1200px; /* 横に長くなるため最小幅を広げる */
+    border-collapse: collapse;
+    color: #e0e0e0;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+.daycode-table th,
+.daycode-table td {
+    border: 1px solid #2c3e50;
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.daycode-table thead th {
+    background-color: #2c3e50;
+    font-size: 0.9em;
+    /* 日付ヘッダーを縦書きにする */
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+    min-height: 80px; /* 縦書き用の高さを確保 */
+}
+
+/* ★ 参加者名の列は横書きのままにする */
+.daycode-table thead th:first-child,
+.daycode-table tbody td:first-child {
+    writing-mode: horizontal-tb;
+    background-color: #34495e; /* 左端のヘッダー色を少し変える */
+    font-weight: bold;
+    min-width: 100px; /* 参加者名の幅を確保 */
+    position: sticky; /* ★ 名前列を横スクロールに追従させる */
+    left: 0;
+    z-index: 1;
+}
+
+
+.daycode-table tbody tr.highlight {
+    background-color: rgba(52, 152, 219, 0.2);
+}
+
+
+/* ステータスに応じた背景色 */
+.daycode-table td[data-status="◎"] {
+    background-color: #3298dc; /* is-info */
+    color: #fff;
+}
+.daycode-table td[data-status="〇"] {
+    background-color: #5cb85c; /* is-success (一般的な緑) */
+    color: #fff;
+}
+.daycode-table td[data-status="△"] {
+    background-color: #ffdd57; /* is-warning */
+    color: rgba(0,0,0,.7);
+}
+.daycode-table td[data-status="×"] {
+    background-color: #f14668; /* is-danger */
+    color: #fff;
+}
+.daycode-table td[data-status="▢"] {
+    background-color: #00d1b2; /* is-primary */
+    color: #fff;
+}
+
+/* 候補日表示エリア */
+#availability-results-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: #0d1a50;
+    padding: 15px 20px;
+    border-radius: 8px;
+}
+
+.availability-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+.availability-line:last-child { margin-bottom: 0; }
+.line-label {
+    flex-shrink: 0;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 4px;
+    color: #fff;
+    width: 50px;
+    text-align: center;
+}
+.line-yoyu { background-color: #16a34a; }
+.line-dakyo { background-color: #ca8a04; }
+.line-ichimatsu { background-color: #c2410c; }
+.line-hiru { background-color: #4338ca; }
+
+.availability-line p {
+    margin: 0;
+    padding-top: 4px;
+    font-size: 0.9em;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+/* ★ 複数選択チェックボックスのスタイル */
+.checkbox-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 15px;
+    flex-grow: 1;
+    background-color: #0d1a50;
+    border: 1px solid #2a3c7d;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.checkbox-container label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   29. 参加者選択UI (デイコード)
+   ========================================================================== */
+.daycode-filter-wrapper {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.participant-selector-container {
+    flex-wrap: wrap;
+    flex-basis: 400px;
+    flex-shrink: 0;
+}
+#selected-participants-container {
+    flex-grow: 1;
+}
+
+@media (max-width: 900px) {
+    .daycode-filter-wrapper {
+        flex-direction: column;
+    }
+    .participant-selector-container {
+        flex-basis: auto;
+    }
+}
+.participant-selector {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-grow: 1;
+}
+#daycode-name-select {
+    background-color: #0d1a50;
+    color: #eee;
+    border: 1px solid #2a3c7d;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 0.9em;
+    font-family: inherit;
+    flex-grow: 1;
+    max-width: 300px;
+    cursor: pointer;
+}
+.control-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1.5em;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.control-btn:hover {
+    background-color: #2980b9;
+    transform: scale(1.1);
+}
+#selected-participants-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #0d1a50;
+    border: 1px solid #2a3c7d;
+    border-radius: 4px;
+    min-height: 40px;
+}
+.participant-tag {
+    display: flex;
+    align-items: center;
+    background-color: #3498db;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+.remove-participant-btn {
+    background: none;
+    border: none;
+    color: white;
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0;
+    line-height: 1;
+}
+.remove-participant-btn:hover {
+    color: #f1c40f;
+}
+
+/* ==========================================================================
+   30. デイコード記号説明
+   ========================================================================== */
+#daycode-legend {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: #0d1a50;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: 1px solid #2a3c7d;
+}
+#daycode-legend summary {
+    cursor: pointer;
+    outline: none;
+}
+#daycode-legend summary::-webkit-details-marker {
+    display: none;
+}
+#daycode-legend h4 {
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', sans-serif;
+    margin: 0;
+    display: inline-block;
+}
+#daycode-legend[open] summary h4 {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #4a5c9a;
+    padding-bottom: 10px;
+}
+#daycode-legend ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9em;
+}
+#daycode-legend li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+#daycode-legend li:last-child {
+    margin-bottom: 0;
+}
+.legend-symbol {
+    font-weight: bold;
+    font-size: 1.2em;
+    width: 25px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   31. 汎用ツールチップ & 強調表示
+   ========================================================================== */
+.line-label[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+.line-label[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 10;
+}
+.line-label[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+.consecutive-days {
+    background-color: #2c3e50;
+    border-radius: 4px;
+    padding: 2px 5px;
+    margin: 0 2px;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
