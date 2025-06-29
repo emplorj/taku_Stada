@@ -362,7 +362,8 @@ input[type="checkbox"].switch:checked::after{
     font-size: 1em;
 }
 
-#name-filter-select {
+#name-filter-select,
+#scenario-filter-select { /* ★ 変更点: #scenario-filter-select を追加 */
     background-color: #0d1a50;
     color: #eee;
     border: 1px solid #2a3c7d;
@@ -375,7 +376,8 @@ input[type="checkbox"].switch:checked::after{
     cursor: pointer;
 }
 
-#name-filter-select:focus {
+#name-filter-select:focus,
+#scenario-filter-select:focus { /* ★ 変更点: #scenario-filter-select:focus を追加 */
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
@@ -639,7 +641,7 @@ input[type="checkbox"].switch:checked::after{
     display: none;
 }
 #daycord-legend h4 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', sans-serif;
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
     margin: 0;
     display: inline-block;
 }

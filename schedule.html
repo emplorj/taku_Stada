@@ -67,6 +67,17 @@
       <p><a
           href="https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
           target="_blank" rel="noopener noreferrer">デイコード</a>: 予定の入力はこちらから</p>
+
+      <!-- ▼▼▼ ここから挿入 ▼▼▼ -->
+      <div class="filter-container">
+        <label for="scenario-filter-select">シナリオから参加者を読込:</label>
+        <select id="scenario-filter-select">
+          <option value="">-- シナリオを選択 --</option>
+          <!-- JavaScriptでシナリオ名がここに追加されます -->
+        </select>
+      </div>
+      <!-- ▲▲▲ ここまで挿入 ▲▲▲ -->
+
       <div class="daycord-filter-wrapper">
         <div class="filter-container participant-selector-container">
           <label for="daycord-name-select">参加者を選択:</label>
@@ -132,7 +143,6 @@
 
   <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
   <script src="js/common.js" defer></script>
-  <script src="js/calendar.js" defer></script>
   <script src="js/schedule.js" defer></script>
 </body>
 
