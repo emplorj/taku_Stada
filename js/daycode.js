@@ -1,17 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
-  if (document.getElementById('daycode-table-container')) {
-    initializeDayCodeFeature();
+  if (document.getElementById('daycord-table-container')) {
+    initializeDaycordFeature();
   }
 });
 
-function initializeDayCodeFeature() {
-  const DAYCODE_URL = 'https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw';
+function initializeDaycordFeature() {
+  const DAYCORD_URL = 'https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw';
   const PROXY_URL = 'https://corsproxy.io/?';
 
-  const nameSelect = document.getElementById('daycode-name-select');
+  const nameSelect = document.getElementById('daycord-name-select');
   const addBtn = document.getElementById('add-participant-btn');
   const selectedContainer = document.getElementById('selected-participants-container');
-  const tableContainer = document.querySelector('#daycode-table-container .table-wrapper');
+  const tableContainer = document.querySelector('#daycord-table-container .table-wrapper');
   const resultsYoyu = document.getElementById('results-yoyu');
   const resultsDakyo = document.getElementById('results-dakyo');
   const resultsIchimatsu = document.getElementById('results-ichimatsu');
@@ -23,10 +23,10 @@ function initializeDayCodeFeature() {
 
   const formatShortDate = (fullDate) => fullDate.length > 5 ? fullDate.substring(5) : fullDate;
 
-  async function fetchAndParseDayCode() {
+  async function fetchAndParseDaycord() {
     try {
       tableContainer.innerHTML = '<p>デイコードの情報を読み込み中です...</p>';
-      const response = await fetch(`${PROXY_URL}${encodeURIComponent(DAYCODE_URL)}`);
+      const response = await fetch(`${PROXY_URL}${encodeURIComponent(DAYCORD_URL)}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const htmlText = await response.text();
       const parser = new DOMParser();
@@ -111,7 +111,7 @@ function initializeDayCodeFeature() {
     selectedContainer.appendChild(fragment);
   }
 
-  function renderDayCodeTable() {
+  function renderDaycordTable() {
     if (selectedNames.length === 0) {
       tableContainer.innerHTML = '<p>参加者を選択すると、出欠表が表示されます。</p>';
       return;
@@ -129,7 +129,7 @@ function initializeDayCodeFeature() {
     }
 
     const table = document.createElement('table');
-    table.className = 'daycode-table';
+    table.className = 'daycord-table';
     const thead = table.createTHead();
     const headerRow = thead.insertRow();
     let headerHTML = '<th>参加者</th>';
@@ -212,7 +212,7 @@ function initializeDayCodeFeature() {
   
   function updateDisplay() {
     renderSelectedParticipants();
-    renderDayCodeTable();
+    renderDaycordTable();
     calculateAvailableDates();
   }
 
@@ -239,5 +239,5 @@ function initializeDayCodeFeature() {
     });
   }
 
-  fetchAndParseDayCode();
+  fetchAndParseDaycord();
 }
