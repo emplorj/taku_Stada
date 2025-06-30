@@ -510,7 +510,6 @@ input[type="checkbox"].switch:checked::after{
     left: 0;
     /* 背景色は擬似要素で設定するため、本体は透明にする */
     background-color: transparent;
-    position: relative; /* 個別削除ボタンの基準にする */
     padding-left: 25px; /* ボタンのスペースを確保 */
 }
 
