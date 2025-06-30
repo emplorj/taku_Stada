@@ -3,7 +3,7 @@
   <defs>
     <style>
       .cls-1, .cls-2 {
-        fill: currentColor;
+        fill: #0366d6; /* 他のアイコンと同じ色に固定 */
       }
 
       .cls-2 {

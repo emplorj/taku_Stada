@@ -1560,7 +1560,14 @@ font-style: normal;
   color: #0366d6;
   margin-right: 16px;
   width: 40px;
-  text-align: center;
+  height: 40px; /* アイコンのサイズに合わせて高さを固定 */
+  display: flex; /* Flexboxを有効にする */
+  align-items: center; /* 垂直方向の中央揃え */
+  justify-content: center; /* 水平方向の中央揃え */
+}
+
+.rich-link-icon img.menu-icon {
+    color: #0366d6; /* rich-link-icon の色と同じにする */
 }
 
 .rich-link-content {
