@@ -67,7 +67,7 @@
           href="https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
           target="_blank" rel="noopener noreferrer">デイコード</a>: 予定の入力はこちらから</p>
 
-      <p>参加者を読み込み</p>
+      <p>参加者を読み込み（プリセット追加要望はエンJまで）</p>
       <div class="filter-group-container">
         <div class="filter-container">
           <label for="scenario-filter-select">シナリオから:</label>
@@ -101,6 +101,8 @@
               <option value="">-- 名前を選択 --</option>
             </select>
             <button id="add-participant-btn" class="control-btn" title="参加者を追加">+</button>
+            <button id="clear-participants-btn" class="control-btn" title="参加者を全削除"><i
+                class="fa-solid fa-trash"></i></button>
           </div>
         </div>
         <div id="selected-participants-container">
@@ -122,10 +124,12 @@
       </details>
 
       <div id="availability-results-container">
-        <h4>候補日</h4>
-        <div class="toggle-switch-container">
-          <input type="checkbox" id="include-pending-checkbox" class="switch">
-          <label for="include-pending-checkbox">未記入を行けるものとする</label>
+        <div class="availability-header">
+          <h4>候補日</h4>
+          <div class="toggle-switch-container">
+            <input type="checkbox" id="include-pending-checkbox" class="switch">
+            <label for="include-pending-checkbox">未記入を行けるものとする</label>
+          </div>
         </div>
         <div class="availability-line">
           <span class="line-label line-yoyu" data-tooltip="全員が夜参加可能（◎, 〇）">余裕</span>
