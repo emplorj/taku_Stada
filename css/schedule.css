@@ -1,11 +1,9 @@
---- START OF FILE schedule.css ---
-
 /* ==========================================================================
-   schedule.html 固有のスタイル
+   1. schedule.html 固有のスタイル
    ========================================================================== */
 
 /* ==========================================================================
-   10. 埋め込みコンテンツ (カレンダーなど)
+   2. 埋め込みコンテンツ (カレンダーなど)
    ========================================================================== */
 /* Calendar Styles */
 #custom-calendar-container {
@@ -183,12 +181,10 @@
 .event-tooltip .event-duration-info,
 .event-tooltip .event-day-info {
     margin-top: 4px; /* 上の要素との間隔を少し設ける */
-    /* font-size: 0.9em; */ /* 必要に応じてフォントサイズを調整 */
-    /* color: #cccccc; */   /* 必要に応じて文字色を調整 */
 }
 
 /* ==========================================================================
-   11. スマートフォン向けカレンダー調整 (600px以下)
+   3. スマートフォン向けカレンダー調整 (600px以下)
    ========================================================================== */
 @media (max-width: 600px) {
     .calendar-nav {
@@ -241,9 +237,8 @@
 }
 
 /* ==========================================================================
-   15. 予定リストテーブル
+   4. 予定リストテーブル
    ========================================================================== */
-
 .schedule-list-container {
     margin-top: 40px;
     background-color: #1a2c6d;
@@ -273,18 +268,17 @@
     padding: 10px 12px;
     text-align: left;
     border-bottom: 1px solid #2c3e50; /* 行間の区切り線 */
-    border-right: 1px dashed  #2c3e50; /* ★★★ 縦の区切り線を追加 ★★★ */
+    border-right: 1px dashed  #2c3e50;
     vertical-align: top;
 }
 
 .schedule-table thead th {
     background-color: #2c3e50;
     color: #ffffff;
-    font-weight: bold; /* Corporate-Logo-Bold が適用されていれば不要な場合もあるが、念のため残す */
+    font-weight: bold;
     font-size: 0.9em;
-    border-right: 1px solid #2c3e50; /* ★★★ ヘッダーにも縦線を追加 ★★★ */
+    border-right: 1px solid #2c3e50;
 }
-/* ★★★ テーブルの最後の列の右枠線を消す ★★★ */
 .schedule-table th:last-child,
 .schedule-table td:last-child {
     border-right: none;
@@ -294,34 +288,29 @@
     background-color: rgba(44, 62, 80, 0.1); /* ホバー時の背景色をさらに薄く調整 */
 }
 
-/* ★★★ 追加：スマホ表示用のテーブル最適化 ★★★ */
 @media (max-width: 768px) {
     .schedule-table {
-        min-width: 600px; /* スマホでも最低限の幅を確保 */
-    }
-    .schedule-table {
-        min-width: 600px; /* スマホでも最低限の幅を確保 */
+        min-width: 600px;
     }
 }
 
 .schedule-table td {
     font-size: 0.95em;
-    font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif; /* スケジュールリスト本文のフォントを基本フォントに */
+    font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
 }
 
-/* システム名表示用のタグ */
 .schedule-system-tag {
     display: inline-block;
     padding: 3px 8px;
     border-radius: 4px;
-    font-size: 0.8em; /* タグ内のフォントは基本フォントを継承 */
+    font-size: 0.8em;
     margin-right: 8px;
     line-height: 1.2;
     vertical-align: middle;
 }
 
 /* ==========================================================================
-   25. 共通スイッチ型チェックボックス
+   5. 共通スイッチ型チェックボックス
    ========================================================================== */
 input[type="checkbox"].switch{
   position: relative;
@@ -363,20 +352,20 @@ input[type="checkbox"].switch:checked::after{
 }
 
 /* ==========================================================================
-   26. トグルスイッチコンテナ
+   6. トグルスイッチコンテナ
    ========================================================================== */
 .toggle-switch-container {
     display: flex;
     align-items: center;
-    gap: 10px; /* チェックボックスとラベルの間隔 */
+    gap: 10px;
     margin-top: 15px;
     margin-bottom: 25px;
-    color: #e0e0e0; /* ラベルの文字色 */
+    color: #e0e0e0;
     font-size: 1em;
 }
 
 /* ==========================================================================
-   27. フィルタリング機能
+   7. フィルタリング機能
    ========================================================================== */
 .daycord-controls-wrapper {
     display: flex;
@@ -389,7 +378,6 @@ input[type="checkbox"].switch:checked::after{
     flex-grow: 1;
 }
 
-/* 従来のフィルターコンテナ（参加者選択など） */
 .filter-container {
     display: flex;
     align-items: center;
@@ -412,7 +400,7 @@ input[type="checkbox"].switch:checked::after{
     padding: 8px 10px;
     font-size: 0.9em;
     font-family: inherit;
-    width: 100%; /*  <-- これを追加 */
+    width: 100%;
     max-width: 400px;
     min-width: 0; 
     cursor: pointer;
@@ -427,11 +415,11 @@ input[type="checkbox"].switch:checked::after{
 }
 .select-wrapper {
     position: relative;
-    flex-grow: 1; /* 親コンテナ内で伸びる役割をselectから移譲 */
-    overflow: hidden; /* このラッパーからはみ出した要素を隠す（最重要） */
-    min-width: 0;     /* 柔軟に縮むようにする */
+    flex-grow: 1;
+    overflow: hidden;
+    min-width: 0;
 }
-/* ★★★ 追加：スマホ表示用のスタイル ★★★ */
+
 @media (max-width: 768px) {
     .daycord-controls-wrapper {
         flex-direction: column;
@@ -443,7 +431,7 @@ input[type="checkbox"].switch:checked::after{
 }
 
 /* ==========================================================================
-   28. デイコード日程調整機能 (更新)
+   8. デイコード日程調整機能
    ========================================================================== */
 #daycord-table-container {
     margin-top: 20px;
@@ -457,25 +445,69 @@ input[type="checkbox"].switch:checked::after{
 }
 
 .daycord-table-header h4 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', sans-serif;
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
     margin: 0;
 }
 
-#availability-results-container h4 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', sans-serif;
-    margin-bottom: 5px;
-    border-bottom: 1px solid #4a5c9a;
-    padding-bottom: 5px;
+.selected-dates-output {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+    max-width: 500px;
+}
+
+.selected-dates-output input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #2a3c7d;
+    border-radius: 4px;
+    background-color: #0d1a50;
+    color: #eee;
+    font-size: 0.9em;
+    min-width: 0;
+}
+
+.selected-dates-output button {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    font-size: 1.2em;
+    border-radius: 4px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.selected-dates-output button:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .daycord-table-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .selected-dates-output {
+        width: 100%;
+        max-width: none;
+    }
 }
 
 #daycord-table-container .table-wrapper {
     overflow-x: auto;
-    /* transformハックは擬似要素のアプローチで不要になるため削除 */
 }
 
 .daycord-table {
     width: 100%;
-    min-width: 1200px; /* 横に長くなるため最小幅を広げる */
+    min-width: 1200px;
     border-collapse: collapse;
     color: #e0e0e0;
     font-size: 0.85em;
@@ -485,87 +517,113 @@ input[type="checkbox"].switch:checked::after{
 .daycord-table th,
 .daycord-table td {
     border: 1px solid #2c3e50;
-    padding: 4px 4px;
+    padding: 4px;
     text-align: center;
+    transition: background-color 0.2s;
 }
 
+/* 日付ヘッダー(th)の基本スタイル */
 .daycord-table thead th {
     background-color: #2c3e50;
     font-size: 0.9em;
-    /* 日付ヘッダーを縦書きにする */
+    min-height: 70px; /* ★修正: 高さを調整 */
+    position: relative;
+    padding: 0;
+}
+
+/* 「参加者」ヘッダーのスタイルを上書き */
+.daycord-table thead th:first-child {
+    writing-mode: horizontal-tb;
+    vertical-align: middle;
+    padding: 4px 4px 4px 25px;
+    z-index: 3;
+}
+
+/* ヘッダー全体をボタン化するためのラベル */
+.daycord-table thead th .date-header-label {
+    display: flex;
+    justify-content: center; /* 縦書きの主軸（縦）方向の中央揃え */
+    align-items: center;     /* ★修正: 交差軸（横）方向の中央揃え */
+    width: 100%;
+    padding: 6px 0; /* ★修正: 高さを調整 */
+    cursor: pointer;
     writing-mode: vertical-rl;
     text-orientation: mixed;
     white-space: nowrap;
-    min-height: 80px; /* 縦書き用の高さを確保 */
+    transition: background-color 0.2s;
+}
+.daycord-table thead th:not(.selected-date-cell) .date-header-label:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* ★ 参加者名の列は横書きのままにする */
-/* ★ 参加者名の列は横書きのままにする（共通設定）*/
+/* ヘッダー内の実際のチェックボックスは非表示 */
+.daycord-table thead th .date-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+/* ★修正: 選択された日付のヘッダーのスタイル */
+.daycord-table thead th.selected-date-cell {
+    background-color: #00d1b2 !important; /* !importantでホバーより優先 */
+}
+.daycord-table thead th.selected-date-cell .date-header-label {
+    color: #fff;
+    font-weight: bold;
+}
+.daycord-table thead th.selected-date-cell .date-header-label:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* ★修正: 選択された列のデータセルにはハイライトを適用しない */
+.daycord-table tbody td.selected-date-cell {
+   /* このセレクタのスタイルを削除 */
+}
+
+/* 参加者名・予定の列（最初の列）の共通スタイル */
 .daycord-table thead th:first-child,
 .daycord-table tbody td:first-child {
-    writing-mode: horizontal-tb;
     font-weight: bold;
     min-width: 100px;
     position: sticky;
     left: 0;
-    /* 背景色は擬似要素で設定するため、本体は透明にする */
     background-color: transparent;
-    padding-left: 25px; /* ボタンのスペースを確保 */
 }
 
-/* ★ 擬似要素を使って背景と境界線を設定する（新しいアプローチ） */
 .daycord-table thead th:first-child::before,
 .daycord-table tbody td:first-child::before {
     content: '';
     position: absolute;
-    inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; と同じ */
-    z-index: -1; /* テキストコンテンツの背面に配置 */
-    /* box-shadowは個別に設定するため、共通からは削除 */
+    inset: 0;
+    z-index: -1;
 }
 
-/* ★ ヘッダー固定列の擬似要素の背景色と境界線 */
 .daycord-table thead th:first-child::before {
     background-color: #34495e;
-    /* 左に同色の線を1px追加して隙間を埋め、右に影を落とす */
     box-shadow: -1px 0 0 #34495e, 2px 0 5px rgba(0,0,0,0.2);
 }
 
-/* ★ ボディ固定列の擬似要素の背景色と境界線 */
 .daycord-table tbody td:first-child::before {
     background-color: #2c3e50;
-    /* 左に同色の線を1px追加して隙間を埋め、右に影を落とす */
     box-shadow: -1px 0 0 #2c3e50, 2px 0 5px rgba(0,0,0,0.2);
 }
-
 
 .daycord-table tbody tr.highlight {
     background-color: rgba(52, 152, 219, 0.2);
 }
 
-
 /* ステータスに応じた背景色 */
-.daycord-table td[data-status="◎"] {
-    background-color: #3298dc; /* is-info */
-    color: #fff;
-}
-.daycord-table td[data-status="〇"] {
-    background-color: #5cb85c; /* is-success (一般的な緑) */
-    color: #fff;
-}
-.daycord-table td[data-status="△"] {
-    background-color: #ffdd57; /* is-warning */
-    color: rgba(0,0,0,.7);
-}
-.daycord-table td[data-status="×"] {
-    background-color: #f14668; /* is-danger */
-    color: #fff;
-}
-.daycord-table td[data-status="▢"] {
-    background-color: #00d1b2; /* is-primary */
-    color: #fff;
-}
+.daycord-table td[data-status="◎"] { background-color: #3298dc; color: #fff; }
+.daycord-table td[data-status="〇"] { background-color: #5cb85c; color: #fff; }
+.daycord-table td[data-status="△"] { background-color: #ffdd57; color: rgba(0,0,0,.7); }
+.daycord-table td[data-status="×"] { background-color: #f14668; color: #fff; }
+.daycord-table td[data-status="▢"] { background-color: #00d1b2; color: #fff; }
 
-/* 候補日表示エリア */
+/* ==========================================================================
+   9. 参加者選択UI (デイコード)
+   ========================================================================== */
 #availability-results-container {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -603,7 +661,6 @@ input[type="checkbox"].switch:checked::after{
     word-break: break-word;
 }
 
-/* ★ 複数選択チェックボックスのスタイル */
 .checkbox-container {
     display: flex;
     flex-wrap: wrap;
@@ -623,9 +680,6 @@ input[type="checkbox"].switch:checked::after{
     cursor: pointer;
 }
 
-/* ==========================================================================
-   29. 参加者選択UI (デイコード)
-   ========================================================================== */
 .participant-selector {
     display: flex;
     gap: 10px;
@@ -664,20 +718,19 @@ input[type="checkbox"].switch:checked::after{
     transform: scale(1.1);
 }
 #clear-participants-btn {
-    background-color: #e53e3e; /* 赤系の色 */
+    background-color: #e53e3e;
 }
 #clear-participants-btn:hover {
-    background-color: #c0392b; /* ホバー時にもう少し濃い赤に */
+    background-color: #c0392b;
 }
 
-/* 個別削除ボタンのスタイル */
 .remove-participant-btn {
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
-    width: 25px; /* セルの左端にぴったりくっつくように調整 */
-    background-color: #f14668; /* 赤系 */
+    width: 25px;
+    background-color: #f14668;
     color: #fff;
     border: none;
     font-size: 1em;
@@ -687,16 +740,16 @@ input[type="checkbox"].switch:checked::after{
     justify-content: center;
     padding: 0;
     margin: 0;
-    border-radius: 0; /* 四角にする */
+    border-radius: 0;
     transition: background-color 0.2s;
-    z-index: 1; /* 名前より手前に表示 */
+    z-index: 1;
 }
 .remove-participant-btn:hover {
-    background-color: #e53e3e; /* ホバーで濃く */
+    background-color: #e53e3e;
 }
 
 /* ==========================================================================
-   30. デイコード記号説明
+   10. デイコード記号説明
    ========================================================================== */
 #daycord-legend {
     margin-top: 5px;
@@ -746,7 +799,7 @@ input[type="checkbox"].switch:checked::after{
 }
 
 /* ==========================================================================
-   31. 汎用ツールチップ & 強調表示
+   11. 汎用ツールチップ & 強調表示
    ========================================================================== */
 .line-label[data-tooltip] {
     position: relative;
@@ -775,10 +828,8 @@ input[type="checkbox"].switch:checked::after{
 }
 
 /* ==========================================================================
-   32. デイコード表の個別スタイル (修正版)
+   12. デイコード表の個別スタイル
    ========================================================================== */
-
-/* テーブル行のゼブラストライピング */
 .daycord-table tbody tr:nth-child(even) {
     background-color: rgba(44, 62, 80, 0.1);
 }
@@ -786,30 +837,24 @@ input[type="checkbox"].switch:checked::after{
     background-color: rgba(52, 152, 219, 0.2) !important;
 }
 
-/* ★修正：固定列のチラ見え防止と境界線の強調 */
 .daycord-table tbody td:first-child {
     background-color: #2c3e50;
     z-index: 2;
 }
 
-/* 全てのセルを中央揃えに */
 .daycord-table td {
     vertical-align: middle;
     text-align: center;
 }
 
-/* ★修正：予定がある日の背景色（参加者行にも適用） */
 .daycord-table tbody td.has-event {
     background-color: rgba(229, 62, 62, 0.5);
 }
 
-/* ★修正：予定が重複しているマス(本人)の背景色 */
 .daycord-table tbody td.is-conflicting {
     background-color: #e53e3e;
 }
 
-
-/* ステータスタグのスタイル */
 .daycord-status-tag {
     display: inline-flex;
     align-items: center;
@@ -824,7 +869,6 @@ input[type="checkbox"].switch:checked::after{
     white-space: nowrap;
 }
 
-/* ステータスごとの色分け */
 .daycord-status-tag.status-o,
 .daycord-status-tag.status-maru,
 .daycord-status-tag.status-sankaku,
@@ -839,7 +883,6 @@ input[type="checkbox"].switch:checked::after{
 .daycord-status-tag.status-shikaku { background-color: #00d1b2; }
 .daycord-status-tag.status-hyphen { background-color: #f5f5f5; color: #7a7a7a; }
 
-/* 予定行のイベントエントリー */
 .daycord-event-entry {
     padding: 2px 4px;
     margin-bottom: 2px;
@@ -855,42 +898,33 @@ input[type="checkbox"].switch:checked::after{
     margin-bottom: 0;
 }
 
-
 /* ==========================================================================
-   36. 候補日表示スタイル (修正版)
+   13. 候補日表示スタイル
    ========================================================================== */
-
-/* ★★★ このブロックを丸ごと追加・修正 ★★★ */
-/* 「候補日」ヘッダーとチェックボックスのコンテナ */
 .availability-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px; /* 下の要素との余白を確保 */
+    margin-bottom: 15px;
 }
-/* ヘッダー内のh4の余白をリセット */
 .availability-header h4 {
     margin: 0;
 }
-/* ヘッダー内のトグルスイッチの余白をリセット */
 #availability-results-container .toggle-switch-container {
     margin: 0;
 }
 
-/* ★修正：候補日リストの<p>タグ */
 .availability-line p {
     margin: 0;
     padding-top: 4px;
     font-size: 0.9em;
     line-height: 1.6;
-    word-break: normal; /* break-wordから変更 */
-    /* flexboxで折り返しを制御 */
+    word-break: normal;
     display: flex;
     flex-wrap: wrap;
-    gap: 0 6px; /* アイテム間の隙間（横のみ） */
+    gap: 0 6px;
 }
 
-/* ★修正：個々の日付タグ */
 .date-period {
     background-color: #34495e;
     color: #fff;
@@ -898,5 +932,4 @@ input[type="checkbox"].switch:checked::after{
     border-radius: 12px;
     font-size: 0.9em;
     white-space: nowrap;
-    /* marginは親のgapで管理するため不要に */
 }

@@ -152,7 +152,14 @@
       </div>
 
       <div id="daycord-table-container">
-        <h4>デイコード出欠表</h4>
+        <div class="daycord-table-header">
+          <h4>デイコード出欠表</h4>
+          <div class="selected-dates-output">
+            <input type="text" id="selected-dates-display" readonly placeholder="クリックされた日付がここに表示されます">
+            <button id="copy-selected-dates-btn" class="control-btn" title="選択された日付をコピー"><i
+                class="fa-solid fa-copy"></i></button>
+          </div>
+        </div>
         <div class="table-wrapper">
           <p>デイコードの情報を読み込み中です...</p>
         </div>
