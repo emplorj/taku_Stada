@@ -63,37 +63,35 @@
 
     <div id="daycord-section" class="plain-text-block additional-info-section">
       <h2>デイコード日程調整</h2>
-      <p><a
-          href="https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
-          target="_blank" rel="noopener noreferrer">デイコード</a>: 予定の入力はこちらから</p>
+      <a href="https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
+        target="_blank" rel="noopener noreferrer" class="rich-link-card">
+        <div class="rich-link-icon"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="rich-link-content">
+          <div class="rich-link-title">デイコード</div>
+          <div class="rich-link-description">こちらから各自の参加可能な日時を入力してください。</div>
+        </div>
+        <div class="rich-link-arrow">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </div>
+      </a>
 
-      <p>参加者を読み込み（プリセット追加要望はエンJまで）</p>
-      <div class="filter-group-container">
+      <div class="daycord-controls-wrapper">
         <div class="filter-container">
           <label for="scenario-filter-select">シナリオから:</label>
-          <!-- ▼▼▼ ここから追加 ▼▼▼ -->
           <div class="select-wrapper">
             <select id="scenario-filter-select">
               <option value="">-- シナリオを選択 --</option>
             </select>
           </div>
-          <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
         </div>
-
         <div class="filter-container">
           <label for="preset-filter-select">プリセットから:</label>
-          <!-- ▼▼▼ ここから追加 ▼▼▼ -->
           <div class="select-wrapper">
             <select id="preset-filter-select">
               <option value="">-- プリセットを選択 --</option>
             </select>
           </div>
-          <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
         </div>
-      </div>
-      <!-- ▲▲▲ ここまで ▲▲▲ -->
-
-      <div class="daycord-filter-wrapper">
         <div class="filter-container participant-selector-container">
           <label for="daycord-name-select">参加者を選択:</label>
           <div class="participant-selector">
@@ -101,11 +99,8 @@
               <option value="">-- 名前を選択 --</option>
             </select>
             <button id="add-participant-btn" class="control-btn" title="参加者を追加">+</button>
-            <button id="clear-participants-btn" class="control-btn" title="参加者を全削除"><i
-                class="fa-solid fa-trash"></i></button>
+            <button id="clear-participants-btn" class="control-btn" title="参加者を全削除">×</button>
           </div>
-        </div>
-        <div id="selected-participants-container">
         </div>
       </div>
 
@@ -128,7 +123,7 @@
           <h4>候補日</h4>
           <div class="toggle-switch-container">
             <input type="checkbox" id="include-pending-checkbox" class="switch">
-            <label for="include-pending-checkbox">未記入を行けるものとする</label>
+            <label for="include-pending-checkbox">未記入を〇とする</label>
           </div>
         </div>
         <div class="availability-line">
