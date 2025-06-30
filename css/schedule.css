@@ -436,6 +436,7 @@ input[type="checkbox"].switch:checked::after{
 
 #daycord-table-container .table-wrapper {
     overflow-x: auto;
+    /* transformハックは擬似要素のアプローチで不要になるため削除 */
 }
 
 .daycord-table {
@@ -473,17 +474,32 @@ input[type="checkbox"].switch:checked::after{
     min-width: 100px;
     position: sticky;
     left: 0;
-    z-index: 1;
+    /* 背景色は擬似要素で設定するため、本体は透明にする */
+    background-color: transparent;
 }
 
-/* ★ ヘッダーの固定列の背景色 */
-.daycord-table thead th:first-child {
+/* ★ 擬似要素を使って背景と境界線を設定する（新しいアプローチ） */
+.daycord-table thead th:first-child::before,
+.daycord-table tbody td:first-child::before {
+    content: '';
+    position: absolute;
+    inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; と同じ */
+    z-index: -1; /* テキストコンテンツの背面に配置 */
+    /* box-shadowは個別に設定するため、共通からは削除 */
+}
+
+/* ★ ヘッダー固定列の擬似要素の背景色と境界線 */
+.daycord-table thead th:first-child::before {
     background-color: #34495e;
+    /* 左に同色の線を1px追加して隙間を埋め、右に影を落とす */
+    box-shadow: -1px 0 0 #34495e, 2px 0 5px rgba(0,0,0,0.2);
 }
 
-/* ★ ボディの固定列（参加者名）の背景色 */
-.daycord-table tbody td:first-child {
-    background-color: #1a2c6d; /* 背景を不透明にして、下のコンテンツが透けないようにする */
+/* ★ ボディ固定列の擬似要素の背景色と境界線 */
+.daycord-table tbody td:first-child::before {
+    background-color: #2c3e50;
+    /* 左に同色の線を1px追加して隙間を埋め、右に影を落とす */
+    box-shadow: -1px 0 0 #2c3e50, 2px 0 5px rgba(0,0,0,0.2);
 }
 
 
@@ -747,23 +763,39 @@ input[type="checkbox"].switch:checked::after{
     visibility: visible;
 }
 
-
 /* ==========================================================================
-   32. デイコード表の個別スタイル
+   32. デイコード表の個別スタイル (修正版)
    ========================================================================== */
+
+/* テーブル行のゼブラストライピング */
 .daycord-table tbody tr:nth-child(even) {
     background-color: rgba(44, 62, 80, 0.1);
 }
 .daycord-table tbody tr:hover {
     background-color: rgba(52, 152, 219, 0.2) !important;
 }
+
+/* ★修正：固定列のチラ見え防止と境界線の強調 (このブロックは新しいアプローチにより不要) */
+/* 以前の .daycord-table tbody td:first-child のスタイルは上で統合・修正済みのため、このブロックは削除またはコメントアウトが望ましいが、差分として残す */
+
+/* 全てのセルを中央揃えに */
 .daycord-table td {
     vertical-align: middle;
     text-align: center;
 }
-.daycord-table td.has-other-event {
-    background-color: rgba(200, 50, 80, 0.15);
+
+/* ★修正：予定がある日の背景色（参加者行にも適用） */
+.daycord-table tbody td.has-event {
+    background-color: rgba(229, 62, 62, 0.5);
 }
+
+/* ★追加：予定が重複しているマスの警告表示（has-eventより優先） */
+.daycord-table tbody td.is-conflicting {
+    background-color: #e53e3e;
+}
+
+
+/* ステータスタグのスタイル */
 .daycord-status-tag {
     display: inline-flex;
     align-items: center;
@@ -777,6 +809,8 @@ input[type="checkbox"].switch:checked::after{
     min-width: 34px;
     white-space: nowrap;
 }
+
+/* ステータスごとの色分け */
 .daycord-status-tag.status-o,
 .daycord-status-tag.status-maru,
 .daycord-status-tag.status-sankaku,
@@ -790,6 +824,8 @@ input[type="checkbox"].switch:checked::after{
 .daycord-status-tag.status-batsu { background-color: #f14668; }
 .daycord-status-tag.status-shikaku { background-color: #00d1b2; }
 .daycord-status-tag.status-hyphen { background-color: #f5f5f5; color: #7a7a7a; }
+
+/* 予定行のイベントエントリー */
 .daycord-event-entry {
     padding: 2px 4px;
     margin-bottom: 2px;
@@ -859,4 +895,18 @@ input[type="checkbox"].switch:checked::after{
         word-wrap: break-word;
         white-space: normal;
     }
+}
+/* ==========================================================================
+   36. 候補日表示スタイル
+   ========================================================================== */
+.date-period {
+    background-color: #34495e;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    display: inline-block;
+    white-space: nowrap;
 }

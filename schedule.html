@@ -123,6 +123,10 @@
 
       <div id="availability-results-container">
         <h4>候補日</h4>
+        <div class="toggle-switch-container">
+          <input type="checkbox" id="include-pending-checkbox" class="switch">
+          <label for="include-pending-checkbox">未記入を行けるものとする</label>
+        </div>
         <div class="availability-line">
           <span class="line-label line-yoyu" data-tooltip="全員が夜参加可能（◎, 〇）">余裕</span>
           <p id="results-yoyu">参加者を選択してください</p>
@@ -130,10 +134,6 @@
         <div class="availability-line">
           <span class="line-label line-dakyo" data-tooltip="遅刻者ありで夜参加可能（◎, 〇, △）">妥協</span>
           <p id="results-dakyo">参加者を選択してください</p>
-        </div>
-        <div class="availability-line">
-          <span class="line-label line-ichimatsu" data-tooltip="未定者込みで夜参加可能（◎, 〇, △, －）">一抹</span>
-          <p id="results-ichimatsu">参加者を選択してください</p>
         </div>
         <div class="availability-line">
           <span class="line-label line-hiru" data-tooltip="全員が昼参加可能（◎, ▢）">昼</span>
