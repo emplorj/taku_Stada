@@ -94,7 +94,7 @@
     color: #000000; /* 通常の曜日の日付の色をより明確な黒に */
 }
 
-.calendar-cell.today .today-date-number { /* Applied to the date-number div within a today cell */
+.calendar-cell.today .date-number { /* Applied to the date-number div within a today cell */
     /* background-color: #ffd700; */ /* 単色背景からグラデーションに変更 */
     background-image: linear-gradient(to bottom, #FFFACD, #FFD700, #B8860B); /* レモンシフォン -> ゴールド -> ダークゴールデンロッド */
     color: #212529; /* 文字色は黒のまま */
@@ -107,6 +107,19 @@
     padding: -2px; /* Small padding inside the circle */
     font-weight: bold; /* 当日を少し強調 */
     margin-bottom: 3px !important; /* 当日の日付とイベントの間隔を元に戻す (6px - 2px = 4px) */
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* 黄色い光の影を追加 */
+    animation: pulse 1.5s infinite alternate; /* 脈動アニメーションを追加 */
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+    }
+    100% {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 1);
+    }
 }
 
 /* 土日の日付の色 */
