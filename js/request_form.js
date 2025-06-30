@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pinImage.style.display = pinToggle.checked ? 'block' : 'none';
         
         const selectedDirection = document.querySelector('input[name="pin-direction"]:checked').value;
-        pinImage.src = `img/pin_${selectedDirection}.png`;
+        pinImage.src = `img/247_guild_img/pin_${selectedDirection}.png`;
     };
 
     const togglePinDirectionUI = () => {

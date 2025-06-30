@@ -144,7 +144,7 @@ a {
 #hero {
     text-align: center;
     padding: 4rem 1rem 12rem 1rem; 
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../../img/hachimakiBG.png');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../../img/247_guild_img/hachimakiBG.png');
     background-size: cover;
     background-position: center;
     border-radius: 10px;
@@ -456,7 +456,7 @@ a {
   left: -15px;
   right: -15px;
   bottom: -15px;
-  background-image: url('../../img/依頼書テンプレ.png');
+  background-image: url('../../img/247_guild_img/依頼書テンプレ.png');
   background-repeat: no-repeat;
   background-size: 70% 85%;
   background-position: center;
