@@ -172,6 +172,7 @@
         <div class="form-group">
           <div class="download-options">
             <button id="download-btn" class="add-new-button">カードを保存</button>
+            <button id="open-db-modal-btn" class="secondary-button">データベースに登録</button>
             <button id="download-template-btn" class="secondary-button">テンプレを保存</button>
             <div class="checkbox-container">
               <input type="checkbox" id="high-res-checkbox" class="switch">
@@ -313,6 +314,39 @@
     </div>
   </div>
 
+  <div id="db-modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>データベースにカードを登録</h2>
+        <button id="modal-close-btn" class="modal-close-btn">×</button>
+      </header>
+      <main class="modal-body">
+        <form id="db-entry-form">
+          <div class="form-group">
+            <label for="registrant-input">登録者</label>
+            <input type="text" id="registrant-input" placeholder="あなたの名前や">
+          </div>
+          <div class="form-group">
+            <label for="artist-input">絵師</label>
+            <input type="text" id="artist-input" placeholder="イラストの作者名">
+          </div>
+          <div class="form-group">
+            <label for="source-input">元ネタ</label>
+            <input type="text" id="source-input" placeholder="カードのアイデアの元になったキャラやシナリオ名など">
+          </div>
+          <div class="form-group">
+            <label for="notes-input">備考</label>
+            <textarea id="notes-input" rows="3" placeholder="管理用のメモなど"></textarea>
+          </div>
+          <footer class="modal-footer">
+            <button type="submit" class="add-new-button">この内容で登録する</button>
+          </footer>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <!-- scriptタグはその下 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="js/common.js"></script>
   <script src="js/card_generator.js"></script>

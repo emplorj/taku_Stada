@@ -45,6 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetImagePositionBtn = document.getElementById('reset-image-position-btn');
     const resetOverlayPositionBtn = document.getElementById('reset-overlay-position-btn');
     const batchDetails = document.querySelector('.batch-processing-details');
+    const openDbModalBtn = document.getElementById('open-db-modal-btn');
+const dbModalOverlay = document.getElementById('db-modal-overlay');
+const modalCloseBtn = document.getElementById('modal-close-btn');
+const dbEntryForm = document.getElementById('db-entry-form');
+
+    // ★★★ GASのURLを格納する変数を定義 ★★★
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby09YnUEingxzGXP-rGbauFoEmRFcQGNm05fLzZyTV5gMI1pWgYgze4OyhnNYE2hfIKrw/exec';
 
 
     // ウィンドウサイズに応じて一括生成セクションの開閉を制御する関数を新しく作成
@@ -243,29 +250,125 @@ document.addEventListener('DOMContentLoaded', () => {
         scalePreview();
         handleBatchSectionCollapse();
         window.addEventListener('resize', handleBatchSectionCollapse);
+        openDbModalBtn.addEventListener('click', () => {
+            dbModalOverlay.classList.add('is-visible');
+        });
+
+        // モーダルの閉じるボタンが押されたら閉じる
+        modalCloseBtn.addEventListener('click', () => {
+            dbModalOverlay.classList.remove('is-visible');
+        });
+
+        // 背景オーバーレイがクリックされたら閉じる
+        dbModalOverlay.addEventListener('click', (e) => {
+            if (e.target === dbModalOverlay) {
+                dbModalOverlay.classList.remove('is-visible');
+            }
+        });
+        // モーダル内の「この内容で登録する」ボタンが押された時の処理
+dbEntryForm.addEventListener('submit', (e) => {
+    e.preventDefault(); // フォームのデフォルトの送信動作をキャンセル
+
+    // カードの基本情報を取得
+    const cardData = {
+        name: cardNameInput.value,
+        color: cardColorSelect.value,
+        type: cardTypeSelect.value,
+        effect: effectInput.value,
+        flavor: flavorInput.value,
+        speaker: flavorSpeakerInput.value,
+        imageUrl: '（画像は後で実装）',
+        
+        // モーダルからメタデータを取得
+        registrant: document.getElementById('registrant-input').value,
+        artist: document.getElementById('artist-input').value,
+        source: document.getElementById('source-input').value,
+        notes: document.getElementById('notes-input').value
+    };
+    
+    // データベースに保存する関数を呼び出す
+    saveCardToDatabase(cardData).then(() => {
+        alert('データベースに登録しました！');
+        dbModalOverlay.classList.remove('is-visible'); // 保存が成功したらモーダルを閉じる
+    }).catch((err) => {
+        alert('登録に失敗しました。コンソールを確認してください。');
+    });
+});
     }
 
+    // ★★★ ここに、先ほどカットした関数を貼り付けます ★★★
+    // ↓↓↓↓↓↓
+function saveCardToDatabase(cardData) {
+  return new Promise(async (resolve, reject) => {
+    // GASのURLが設定されていなければエラー
+    if (GAS_WEB_APP_URL.includes('xxxxxxxxxx')) {
+      alert('GASのURLが設定されていません。card_generator.jsを修正してください。');
+      return reject(new Error('GAS URL is not configured.'));
+    }
+    
+    console.log('データベースに保存します:', cardData);
+
+    try {
+      // ★★★ お手本(q_and_a.js)と同じ、最もシンプルな送信方法 ★★★
+      const response = await fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors', // CORSを回避
+        body: JSON.stringify(cardData) // 送信するデータ
+        // headers は指定しない！
+      });
+      
+      console.log('GASへのリクエストは正常に送信されました。');
+      resolve({ status: 'success', message: 'Request sent successfully.' });
+
+    } catch (error) {
+      console.error('データベースへの保存中にエラーが発生しました:', error);
+      reject(error);
+    }
+  });
+}
+
+    // ★★★↑↑↑↑↑ ここまでが移動してきた関数です ★★★
     function updatePreview() {
         const selectedColorId = cardColorSelect.value;
-        const selectedType = cardTypeSelect.value;
+        // ★★★ toUpperCase() を使って、比較の信頼性を上げる ★★★
+        const selectedType = (cardTypeSelect.value || '').toUpperCase();
         const colorDetails = cardColorData[selectedColorId];
 
+        // --- まず、全ての特殊スタイルをリセット ---
         cardNameContent.classList.remove('title-styled');
         textBoxContainer.classList.remove('textbox-styled');
         cardNameContainer.style.backgroundImage = `url('Card_asset/タイトル.png')`;
 
+        // --- フルフレームタイプの画像コンテナの高さを調整 ---
         imageContainer.style.transition = 'none';
-        if (selectedType === 'FF' || selectedType === 'FFCF') {
-            imageContainer.style.height = '720px';
-        } else {
-            imageContainer.style.height = '480px';
-        }
+        const isFullFrame = selectedType === 'FF' || selectedType === 'FFCF';
+        imageContainer.style.height = isFullFrame ? '720px' : '480px';
         void imageContainer.offsetHeight;
         imageContainer.style.transition = '';
 
-        let templateName = `${selectedColorId}カード`; // テンプレート名に「カード」を追加
-        const isFullFrame = selectedType === 'FF' || selectedType === 'FFCF';
+        // --- テンプレート画像のファイル名を決定 ---
+        let templateName = `${selectedColorId}カード`;
+        if (isFullFrame) {
+            templateName += 'FF';
+        }
+        
+        // ★★★ switch文を、より安全なif文に変更 ★★★
+        if (selectedType === 'CF') {
+            // 【文字枠なし】のみの場合
+            cardNameContent.classList.add('title-styled');
+            cardNameContainer.style.backgroundImage = 'none';
+        } else if (selectedType === 'FF') {
+            // 【フルフレーム】のみの場合
+            textBoxContainer.classList.add('textbox-styled');
+        } else if (selectedType === 'FFCF') {
+            // 【両方】の場合
+            cardNameContent.classList.add('title-styled');
+            textBoxContainer.classList.add('textbox-styled');
+            cardNameContainer.style.backgroundImage = 'none';
+        }
+        // 上記以外（標準タイプ）は何もしない
 
+        // --- デフォルト画像の切り替え ---
         const isDefaultImage = cardImage.src.includes('now_painting');
         if (isDefaultImage) {
             const newSrc = isFullFrame ? 'Card_asset/now_painting_FF.png' : 'Card_asset/now_painting.png';
@@ -278,25 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        switch (selectedType) {
-            case '':
-                break;
-            case 'CF':
-                cardNameContent.classList.add('title-styled');
-                cardNameContainer.style.backgroundImage = 'none';
-                break;
-            case 'FF':
-                templateName += 'FF';
-                textBoxContainer.classList.add('textbox-styled');
-                break;
-            case 'FFCF':
-                templateName += 'FF';
-                cardNameContent.classList.add('title-styled');
-                textBoxContainer.classList.add('textbox-styled');
-                cardNameContainer.style.backgroundImage = 'none';
-                break;
-        }
-
+        // --- 最終的な画像とテキストの更新 ---
         cardTemplateImage.src = `Card_asset/テンプレ/${templateName}.png`;
         const selectedBackground = backgroundSelect.value;
         backgroundImage.style.display = selectedBackground ? 'block' : 'none';
@@ -304,28 +389,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateCardName(cardNameInput.value);
         const replacePunctuation = (text) => text.replace(/、/g, '､').replace(/。/g, '｡');
-
-        // 数字・ハイフンと括弧を、それぞれ別のspanで囲むよう修正
+        
         const addSpacingToChars = (text) => {
             return text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => {
-                // マッチしたのが数字かハイフンだった場合
-                if (kernChars) {
-                    return `<span class="char-kern">${kernChars}</span>`;
-                }
-                // マッチしたのが括弧だった場合
-                if (parenChars) {
-                    return `<span class="paren-fix">${parenChars}</span>`;
-                }
-                // それ以外（あり得ないが念のため）
+                if (kernChars) return `<span class="char-kern">${kernChars}</span>`;
+                if (parenChars) return `<span class="paren-fix">${parenChars}</span>`;
                 return match;
             });
         };
-
-        // 句読点変換の後、さらに文字間調整の処理を行う
+        
         const processedEffectText = addSpacingToChars(replacePunctuation(effectInput.value));
-        effectDisplay.innerHTML = processedEffectText; // innerTextからinnerHTMLに変更
+        effectDisplay.innerHTML = processedEffectText;
 
-        const flavorText = replacePunctuation(flavorInput.value); // フレーバーは記号が少ないためそのままでもOK
+        const flavorText = replacePunctuation(flavorInput.value);
         const speakerText = replacePunctuation(flavorSpeakerInput.value);
         const flavorInnerText = flavorDisplay.querySelector('.inner-text');
 
@@ -370,7 +446,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. 生成したHTMLを、伸縮専用の<span class="scaler">で囲み、状態管理クラスも適用します。
     const hasRuby = finalHtml.includes('<ruby>');
     const cardNameClass = hasRuby ? '' : 'is-plain-text-only';
-    cardNameContent.className = cardNameClass; // クラスを一度リセットしてから設定
+    // 既存のクラス（例: title-styled）を保持しつつ、is-plain-text-onlyクラスを制御
+    if (hasRuby) {
+        cardNameContent.classList.remove('is-plain-text-only');
+    } else {
+        cardNameContent.classList.add('is-plain-text-only');
+    }
     cardNameContent.innerHTML = `<span class="scaler">${finalHtml}</span>`;
 
     // 3. スケール計算を実行します。

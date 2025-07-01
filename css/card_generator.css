@@ -193,10 +193,16 @@ white-space: nowrap;
 /* カードタイプ別スタイル */
 /* CF(文字枠なし)タイプ時のカード名スタイル */
 .title-styled {
+    /* 縁取り（ストローク）を2pxの不透明な白に設定 */
     -webkit-text-stroke: 2px white;
     text-stroke: 2px white;
+
+    /* ★重要：縁取りをテキストの「背後」に描画するよう指定 */
+    /* これにより、文字の黒い部分がくっきりと表示されます */
     paint-order: stroke fill;
-    text-shadow: 0 0 7px rgba(255, 255, 255, 1);
+
+    /* ★描画の競合を避けるため、text-shadowは無効化します */
+    text-shadow: none;
 }
 
 /* FF(フルフレーム)タイプ時のテキストスタイル */
@@ -589,4 +595,117 @@ white-space: nowrap;
     /* 画面の上から20pxの位置で固定 */
     top: 20px;
   }
+}
+
+/* card_generator.css の末尾に追記 */
+
+/* ===============================================
+   データベース登録モーダルのスタイル
+   =============================================== */
+
+/* モーダルの背景（薄暗いオーバーレイ） */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* ★普段は非表示 */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* モーダルが表示された時のスタイル */
+.modal-overlay.is-visible {
+    display: flex;
+    opacity: 1;
+}
+
+/* モーダルの本体 */
+.modal-content {
+    background-color: var(--theme-bg-main, #1a2c6d);
+    padding: 25px 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+    border: 1px solid var(--theme-border, #2a3c7d);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.is-visible .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: #c8a464;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.4em;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 2em;
+    color: #bdc3c7;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+
+.modal-footer {
+    margin-top: 25px;
+}
+
+/* データベース登録モーダルのフォーム要素のスタイル */
+.modal-content .form-group label {
+    font-weight: bold;
+    text-shadow: 0 0 3px rgba(173, 216, 230, 0.5);
+    display: block; /* ラベルと入力フィールドを縦に並べる */
+    margin-bottom: 5px; /* ラベルと入力フィールドの間のスペース */
+    color: #b0c4de; /* コントロールパネルのラベル色に合わせる */
+}
+
+.modal-content .form-group input[type="text"],
+.modal-content .form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--theme-bg-dark, #0d1a50);
+    color: #eee;
+    border: 1px solid var(--theme-border, #2a3c7d);
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 1em;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
+    margin-bottom: 15px; /* 各フォームグループ間のスペース */
+}
+
+.modal-content .form-group input[type="text"]:focus,
+.modal-content .form-group textarea:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+    outline: none;
+}
+
+.modal-content .form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* モーダルボディのパディング調整 */
+.modal-body {
+    padding: 0 5px; /* 左右に少しパディングを追加 */
 }
