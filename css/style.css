@@ -1730,3 +1730,74 @@ font-style: normal;
 .toggle-button.active:hover {
     background-color: #5a9a40; /* アクティブ時のホバー色 */
 }
+
+/* 外部リンクアイコン */
+a[target="_blank"]::after {
+    font-family: "Font Awesome 6 Free"; /* Font Awesomeを使用 */
+    font-weight: 900; /* Solidアイコンの場合 */
+    content: " \f08e"; /* fa-external-link-alt のUnicode */
+    font-size: 0.8em; /* アイコンのサイズ調整 */
+    vertical-align: super; /* 上付き文字のように配置 */
+    margin-left: 0.2em; /* テキストとの間隔 */
+    color: inherit; /* リンクの色を継承 */
+}
+
+/* ==========================================================================
+   25. 共通スイッチ型チェックボックス
+   ========================================================================== */
+input[type="checkbox"].switch{
+  position: relative;
+  appearance: none;
+  background-color: #f2f2f2;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 28px;
+  border: 2px solid #bababa;
+  border-radius: calc(infinity * 1px);
+  transition: 250ms ease-out;
+  vertical-align: middle;
+  outline: 2px solid transparent;
+}
+input[type="checkbox"].switch:focus-visible{
+  outline-color: #0043fc;
+}
+input[type="checkbox"].switch::after{
+  content:"";
+  background-color: #fff;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  box-shadow: 0px 0px 3px #6b6b6b;
+  width: 24px;
+  height: 24px;
+  border-radius: calc(infinity * 1px);
+  transition: 200ms ease-out;
+}
+input[type="checkbox"].switch:active::after{
+  background-color: #f2f2f2;
+}
+input[type="checkbox"].switch:checked{
+  background-color: #00db07;
+  border-color: #00db07;
+}
+input[type="checkbox"].switch:checked::after{
+  left: 16px;
+}
+
+/* ==========================================================================
+   26. 汎用チェックボックスコンテナ
+   ========================================================================== */
+.checkbox-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 1;
+    border-radius: 4px;
+}
+
+.checkbox-container label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    cursor: pointer;
+}

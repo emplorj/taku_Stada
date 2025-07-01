@@ -126,6 +126,23 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   setupFeaturedAdventurers();
+
+  // ★★★ 修正点 ★★★
+  // スムーズスクロール関数を、他の機能からも使えるようにこの位置に移動しました。
+  const smoothScrollTo = (targetId) => {
+    const targetElement = document.querySelector(targetId);
+    if (targetElement) {
+      const headerOffset = document.querySelector('.page-header').offsetHeight; // ヘッダーの高さを取得
+      const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+      const offsetPosition = elementPosition - headerOffset - 20; // ヘッダーと少し余白を考慮
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   /* ===================================================
      ギルドサイト専用ハンバーガーメニュー機能
      =================================================== */
@@ -146,10 +163,21 @@ document.addEventListener('DOMContentLoaded', function() {
       body.classList.toggle('side-menu-open');
     });
 
-    // ナビゲーションリンククリックでメニューを閉じる
+    // ナビゲーションリンククリックでメニューを閉じる & スムーズスクロール
     const navLinks = nav.querySelectorAll('a');
     navLinks.forEach(link => {
-      link.addEventListener('click', closeMenu);
+      link.addEventListener('click', function(event) {
+        const href = this.getAttribute('href');
+        // ページ内リンクの場合のみスムーズスクロール
+        if (href && href.startsWith('#')) {
+          event.preventDefault(); // デフォルトのアンカーリンク動作をキャンセル
+          const targetId = href;
+          // ★修正：グローバルスコープにある関数を呼び出す
+          smoothScrollTo(targetId);
+        }
+        // どのリンクをクリックしてもメニューは閉じる
+        closeMenu();
+      });
     });
 
     // メニュー外をクリックでメニューを閉じる
@@ -173,22 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeModal = document.querySelector('.map-modal-close');
     const body = document.body;
     
-    // スムーズスクロール関数
-    const smoothScrollTo = (targetId) => {
-      const targetElement = document.querySelector(targetId);
-      if (targetElement) {
-        console.log('Target Element:', targetElement);
-        const headerOffset = document.querySelector('.page-header').offsetHeight; // ヘッダーの高さを取得
-        const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-        const offsetPosition = elementPosition - headerOffset - 20; // ヘッダーと少し余白を考慮
-        console.log('Calculated Offset Position:', offsetPosition);
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    };
+    // ★★★ 修正点 ★★★
+    // ここにあった smoothScrollTo 関数は上に移動しました。
 
     // モーダルを開く共通関数
     const openModal = (imageElement) => {
@@ -210,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
     clickableContainers.forEach(container => {
       container.addEventListener('click', (event) => {
         // クリックされた要素がホットスポットのリンクかどうかを判定
-        // floor-plan-hotspot と map-hotspot の両方に対応
         const hotspotLink = event.target.closest('.floor-plan-hotspot a') || event.target.closest('.map-hotspot a');
         const imageToZoom = container.querySelector('img');
 
@@ -218,9 +231,8 @@ document.addEventListener('DOMContentLoaded', function() {
           // 見取り図の場合のクリック処理
           if (hotspotLink) {
             // ホットスポットがクリックされたら施設案内へジャンプ
-            //event.preventDefault(); // デフォルトのリンク動作をキャンセル
-            // CSS側でスクロールを制御するため、JSでの処理は不要に。
-            // smoothScrollTo(hotspotLink.getAttribute('href'));
+            event.preventDefault();
+            smoothScrollTo(hotspotLink.getAttribute('href'));
           } else if (window.innerWidth <= 768) {
             // ホットスポット以外がクリックされ、かつスマホ表示の場合のみ拡大
             openModal(imageToZoom);
@@ -229,10 +241,8 @@ document.addEventListener('DOMContentLoaded', function() {
           // 地図の場合のクリック処理
           if (hotspotLink) {
             event.preventDefault();
-            // CSS側でスクロールを制御するため、JSでの処理は不要に。
-            // smoothScrollTo(hotspotLink.getAttribute('href'));
+            smoothScrollTo(hotspotLink.getAttribute('href'));
           } else if (window.innerWidth <= 768) {
-            // ホットスポット以外がクリックされ、かつスマホ表示の場合のみ拡大
             openModal(imageToZoom);
           }
         } else if (container.id === 'sabanae-map') {
@@ -252,54 +262,47 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-});
+  // 「戻る」リンクの機能
+  const backToPreviousPageLink = document.getElementById('back-link');
+  if (backToPreviousPageLink) {
+    backToPreviousPageLink.addEventListener('click', function(event) {
+      event.preventDefault(); // デフォルトのリンク動作をキャンセル
+      history.back(); // 直前のページに戻る
+    });
+  }
 
-/* ===================================================
-   ヒドラスライドショー初期化
-   =================================================== */
-document.addEventListener('DOMContentLoaded', function() {
-  // Swiperライブラリが読み込まれているか確認
+  /* ===================================================
+     ヒドラスライドショー初期化
+     =================================================== */
   if (typeof Swiper !== 'undefined') {
     const hydraSwiper = new Swiper('.hydra-swiper', {
-      // --- 基本設定 ---
-      loop: true,           // ループ再生を有効に
-      centeredSlides: true, // アクティブなスライドを中央に配置
-      
-      // --- 自動再生 ---
+      loop: true,
+      centeredSlides: true,
       autoplay: {
-        delay: 2000,                  // 4秒ごとにスライド
-        disableOnInteraction: false,  // ユーザーが操作した後も自動再生を続ける
-        pauseOnMouseEnter: true,      // マウスが乗ったら停止
+        delay: 2000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
       },
-      
-      // --- ページネーション（下部の丸いボタン） ---
       pagination: {
         el: '.swiper-pagination',
-        clickable: true, // クリックでそのスライドに飛べるように
+        clickable: true,
       },
-
-      // --- ナビゲーション（左右の矢印） ---
       navigation: {
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev',
       },
-
-      // --- 画面サイズごとの設定（レスポンシブ） ---
       breakpoints: {
-        // 画面幅が640px以上の場合
         640: {
           slidesPerView: 1,
-          spaceBetween: 20 // スライド間の余白
+          spaceBetween: 20
         },
-        // 画面幅が768px以上の場合
         768: {
           slidesPerView: 2,
           spaceBetween: 15
         },
-        // 画面幅が1024px以上の場合
         1024: {
           slidesPerView: 4,
-          spaceBetween: 10 // ★間隔を少し詰めました
+          spaceBetween: 10
         }
       }
     });

@@ -4,7 +4,6 @@ html, body {
     margin: 0;
     padding: 0;
 }
-@font-face { font-family: 'hgrsgu'; src: url('../fonts/hgrsgu.woff2') format('woff2'); font-weight: normal; font-style: normal; }
 
 .main-content {
     padding: 20px !important;
@@ -29,7 +28,7 @@ html, body {
 .controls-panel { min-width: 320px; max-width: 900px; flex-shrink: 1; flex-grow: 1; background-color: var(--theme-bg-main, #1a2c6d); overflow-y: auto; padding: 20px 25px; border-radius: 8px; transition: background-color 0.3s; }
 .form-group-inline { display: flex; gap: 15px; align-items: center; }
 .form-group-item { flex: 1; }
-.controls-panel label { display: block; font-weight: bold; text-shadow: 0 0 3px rgba(173, 216, 230, 0.5); }
+.controls-panel label { font-weight: bold; text-shadow: 0 0 3px rgba(173, 216, 230, 0.5); }
 .color-description { font-weight: normal; font-size: 0.9em; color: #bdc3c7; }
 .controls-panel input, .controls-panel textarea, .controls-panel select { width: 100%; box-sizing: border-box; background-color: var(--theme-bg-dark, #0d1a50); color: #eee; border: 1px solid var(--theme-border, #2a3c7d); border-radius: 4px; padding: 10px; font-size: 1em; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s; }
 .controls-panel input:focus, .controls-panel textarea:focus, .controls-panel select:focus { border-color: #3498db; box-shadow: 0 0 8px rgba(52, 152, 219, 0.5); outline: none; }
@@ -53,7 +52,6 @@ html, body {
 .download-options .add-new-button { flex-grow: 1; padding: 12px 15px; }
 .download-options .secondary-button { flex-grow: 1; }
 .checkbox-container { display: flex; align-items: center; gap: 5px; color: #b0c4de; white-space: nowrap; }
-.checkbox-container input[type="checkbox"] { width: auto; cursor: pointer; }
 .checkbox-container label { cursor: pointer; }
 #preview-area { width: 480px; height: 720px; }
 #card-container { position: relative; width: 100%; height: 100%; color: #000; user-select: none; }

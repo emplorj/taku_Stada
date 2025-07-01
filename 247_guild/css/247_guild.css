@@ -46,11 +46,15 @@ body {
 }
 
 /* --- メインコンテンツの領域設定 --- */
+.main-content {
+  /* ヘッダーの高さ分だけ上部に余白を確保 */
+  padding-top: calc(var(--header-height) + 20px);
+  margin-left: 0px;
+}
+
 main {
   /* ヘッダーとフッター以外の残りの空間をすべて埋める */
-  flex-grow: 1; 
-  /* ヘッダーにコンテンツが隠れないように、上部に余白を確保 */
-  padding-top: 60px;
+  flex-grow: 1;
 }
 
 footer {
@@ -456,7 +460,7 @@ a {
   left: -15px;
   right: -15px;
   bottom: -15px;
-  background-image: url('../../img/247_guild_img/依頼書テンプレ.png');
+  background-image: url('/247_guild/img/依頼書テンプレ.png');
   background-repeat: no-repeat;
   background-size: 70% 85%;
   background-position: center;

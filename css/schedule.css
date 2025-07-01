@@ -312,44 +312,6 @@
 /* ==========================================================================
    5. 共通スイッチ型チェックボックス
    ========================================================================== */
-input[type="checkbox"].switch{
-  position: relative;
-  appearance: none;
-  background-color: #f2f2f2;
-  -webkit-appearance: none;
-  width: 44px;
-  height: 28px;
-  border: 2px solid #bababa;
-  border-radius: calc(infinity * 1px);
-  transition: 250ms ease-out;
-  vertical-align: middle;
-  outline: 2px solid transparent;
-}
-input[type="checkbox"].switch:focus-visible{
-  outline-color: #0043fc;
-}
-input[type="checkbox"].switch::after{
-  content:"";
-  background-color: #fff;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  box-shadow: 0px 0px 3px #6b6b6b;
-  width: 24px;
-  height: 24px;
-  border-radius: calc(infinity * 1px);
-  transition: 200ms ease-out;
-}
-input[type="checkbox"].switch:active::after{
-  background-color: #f2f2f2;
-}
-input[type="checkbox"].switch:checked{
-  background-color: #00db07;
-  border-color: #00db07;
-}
-input[type="checkbox"].switch:checked::after{
-  left: 16px;
-}
 
 /* ==========================================================================
    6. トグルスイッチコンテナ
@@ -577,10 +539,6 @@ input[type="checkbox"].switch:checked::after{
     background-color: rgba(0, 0, 0, 0.15);
 }
 
-/* ★修正: 選択された列のデータセルにはハイライトを適用しない */
-.daycord-table tbody td.selected-date-cell {
-   /* このセレクタのスタイルを削除 */
-}
 
 /* 参加者名・予定の列（最初の列）の共通スタイル */
 .daycord-table thead th:first-child,

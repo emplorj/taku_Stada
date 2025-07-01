@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://emplorj.github.io/taku_Stada/247_guild/request_form.html" />
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="css/247_guild.css">
-  <link rel="stylesheet" href="../css/request_form.css">
+  <link rel="stylesheet" href="./css/request_form.css">
   <script>
     (function (d) {
       var config = {
@@ -30,14 +30,16 @@
 </head>
 
 <body data-no-sidemenu="true" class="page-request-form-guild"
-  style="background-image: url('../img/247_guild_img/hachimakiBG.png'); background-size: cover; background-attachment: fixed;">
-  <header class="page-header">
-    <nav class="page-nav">
-      <a href="index.html">ギルドへ戻る</a>
-    </nav>
-  </header>
-
+  style="background-image: url('img/hachimakiBG.png'); background-size: cover; background-attachment: fixed;">
   <div class="main-content">
+    <header class="page-header page-header-with-actions">
+      <h1>依頼書ジェネレーター</h1>
+      <p class="subtitle">オリジナルの依頼書を作成して画像として保存できます。</p>
+      <nav class="page-nav">
+        <a href="#" id="back-link">戻る</a>
+      </nav>
+    </header>
+
     <div class="creator-container">
       <!-- 左側の入力パネル -->
       <aside class="controls-panel">
@@ -64,24 +66,26 @@
         </div>
         <div class="form-group">
           <div class="help-text">
-            <p>TIPS: <code>[テキスト]</code>で囲むと文字が小さくなります。<code>[[二重]]</code>のように重ねがけも可能です。<code>\[</code>でエスケープできます。</p>
+            <p>TIPS:
+              <code>[テキスト]</code>で囲むと文字が小さくなります。<br><code>[[二重]]</code>のように重ねがけも可能です。<code>\[</code>でエスケープできます。<br>押しピンはドラッグして位置を変えられます。
+            </p>
           </div>
         </div>
         <div class="form-group">
           <div class="toggle-container">
-            <div class="checkbox-group">
+            <div class="checkbox-container">
               <input type="checkbox" id="bg-logo-toggle" class="switch">
               <label for="bg-logo-toggle">卓スタダロゴ</label>
             </div>
-            <div class="checkbox-group">
+            <div class="checkbox-container">
               <input type="checkbox" id="bg-stamp-toggle" class="switch">
               <label for="bg-stamp-toggle">済印</label>
             </div>
-            <div class="checkbox-group">
+            <div class="checkbox-container">
               <input type="checkbox" id="pin-toggle" class="switch">
               <label for="pin-toggle">押しピン表示</label>
             </div>
-            <div class="checkbox-group" id="pin-direction-group">
+            <div class="checkbox-container" id="pin-direction-group">
               <input type="radio" name="pin-direction" id="pin-up" value="ue" checked>
               <label for="pin-up">上向き</label>
               <input type="radio" name="pin-direction" id="pin-down" value="shita">
@@ -89,9 +93,37 @@
             </div>
           </div>
         </div>
-        <div class="form-group">
-          <button id="download-btn" class="add-new-button">依頼書を画像として保存</button>
+        <div class="form-group bulk-export-section">
+          <label>一括出力 (JSON/CSV)</label>
+          <!-- ↓↓↓ このUIコンテナの構造が重要です ↓↓↓ -->
+          <div class="file-upload-controls">
+            <label for="bulk-import-file" class="custom-file-upload">ファイル選択</label>
+            <input type="file" id="bulk-import-file" accept=".json,.csv" style="display: none;">
+            <span id="bulk-import-file-name" class="file-name-display">選択されていません</span>
+            <button id="bulk-export-btn" class="add-new-button">
+              一括出力
+            </button>
+          </div>
+          <div class="help-text" style="margin-top: 10px;">
+            <p>
+              決められた形式のJSONまたはCSVを読み込んで一括出力できます。<br>
+              <a href="#" id="json-template-link">JSONテンプレート</a> /
+              <a href="#" id="csv-template-link">CSVテンプレート</a>
+            </p>
+          </div>
         </div>
+
+        <div class="form-group">
+          <!-- ボタンとチェックボックスをまとめるラッパー -->
+          <div class="download-options-wrapper">
+            <button id="download-btn" class="add-new-button">依頼書を画像として保存</button>
+            <div class="checkbox-container">
+              <input type="checkbox" id="high-res-checkbox" class="switch">
+              <label for="high-res-checkbox">高画質</label>
+            </div>
+          </div>
+        </div>
+
       </aside>
 
       <!-- 右側のプレビューパネル -->
@@ -115,19 +147,17 @@
                 <span class="value"></span>
               </div>
             </div>
-            <img src="../img/247_guild_img/yakikomi_logo.png" id="logo-image">
-            <img src="../img/247_guild_img/yakikomi_stamp.png" id="stamp-image">
-            <img src="../img/247_guild_img/pin_ue.png" id="pin-image" class="draggable-pin" style="display: none;">
+            <img src="img/yakikomi_logo.png" id="logo-image">
+            <img src="img/yakikomi_stamp.png" id="stamp-image">
+            <img src="img/pin_ue.png" id="pin-image" class="draggable-pin" style="display: none;">
           </div>
         </div>
+      </main>
     </div>
-  </div>
-  </main>
-  </div>
   </div>
 
   <script src="../js/common.js"></script>
-  <script src="../js/request_form.js"></script>
+  <script src="./js/request_form.js"></script>
 </body>
 
 </html>
