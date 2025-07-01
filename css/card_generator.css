@@ -414,14 +414,35 @@ white-space: nowrap;
 }
 
 @media (max-width: 479px) {
-    .preview-wrapper { /* .preview-panel ではなく .preview-wrapper */
+    .preview-wrapper {
         width: 100%;
         overflow: hidden;
+        margin-top: 20px; /* プレビューとコントロールパネルの間にスペースを追加 */
     }
     #preview-area {
         /* 縮小の基点を左上隅に固定する（非常に重要） */
         transform-origin: top left;
     }
+}
+
+/* 480px以下でのみ適用されるスタイル */
+@media (max-width: 479px) {
+  .creator-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .controls-panel,
+  .preview-wrapper {
+    width: 100%;
+    max-width: 480px;
+    min-width: auto;
+  }
+
+  .preview-panel {
+    width: 100%; /* 画面幅に合わせる */
+    height: auto; /* 高さをコンテンツに合わせる */
+  }
 }
 
 /* ライトテーマUI用のスタイル */
@@ -467,9 +488,8 @@ white-space: nowrap;
     font-size: 0.9em;
     background-color: var(--theme-bg-main, #1a2c6d);
     overflow: hidden;
-    transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
-    max-height: 0;
-    opacity: 0;
+    max-height: 1000px; /* 十分な高さを確保 */
+    opacity: 1;
 }
 .font-spec-table th, .font-spec-table td {
     border: 1px solid var(--theme-border, #2a3c7d);
@@ -708,4 +728,169 @@ white-space: nowrap;
 /* モーダルボディのパディング調整 */
 .modal-body {
     padding: 0 5px; /* 左右に少しパディングを追加 */
+}
+
+/* card_generator.css の末尾に追加 */
+
+/* card_generator.css のタブUIスタイルをまるごと置き換え */
+
+/* ===============================================
+   タブ切り替えUIのスタイル (最終デザイン版 v2)
+   =============================================== */
+
+.tab-container {
+    width: 100%;
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--theme-border, #2a3c7d);
+}
+
+.tab-switch {
+    display: none;
+}
+
+/* ★★★ 1. 全てのタブに共通する「枠線」と「透明な背景」のスタイル ★★★ */
+.tab-label {
+    flex-grow: 1;
+    text-align: center;
+    padding: 12px 15px;
+    font-weight: bold;
+    color: #bdc3c7; /* 非選択時の文字色 */
+    cursor: pointer;
+    position: relative;
+    
+    /* 上と左右の枠線を設定 */
+    border: 2px solid var(--theme-border, #2a3c7d);
+    border-radius: 8px 8px 0 0;
+    
+    /* 下の線は透明にする */
+    border-bottom: 2px solid transparent; 
+    
+    /* ★★★ 背景色を完全に透過させる ★★★ */
+    background-color: transparent; 
+    
+    transition: all 0.2s ease;
+}
+
+/* ★★★ 2. 選択されていないタブのホバー効果 ★★★ */
+.tab-label:not(.tab-switch:checked + .tab-label):hover {
+    color: #fff; /* ホバーで文字色を少し明るく */
+    background-color: rgba(44, 62, 80, 0.3); /* 半透明の背景色を薄く表示 */
+}
+
+/* ★★★ 3. 選択されているタブのみに背景色を適用 ★★★ */
+.tab-switch:checked + .tab-label {
+    color: #f0e6d2;
+    
+    /* ★★★ ここで初めて、不透明な背景色を指定する ★★★ */
+    background-color: var(--theme-bg-main, #1a2c6d);
+    
+    /* 枠線の色も、選択状態が分かるように少し変えても良い（任意）*/
+    border-color: var(--theme-border, #2a3c7d);
+
+    /* 下にはみ出して、親要素の下線を隠す（変更なし） */
+    margin-bottom: -2px;
+}
+
+/* コンテンツの表示/非表示のロジック */
+.tab-content {
+    display: none;
+    padding-top: 30px;
+    background-color: transparent;
+    width: 100%;
+    order: 99; /* タブより後に表示されるように */
+}
+#tab-generator:checked ~ #generator-content,
+#tab-batch:checked ~ #batch-content,
+#tab-database:checked ~ #database-content,
+#tab-font:checked ~ #font-content {
+    display: block;
+}
+
+#tab-font:checked ~ #font-content .font-spec-table {
+    max-height: 1000px; /* 十分な高さを確保 */
+    opacity: 1;
+}
+
+/* 一括生成タブの見た目を整えるスタイル (変更なし) */
+.batch-panel-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 25px;
+    background-color: var(--theme-bg-main, #1a2c6d);
+    border-radius: 8px;
+}
+/* ===============================================
+   データベース閲覧ページのスタイル
+   =============================================== */
+
+.database-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.db-card {
+    background-color: var(--theme-bg-dark, #0d1a50);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.db-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
+
+.db-card-image {
+    width: 100%;
+    height: 200px; /* 高さを固定 */
+    background-color: #000;
+}
+
+.db-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 画像をコンテナに合わせて調整 */
+}
+
+.db-card-info {
+    padding: 15px;
+    flex-grow: 1;
+}
+
+.db-card-name {
+    margin: 0 0 10px 0;
+    color: #f0e6d2;
+    font-size: 1.2em;
+}
+
+.db-card-meta {
+    margin: 4px 0;
+    font-size: 0.9em;
+    color: #bdc3c7;
+}
+
+.db-card-id {
+    margin-top: 10px;
+    font-size: 0.8em;
+    color: #95a5a6;
+    opacity: 0.7;
+}
+
+.db-card-actions {
+    display: flex;
+    gap: 10px;
+    padding: 0 15px 15px 15px;
+}
+
+.db-card-actions .secondary-button {
+    flex-grow: 1;
+    margin: 0;
+    padding: 8px;
 }

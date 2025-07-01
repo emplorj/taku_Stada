@@ -26,11 +26,8 @@
     })(document);
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <!-- UPNG.jsが依存するpako.jsを先に追加 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <script src="https://unpkg.com/upng-js"></script>
-
 </head>
 
 <body class="page-card-creator">
@@ -47,306 +44,282 @@
           <li>キラカードにする→できた</li>
           <li>拡大縮小→できた</li>
           <li>文字数多いときの詰めが画面外に行く→できた</li>
-          <li>造ったカードまとめるデータベースまだです</li>
+          <li>造ったカードまとめるデータベースできたけど編集ボタンが調子悪い</li>
           <li>横長まだです</li>
           <li>ツインパクトまだです</li>
         </ul>
       </div>
     </header>
 
-    <details class="font-spec-details">
-      <summary>使用フォント一覧</summary>
-      <table class="font-spec-table">
-        <thead>
-          <tr>
-            <th>要素</th>
-            <th>フォントファミリー</th>
-            <th>ウェイト</th>
-            <th>サイズ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>カード名</td>
-            <td>'RocknRoll One', sans-serif</td>
-            <td>(default: 400)</td>
-            <td>28px</td>
-          </tr>
-          <tr>
-            <td>ルビ</td>
-            <td>'RocknRoll One', sans-serif</td>
-            <td>(default: 400)</td>
-            <td>14px</td>
-          </tr>
-          <tr>
-            <td>効果説明</td>
-            <td>"fot-rodin-pron", sans-serif</td>
-            <td>600</td>
-            <td>20px</td>
-          </tr>
-          <tr>
-            <td>フレーバーテキスト</td>
-            <td>"Klee One"</td>
-            <td>bold (700)</td>
-            <td>16px</td>
-          </tr>
-          <tr>
-            <td>フレーバー話者</td>
-            <td>"Klee One"</td>
-            <td>bold (700)</td>
-            <td>16px</td>
-          </tr>
-        </tbody>
-      </table>
-    </details>
-
-    <div class="creator-container">
-      <!-- 左側の入力パネル -->
-      <aside class="controls-panel">
-        <div class="form-group form-group-inline">
-          <div class="form-group-item">
-            <label for="card-color-select">カードの色</label>
-            <select id="card-color-select"></select>
-            <span id="card-color-description" class="color-description"></span>
-          </div>
-          <div class="form-group-item">
-            <label for="card-type-select">カードのタイプ</label>
-            <select id="card-type-select"></select>
-          </div>
-        </div>
-        <div class="form-group" id="background-select-group">
-          <label for="background-select">カードの背景</label>
-          <select id="background-select">
-            <option value="hologram_geometric.png">ホログラム（幾何学）</option>
-            <option value="hologram_glitter.png">ホログラム（粒子）</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="card-name-input">カード名（ルビ記法: `漢字(かんじ)`）</label>
-          <input type="text" id="card-name-input" value="意外な授かり物">
-        </div>
-        <div class="form-group">
-          <label>カード画像</label>
-          <div class="image-upload-controls">
-            <label for="image-upload" class="custom-file-upload">選択</label>
-            <input type="file" id="image-upload" accept="image/*" style="display: none;">
-            <span id="image-file-name" class="file-name-display">選択されていません</span>
-            <button id="reset-image-btn" class="secondary-button">リセット</button>
-            <button id="reset-image-position-btn" class="secondary-button">座標リセット</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>上絵画像</label>
-          <div class="image-upload-controls">
-            <label for="overlay-image-upload" class="custom-file-upload">選択</label>
-            <input type="file" id="overlay-image-upload" accept="image/*" style="display: none;">
-            <span id="overlay-image-file-name" class="file-name-display">選択されていません</span>
-            <button id="reset-overlay-image-btn" class="secondary-button">リセット</button>
-            <button id="reset-overlay-position-btn" class="secondary-button">座標リセット</button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>編集モード</label>
-          <!-- ★★★ トグルスイッチのコンテナを追加 ★★★ -->
-          <div class="toggle-switch-container">
-            <input type="radio" id="edit-mode-base" name="edit-mode" value="base" checked>
-            <label for="edit-mode-base">イラスト</label>
-
-            <input type="radio" id="edit-mode-overlay" name="edit-mode" value="overlay">
-            <label for="edit-mode-overlay">上絵</label>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="effect-input">効果（説明）</label>
-          <textarea id="effect-input" rows="4">アイテムを1つ拾う。</textarea>
-        </div>
-        <div class="form-group">
-          <label for="flavor-input">フレーバーテキスト</label>
-          <textarea id="flavor-input" rows="3">ピィプ……</textarea>
-        </div>
-        <div class="form-group">
-          <label for="flavor-speaker-input">フレーバー話者</label>
-          <input type="text" id="flavor-speaker-input" value="仁科ミカ・ぬい">
-        </div>
-        <div class="form-group">
-          <div class="download-options">
-            <button id="download-btn" class="add-new-button">カードを保存</button>
-            <button id="open-db-modal-btn" class="secondary-button">データベースに登録</button>
-            <button id="download-template-btn" class="secondary-button">テンプレを保存</button>
-            <div class="checkbox-container">
-              <input type="checkbox" id="high-res-checkbox" class="switch">
-              <label for="high-res-checkbox">高画質</label>
+    <!-- ==================================================
+         タブUIコンテナ
+         ================================================== -->
+    <div class="tab-container">
+      <input type="radio" id="tab-generator" name="tab-group" class="tab-switch" checked>
+      <label for="tab-generator" class="tab-label">ジェネレーター</label>
+      <div id="generator-content" class="tab-content">
+        <div class="creator-container">
+          <!-- 左側の入力パネル -->
+          <aside class="controls-panel">
+            <div class="form-group form-group-inline">
+              <div class="form-group-item">
+                <label for="card-color-select">カードの色</label>
+                <select id="card-color-select"></select>
+                <span id="card-color-description" class="color-description"></span>
+              </div>
+              <div class="form-group-item">
+                <label for="card-type-select">カードのタイプ</label>
+                <select id="card-type-select"></select>
+              </div>
             </div>
-            <div class="checkbox-container">
-              <input type="checkbox" id="sparkle-checkbox" class="switch">
-              <label for="sparkle-checkbox">キラキラ</label>
+            <div class="form-group" id="background-select-group">
+              <label for="background-select">カードの背景</label>
+              <select id="background-select">
+                <option value="hologram_geometric.png">ホログラム（幾何学）</option>
+                <option value="hologram_glitter.png">ホログラム（粒子）</option>
+              </select>
             </div>
-          </div>
-        </div>
-
-        <!-- ★★★ ここからが修正箇所 ★★★ -->
-        <!-- .batch-processing-section全体を<details>タグで囲む -->
-        <details class="batch-processing-details" open> <!-- PCではデフォルトで開くように open 属性を追加 -->
-          <!-- h2をsummaryに置き換える -->
-          <summary>
-            <h2>一括生成</h2>
-          </summary>
-          <div class="batch-processing-section">
             <div class="form-group">
-              <label for="batch-file-upload">1. CSV / JSON ファイルを選択</label>
+              <label for="card-name-input">カード名（ルビ記法: `漢字(かんじ)`）</label>
+              <input type="text" id="card-name-input" value="意外な授かり物">
+            </div>
+            <div class="form-group">
+              <label>カード画像</label>
               <div class="image-upload-controls">
-                <label for="batch-file-upload" class="custom-file-upload">ファイル選択</label>
-                <input type="file" id="batch-file-upload" accept=".csv,.json" style="display: none;">
-                <span id="batch-file-name" class="file-name-display">選択されていません</span>
+                <label for="image-upload" class="custom-file-upload">選択</label>
+                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                <span id="image-file-name" class="file-name-display">選択されていません</span>
+                <button id="reset-image-btn" class="secondary-button">リセット</button>
+                <button id="reset-image-position-btn" class="secondary-button">座標リセット</button>
               </div>
             </div>
             <div class="form-group">
-              <label for="image-folder-upload">2. カード画像フォルダを選択 (任意)</label>
+              <label>上絵画像</label>
               <div class="image-upload-controls">
-                <label for="image-folder-upload" class="custom-file-upload">フォルダ選択</label>
-                <input type="file" id="image-folder-upload" webkitdirectory directory multiple style="display: none;">
-                <span id="image-folder-name" class="file-name-display">選択されていません</span>
+                <label for="overlay-image-upload" class="custom-file-upload">選択</label>
+                <input type="file" id="overlay-image-upload" accept="image/*" style="display: none;">
+                <span id="overlay-image-file-name" class="file-name-display">選択されていません</span>
+                <button id="reset-overlay-image-btn" class="secondary-button">リセット</button>
+                <button id="reset-overlay-position-btn" class="secondary-button">座標リセット</button>
               </div>
             </div>
             <div class="form-group">
-              <button id="batch-download-btn" class="add-new-button" disabled>ZIPで一括保存</button>
-              <div id="batch-progress" class="progress-display" style="display: none;"></div>
+              <label>編集モード</label>
+              <div class="toggle-switch-container">
+                <input type="radio" id="edit-mode-base" name="edit-mode" value="base" checked>
+                <label for="edit-mode-base">イラスト</label>
+                <input type="radio" id="edit-mode-overlay" name="edit-mode" value="overlay">
+                <label for="edit-mode-overlay">上絵</label>
+              </div>
             </div>
-          </div>
-        </details>
-        <!-- ★★★ ここまでが修正箇所 ★★★ -->
-
-        <details class="batch-spec-details">
-          <summary>【クリックで展開】CSV/JSONフォーマットの詳細な書き方</summary>
-          <div class="spec-content">
-            <h4>CSVファイルの書き方</h4>
-            <p>1行目にヘッダー（列名）を書き、2行目以降にカードのデータを1行ずつ記述します。</p>
-            <strong>1行目: ヘッダー (この順番で記述してください)</strong>
-            <pre><code>カード名,色,タイプ,背景,イラスト,効果説明,フレーバー,フレーバー名,キラ</code></pre>
-            <strong>2行目以降: カードデータの例</strong>
-            <pre><code>一撃必殺,赤,,,"images/sword.png","このカードは敵を即座に倒す。","「これで終わりだ！」,英雄,false
-伝説の秘宝,虹,FF,hologram_geometric.png,"items/treasure.png",ゲームに勝利する。,,,true
-ただの石,白,,,,何の効果もない。,,,</code></pre>
-
-            <h5>各列の詳細説明</h5>
-            <ul>
-              <li><strong>カード名</strong>: (必須) カードの名前。ルビ記法も使えます例: `超新星(スーパーノヴァ)`)</li>
-              <li><strong>色</strong>: (必須) ドロップダウンリストにある色名。例: `赤`, `青`, `虹`</li>
-              <li><strong>タイプ</strong>: (任意) カードの見た目を変更します。空欄の場合は「標準」になります。
-                <ul>
-                  <li>`FF`: 画像がカード全体に表示される「フルフレーム」</li>
-                  <li>`CF`: カード名に白い縁取りが付く「文字枠なし」</li>
-                  <li>`FFCF`: 上記の両方を適用</li>
-                </ul>
-              </li>
-              <li><strong>背景</strong>: (任意) 画像が透過PNGの場合の背景。例: `◇`
-                <ul>
-                  <li>`◇`: ホログラム（幾何学）</li>
-                  <li>`☆`: ホログラム（粒子）</li>
-                </ul>
-              </li>
-              <li><strong>イラスト</strong>: (任意) カード画像のファイル名。手順2でアップロードしたフォルダ内にある必要があります。</li>
-              <li><strong>効果説明, フレーバー, フレーバー名</strong>: (任意) それぞれのテキスト。</li>
-              <li><strong>キラ</strong>: (任意) キラカードにするかどうか。`true`を指定するとキラカード(APNG)になります。`false`または空欄の場合は通常のカード(PNG)になります。
-              </li>
-            </ul>
-
-            <hr style="margin: 20px 0; border-color: var(--theme-border);">
-
-            <h4>JSONファイルの書き方</h4>
-            <p>キーと値をセットにしたオブジェクトの配列として記述します。</p>
-            <pre><code>[
-  {
-    "cardName": "伝説の秘宝",
-    "color": "虹",
-    "type": "FF",
-    "background": "◇",
-    "image": "items/treasure.png",
-    "effect": "ゲームに勝利する。",
-    "flavor": "",
-    "speaker": "",
-    "sparkle": true
-  },
-  {
-    "cardName": "ただの石",
-    "color": "白",
-    "effect": "何の効果もない。",
-    "sparkle": false
-  }
-]</code></pre>
-            <p class="note">※JSONでは、指定しないキーは自動的に空欄またはデフォルト値（`sparkle`は`false`）として扱われます。</p>
-          </div>
-        </details>
-        <!-- ★★★ ここまでが修正箇所 ★★★ -->
-      </aside>
-
-      <!-- 右側のプレビューパネル -->
-      <div class="preview-wrapper">
-        <main class="preview-panel">
-          <div id="preview-area">
-            <div id="card-container">
-              <img id="background-image" src="" alt="カード背景" style="display: none;">
-              <img id="sparkle-overlay-image" src="Card_asset/加算してキラキラ.webp" alt="キラキラエフェクト" style="display: none;">
-              <img id="card-template-image" src="Card_asset/テンプレ/青カード.png" alt="カードテンプレート">
-              <div id="image-container">
-                <img id="card-image" src="Card_asset/now_painting.png" alt="カード画像">
-              </div>
-
-              <div id="overlay-image-container">
-                <img id="overlay-image" src="" alt="上絵画像" style="display: none;">
-              </div>
-
-              <div id="card-name-container" class="card-text">
-                <div id="card-name-content"></div>
-              </div>
-              <div id="text-box-container">
-                <div id="flavor-group">
-                  <div id="flavor-display" class="card-text"></div>
-                  <div id="flavor-speaker-display" class="card-text"></div>
+            <div class="form-group">
+              <label for="effect-input">効果（説明）</label>
+              <textarea id="effect-input" rows="4">アイテムを1つ拾う。</textarea>
+            </div>
+            <div class="form-group">
+              <label for="flavor-input">フレーバーテキスト</label>
+              <textarea id="flavor-input" rows="3">ピィプ……</textarea>
+            </div>
+            <div class="form-group">
+              <label for="flavor-speaker-input">フレーバー話者</label>
+              <input type="text" id="flavor-speaker-input" value="仁科ミカ・ぬい">
+            </div>
+            <div class="form-group">
+              <div class="download-options">
+                <button id="download-btn" class="add-new-button">カードを保存</button>
+                <button id="open-db-modal-btn" class="secondary-button">データベースに登録</button>
+                <button id="download-template-btn" class="secondary-button">テンプレを保存</button>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="high-res-checkbox" class="switch">
+                  <label for="high-res-checkbox">高画質</label>
                 </div>
-                <div id="effect-display" class="card-text"></div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="sparkle-checkbox" class="switch">
+                  <label for="sparkle-checkbox">キラキラ</label>
+                </div>
               </div>
             </div>
+          </aside>
+          <div class="preview-wrapper">
+            <main class="preview-panel">
+              <div id="preview-area">
+                <div id="card-container">
+                  <img id="background-image" src="" alt="カード背景" style="display: none;">
+                  <img id="sparkle-overlay-image" src="Card_asset/加算してキラキラ.webp" alt="キラキラエフェクト" style="display: none;">
+                  <img id="card-template-image" src="Card_asset/テンプレ/青カード.png" alt="カードテンプレート">
+                  <div id="image-container">
+                    <img id="card-image" src="Card_asset/now_painting.png" alt="カード画像">
+                  </div>
+                  <div id="overlay-image-container">
+                    <img id="overlay-image" src="" alt="上絵画像" style="display: none;">
+                  </div>
+                  <div id="card-name-container" class="card-text">
+                    <div id="card-name-content"></div>
+                  </div>
+                  <div id="text-box-container">
+                    <div id="flavor-group">
+                      <div id="flavor-display" class="card-text"></div>
+                      <div id="flavor-speaker-display" class="card-text"></div>
+                    </div>
+                    <div id="effect-display" class="card-text"></div>
+                  </div>
+                </div>
+              </div>
+            </main>
           </div>
+        </div>
+      </div>
+
+      <input type="radio" id="tab-batch" name="tab-group" class="tab-switch">
+      <label for="tab-batch" class="tab-label">一括生成</label>
+      <div id="batch-content" class="tab-content">
+        <div class="batch-panel-container">
+          <details class="batch-processing-details" open>
+            <summary>
+              <h2>一括生成</h2>
+            </summary>
+            <div class="batch-processing-section">
+              <div class="form-group">
+                <label for="batch-file-upload">1. CSV / JSON ファイルを選択</label>
+                <div class="image-upload-controls">
+                  <label for="batch-file-upload" class="custom-file-upload">ファイル選択</label>
+                  <input type="file" id="batch-file-upload" accept=".csv,.json" style="display: none;">
+                  <span id="batch-file-name" class="file-name-display">選択されていません</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="image-folder-upload">2. カード画像フォルダを選択 (任意)</label>
+                <div class="image-upload-controls">
+                  <label for="image-folder-upload" class="custom-file-upload">フォルダ選択</label>
+                  <input type="file" id="image-folder-upload" webkitdirectory directory multiple style="display: none;">
+                  <span id="image-folder-name" class="file-name-display">選択されていません</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <button id="batch-download-btn" class="add-new-button" disabled>ZIPで一括保存</button>
+                <div id="batch-progress" class="progress-display" style="display: none;"></div>
+              </div>
+            </div>
+          </details>
+          <details class="batch-spec-details">
+            <summary>【クリックで展開】CSV/JSONフォーマットの詳細な書き方</summary>
+            <div class="spec-content">
+              <h4>CSVファイルの書き方</h4>
+              <p>1行目にヘッダー（列名）を書き、2行目以降にカードのデータを1行ずつ記述します。</p>
+              <strong>1行目: ヘッダー (この順番で記述してください)</strong>
+              <pre><code>カード名,色,タイプ,背景,イラスト,効果説明,フレーバー,フレーバー名,キラ</code></pre>
+              <strong>2行目以降: カードデータの例</strong>
+              <pre><code>一撃必殺,赤,,,"images/sword.png","このカードは敵を即座に倒す。","「これで終わりだ！」,英雄,false
+伝説の秘宝,虹,FF,◇,"items/treasure.png",ゲームに勝利する。,,,true
+ただの石,白,,,,何の効果もない。,,,</code></pre>
+              <h5>各列の詳細説明</h5>
+              <ul>
+                <li><strong>カード名</strong>: (必須)</li>
+                <li><strong>色</strong>: (必須)</li>
+                <li><strong>タイプ</strong>: (任意) `FF`, `CF`, `FFCF`</li>
+                <li><strong>背景</strong>: (任意) `◇` (幾何学), `☆` (粒子)</li>
+                <li><strong>イラスト</strong>: (任意)</li>
+                <li><strong>効果説明, フレーバー, フレーバー名</strong>: (任意)</li>
+                <li><strong>キラ</strong>: (任意) `true`を指定するとキラカードになります。</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <input type="radio" id="tab-database" name="tab-group" class="tab-switch">
+      <label for="tab-database" class="tab-label">データベース</label>
+      <div id="database-content" class="tab-content">
+        <div id="card-list-container" class="database-grid">
+          <p>データベースタブをクリックしてデータを読み込みます。</p>
+        </div>
+      </div>
+
+      <input type="radio" id="tab-font" name="tab-group" class="tab-switch">
+      <label for="tab-font" class="tab-label">フォント</label>
+      <div id="font-content" class="tab-content">
+        <details class="font-spec-details" open>
+          <summary>使用フォント一覧</summary>
+          <table class="font-spec-table">
+            <thead>
+              <tr>
+                <th>要素</th>
+                <th>フォントファミリー</th>
+                <th>ウェイト</th>
+                <th>サイズ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>カード名</td>
+                <td>'RocknRoll One', sans-serif</td>
+                <td>(default: 400)</td>
+                <td>28px</td>
+              </tr>
+              <tr>
+                <td>ルビ</td>
+                <td>'RocknRoll One', sans-serif</td>
+                <td>(default: 400)</td>
+                <td>14px</td>
+              </tr>
+              <tr>
+                <td>効果説明</td>
+                <td>"fot-rodin-pron", sans-serif</td>
+                <td>600</td>
+                <td>20px</td>
+              </tr>
+              <tr>
+                <td>フレーバーテキスト</td>
+                <td>"Klee One"</td>
+                <td>bold (700)</td>
+                <td>16px</td>
+              </tr>
+              <tr>
+                <td>フレーバー話者</td>
+                <td>"Klee One"</td>
+                <td>bold (700)</td>
+                <td>16px</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </div>
+    </div>
+
+    <!-- データベース登録用モーダル -->
+    <div id="db-modal-overlay" class="modal-overlay">
+      <div class="modal-content">
+        <header class="modal-header">
+          <h2>データベースにカードを登録</h2>
+          <button id="modal-close-btn" class="modal-close-btn">×</button>
+        </header>
+        <main class="modal-body">
+          <form id="db-entry-form">
+            <div class="form-group">
+              <label for="registrant-input">登録者</label>
+              <input type="text" id="registrant-input" placeholder="あなたの名前やハンドルネーム">
+            </div>
+            <div class="form-group">
+              <label for="artist-input">絵師</label>
+              <input type="text" id="artist-input" placeholder="イラストの作者名">
+            </div>
+            <div class="form-group">
+              <label for="source-input">元ネタ</label>
+              <input type="text" id="source-input" placeholder="カードのアイデアの元になった作品名など">
+            </div>
+            <div class="form-group">
+              <label for="notes-input">備考</label>
+              <textarea id="notes-input" rows="3" placeholder="管理用のメモなど"></textarea>
+            </div>
+            <footer class="modal-footer">
+              <button type="submit" class="add-new-button">この内容で登録する</button>
+            </footer>
+          </form>
         </main>
       </div>
     </div>
   </div>
 
-  <div id="db-modal-overlay" class="modal-overlay">
-    <div class="modal-content">
-      <header class="modal-header">
-        <h2>データベースにカードを登録</h2>
-        <button id="modal-close-btn" class="modal-close-btn">×</button>
-      </header>
-      <main class="modal-body">
-        <form id="db-entry-form">
-          <div class="form-group">
-            <label for="registrant-input">登録者</label>
-            <input type="text" id="registrant-input" placeholder="あなたの名前や">
-          </div>
-          <div class="form-group">
-            <label for="artist-input">絵師</label>
-            <input type="text" id="artist-input" placeholder="イラストの作者名">
-          </div>
-          <div class="form-group">
-            <label for="source-input">元ネタ</label>
-            <input type="text" id="source-input" placeholder="カードのアイデアの元になったキャラやシナリオ名など">
-          </div>
-          <div class="form-group">
-            <label for="notes-input">備考</label>
-            <textarea id="notes-input" rows="3" placeholder="管理用のメモなど"></textarea>
-          </div>
-          <footer class="modal-footer">
-            <button type="submit" class="add-new-button">この内容で登録する</button>
-          </footer>
-        </form>
-      </main>
-    </div>
-  </div>
-
-  <!-- scriptタグはその下 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="js/common.js"></script>
   <script src="js/card_generator.js"></script>

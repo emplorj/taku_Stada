@@ -46,30 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetOverlayPositionBtn = document.getElementById('reset-overlay-position-btn');
     const batchDetails = document.querySelector('.batch-processing-details');
     const openDbModalBtn = document.getElementById('open-db-modal-btn');
-const dbModalOverlay = document.getElementById('db-modal-overlay');
-const modalCloseBtn = document.getElementById('modal-close-btn');
-const dbEntryForm = document.getElementById('db-entry-form');
+    const dbModalOverlay = document.getElementById('db-modal-overlay');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const dbEntryForm = document.getElementById('db-entry-form');
+    const tabDatabase = document.getElementById('tab-database');
+    const cardListContainer = document.getElementById('card-list-container');
 
     // ★★★ GASのURLを格納する変数を定義 ★★★
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby09YnUEingxzGXP-rGbauFoEmRFcQGNm05fLzZyTV5gMI1pWgYgze4OyhnNYE2hfIKrw/exec';
-
-
-    // ウィンドウサイズに応じて一括生成セクションの開閉を制御する関数を新しく作成
-    function handleBatchSectionCollapse() {
-        if (!batchDetails) return;
-
-        // 画面幅がPCのブレークポイント（1361px）より大きいかどうか
-        const isDesktop = window.innerWidth >= 1361;
-
-        // PCの場合は常に開く、それ以外（スマホ・タブレット）はユーザーの状態に任せる
-        if (isDesktop) {
-            batchDetails.open = true;
-        }
-        // スマホ表示の際に強制的に閉じたい場合は、以下のelseを追加
-        else {
-            batchDetails.open = false;
-        }
-    }
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx6PxxRBPusXzft_gTw4wvUaFlQNbbNYqVjhWjRRiU3CoqsLgetZtv5y-8lmUyfBWqoxA/exec';
 
     // 状態管理
     let isDragging = false,
@@ -161,15 +145,149 @@ const dbEntryForm = document.getElementById('db-entry-form');
             name: "標準"
         },
         "CF": {
-            name: "文字枠なし"
+            name: "タイトル枠なし"
         },
         "FF": {
             name: "フルフレーム"
         },
         "FFCF": {
-            name: "フルフレーム & 文字枠なし"
+            name: "フルフレーム(タイトル枠なし)"
         }
     };
+
+    // ★★★ ImgBBで取得した、あなたのAPIキーをここに貼り付け ★★★
+    const IMGBB_API_KEY = '906b0e42b775a8ba283f16cd35fb667f';
+
+    // ウィンドウサイズに応じて一括生成セクションの開閉を制御する関数を新しく作成
+    function handleBatchSectionCollapse() {
+        if (!batchDetails) return;
+
+        // 画面幅がPCのブレークポイント（1361px）より大きいかどうか
+        const isDesktop = window.innerWidth >= 1361;
+
+        // PCの場合は常に開く、それ以外（スマホ・タブレット）はユーザーの状態に任せる
+        if (isDesktop) {
+            batchDetails.open = true;
+        }
+        // スマホ表示の際に強制的に閉じたい場合は、以下のelseを追加
+        else {
+            batchDetails.open = false;
+        }
+    }
+
+    function parseDatabaseCsv(csvText) {
+        const lines = csvText.trim().replace(/\r\n/g, '\n').split('\n');
+        if (lines.length < 1) return [];
+        
+        const headers = lines[0].split(',').map(h => h.trim());
+        const data = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i]) continue;
+            
+            // カンマ区切りで単純に分割するのではなく、引用符を考慮する
+            const values = [];
+            let inQuotes = false;
+            let currentField = '';
+            for (const char of lines[i]) {
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(currentField.trim());
+                    currentField = '';
+                } else {
+                    currentField += char;
+                }
+            }
+            values.push(currentField.trim());
+
+            const entry = {};
+            headers.forEach((header, index) => {
+                entry[header] = values[index] || '';
+            });
+            data.push(entry);
+        }
+        return data.reverse(); // 新しいものが上にくるように逆順にする
+    }
+
+    function handleUrlParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cardId = urlParams.get('id');
+        if (cardId) {
+            loadCardForEditing(cardId);
+        }
+    }
+
+    async function loadCardForEditing(cardId) {
+        // ジェネレータータブを表示
+        document.getElementById('tab-generator').checked = true;
+        const dbContent = document.getElementById('database-content');
+        if(dbContent) dbContent.innerHTML = '<p>カードを編集中です...</p>';
+
+
+        const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXTIYBURfIYxyLgGle8sAnRMfpM9fitcL6zkchi2gblxxD65-DxOWVMm830Ogl-HQjZgQtWLaRMfwo/pub?gid=1713292859&single=true&output=csv';
+
+        try {
+            const response = await fetch(SPREADSHEET_CSV_URL, { cache: 'no-cache' });
+            if (!response.ok) {
+                throw new Error(`データベースの読み込みに失敗しました: HTTP ${response.status}`);
+            }
+            const csvText = await response.text();
+            const cards = parseDatabaseCsv(csvText); // 逆順になっている前提
+
+            const cardToEdit = cards.find(card => card['ID'] === cardId);
+
+            if (!cardToEdit) {
+                throw new Error(`指定されたIDのカードが見つかりません: ${cardId}`);
+            }
+
+            // フォームに値を設定
+            cardNameInput.value = cardToEdit['カード名'] || '';
+            cardColorSelect.value = cardToEdit['色'] || '青';
+            cardTypeSelect.value = cardToEdit['タイプ'] || '';
+            effectInput.value = cardToEdit['効果説明'] || '';
+            flavorInput.value = cardToEdit['フレーバー'] || '';
+            flavorSpeakerInput.value = cardToEdit['フレーバー名'] || '';
+            
+            // モーダル内の情報も設定
+            document.getElementById('registrant-input').value = cardToEdit['登録者'] || '';
+            document.getElementById('artist-input').value = cardToEdit['絵師'] || '';
+            document.getElementById('source-input').value = cardToEdit['元ネタ'] || '';
+            document.getElementById('notes-input').value = cardToEdit['備考'] || '';
+
+            // 画像の処理
+            const imageUrl = cardToEdit['画像URL'];
+            if (imageUrl && imageUrl !== 'DEFAULT') {
+                if (imageUrl.includes('drive.google.com')) {
+                    alert('Google Drive上の画像は、セキュリティの都合で直接編集画面に読み込めません。\nお手数ですが、再度画像を選択し直してください。');
+                    resetImage();
+                } else {
+                    cardImage.crossOrigin = "Anonymous";
+                    cardImage.src = imageUrl;
+                    imageFileName.textContent = '読み込み中...';
+                    cardImage.onload = () => {
+                        imageFileName.textContent = cardToEdit['カード名'] || '画像';
+                        setupImageForDrag();
+                        updatePreview();
+                    };
+                    cardImage.onerror = () => {
+                        cardImage.src = 'Card_asset/image_load_error.png';
+                        imageFileName.textContent = '画像読込エラー';
+                        setupImageForDrag();
+                        updatePreview();
+                    };
+                }
+            } else {
+                resetImage();
+            }
+
+            updatePreview();
+
+        } catch (error) {
+            console.error('編集用カードの読み込みエラー:', error);
+            alert(`カード情報の読み込みに失敗しました。\n${error.message}`);
+        }
+    }
 
     function scalePreview() {
         if (!previewWrapper || !previewPanel) return;
@@ -245,7 +363,6 @@ const dbEntryForm = document.getElementById('db-entry-form');
         document.getElementById('background-select-group').style.display = 'none';
         updatePreview();
         resetImage();
-        setupFontSpecAnimation();
         window.addEventListener('resize', scalePreview);
         scalePreview();
         handleBatchSectionCollapse();
@@ -266,33 +383,66 @@ const dbEntryForm = document.getElementById('db-entry-form');
             }
         });
         // モーダル内の「この内容で登録する」ボタンが押された時の処理
-dbEntryForm.addEventListener('submit', (e) => {
-    e.preventDefault(); // フォームのデフォルトの送信動作をキャンセル
-
-    // カードの基本情報を取得
-    const cardData = {
-        name: cardNameInput.value,
-        color: cardColorSelect.value,
-        type: cardTypeSelect.value,
-        effect: effectInput.value,
-        flavor: flavorInput.value,
-        speaker: flavorSpeakerInput.value,
-        imageUrl: '（画像は後で実装）',
-        
-        // モーダルからメタデータを取得
-        registrant: document.getElementById('registrant-input').value,
-        artist: document.getElementById('artist-input').value,
-        source: document.getElementById('source-input').value,
-        notes: document.getElementById('notes-input').value
-    };
+    dbEntryForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     
-    // データベースに保存する関数を呼び出す
-    saveCardToDatabase(cardData).then(() => {
-        alert('データベースに登録しました！');
-        dbModalOverlay.classList.remove('is-visible'); // 保存が成功したらモーダルを閉じる
-    }).catch((err) => {
-        alert('登録に失敗しました。コンソールを確認してください。');
-    });
+    const submitButton = dbEntryForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = '処理を開始...';
+
+    try {
+        let imageUrl = '';
+
+        const isDefaultImage = cardImage.src.includes('now_painting');
+
+        if (isDefaultImage) {
+            imageUrl = 'DEFAULT';
+        } else {
+            const currentCardType = (cardTypeSelect.value || '').toUpperCase();
+            submitButton.textContent = '画像切り出し中...';
+            const artworkBlob = await generateArtworkBlob(currentCardType);
+            
+            // ★★★ ここで、アップロード用のファイル名を生成 ★★★
+            const now = new Date();
+            const yy = now.getFullYear().toString().slice(-2);
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const uploadFileName = `${yy}-${mm}-${dd}`;
+            
+            submitButton.textContent = '画像アップロード中...';
+            // ★★★ 生成したファイル名を関数に渡す ★★★
+            imageUrl = await uploadToImgBB(artworkBlob, uploadFileName);
+        }
+        
+        const cardData = {
+            ID: `${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${String(new Date().getHours()).padStart(2, '0')}${String(new Date().getMinutes()).padStart(2, '0')}${String(new Date().getSeconds()).padStart(2, '0')}`,
+            name: cardNameInput.value,
+            color: cardColorSelect.value,
+            type: cardTypeSelect.value,
+            effect: effectInput.value,
+            flavor: flavorInput.value,
+            speaker: flavorSpeakerInput.value,
+            imageUrl: imageUrl,
+            registrant: document.getElementById('registrant-input').value,
+            artist: document.getElementById('artist-input').value,
+            source: document.getElementById('source-input').value,
+            notes: document.getElementById('notes-input').value
+        };
+
+        submitButton.textContent = 'DBに登録中...';
+        await saveCardToDatabase(cardData);
+        
+        alert(`ID: ${cardData.ID} でデータベースに登録しました！`);
+        dbModalOverlay.classList.remove('is-visible');
+
+    } catch (err) {
+        console.error('登録処理中にエラーが発生しました:', err);
+        alert('登録に失敗しました:\n\n' + err.message);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+    }
 });
     }
 
@@ -326,6 +476,114 @@ function saveCardToDatabase(cardData) {
     }
   });
 }
+
+/**
+ * カードの「アートワーク部分」だけを抽出し、画像データ(Blob)を生成する関数。(最終確定版)
+ * カードタイプに応じて、480x720 または 480x480 にトリミングする。
+ * @param {string} cardType - カードのタイプ ('FF', 'CF', 'FFCF', or '')
+ * @returns {Promise<Blob>} アートワーク部分の画像Blob
+ */
+async function generateArtworkBlob(cardType) {
+  console.log(`アートワーク部分の切り出しを開始します。タイプ: ${cardType || '標準'}`);
+
+  const elementsToModify = [
+    document.getElementById('card-template-image'),
+    document.getElementById('card-name-container'),
+    document.getElementById('text-box-container'),
+    document.getElementById('sparkle-overlay-image')
+  ];
+
+  // ★★★ 1. 各要素の元のdisplayスタイルを記憶するための配列 ★★★
+  const originalStyles = [];
+
+  try {
+    // ★★★ 2. 記憶してから、非表示にする ★★★
+    elementsToModify.forEach(el => {
+      if (el) {
+        // 元のスタイルを記憶
+        originalStyles.push({ element: el, originalDisplay: el.style.display });
+        // その後で非表示にする
+        el.style.display = 'none';
+      }
+    });
+
+    // 画像化の処理（ここは変更なし）
+    const fullCardCanvas = await html2canvas(cardContainer, { 
+      backgroundColor: null, 
+      useCORS: true 
+    });
+
+    const isFullFrame = cardType === 'FF' || cardType === 'FFCF';
+
+    if (isFullFrame) {
+      console.log('フルフレームのため、480x720の画像を生成します。');
+      return await new Promise(resolve => fullCardCanvas.toBlob(resolve, 'image/png'));
+    } else {
+      console.log('標準/CFタイプのため、480x480に画像をクロップします。');
+      const croppedCanvas = document.createElement('canvas');
+      croppedCanvas.width = 480;
+      croppedCanvas.height = 480;
+      const ctx = croppedCanvas.getContext('2d');
+      ctx.drawImage(fullCardCanvas, 0, 0, 480, 480, 0, 0, 480, 480);
+      return await new Promise(resolve => croppedCanvas.toBlob(resolve, 'image/png'));
+    }
+
+  } finally {
+    // ★★★ 3. 記憶しておいた元のスタイルに、正確に復元する ★★★
+    originalStyles.forEach(item => {
+      item.element.style.display = item.originalDisplay;
+    });
+    console.log('アートワークの切り出しが完了し、表示を元に戻しました。');
+  }
+}
+    /**
+     * 画像をImgBBに匿名でアップロードし、そのURLを返す関数 (ファイル名指定機能付き)
+     * @param {Blob} imageBlob - アップロードする画像のBlobデータ
+     * @param {string} [fileName] - (任意) ImgBBに設定するファイル名
+     * @returns {Promise<string>} アップロードされた画像のURL
+     */
+    async function uploadToImgBB(imageBlob, fileName) {
+    if (!IMGBB_API_KEY || IMGBB_API_KEY.includes('ここに')) {
+        throw new Error('ImgBBのAPIキーが設定されていません。card_generator.jsを修正してください。');
+    }
+
+    const formData = new FormData();
+    formData.append('image', imageBlob);
+
+    // ★★★ ファイル名が指定されていれば、FormDataに追加 ★★★
+    if (fileName) {
+        formData.append('name', fileName);
+    }
+
+    console.log(`ImgBBへのアップロードを開始します... ファイル名: ${fileName || '(指定なし)'}`);
+
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!response.ok) {
+        let errorDetails = 'サーバーから詳細なエラーメッセージが返されませんでした。';
+        try {
+            const errorData = await response.json();
+            errorDetails = errorData.error?.message || JSON.stringify(errorData);
+        } catch (e) {
+            errorDetails = await response.text();
+        }
+        console.error('ImgBB API Error:', errorDetails);
+        throw new Error(`ImgBBへのアップロードに失敗しました (HTTP ${response.status}): ${errorDetails}`);
+    }
+
+    const result = await response.json();
+    
+    if (!result.success) {
+        console.error('ImgBB APIがエラーを報告しました:', result.error.message);
+        throw new Error(`ImgBB APIがエラーを報告しました: ${result.error.message}`);
+    }
+
+    console.log('ImgBBへのアップロードが成功しました。URL:', result.data.url);
+    return result.data.url;
+    }
 
     // ★★★↑↑↑↑↑ ここまでが移動してきた関数です ★★★
     function updatePreview() {
@@ -461,7 +719,6 @@ function saveCardToDatabase(cardData) {
         const scalerEl = contentEl.querySelector('.scaler'); // .scaler
 
         if (!scalerEl) return; // 安全装置
-
         const availableWidth = contentEl.clientWidth; // #card-name-contentの幅 (334px)
         const trueTextWidth = scalerEl.scrollWidth; // .scalerの本来の幅
 
@@ -968,29 +1225,6 @@ function downloadCard(isTemplate = false) {
         }
     }
 
-    function setupFontSpecAnimation() {
-        const details = document.querySelector('.font-spec-details');
-        if (!details) return;
-
-        const summary = details.querySelector('summary');
-        const table = details.querySelector('.font-spec-table');
-
-        summary.addEventListener('click', (event) => {
-            event.preventDefault();
-
-            if (details.open) {
-                table.style.maxHeight = '0';
-                table.style.opacity = '0';
-                setTimeout(() => {
-                    details.removeAttribute('open');
-                }, 400);
-            } else {
-                details.setAttribute('open', '');
-                table.style.maxHeight = table.scrollHeight + 'px';
-                table.style.opacity = '1';
-            }
-        });
-    }
 
     function handleBatchFileUpload(event) {
         const file = event.target.files[0];
@@ -1233,4 +1467,91 @@ function downloadCard(isTemplate = false) {
     }
 
     initialize();
+    handleUrlParameters();
+    
+    let isDatabaseLoaded = false;
+
+    tabDatabase.addEventListener('change', () => {
+        const url = new URL(window.location);
+        if (url.searchParams.has('id')) {
+            url.searchParams.delete('id');
+            window.history.pushState({}, '', url);
+            // 履歴が更新されたので、リストを強制的に再読み込み
+            isDatabaseLoaded = false;
+            cardListContainer.innerHTML = '';
+        }
+
+        if (tabDatabase.checked) {
+            // isDatabaseLoaded の状態に関わらず、タブがチェックされたらデータを取得
+            console.log('データベースタブが選択されました。データを取得します。');
+            fetchAllCards();
+        }
+    });
+
+    async function fetchAllCards() {
+        isDatabaseLoaded = true;
+        cardListContainer.innerHTML = '<p>データベースを読み込んでいます...</p>';
+        
+        const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXTIYBURfIYxyLgGle8sAnRMfpM9fitcL6zkchi2gblxxD65-DxOWVMm830Ogl-HQjZgQtWLaRMfwo/pub?gid=1713292859&single=true&output=csv';
+
+        try {
+            const response = await fetch(SPREADSHEET_CSV_URL, { cache: 'no-cache' });
+            if (!response.ok) {
+                throw new Error(`データベースの読み込みに失敗しました: HTTP ${response.status}`);
+            }
+            const csvText = await response.text();
+            const cards = parseDatabaseCsv(csvText);
+            renderCardList(cards);
+            
+        } catch (error) {
+            console.error('データ取得エラー:', error);
+            cardListContainer.innerHTML = `<p class="error">データの読み込みに失敗しました。<br>${error.message}</p>`;
+        }
+    }
+
+
+    function renderCardList(cards) {
+        cardListContainer.innerHTML = '';
+
+        if (cards.length === 0) {
+            cardListContainer.innerHTML = '<p>登録されているカードはまだありません。</p>';
+            return;
+        }
+
+        for (const card of cards) {
+            const cardElement = document.createElement('div');
+            cardElement.className = 'db-card';
+
+            let imageUrl = card['画像URL'];
+            if (imageUrl === 'DEFAULT') {
+                imageUrl = 'Card_asset/now_painting.png';
+            } else if (imageUrl && (imageUrl.includes('drive.google.com/file/d/') || imageUrl.includes('docs.google.com/file/d/'))) {
+                // Google DriveのURLをCORSプロキシ経由で読み込む
+                const match = imageUrl.match(/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    const fileId = match[1];
+                    const originalUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+                    imageUrl = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`;
+                }
+            }
+
+            cardElement.innerHTML = `
+                <div class="db-card-image">
+                    <img src="${imageUrl}" alt="${card['カード名']}" loading="lazy" crossorigin="anonymous" onerror="this.onerror=null;this.src='Card_asset/image_load_error.png'; console.error('画像読み込みエラー:', this.src);">
+                </div>
+                <div class="db-card-info">
+                    <h3 class="db-card-name">${card['カード名']}</h3>
+                    <p class="db-card-meta">PL: ${card['登録者'] || 'N/A'}</p>
+                    <p class="db-card-meta">絵師: ${card['絵師'] || 'N/A'}</p>
+                    <p class="db-card-id">ID: ${card['ID']}</p>
+                </div>
+                <div class="db-card-actions">
+                    <a href="card_generator.html?id=${card['ID']}" class="secondary-button edit-btn">編集</a>
+                    <button class="secondary-button delete-btn" data-id="${card['ID']}">削除</button>
+                </div>
+            `;
+            
+            cardListContainer.appendChild(cardElement);
+        }
+    }
 });
