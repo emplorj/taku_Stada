@@ -305,9 +305,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCardName(cardNameInput.value);
         const replacePunctuation = (text) => text.replace(/、/g, '､').replace(/。/g, '｡');
 
-        effectDisplay.innerText = replacePunctuation(effectInput.value);
+        // 数字とハイフンをspanで囲む関数を追加
+        const addSpacingToChars = (text) => {
+            // 半角の数字、ハイフン、丸括弧をターゲットにする
+            return text.replace(/([0-9\-\(\)])/g, '<span class="char-kern">$1</span>');
+        };
 
-        const flavorText = replacePunctuation(flavorInput.value);
+        // 句読点変換の後、さらに文字間調整の処理を行う
+        const processedEffectText = addSpacingToChars(replacePunctuation(effectInput.value));
+        effectDisplay.innerHTML = processedEffectText; // innerTextからinnerHTMLに変更
+
+        const flavorText = replacePunctuation(flavorInput.value); // フレーバーは記号が少ないためそのままでもOK
         const speakerText = replacePunctuation(flavorSpeakerInput.value);
         const flavorInnerText = flavorDisplay.querySelector('.inner-text');
 
@@ -666,6 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalButtonText = button.textContent;
         button.textContent = '生成中...';
         button.disabled = true;
+        document.body.classList.add('is-rendering-output'); 
 
         const originalTransform = previewPanel.style.transform;
         const originalWrapperHeight = previewWrapper.style.height;
@@ -690,6 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('画像生成に失敗しました。', err);
                     alert('エラーが発生しました。');
                 }).finally(() => {
+                    document.body.classList.remove('is-rendering-output');
                     button.textContent = originalButtonText;
                     button.disabled = false;
                     previewPanel.style.transform = originalTransform;

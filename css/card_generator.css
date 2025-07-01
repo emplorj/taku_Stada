@@ -227,9 +227,9 @@ white-space: nowrap;
 
 /* 効果説明 */
 #effect-display {
-    position: relative; /* absoluteを解除 */
-    flex-grow: 1; /* 残りのスペースを埋める */
-    overflow: hidden; /* はみ出しを隠す */
+    position: relative;
+    flex-grow: 1;
+    overflow: hidden;
     font-size: 20px;
     font-family: "nitalago-ruika", sans-serif;
     font-weight: 100;
@@ -238,11 +238,26 @@ white-space: nowrap;
     line-height: 1.25;
     text-align: left;
     padding: 0 16px;
-    margin-bottom: 5px; /* フレーバーテキストとの間に余白を確保 */
-    letter-spacing: 0.05px; /* プレビュー用の自然な文字間 */
-    font-feature-settings: "palt"; /* プレビュー用に日本語の文字詰めを有効化 */
-    word-break: break-word;
+    margin-bottom: 5px;
+    
+    /* プレビュー用の標準設定 */
+    font-feature-settings: "palt";
+    letter-spacing: 0px;
+
+    /* 安全な改行設定 */
     overflow-wrap: break-word;
+    word-break: normal;
+}
+
+/* 1. テキスト全体にマイナスの間隔を適用し、「palt」が効いている状態の幅をシミュレートする */
+.is-rendering-output #effect-display {
+  font-feature-settings: normal; /* "palt"を無効化 */
+  letter-spacing: 0.2px;      /* テキスト全体をわずかに詰める（-0.8px ~ -1.0pxあたりが最適値） */
+}
+
+/* 2. ただし、数字やハイフンだけは、詰まりすぎないように以前設定した間隔を維持する */
+.is-rendering-output #effect-display .char-kern {
+  letter-spacing: 3px;
 }
 
 #flavor-group {
