@@ -48,7 +48,7 @@ html, body {
     /* スケーリングの基点を左上隅に固定（非常に重要） */
     transform-origin: top left;
 }
-.download-options { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+.download-options { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; justify-content: center; width: 100%; }
 .download-options .add-new-button { flex-grow: 1; padding: 12px 15px; }
 .download-options .secondary-button { flex-grow: 1; }
 .checkbox-container { display: flex; align-items: center; gap: 5px; color: #b0c4de; white-space: nowrap; }
