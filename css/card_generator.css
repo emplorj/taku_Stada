@@ -249,15 +249,20 @@ white-space: nowrap;
     word-break: normal;
 }
 
-/* 1. テキスト全体にマイナスの間隔を適用し、「palt」が効いている状態の幅をシミュレートする */
+/* 1. 全体のテキスト：paltを無効化し、代わりにletter-spacingで文字を詰めて見た目を模倣する */
 .is-rendering-output #effect-display {
-  font-feature-settings: normal; /* "palt"を無効化 */
-  letter-spacing: 0.2px;      /* テキスト全体をわずかに詰める（-0.8px ~ -1.0pxあたりが最適値） */
+  font-feature-settings: normal !important; /* paltを強制的に無効化 */
+  letter-spacing: -0.01px       /* 文字間を詰める（重要：マイナス値） */
 }
 
-/* 2. ただし、数字やハイフンだけは、詰まりすぎないように以前設定した間隔を維持する */
+/* 2. 括弧：禁則処理を機能させるため、文字間調整をリセットする */
+.is-rendering-output #effect-display .paren-fix {
+  letter-spacing: 2.5px !important;
+}
+
+/* 3. 数字とハイフン：詰めすぎないように、個別に広い文字間を再設定する */
 .is-rendering-output #effect-display .char-kern {
-  letter-spacing: 3px;
+  letter-spacing: 2.5px !important;
 }
 
 #flavor-group {

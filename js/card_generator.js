@@ -305,10 +305,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCardName(cardNameInput.value);
         const replacePunctuation = (text) => text.replace(/、/g, '､').replace(/。/g, '｡');
 
-        // 数字とハイフンをspanで囲む関数を追加
+        // 数字・ハイフンと括弧を、それぞれ別のspanで囲むよう修正
         const addSpacingToChars = (text) => {
-            // 半角の数字、ハイフン、丸括弧をターゲットにする
-            return text.replace(/([0-9\-\(\)])/g, '<span class="char-kern">$1</span>');
+            return text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => {
+                // マッチしたのが数字かハイフンだった場合
+                if (kernChars) {
+                    return `<span class="char-kern">${kernChars}</span>`;
+                }
+                // マッチしたのが括弧だった場合
+                if (parenChars) {
+                    return `<span class="paren-fix">${parenChars}</span>`;
+                }
+                // それ以外（あり得ないが念のため）
+                return match;
+            });
         };
 
         // 句読点変換の後、さらに文字間調整の処理を行う
@@ -663,51 +673,50 @@ document.addEventListener('DOMContentLoaded', () => {
         clamp(imageState, cardImage, imageContainer);
         clamp(overlayImageState, overlayImage, overlayImageContainer);
     }
-
-    function downloadCard(isTemplate = false) {
-        if (!isTemplate && sparkleCheckbox.checked) {
-            generateSparkleApng();
-            return;
-        }
-
-        const button = isTemplate ? downloadTemplateBtn : downloadBtn;
-        const originalButtonText = button.textContent;
-        button.textContent = '生成中...';
-        button.disabled = true;
-        document.body.classList.add('is-rendering-output'); 
-
-        const originalTransform = previewPanel.style.transform;
-        const originalWrapperHeight = previewWrapper.style.height;
-        previewPanel.style.transform = 'none';
-        previewWrapper.style.height = 'auto';
-
-        document.fonts.ready.then(() => {
-            setTimeout(() => {
-                html2canvas(cardContainer, {
-                    backgroundColor: null,
-                    useCORS: true,
-                    scale: highResCheckbox.checked ? 2 : 1
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    const fileName = isTemplate ?
-                        `${cardColorSelect.value}_${cardTypeSelect.value || 'Standard'}_template.png` :
-                        `${cardNameInput.value.replace(/[()`]/g, '') || 'custom_card'}.png`;
-                    link.download = fileName;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                }).catch(err => {
-                    console.error('画像生成に失敗しました。', err);
-                    alert('エラーが発生しました。');
-                }).finally(() => {
-                    document.body.classList.remove('is-rendering-output');
-                    button.textContent = originalButtonText;
-                    button.disabled = false;
-                    previewPanel.style.transform = originalTransform;
-                    previewWrapper.style.height = originalWrapperHeight;
-                });
-            }, 100);
-        });
+function downloadCard(isTemplate = false) {
+    if (!isTemplate && sparkleCheckbox.checked) {
+        generateSparkleApng();
+        return;
     }
+
+    const button = isTemplate ? downloadTemplateBtn : downloadBtn;
+    const originalButtonText = button.textContent;
+    button.textContent = '生成中...';
+    button.disabled = true;
+    document.body.classList.add('is-rendering-output'); // 出力用CSSを有効化
+
+    const originalTransform = previewPanel.style.transform;
+    const originalWrapperHeight = previewWrapper.style.height;
+    previewPanel.style.transform = 'none';
+    previewWrapper.style.height = 'auto';
+
+    document.fonts.ready.then(() => {
+        setTimeout(() => {
+            html2canvas(cardContainer, {
+                backgroundColor: null,
+                useCORS: true,
+                scale: highResCheckbox.checked ? 2 : 1
+            }).then(canvas => {
+                const link = document.createElement('a');
+                const fileName = isTemplate ?
+                    `${cardColorSelect.value}_${cardTypeSelect.value || 'Standard'}_template.png` :
+                    `${cardNameInput.value.replace(/[()`]/g, '') || 'custom_card'}.png`;
+                link.download = fileName;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error('画像生成に失敗しました。', err);
+                alert('エラーが発生しました。');
+            }).finally(() => {
+                document.body.classList.remove('is-rendering-output'); // 出力用CSSを無効化
+                button.textContent = originalButtonText;
+                button.disabled = false;
+                previewPanel.style.transform = originalTransform;
+                previewWrapper.style.height = originalWrapperHeight;
+            });
+        }, 100);
+    });
+}
 
     async function createSparkleApngBlob() {
         const baseImageElements = [backgroundImage, cardTemplateImage, imageContainer, overlayImageContainer];
