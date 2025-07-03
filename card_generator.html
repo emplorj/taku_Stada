@@ -10,7 +10,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="card_generator.html" />
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/card_generator.css?v=1.0.1">
+  <link rel="stylesheet" href="css/card_generator.css?v=1.0.4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=RocknRoll+One&display=swap"
@@ -39,19 +39,10 @@
       <h1>カードジェネレーター</h1>
       <p class="subtitle">オリジナルのカードを作成して画像として保存できます。<br>画像推奨サイズ：通常（480pxの正方形）フルフレーム（480×720px）心配だったらテンプレートをダウンロードしてください
       </p>
-      <div>todo
-        <ul>
-          <li>キラカードにする→できた</li>
-          <li>拡大縮小→できた</li>
-          <li>文字数多いときの詰めが画面外に行く→できた</li>
-          <li>造ったカードまとめるデータベースできたけど編集ボタンが調子悪い→できた</li>
-          <li>定型文ボタン→できた（文章は整え中）</li>
-          <li>一括生成→できた</li>
-          <li>上絵画像のデータベース化まだです</li>
-          <li>横長まだです</li>
-          <li>ツインパクトまだです</li>
-        </ul>
-      </div>
+      <p class="subtitle">使うのはSWなどを想定しているけど、別システムのキャラとかバシバシ上げてもいいよ（秘匿とかでも。その方が思い出せて嬉しいので）<br>
+        過去の絵でもいいよ！内容は考えたくないが、カードにしてみたいって方はスレに画像を置いてね！
+        <br>効果を考えてくれる方は、作った後に「データベースに登録」を押すと登録できるよ
+        作ったときには言ってくれるとわかりやすくて、良いかも<br>（強すぎとかあった時はナーフしたりするかもしれないので一応作者欄に名前なり書いといてね）
     </header>
 
     <div class="tab-container">
@@ -114,7 +105,6 @@
             <div class="form-group">
               <label for="effect-input">効果（説明）</label>
               <textarea id="effect-input" rows="4">PC1人を選ぶ。</textarea>
-              <!-- ★定型文ボタンを追加 -->
               <button type="button" id="open-teikei-modal-btn" class="secondary-button"
                 style="width: 100%; margin-top: 5px;">定型文を挿入</button>
             </div>
@@ -172,67 +162,72 @@
       <label for="tab-batch" class="tab-label">一括生成</label>
       <div id="batch-content" class="tab-content">
         <div class="batch-panel-container">
-          <details class="batch-processing-details" open>
-            <summary>
-              <h2>一括生成</h2>
-            </summary>
-            <div class="batch-processing-section">
-              <div class="form-group">
-                <label for="batch-file-upload">1. CSV / JSON ファイルを選択</label>
-                <div class="image-upload-controls">
-                  <label for="batch-file-upload" class="custom-file-upload">ファイル選択</label>
-                  <input type="file" id="batch-file-upload" accept=".csv,.json" style="display: none;">
-                  <span id="batch-file-name" class="file-name-display">選択されていません</span>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="image-folder-upload">2. カード画像フォルダを選択 (任意)</label>
-                <div class="image-upload-controls">
-                  <label for="image-folder-upload" class="custom-file-upload">フォルダ選択</label>
-                  <input type="file" id="image-folder-upload" webkitdirectory directory multiple style="display: none;">
-                  <span id="image-folder-name" class="file-name-display">選択されていません</span>
-                </div>
-              </div>
-              <div class="form-group">
-                <button id="batch-download-btn" class="add-new-button" disabled>ZIPで一括保存</button>
-                <div id="batch-progress" class="progress-display" style="display: none;"></div>
+          <h2>一括生成</h2>
+          <div class="batch-processing-section">
+            <div class="form-group">
+              <label for="batch-file-upload">1. CSV / JSON ファイルを選択</label>
+              <div class="image-upload-controls">
+                <label for="batch-file-upload" class="custom-file-upload">ファイル選択</label>
+                <input type="file" id="batch-file-upload" accept=".csv,.json" style="display: none;">
+                <span id="batch-file-name" class="file-name-display">選択されていません</span>
               </div>
             </div>
-          </details>
-          <details class="batch-spec-details">
-            <summary>【クリックで展開】CSV/JSONフォーマットの詳細な書き方</summary>
-            <div class="spec-content">
-              <h4>CSVファイルの書き方</h4>
-              <p>1行目にヘッダー（列名）を書き、2行目以降にカードのデータを1行ずつ記述します。</p>
-              <strong>1行目: ヘッダー (この順番で記述してください)</strong>
-              <pre><code>カード名,色,タイプ,背景,イラスト,効果説明,フレーバー,フレーバー名,キラ</code></pre>
-              <strong>2行目以降: カードデータの例</strong>
-              <pre><code>一撃必殺,赤,,,"images/sword.png","このカードは敵を即座に倒す。","「これで終わりだ！」,英雄,false
+            <div class="form-group">
+              <label for="image-folder-upload">2. カード画像フォルダを選択 (任意)</label>
+              <div class="image-upload-controls">
+                <label for="image-folder-upload" class="custom-file-upload">フォルダ選択</label>
+                <input type="file" id="image-folder-upload" webkitdirectory directory multiple style="display: none;">
+                <span id="image-folder-name" class="file-name-display">選択されていません</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <button id="batch-download-btn" class="add-new-button" disabled>ZIPで一括保存</button>
+              <div id="batch-progress" class="progress-display" style="display: none;"></div>
+            </div>
+          </div>
+          <h3>CSV/JSONフォーマットの詳細な書き方</h3>
+          <div class="spec-content">
+            <h4>CSVファイルの書き方</h4>
+            <p>1行目にヘッダー（列名）を書き、2行目以降にカードのデータを1行ずつ記述します。</p>
+            <strong>1行目: ヘッダー (この順番で記述してください)</strong>
+            <pre><code>カード名,色,タイプ,背景,イラスト,効果説明,フレーバー,フレーバー名,キラ</code></pre>
+            <strong>2行目以降: カードデータの例</strong>
+            <pre><code>一撃必殺,赤,,,"images/sword.png","このカードは敵を即座に倒す。","「これで終わりだ！」,英雄,false
 伝説の秘宝,虹,FF,◇,"items/treasure.png",ゲームに勝利する。,,,true
 ただの石,白,,,,何の効果もない。,,,</code></pre>
-              <h5>各列の詳細説明</h5>
-              <ul>
-                <li><strong>カード名</strong>: (必須)</li>
-                <li><strong>色</strong>: (必須)</li>
-                <li><strong>タイプ</strong>: (任意) `FF`, `CF`, `FFCF`</li>
-                <li><strong>背景</strong>: (任意) `◇` (幾何学), `☆` (粒子)</li>
-                <li><strong>イラスト</strong>: (任意)</li>
-                <li><strong>効果説明, フレーバー, フレーバー名</strong>: (任意)</li>
-                <li><strong>キラ</strong>: (任意) `true`を指定するとキラカードになります。</li>
-              </ul>
-            </div>
-          </details>
+            <h5>各列の詳細説明</h5>
+            <ul>
+              <li><strong>カード名</strong>: (必須)</li>
+              <li><strong>色</strong>: (必須)</li>
+              <li><strong>タイプ</strong>: (任意) `FF`, `CF`, `FFCF`</li>
+              <li><strong>背景</strong>: (任意) `◇` (幾何学), `☆` (粒子)</li>
+              <li><strong>イラスト</strong>: (任意)</li>
+              <li><strong>効果説明, フレーバー, フレーバー名</strong>: (任意)</li>
+              <li><strong>キラ</strong>: (任意) `true`を指定するとキラカードになります。</li>
+            </ul>
+          </div>
         </div>
       </div>
 
       <input type="radio" id="tab-database" name="tab-group" class="tab-switch">
       <label for="tab-database" class="tab-label">データベース</label>
       <div id="database-content" class="tab-content">
-        <!-- ★データベース操作UIを追加 -->
+        <div id="db-batch-selection-bar" style="display: none;">
+          <!-- JS will populate this -->
+        </div>
         <div id="db-controls"
           style="max-width: 900px; margin: 0 auto 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
-          <input type="text" id="db-search-input" placeholder="カード名、登録者、絵師で検索..."
-            style="flex-grow: 1; min-width: 200px;">
+          <div id="db-search-container" style="display: flex; flex-grow: 1; min-width: 200px;">
+            <select id="db-search-field"
+              style="height: 42px; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; flex-shrink: 0;">
+              <option value="all">ごちゃ混ぜ</option>
+              <option value="name">カード名</option>
+              <option value="registrant">登録者</option>
+              <option value="artist">絵師</option>
+            </select>
+            <input type="text" id="db-search-input" placeholder="検索..."
+              style="border-top-left-radius: 0; border-bottom-left-radius: 0; width: 100%;">
+          </div>
           <select id="db-sort-select" style="min-width: 150px; height: 42px; box-sizing: border-box;">
             <option value="id-desc">IDの新しい順</option>
             <option value="id-asc">IDの古い順</option>
@@ -243,7 +238,6 @@
           </select>
           <div id="db-color-filter-container"
             style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center; width: 100%;">
-            <!-- 色ボタンはJSでここに動的に追加されます -->
             <!-- 色ボタンはJSでここに動的に追加されます -->
           </div>
         </div>
@@ -307,8 +301,8 @@
               </div>
             </div>
             <div class="db-info-actions">
-              <button id="db-info-download-btn" class="add-new-button">保存</button>
-              <button id="db-info-edit-btn" class="secondary-button">編集</button>
+              <button id="db-info-download-btn" class="add-new-button save-btn">保存</button>
+              <button id="db-info-edit-btn" class="secondary-button edit-btn">編集</button>
               <button id="db-info-delete-btn" class="secondary-button delete-btn">削除</button>
             </div>
           </div>
@@ -318,51 +312,49 @@
       <input type="radio" id="tab-font" name="tab-group" class="tab-switch">
       <label for="tab-font" class="tab-label">フォント</label>
       <div id="font-content" class="tab-content">
-        <details class="font-spec-details" open>
-          <summary>使用フォント一覧</summary>
-          <table class="font-spec-table">
-            <thead>
-              <tr>
-                <th>要素</th>
-                <th>フォントファミリー</th>
-                <th>ウェイト</th>
-                <th>サイズ</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>カード名</td>
-                <td>'RocknRoll One', sans-serif</td>
-                <td>(default: 400)</td>
-                <td>28px</td>
-              </tr>
-              <tr>
-                <td>ルビ</td>
-                <td>'RocknRoll One', sans-serif</td>
-                <td>(default: 400)</td>
-                <td>14px</td>
-              </tr>
-              <tr>
-                <td>効果説明</td>
-                <td>"fot-rodin-pron", sans-serif</td>
-                <td>600</td>
-                <td>20px</td>
-              </tr>
-              <tr>
-                <td>フレーバーテキスト</td>
-                <td>"Klee One"</td>
-                <td>bold (700)</td>
-                <td>16px</td>
-              </tr>
-              <tr>
-                <td>フレーバー話者</td>
-                <td>"Klee One"</td>
-                <td>bold (700)</td>
-                <td>16px</td>
-              </tr>
-            </tbody>
-          </table>
-        </details>
+        <h2>使用フォント一覧</h2>
+        <table class="font-spec-table">
+          <thead>
+            <tr>
+              <th>要素</th>
+              <th>フォントファミリー</th>
+              <th>ウェイト</th>
+              <th>サイズ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>カード名</td>
+              <td>'RocknRoll One', sans-serif</td>
+              <td>(default: 400)</td>
+              <td>28px</td>
+            </tr>
+            <tr>
+              <td>ルビ</td>
+              <td>'RocknRoll One', sans-serif</td>
+              <td>(default: 400)</td>
+              <td>14px</td>
+            </tr>
+            <tr>
+              <td>効果説明</td>
+              <td>"fot-rodin-pron", sans-serif</td>
+              <td>600</td>
+              <td>20px</td>
+            </tr>
+            <tr>
+              <td>フレーバーテキスト</td>
+              <td>"Klee One"</td>
+              <td>bold (700)</td>
+              <td>16px</td>
+            </tr>
+            <tr>
+              <td>フレーバー話者</td>
+              <td>"Klee One"</td>
+              <td>bold (700)</td>
+              <td>16px</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -400,7 +392,7 @@
       </div>
     </div>
 
-    <!-- ★定型文モーダルの骨組みを追加 -->
+    <!-- 定型文モーダル -->
     <div id="teikei-modal-overlay" class="modal-overlay">
       <div class="modal-content" style="max-width: 85vh;">
         <header class="modal-header">
@@ -420,7 +412,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="js/common.js"></script>
-  <script src="js/card_generator.js"></script>
+  <script src="js/card_generator.js?v=1.0.4"></script>
 </body>
 
 </html>
