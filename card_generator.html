@@ -251,6 +251,68 @@
         <div id="card-list-container" class="database-grid">
           <p>データベースタブをクリックしてデータを読み込みます。</p>
         </div>
+        <div id="db-detail-view" style="display: none;">
+          <!-- 左側のカードプレビューエリア -->
+          <div class="db-detail-preview-wrapper">
+            <div class="preview-panel" id="db-preview-panel">
+              <!-- ジェネレーターのプレビューと全く同じ構造を、IDを変えて用意 -->
+              <div id="db-card-container">
+                <img id="db-background-image" src="" alt="カード背景" style="display: none;">
+                <img id="db-sparkle-overlay-image" src="Card_asset/加算してキラキラ.webp" alt="キラキラエフェクト"
+                  style="display: none;">
+                <img id="db-card-template-image" src="Card_asset/テンプレ/青カード.png" alt="カードテンプレート">
+                <div id="db-image-container">
+                  <img id="db-card-image" src="Card_asset/now_painting.png" alt="カード画像">
+                </div>
+                <div id="db-overlay-image-container">
+                  <img id="db-overlay-image" src="" alt="上絵画像" style="display: none;">
+                </div>
+                <div id="db-card-name-container" class="card-text">
+                  <div id="db-card-name-content"></div>
+                </div>
+                <div id="db-text-box-container">
+                  <div id="db-effect-display" class="card-text"></div>
+                  <div id="db-flavor-display" class="card-text"></div>
+                  <div id="db-flavor-speaker-display" class="card-text"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右側のカード情報エリア -->
+          <div class="db-detail-info-wrapper">
+            <button id="db-back-to-list-btn" class="secondary-button">← カード一覧に戻る</button>
+            <div class="db-info-content">
+              <h2 id="db-info-name"></h2>
+              <p class="db-info-meta"><strong>ID:</strong> <span id="db-info-id"></span></p>
+              <p class="db-info-meta"><strong>登録者:</strong> <span id="db-info-registrant"></span></p>
+              <p class="db-info-meta"><strong>絵師:</strong> <span id="db-info-artist"></span></p>
+
+              <div class="db-info-text-section">
+                <h4>効果説明</h4>
+                <p id="db-info-effect"></p>
+              </div>
+              <div class="db-info-text-section" id="db-info-flavor-section" style="display: none;">
+                <h4>フレーバーテキスト</h4>
+                <p id="db-info-flavor"></p>
+                <p id="db-info-speaker" class="speaker"></p>
+              </div>
+              <div class="db-info-text-section" id="db-info-source-section" style="display: none;">
+                <h4>元ネタ</h4>
+                <p id="db-info-source"></p>
+              </div>
+              <div class="db-info-text-section" id="db-info-notes-section" style="display: none;">
+                <h4>備考</h4>
+                <p id="db-info-notes"></p>
+              </div>
+            </div>
+            <div class="db-info-actions">
+              <button id="db-info-download-btn" class="add-new-button">保存</button>
+              <button id="db-info-edit-btn" class="secondary-button">編集</button>
+              <button id="db-info-delete-btn" class="secondary-button delete-btn">削除</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <input type="radio" id="tab-font" name="tab-group" class="tab-switch">

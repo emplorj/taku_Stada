@@ -1,3 +1,4 @@
+
 // card_generator.js (最終修正版)
 document.addEventListener('DOMContentLoaded', () => {
     // DOM要素の取得
@@ -23,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardNameContent = document.getElementById('card-name-content');
     const textBoxContainer = document.getElementById('text-box-container');
     const effectDisplay = document.getElementById('effect-display');
-    // const flavorGroup = document.getElementById('flavor-group'); // flavor-groupはHTMLから削除されたため不要
     const flavorDisplay = document.getElementById('flavor-display');
     const flavorSpeakerDisplay = document.getElementById('flavor-speaker-display');
     const batchFileUpload = document.getElementById('batch-file-upload');
@@ -80,7 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentEditingCardId = null, originalImageUrlForEdit = null, isNewImageSelected = false;
     let allCardsData = [], selectedColorFilter = 'all';
     let teikeiCategories = [];
-    
+    let batchData = [], localImageFiles = {};
+    const colorNameToIdMap = { "赤": "赤", "青": "青", "緑": "緑", "黄": "黄", "橙": "橙", "紫": "紫", "白": "白", "黒": "黒", "虹": "虹" };
+
     const cardColorData = { "赤": { name: "赤", description: "BAD EVENT", color: "#990000", hover: "#7a0000", textColor: "#FFFFFF" },"青": { name: "青", description: "GOOD EVENT", color: "#3366CC", hover: "#2851a3", textColor: "#FFFFFF" },"緑": { name: "緑", description: "取得可能", color: "#009933", hover: "#007a29", textColor: "#FFFFFF" },"黄": { name: "黄", description: "金銭、トレジャー", color: "#FFCC66", hover: "#d9ad52", textColor: "#2c3e50" },"橙": { name: "橙", description: "その他", color: "#996633", hover: "#7a5229", textColor: "#FFFFFF" },"紫": { name: "紫", description: "エネミー等", color: "#663366", hover: "#522952", textColor: "#FFFFFF" },"白": { name: "白", description: "RPで切り抜ける", color: "#CCCCCC", hover: "#a3a3a3", textColor: "#2c3e50" },"黒": { name: "黒", description: "フィールド", color: "#333333", hover: "#1a1a1a", textColor: "#FFFFFF" },"虹": { name: "虹", description: "合体/激ヤバ", color: 'linear-gradient(45deg, #e74c3c, #f1c40f, #2ecc71, #3498db, #9b59b6)', hover: 'linear-gradient(45deg, #c0392b, #e67e22, #27ae60, #2980b9, #8e44ad)', textColor: "#FFFFFF" }};
     const cardTypes = { "": { name: "標準" }, "CF": { name: "タイトル枠なし" }, "FF": { name: "フルフレーム" }, "FFCF": { name: "フルフレーム(タイトル枠なし)" }};
 
@@ -94,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scalePreview();
         handleBatchSectionCollapse();
         handleUrlParameters();
+        setupDatabaseDetailViewListeners();
     }
     
     function setupEventListeners() {
@@ -127,6 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
         teikeiModalCloseBtn.addEventListener('click', () => teikeiModalOverlay.classList.remove('is-visible'));
         teikeiModalOverlay.addEventListener('click', (e) => { if (e.target === teikeiModalOverlay) teikeiModalOverlay.classList.remove('is-visible'); });
         teikeiListContainer.addEventListener('click', handleTeikeiListClick);
+        batchFileUpload.addEventListener('change', handleBatchFileUpload);
+        imageFolderUpload.addEventListener('change', handleImageFolderUpload);
+        batchDownloadBtn.addEventListener('click', processBatchDownload);
         window.addEventListener('resize', scalePreview);
         window.addEventListener('resize', handleBatchSectionCollapse);
     }
@@ -247,23 +253,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleCardListClick(e) {
-        const editButton = e.target.closest('.edit-btn');
-        if (editButton) {
+        const cardElement = e.target.closest('.db-card');
+        if (!cardElement) return;
+
+        const cardId = cardElement.querySelector('.edit-btn')?.dataset.id || cardElement.querySelector('.delete-btn')?.dataset.id;
+        if (!cardId) return;
+
+        // 編集ボタンが押された場合
+        if (e.target.closest('.edit-btn')) {
             e.preventDefault();
-            const cardId = editButton.dataset.id;
-            if (cardId) { document.getElementById('tab-generator').checked = true; loadCardForEditing(cardId); }
+            e.stopPropagation(); // 詳細表示へのイベント伝播を停止
+            document.getElementById('tab-generator').checked = true;
+            // DOM更新(タブ切り替え)を待ってからロード処理を実行
+            requestAnimationFrame(() => loadCardForEditing(cardId));
+            return;
         }
-        const deleteButton = e.target.closest('.delete-btn');
-        if (deleteButton) {
+        // 削除ボタンが押された場合
+        if (e.target.closest('.delete-btn')) {
             e.preventDefault();
-            const cardId = deleteButton.dataset.id;
-            const cardName = deleteButton.dataset.name || 'このカード';
-            showCustomConfirm(`【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除（アーカイブ）しますか？`).then(confirmed => {
+            e.stopPropagation(); // 詳細表示へのイベント伝播を停止
+            const cardName = e.target.closest('.delete-btn').dataset.name || 'このカード';
+             showCustomConfirm(`【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除（アーカイブ）しますか？`).then(confirmed => {
                 if (confirmed) {
                     deleteCard(cardId);
                 }
             });
+            return;
         }
+
+        // 上記以外（カード本体）がクリックされた場合、詳細表示
+        showCardDetail(cardId);
     }
 
     async function fetchAllCards() {
@@ -670,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleBatchSectionCollapse() { if (!batchDetails) return; const isDesktop = window.innerWidth >= 1361; if (isDesktop) { batchDetails.open = true; } else { batchDetails.open = false; } }
     function parseDatabaseCsv(csvText) { const lines = csvText.trim().replace(/\r\n/g, '\n').split('\n'); if (lines.length < 1) return []; const headers = lines[0].split(',').map(h => h.trim()); const data = []; for (let i = 1; i < lines.length; i++) { if (!lines[i]) continue; const values = []; let inQuotes = false; let currentField = ''; for (const char of lines[i]) { if (char === '"') { inQuotes = !inQuotes; } else if (char === ',' && !inQuotes) { values.push(currentField.trim()); currentField = ''; } else { currentField += char; } } values.push(currentField.trim()); const entry = {}; headers.forEach((header, index) => { entry[header] = values[index] || ''; }); data.push(entry); } return data.reverse(); }
     function handleUrlParameters() { const urlParams = new URLSearchParams(window.location.search); const cardId = urlParams.get('id'); if (cardId) { loadCardForEditing(cardId); } }
-    async function loadCardForEditing(cardId) { document.getElementById('tab-generator').checked = true; const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXTIYBURfIYxyLgGle8sAnRMfpM9fitcL6zkchi2gblxxD65-DxOWVMm830Ogl-HQjZgQtWLaRMfwo/pub?gid=1713292859&single=true&output=csv'; try { const response = await fetch(SPREADSHEET_CSV_URL, { cache: 'no-cache' }); if (!response.ok) throw new Error(`データベースの読み込みに失敗しました: HTTP ${response.status}`); const csvText = await response.text(); const cards = parseDatabaseCsv(csvText); const cardToEdit = cards.find(card => card['ID'] === cardId); if (!cardToEdit) throw new Error(`指定されたIDのカードが見つかりません: ${cardId}`); currentEditingCardId = cardId; isNewImageSelected = false; originalImageUrlForEdit = cardToEdit['画像URL'] || null; cardNameInput.value = cardToEdit['カード名'] || ''; cardColorSelect.value = cardToEdit['色'] || '青'; cardTypeSelect.value = cardToEdit['タイプ'] || ''; effectInput.value = cardToEdit['効果説明'] || ''; flavorInput.value = cardToEdit['フレーバー'] || ''; flavorSpeakerInput.value = cardToEdit['話者'] || ''; document.getElementById('registrant-input').value = cardToEdit['登録者'] || ''; document.getElementById('artist-input').value = cardToEdit['絵師'] || ''; document.getElementById('source-input').value = cardToEdit['元ネタ'] || ''; document.getElementById('notes-input').value = cardToEdit['備考'] || ''; let imageUrl = cardToEdit['画像URL']; if (imageUrl === 'DEFAULT') { imageUrl = 'Card_asset/now_painting.png'; } else if (imageUrl && (imageUrl.includes('drive.google.com/file/d/') || imageUrl.includes('docs.google.com/file/d/'))) { const match = imageUrl.match(/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/); if (match && match[1]) { const fileId = match[1]; const originalUrl = `https://drive.google.com/uc?export=view&id=${fileId}`; imageUrl = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`; } } if (imageUrl) { cardImage.crossOrigin = "Anonymous"; cardImage.src = imageUrl; imageFileName.textContent = '読み込み中...'; cardImage.onload = () => { imageFileName.textContent = cardToEdit['カード名'] || '画像'; setupImageForDrag(); updatePreview(); }; cardImage.onerror = () => { cardImage.src = 'Card_asset/image_load_error.png'; imageFileName.textContent = '画像読込エラー'; setupImageForDrag(); updatePreview(); }; } else { resetImage(); } updatePreview(); } catch (error) { console.error('編集用カードの読み込みエラー:', error); showCustomAlert(`カード情報の読み込みに失敗しました。\n${error.message}`); clearEditingState(); } }
+    async function loadCardForEditing(cardId) { document.getElementById('tab-generator').checked = true; const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXTIYBURfIYxyLgGle8sAnRMfpM9fitcL6zkchi2gblxxD65-DxOWVMm830Ogl-HQjZgQtWLaRMfwo/pub?gid=1713292859&single=true&output=csv'; try { const response = await fetch(SPREADSHEET_CSV_URL, { cache: 'no-cache' }); if (!response.ok) throw new Error(`データベースの読み込みに失敗しました: HTTP ${response.status}`); const csvText = await response.text(); const cards = parseDatabaseCsv(csvText); const cardToEdit = cards.find(card => card['ID'] === cardId); if (!cardToEdit) throw new Error(`指定されたIDのカードが見つかりません: ${cardId}`); currentEditingCardId = cardId; isNewImageSelected = false; originalImageUrlForEdit = cardToEdit['画像URL'] || null; cardNameInput.value = cardToEdit['カード名'] || ''; cardColorSelect.value = cardToEdit['色'] || '青'; cardTypeSelect.value = cardToEdit['タイプ'] || ''; effectInput.value = cardToEdit['効果説明'] || ''; flavorInput.value = cardToEdit['フレーバー'] || ''; flavorSpeakerInput.value = cardToEdit['話者'] || ''; document.getElementById('registrant-input').value = cardToEdit['登録者'] || ''; document.getElementById('artist-input').value = cardToEdit['絵師'] || ''; document.getElementById('source-input').value = cardToEdit['元ネタ'] || ''; document.getElementById('notes-input').value = cardToEdit['備考'] || ''; let imageUrl = cardToEdit['画像URL']; if (imageUrl === 'DEFAULT' || !imageUrl) { imageUrl = 'Card_asset/now_painting.png'; } else if (imageUrl && (imageUrl.includes('drive.google.com/file/d/') || imageUrl.includes('docs.google.com/file/d/'))) { const match = imageUrl.match(/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/); if (match && match[1]) { const fileId = match[1]; const originalUrl = `https://drive.google.com/uc?export=view&id=${fileId}`; imageUrl = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`; } } if (imageUrl) { cardImage.crossOrigin = "Anonymous"; cardImage.src = imageUrl; imageFileName.textContent = '読み込み中...'; cardImage.onload = () => { imageFileName.textContent = cardToEdit['カード名'] || '画像'; setupImageForDrag(); updatePreview(); }; cardImage.onerror = () => { cardImage.src = 'Card_asset/image_load_error.png'; imageFileName.textContent = '画像読込エラー'; setupImageForDrag(); updatePreview(); }; } else { resetImage(); } updatePreview(); } catch (error) { console.error('編集用カードの読み込みエラー:', error); showCustomAlert(`カード情報の読み込みに失敗しました。\n${error.message}`); clearEditingState(); } }
     function scalePreview() { if (!previewWrapper || !previewPanel) return; const baseWidth = 480; const containerWidth = previewWrapper.offsetWidth; if (containerWidth < baseWidth) { const scale = containerWidth / baseWidth; previewPanel.style.transform = `scale(${scale})`; } else { previewPanel.style.transform = 'none'; } }
     function clearEditingState() { currentEditingCardId = null; originalImageUrlForEdit = null; isNewImageSelected = false; const url = new URL(window.location); if (url.searchParams.has('id')) { url.searchParams.delete('id'); window.history.pushState({}, '', url); } }
     async function generateArtworkBlob(cardType) { console.log(`アートワーク部分の切り出しを開始します。タイプ: ${cardType || '標準'}`); const elementsToModify = [document.getElementById('card-template-image'), document.getElementById('card-name-container'), document.getElementById('text-box-container'), document.getElementById('sparkle-overlay-image')]; const originalStyles = []; try { elementsToModify.forEach(el => { if (el) { originalStyles.push({ element: el, originalDisplay: el.style.display }); el.style.display = 'none'; } }); const fullCardCanvas = await html2canvas(cardContainer, { backgroundColor: null, useCORS: true }); const isFullFrame = cardType === 'FF' || cardType === 'FFCF'; if (isFullFrame) { console.log('フルフレームのため、480x720の画像を生成します。'); return await new Promise(resolve => fullCardCanvas.toBlob(resolve, 'image/png')); } else { console.log('標準/CFタイプのため、480x480に画像をクロップします。'); const croppedCanvas = document.createElement('canvas'); croppedCanvas.width = 480; croppedCanvas.height = 480; const ctx = croppedCanvas.getContext('2d'); ctx.drawImage(fullCardCanvas, 0, 0, 480, 480, 0, 0, 480, 480); return await new Promise(resolve => croppedCanvas.toBlob(resolve, 'image/png')); } } finally { originalStyles.forEach(item => { item.element.style.display = item.originalDisplay; }); console.log('アートワークの切り出しが完了し、表示を元に戻しました。'); } }
@@ -726,71 +745,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 return match;
             });
         };
-// --- START: DYNAMIC LAYOUT LOGIC (RE-IMPLEMENTING LINE-SNAPPING) ---
-
-// 1. まず、すべてのテキストをDOMに書き出し、表示/非表示を切り替える
-effectDisplay.innerHTML = addSpacingToChars(replacePunctuation(effectInput.value));
-const flavorText = replacePunctuation(flavorInput.value.trim());
-const speakerText = replacePunctuation(flavorSpeakerInput.value.trim());
-
-// フレーバーテキストと話者の表示/非表示を直接制御
-if (!flavorText) {
-    flavorDisplay.style.display = 'none';
-} else {
-    flavorDisplay.style.display = 'block';
-    let el = flavorDisplay.querySelector('.inner-text');
-    if (!el) {
-        flavorDisplay.innerHTML = '<div class="inner-text"></div>';
-        el = flavorDisplay.querySelector('.inner-text');
-    }
-    el.innerHTML = flavorText.replace(/\n/g, '<br>');
-}
-
-if (!speakerText) {
-    flavorSpeakerDisplay.style.display = 'none';
-} else {
-    flavorSpeakerDisplay.style.display = 'block';
-    flavorSpeakerDisplay.innerText = `─── ${speakerText}`;
-}
-
-// 2. ブラウザに一度レイアウトを計算させ、正確な高さを取得する
-textBoxContainer.offsetHeight;
-
-// 3. ★★★ ご提示のロジックを現在の構造に合わせて再実装します ★★★
-const totalHeight = 177.5; // CSSに記載されているテキストボックス全体の高さ
-const effectMarginBottom = 1; // CSSコメントにあったマージン
-
-// flavorGroupがないため、フレーバーと話者の高さを個別にとって合計する
-let combinedFlavorHeight = 0;
-if (flavorDisplay.style.display !== 'none') {
-    combinedFlavorHeight += flavorDisplay.offsetHeight;
-}
-if (flavorSpeakerDisplay.style.display !== 'none') {
-    combinedFlavorHeight += flavorSpeakerDisplay.offsetHeight;
-}
-
-// 効果テキストが使用できるピクセル単位の高さを計算
-const availablePixelHeight = totalHeight - combinedFlavorHeight - effectMarginBottom;
-
-// 効果テキストの計算済みline-heightを取得 (行スナップの要)
-const effectStyle = window.getComputedStyle(effectDisplay);
-const effectLineHeight = parseFloat(effectStyle.lineHeight);
-
-if (effectLineHeight > 0) {
-    // 利用可能なスペースに何行が「完全に」収まるかを計算
-    const numberOfLines = Math.floor(availablePixelHeight / effectLineHeight);
-    
-    // 行の途中で切れないよう、行数 * 1行の高さ で高さをスナップさせる
-    const snappedMaxHeight = numberOfLines * effectLineHeight;
-    
-    // 計算されたmax-heightを適用
-    effectDisplay.style.maxHeight = `${Math.max(0, snappedMaxHeight)}px`;
-} else {
-    // line-heightが取得できない場合の安全策
-    effectDisplay.style.maxHeight = `${Math.max(0, availablePixelHeight)}px`;
-}
-
-// --- END: DYNAMIC LAYOUT LOGIC ---
+        // --- START: DYNAMIC LAYOUT LOGIC (RE-IMPLEMENTING LINE-SNAPPING) ---
+        effectDisplay.innerHTML = addSpacingToChars(replacePunctuation(effectInput.value));
+        const flavorText = replacePunctuation(flavorInput.value.trim());
+        const speakerText = replacePunctuation(flavorSpeakerInput.value.trim());
+        if (!flavorText) {
+            flavorDisplay.style.display = 'none';
+        } else {
+            flavorDisplay.style.display = 'block';
+            let el = flavorDisplay.querySelector('.inner-text');
+            if (!el) {
+                flavorDisplay.innerHTML = '<div class="inner-text"></div>';
+                el = flavorDisplay.querySelector('.inner-text');
+            }
+            el.innerHTML = flavorText.replace(/\n/g, '<br>');
+        }
+        if (!speakerText) {
+            flavorSpeakerDisplay.style.display = 'none';
+        } else {
+            flavorSpeakerDisplay.style.display = 'block';
+            flavorSpeakerDisplay.innerText = `─── ${speakerText}`;
+        }
+        textBoxContainer.offsetHeight;
+        const totalHeight = 177.5;
+        const effectMarginBottom = 1;
+        let combinedFlavorHeight = 0;
+        if (flavorDisplay.style.display !== 'none') {
+            combinedFlavorHeight += flavorDisplay.offsetHeight;
+        }
+        if (flavorSpeakerDisplay.style.display !== 'none') {
+            combinedFlavorHeight += flavorSpeakerDisplay.offsetHeight;
+        }
+        const availablePixelHeight = totalHeight - combinedFlavorHeight - effectMarginBottom;
+        const effectStyle = window.getComputedStyle(effectDisplay);
+        const effectLineHeight = parseFloat(effectStyle.lineHeight);
+        if (effectLineHeight > 0) {
+            const numberOfLines = Math.floor(availablePixelHeight / effectLineHeight);
+            const snappedMaxHeight = numberOfLines * effectLineHeight;
+            effectDisplay.style.maxHeight = `${Math.max(0, snappedMaxHeight)}px`;
+        } else {
+            effectDisplay.style.maxHeight = `${Math.max(0, availablePixelHeight)}px`;
+        }
+        // --- END: DYNAMIC LAYOUT LOGIC ---
         updateThemeColor(colorDetails);
         requestAnimationFrame(setupImageForDrag);
     }
@@ -810,63 +806,56 @@ if (effectLineHeight > 0) {
     function handleZoom(e) { e.preventDefault(); const state = activeManipulationTarget === 'base' ? imageState : overlayImageState; const container = activeManipulationTarget === 'base' ? imageContainer : overlayImageContainer; const scaleAmount = 0.1; const delta = e.deltaY > 0 ? -1 : 1; const oldScale = state.scale; state.scale = Math.max(1, Math.min(state.scale + delta * scaleAmount, 3)); const rect = container.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; state.x = mouseX - (mouseX - state.x) * (state.scale / oldScale); state.y = mouseY - (mouseY - state.y) * (state.scale / oldScale); clampImagePosition(); updateImageTransform(); updateDraggableCursor(); }
     function clampImagePosition() { const clamp = (state, image, container) => { if (!image.src || !image.naturalWidth) return; const containerWidth = container.offsetWidth; const containerHeight = container.offsetHeight; const scaledWidth = image.offsetWidth * state.scale; const scaledHeight = image.offsetHeight * state.scale; if (scaledWidth >= containerWidth) { const min_x = containerWidth - scaledWidth; const max_x = 0; state.x = Math.max(min_x, Math.min(max_x, state.x)); } else { const min_x = 0; const max_x = containerWidth - scaledWidth; state.x = Math.max(min_x, Math.min(max_x, state.x)); } if (scaledHeight >= containerHeight) { const min_y = containerHeight - scaledHeight; const max_y = 0; state.y = Math.max(min_y, Math.min(max_y, state.y)); } else { const min_y = 0; const max_y = containerHeight - scaledHeight; state.y = Math.max(min_y, Math.min(max_y, state.y)); } }; clamp(imageState, cardImage, imageContainer); clamp(overlayImageState, overlayImage, overlayImageContainer); }
     function downloadCard(isTemplate = false) {
-    if (!isTemplate && sparkleCheckbox.checked) {
-        generateSparkleApng();
-        return;
+        if (!isTemplate && sparkleCheckbox.checked) {
+            generateSparkleApng();
+            return;
+        }
+        const button = isTemplate ? downloadTemplateBtn : downloadBtn;
+        const originalButtonText = button.textContent;
+        button.textContent = '生成中...';
+        button.disabled = true;
+
+        const effectEl = document.getElementById('effect-display');
+        const originalMaxHeight = effectEl.style.maxHeight;
+        const currentMaxHeight = parseFloat(originalMaxHeight);
+        if (!isNaN(currentMaxHeight) && currentMaxHeight > 2) {
+            effectEl.style.maxHeight = `${currentMaxHeight - 2}px`;
+        }
+        
+        document.body.classList.add('is-rendering-output');
+        const originalTransform = previewPanel.style.transform;
+        const originalWrapperHeight = previewWrapper.style.height;
+        previewPanel.style.transform = 'none';
+        previewWrapper.style.height = 'auto';
+
+        document.fonts.ready.then(() => {
+            setTimeout(() => {
+                html2canvas(cardContainer, {
+                    backgroundColor: null,
+                    useCORS: true,
+                    scale: highResCheckbox.checked ? 2 : 1
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    const fileName = isTemplate ?
+                        `${cardColorSelect.value}_${cardTypeSelect.value || 'Standard'}_template.png` :
+                        `${cardNameInput.value.replace(/[()`]/g, '') || 'custom_card'}.png`;
+                    link.download = fileName;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }).catch(err => {
+                    console.error('画像生成に失敗しました。', err);
+                    showCustomAlert('エラーが発生しました。');
+                }).finally(() => {
+                    document.body.classList.remove('is-rendering-output');
+                    button.textContent = originalButtonText;
+                    button.disabled = false;
+                    previewPanel.style.transform = originalTransform;
+                    previewWrapper.style.height = originalWrapperHeight;
+                    effectEl.style.maxHeight = originalMaxHeight;
+                });
+            }, 100);
+        });
     }
-    const button = isTemplate ? downloadTemplateBtn : downloadBtn;
-    const originalButtonText = button.textContent;
-    button.textContent = '生成中...';
-    button.disabled = true;
-
-    // --- START: 1px FIX ---
-    const effectDisplay = document.getElementById('effect-display');
-    const originalMaxHeight = effectDisplay.style.maxHeight;
-    // ダウンロード時のみ高さを2px減らして見切れを防止
-    const currentMaxHeight = parseFloat(originalMaxHeight);
-    if (!isNaN(currentMaxHeight) && currentMaxHeight > 2) {
-        effectDisplay.style.maxHeight = `${currentMaxHeight - 2}px`;
-    }
-    // --- END: 1px FIX ---
-
-    document.body.classList.add('is-rendering-output');
-    const originalTransform = previewPanel.style.transform;
-    const originalWrapperHeight = previewWrapper.style.height;
-    previewPanel.style.transform = 'none';
-    previewWrapper.style.height = 'auto';
-
-    document.fonts.ready.then(() => {
-        setTimeout(() => {
-            html2canvas(cardContainer, {
-                backgroundColor: null,
-                useCORS: true,
-                scale: highResCheckbox.checked ? 2 : 1
-            }).then(canvas => {
-                const link = document.createElement('a');
-                const fileName = isTemplate ?
-                    `${cardColorSelect.value}_${cardTypeSelect.value || 'Standard'}_template.png` :
-                    `${cardNameInput.value.replace(/[()`]/g, '') || 'custom_card'}.png`;
-                link.download = fileName;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            }).catch(err => {
-                console.error('画像生成に失敗しました。', err);
-                showCustomAlert('エラーが発生しました。');
-            }).finally(() => {
-                document.body.classList.remove('is-rendering-output');
-                button.textContent = originalButtonText;
-                button.disabled = false;
-                previewPanel.style.transform = originalTransform;
-                previewWrapper.style.height = originalWrapperHeight;
-                
-                // --- START: RESTORE ORIGINAL HEIGHT ---
-                // プレビュー表示のため、高さを元に戻す
-                effectDisplay.style.maxHeight = originalMaxHeight;
-                // --- END: RESTORE ORIGINAL HEIGHT ---
-            });
-        }, 100);
-    });
-}
     async function createSparkleApngBlob() { const baseImageElements = [backgroundImage, cardTemplateImage, imageContainer, overlayImageContainer]; const textElements = [cardNameContainer, textBoxContainer]; textElements.forEach(el => el.style.opacity = 0); sparkleOverlayImage.style.display = 'none'; await new Promise(r => setTimeout(r, 100)); const baseCanvas = await html2canvas(cardContainer, { backgroundColor: null, useCORS: true, scale: 1 }); textElements.forEach(el => el.style.opacity = 1); baseImageElements.forEach(el => el.style.opacity = 0); await new Promise(r => setTimeout(r, 100)); const textCanvas = await html2canvas(cardContainer, { backgroundColor: null, useCORS: true, scale: 1 }); const sparkleBuffer = await new Promise((resolve, reject) => { const xhr = new XMLHttpRequest(); xhr.open('GET', 'Card_asset/加算してキラキラ.png', true); xhr.responseType = 'arraybuffer'; xhr.onload = function() { if (this.status === 200 || this.status === 0) resolve(this.response); else reject(new Error(`キラキラ素材の読み込みに失敗しました (HTTP Status: ${this.status})`)); }; xhr.onerror = () => reject(new Error('キラキラ素材の読み込みでネットワークエラーが発生しました。')); xhr.send(); }); let sparkleApng = UPNG.decode(sparkleBuffer); const sparkleFrames = UPNG.toRGBA8(sparkleApng); const newFrames = []; const { width, height } = baseCanvas; for (let i = 0; i < sparkleFrames.length; i++) { const frameData = sparkleFrames[i]; const frameCanvas = document.createElement('canvas'); frameCanvas.width = width; frameCanvas.height = height; const frameCtx = frameCanvas.getContext('2d'); frameCtx.drawImage(baseCanvas, 0, 0); const tempSparkleCanvas = document.createElement('canvas'); tempSparkleCanvas.width = sparkleApng.width; tempSparkleCanvas.height = sparkleApng.height; tempSparkleCanvas.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(frameData), sparkleApng.width, sparkleApng.height), 0, 0); frameCtx.globalCompositeOperation = 'lighter'; frameCtx.drawImage(tempSparkleCanvas, 0, 0, width, height); frameCtx.globalCompositeOperation = 'source-over'; frameCtx.drawImage(textCanvas, 0, 0); newFrames.push(frameCtx.getImageData(0, 0, width, height).data.buffer); } const delays = sparkleApng.frames.map(f => f.delay); const newApngBuffer = UPNG.encode(newFrames, width, height, 0, delays); const blob = new Blob([newApngBuffer], { type: 'image/png' }); textElements.forEach(el => el.style.opacity = 1); baseImageElements.forEach(el => el.style.opacity = 1); sparkleOverlayImage.style.display = sparkleCheckbox.checked ? 'block' : 'none'; return blob; }
     async function generateSparkleApng() { const button = downloadBtn; const originalButtonText = button.textContent; button.textContent = 'キラAPNGを生成中...'; button.disabled = true; const originalTransform = previewPanel.style.transform; const originalWrapperHeight = previewWrapper.style.height; previewPanel.style.transform = 'none'; previewWrapper.style.height = 'auto'; try { const blob = await createSparkleApngBlob(); const link = document.createElement('a'); const fileName = `${(cardNameInput.value || 'custom_card').replace(/[()`]/g, '')}_kira.png`; link.download = fileName; link.href = URL.createObjectURL(blob); link.click(); URL.revokeObjectURL(link.href); } catch (err) { console.error('キラAPNGの生成に失敗しました。', err); showCustomAlert(`キラAPNGの生成中にエラーが発生しました。\n詳細: ${err.message}`); } finally { button.textContent = originalButtonText; button.disabled = false; previewPanel.style.transform = originalTransform; previewWrapper.style.height = originalWrapperHeight; } }
     function hexToRgb(hex) { const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; }
@@ -943,6 +932,221 @@ if (effectLineHeight > 0) {
     async function processBatchDownload() { if (batchData.length === 0) { showCustomAlert('データが読み込まれていません。'); return; } const zip = new JSZip(); batchDownloadBtn.disabled = true; batchProgress.style.display = 'block'; for (let i = 0; i < batchData.length; i++) { const cardData = batchData[i]; batchProgress.textContent = `処理中... (${i + 1}/${batchData.length})`; updatePreviewFromData(cardData); await new Promise(resolve => document.fonts.ready.then(() => setTimeout(resolve, 200))); try { const fileName = `${(cardData.cardName || `card_${i+1}`).replace(/[()`]/g, '')}.png`; let imageBlob; if (cardData.sparkle) { imageBlob = await createSparkleApngBlob(); } else { const scale = highResCheckbox.checked ? 2 : 1; const canvas = await html2canvas(cardContainer, { backgroundColor: null, useCORS: true, scale: scale }); imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png')); } if (imageBlob) { zip.file(fileName, imageBlob); } } catch (err) { console.error(`カード[${cardData.cardName || i+1}]の画像生成に失敗しました:`, err); zip.file(`ERROR_${cardData.cardName || i+1}.txt`, `このカードの生成に失敗しました。\nエラー: ${err.message}`); } } batchProgress.textContent = 'ZIPファイルを生成中...'; zip.generateAsync({ type: 'blob' }).then(content => { const link = document.createElement('a'); link.href = URL.createObjectURL(content); link.download = 'cards_batch.zip'; link.click(); URL.revokeObjectURL(link.href); batchProgress.textContent = '完了しました！'; setTimeout(() => { batchProgress.style.display = 'none'; batchDownloadBtn.disabled = false; }, 3000); }); }
     function checkImageTransparency(imageUrl) { return new Promise((resolve) => { const img = new Image(); img.crossOrigin = "Anonymous"; img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d', { willReadFrequently: true }); canvas.width = img.width; canvas.height = img.height; ctx.drawImage(img, 0, 0); try { const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data; for (let i = 3; i < imageData.length; i += 4) { if (imageData[i] < 255) { resolve(true); return; } } } catch (e) { console.error("透明度チェックエラー:", e); resolve(false); return; } resolve(false); }; img.onerror = () => { console.error("画像読み込みエラー"); resolve(false); }; img.src = imageUrl; }); }
     function checkDefaultImageTransparency(src) { checkImageTransparency(src).then(hasTransparency => { const backgroundGroup = document.getElementById('background-select-group'); if (hasTransparency) { backgroundGroup.style.display = 'block'; backgroundSelect.value = 'hologram_geometric.png'; } else { backgroundGroup.style.display = 'none'; backgroundSelect.value = ''; } updatePreview(); }); }
+        
+    // --- ★★★ データベース詳細表示機能 (修正・追加) ★★★ ---
+    function setupDatabaseDetailViewListeners() {
+        const detailView = document.getElementById('db-detail-view');
+        // 「一覧に戻る」ボタンの処理
+        document.getElementById('db-back-to-list-btn').addEventListener('click', () => {
+            detailView.style.display = 'none';
+            document.getElementById('db-controls').style.display = 'flex';
+            document.getElementById('card-list-container').style.display = 'grid';
+        });
+
+        // 詳細表示内の「編集」「削除」「保存」ボタンの処理
+        detailView.addEventListener('click', (e) => {
+            const cardId = detailView.dataset.cardId;
+            if (!cardId) return;
+
+            if (e.target.id === 'db-info-download-btn') {
+                 // ジェネレーターに情報をロードし、ロード完了後にダウンロード処理を呼び出す
+                loadCardForEditing(cardId).then(() => {
+                    // ダウンロードボタンに直接関連付けられている関数を呼び出す
+                    downloadCard(false);
+                });
+            } else if (e.target.id === 'db-info-edit-btn') {
+                document.getElementById('tab-generator').checked = true;
+                 // DOMの更新を待ってからロード処理を実行
+                requestAnimationFrame(() => loadCardForEditing(cardId));
+            } else if (e.target.id === 'db-info-delete-btn') {
+                const cardName = document.getElementById('db-info-name').textContent || 'このカード';
+                showCustomConfirm(`【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除（アーカイブ）しますか？`).then(confirmed => {
+                    if (confirmed) {
+                        deleteCard(cardId).then(() => {
+                           document.getElementById('db-back-to-list-btn').click();
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function showCardDetail(cardId) {
+        const cardData = allCardsData.find(card => card['ID'] === cardId);
+        if (!cardData) {
+            showCustomAlert('該当するカードデータが見つかりません。');
+            return;
+        }
+
+        // --- UIの表示切り替え ---
+        document.getElementById('db-controls').style.display = 'none';
+        document.getElementById('card-list-container').style.display = 'none';
+        const detailView = document.getElementById('db-detail-view');
+        detailView.style.display = 'flex';
+        detailView.dataset.cardId = cardId;
+
+        // --- 右側（情報欄）の更新 ---
+        const infoWrapper = document.querySelector('.db-detail-info-wrapper');
+        const infoContent = infoWrapper.querySelector('.db-info-content');
+
+        const colorDetails = cardColorData[cardData['色']] || {};
+        if (colorDetails.color && !colorDetails.color.startsWith('linear-gradient')) {
+            infoWrapper.style.borderColor = colorDetails.color;
+            infoWrapper.style.backgroundColor = adjustHexColor(colorDetails.color, -30);
+            infoContent.querySelectorAll('h4').forEach(h4 => h4.style.color = colorDetails.color);
+        } else if (colorDetails.color) { // 虹色の場合
+            infoWrapper.style.borderColor = '#c8a464';
+            infoWrapper.style.backgroundColor = '#0d1a50';
+            infoContent.querySelectorAll('h4').forEach(h4 => h4.style.color = '#c8a464');
+        }
+        
+        document.getElementById('db-info-id').textContent = cardData['ID'];
+        document.getElementById('db-info-name').textContent = cardData['カード名'] || '(無題)';
+        document.getElementById('db-info-registrant').textContent = cardData['登録者'] || 'N/A';
+        document.getElementById('db-info-artist').textContent = cardData['絵師'] || 'N/A';
+        document.getElementById('db-info-effect').textContent = cardData['効果説明'] || '';
+
+        const flavorSection = document.getElementById('db-info-flavor-section');
+        if(cardData['フレーバー']) {
+            document.getElementById('db-info-flavor').textContent = cardData['フレーバー'];
+            document.getElementById('db-info-speaker').textContent = cardData['話者'] ? `─── ${cardData['話者']}` : '';
+            flavorSection.style.display = 'block';
+        } else {
+            flavorSection.style.display = 'none';
+        }
+        
+        const sourceSection = document.getElementById('db-info-source-section');
+         if(cardData['元ネタ']) {
+            document.getElementById('db-info-source').textContent = cardData['元ネタ'];
+            sourceSection.style.display = 'block';
+        } else {
+            sourceSection.style.display = 'none';
+        }
+        
+        const notesSection = document.getElementById('db-info-notes-section');
+         if(cardData['備考']) {
+            document.getElementById('db-info-notes').textContent = cardData['備考'];
+            notesSection.style.display = 'block';
+        } else {
+            notesSection.style.display = 'none';
+        }
+        
+        // --- 左側（プレビュー）の更新 ---
+        renderCardPreview(cardData, {
+            container: document.getElementById('db-card-container'),
+            template: document.getElementById('db-card-template-image'),
+            cardImage: document.getElementById('db-card-image'),
+            imageContainer: document.getElementById('db-image-container'),
+            nameContent: document.getElementById('db-card-name-content'),
+            nameContainer: document.getElementById('db-card-name-container'),
+            effect: document.getElementById('db-effect-display'),
+            flavor: document.getElementById('db-flavor-display'),
+            speaker: document.getElementById('db-flavor-speaker-display'),
+            textBox: document.getElementById('db-text-box-container'),
+            background: document.getElementById('db-background-image'),
+            sparkle: document.getElementById('db-sparkle-overlay-image'),
+            overlayImage: document.getElementById('db-overlay-image') // 上絵も追加
+        });
+    }
+
+    function renderCardPreview(cardData, elements) {
+        const color = cardData['色'] || '青';
+        const type = (cardData['タイプ'] || '').toUpperCase();
+        const isFullFrame = type === 'FF' || type === 'FFCF';
+        
+        elements.template.src = `Card_asset/テンプレ/${color}カード${isFullFrame ? 'FF' : ''}.png`;
+
+        let imageUrl = cardData['画像URL'];
+        if (imageUrl === 'DEFAULT' || !imageUrl) {
+            imageUrl = isFullFrame ? 'Card_asset/now_painting_FF.png' : 'Card_asset/now_painting.png';
+        } else if (imageUrl.includes('drive.google.com/file/d/') || imageUrl.includes('docs.google.com/file/d/')) {
+            const match = imageUrl.match(/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) imageUrl = `https://corsproxy.io/?${encodeURIComponent(`https://drive.google.com/uc?export=view&id=${match[1]}`)}`;
+        }
+        elements.cardImage.crossOrigin = "Anonymous";
+        elements.cardImage.src = imageUrl;
+
+        // 画像コンテナと画像の高さを正しく設定
+        elements.imageContainer.style.height = isFullFrame ? '720px' : '480px';
+        
+        updateCardNameForPreview(cardData['カード名'] || '', elements.nameContent, elements.nameContainer);
+        
+        elements.nameContent.classList.toggle('title-styled', type === 'CF' || type === 'FFCF');
+        elements.nameContainer.style.backgroundImage = (type === 'CF' || type === 'FFCF') ? 'none' : `url('Card_asset/タイトル.png')`;
+        elements.textBox.classList.toggle('textbox-styled', type === 'FF' || type === 'FFCF');
+        
+        const replacePunctuation = (text) => text.replace(/、/g, '､').replace(/。/g, '｡');
+        const addSpacingToChars = (text) => {
+             return text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => {
+                if (kernChars) return `<span class="char-kern">${kernChars}</span>`;
+                if (parenChars) return `<span class="paren-fix">${parenChars}</span>`;
+                return match;
+            });
+        };
+
+        elements.effect.innerHTML = addSpacingToChars(replacePunctuation(cardData['効果説明'] || ''));
+        const flavorText = replacePunctuation(cardData['フレーバー'] || '');
+        const speakerText = replacePunctuation(cardData['話者'] || '');
+        
+        elements.flavor.style.display = flavorText ? 'block' : 'none';
+        elements.speaker.style.display = speakerText ? 'block' : 'none';
+        
+        let flavorEl = elements.flavor.querySelector('.inner-text');
+        if (!flavorEl) {
+            elements.flavor.innerHTML = '<div class="inner-text"></div>';
+            flavorEl = elements.flavor.querySelector('.inner-text');
+        }
+        flavorEl.innerHTML = flavorText.replace(/\n/g, '<br>');
+        elements.speaker.innerText = speakerText ? `─── ${speakerText}` : '';
+        
+        // レイアウトを強制的に再計算
+        requestAnimationFrame(() => {
+            const totalHeight = 177.5;
+            const effectMarginBottom = 1;
+            const combinedFlavorHeight = (elements.flavor.style.display === 'none' ? 0 : elements.flavor.offsetHeight) + (elements.speaker.style.display === 'none' ? 0 : elements.speaker.offsetHeight);
+            const availablePixelHeight = totalHeight - combinedFlavorHeight - effectMarginBottom;
+            const effectStyle = window.getComputedStyle(elements.effect);
+            const effectLineHeight = parseFloat(effectStyle.lineHeight);
+            if (effectLineHeight > 0) {
+                const numberOfLines = Math.floor(availablePixelHeight / effectLineHeight);
+                elements.effect.style.maxHeight = `${Math.max(0, numberOfLines * effectLineHeight)}px`;
+            } else {
+                elements.effect.style.maxHeight = `${Math.max(0, availablePixelHeight)}px`;
+            }
+        });
+    }
     
+    function updateCardNameForPreview(text, contentEl, containerEl) {
+        const segments = text.split('`');
+        const htmlParts = segments.map((segment, index) => {
+            if (index % 2 === 1) {
+                const rubyMatch = segment.match(/(.+?)\((.+)\)/);
+                if (rubyMatch) return `<ruby><rb>${rubyMatch[1]}</rb><rt>${rubyMatch[2]}</rt></ruby>`;
+            }
+            return `<span class="no-ruby">${segment.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
+        });
+        const finalHtml = htmlParts.join('\u200B');
+        contentEl.classList.toggle('is-plain-text-only', !finalHtml.includes('<ruby>'));
+        contentEl.innerHTML = `<span class="scaler">${finalHtml}</span>`;
+
+        requestAnimationFrame(() => {
+            const scalerEl = contentEl.querySelector('.scaler');
+            if (!scalerEl) return;
+            const availableWidth = contentEl.clientWidth;
+            const trueTextWidth = scalerEl.scrollWidth;
+            let containerLeft = '50%', containerTransformX = '-50%', contentTextAlign = 'center', scalerTransformOrigin = 'center', rtLeft = '50%', rtTransformX = 'calc(-50% + 1px)', scalerTransform = 'none';
+            if (trueTextWidth > availableWidth) {
+                scalerTransform = `scaleX(${availableWidth / trueTextWidth})`;
+                containerLeft = '44px'; containerTransformX = '0'; contentTextAlign = 'left'; scalerTransformOrigin = 'left'; rtLeft = '0'; rtTransformX = '0';
+            }
+            containerEl.style.left = containerLeft;
+            containerEl.style.transform = `translateX(${containerTransformX})`;
+            contentEl.style.textAlign = contentTextAlign;
+            scalerEl.style.transformOrigin = scalerTransformOrigin;
+            scalerEl.style.transform = scalerTransform;
+            contentEl.querySelectorAll('rt').forEach(rt => { rt.style.left = rtLeft; rt.style.transform = `translateX(${rtTransformX})`; });
+        });
+    }
+
     initialize();
 });
