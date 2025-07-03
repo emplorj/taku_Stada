@@ -1,3 +1,4 @@
+
 /* card_generator.css */
 html, body {
     height: 100%;
@@ -221,12 +222,12 @@ html, body {
 #flavor-group {
     position: relative;
     width: 100%;
-    margin-top: auto;
-    flex-shrink: 0;
+    order: 2; /* 表示順を2番目に */
+    /* flex-grow: 1; was removed to fix layout bug */
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    order: 2; /* この行を追加 */
+    min-height: 0; /* Flexboxの縮小バグを防ぐおまじない */
 }
 #flavor-display {
     position: relative;
@@ -1083,4 +1084,3 @@ html, body {
     background-color: #a3a3a3;
     color: #fff;
 }
-

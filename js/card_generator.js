@@ -738,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!flavorText && !speakerText) {
             flavorGroup.style.display = 'none';
         } else {
-            flavorGroup.style.display = 'block';
+            flavorGroup.style.display = 'flex';
             if (flavorText) {
                 const flavorHtml = flavorText.replace(/\n/g, '<br>');
                 let flavorInnerText = flavorDisplay.querySelector('.inner-text');
