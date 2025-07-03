@@ -63,6 +63,7 @@ OPTIONS:JUDGE:隠蔽,応急手当,解除,スリ,変装,命中力,罠設置,受�
 永続
 
 --- 対象 ---
+PC1人を選ぶ。 || NUMBERS_S
 【N】単体に || TARGET_TYPE
 【N】全体に || TARGET_TYPE
 【N】体に || NUMBERS_S
