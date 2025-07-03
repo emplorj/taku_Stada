@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardNameContent = document.getElementById('card-name-content');
     const textBoxContainer = document.getElementById('text-box-container');
     const effectDisplay = document.getElementById('effect-display');
-    const flavorGroup = document.getElementById('flavor-group');
+    // const flavorGroup = document.getElementById('flavor-group'); // flavor-groupはHTMLから削除されたため不要
     const flavorDisplay = document.getElementById('flavor-display');
     const flavorSpeakerDisplay = document.getElementById('flavor-speaker-display');
     const batchFileUpload = document.getElementById('batch-file-upload');
@@ -726,69 +726,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 return match;
             });
         };
-        const processedEffectText = addSpacingToChars(replacePunctuation(effectInput.value));
-        effectDisplay.innerHTML = processedEffectText;
+// --- START: DYNAMIC LAYOUT LOGIC (RE-IMPLEMENTING LINE-SNAPPING) ---
 
-        const flavorText = replacePunctuation(flavorInput.value.trim());
-        const speakerText = replacePunctuation(flavorSpeakerInput.value.trim());
+// 1. まず、すべてのテキストをDOMに書き出し、表示/非表示を切り替える
+effectDisplay.innerHTML = addSpacingToChars(replacePunctuation(effectInput.value));
+const flavorText = replacePunctuation(flavorInput.value.trim());
+const speakerText = replacePunctuation(flavorSpeakerInput.value.trim());
 
-        // --- START: FINAL DYNAMIC LAYOUT LOGIC WITH LINE-SNAPPING ---
+// フレーバーテキストと話者の表示/非表示を直接制御
+if (!flavorText) {
+    flavorDisplay.style.display = 'none';
+} else {
+    flavorDisplay.style.display = 'block';
+    let el = flavorDisplay.querySelector('.inner-text');
+    if (!el) {
+        flavorDisplay.innerHTML = '<div class="inner-text"></div>';
+        el = flavorDisplay.querySelector('.inner-text');
+    }
+    el.innerHTML = flavorText.replace(/\n/g, '<br>');
+}
+
+if (!speakerText) {
+    flavorSpeakerDisplay.style.display = 'none';
+} else {
+    flavorSpeakerDisplay.style.display = 'block';
+    flavorSpeakerDisplay.innerText = `─── ${speakerText}`;
+}
+
+// 2. ブラウザに一度レイアウトを計算させ、正確な高さを取得する
+textBoxContainer.offsetHeight;
+
+// 3. ★★★ ご提示のロジックを現在の構造に合わせて再実装します ★★★
+const totalHeight = 177.5; // CSSに記載されているテキストボックス全体の高さ
+const effectMarginBottom = 1; // CSSコメントにあったマージン
+
+// flavorGroupがないため、フレーバーと話者の高さを個別にとって合計する
+let combinedFlavorHeight = 0;
+if (flavorDisplay.style.display !== 'none') {
+    combinedFlavorHeight += flavorDisplay.offsetHeight;
+}
+if (flavorSpeakerDisplay.style.display !== 'none') {
+    combinedFlavorHeight += flavorSpeakerDisplay.offsetHeight;
+}
+
+// 効果テキストが使用できるピクセル単位の高さを計算
+const availablePixelHeight = totalHeight - combinedFlavorHeight - effectMarginBottom;
+
+// 効果テキストの計算済みline-heightを取得 (行スナップの要)
+const effectStyle = window.getComputedStyle(effectDisplay);
+const effectLineHeight = parseFloat(effectStyle.lineHeight);
+
+if (effectLineHeight > 0) {
+    // 利用可能なスペースに何行が「完全に」収まるかを計算
+    const numberOfLines = Math.floor(availablePixelHeight / effectLineHeight);
     
-        // First, update the content and visibility of the flavor text and speaker elements.
-        if (!flavorText && !speakerText) {
-            flavorGroup.style.display = 'none';
-        } else {
-            flavorGroup.style.display = 'flex';
-            if (flavorText) {
-                const flavorHtml = flavorText.replace(/\n/g, '<br>');
-                let flavorInnerText = flavorDisplay.querySelector('.inner-text');
-                if (!flavorInnerText) {
-                    flavorDisplay.innerHTML = '<div class="inner-text"></div>';
-                    flavorInnerText = flavorDisplay.querySelector('.inner-text');
-                }
-                flavorInnerText.innerHTML = flavorHtml;
-                flavorDisplay.style.display = 'block';
-            } else {
-                flavorDisplay.style.display = 'none';
-            }
+    // 行の途中で切れないよう、行数 * 1行の高さ で高さをスナップさせる
+    const snappedMaxHeight = numberOfLines * effectLineHeight;
     
-            if (speakerText) {
-                flavorSpeakerDisplay.innerText = `─── ${speakerText}`;
-                flavorSpeakerDisplay.style.display = 'block';
-            } else {
-                flavorSpeakerDisplay.style.display = 'none';
-            }
-        }
-    
-        // Force the browser to reflow the layout to get the correct height of the flavor group.
-        textBoxContainer.offsetHeight;
-    
-        const totalHeight = 177.5; // Total height from CSS.
-        const flavorGroupHeight = flavorGroup.offsetHeight; // Get the actual rendered height.
-        const effectMarginBottom = 1; // From CSS.
-        const availablePixelHeight = totalHeight - flavorGroupHeight - effectMarginBottom;
-    
-        // Get the computed line-height for the effect text, which is crucial for line-snapping.
-        const effectStyle = window.getComputedStyle(effectDisplay);
-        const effectLineHeight = parseFloat(effectStyle.lineHeight);
-    
-        if (effectLineHeight > 0) {
-            // Calculate how many full lines can fit in the available space.
-            const numberOfLines = Math.floor(availablePixelHeight / effectLineHeight);
-            
-            // Calculate the new max-height that is an exact multiple of the line height.
-            // This "snaps" the container to the grid of the text lines, preventing partial lines.
-            const snappedMaxHeight = numberOfLines * effectLineHeight;
-            
-            // Apply the calculated max-height.
-            effectDisplay.style.maxHeight = `${Math.max(0, snappedMaxHeight)}px`;
-        } else {
-            // Fallback for safety, in case line-height isn't available for some reason.
-            effectDisplay.style.maxHeight = `${Math.max(0, availablePixelHeight)}px`;
-        }
-        
-        // --- END: FINAL DYNAMIC LAYOUT LOGIC ---
-    
+    // 計算されたmax-heightを適用
+    effectDisplay.style.maxHeight = `${Math.max(0, snappedMaxHeight)}px`;
+} else {
+    // line-heightが取得できない場合の安全策
+    effectDisplay.style.maxHeight = `${Math.max(0, availablePixelHeight)}px`;
+}
+
+// --- END: DYNAMIC LAYOUT LOGIC ---
         updateThemeColor(colorDetails);
         requestAnimationFrame(setupImageForDrag);
     }
@@ -871,7 +873,69 @@ document.addEventListener('DOMContentLoaded', () => {
     function rgbToHex(r, g, b) { return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1); }
     function adjustHexColor(hex, amount) { if (!hex || !hex.startsWith('#')) return hex; let { r, g, b } = hexToRgb(hex); r = Math.max(0, Math.min(255, r + amount)); g = Math.max(0, Math.min(255, g + amount)); b = Math.max(0, Math.min(255, b + amount)); return rgbToHex(r, g, b); }
     function getLuminance(hex) { if (!hex || !hex.startsWith('#')) return 0; let { r, g, b } = hexToRgb(hex); return 0.2126 * r + 0.7152 * g + 0.0722 * b; }
-    function updateThemeColor(details) { if (!details) return; const root = document.documentElement; const body = document.body; root.style.setProperty('--button-bg', details.color); root.style.setProperty('--button-hover-bg', details.hover); root.style.setProperty('--button-color', details.textColor); if (details.color.startsWith('linear-gradient')) { root.style.setProperty('--theme-bg-dark', '#0d1a50'); root.style.setProperty('--theme-bg-main', '#1a2c6d'); root.style.setProperty('--theme-border', '#2a3c7d'); body.classList.remove('light-theme-ui'); } else { root.style.setProperty('--theme-bg-dark', adjustHexColor(details.color, -30)); root.style.setProperty('--theme-bg-main', adjustHexColor(details.color, -15)); root.style.setProperty('--theme-border', adjustHexColor(details.color, 15)); if (getLuminance(details.color) > 160) { body.classList.add('light-theme-ui'); } else { body.classList.remove('light-theme-ui'); } } }
+    function updateThemeColor(details) {
+        if (!details) return;
+        const root = document.documentElement;
+        const body = document.body;
+        root.style.setProperty('--button-bg', details.color);
+        root.style.setProperty('--button-hover-bg', details.hover);
+        root.style.setProperty('--button-color', details.textColor);
+
+        // 入力フィールドなどの背景色とボーダー色を調整
+        if (details.color.startsWith('linear-gradient')) {
+            // 虹色の場合は固定色
+            root.style.setProperty('--controls-panel-bg', '#1a2c6d');
+            root.style.setProperty('--theme-input-bg', '#0d1a50');
+            root.style.setProperty('--theme-input-border', '#2a3c7d');
+            root.style.setProperty('--modal-bg', '#1a2c6d');
+            root.style.setProperty('--modal-border', '#2a3c7d');
+            root.style.setProperty('--modal-header-color', '#c8a464');
+            root.style.setProperty('--modal-close-btn-color', '#bdc3c7');
+            root.style.setProperty('--modal-label-color', '#b0c4de');
+            root.style.setProperty('--modal-input-bg', '#0d1a50');
+            root.style.setProperty('--modal-input-border', '#2a3c7d');
+            root.style.setProperty('--theme-bg-main', '#1a2c6d'); /* タブの背景色 */
+            root.style.setProperty('--theme-border', '#2a3c7d'); /* タブのボーダー色 */
+            body.classList.remove('light-theme-ui');
+        } else {
+            // 通常の色の場合、元の色から調整
+            const mainBgColor = adjustHexColor(details.color, -15);
+            const inputBgColor = adjustHexColor(details.color, -30);
+            const inputBorderColor = adjustHexColor(details.color, 15);
+            const headerColor = adjustHexColor(details.color, 60); // ヘッダーは明るめに
+            const labelColor = adjustHexColor(details.color, 40); // ラベルも明るめに
+            const closeBtnColor = adjustHexColor(details.color, 30); // 閉じるボタンも明るめに
+
+            root.style.setProperty('--controls-panel-bg', mainBgColor);
+            root.style.setProperty('--theme-input-bg', inputBgColor);
+            root.style.setProperty('--theme-input-border', inputBorderColor);
+            root.style.setProperty('--modal-bg', mainBgColor);
+            root.style.setProperty('--modal-border', inputBorderColor);
+            root.style.setProperty('--modal-header-color', headerColor);
+            root.style.setProperty('--modal-close-btn-color', closeBtnColor);
+            root.style.setProperty('--modal-label-color', labelColor);
+            root.style.setProperty('--modal-input-bg', inputBgColor);
+            root.style.setProperty('--modal-input-border', inputBorderColor);
+            root.style.setProperty('--theme-bg-main', mainBgColor); /* タブの背景色 */
+            root.style.setProperty('--theme-border', inputBorderColor); /* タブのボーダー色 */
+
+            if (getLuminance(details.color) > 160) {
+                body.classList.add('light-theme-ui');
+                root.style.setProperty('--controls-panel-bg', '#ecf0f1');
+                root.style.setProperty('--modal-bg', '#ecf0f1');
+                root.style.setProperty('--modal-border', '#bdc3c7');
+                root.style.setProperty('--modal-header-color', '#2c3e50');
+                root.style.setProperty('--modal-close-btn-color', '#7f8c8d');
+                root.style.setProperty('--modal-label-color', '#34495e');
+                root.style.setProperty('--modal-input-bg', '#ffffff');
+                root.style.setProperty('--modal-input-border', '#bdc3c7');
+                root.style.setProperty('--theme-bg-main', '#ecf0f1'); /* ライトテーマ時のタブ背景色 */
+                root.style.setProperty('--theme-border', '#bdc3c7'); /* ライトテーマ時のタブボーダー色 */
+            } else {
+                body.classList.remove('light-theme-ui');
+            }
+        }
+    }
     function handleBatchFileUpload(event) { const file = event.target.files[0]; if (!file) return; batchFileName.textContent = file.name; const reader = new FileReader(); reader.onload = (e) => { try { const content = e.target.result; let rawData; if (file.name.endsWith('.json')) { rawData = JSON.parse(content); rawData.forEach(item => item.sparkle = item.sparkle === true); batchData = rawData.map(item => { let backgroundValue = item.background || ''; if (backgroundValue === '◇') backgroundValue = 'hologram_geometric.png'; else if (backgroundValue === '☆') backgroundValue = 'hologram_glitter.png'; return { ...item, background: backgroundValue }; }); } else if (file.name.endsWith('.csv')) { rawData = parseCsv(content); batchData = rawData.map(item => { const colorName = item['色'] || ''; const cardId = colorNameToIdMap[colorName] || '青'; const sparkleValue = (item['キラ'] || 'false').toLowerCase(); let backgroundValue = item['背景'] || ''; if (backgroundValue === '◇') backgroundValue = 'hologram_geometric.png'; else if (backgroundValue === '☆') backgroundValue = 'hologram_glitter.png'; return { cardName: item['カード名'] || '', effect: item['効果説明'] || '', flavor: item['フレーバー'] || '', speaker: item['フレーバー名'] || '', color: cardId, image: item['イラスト'] || '', type: item['タイプ'] || '', background: backgroundValue, sparkle: ['true', '1', 'yes', 'はい', 'on'].includes(sparkleValue) }; }); } else { throw new Error('サポートされていないファイル形式です。'); } batchDownloadBtn.disabled = false; showCustomAlert(`${batchData.length}件のカードデータを読み込みました。`); } catch (error) { console.error('ファイルの読み込みまたはパースに失敗しました:', error); showCustomAlert(`エラー: ${error.message}`); batchFileName.textContent = '選択されていません'; batchDownloadBtn.disabled = true; batchData = []; } }; reader.readAsText(file); }
     function parseCsv(csvText) { const lines = csvText.trim().replace(/\r\n/g, '\n').split('\n'); const headers = lines[0].split(',').map(h => h.trim()); const data = []; for (let i = 1; i < lines.length; i++) { if (!lines[i]) continue; const values = lines[i].split(',').map(v => v.trim()); const entry = {}; headers.forEach((header, index) => { entry[header] = values[index].replace(/^"(.*)"$/, '$1'); }); data.push(entry); } return data; }
     function handleImageFolderUpload(event) { const files = event.target.files; if (files.length === 0) return; localImageFiles = {}; for (const file of files) { localImageFiles[file.name] = URL.createObjectURL(file); } imageFolderName.textContent = `${files.length}個の画像を選択`; showCustomAlert(`${files.length}個のローカル画像を読み込みました。`); }
