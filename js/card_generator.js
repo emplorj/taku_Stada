@@ -1,4 +1,4 @@
-// card_generator.js (更新版)
+// card_generator.js (最終修正版)
 document.addEventListener('DOMContentLoaded', () => {
     // DOM要素の取得
     const cardColorSelect = document.getElementById('card-color-select');
@@ -675,7 +675,124 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearEditingState() { currentEditingCardId = null; originalImageUrlForEdit = null; isNewImageSelected = false; const url = new URL(window.location); if (url.searchParams.has('id')) { url.searchParams.delete('id'); window.history.pushState({}, '', url); } }
     async function generateArtworkBlob(cardType) { console.log(`アートワーク部分の切り出しを開始します。タイプ: ${cardType || '標準'}`); const elementsToModify = [document.getElementById('card-template-image'), document.getElementById('card-name-container'), document.getElementById('text-box-container'), document.getElementById('sparkle-overlay-image')]; const originalStyles = []; try { elementsToModify.forEach(el => { if (el) { originalStyles.push({ element: el, originalDisplay: el.style.display }); el.style.display = 'none'; } }); const fullCardCanvas = await html2canvas(cardContainer, { backgroundColor: null, useCORS: true }); const isFullFrame = cardType === 'FF' || cardType === 'FFCF'; if (isFullFrame) { console.log('フルフレームのため、480x720の画像を生成します。'); return await new Promise(resolve => fullCardCanvas.toBlob(resolve, 'image/png')); } else { console.log('標準/CFタイプのため、480x480に画像をクロップします。'); const croppedCanvas = document.createElement('canvas'); croppedCanvas.width = 480; croppedCanvas.height = 480; const ctx = croppedCanvas.getContext('2d'); ctx.drawImage(fullCardCanvas, 0, 0, 480, 480, 0, 0, 480, 480); return await new Promise(resolve => croppedCanvas.toBlob(resolve, 'image/png')); } } finally { originalStyles.forEach(item => { item.element.style.display = item.originalDisplay; }); console.log('アートワークの切り出しが完了し、表示を元に戻しました。'); } }
     async function uploadToImgBB(imageBlob, fileName) { if (!IMGBB_API_KEY || IMGBB_API_KEY.includes('ここに')) { throw new Error('ImgBBのAPIキーが設定されていません。card_generator.jsを修正してください。'); } const formData = new FormData(); formData.append('image', imageBlob); if (fileName) { formData.append('name', fileName); } console.log(`ImgBBへのアップロードを開始します... ファイル名: ${fileName || '(指定なし)'}`); const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData, }); if (!response.ok) { let errorDetails = 'サーバーから詳細なエラーメッセージが返されませんでした。'; try { const errorData = await response.json(); errorDetails = errorData.error?.message || JSON.stringify(errorData); } catch (e) { errorDetails = await response.text(); } console.error('ImgBB API Error:', errorDetails); throw new Error(`ImgBBへのアップロードに失敗しました (HTTP ${response.status}): ${errorDetails}`); } const result = await response.json(); if (!result.success) { console.error('ImgBB APIがエラーを報告しました:', result.error.message); throw new Error(`ImgBB APIがエラーを報告しました: ${result.error.message}`); } console.log('ImgBBへのアップロードが成功しました。URL:', result.data.url); return result.data.url; }
-    function updatePreview() { const selectedColorId = cardColorSelect.value; const selectedType = (cardTypeSelect.value || '').toUpperCase(); const colorDetails = cardColorData[selectedColorId]; cardNameContent.classList.remove('title-styled'); textBoxContainer.classList.remove('textbox-styled'); cardNameContainer.style.backgroundImage = `url('Card_asset/タイトル.png')`; imageContainer.style.transition = 'none'; const isFullFrame = selectedType === 'FF' || selectedType === 'FFCF'; imageContainer.style.height = isFullFrame ? '720px' : '480px'; void imageContainer.offsetHeight; imageContainer.style.transition = ''; let templateName = `${selectedColorId}カード`; if (isFullFrame) { templateName += 'FF'; } if (selectedType === 'CF') { cardNameContent.classList.add('title-styled'); cardNameContainer.style.backgroundImage = 'none'; } else if (selectedType === 'FF') { textBoxContainer.classList.add('textbox-styled'); } else if (selectedType === 'FFCF') { cardNameContent.classList.add('title-styled'); textBoxContainer.classList.add('textbox-styled'); cardNameContainer.style.backgroundImage = 'none'; } const isDefaultImage = cardImage.src.includes('now_painting'); if (isDefaultImage) { const newSrc = isFullFrame ? 'Card_asset/now_painting_FF.png' : 'Card_asset/now_painting.png'; if (!cardImage.src.endsWith(newSrc)) { cardImage.src = newSrc; cardImage.onload = () => { setupImageForDrag(); checkDefaultImageTransparency(newSrc); }; } } cardTemplateImage.src = `Card_asset/テンプレ/${templateName}.png`; const selectedBackground = backgroundSelect.value; backgroundImage.style.display = selectedBackground ? 'block' : 'none'; if (selectedBackground) backgroundImage.src = `Card_asset/${selectedBackground}`; updateCardName(cardNameInput.value); const replacePunctuation = (text) => text.replace(/、/g, '､').replace(/。/g, '｡'); const addSpacingToChars = (text) => { return text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => { if (kernChars) return `<span class="char-kern">${kernChars}</span>`; if (parenChars) return `<span class="paren-fix">${parenChars}</span>`; return match; }); }; const processedEffectText = addSpacingToChars(replacePunctuation(effectInput.value)); effectDisplay.innerHTML = processedEffectText; const flavorText = replacePunctuation(flavorInput.value); const speakerText = replacePunctuation(flavorSpeakerInput.value); const flavorInnerText = flavorDisplay.querySelector('.inner-text'); if (speakerText) { flavorSpeakerDisplay.innerText = `─── ${speakerText}`; flavorSpeakerDisplay.style.display = 'block'; if (flavorInnerText) flavorInnerText.style.webkitLineClamp = '2'; } else { flavorSpeakerDisplay.innerText = ''; flavorSpeakerDisplay.style.display = 'none'; if (flavorInnerText) flavorInnerText.style.webkitLineClamp = '3'; } if (flavorInnerText) { flavorInnerText.innerText = flavorText; } else { flavorDisplay.innerHTML = `<div class="inner-text" style="-webkit-line-clamp: ${speakerText ? 2 : 3};">${flavorText}</div>`; } updateThemeColor(colorDetails); requestAnimationFrame(setupImageForDrag); }
+    
+    function updatePreview() {
+        const selectedColorId = cardColorSelect.value;
+        const selectedType = (cardTypeSelect.value || '').toUpperCase();
+        const colorDetails = cardColorData[selectedColorId];
+        cardNameContent.classList.remove('title-styled');
+        textBoxContainer.classList.remove('textbox-styled');
+        cardNameContainer.style.backgroundImage = `url('Card_asset/タイトル.png')`;
+        imageContainer.style.transition = 'none';
+        const isFullFrame = selectedType === 'FF' || selectedType === 'FFCF';
+        imageContainer.style.height = isFullFrame ? '720px' : '480px';
+        void imageContainer.offsetHeight;
+        imageContainer.style.transition = '';
+        let templateName = `${selectedColorId}カード`;
+        if (isFullFrame) {
+            templateName += 'FF';
+        }
+        if (selectedType === 'CF') {
+            cardNameContent.classList.add('title-styled');
+            cardNameContainer.style.backgroundImage = 'none';
+        } else if (selectedType === 'FF') {
+            textBoxContainer.classList.add('textbox-styled');
+        } else if (selectedType === 'FFCF') {
+            cardNameContent.classList.add('title-styled');
+            textBoxContainer.classList.add('textbox-styled');
+            cardNameContainer.style.backgroundImage = 'none';
+        }
+        const isDefaultImage = cardImage.src.includes('now_painting');
+        if (isDefaultImage) {
+            const newSrc = isFullFrame ? 'Card_asset/now_painting_FF.png' : 'Card_asset/now_painting.png';
+            if (!cardImage.src.endsWith(newSrc)) {
+                cardImage.src = newSrc;
+                cardImage.onload = () => {
+                    setupImageForDrag();
+                    checkDefaultImageTransparency(newSrc);
+                };
+            }
+        }
+        cardTemplateImage.src = `Card_asset/テンプレ/${templateName}.png`;
+        const selectedBackground = backgroundSelect.value;
+        backgroundImage.style.display = selectedBackground ? 'block' : 'none';
+        if (selectedBackground) backgroundImage.src = `Card_asset/${selectedBackground}`;
+        updateCardName(cardNameInput.value);
+        const replacePunctuation = (text) => text.replace(/、/g, '､').replace(/。/g, '｡');
+        const addSpacingToChars = (text) => {
+            return text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => {
+                if (kernChars) return `<span class="char-kern">${kernChars}</span>`;
+                if (parenChars) return `<span class="paren-fix">${parenChars}</span>`;
+                return match;
+            });
+        };
+        const processedEffectText = addSpacingToChars(replacePunctuation(effectInput.value));
+        effectDisplay.innerHTML = processedEffectText;
+
+        const flavorText = replacePunctuation(flavorInput.value.trim());
+        const speakerText = replacePunctuation(flavorSpeakerInput.value.trim());
+
+        // --- START: FINAL DYNAMIC LAYOUT LOGIC WITH LINE-SNAPPING ---
+    
+        // First, update the content and visibility of the flavor text and speaker elements.
+        if (!flavorText && !speakerText) {
+            flavorGroup.style.display = 'none';
+        } else {
+            flavorGroup.style.display = 'block';
+            if (flavorText) {
+                const flavorHtml = flavorText.replace(/\n/g, '<br>');
+                let flavorInnerText = flavorDisplay.querySelector('.inner-text');
+                if (!flavorInnerText) {
+                    flavorDisplay.innerHTML = '<div class="inner-text"></div>';
+                    flavorInnerText = flavorDisplay.querySelector('.inner-text');
+                }
+                flavorInnerText.innerHTML = flavorHtml;
+                flavorDisplay.style.display = 'block';
+            } else {
+                flavorDisplay.style.display = 'none';
+            }
+    
+            if (speakerText) {
+                flavorSpeakerDisplay.innerText = `─── ${speakerText}`;
+                flavorSpeakerDisplay.style.display = 'block';
+            } else {
+                flavorSpeakerDisplay.style.display = 'none';
+            }
+        }
+    
+        // Force the browser to reflow the layout to get the correct height of the flavor group.
+        textBoxContainer.offsetHeight;
+    
+        const totalHeight = 177.5; // Total height from CSS.
+        const flavorGroupHeight = flavorGroup.offsetHeight; // Get the actual rendered height.
+        const effectMarginBottom = 1; // From CSS.
+        const availablePixelHeight = totalHeight - flavorGroupHeight - effectMarginBottom;
+    
+        // Get the computed line-height for the effect text, which is crucial for line-snapping.
+        const effectStyle = window.getComputedStyle(effectDisplay);
+        const effectLineHeight = parseFloat(effectStyle.lineHeight);
+    
+        if (effectLineHeight > 0) {
+            // Calculate how many full lines can fit in the available space.
+            const numberOfLines = Math.floor(availablePixelHeight / effectLineHeight);
+            
+            // Calculate the new max-height that is an exact multiple of the line height.
+            // This "snaps" the container to the grid of the text lines, preventing partial lines.
+            const snappedMaxHeight = numberOfLines * effectLineHeight;
+            
+            // Apply the calculated max-height.
+            effectDisplay.style.maxHeight = `${Math.max(0, snappedMaxHeight)}px`;
+        } else {
+            // Fallback for safety, in case line-height isn't available for some reason.
+            effectDisplay.style.maxHeight = `${Math.max(0, availablePixelHeight)}px`;
+        }
+        
+        // --- END: FINAL DYNAMIC LAYOUT LOGIC ---
+    
+        updateThemeColor(colorDetails);
+        requestAnimationFrame(setupImageForDrag);
+    }
+
     function updateCardName(text) { const segments = text.split('`'); const htmlParts = segments.map((segment, index) => { if (index % 2 === 1) { const rubyMatch = segment.match(/(.+?)\((.+)\)/); if (rubyMatch) { const baseText = rubyMatch[1]; const rubyText = rubyMatch[2]; return `<ruby><rb>${baseText}</rb><rt>${rubyText}</rt></ruby>`; } } const escapedSegment = segment.replace(/</g, '<').replace(/>/g, '>'); return `<span class="no-ruby">${escapedSegment}</span>`; }); const finalHtml = htmlParts.join('\u200B'); const hasRuby = finalHtml.includes('<ruby>'); if (hasRuby) { cardNameContent.classList.remove('is-plain-text-only'); } else { cardNameContent.classList.add('is-plain-text-only'); } cardNameContent.innerHTML = `<span class="scaler">${finalHtml}</span>`; requestAnimationFrame(() => { const containerEl = cardNameContainer; const contentEl = cardNameContent; const scalerEl = contentEl.querySelector('.scaler'); if (!scalerEl) return; const availableWidth = contentEl.clientWidth; const trueTextWidth = scalerEl.scrollWidth; let containerLeft = '50%', containerTransformX = '-50%', contentTextAlign = 'center', scalerTransformOrigin = 'center', rtLeft = '50%', rtTransformX = 'calc(-50% + 1px)', scalerTransform = 'none'; if (trueTextWidth > availableWidth) { const scaleX = availableWidth / trueTextWidth; scalerTransform = `scaleX(${scaleX})`; containerLeft = '44px'; containerTransformX = '0'; contentTextAlign = 'left'; scalerTransformOrigin = 'left'; rtLeft = '0'; rtTransformX = '0'; } containerEl.style.left = containerLeft; containerEl.style.transform = `translateX(${containerTransformX})`; contentEl.style.textAlign = contentTextAlign; scalerEl.style.transformOrigin = scalerTransformOrigin; scalerEl.style.transform = scalerTransform; const rtElements = contentEl.querySelectorAll('rt'); rtElements.forEach(rt => { rt.style.left = rtLeft; rt.style.transform = `translateX(${rtTransformX})`; }); }); }
     function handleImageUpload(e) { const file = e.target.files[0]; if (file) { isNewImageSelected = true; imageFileName.textContent = file.name; const reader = new FileReader(); reader.onload = (e) => { const imageUrl = e.target.result; cardImage.src = imageUrl; cardImage.onload = () => { setupImageForDrag(); checkImageTransparency(imageUrl).then(hasTransparency => { const backgroundGroup = document.getElementById('background-select-group'); if (hasTransparency) { backgroundGroup.style.display = 'block'; backgroundSelect.value = 'hologram_geometric.png'; updatePreview(); } else { backgroundGroup.style.display = 'none'; if (backgroundSelect.value) { backgroundSelect.value = ''; updatePreview(); } } }); }; }; reader.readAsDataURL(file); } }
     function handleOverlayImageUpload(e) { const file = e.target.files[0]; if (file) { overlayImageFileName.textContent = file.name; const reader = new FileReader(); reader.onload = (e) => { overlayImage.src = e.target.result; overlayImage.style.display = 'block'; overlayImage.onload = () => { setupOverlayImageForDrag(); }; }; reader.readAsDataURL(file); } }
@@ -690,7 +807,64 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopDrag() { isDragging = false; updateDraggableCursor(); document.removeEventListener('mousemove', dragImage); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchmove', dragImage); document.removeEventListener('touchend', stopDrag); }
     function handleZoom(e) { e.preventDefault(); const state = activeManipulationTarget === 'base' ? imageState : overlayImageState; const container = activeManipulationTarget === 'base' ? imageContainer : overlayImageContainer; const scaleAmount = 0.1; const delta = e.deltaY > 0 ? -1 : 1; const oldScale = state.scale; state.scale = Math.max(1, Math.min(state.scale + delta * scaleAmount, 3)); const rect = container.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; state.x = mouseX - (mouseX - state.x) * (state.scale / oldScale); state.y = mouseY - (mouseY - state.y) * (state.scale / oldScale); clampImagePosition(); updateImageTransform(); updateDraggableCursor(); }
     function clampImagePosition() { const clamp = (state, image, container) => { if (!image.src || !image.naturalWidth) return; const containerWidth = container.offsetWidth; const containerHeight = container.offsetHeight; const scaledWidth = image.offsetWidth * state.scale; const scaledHeight = image.offsetHeight * state.scale; if (scaledWidth >= containerWidth) { const min_x = containerWidth - scaledWidth; const max_x = 0; state.x = Math.max(min_x, Math.min(max_x, state.x)); } else { const min_x = 0; const max_x = containerWidth - scaledWidth; state.x = Math.max(min_x, Math.min(max_x, state.x)); } if (scaledHeight >= containerHeight) { const min_y = containerHeight - scaledHeight; const max_y = 0; state.y = Math.max(min_y, Math.min(max_y, state.y)); } else { const min_y = 0; const max_y = containerHeight - scaledHeight; state.y = Math.max(min_y, Math.min(max_y, state.y)); } }; clamp(imageState, cardImage, imageContainer); clamp(overlayImageState, overlayImage, overlayImageContainer); }
-    function downloadCard(isTemplate = false) { if (!isTemplate && sparkleCheckbox.checked) { generateSparkleApng(); return; } const button = isTemplate ? downloadTemplateBtn : downloadBtn; const originalButtonText = button.textContent; button.textContent = '生成中...'; button.disabled = true; document.body.classList.add('is-rendering-output'); const originalTransform = previewPanel.style.transform; const originalWrapperHeight = previewWrapper.style.height; previewPanel.style.transform = 'none'; previewWrapper.style.height = 'auto'; document.fonts.ready.then(() => { setTimeout(() => { html2canvas(cardContainer, { backgroundColor: null, useCORS: true, scale: highResCheckbox.checked ? 2 : 1 }).then(canvas => { const link = document.createElement('a'); const fileName = isTemplate ? `${cardColorSelect.value}_${cardTypeSelect.value || 'Standard'}_template.png` : `${cardNameInput.value.replace(/[()`]/g, '') || 'custom_card'}.png`; link.download = fileName; link.href = canvas.toDataURL('image/png'); link.click(); }).catch(err => { console.error('画像生成に失敗しました。', err); showCustomAlert('エラーが発生しました。'); }).finally(() => { document.body.classList.remove('is-rendering-output'); button.textContent = originalButtonText; button.disabled = false; previewPanel.style.transform = originalTransform; previewWrapper.style.height = originalWrapperHeight; }); }, 100); }); }
+    function downloadCard(isTemplate = false) {
+    if (!isTemplate && sparkleCheckbox.checked) {
+        generateSparkleApng();
+        return;
+    }
+    const button = isTemplate ? downloadTemplateBtn : downloadBtn;
+    const originalButtonText = button.textContent;
+    button.textContent = '生成中...';
+    button.disabled = true;
+
+    // --- START: 1px FIX ---
+    const effectDisplay = document.getElementById('effect-display');
+    const originalMaxHeight = effectDisplay.style.maxHeight;
+    // ダウンロード時のみ高さを2px減らして見切れを防止
+    const currentMaxHeight = parseFloat(originalMaxHeight);
+    if (!isNaN(currentMaxHeight) && currentMaxHeight > 2) {
+        effectDisplay.style.maxHeight = `${currentMaxHeight - 2}px`;
+    }
+    // --- END: 1px FIX ---
+
+    document.body.classList.add('is-rendering-output');
+    const originalTransform = previewPanel.style.transform;
+    const originalWrapperHeight = previewWrapper.style.height;
+    previewPanel.style.transform = 'none';
+    previewWrapper.style.height = 'auto';
+
+    document.fonts.ready.then(() => {
+        setTimeout(() => {
+            html2canvas(cardContainer, {
+                backgroundColor: null,
+                useCORS: true,
+                scale: highResCheckbox.checked ? 2 : 1
+            }).then(canvas => {
+                const link = document.createElement('a');
+                const fileName = isTemplate ?
+                    `${cardColorSelect.value}_${cardTypeSelect.value || 'Standard'}_template.png` :
+                    `${cardNameInput.value.replace(/[()`]/g, '') || 'custom_card'}.png`;
+                link.download = fileName;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error('画像生成に失敗しました。', err);
+                showCustomAlert('エラーが発生しました。');
+            }).finally(() => {
+                document.body.classList.remove('is-rendering-output');
+                button.textContent = originalButtonText;
+                button.disabled = false;
+                previewPanel.style.transform = originalTransform;
+                previewWrapper.style.height = originalWrapperHeight;
+                
+                // --- START: RESTORE ORIGINAL HEIGHT ---
+                // プレビュー表示のため、高さを元に戻す
+                effectDisplay.style.maxHeight = originalMaxHeight;
+                // --- END: RESTORE ORIGINAL HEIGHT ---
+            });
+        }, 100);
+    });
+}
     async function createSparkleApngBlob() { const baseImageElements = [backgroundImage, cardTemplateImage, imageContainer, overlayImageContainer]; const textElements = [cardNameContainer, textBoxContainer]; textElements.forEach(el => el.style.opacity = 0); sparkleOverlayImage.style.display = 'none'; await new Promise(r => setTimeout(r, 100)); const baseCanvas = await html2canvas(cardContainer, { backgroundColor: null, useCORS: true, scale: 1 }); textElements.forEach(el => el.style.opacity = 1); baseImageElements.forEach(el => el.style.opacity = 0); await new Promise(r => setTimeout(r, 100)); const textCanvas = await html2canvas(cardContainer, { backgroundColor: null, useCORS: true, scale: 1 }); const sparkleBuffer = await new Promise((resolve, reject) => { const xhr = new XMLHttpRequest(); xhr.open('GET', 'Card_asset/加算してキラキラ.png', true); xhr.responseType = 'arraybuffer'; xhr.onload = function() { if (this.status === 200 || this.status === 0) resolve(this.response); else reject(new Error(`キラキラ素材の読み込みに失敗しました (HTTP Status: ${this.status})`)); }; xhr.onerror = () => reject(new Error('キラキラ素材の読み込みでネットワークエラーが発生しました。')); xhr.send(); }); let sparkleApng = UPNG.decode(sparkleBuffer); const sparkleFrames = UPNG.toRGBA8(sparkleApng); const newFrames = []; const { width, height } = baseCanvas; for (let i = 0; i < sparkleFrames.length; i++) { const frameData = sparkleFrames[i]; const frameCanvas = document.createElement('canvas'); frameCanvas.width = width; frameCanvas.height = height; const frameCtx = frameCanvas.getContext('2d'); frameCtx.drawImage(baseCanvas, 0, 0); const tempSparkleCanvas = document.createElement('canvas'); tempSparkleCanvas.width = sparkleApng.width; tempSparkleCanvas.height = sparkleApng.height; tempSparkleCanvas.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(frameData), sparkleApng.width, sparkleApng.height), 0, 0); frameCtx.globalCompositeOperation = 'lighter'; frameCtx.drawImage(tempSparkleCanvas, 0, 0, width, height); frameCtx.globalCompositeOperation = 'source-over'; frameCtx.drawImage(textCanvas, 0, 0); newFrames.push(frameCtx.getImageData(0, 0, width, height).data.buffer); } const delays = sparkleApng.frames.map(f => f.delay); const newApngBuffer = UPNG.encode(newFrames, width, height, 0, delays); const blob = new Blob([newApngBuffer], { type: 'image/png' }); textElements.forEach(el => el.style.opacity = 1); baseImageElements.forEach(el => el.style.opacity = 1); sparkleOverlayImage.style.display = sparkleCheckbox.checked ? 'block' : 'none'; return blob; }
     async function generateSparkleApng() { const button = downloadBtn; const originalButtonText = button.textContent; button.textContent = 'キラAPNGを生成中...'; button.disabled = true; const originalTransform = previewPanel.style.transform; const originalWrapperHeight = previewWrapper.style.height; previewPanel.style.transform = 'none'; previewWrapper.style.height = 'auto'; try { const blob = await createSparkleApngBlob(); const link = document.createElement('a'); const fileName = `${(cardNameInput.value || 'custom_card').replace(/[()`]/g, '')}_kira.png`; link.download = fileName; link.href = URL.createObjectURL(blob); link.click(); URL.revokeObjectURL(link.href); } catch (err) { console.error('キラAPNGの生成に失敗しました。', err); showCustomAlert(`キラAPNGの生成中にエラーが発生しました。\n詳細: ${err.message}`); } finally { button.textContent = originalButtonText; button.disabled = false; previewPanel.style.transform = originalTransform; previewWrapper.style.height = originalWrapperHeight; } }
     function hexToRgb(hex) { const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; }

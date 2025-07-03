@@ -187,14 +187,11 @@ html, body {
     width: 392px;
     height: 177.5px;
     display: flex;
-    flex-direction: column-reverse;
-    justify-content: flex-start;
-    align-items: stretch;
+    flex-direction: column;
 }
 
 #effect-display {
     position: relative;
-    flex-grow: 1;
     overflow: hidden;
     font-size: 20px;
     font-family: "nitalago-ruika", sans-serif;
@@ -204,7 +201,7 @@ html, body {
     line-height: 1.25;
     text-align: left;
     padding: 0 16px;
-    margin-bottom: 5px;
+    margin-bottom: 1px;
     font-feature-settings: "palt";
     letter-spacing: 0px;
     overflow-wrap: break-word;
@@ -223,8 +220,13 @@ html, body {
 }
 #flavor-group {
     position: relative;
-    flex-shrink: 0;
     width: 100%;
+    margin-top: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    order: 2; /* この行を追加 */
 }
 #flavor-display {
     position: relative;
@@ -238,17 +240,16 @@ html, body {
     margin-bottom: 5px;
     letter-spacing: 0.05em;
     font-feature-settings: "palt";
+    flex-grow: 1; /* この行を追加：フレーバーグループ内で可能な限り伸びる */
+    overflow: hidden; /* この行を追加：自身のテキストが溢れたら隠す */
 }
 #flavor-display > .inner-text {
     width: 100%;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
     word-break: break-word;
     overflow-wrap: break-word;
 }
 #flavor-speaker-display {
-    position: relative;
+    position: relative;    /* absoluteから変更 */
     font-size: 16px;
     font-family: "Klee One";
     color: rgb(0, 0, 0);
@@ -262,7 +263,10 @@ html, body {
     height: 25px;
     letter-spacing: 0.05em;
     font-feature-settings: "palt";
+    order: 2;          /* この行を追加 */
+    flex-shrink: 0;    /* この行を追加 */
 }
+
 
 #image-container { position: absolute; top: 0; left: 0; width: 480px; height: 480px; z-index: 1; overflow: hidden; cursor: default; transition: height 0.3s ease; }
 #card-image { position: absolute; transform-origin: center; }
@@ -1079,3 +1083,4 @@ html, body {
     background-color: #a3a3a3;
     color: #fff;
 }
+
