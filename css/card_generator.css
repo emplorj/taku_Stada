@@ -179,13 +179,6 @@ html, body {
   text-stroke: 0;
   paint-order: normal;
 }
-.char-kern {
-    letter-spacing: 0.04em; /* アルファベット、数字、ハイフンの文字間を広げる */
-}
-
-.paren-fix {
-    letter-spacing: -0.05em; /* 括弧の文字間を狭める */
-}
 /* =================================================== */
 /* ★★★ ここからがレイアウトの最終修正箇所です ★★★ */
 /* =================================================== */
@@ -1096,4 +1089,28 @@ html, body {
 .light-theme-ui .custom-modal-actions .secondary-button:hover {
     background-color: #a3a3a3;
     color: #fff;
+}
+
+/* =================================================== */
+/* ★★★ 画像出力時のズレを補正するための【決定版】 ★★★ */
+/* =================================================== */
+
+.is-rendering-output #effect-display {
+    /* これが最も重要。ブラウザの高度な文字幅調整機能(palt)を無効化します。*/
+    /* これにより、html2canvasでもブラウザでも文字幅の計算方法が揃います。*/
+    font-feature-settings: normal !important;
+
+    /* ただし、paltを無効にすると文字は全体的に太り、プレビューより早く改行されてしまいます。*/
+    /* そこで、文字間を全体的に詰めることで、強制的にプレビューの改行位置に近づけます。*/
+    /* この数値を -0.06em や -0.08em などに変えると、さらに微調整が可能です。*/
+    letter-spacing: -0.01em !important;
+}
+
+/* 括弧や英数字は、上記の全体的な文字詰め設定の影響を受けすぎるため、*/
+/* それらの文字だけは文字間をリセット（または微調整）して、見た目のバランスを保ちます。*/
+.is-rendering-output #effect-display .paren-fix {
+    letter-spacing: -0.04em !important;
+}
+.is-rendering-output #effect-display .char-kern {
+    letter-spacing: 0.2em !important;
 }
