@@ -17,10 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
     sortGroup.innerHTML = `
             <label for="sort-select">並び替え・フィルター</label>
             <select id="sort-select">
-                <option value="default">デフォルト</option>
-                <option value="difficulty-desc">難易度 (高い順)</option><option value="difficulty-asc">難易度 (低い順)</option>
-                <option value="loss-desc">ロスト率 (高い順)</option><option value="loss-asc">ロスト率 (低い順)</option>
-                <option value="hardship-desc">しんどさ (高い順)</option><option value="hardship-asc">しんどさ (低い順)</option>
+               <option value="default">デフォルト</option>
+               <option value="difficulty-desc">難易度 (高い順)</option><option value="difficulty-asc">難易度 (低い順)</option>
+               <option value="loss-desc">ロスト率 (高い順)</option><option value="loss-asc">ロスト率 (低い順)</option>
+               <option value="hardship-desc">しんどさ (高い順)</option><option value="hardship-asc">しんどさ (低い順)</option>
+               <option value="players-desc">人数 (多い順)</option><option value="players-asc">人数 (少ない順)</option>
+               <option value="days-desc">日数 (多い順)</option><option value="days-asc">日数 (少ない順)</option>
+               <option value="charSpec-desc">キャラ指定度 (高い順)</option><option value="charSpec-asc">キャラ指定度 (低い順)</option>
             </select>`;
     filterControls.appendChild(sortGroup);
     const filterCategories = {
@@ -36,19 +39,29 @@ document.addEventListener("DOMContentLoaded", () => {
       group.innerHTML = `<button class="filter-trigger-btn" data-filter="${key}">${label}</button>`;
       filterControls.appendChild(group);
     }
-    const unplayedFilterGroup = document.createElement("div");
-    unplayedFilterGroup.className = "switch-filter-group";
-    unplayedFilterGroup.innerHTML = `
-            <label for="show-unplayed-toggle">「未走」シナリオを表示</label>
-            <input type="checkbox" id="show-unplayed-toggle" class="switch" checked>
-        `;
-    filterControls.appendChild(unplayedFilterGroup);
+    const displayFilterGroup = document.createElement("div");
+    displayFilterGroup.className = "checkbox-filter-group";
+    displayFilterGroup.innerHTML = `
+           <label>表示シナリオ</label>
+           <div class="checkboxes">
+               <input type="checkbox" id="show-unplayed-toggle" value="unplayed" checked><label for="show-unplayed-toggle">未走</label>
+               <input type="checkbox" id="show-beginner-toggle" value="beginner" checked><label for="show-beginner-toggle">スタダ</label>
+               <input type="checkbox" id="show-secret-toggle" value="secret" checked><label for="show-secret-toggle">秘匿</label>
+           </div>
+       `;
+    filterControls.appendChild(displayFilterGroup);
     controlsContainer.appendChild(filterControls);
     document
       .getElementById("sort-select")
       .addEventListener("change", applyFiltersAndSort);
     document
       .getElementById("show-unplayed-toggle")
+      .addEventListener("change", applyFiltersAndSort);
+    document
+      .getElementById("show-beginner-toggle")
+      .addEventListener("change", applyFiltersAndSort);
+    document
+      .getElementById("show-secret-toggle")
       .addEventListener("change", applyFiltersAndSort);
     document
       .querySelectorAll(".filter-trigger-btn")
@@ -119,16 +132,41 @@ document.addEventListener("DOMContentLoaded", () => {
         (cb) => cb.value
       );
     };
+
     const sortValue = document.getElementById("sort-select").value;
     const showUnplayed = document.getElementById(
       "show-unplayed-toggle"
     ).checked;
+    const showBeginner = document.getElementById(
+      "show-beginner-toggle"
+    ).checked;
+    const showSecret = document.getElementById("show-secret-toggle").checked;
+
     const playersFilter = getCheckedValues("players");
     const difficultyFilter = getCheckedValues("difficulty");
     const lossFilter = getCheckedValues("loss");
     const hardshipFilter = getCheckedValues("hardship");
     const charSpecFilter = getCheckedValues("charSpec");
+
+    const checkRating = (filter, reviewValue, key) => {
+      if (!filter) return true;
+      if (key === "charSpec") {
+        return filter.includes(reviewValue);
+      }
+      const valueStr = reviewValue ? reviewValue.replace("★", "") : "";
+      return filter.includes(valueStr);
+    };
+
     const filterFunction = (s) => {
+      // 表示フィルター
+      const isNormalPlayed = !s.isUnplayed && !s.isBeginner && !s.isSecret;
+      let isDisplayed = isNormalPlayed;
+      if (showUnplayed && s.isUnplayed) isDisplayed = true;
+      if (showBeginner && s.isBeginner) isDisplayed = true;
+      if (showSecret && s.isSecret) isDisplayed = true;
+      if (!isDisplayed) return false;
+
+      // 項目別フィルター
       if (playersFilter) {
         let match = playersFilter.some((filterVal) => {
           if (filterVal === "free" && s.players.isFree) return true;
@@ -139,50 +177,59 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         if (!match) return false;
       }
+
       const firstReview = s.reviews[0];
-      if (!firstReview) return true;
-      const checkRating = (filter, reviewValue) => {
-        if (!filter) return true;
-        const valueStr = reviewValue.replace("★", "");
-        return filter.includes(valueStr);
-      };
-      if (
-        difficultyFilter &&
-        !checkRating(difficultyFilter, firstReview.difficulty)
-      )
+      if (!firstReview) return true; // レビューがないものは以降のフィルターはパス
+
+      if (!checkRating(difficultyFilter, firstReview.difficulty, "difficulty"))
         return false;
-      if (lossFilter && !checkRating(lossFilter, firstReview.lossRate))
+      if (!checkRating(lossFilter, firstReview.lossRate, "loss")) return false;
+      if (!checkRating(hardshipFilter, firstReview.hardship, "hardship"))
         return false;
-      if (hardshipFilter && !checkRating(hardshipFilter, firstReview.hardship))
+      if (!checkRating(charSpecFilter, firstReview.charSpec, "charSpec"))
         return false;
-      if (charSpecFilter && !checkRating(charSpecFilter, firstReview.charSpec))
-        return false;
+
       return true;
     };
-    let filteredPlayed = allScenarios.played.filter(filterFunction);
-    let filteredUnplayed = showUnplayed
-      ? allScenarios.unplayed.filter(filterFunction)
-      : [];
+
+    const allFiltered = [
+      ...allScenarios.played,
+      ...allScenarios.unplayed,
+    ].filter(filterFunction);
+
     if (sortValue !== "default") {
       const [key, order] = sortValue.split("-");
       const sortKeyMap = {
         difficulty: "difficulty",
         loss: "lossRate",
         hardship: "hardship",
+        charSpec: "charSpec",
+        players: "players",
+        days: "days",
       };
       const sortKey = sortKeyMap[key];
-      const sortFunction = (a, b) => {
-        const valA = getStarValue(
-          a.reviews.length > 0 ? a.reviews[0][sortKey] : "0"
-        );
-        const valB = getStarValue(
-          b.reviews.length > 0 ? b.reviews[0][sortKey] : "0"
-        );
+
+      allFiltered.sort((a, b) => {
+        let valA, valB;
+        if (key === "players") {
+          valA = a.players.min;
+          valB = b.players.min;
+        } else if (key === "days") {
+          valA = a.days.min;
+          valB = b.days.min;
+        } else {
+          const reviewA = a.reviews.length > 0 ? a.reviews[0][sortKey] : "0";
+          const reviewB = b.reviews.length > 0 ? b.reviews[0][sortKey] : "0";
+          valA = getStarValue(reviewA);
+          valB = getStarValue(reviewB);
+        }
         return order === "asc" ? valA - valB : valB - valA;
-      };
-      filteredPlayed.sort(sortFunction);
-      filteredUnplayed.sort(sortFunction);
+      });
     }
+
+    const filteredPlayed = allFiltered.filter((s) => !s.isUnplayed);
+    const filteredUnplayed = allFiltered.filter((s) => s.isUnplayed);
+
     renderCards(filteredPlayed, filteredUnplayed);
   }
 
@@ -448,6 +495,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const getStarValue = (str) => {
     if (!str) return 0;
+    if (str === "継続") return 7; // ソートで一番上に来るように仮の値を設定
+    if (str.startsWith("★?")) return -1; // 不明は下に
+    if (str === "★-") return 0;
     const match = str.match(/★(\d+)/);
     return match ? parseInt(match[1], 10) : 0;
   };

@@ -78,6 +78,55 @@ main.main-content {
   border-color: var(--coc-primary);
 }
 
+/* --- Checkbox Filter Group --- */
+.checkbox-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.checkbox-filter-group .checkboxes {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.checkbox-filter-group label {
+  font-size: 0.9em;
+  color: var(--coc-text-secondary);
+  font-weight: bold;
+}
+
+.checkbox-filter-group .checkboxes label {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: var(--coc-dark-item-bg);
+  border: 1px solid var(--coc-border-color);
+  color: var(--coc-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9em;
+  font-weight: normal;
+  transition: all 0.2s ease;
+  height: 21px; /* filter-groupのボタンと高さを合わせる */
+  line-height: 21px; /* テキストを中央に */
+}
+
+.checkbox-filter-group .checkboxes input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-filter-group .checkboxes input[type="checkbox"]:checked + label {
+  background-color: var(--coc-primary);
+  color: #000;
+  border-color: var(--coc-primary);
+}
+
+.checkbox-filter-group .checkboxes label:hover {
+  border-color: var(--coc-primary);
+}
+
 /* --- Popover Window Style --- */
 .popover-container {
   position: absolute;
@@ -295,24 +344,36 @@ input[type="checkbox"].switch:checked::after {
   color: var(--coc-text-primary);
   font-weight: bold;
 }
+.stat-item.rating-1 {
+  border-color: #a4c2f4;
+}
 .stat-item.rating-1 .label {
-  color: #87cefa;
+  color: #a4c2f4;
+}
+.stat-item.rating-2 {
+  border-color: #b6d7a8;
 }
 .stat-item.rating-2 .label {
-  color: #93c47d;
+  color: #b6d7a8;
+}
+.stat-item.rating-3 {
+  border-color: #ffe599;
 }
 .stat-item.rating-3 .label {
-  color: #ffd966;
+  color: #ffe599;
+}
+.stat-item.rating-4 {
+  border-color: #f6b26b;
 }
 .stat-item.rating-4 .label {
-  color: #ea9999;
+  color: #f6b26b;
 }
 .stat-item.rating-5 {
   background-color: var(--coc-danger);
   border-color: var(--coc-danger);
 }
 .stat-item.rating-6 {
-  background-color: #000;
+  background-color: #000000;
   border: 1px solid var(--coc-gold);
   animation: aura-pulse 2s infinite ease-in-out;
 }
