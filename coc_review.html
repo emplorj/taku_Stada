@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoCシナリオレビュー</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/coc_review.css">
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+    <canvas id="particleCanvas"></canvas>
+
+    <main class="main-content">
+        <h1 class="font-logojrblack">CoCシナリオレビュー</h1>
+        <div class="plain-text-block">
+            <p>
+                クトゥルフ神話TRPGシナリオの感想やレビューをまとめたページです。<br>
+                データはGoogleスプレッドシートから直接引用しており、難易度評価などが記載されているシナリオのみ表示しています。<br>
+            </p>
+        </div>
+        <a href="https://docs.google.com/spreadsheets/d/17wStGJ37GjaINrjZMFZgmacYOPeH9F8ZiahhtJd_nxI/edit?gid=408928216"
+            target="_blank" rel="noopener noreferrer" class="rich-link-card">
+            <div class="rich-link-icon"><img src="img/spreadsheet.svg" alt="スプレッドシート" class="menu-icon"></div>
+            <div class="rich-link-content">
+                <div class="rich-link-title">スプレッドシート</div>
+                <div class="rich-link-description">
+                    ここからフォームが送れるぞ！お待ちしております！</div>
+            </div>
+            <div class="rich-link-arrow">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </div>
+        </a>
+
+        <!-- ★★★ JSがフィルターコントロールとポップオーバーをここに挿入 ★★★ -->
+        <div id="controls-container"></div>
+
+        <section id="scenario-list-placeholder" class="scenario-list">
+            <p style="text-align: center; font-size: 1.2em;">シナリオデータを読み込み中です...</p>
+        </section>
+    </main>
+
+    <button onclick="topFunction()" id="backToTopBtn" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <script src="js/common.js"></script>
+    <script src="js/coc_review_loader.js"></script>
+</body>
+
+</html>
