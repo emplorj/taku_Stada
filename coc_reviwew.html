@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoCシナリオレビュー</title>
+    <!-- Font Awesome Kit -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/coc_reviwew.css">
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+    <canvas id="particleCanvas"></canvas>
+    <main class="main-content">
+        <h1 class="font-logojrblack">CoCシナリオレビュー</h1>
+        <div class="plain-text-block">
+            <p>
+                こちらは身内サーバーで回されたCoC(クトゥルフ神話TRPG)シナリオの感想やレビューをまとめたページです。<br>
+                データはサーバー内のスプレッドシートから自動で引用しており、難易度評価などが記載されているシナリオのみ表示しています。<br>
+                <strong><i class="fa-solid fa-triangle-exclamation"></i> ネタバレに関する配慮は一切ないため、閲覧にはご注意ください。</strong>
+            </p>
+        </div>
+
+        <section class="scenario-list">
+
+            <div class="scenario-card" id="scenario-0">
+                <div class="scenario-card-header">
+                    <h2><a href="https://www.pixiv.net/novel/show.php?id=6720987" target="_blank"
+                            rel="noopener noreferrer">どうぞお切りください</a></h2>
+                    <div class="author">URL: <a href="https://www.pixiv.net/novel/show.php?id=6720987" target="_blank"
+                            rel="noopener noreferrer">https://www.pixiv.net/novel/show.php?id=6720987</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>ハマった時の爽快感がよかった……（あばれ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-1">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/5649642" target="_blank"
+                            rel="noopener noreferrer">コーヒー一杯ぶんの恐怖</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/5649642" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/5649642</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>初CoCにオススメ（ペドロマ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-2">
+                <div class="scenario-card-header">
+                    <h2>ノン・プレイアブル</h2>
+                    <div class="author">作者: エンJ</div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>インディーゲーム好きな人にはすごく刺さると思います（あばれ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-3">
+                <div class="scenario-card-header">
+                    <h2><a href="https://www.pixiv.net/novel/show.php?id=11186717" target="_blank"
+                            rel="noopener noreferrer">誰がロックを殺すのか</a></h2>
+                    <div class="author">URL: <a href="https://www.pixiv.net/novel/show.php?id=11186717" target="_blank"
+                            rel="noopener noreferrer">https://www.pixiv.net/novel/show.php?id=11186717</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-4">
+                <div class="scenario-card-header">
+                    <h2><a href="https://sabaku-yozora.booth.pm/items/2432227" target="_blank"
+                            rel="noopener noreferrer">ようこそ！迷冥市役所都市伝説課へ！</a></h2>
+                    <div class="author">URL: <a href="https://sabaku-yozora.booth.pm/items/2432227" target="_blank"
+                            rel="noopener noreferrer">https://sabaku-yozora.booth.pm/items/2432227</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>都市伝説が好きならオススメ！（しるべ）
+                            R-18だけどエロはないよ（エンJ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-5">
+                <div class="scenario-card-header">
+                    <h2><a href="https://myao.booth.pm/items/2907962" target="_blank" rel="noopener noreferrer">VOID</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://myao.booth.pm/items/2907962" target="_blank"
+                            rel="noopener noreferrer">https://myao.booth.pm/items/2907962</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★5</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-6">
+                <div class="scenario-card-header">
+                    <h2><a href="https://fanpla-s.booth.pm/items/5461776" target="_blank"
+                            rel="noopener noreferrer">がいがい</a></h2>
+                    <div class="author">URL: <a href="https://fanpla-s.booth.pm/items/5461776" target="_blank"
+                            rel="noopener noreferrer">https://fanpla-s.booth.pm/items/5461776</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>さっくり死にかける。激アツRPもできる。(天白)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-7">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/2697064" target="_blank"
+                            rel="noopener noreferrer">今日はさくさくルースのクッキーを作ります！</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/2697064" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/2697064</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-8">
+                <div class="scenario-card-header">
+                    <h2><a href="https://fanpla-s.booth.pm/items/5118373" target="_blank"
+                            rel="noopener noreferrer">森のタヌキにご用心</a></h2>
+                    <div class="author">URL: <a href="https://fanpla-s.booth.pm/items/5118373" target="_blank"
+                            rel="noopener noreferrer">https://fanpla-s.booth.pm/items/5118373</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-9">
+                <div class="scenario-card-header">
+                    <h2><a href="https://ujacs.booth.pm/items/5928676" target="_blank"
+                            rel="noopener noreferrer">シャコ食べにきたらミ=ゴがいた</a></h2>
+                    <div class="author">URL: <a href="https://ujacs.booth.pm/items/5928676" target="_blank"
+                            rel="noopener noreferrer">https://ujacs.booth.pm/items/5928676</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-10">
+                <div class="scenario-card-header">
+                    <h2>片鱗</h2>
+                    <div class="author">作者: 期間限定</div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-11">
+                <div class="scenario-card-header">
+                    <h2><a href="https://www.pixiv.net/novel/show.php?id=9232553" target="_blank"
+                            rel="noopener noreferrer">庭師は何を口遊む</a></h2>
+                    <div class="author">URL: <a href="https://www.pixiv.net/novel/show.php?id=9232553" target="_blank"
+                            rel="noopener noreferrer">https://www.pixiv.net/novel/show.php?id=9232553</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-12">
+                <div class="scenario-card-header">
+                    <h2><a href="https://tabakoya-syoukai.booth.pm/items/3403696" target="_blank"
+                            rel="noopener noreferrer">鰯と柊</a></h2>
+                    <div class="author">URL: <a href="https://tabakoya-syoukai.booth.pm/items/3403696" target="_blank"
+                            rel="noopener noreferrer">https://tabakoya-syoukai.booth.pm/items/3403696</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-13">
+                <div class="scenario-card-header">
+                    <h2>うみがめ入りスープ</h2>
+                    <div class="author">作者: まいまい</div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>気軽に継続しましょうね、のシナリオです（まいまい）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-14">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/6033051" target="_blank"
+                            rel="noopener noreferrer">実録！！幻夢境の奇祭ムーンビーストころがし祭</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/6033051" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/6033051</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>CoCってか、ボドゲっぽい！大喜利シナリオ(天白)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-15">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1613139" target="_blank"
+                            rel="noopener noreferrer">共倒れグランギニョル</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1613139" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1613139</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>全ての技能が推奨技能、こじつけてドミノを並べよう(天白)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-16">
+                <div class="scenario-card-header">
+                    <h2><a href="https://yumetarou-tomato.booth.pm/items/5387724" target="_blank"
+                            rel="noopener noreferrer">慄け！因習村</a></h2>
+                    <div class="author">URL: <a href="https://yumetarou-tomato.booth.pm/items/5387724" target="_blank"
+                            rel="noopener noreferrer">https://yumetarou-tomato.booth.pm/items/5387724</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>温泉旅行に行って成り行きで因習村を破壊する、それだけ。(天白)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-17">
+                <div class="scenario-card-header">
+                    <h2><a href="https://talto.cc/projects/fKhjT1Guis2Te0_PZNBaf" target="_blank"
+                            rel="noopener noreferrer">ここはたのしいうさのくに</a></h2>
+                    <div class="author">URL: <a href="https://talto.cc/projects/fKhjT1Guis2Te0_PZNBaf" target="_blank"
+                            rel="noopener noreferrer">https://talto.cc/projects/fKhjT1Guis2Te0_PZNBaf</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>しんどさは人によっては☆2になるかも！(曇天)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-18">
+                <div class="scenario-card-header">
+                    <h2><a href="https://noyf.booth.pm/items/3469712" target="_blank" rel="noopener noreferrer">5W1H</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://noyf.booth.pm/items/3469712" target="_blank"
+                            rel="noopener noreferrer">https://noyf.booth.pm/items/3469712</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★?</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>特殊ギミックが楽しい（ペドロマ）</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>初心者にもオススメ。ただし初回向けではないかも（ペドロマ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-19">
+                <div class="scenario-card-header">
+                    <h2><a href="https://miyasitahanahana.booth.pm/items/2075651" target="_blank"
+                            rel="noopener noreferrer">蹂躙するは我が手にて</a></h2>
+                    <div class="author">URL: <a href="https://miyasitahanahana.booth.pm/items/2075651" target="_blank"
+                            rel="noopener noreferrer">https://miyasitahanahana.booth.pm/items/2075651</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>ロスト率：低だけは嘘だから気をつけろ！（エンJ）
+                            ロスト率：低じゃない！！きっと！！！(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-20">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/3134740" target="_blank" rel="noopener noreferrer">唸れ！
+                            暁コメディーショー</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/3134740" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/3134740</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>芸人のアツい部分をおもいっきりできます！ボケツッコミが決まっているのでキャラ指定星３！（ガ行）</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>芸人やりたい人は集まれー（ガ行）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-21">
+                <div class="scenario-card-header">
+                    <h2><a href="https://ydkypm.booth.pm/items/2337267" target="_blank"
+                            rel="noopener noreferrer">うまずめのはら</a></h2>
+                    <div class="author">URL: <a href="https://ydkypm.booth.pm/items/2337267" target="_blank"
+                            rel="noopener noreferrer">https://ydkypm.booth.pm/items/2337267</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>孕む以外は初心者向けのシナリオです（しるべ）</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>孕みませんか？(しるべ)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-22">
+                <div class="scenario-card-header">
+                    <h2><a href="https://fanpla-s.booth.pm/items/6541063" target="_blank"
+                            rel="noopener noreferrer">知らぬが手向け</a></h2>
+                    <div class="author">URL: <a href="https://fanpla-s.booth.pm/items/6541063" target="_blank"
+                            rel="noopener noreferrer">https://fanpla-s.booth.pm/items/6541063</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>探索者はいつでも探索を切り上げることができます。(天白)</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>こわかった(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-23">
+                <div class="scenario-card-header">
+                    <h2><a href="https://www.pixiv.net/novel/show.php?id=16589660" target="_blank"
+                            rel="noopener noreferrer">ゼロごはん</a></h2>
+                    <div class="author">URL: <a href="https://www.pixiv.net/novel/show.php?id=16589660" target="_blank"
+                            rel="noopener noreferrer">https://www.pixiv.net/novel/show.php?id=16589660</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">継続</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-24">
+                <div class="scenario-card-header">
+                    <h2><a href="https://cthulhumasters.booth.pm/items/5969392" target="_blank"
+                            rel="noopener noreferrer">クラウド・ジョーズ～地獄の艦隊～</a></h2>
+                    <div class="author">URL: <a href="https://cthulhumasters.booth.pm/items/5969392" target="_blank"
+                            rel="noopener noreferrer">https://cthulhumasters.booth.pm/items/5969392</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>人によってはキレる（エンJ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-25">
+                <div class="scenario-card-header">
+                    <h2><a href="https://tukimeguri.booth.pm/items/3086808" target="_blank"
+                            rel="noopener noreferrer">爛爛</a></h2>
+                    <div class="author">URL: <a href="https://tukimeguri.booth.pm/items/3086808" target="_blank"
+                            rel="noopener noreferrer">https://tukimeguri.booth.pm/items/3086808</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★4</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>愛、だね。TRPG歴長い人ほど〝ク〟る。(天白)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-26">
+                <div class="scenario-card-header">
+                    <h2><a href="https://fukubiki-ken.booth.pm/items/5613127" target="_blank"
+                            rel="noopener noreferrer">俺たちの同人誌が出回ってるんだが！？</a></h2>
+                    <div class="author">URL: <a href="https://fukubiki-ken.booth.pm/items/5613127" target="_blank"
+                            rel="noopener noreferrer">https://fukubiki-ken.booth.pm/items/5613127</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-27">
+                <div class="scenario-card-header">
+                    <h2><a href="https://akitako.booth.pm/items/4869324" target="_blank"
+                            rel="noopener noreferrer">エクソシスト vs 霊能者</a></h2>
+                    <div class="author">URL: <a href="https://akitako.booth.pm/items/4869324" target="_blank"
+                            rel="noopener noreferrer">https://akitako.booth.pm/items/4869324</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>VSとありますがPvPはありません。(天白)</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>情報を得るための質問やPL作戦会議を積極的にできると嬉しい。(天白)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-28">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1164423" target="_blank"
+                            rel="noopener noreferrer">キルキルイキル</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1164423" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1164423</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★6</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★6</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>こんなシナリオ来るんじゃない。(しるべ)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-29">
+                <div class="scenario-card-header">
+                    <h2>オルガノドロイド</h2>
+                    <div class="author">作者: 現在削除済</div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">継続</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>3/31に回したら4/1に公開停止してました。（エンJ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-30">
+                <div class="scenario-card-header">
+                    <h2><a href="https://fightdog.booth.pm/items/6073231" target="_blank"
+                            rel="noopener noreferrer">やさしいキミのこわしかた</a></h2>
+                    <div class="author">URL: <a href="https://fightdog.booth.pm/items/6073231" target="_blank"
+                            rel="noopener noreferrer">https://fightdog.booth.pm/items/6073231</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★6</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★?</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-31">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/3563200" target="_blank"
+                            rel="noopener noreferrer">ロトカ・ヴォルテラの愛堕討ち</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/3563200" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/3563200</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★4</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-32">
+                <div class="scenario-card-header">
+                    <h2><a href="https://talto.cc/projects/ci34dte3OHn5hH7JERb_Q" target="_blank"
+                            rel="noopener noreferrer">████が消えた夏</a></h2>
+                    <div class="author">URL: <a href="https://talto.cc/projects/ci34dte3OHn5hH7JERb_Q" target="_blank"
+                            rel="noopener noreferrer">https://talto.cc/projects/ci34dte3OHn5hH7JERb_Q</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>幾つかミニゲームがあります。相方とNPCと夏を過ごそう（べべべ）
+                            ミニゲームがちゃんと楽しいです（エンJ)</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>「光が死んだ夏」を知ってると嬉しい要素がいくらかあるらしい。ハンドアウトはやっていく中で決まるらしい（エンJ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-33">
+                <div class="scenario-card-header">
+                    <h2>憂き人の村</h2>
+                    <div class="author">作者: </div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>初心者向けにやってほしいことをお願いしまくりました。はいすいかんの方ありがとうございます（エンJ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-34">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/3468384" target="_blank"
+                            rel="noopener noreferrer">ビスポークランドでなにがあったか？</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/3468384" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/3468384</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★4</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-35">
+                <div class="scenario-card-header">
+                    <h2><a href="https://oso-shiki.booth.pm/items/4018783" target="_blank"
+                            rel="noopener noreferrer">全部お前かよ</a></h2>
+                    <div class="author">URL: <a href="https://oso-shiki.booth.pm/items/4018783" target="_blank"
+                            rel="noopener noreferrer">https://oso-shiki.booth.pm/items/4018783</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-36">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/2846812" target="_blank" rel="noopener noreferrer">輾転と町は</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/2846812" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/2846812</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-37">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/4930451" target="_blank"
+                            rel="noopener noreferrer">ある先生と生徒の話</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/4930451" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/4930451</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-38">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/5342349" target="_blank"
+                            rel="noopener noreferrer">ある先生と生徒の話　卒業</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/5342349" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/5342349</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-39">
+                <div class="scenario-card-header">
+                    <h2><a href="https://fanpla-s.booth.pm/items/5461727" target="_blank"
+                            rel="noopener noreferrer">目に踊る</a></h2>
+                    <div class="author">URL: <a href="https://fanpla-s.booth.pm/items/5461727" target="_blank"
+                            rel="noopener noreferrer">https://fanpla-s.booth.pm/items/5461727</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★5</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-40">
+                <div class="scenario-card-header">
+                    <h2><a href="https://panntaro1.booth.pm/items/5382549" target="_blank"
+                            rel="noopener noreferrer">祠を壊せ！！</a></h2>
+                    <div class="author">URL: <a href="https://panntaro1.booth.pm/items/5382549" target="_blank"
+                            rel="noopener noreferrer">https://panntaro1.booth.pm/items/5382549</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>カスのRPができる！(しるべ)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-41">
+                <div class="scenario-card-header">
+                    <h2>ステガノグラフィ</h2>
+                    <div class="author">作者: 非公開</div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>死体を溶かせる！(しるべ)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-42">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/3601506" target="_blank"
+                            rel="noopener noreferrer">レプリカントの葬列</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/3601506" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/3601506</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★4</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-43">
+                <div class="scenario-card-header">
+                    <h2><a href="https://nannji.booth.pm/items/3960744" target="_blank"
+                            rel="noopener noreferrer">果て果て</a></h2>
+                    <div class="author">URL: <a href="https://nannji.booth.pm/items/3960744" target="_blank"
+                            rel="noopener noreferrer">https://nannji.booth.pm/items/3960744</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>死までの3日間を死神さんと過ごそう！</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-44">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1712065" target="_blank"
+                            rel="noopener noreferrer">海も枯れるまで</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1712065" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1712065</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-45">
+                <div class="scenario-card-header">
+                    <h2><a href="https://fanpla-s.booth.pm/items/4901493" target="_blank"
+                            rel="noopener noreferrer">Hello,dear mine</a></h2>
+                    <div class="author">URL: <a href="https://fanpla-s.booth.pm/items/4901493" target="_blank"
+                            rel="noopener noreferrer">https://fanpla-s.booth.pm/items/4901493</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+            <div class="scenario-card" id="scenario-46">
+                <div class="scenario-card-header">
+                    <h2>ワイワイホームランダービー</h2>
+                    <div class="author">作者: 現在非公開</div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★?</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>ホームラン王になれます(海王)</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>継続や自陣でいくとめちゃめちゃ楽しいかも！(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-47">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/4022238" target="_blank" rel="noopener noreferrer">風の又三郎</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/4022238" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/4022238</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>学園青春と謎解きが楽しめる！（ペドロマ）</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>楽しい、の一言に尽きます　めっちゃ楽しかった(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-48">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1147942" target="_blank" rel="noopener noreferrer">救いに非ず</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1147942" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1147942</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★6</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">継続</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>継続推奨。来るな（ペドロマ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-49">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/2600098" target="_blank" rel="noopener noreferrer">沼男は誰だ？</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/2600098" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/2600098</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★6</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★6</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>.....(海王)</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>継続とかで行くとくるしい(しるべ)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-50">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/2509820" target="_blank"
+                            rel="noopener noreferrer">ムーンエラーアウトサイダー</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/2509820" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/2509820</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★4</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>おいでよ美大（ペドロマ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-51">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/3408537" target="_blank"
+                            rel="noopener noreferrer">プルガトリウムの夜</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/3408537" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/3408537</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★6</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>いろんなNPCがいてとても楽しいゾ！(海王)</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>4/19から大阪で期間限定ショップができるらしい(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-52">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1491468" target="_blank" rel="noopener noreferrer">SHOTGUN
+                            KIXXING MARRIAGE</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1491468" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1491468</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★-</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>継続推奨。
+                            お前のキャラの結婚衣装、見たくないか？（ペドロマ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-53">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/5368708" target="_blank"
+                            rel="noopener noreferrer">夢の街、あるいは素敵な冷蔵庫</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/5368708" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/5368708</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>頭を使うし難しいけど　楽しかったです(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-54">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/3130751" target="_blank" rel="noopener noreferrer">腐乱腐乱</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/3130751" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/3130751</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>新規／継続可。
+                            レトロゲームが好きならおすすめです。(しるべ)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-55">
+                <div class="scenario-card-header">
+                    <h2>Hid樂</h2>
+                    <div class="author">作者: 現在非公開</div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>新規推奨
+                            SCP好きにおすすめ！(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-56">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/3460135" target="_blank"
+                            rel="noopener noreferrer">星の吸血鬼にさよならを</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/3460135" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/3460135</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>ギャルゲです（ペドロマ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-57">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1710879" target="_blank" rel="noopener noreferrer">カノヨ街</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1710879" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1710879</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★4</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>和風な街で人外になろう！（しるべ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-58">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/5975739" target="_blank" rel="noopener noreferrer">半透明の月</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/5975739" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/5975739</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>青春って感じ　1人だとかなり難しいかも(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-59">
+                <div class="scenario-card-header">
+                    <h2>ずぶぬれずんだもちかいぶつ教の真実</h2>
+                    <div class="author">作者: 現在非公開</div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>こう見えてクラシックです。謎解きもある。(天白)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-60">
+                <div class="scenario-card-header">
+                    <h2><a href="https://fanpla-s.booth.pm/items/5875931" target="_blank"
+                            rel="noopener noreferrer">瑠璃色の花冠を君に</a></h2>
+                    <div class="author">URL: <a href="https://fanpla-s.booth.pm/items/5875931" target="_blank"
+                            rel="noopener noreferrer">https://fanpla-s.booth.pm/items/5875931</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>来週はKPCの誕生日だ。家族でお祝いをしよう。(天白)</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>しんどい感じで回すのは趣旨と異なるらしいので気を付けている。楽しく、アツく、あたたかいシナリオです。(天白)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-61">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/4537786" target="_blank"
+                            rel="noopener noreferrer">MANIKISS</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/4537786" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/4537786</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>特殊能力持ちPCで暴れろ！（ペドロマ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-62">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/4581510" target="_blank" rel="noopener noreferrer">純潔と鉄血</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/4581510" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/4581510</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★5</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>おにロリできる（ペドロマ）</p>
+                    </div>
+
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>武装少女っていいよね（ペドロマ）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-63">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1547540" target="_blank"
+                            rel="noopener noreferrer">まれびとこぞりて</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1547540" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1547540</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>初心者向けでクトゥルフって感じがする(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-64">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/2096253" target="_blank" rel="noopener noreferrer">アパート</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/2096253" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/2096253</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>むつかしい(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-65">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/2096253" target="_blank" rel="noopener noreferrer">台風の目</a>
+                    </h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/2096253" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/2096253</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★4</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>最近ちょっと新しくなった(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-66">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1715406" target="_blank"
+                            rel="noopener noreferrer">かいぶつたちとマホラカルト</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1715406" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1715406</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★2</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★3</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-star"></i>オモロポイント</h3>
+                        <p>アウトロー人（あうとろんちゅ）になろう（まいまい）</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-67">
+                <div class="scenario-card-header">
+                    <h2><a href="https://k-books.booth.pm/items/6725829" target="_blank" rel="noopener noreferrer">The
+                            R'lyeh</a></h2>
+                    <div class="author">URL: <a href="https://k-books.booth.pm/items/6725829" target="_blank"
+                            rel="noopener noreferrer">https://k-books.booth.pm/items/6725829</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★1</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★1</span></div>
+                </div>
+                <div class="scenario-details">
+                    <div class="scenario-comment-block">
+                        <h3><i class="fa-solid fa-comment-dots"></i>コメント</h3>
+                        <p>回すなら調整必須(海王)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card" id="scenario-68">
+                <div class="scenario-card-header">
+                    <h2><a href="https://booth.pm/ja/items/1994250" target="_blank"
+                            rel="noopener noreferrer">明日ハ私ノ風ガ吹ク</a></h2>
+                    <div class="author">URL: <a href="https://booth.pm/ja/items/1994250" target="_blank"
+                            rel="noopener noreferrer">https://booth.pm/ja/items/1994250</a></div>
+                </div>
+                <div class="scenario-stats">
+                    <div class="stat-item"><span class="label">難易度</span><span class="value">★3</span></div>
+                    <div class="stat-item"><span class="label">ロスト率</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">しんどさ</span><span class="value">★5</span></div>
+                    <div class="stat-item"><span class="label">キャラ指定度</span><span class="value">★2</span></div>
+                </div>
+                <div class="scenario-details"></div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Back to top button -->
+    <button onclick="topFunction()" id="backToTopBtn" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <script src="js/common.js"></script>
+</body>
+
+</html>

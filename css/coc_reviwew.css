@@ -1,0 +1,101 @@
+/* CSS content not found */
+/* ==========================================================================
+   27. CoC Scenario Review Page Styles
+   ========================================================================== */
+.scenario-list {
+    margin-top: 30px;
+}
+
+.scenario-card {
+    background-color: rgba(26, 44, 109, 0.8); /* #1a2c6d with opacity */
+    color: #e0e0e0;
+    padding: 20px 30px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border: 1px solid #2a3c7d;
+}
+
+.scenario-card-header h2 {
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+    color: #f0f0f0;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.6em;
+}
+
+.scenario-card-header a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.scenario-card-header a:hover {
+    color: #3498db;
+}
+
+.scenario-card-header .author {
+    font-size: 0.9em;
+    color: #bdc3c7;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #4a5c9a;
+    word-break: break-all;
+}
+
+.scenario-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    background-color: #0d1a50;
+    padding: 6px 12px;
+    border-radius: 15px; /* Pill shape */
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    border: 1px solid #2a3c7d;
+}
+
+.stat-item .label {
+    font-weight: bold;
+    margin-right: 8px;
+    color: #87cefa;
+}
+
+.stat-item .value {
+    color: #f0f0f0;
+}
+
+.scenario-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.scenario-comment-block {
+    padding: 15px;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.2);
+}
+
+.scenario-comment-block h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+    color: #3498db;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+.scenario-comment-block p {
+    margin: 0;
+    padding-left: 25px;
+    white-space: pre-wrap; /* To respect newlines from the CSV */
+    line-height: 1.7;
+    color: #e0e0e0;
+}

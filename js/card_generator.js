@@ -473,12 +473,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const originalState = getCurrentGeneratorState();
     try {
       await loadCardDataIntoGenerator(cardId, false);
+
+      // 画像とフォントの読み込み完了を並行して待ちます
+      await Promise.all([waitForCardImages(), document.fonts.ready]);
+
       // ▼▼▼ 修正箇所 ▼▼▼
-      // 新しい待機関数を呼び出す
-      await waitForCardImages();
-      await document.fonts.ready;
-      await new Promise((r) => setTimeout(r, 50)); // 最終描画のためのごく短い待機
+      // 最終的な描画を待つためのごく短い待機を少し長くします (50ms -> 200ms)
+      await new Promise((r) => setTimeout(r, 200));
       // ▲▲▲ 修正箇所 ▲▲▲
+
       await downloadCard(false);
     } catch (error) {
       console.error(`カード(ID: ${cardId})のダウンロード準備に失敗:`, error);
@@ -504,11 +507,14 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.textContent = `処理中... (${count}/${selectedCardIds.size})`;
       try {
         await loadCardDataIntoGenerator(cardId, true);
+
         // ▼▼▼ 修正箇所 ▼▼▼
-        await waitForCardImages();
-        await document.fonts.ready;
-        await new Promise((r) => setTimeout(r, 50));
+        // 画像とフォントの読み込み完了を並行して待ちます
+        await Promise.all([waitForCardImages(), document.fonts.ready]);
+        // 最終的な描画を待つためのごく短い待機を少し長くします (50ms -> 200ms)
+        await new Promise((r) => setTimeout(r, 200));
         // ▲▲▲ 修正箇所 ▲▲▲
+
         const cardData = allCardsData.find((c) => c["ID"] === cardId);
         const fileName = `${(cardData["カード名"] || `card_${cardId}`).replace(
           /[()`/\\?%*:|"<>]/g,
@@ -574,11 +580,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const cardData = batchData[i];
       batchProgress.textContent = `処理中... (${i + 1}/${batchData.length})`;
       await loadCardDataIntoGenerator(cardData, false);
+
       // ▼▼▼ 修正箇所 ▼▼▼
-      await waitForCardImages();
-      await document.fonts.ready;
-      await new Promise((r) => setTimeout(r, 50));
+      // 画像とフォントの読み込み完了を並行して待ちます
+      await Promise.all([waitForCardImages(), document.fonts.ready]);
+      // 最終的な描画を待つためのごく短い待機を少し長くします (50ms -> 200ms)
+      await new Promise((r) => setTimeout(r, 200));
       // ▲▲▲ 修正箇所 ▲▲▲
+
       try {
         const fileName = `${(cardData.cardName || `card_${i + 1}`).replace(
           /[()`]/g,
@@ -1422,6 +1431,12 @@ document.addEventListener("DOMContentLoaded", () => {
           el.style.display = "none";
         }
       });
+
+      // DOM変更がレンダリングされるのを待つ
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve))
+      );
+
       const fullCardCanvas = await html2canvas(cardContainer, {
         backgroundColor: null,
         useCORS: true,
@@ -1435,7 +1450,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const croppedCanvas = document.createElement("canvas");
         croppedCanvas.width = 480;
         croppedCanvas.height = 480;
-        const ctx = croppedCanvas.getContext("2d");
+        const ctx = croppedCanvas.getContext("2d", {
+          willReadFrequently: true,
+        });
         ctx.drawImage(fullCardCanvas, 0, 0, 480, 480, 0, 0, 480, 480);
         return await new Promise((resolve) =>
           croppedCanvas.toBlob(resolve, "image/png")
@@ -1818,25 +1835,76 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!isTemplate && sparkleCheckbox.checked) {
       return await generateSparkleApng();
     }
+
     const button = isTemplate
       ? downloadTemplateBtn
       : document.getElementById("download-btn");
     const originalButtonText = button.textContent;
     button.textContent = "生成中...";
     button.disabled = true;
+
+    // --- 強力なDOMリセット処理を開始 ---
+    // preview-wrapper と preview-panel の現在のスタイルを保存
+    const originalPreviewWrapperStyle = previewWrapper.style.cssText;
+    const originalPreviewPanelStyle = previewPanel.style.cssText;
+
+    // html2canvas が対象要素を正確に認識できるように、一時的にスタイルを変更する
+    // 1. preview-wrapper の flex-shrink: 0; max-width: 900px; を解除して、
+    //    preview-panel が完全に独立した480x720のブロックとして機能するようにする
+    previewWrapper.style.cssText = `
+    position: absolute !important;
+    top: -9999px !important; /* 画面外に移動してユーザーに見えないようにする */
+    left: -9999px !important;
+    width: 480px !important;
+    height: 720px !important;
+    overflow: hidden !important;
+    z-index: -1 !important; /* 他の要素の邪魔にならないように */
+  `;
+
+    // 2. preview-panel の transform を一時的に無効にし、サイズを明示的に指定
+    //    transform-origin もリセットして影響をなくす
+    previewPanel.style.cssText = `
+    width: 480px !important;
+    height: 720px !important;
+    transform: none !important; /* スケールをリセット */
+    transform-origin: 0 0 !important; /* 原点もリセット */
+    display: flex !important; /* flexbox保持 */
+    justify-content: center !important;
+    align-items: flex-start !important;
+  `;
+
+    // card-container のサイズも明示的に設定（念のため）
+    cardContainer.style.cssText = `
+    position: relative !important;
+    width: 480px !important;
+    height: 720px !important;
+    color: #000 !important;
+    user-select: none !important;
+  `;
+
+    // これにより、html2canvas がスナップショットを取る前に、
+    // 要素が期待される固定サイズにレンダリングされていることを保証します。
+    // background-image や card-template-image などは、#card-container の 100% を維持する。
+    // --- 強力なDOMリセット処理を終了 ---
+
     document.body.classList.add("is-rendering-output");
-    const originalTransform = previewPanel.style.transform;
-    previewPanel.style.transform = "none";
 
     try {
-      await document.fonts.ready;
-      await new Promise((r) => setTimeout(r, 200));
+      // フォントと画像の読み込み、およびDOMレンダリングが完了するのを待つ
+      await Promise.all([waitForCardImages(), document.fonts.ready]);
+      // DOMの再描画を確実に待つために、requestAnimationFrameを複数回使用
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve))
+      );
 
+      // html2canvas のターゲットを #card-container に設定
       const canvas = await html2canvas(cardContainer, {
         backgroundColor: null,
         useCORS: true,
         scale: highResCheckbox.checked ? 2 : 1,
+        logging: true,
       });
+
       const link = document.createElement("a");
       const fileName = isTemplate
         ? `${cardColorSelect.value}_${
@@ -1855,10 +1923,20 @@ document.addEventListener("DOMContentLoaded", () => {
         "エラーが発生しました。コンソールで詳細を確認してください。"
       );
     } finally {
+      // 処理完了後、またはエラー発生後も元の状態に戻す
       document.body.classList.remove("is-rendering-output");
+
+      // --- スタイルを元に戻す ---
+      previewWrapper.style.cssText = originalPreviewWrapperStyle;
+      previewPanel.style.cssText = originalPreviewPanelStyle;
+      cardContainer.style.cssText = originalCardContainerStyle;
+
+      // スクロールを元に戻す
+      document.body.style.overflow = "";
+      window.scrollTo(scrollX, scrollY);
+
       button.textContent = originalButtonText;
       button.disabled = false;
-      previewPanel.style.transform = originalTransform;
     }
   }
   async function createSparkleApngBlob() {
@@ -1869,22 +1947,36 @@ document.addEventListener("DOMContentLoaded", () => {
       overlayImageContainer,
     ];
     const textElements = [cardNameContainer, textBoxContainer];
+
+    // テキスト要素を非表示にする
     textElements.forEach((el) => (el.style.opacity = 0));
+    // キラキラオーバーレイも非表示にする (html2canvasの対象外にするため)
     sparkleOverlayImage.style.display = "none";
-    await new Promise((r) => setTimeout(r, 100));
+    // DOM変更がレンダリングされるのを待つ
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
+
     const baseCanvas = await html2canvas(cardContainer, {
       backgroundColor: null,
       useCORS: true,
       scale: 1,
     });
+
+    // テキスト要素を再表示し、ベース画像を非表示にする
     textElements.forEach((el) => (el.style.opacity = 1));
     baseImageElements.forEach((el) => (el.style.opacity = 0));
-    await new Promise((r) => setTimeout(r, 100));
+    // DOM変更がレンダリングされるのを待つ
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
+
     const textCanvas = await html2canvas(cardContainer, {
       backgroundColor: null,
       useCORS: true,
       scale: 1,
     });
+
     const sparkleBuffer = await (
       await fetch("Card_asset/加算してキラキラ.png")
     ).arrayBuffer();
@@ -1892,24 +1984,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const sparkleFrames = UPNG.toRGBA8(sparkleApng);
     const newFrames = [];
     const { width, height } = baseCanvas;
+
     for (let i = 0; i < sparkleFrames.length; i++) {
       const frameData = sparkleFrames[i];
       const frameCanvas = document.createElement("canvas");
       frameCanvas.width = width;
       frameCanvas.height = height;
-      // ▼▼▼ 修正点 ▼▼▼
       const frameCtx = frameCanvas.getContext("2d", {
         willReadFrequently: true,
       });
-      // ▲▲▲ 修正点 ▲▲▲
       frameCtx.drawImage(baseCanvas, 0, 0);
       const tempSparkleCanvas = document.createElement("canvas");
       tempSparkleCanvas.width = sparkleApng.width;
       tempSparkleCanvas.height = sparkleApng.height;
       tempSparkleCanvas
-        // ▼▼▼ 修正点 ▼▼▼
         .getContext("2d", { willReadFrequently: true })
-        // ▲▲▲ 修正点 ▲▲▲
         .putImageData(
           new ImageData(
             new Uint8ClampedArray(frameData),
@@ -1925,14 +2014,18 @@ document.addEventListener("DOMContentLoaded", () => {
       frameCtx.drawImage(textCanvas, 0, 0);
       newFrames.push(frameCtx.getImageData(0, 0, width, height).data.buffer);
     }
+
     const delays = sparkleApng.frames.map((f) => f.delay);
     const newApngBuffer = UPNG.encode(newFrames, width, height, 0, delays);
     const blob = new Blob([newApngBuffer], { type: "image/png" });
+
+    // スタイルを元に戻す
     textElements.forEach((el) => (el.style.opacity = 1));
     baseImageElements.forEach((el) => (el.style.opacity = 1));
     sparkleOverlayImage.style.display = sparkleCheckbox.checked
       ? "block"
-      : "none";
+      : "none"; // 元のチェックボックスの状態に戻す
+
     return blob;
   }
 
@@ -1955,7 +2048,8 @@ document.addEventListener("DOMContentLoaded", () => {
           el.style.display = "none";
         }
       });
-      const fullCardCanvas = await html2canvas(cardContainer, {
+      const fullCardCanvas = await html2canvas(previewPanel, {
+        // ★変更箇所: cardContainer -> previewPanel
         backgroundColor: null,
         useCORS: true,
       });
@@ -2236,6 +2330,7 @@ document.addEventListener("DOMContentLoaded", () => {
             backgroundColor: null,
             useCORS: true,
             scale: highResCheckbox.checked ? 2 : 1,
+            logging: true, // これを追加
           });
           imageBlob = await new Promise((resolve) =>
             canvas.toBlob(resolve, "image/png")
