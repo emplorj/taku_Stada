@@ -1788,13 +1788,7 @@ body.no-scroll {
 /* 外部リンクアイコン */
 /* 外部リンクアイコン */
 a[target="_blank"]::after {
-  font-family: "Font Awesome 6 Free"; /* Font Awesomeを使用 */
-  font-weight: 900; /* Solidアイコンの場合 */
-  content: " \f08e"; /* fa-external-link-alt のUnicode */
-  font-size: 0.8em; /* アイコンのサイズ調整 */
-  vertical-align: super; /* 上付き文字のように配置 */
-  margin-left: 0.2em; /* テキストとの間隔 */
-  color: inherit; /* リンクの色を継承 */
+  content: none !important; /* 外部リンクアイコンを非表示にする */
 }
 
 /* rich-link-card 内の外部リンクにはアイコンを表示しない */
