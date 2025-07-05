@@ -1,4 +1,4 @@
-// card_generator.js (v1.0.4 - Major Bug Fix Release)
+// card_generator.js (v1.0.7 - Textbox Layout Fix)
 document.addEventListener("DOMContentLoaded", () => {
   // DOM要素の取得
   const cardColorSelect = document.getElementById("card-color-select");
@@ -397,7 +397,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- データベース表示・フィルタリング ---
   function setupColorFilterButtons() {
     const allButton = document.createElement("button");
     allButton.type = "button";
@@ -473,21 +472,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const originalState = getCurrentGeneratorState();
     try {
       await loadCardDataIntoGenerator(cardId, false);
-
-      // 画像とフォントの読み込み完了を並行して待ちます
-      await Promise.all([waitForCardImages(), document.fonts.ready]);
-
-      // ▼▼▼ 修正箇所 ▼▼▼
-      // 最終的な描画を待つためのごく短い待機を少し長くします (50ms -> 200ms)
-      await new Promise((r) => setTimeout(r, 200));
-      // ▲▲▲ 修正箇所 ▲▲▲
-
       await downloadCard(false);
     } catch (error) {
       console.error(`カード(ID: ${cardId})のダウンロード準備に失敗:`, error);
       showCustomAlert("カード画像の生成に失敗しました。");
     } finally {
-      restoreGeneratorState(originalState);
+      await restoreGeneratorState(originalState);
     }
   }
 
@@ -496,34 +486,57 @@ document.addEventListener("DOMContentLoaded", () => {
       showCustomAlert("カードが選択されていません。");
       return;
     }
+
     const btn = document.getElementById("db-batch-generate-btn");
     const originalText = btn.textContent;
     btn.disabled = true;
+
     const zip = new JSZip();
     let count = 0;
     const originalState = getCurrentGeneratorState();
+
+    const generatorContent = document.getElementById("generator-content");
+    const originalGeneratorContentStyle = generatorContent.style.cssText;
+    const originalPreviewWrapperStyle = previewWrapper.style.cssText;
+    const originalPreviewPanelStyle = previewPanel.style.cssText;
+    const originalCardContainerStyle = cardContainer.style.cssText;
+
+    generatorContent.style.cssText +=
+      "display: block !important; position: absolute !important; left: -9999px !important;";
+    previewWrapper.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 480px !important; height: 720px !important; overflow: visible !important; z-index: -1 !important;`;
+    previewPanel.style.cssText = `width: 480px !important; height: 720px !important; transform: none !important; transform-origin: 0 0 !important;`;
+    cardContainer.style.width = "480px";
+    cardContainer.style.height = "720px";
+
     for (const cardId of selectedCardIds) {
       count++;
       btn.textContent = `処理中... (${count}/${selectedCardIds.size})`;
+
       try {
-        await loadCardDataIntoGenerator(cardId, true);
-
-        // ▼▼▼ 修正箇所 ▼▼▼
-        // 画像とフォントの読み込み完了を並行して待ちます
-        await Promise.all([waitForCardImages(), document.fonts.ready]);
-        // 最終的な描画を待つためのごく短い待機を少し長くします (50ms -> 200ms)
-        await new Promise((r) => setTimeout(r, 200));
-        // ▲▲▲ 修正箇所 ▲▲▲
-
         const cardData = allCardsData.find((c) => c["ID"] === cardId);
+        if (!cardData)
+          throw new Error(`ID ${cardId} のカードが見つかりません。`);
+
+        await loadCardDataIntoGenerator(cardData, false);
+
+        await Promise.all([waitForCardImages(), document.fonts.ready]);
+        await new Promise((resolve) =>
+          requestAnimationFrame(() => setTimeout(resolve, 50))
+        );
+
         const fileName = `${(cardData["カード名"] || `card_${cardId}`).replace(
           /[()`/\\?%*:|"<>]/g,
           ""
         )}.png`;
         let imageBlob;
         const isSparkle = cardData["キラ"]?.toLowerCase() === "true";
+
         if (isSparkle) {
+          sparkleCheckbox.checked = true;
+          updateSparkleEffect();
           imageBlob = await createSparkleApngBlob();
+          sparkleCheckbox.checked = false;
+          updateSparkleEffect();
         } else {
           const scale = highResCheckbox.checked ? 2 : 1;
           const canvas = await html2canvas(cardContainer, {
@@ -535,6 +548,7 @@ document.addEventListener("DOMContentLoaded", () => {
             canvas.toBlob(resolve, "image/png")
           );
         }
+
         if (imageBlob && imageBlob.size > 0) {
           zip.file(fileName, imageBlob);
         } else {
@@ -553,7 +567,13 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
     }
-    restoreGeneratorState(originalState);
+
+    generatorContent.style.cssText = originalGeneratorContentStyle;
+    previewWrapper.style.cssText = originalPreviewWrapperStyle;
+    previewPanel.style.cssText = originalPreviewPanelStyle;
+    cardContainer.style.cssText = originalCardContainerStyle;
+    await restoreGeneratorState(originalState);
+
     btn.textContent = "ZIP圧縮中...";
     zip.generateAsync({ type: "blob" }).then((content) => {
       const link = document.createElement("a");
@@ -561,6 +581,7 @@ document.addEventListener("DOMContentLoaded", () => {
       link.download = "database_selection.zip";
       link.click();
       URL.revokeObjectURL(link.href);
+
       btn.textContent = "完了!";
       setTimeout(() => {
         btn.textContent = originalText;
@@ -581,12 +602,8 @@ document.addEventListener("DOMContentLoaded", () => {
       batchProgress.textContent = `処理中... (${i + 1}/${batchData.length})`;
       await loadCardDataIntoGenerator(cardData, false);
 
-      // ▼▼▼ 修正箇所 ▼▼▼
-      // 画像とフォントの読み込み完了を並行して待ちます
       await Promise.all([waitForCardImages(), document.fonts.ready]);
-      // 最終的な描画を待つためのごく短い待機を少し長くします (50ms -> 200ms)
       await new Promise((r) => setTimeout(r, 200));
-      // ▲▲▲ 修正箇所 ▲▲▲
 
       try {
         const fileName = `${(cardData.cardName || `card_${i + 1}`).replace(
@@ -726,17 +743,13 @@ document.addEventListener("DOMContentLoaded", () => {
         textColor: "#fff",
       };
 
-      // ▼▼▼ ここからが重要な追加箇所です ▼▼▼
-      // カード要素自体に、そのカード固有の色の変数を設定する
       cardElement.style.setProperty("--card-main-color", colorDetails.color);
       cardElement.style.setProperty("--card-dark-color", colorDetails.hover);
       cardElement.style.setProperty(
         "--card-text-color",
         colorDetails.textColor
       );
-      // ▲▲▲ 追加はここまでです ▲▲▲
 
-      // カードの背景色を設定（既存のロジック）
       if (
         colorDetails.color &&
         colorDetails.color.startsWith("linear-gradient")
@@ -760,10 +773,7 @@ document.addEventListener("DOMContentLoaded", () => {
           )}`;
       }
 
-      const notesText = card["備考"]
-        ? card["備考"].replace(/"/g, "&quot;")
-        : "";
-      const notesHTML = "";
+      const notesHTML = ""; // 備考欄は表示しない
       const isChecked = selectedCardIds.has(card["ID"]) ? "checked" : "";
 
       cardElement.innerHTML = `
@@ -801,7 +811,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- DB一括選択機能 ---
   function toggleCardSelection(cardId) {
     const checkbox = document.querySelector(
       `.card-checkbox[data-id="${cardId}"]`
@@ -843,95 +852,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBatchSelectionBar();
   }
 
-  async function processDatabaseBatchDownload() {
-    if (selectedCardIds.size === 0) {
-      showCustomAlert("カードが選択されていません。");
-      return;
-    }
-
-    const btn = document.getElementById("db-batch-generate-btn");
-    const originalText = btn.textContent;
-    btn.disabled = true;
-
-    const zip = new JSZip();
-    let count = 0;
-
-    const originalState = getCurrentGeneratorState();
-
-    for (const cardId of selectedCardIds) {
-      count++;
-      btn.textContent = `処理中... (${count}/${selectedCardIds.size})`;
-
-      try {
-        await loadCardDataIntoGenerator(cardId, true);
-
-        // ▼▼▼ 修正箇所 ▼▼▼
-        // setTimeoutの待機を削除し、フォントの準備のみ待つ
-        await document.fonts.ready;
-        // ▲▲▲ 修正箇所 ▲▲▲
-
-        const cardData = allCardsData.find((c) => c["ID"] === cardId);
-        const fileName = `${(cardData["カード名"] || `card_${cardId}`).replace(
-          /[()`/\\?%*:|"<>]/g,
-          ""
-        )}.png`;
-        let imageBlob;
-
-        const isSparkle = cardData["キラ"]?.toLowerCase() === "true";
-
-        if (isSparkle) {
-          imageBlob = await createSparkleApngBlob();
-        } else {
-          const scale = highResCheckbox.checked ? 2 : 1;
-          const canvas = await html2canvas(cardContainer, {
-            backgroundColor: null,
-            useCORS: true,
-            scale: scale,
-          });
-          imageBlob = await new Promise((resolve) =>
-            canvas.toBlob(resolve, "image/png")
-          );
-        }
-
-        if (imageBlob && imageBlob.size > 0) {
-          zip.file(fileName, imageBlob);
-        } else {
-          throw new Error("生成された画像データが空です。");
-        }
-      } catch (err) {
-        const cardData = allCardsData.find((c) => c["ID"] === cardId);
-        const cardIdentifier = cardData ? cardData["カード名"] : cardId;
-        console.error(
-          `カード[${cardIdentifier}]の画像生成に失敗しました:`,
-          err
-        );
-        zip.file(
-          `ERROR_${cardIdentifier}.txt`,
-          `このカードの生成に失敗しました。\nエラー: ${err.message}`
-        );
-      }
-    }
-
-    restoreGeneratorState(originalState);
-
-    btn.textContent = "ZIP圧縮中...";
-    zip.generateAsync({ type: "blob" }).then((content) => {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(content);
-      link.download = "database_selection.zip";
-      link.click();
-      URL.revokeObjectURL(link.href);
-
-      btn.textContent = "完了!";
-      setTimeout(() => {
-        btn.textContent = originalText;
-        btn.disabled = false;
-        clearCardSelection();
-      }, 3000);
-    });
-  }
-
-  // --- 定型文機能 ---
   async function openTeikeiModal() {
     if (teikeiCategories.length === 0) await fetchTeikeiSentences();
     renderTeikeiModal();
@@ -1166,7 +1086,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- その他のヘルパー関数 ---
   function restoreAuthorNames() {
     registrantInput.value =
       localStorage.getItem("cardGeneratorRegistrant") || "";
@@ -1333,9 +1252,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       updatePreviewFromData(cardData, true);
-
-      // ここで return new Promise(...) をしていた部分を削除します。
-      // エラーハンドリングのため、画像読み込み完了を待つ必要があったが、アプローチを変更。
     } catch (error) {
       console.error("カードデータの読み込みエラー:", error);
       if (updateUi)
@@ -1430,7 +1346,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // DOM変更がレンダリングされるのを待つ
       await new Promise((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(resolve))
       );
@@ -1492,6 +1407,47 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error(`ImgBB APIエラー: ${result.error.message}`);
     }
     return result.data.url;
+  }
+
+  // ========================================================
+  // === 修正点: 新しいテキストボックスレイアウト調整関数 ===
+  // ========================================================
+  function adjustTextBoxLayout(effectEl, flavorEl, speakerEl) {
+    requestAnimationFrame(() => {
+      const totalHeight = 177.5; // テキストボックス全体の高さ
+      const effectMarginBottom = 1;
+
+      // フレーバーテキストと話者の高さを計算
+      const speakerHeight =
+        speakerEl.style.display !== "none" ? speakerEl.offsetHeight : 0;
+      const flavorHeight =
+        flavorEl.style.display !== "none" ? flavorEl.offsetHeight : 0;
+      // 注意: flavorEl.offsetHeight には .inner-text の高さが含まれる
+      const combinedFlavorHeight = flavorHeight + speakerHeight;
+
+      // 効果テキストに利用可能な高さを計算
+      const availableHeightForEffect =
+        totalHeight - combinedFlavorHeight - effectMarginBottom;
+
+      // 効果テキストの行の高さを取得
+      const effectStyle = window.getComputedStyle(effectEl);
+      const effectLineHeight = parseFloat(effectStyle.lineHeight);
+
+      if (effectLineHeight > 0) {
+        // 表示可能な行数を計算
+        const numberOfLines = Math.floor(
+          availableHeightForEffect / effectLineHeight
+        );
+        // max-heightを設定して、はみ出しを防ぐ
+        effectEl.style.maxHeight = `${Math.max(
+          0,
+          numberOfLines * effectLineHeight
+        )}px`;
+      } else {
+        // line-heightが取得できない場合のフォールバック
+        effectEl.style.maxHeight = `${Math.max(0, availableHeightForEffect)}px`;
+      }
+    });
   }
 
   function updatePreview() {
@@ -1561,26 +1517,10 @@ document.addEventListener("DOMContentLoaded", () => {
     el.innerHTML = flavorText.replace(/\n/g, "<br>");
     flavorSpeakerDisplay.style.display = speakerText ? "block" : "none";
     if (speakerText) flavorSpeakerDisplay.innerText = `─── ${speakerText}`;
-    textBoxContainer.offsetHeight; // Force reflow
-    const totalHeight = 177.5;
-    const effectMarginBottom = 1;
-    let combinedFlavorHeight =
-      flavorDisplay.style.display !== "none" ? flavorDisplay.offsetHeight : 0;
-    if (flavorSpeakerDisplay.style.display !== "none")
-      combinedFlavorHeight += flavorSpeakerDisplay.offsetHeight;
-    const availablePixelHeight =
-      totalHeight - combinedFlavorHeight - effectMarginBottom;
-    const effectStyle = window.getComputedStyle(effectDisplay);
-    const effectLineHeight = parseFloat(effectStyle.lineHeight);
-    if (effectLineHeight > 0) {
-      const numberOfLines = Math.floor(availablePixelHeight / effectLineHeight);
-      effectDisplay.style.maxHeight = `${Math.max(
-        0,
-        numberOfLines * effectLineHeight
-      )}px`;
-    } else {
-      effectDisplay.style.maxHeight = `${Math.max(0, availablePixelHeight)}px`;
-    }
+
+    // 新しいレイアウト調整関数を呼び出し
+    adjustTextBoxLayout(effectDisplay, flavorDisplay, flavorSpeakerDisplay);
+
     updateThemeColor(colorDetails);
     requestAnimationFrame(setupImageForDrag);
   }
@@ -1829,6 +1769,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clamp(imageState, cardImage, imageContainer);
     clamp(overlayImageState, overlayImage, overlayImageContainer);
   }
+
   async function downloadCard(isTemplate = false) {
     if (!isTemplate && sparkleCheckbox.checked) {
       return await generateSparkleApng();
@@ -1841,61 +1782,31 @@ document.addEventListener("DOMContentLoaded", () => {
     button.textContent = "生成中...";
     button.disabled = true;
 
-    // --- 強力なDOMリセット処理を開始 ---
-    // preview-wrapper と preview-panel の現在のスタイルを保存
+    const generatorContent = document.getElementById("generator-content");
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const originalGeneratorContentStyle = generatorContent.style.cssText;
     const originalPreviewWrapperStyle = previewWrapper.style.cssText;
     const originalPreviewPanelStyle = previewPanel.style.cssText;
-
-    // html2canvas が対象要素を正確に認識できるように、一時的にスタイルを変更する
-    // 1. preview-wrapper の flex-shrink: 0; max-width: 900px; を解除して、
-    //    preview-panel が完全に独立した480x720のブロックとして機能するようにする
-    previewWrapper.style.cssText = `
-    position: absolute !important;
-    top: -9999px !important; /* 画面外に移動してユーザーに見えないようにする */
-    left: -9999px !important;
-    width: 480px !important;
-    height: 720px !important;
-    overflow: hidden !important;
-    z-index: -1 !important; /* 他の要素の邪魔にならないように */
-  `;
-
-    // 2. preview-panel の transform を一時的に無効にし、サイズを明示的に指定
-    //    transform-origin もリセットして影響をなくす
-    previewPanel.style.cssText = `
-    width: 480px !important;
-    height: 720px !important;
-    transform: none !important; /* スケールをリセット */
-    transform-origin: 0 0 !important; /* 原点もリセット */
-    display: flex !important; /* flexbox保持 */
-    justify-content: center !important;
-    align-items: flex-start !important;
-  `;
-
-    // card-container のサイズも明示的に設定（念のため）
-    cardContainer.style.cssText = `
-    position: relative !important;
-    width: 480px !important;
-    height: 720px !important;
-    color: #000 !important;
-    user-select: none !important;
-  `;
-
-    // これにより、html2canvas がスナップショットを取る前に、
-    // 要素が期待される固定サイズにレンダリングされていることを保証します。
-    // background-image や card-template-image などは、#card-container の 100% を維持する。
-    // --- 強力なDOMリセット処理を終了 ---
-
-    document.body.classList.add("is-rendering-output");
+    const originalCardContainerStyle = cardContainer.style.cssText;
+    const originalBodyOverflow = document.body.style.overflow;
 
     try {
-      // フォントと画像の読み込み、およびDOMレンダリングが完了するのを待つ
+      document.body.style.overflow = "hidden";
+      generatorContent.style.cssText +=
+        "display: block !important; position: absolute !important; left: -9999px !important;";
+      previewWrapper.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 480px !important; height: 720px !important; overflow: visible !important; z-index: -1 !important;`;
+      previewPanel.style.cssText = `width: 480px !important; height: 720px !important; transform: none !important; transform-origin: 0 0 !important;`;
+      cardContainer.style.width = "480px";
+      cardContainer.style.height = "720px";
+
+      document.body.classList.add("is-rendering-output");
+
       await Promise.all([waitForCardImages(), document.fonts.ready]);
-      // DOMの再描画を確実に待つために、requestAnimationFrameを複数回使用
       await new Promise((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(resolve))
+        requestAnimationFrame(() => setTimeout(resolve, 100))
       );
 
-      // html2canvas のターゲットを #card-container に設定
       const canvas = await html2canvas(cardContainer, {
         backgroundColor: null,
         useCORS: true,
@@ -1903,40 +1814,49 @@ document.addEventListener("DOMContentLoaded", () => {
         logging: true,
       });
 
+      const isCanvasBlank = !canvas
+        .getContext("2d")
+        .getImageData(0, 0, canvas.width, canvas.height)
+        .data.some((channel) => channel !== 0);
+
+      if (isCanvasBlank) {
+        throw new Error(
+          "生成されたキャンバスが空白です。画像が正しく読み込まれていないか、描画タイミングの問題が発生しました。"
+        );
+      }
+
       const link = document.createElement("a");
       const fileName = isTemplate
         ? `${cardColorSelect.value}_${
             cardTypeSelect.value || "Standard"
           }_template.png`
-        : `${
-            cardNameInput.value.replace(/[()`/\\?%*:|"<>]/g, "") ||
-            "custom_card"
-          }.png`;
+        : `${(cardNameInput.value || "custom_card").replace(
+            /[()`/\\?%*:|"<>]/g,
+            ""
+          )}.png`;
       link.download = fileName;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (err) {
       console.error("画像生成に失敗しました。", err);
       showCustomAlert(
-        "エラーが発生しました。コンソールで詳細を確認してください。"
+        "画像生成に失敗しました。時間をおいて試すか、コンソールで詳細を確認してください。\n" +
+          err.message
       );
     } finally {
-      // 処理完了後、またはエラー発生後も元の状態に戻す
       document.body.classList.remove("is-rendering-output");
-
-      // --- スタイルを元に戻す ---
+      generatorContent.style.cssText = originalGeneratorContentStyle;
       previewWrapper.style.cssText = originalPreviewWrapperStyle;
       previewPanel.style.cssText = originalPreviewPanelStyle;
       cardContainer.style.cssText = originalCardContainerStyle;
-
-      // スクロールを元に戻す
-      document.body.style.overflow = "";
+      document.body.style.overflow = originalBodyOverflow;
       window.scrollTo(scrollX, scrollY);
 
       button.textContent = originalButtonText;
       button.disabled = false;
     }
   }
+
   async function createSparkleApngBlob() {
     const baseImageElements = [
       backgroundImage,
@@ -1946,11 +1866,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     const textElements = [cardNameContainer, textBoxContainer];
 
-    // テキスト要素を非表示にする
     textElements.forEach((el) => (el.style.opacity = 0));
-    // キラキラオーバーレイも非表示にする (html2canvasの対象外にするため)
     sparkleOverlayImage.style.display = "none";
-    // DOM変更がレンダリングされるのを待つ
     await new Promise((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(resolve))
     );
@@ -1961,10 +1878,8 @@ document.addEventListener("DOMContentLoaded", () => {
       scale: 1,
     });
 
-    // テキスト要素を再表示し、ベース画像を非表示にする
     textElements.forEach((el) => (el.style.opacity = 1));
     baseImageElements.forEach((el) => (el.style.opacity = 0));
-    // DOM変更がレンダリングされるのを待つ
     await new Promise((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(resolve))
     );
@@ -2017,17 +1932,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const newApngBuffer = UPNG.encode(newFrames, width, height, 0, delays);
     const blob = new Blob([newApngBuffer], { type: "image/png" });
 
-    // スタイルを元に戻す
     textElements.forEach((el) => (el.style.opacity = 1));
     baseImageElements.forEach((el) => (el.style.opacity = 1));
     sparkleOverlayImage.style.display = sparkleCheckbox.checked
       ? "block"
-      : "none"; // 元のチェックボックスの状態に戻す
+      : "none";
 
     return blob;
   }
 
-  // DB登録用に画像部分だけを切り出す関数の修正
   async function generateArtworkBlob(cardType) {
     const elementsToModify = [
       document.getElementById("card-template-image"),
@@ -2047,7 +1960,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
       const fullCardCanvas = await html2canvas(previewPanel, {
-        // ★変更箇所: cardContainer -> previewPanel
         backgroundColor: null,
         useCORS: true,
       });
@@ -2060,11 +1972,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const croppedCanvas = document.createElement("canvas");
         croppedCanvas.width = 480;
         croppedCanvas.height = 480;
-        // ▼▼▼ 修正点 ▼▼▼
         const ctx = croppedCanvas.getContext("2d", {
           willReadFrequently: true,
         });
-        // ▲▲▲ 修正点 ▲▲▲
         ctx.drawImage(fullCardCanvas, 0, 0, 480, 480, 0, 0, 480, 480);
         return await new Promise((resolve) =>
           croppedCanvas.toBlob(resolve, "image/png")
@@ -2120,7 +2030,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let { r, g, b } = hexToRgb(hex);
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
-  // この関数をまるごと差し替えてください
   function updateThemeColor(details) {
     if (!details) return;
     const root = document.documentElement;
@@ -2130,39 +2039,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const darkColor = details.hover;
     const textColor = details.textColor;
 
-    // --- 全てのテーマカラー関連のCSS変数をここで設定 ---
-
-    // 1. ボタン関連
     root.style.setProperty("--button-bg", mainColor);
     root.style.setProperty("--button-hover-bg", darkColor);
     root.style.setProperty("--button-color", textColor);
-
-    // 2. パネルと背景関連 (コントロールパネル、バッチパネル、DB情報ラッパー、アクティブタブなど)
     root.style.setProperty("--controls-panel-bg", darkColor);
-    root.style.setProperty("--theme-bg-main", darkColor); // --controls-panel-bg と同じ役割
-
-    // 3. 入力欄関連
+    root.style.setProperty("--theme-bg-main", darkColor);
     root.style.setProperty("--theme-input-bg", darkColor);
     root.style.setProperty("--theme-input-border", mainColor);
-
-    // 4. モーダル関連
     root.style.setProperty("--modal-bg", darkColor);
     root.style.setProperty("--modal-border", mainColor);
-    root.style.setProperty("--modal-input-bg", darkColor); // モーダル内の入力欄も統一
+    root.style.setProperty("--modal-input-bg", darkColor);
     root.style.setProperty("--modal-input-border", mainColor);
-
-    // 5. その他ボーダーなど
     root.style.setProperty("--theme-border", mainColor);
 
-    // 6. フォーカス時の影色用 (RGB値)
     const rgb = hexToRgb(mainColor);
     if (rgb) {
       root.style.setProperty("--button-bg-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     } else {
-      root.style.setProperty("--button-bg-rgb", "52, 152, 219"); // フォールバック
+      root.style.setProperty("--button-bg-rgb", "52, 152, 219");
     }
 
-    // 7. 明るいテーマかどうかに応じてbodyにクラスを付与
     const isLightTheme = getLuminance(mainColor) > 160;
     body.classList.toggle("light-theme-ui", isLightTheme);
   }
@@ -2254,21 +2150,16 @@ document.addEventListener("DOMContentLoaded", () => {
     let imageUrl = data["画像URL"] || data.image || "";
     let finalImageUrl = "";
 
-    // ▼▼▼ 修正箇所 ▼▼▼
-    // 画像URLが空または"DEFAULT"の場合の処理
     if (!imageUrl || imageUrl === "DEFAULT") {
       const selectedType = (data["タイプ"] || data.type || "").toUpperCase();
       const isFullFrame = selectedType === "FF" || selectedType === "FFCF";
-      // カードタイプに応じたデフォルト画像をセット
       finalImageUrl = isFullFrame
         ? "Card_asset/now_painting_FF.png"
         : "Card_asset/now_painting.png";
-      // DBから読み込む際にファイル名表示も更新
       if (fromDB) {
-        imageFileName.textContent = "仁科ぬい"; // デフォルトのテキスト
+        imageFileName.textContent = "仁科ぬい";
       }
     } else {
-      // それ以外の有効な画像URLの場合の処理
       const imageName = imageUrl.split("/").pop();
       if (localImageFiles[imageName]) {
         finalImageUrl = localImageFiles[imageName];
@@ -2286,7 +2177,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         finalImageUrl = imageUrl;
       }
-      // DBから読み込む際にファイル名表示も更新
       if (fromDB) {
         imageFileName.textContent = imageName;
       }
@@ -2294,73 +2184,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cardImage.crossOrigin = "Anonymous";
     cardImage.src = finalImageUrl;
-    // ▲▲▲ 修正箇所ここまで ▲▲▲
 
     updatePreview();
-  }
-
-  async function processBatchDownload() {
-    if (batchData.length === 0) return;
-    const zip = new JSZip();
-    batchDownloadBtn.disabled = true;
-    batchProgress.style.display = "block";
-    const originalState = getCurrentGeneratorState();
-    for (let i = 0; i < batchData.length; i++) {
-      const cardData = batchData[i];
-      batchProgress.textContent = `処理中... (${i + 1}/${batchData.length})`;
-      await loadCardDataIntoGenerator(cardData, false);
-
-      // ▼▼▼ 修正箇所 ▼▼▼
-      // setTimeoutの待機を削除し、フォントの準備のみ待つ
-      await document.fonts.ready;
-      // ▲▲▲ 修正箇所 ▲▲▲
-
-      try {
-        const fileName = `${(cardData.cardName || `card_${i + 1}`).replace(
-          /[()`]/g,
-          ""
-        )}.png`;
-        let imageBlob;
-        if (cardData.sparkle) {
-          imageBlob = await createSparkleApngBlob();
-        } else {
-          const canvas = await html2canvas(cardContainer, {
-            backgroundColor: null,
-            useCORS: true,
-            scale: highResCheckbox.checked ? 2 : 1,
-            logging: true, // これを追加
-          });
-          imageBlob = await new Promise((resolve) =>
-            canvas.toBlob(resolve, "image/png")
-          );
-        }
-        if (imageBlob && imageBlob.size > 0) {
-          zip.file(fileName, imageBlob);
-        } else {
-          throw new Error("Generated image blob is empty.");
-        }
-      } catch (err) {
-        console.error(`カード[${cardData.cardName || i + 1}]の生成失敗:`, err);
-        zip.file(
-          `ERROR_${cardData.cardName || i + 1}.txt`,
-          `エラー: ${err.message}`
-        );
-      }
-    }
-    restoreGeneratorState(originalState);
-    batchProgress.textContent = "ZIP圧縮中...";
-    zip.generateAsync({ type: "blob" }).then((content) => {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(content);
-      link.download = "cards_batch.zip";
-      link.click();
-      URL.revokeObjectURL(link.href);
-      batchProgress.textContent = "完了！";
-      setTimeout(() => {
-        batchProgress.style.display = "none";
-        batchDownloadBtn.disabled = false;
-      }, 3000);
-    });
   }
   function checkImageTransparency(imageUrl) {
     return new Promise((resolve) => {
@@ -2395,7 +2220,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- データベース詳細表示機能 ---
   function setupDatabaseDetailViewListeners() {
     const detailView = document.getElementById("db-detail-view");
     document
@@ -2554,35 +2378,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     flavorEl.innerHTML = flavorText.replace(/\n/g, "<br>");
     elements.speaker.innerText = speakerText ? `─── ${speakerText}` : "";
-    requestAnimationFrame(() => {
-      const totalHeight = 177.5;
-      const effectMarginBottom = 1;
-      const combinedFlavorHeight =
-        (elements.flavor.style.display === "none"
-          ? 0
-          : elements.flavor.offsetHeight) +
-        (elements.speaker.style.display === "none"
-          ? 0
-          : elements.speaker.offsetHeight);
-      const availablePixelHeight =
-        totalHeight - combinedFlavorHeight - effectMarginBottom;
-      const effectStyle = window.getComputedStyle(elements.effect);
-      const effectLineHeight = parseFloat(effectStyle.lineHeight);
-      if (effectLineHeight > 0) {
-        const numberOfLines = Math.floor(
-          availablePixelHeight / effectLineHeight
-        );
-        elements.effect.style.maxHeight = `${Math.max(
-          0,
-          numberOfLines * effectLineHeight
-        )}px`;
-      } else {
-        elements.effect.style.maxHeight = `${Math.max(
-          0,
-          availablePixelHeight
-        )}px`;
-      }
-    });
+
+    // 新しいレイアウト調整関数を呼び出し
+    adjustTextBoxLayout(elements.effect, elements.flavor, elements.speaker);
   }
 
   function updateCardNameForPreview(text, contentEl, containerEl) {
@@ -2594,8 +2392,8 @@ document.addEventListener("DOMContentLoaded", () => {
           return `<ruby><rb>${rubyMatch[1]}</rb><rt>${rubyMatch[2]}</rt></ruby>`;
       }
       return `<span class="no-ruby">${segment
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")}</span>`;
+        .replace(/</g, "<")
+        .replace(/>/g, ">")}</span>`;
     });
     const finalHtml = htmlParts.join("\u200B");
     contentEl.classList.toggle(
@@ -2616,27 +2414,22 @@ document.addEventListener("DOMContentLoaded", () => {
       scalerEl.style.transform = scalerTransform;
     });
   }
-  // 【新規追加】カード上の画像の読み込みを待つための専用関数
   function waitForCardImages() {
     const promises = [];
     const mainImage = document.getElementById("card-image");
     const overlayImg = document.getElementById("overlay-image");
     const bgImage = document.getElementById("background-image");
 
-    // 画像1つをチェックするPromiseを生成するヘルパー
     const checkImageReady = (img) => {
       return new Promise((resolve, reject) => {
-        // srcが設定されていない、または非表示の画像は待つ必要がない
         if (!img.src || img.style.display === "none") {
           resolve();
           return;
         }
-        // 既に読み込み完了している場合
         if (img.complete && img.naturalHeight !== 0) {
           resolve();
           return;
         }
-        // これから読み込む場合
         img.onload = () => resolve();
         img.onerror = () =>
           reject(new Error(`画像の読み込みに失敗しました: ${img.src}`));
