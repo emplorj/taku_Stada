@@ -7,306 +7,319 @@
    ========================================================================== */
 /* Calendar Styles */
 #custom-calendar-container {
-    margin-top: 20px;
-    font-family: 'HigashiOme-Gothic-C', sans-serif; /* カレンダー全体に基本フォント適用 */
+  margin-top: 20px;
+  font-family: "HigashiOme-Gothic-C", sans-serif; /* カレンダー全体に基本フォント適用 */
 }
 
 .calendar-nav {
-    display: flex;
-    justify-content: center; /* ボタンと週表示を中央に寄せる */
-    align-items: center;
-    gap: 25px; /* 要素間の間隔を調整 (お好みで変更してください) */
-    margin-bottom: 10px;
-    padding: 8px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
+  display: flex;
+  justify-content: center; /* ボタンと週表示を中央に寄せる */
+  align-items: center;
+  gap: 25px; /* 要素間の間隔を調整 (お好みで変更してください) */
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
 }
 
 .calendar-nav button {
-    background-color: #6c757d; /* Bootstrap secondary color */
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em; /* ボタン内のフォントは基本フォントを継承 */
-    line-height: 1; /* Ensure button text is vertically centered */
+  background-color: #6c757d; /* Bootstrap secondary color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em; /* ボタン内のフォントは基本フォントを継承 */
+  line-height: 1; /* Ensure button text is vertically centered */
 }
 
 .calendar-nav button:hover {
-    background-color: #5a6268;
+  background-color: #5a6268;
 }
 
 #current-week-display {
-    font-size: 1.1em;
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif; /* 週表示のフォント変更 */
-    font-weight: bold;
-    color: #343a40;
+  font-size: 1.1em;
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
+    "Meiryo", sans-serif; /* 週表示のフォント変更 */
+  font-weight: bold;
+  color: #343a40;
 }
 #calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 1px; /* 横の線はgapで表現 */
-    background-color: #dee2e6; /* Grid lines */
-    border: 1px solid #dee2e6;
-    border-right: none; /* ★一番右の線が二重にならないように調整 */
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px; /* 横の線はgapで表現 */
+  background-color: #dee2e6; /* Grid lines */
+  border: 1px solid #dee2e6;
+  border-right: none; /* ★一番右の線が二重にならないように調整 */
 }
 
 .calendar-header-cell,
 .calendar-cell {
-    background-color: #fff;
-    padding: 8px; 
-    min-height: 120px; /* Adjust as needed for event text */
-    display: flex;
-    flex-direction: column;
-    font-size: 0.9em;
-    overflow: hidden; /* Prevent content from overflowing cell */
+  background-color: #fff;
+  padding: 8px;
+  min-height: 120px; /* Adjust as needed for event text */
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9em;
+  overflow: hidden; /* Prevent content from overflowing cell */
 }
 
 .calendar-header-cell {
-    font-weight: bold;
-    text-align: center;
-    background-color: #e9ecef;
-    min-height: auto;
-    padding: 10px 5px;
-    color: #212529; /* デフォルトの曜日ヘッダー文字色を黒系に */
+  font-weight: bold;
+  text-align: center;
+  background-color: #e9ecef;
+  min-height: auto;
+  padding: 10px 5px;
+  color: #212529; /* デフォルトの曜日ヘッダー文字色を黒系に */
 }
 
 .calendar-header-cell.sunday-header {
-    background-color: #d9534f; /* 赤系の背景 */
-    color: #fff; /* 文字色を白に */
-    margin-bottom: -1px; /* グリッドのgapを覆う */
+  background-color: #d9534f; /* 赤系の背景 */
+  color: #fff; /* 文字色を白に */
+  margin-bottom: -1px; /* グリッドのgapを覆う */
 }
 
 .calendar-header-cell.saturday-header {
-    background-color: #428bca; /* 青系の背景 */
-    color: #fff; /* 文字色を白に */
-    margin-bottom: -1px; /* グリッドのgapを覆う */
+  background-color: #428bca; /* 青系の背景 */
+  color: #fff; /* 文字色を白に */
+  margin-bottom: -1px; /* グリッドのgapを覆う */
 }
 
 .date-number {
-    font-weight: bold;
-    margin-bottom: 6px; /* デフォルトの間隔を2px広げる */
-    align-self: flex-start;
-    color: #000000; /* 通常の曜日の日付の色をより明確な黒に */
+  font-weight: bold;
+  margin-bottom: 6px; /* デフォルトの間隔を2px広げる */
+  align-self: flex-start;
+  color: #000000; /* 通常の曜日の日付の色をより明確な黒に */
 }
 
-.calendar-cell.today .date-number { /* Applied to the date-number div within a today cell */
-    /* background-color: #ffd700; */ /* 単色背景からグラデーションに変更 */
-    background-image: linear-gradient(to bottom, #FFFACD, #FFD700, #B8860B); /* レモンシフォン -> ゴールド -> ダークゴールデンロッド */
-    color: #212529; /* 文字色は黒のまま */
-    border-radius: 50%;
-    width: 1.8em; /* Adjust size as needed */
-    height: 1.8em; /* Adjust size as needed */
-    display: inline-flex; /* Use inline-flex for better alignment if text is short */
-    align-items: center;
-    justify-content: center;
-    padding: -2px; /* Small padding inside the circle */
-    font-weight: bold; /* 当日を少し強調 */
-    margin-bottom: 3px !important; /* 当日の日付とイベントの間隔を元に戻す (6px - 2px = 4px) */
-    box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* 黄色い光の影を追加 */
-    animation: pulse 1.5s infinite alternate; /* 脈動アニメーションを追加 */
+.calendar-cell.today .date-number {
+  /* Applied to the date-number div within a today cell */
+  /* background-color: #ffd700; */ /* 単色背景からグラデーションに変更 */
+  background-image: linear-gradient(
+    to bottom,
+    #fffacd,
+    #ffd700,
+    #b8860b
+  ); /* レモンシフォン -> ゴールド -> ダークゴールデンロッド */
+  color: #212529; /* 文字色は黒のまま */
+  border-radius: 50%;
+  width: 1.8em; /* Adjust size as needed */
+  height: 1.8em; /* Adjust size as needed */
+  display: inline-flex; /* Use inline-flex for better alignment if text is short */
+  align-items: center;
+  justify-content: center;
+  padding: -2px; /* Small padding inside the circle */
+  font-weight: bold; /* 当日を少し強調 */
+  margin-bottom: 3px !important; /* 当日の日付とイベントの間隔を元に戻す (6px - 2px = 4px) */
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* 黄色い光の影を追加 */
+  animation: pulse 1.5s infinite alternate; /* 脈動アニメーションを追加 */
 }
 
 @keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
-    }
-    100% {
-        transform: scale(1.05);
-        box-shadow: 0 0 15px rgba(255, 215, 0, 1);
-    }
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 1);
+  }
 }
 
 /* 土日の日付の色 */
 .calendar-cell .sunday-date-number {
-    color: #d9534f; /* 赤系 */
+  color: #d9534f; /* 赤系 */
 }
 .calendar-cell .saturday-date-number {
-    color: #428bca; /* 青系 */
+  color: #428bca; /* 青系 */
 }
 
 /* 過去の日付のスタイル */
 .calendar-cell.past-date {
-    background-color: #666666; /* 背景を少し濃いグレーに */
-    /* color プロパティは個別の要素で設定するため、ここでは不要 */
+  background-color: #666666; /* 背景を少し濃いグレーに */
+  /* color プロパティは個別の要素で設定するため、ここでは不要 */
 }
 .calendar-cell.past-date .date-number {
-    color: #eeeeee; /* 日付の数字を明るい白系に（コントラスト改善） */
+  color: #eeeeee; /* 日付の数字を明るい白系に（コントラスト改善） */
 }
 .calendar-cell.past-date .events-container .event-entry {
-    opacity: 0.65; /* 過去のイベントは少し薄く表示 */
+  opacity: 0.65; /* 過去のイベントは少し薄く表示 */
 }
 .calendar-cell.past-date .sunday-date-number {
-    color: #853431; /* 過去の日曜日の日付の色を薄く */
+  color: #853431; /* 過去の日曜日の日付の色を薄く */
 }
 
 .events-container {
-    font-size: 0.85em;
-    line-height: 1.3;
-    overflow-y: auto; /* Allow scrolling for many events in a day */
-    flex-grow: 1; /* Allow events container to take remaining space */
+  font-size: 0.85em;
+  line-height: 1.3;
+  overflow-y: auto; /* Allow scrolling for many events in a day */
+  flex-grow: 1; /* Allow events container to take remaining space */
 }
 
 .event-entry {
-    /* background-color is set by JS */
-    border-left: 3px solid; /* border-color is set by JS */
-    padding: 2px 6px; /* 上下のパディングを調整して高さを揃える */
-    margin-bottom: 4px;
-    border-radius: 3px;
-    word-break: break-word;
-    font-size: 1.1em; /* Slightly larger event text */
-    font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif; /* イベントエントリのフォントを基本フォントに */
-    /* color is set by JS based on background */
+  /* background-color is set by JS */
+  border-left: 3px solid; /* border-color is set by JS */
+  padding: 2px 6px; /* 上下のパディングを調整して高さを揃える */
+  margin-bottom: 4px;
+  border-radius: 3px;
+  word-break: break-word;
+  font-size: 1.1em; /* Slightly larger event text */
+  font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif; /* イベントエントリのフォントを基本フォントに */
+  /* color is set by JS based on background */
 }
 
 /* Tooltip Style */
 .event-tooltip {
-    position: absolute;
-    display: none;
-    background-color: #333; /* Dark background for tooltip */
-    color: #fff; /* Light text */
-    padding: 8px 12px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    z-index: 1010; /* Ensure tooltip is above other elements */
-    font-size: 0.85em;
-    line-height: 1.4;
-    max-width: 250px; /* Prevent tooltip from becoming too wide */
-    pointer-events: none; /* Tooltip should not interfere with mouse events */
+  position: absolute;
+  display: none;
+  background-color: #333; /* Dark background for tooltip */
+  color: #fff; /* Light text */
+  padding: 8px 12px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 1010; /* Ensure tooltip is above other elements */
+  font-size: 0.85em;
+  line-height: 1.4;
+  max-width: 250px; /* Prevent tooltip from becoming too wide */
+  pointer-events: none; /* Tooltip should not interfere with mouse events */
 }
 
 .event-tooltip .event-duration-info,
 .event-tooltip .event-day-info {
-    margin-top: 4px; /* 上の要素との間隔を少し設ける */
+  margin-top: 4px; /* 上の要素との間隔を少し設ける */
 }
 
 /* ==========================================================================
    3. スマートフォン向けカレンダー調整 (600px以下)
    ========================================================================== */
 @media (max-width: 600px) {
-    .calendar-nav {
-        gap: 10px; /* ボタンと週表示の間隔を狭める */
-        padding: 6px;
-    }
-    .calendar-nav button {
-        padding: 6px 8px;
-        font-size: 0.9em;
-    }
-    #current-week-display {
-        font-size: 1em;
-    }
+  .calendar-nav {
+    gap: 10px; /* ボタンと週表示の間隔を狭める */
+    padding: 6px;
+  }
+  .calendar-nav button {
+    padding: 6px 8px;
+    font-size: 0.9em;
+  }
+  #current-week-display {
+    font-size: 1em;
+  }
 
-    #calendar-grid {
-        gap: 1px; /* 隙間は維持 */
-    }
+  #calendar-grid {
+    gap: 1px; /* 隙間は維持 */
+  }
 
-    .calendar-header-cell {
-        padding: 6px 3px;
-        font-size: 0.75em; /* 曜日ヘッダーの文字を小さく */
-        min-height: auto;
-    }
+  .calendar-header-cell {
+    padding: 6px 3px;
+    font-size: 0.75em; /* 曜日ヘッダーの文字を小さく */
+    min-height: auto;
+  }
 
-    .calendar-cell {
-        min-height: 80px; /* セルの最小高さを低く */
-        padding: 4px;
-        font-size: 0.8em; /* セル全体のフォント基準を小さく */
-    }
+  .calendar-cell {
+    min-height: 80px; /* セルの最小高さを低く */
+    padding: 4px;
+    font-size: 0.8em; /* セル全体のフォント基準を小さく */
+  }
 
-    .date-number {
-        font-size: 0.9em; /* 日付の数字を少し小さく */
-        margin-bottom: 3px;
-    }
-    .calendar-cell.today .today-date-number {
-        width: 1.6em;
-        height: 1.6em;
-        font-size: 0.9em; /* 当日の日付マーカーも調整 */
-    }
+  .date-number {
+    font-size: 0.9em; /* 日付の数字を少し小さく */
+    margin-bottom: 3px;
+  }
+  .calendar-cell.today .today-date-number {
+    width: 1.6em;
+    height: 1.6em;
+    font-size: 0.9em; /* 当日の日付マーカーも調整 */
+  }
 
-    .events-container {
-        font-size: 0.8em; /* イベントコンテナ内のフォント基準 */
-    }
-    .event-entry {
-        font-size: 0.9em; /* イベント自体の文字を少し小さく */
-        padding: 1px 4px;
-        margin-bottom: 2px;
-        border-left-width: 2px;
-    }
+  .events-container {
+    font-size: 0.8em; /* イベントコンテナ内のフォント基準 */
+  }
+  .event-entry {
+    font-size: 0.9em; /* イベント自体の文字を少し小さく */
+    padding: 1px 4px;
+    margin-bottom: 2px;
+    border-left-width: 2px;
+  }
 }
 
 /* ==========================================================================
    4. 予定リストテーブル
    ========================================================================== */
 .schedule-list-container {
-    margin-top: 40px;
-    background-color: #1a2c6d;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    overflow-x: auto; /* スマホで横スクロール可能にする */
+  margin-top: 40px;
+  background-color: #1a2c6d;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  overflow-x: auto; /* スマホで横スクロール可能にする */
 }
 
 .schedule-list-container h3 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
-    margin-top: 0;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #4a5c9a;
-    color: #f0f0f0;
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
+    "Meiryo", sans-serif;
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #4a5c9a;
+  color: #f0f0f0;
 }
 
 .schedule-table {
-    width: 100%;
-    border-collapse: collapse;
-    color: #e0e0e0; /* テーブル全体の文字色 */
+  width: 100%;
+  border-collapse: collapse;
+  color: #e0e0e0; /* テーブル全体の文字色 */
 }
 
 .schedule-table th,
 .schedule-table td {
-    padding: 10px 12px;
-    text-align: left;
-    border-bottom: 1px solid #2c3e50; /* 行間の区切り線 */
-    border-right: 1px dashed  #2c3e50;
-    vertical-align: top;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #2c3e50; /* 行間の区切り線 */
+  border-right: 1px dashed #2c3e50;
+  vertical-align: top;
 }
 
 .schedule-table thead th {
-    background-color: #2c3e50;
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 0.9em;
-    border-right: 1px solid #2c3e50;
+  background-color: #2c3e50;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.9em;
+  border-right: 1px solid #2c3e50;
 }
 .schedule-table th:last-child,
 .schedule-table td:last-child {
-    border-right: none;
+  border-right: none;
 }
 
 .schedule-table tbody tr:hover {
-    background-color: rgba(44, 62, 80, 0.1); /* ホバー時の背景色をさらに薄く調整 */
+  background-color: rgba(
+    44,
+    62,
+    80,
+    0.1
+  ); /* ホバー時の背景色をさらに薄く調整 */
 }
 
 @media (max-width: 768px) {
-    .schedule-table {
-        min-width: 600px;
-    }
+  .schedule-table {
+    min-width: 600px;
+  }
 }
 
 .schedule-table td {
-    font-size: 0.95em;
-    font-family: 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
+  font-size: 0.95em;
+  font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
 }
 
 .schedule-system-tag {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 0.8em;
-    margin-right: 8px;
-    line-height: 1.2;
-    vertical-align: middle;
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  margin-right: 8px;
+  line-height: 1.2;
+  vertical-align: middle;
 }
 
 /* ==========================================================================
@@ -317,514 +330,580 @@
    6. トグルスイッチコンテナ
    ========================================================================== */
 .toggle-switch-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 15px;
-    margin-bottom: 25px;
-    color: #e0e0e0;
-    font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  margin-bottom: 25px;
+  color: #e0e0e0;
+  font-size: 1em;
 }
 
 /* ==========================================================================
    7. フィルタリング機能
    ========================================================================== */
 .daycord-controls-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 .daycord-controls-wrapper .filter-container {
-    margin-top: 0;
-    flex-grow: 1;
+  margin-top: 0;
+  flex-grow: 1;
 }
 
 .filter-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 15px;
-    color: #e0e0e0;
-    font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  color: #e0e0e0;
+  font-size: 1em;
 }
 .filter-container label {
-    flex-shrink: 0;
-    white-space: nowrap;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 #name-filter-select,
 #scenario-filter-select,
 #preset-filter-select {
-    background-color: #0d1a50;
-    color: #eee;
-    border: 1px solid #2a3c7d;
-    border-radius: 4px;
-    padding: 8px 10px;
-    font-size: 0.9em;
-    font-family: inherit;
-    width: 100%;
-    max-width: 400px;
-    min-width: 0; 
-    cursor: pointer;
+  background-color: #0d1a50;
+  color: #eee;
+  border: 1px solid #2a3c7d;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 0.9em;
+  font-family: inherit;
+  width: 100%;
+  max-width: 400px;
+  min-width: 0;
+  cursor: pointer;
 }
 
 #name-filter-select:focus,
 #scenario-filter-select:focus,
 #preset-filter-select:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
 }
 .select-wrapper {
-    position: relative;
-    flex-grow: 1;
-    overflow: hidden;
-    min-width: 0;
+  position: relative;
+  flex-grow: 1;
+  overflow: hidden;
+  min-width: 0;
 }
 
 @media (max-width: 768px) {
-    .daycord-controls-wrapper {
-        flex-direction: column;
-        gap: 15px;
-    }
-    .daycord-controls-wrapper .filter-container {
-        margin-top: 0;
-    }
+  .daycord-controls-wrapper {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .daycord-controls-wrapper .filter-container {
+    margin-top: 0;
+  }
+}
+
+/* 連続日数フィルターのスタイル */
+.continuous-days-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 要素間の間隔 */
+  color: #e0e0e0; /* テキスト色 */
+  font-size: 0.95em;
+  white-space: nowrap; /* 折り返しを防ぐ */
+}
+
+.continuous-days-filter label {
+  flex-shrink: 0; /* ラベルが縮まないように */
+}
+
+#continuous-days-input {
+  width: 24px; /* 幅を調整 */
+  padding: 6px 8px;
+  border: 1px solid #2a3c7d;
+  border-radius: 4px;
+  background-color: #0d1a50;
+  color: #eee;
+  font-size: 0.9em;
+  font-family: inherit;
+  text-align: center; /* 数字を中央揃え */
+  -moz-appearance: textfield; /* Firefoxのスピナーを非表示 */
+}
+
+/* Chrome, Safari, Edge, Opera のスピナーを非表示 */
+#continuous-days-input::-webkit-outer-spin-button,
+#continuous-days-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#continuous-days-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
 }
 
 /* ==========================================================================
    8. デイコード日程調整機能
    ========================================================================== */
 #daycord-table-container {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .daycord-table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .daycord-table-header h4 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
-    margin: 0;
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
+    "Meiryo", sans-serif;
+  margin: 0;
 }
 
 .selected-dates-output {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-grow: 1;
-    max-width: 500px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1;
+  max-width: 500px;
 }
 
 .selected-dates-output input {
-    flex-grow: 1;
-    padding: 8px 12px;
-    border: 1px solid #2a3c7d;
-    border-radius: 4px;
-    background-color: #0d1a50;
-    color: #eee;
-    font-size: 0.9em;
-    min-width: 0;
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1px solid #2a3c7d;
+  border-radius: 4px;
+  background-color: #0d1a50;
+  color: #eee;
+  font-size: 0.9em;
+  min-width: 0;
 }
 
 .selected-dates-output button {
-    flex-shrink: 0;
-    width: 38px;
-    height: 38px;
-    font-size: 1.2em;
-    border-radius: 4px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  font-size: 1.2em;
+  border-radius: 4px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .selected-dates-output button:hover {
-    background-color: #2980b9;
-    transform: scale(1.05);
+  background-color: #2980b9;
+  transform: scale(1.05);
 }
 
 @media (max-width: 768px) {
-    .daycord-table-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    .selected-dates-output {
-        width: 100%;
-        max-width: none;
-    }
+  .daycord-table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .selected-dates-output {
+    width: 100%;
+    max-width: none;
+  }
 }
 
 #daycord-table-container .table-wrapper {
-    overflow-x: auto;
+  overflow-x: auto;
 }
 
 .daycord-table {
-    width: 100%;
-    min-width: 1200px;
-    border-collapse: collapse;
-    color: #e0e0e0;
-    font-size: 0.85em;
-    white-space: nowrap;
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+  color: #e0e0e0;
+  font-size: 0.85em;
+  white-space: nowrap;
 }
 
 .daycord-table th,
 .daycord-table td {
-    border: 1px solid #2c3e50;
-    padding: 4px;
-    text-align: center;
-    transition: background-color 0.2s;
+  border: 1px solid #2c3e50;
+  padding: 4px;
+  text-align: center;
+  transition: background-color 0.2s;
 }
 
 /* 日付ヘッダー(th)の基本スタイル */
 .daycord-table thead th {
-    background-color: #2c3e50;
-    font-size: 0.9em;
-    min-height: 70px; /* ★修正: 高さを調整 */
-    position: relative;
-    padding: 0;
+  background-color: #2c3e50;
+  font-size: 0.9em;
+  min-height: 70px; /* ★修正: 高さを調整 */
+  position: relative;
+  padding: 0;
 }
 
 /* 「参加者」ヘッダーのスタイルを上書き */
 .daycord-table thead th:first-child {
-    writing-mode: horizontal-tb;
-    vertical-align: middle;
-    padding: 4px 4px 4px 25px;
-    z-index: 3;
+  writing-mode: horizontal-tb;
+  vertical-align: middle;
+  padding: 4px 4px 4px 25px;
+  z-index: 3;
 }
 
 /* ヘッダー全体をボタン化するためのラベル */
 .daycord-table thead th .date-header-label {
-    display: flex;
-    justify-content: center; /* 縦書きの主軸（縦）方向の中央揃え */
-    align-items: center;     /* ★修正: 交差軸（横）方向の中央揃え */
-    width: 100%;
-    padding: 6px 0; /* ★修正: 高さを調整 */
-    cursor: pointer;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    white-space: nowrap;
-    transition: background-color 0.2s;
+  display: flex;
+  justify-content: center; /* 縦書きの主軸（縦）方向の中央揃え */
+  align-items: center; /* ★修正: 交差軸（横）方向の中央揃え */
+  width: 100%;
+  padding: 6px 0; /* ★修正: 高さを調整 */
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  transition: background-color 0.2s;
 }
 .daycord-table thead th:not(.selected-date-cell) .date-header-label:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ヘッダー内の実際のチェックボックスは非表示 */
 .daycord-table thead th .date-checkbox {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-    pointer-events: none;
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }
 
 /* ★修正: 選択された日付のヘッダーのスタイル */
 .daycord-table thead th.selected-date-cell {
-    background-color: #00d1b2 !important; /* !importantでホバーより優先 */
+  background-color: #00d1b2 !important; /* !importantでホバーより優先 */
 }
 .daycord-table thead th.selected-date-cell .date-header-label {
-    color: #fff;
-    font-weight: bold;
+  color: #fff;
+  font-weight: bold;
 }
 .daycord-table thead th.selected-date-cell .date-header-label:hover {
-    background-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.15);
 }
-
 
 /* 参加者名・予定の列（最初の列）の共通スタイル */
 .daycord-table thead th:first-child,
 .daycord-table tbody td:first-child {
-    font-weight: bold;
-    min-width: 100px;
-    position: sticky;
-    left: 0;
-    background-color: transparent;
+  font-weight: bold;
+  min-width: 100px;
+  position: sticky;
+  left: 0;
+  background-color: transparent;
 }
 
 .daycord-table thead th:first-child::before,
 .daycord-table tbody td:first-child::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
 }
 
 .daycord-table thead th:first-child::before {
-    background-color: #34495e;
-    box-shadow: -1px 0 0 #34495e, 2px 0 5px rgba(0,0,0,0.2);
+  background-color: #34495e;
+  box-shadow: -1px 0 0 #34495e, 2px 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .daycord-table tbody td:first-child::before {
-    background-color: #2c3e50;
-    box-shadow: -1px 0 0 #2c3e50, 2px 0 5px rgba(0,0,0,0.2);
+  background-color: #2c3e50;
+  box-shadow: -1px 0 0 #2c3e50, 2px 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .daycord-table tbody tr.highlight {
-    background-color: rgba(52, 152, 219, 0.2);
+  background-color: rgba(52, 152, 219, 0.2);
 }
 
 /* ステータスに応じた背景色 */
-.daycord-table td[data-status="◎"] { background-color: #3298dc; color: #fff; }
-.daycord-table td[data-status="〇"] { background-color: #5cb85c; color: #fff; }
-.daycord-table td[data-status="△"] { background-color: #ffdd57; color: rgba(0,0,0,.7); }
-.daycord-table td[data-status="×"] { background-color: #f14668; color: #fff; }
-.daycord-table td[data-status="▢"] { background-color: #00d1b2; color: #fff; }
+.daycord-table td[data-status="◎"] {
+  background-color: #3298dc;
+  color: #fff;
+}
+.daycord-table td[data-status="〇"] {
+  background-color: #5cb85c;
+  color: #fff;
+}
+.daycord-table td[data-status="△"] {
+  background-color: #ffdd57;
+  color: rgba(0, 0, 0, 0.7);
+}
+.daycord-table td[data-status="×"] {
+  background-color: #f14668;
+  color: #fff;
+}
+.daycord-table td[data-status="▢"] {
+  background-color: #00d1b2;
+  color: #fff;
+}
 
 /* ==========================================================================
    9. 参加者選択UI (デイコード)
    ========================================================================== */
 #availability-results-container {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    background-color: #0d1a50;
-    padding: 15px 20px;
-    border-radius: 8px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background-color: #0d1a50;
+  padding: 15px 20px;
+  border-radius: 8px;
 }
 
 .availability-line {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 10px;
 }
-.availability-line:last-child { margin-bottom: 0; }
+.availability-line:last-child {
+  margin-bottom: 0;
+}
 .line-label {
-    flex-shrink: 0;
-    font-weight: bold;
-    padding: 4px 10px;
-    border-radius: 4px;
-    color: #fff;
-    width: 50px;
-    text-align: center;
+  flex-shrink: 0;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: #fff;
+  width: 50px;
+  text-align: center;
 }
-.line-yoyu { background-color: #16a34a; }
-.line-dakyo { background-color: #ca8a04; }
-.line-ichimatsu { background-color: #c2410c; }
-.line-hiru { background-color: #4338ca; }
+.line-yoyu {
+  background-color: #16a34a;
+}
+.line-dakyo {
+  background-color: #ca8a04;
+}
+.line-ichimatsu {
+  background-color: #c2410c;
+}
+.line-hiru {
+  background-color: #4338ca;
+}
 
 .availability-line p {
-    margin: 0;
-    padding-top: 4px;
-    font-size: 0.9em;
-    line-height: 1.6;
-    word-break: break-word;
+  margin: 0;
+  padding-top: 4px;
+  font-size: 0.9em;
+  line-height: 1.6;
+  word-break: break-word;
 }
 
 .checkbox-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 15px;
-    flex-grow: 1;
-    background-color: #0d1a50;
-    border: 1px solid #2a3c7d;
-    border-radius: 4px;
-    padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 15px;
+  flex-grow: 1;
+  background-color: #0d1a50;
+  border: 1px solid #2a3c7d;
+  border-radius: 4px;
+  padding: 10px;
 }
 
 .checkbox-container label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.9em;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9em;
+  cursor: pointer;
 }
 
 .participant-selector {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-grow: 1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-grow: 1;
 }
 #daycord-name-select {
-    background-color: #0d1a50;
-    color: #eee;
-    border: 1px solid #2a3c7d;
-    border-radius: 4px;
-    padding: 8px 10px;
-    font-size: 0.9em;
-    font-family: inherit;
-    flex-grow: 1;
-    max-width: 300px;
-    cursor: pointer;
+  background-color: #0d1a50;
+  color: #eee;
+  border: 1px solid #2a3c7d;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 0.9em;
+  font-family: inherit;
+  flex-grow: 1;
+  max-width: 300px;
+  cursor: pointer;
 }
 .control-btn {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-size: 1.5em;
-    line-height: 1;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.5em;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .control-btn:hover {
-    background-color: #2980b9;
-    transform: scale(1.1);
+  background-color: #2980b9;
+  transform: scale(1.1);
 }
 #clear-participants-btn {
-    background-color: #e53e3e;
+  background-color: #e53e3e;
 }
 #clear-participants-btn:hover {
-    background-color: #c0392b;
+  background-color: #c0392b;
 }
 
 .remove-participant-btn {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 25px;
-    background-color: #f14668;
-    color: #fff;
-    border: none;
-    font-size: 1em;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    transition: background-color 0.2s;
-    z-index: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 25px;
+  background-color: #f14668;
+  color: #fff;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  transition: background-color 0.2s;
+  z-index: 1;
 }
 .remove-participant-btn:hover {
-    background-color: #e53e3e;
+  background-color: #e53e3e;
 }
 
 /* ==========================================================================
    10. デイコード記号説明
    ========================================================================== */
 #daycord-legend {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    background-color: #0d1a50;
-    padding: 15px 20px;
-    border-radius: 8px;
-    border: 1px solid #2a3c7d;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #0d1a50;
+  padding: 15px 20px;
+  border-radius: 8px;
+  border: 1px solid #2a3c7d;
 }
 #daycord-legend summary {
-    cursor: pointer;
-    outline: none;
+  cursor: pointer;
+  outline: none;
 }
 #daycord-legend summary::-webkit-details-marker {
-    display: none;
+  display: none;
 }
 #daycord-legend h4 {
-    font-family: 'Corporate-Logo-Bold', 'HigashiOme-Gothic-C', 'Yu Gothic', 'Meiryo', sans-serif;
-    margin: 0;
-    display: inline-block;
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
+    "Meiryo", sans-serif;
+  margin: 0;
+  display: inline-block;
 }
 #daycord-legend[open] summary h4 {
-    margin-bottom: 15px;
-    border-bottom: 1px solid #4a5c9a;
-    padding-bottom: 10px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #4a5c9a;
+  padding-bottom: 10px;
 }
 #daycord-legend ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 0.9em;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9em;
 }
 #daycord-legend li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
 }
 #daycord-legend li:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 .legend-symbol {
-    font-weight: bold;
-    font-size: 1.2em;
-    width: 25px;
-    text-align: center;
+  font-weight: bold;
+  font-size: 1.2em;
+  width: 25px;
+  text-align: center;
 }
 
 /* ==========================================================================
    11. 汎用ツールチップ & 強調表示
    ========================================================================== */
 .line-label[data-tooltip] {
-    position: relative;
-    cursor: help;
+  position: relative;
+  cursor: help;
 }
 .line-label[data-tooltip]::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 125%;
-    left: 0;
-    transform: none;
-    background-color: #333;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.85em;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s, visibility 0.2s;
-    z-index: 10;
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 0;
+  transform: none;
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 10;
 }
 .line-label[data-tooltip]:hover::after {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ==========================================================================
    12. デイコード表の個別スタイル
    ========================================================================== */
 .daycord-table tbody tr:nth-child(even) {
-    background-color: rgba(44, 62, 80, 0.1);
+  background-color: rgba(44, 62, 80, 0.1);
 }
 .daycord-table tbody tr:hover {
-    background-color: rgba(52, 152, 219, 0.2) !important;
+  background-color: rgba(52, 152, 219, 0.2) !important;
 }
 
 .daycord-table tbody td:first-child {
-    background-color: #2c3e50;
-    z-index: 2;
+  background-color: #2c3e50;
+  z-index: 2;
 }
 
 .daycord-table td {
-    vertical-align: middle;
-    text-align: center;
+  vertical-align: middle;
+  text-align: center;
 }
 
 .daycord-table tbody td.has-event {
-    background-color: rgba(229, 62, 62, 0.5);
+  background-color: rgba(229, 62, 62, 0.5);
 }
 
 .daycord-table tbody td.is-conflicting {
-    background-color: #e53e3e;
+  background-color: #e53e3e;
 }
 
 .daycord-status-tag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: auto;
-    padding: 0.3em 0.75em;
-    border-radius: 6px;
-    font-size: 0.9em;
-    font-weight: bold;
-    line-height: 1.2;
-    min-width: 34px;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  padding: 0.3em 0.75em;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: bold;
+  line-height: 1.2;
+  min-width: 34px;
+  white-space: nowrap;
 }
 
 .daycord-status-tag.status-o,
@@ -832,62 +911,85 @@
 .daycord-status-tag.status-sankaku,
 .daycord-status-tag.status-batsu,
 .daycord-status-tag.status-shikaku {
-    color: #fff;
+  color: #fff;
 }
-.daycord-status-tag.status-o { background-color: #3298dc; }
-.daycord-status-tag.status-maru { background-color: #5cb85c; }
-.daycord-status-tag.status-sankaku { background-color: #ffdd57; color: rgba(0,0,0,0.7); }
-.daycord-status-tag.status-batsu { background-color: #f14668; }
-.daycord-status-tag.status-shikaku { background-color: #00d1b2; }
-.daycord-status-tag.status-hyphen { background-color: #f5f5f5; color: #7a7a7a; }
+.daycord-status-tag.status-o {
+  background-color: #3298dc;
+}
+.daycord-status-tag.status-maru {
+  background-color: #5cb85c;
+}
+.daycord-status-tag.status-sankaku {
+  background-color: #ffdd57;
+  color: rgba(0, 0, 0, 0.7);
+}
+.daycord-status-tag.status-batsu {
+  background-color: #f14668;
+}
+.daycord-status-tag.status-shikaku {
+  background-color: #00d1b2;
+}
+.daycord-status-tag.status-hyphen {
+  background-color: #f5f5f5;
+  color: #7a7a7a;
+}
 
 .daycord-event-entry {
-    padding: 2px 4px;
-    margin-bottom: 2px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: help;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: help;
 }
 .daycord-event-entry:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 /* ==========================================================================
    13. 候補日表示スタイル
    ========================================================================== */
 .availability-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 .availability-header h4 {
-    margin: 0;
+  margin: 0;
 }
+
+/* 連続日数フィルターと未記入チェックボックスを横並びにするコンテナ */
+.availability-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* 要素間の間隔 */
+  flex-wrap: wrap; /* 必要に応じて折り返す */
+}
+
 #availability-results-container .toggle-switch-container {
-    margin: 0;
+  margin: 0;
 }
 
 .availability-line p {
-    margin: 0;
-    padding-top: 4px;
-    font-size: 0.9em;
-    line-height: 1.6;
-    word-break: normal;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 6px;
+  margin: 0;
+  padding-top: 4px;
+  font-size: 0.9em;
+  line-height: 1.6;
+  word-break: normal;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
 }
 
 .date-period {
-    background-color: #34495e;
-    color: #fff;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.9em;
-    white-space: nowrap;
+  background-color: #34495e;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  white-space: nowrap;
 }
