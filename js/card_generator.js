@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isNewOverlayImageSelected = false;
 
   let allCardsData = [],
-    selectedColorFilter = "all";
+    activeColorFilters = new Set(["all"]);
   let selectedCardIds = new Set();
   let teikeiCategories = [];
   let batchData = [],
@@ -684,27 +684,32 @@ document.addEventListener("DOMContentLoaded", () => {
       ? downloadTemplateBtn
       : document.getElementById("download-btn");
     const originalButtonText = button.textContent;
-    button.textContent = "生成中...";
+    button.innerHTML = `
+        <span class="spinner"></span> 生成中...
+    `;
     button.disabled = true;
 
-    const generatorContent = document.getElementById("generator-content");
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-    const originalGeneratorContentStyle = generatorContent.style.cssText;
-    const originalPreviewWrapperStyle = previewWrapper.style.cssText;
-    const originalPreviewPanelStyle = previewPanel.style.cssText;
+    // ローディングオーバーレイを表示
+    const overlay = document.createElement("div");
+    overlay.className = "loading-overlay is-visible";
+    overlay.innerHTML = "<span>カード生成中...</span>";
+    document.body.appendChild(overlay);
+
+    // プレビューエリアを固定して描画品質を安定させる
+    const rect = previewArea.getBoundingClientRect();
+    const tempContainer = document.createElement("div");
+    tempContainer.style.position = "fixed";
+    tempContainer.style.left = `${rect.left}px`;
+    tempContainer.style.top = `${rect.top}px`;
+    tempContainer.style.width = `${rect.width}px`;
+    tempContainer.style.height = `${rect.height}px`;
+    tempContainer.style.zIndex = "1001"; // オーバーレイより手前
+    tempContainer.appendChild(cardContainer.cloneNode(true));
+    document.body.appendChild(tempContainer);
+
     const originalCardContainerStyle = cardContainer.style.cssText;
-    const originalBodyOverflow = document.body.style.overflow;
 
     try {
-      document.body.style.overflow = "hidden";
-      generatorContent.style.cssText +=
-        "display: block !important; position: absolute !important; left: -9999px !important;";
-      previewWrapper.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 480px !important; height: 720px !important; overflow: visible !important; z-index: -1 !important;`;
-      previewPanel.style.cssText = `width: 480px !important; height: 720px !important; transform: none !important; transform-origin: 0 0 !important;`;
-      cardContainer.style.width = "480px";
-      cardContainer.style.height = "720px";
-
       document.body.classList.add("is-rendering-output");
 
       await Promise.all([waitForCardImages(), document.fonts.ready]);
@@ -712,7 +717,7 @@ document.addEventListener("DOMContentLoaded", () => {
         requestAnimationFrame(() => setTimeout(resolve, 100))
       );
 
-      const canvas = await html2canvas(cardContainer, {
+      const canvas = await html2canvas(tempContainer.firstChild, {
         backgroundColor: null,
         useCORS: true,
         scale: highResCheckbox.checked ? 2 : 1,
@@ -750,12 +755,9 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     } finally {
       document.body.classList.remove("is-rendering-output");
-      generatorContent.style.cssText = originalGeneratorContentStyle;
-      previewWrapper.style.cssText = originalPreviewWrapperStyle;
-      previewPanel.style.cssText = originalPreviewPanelStyle;
       cardContainer.style.cssText = originalCardContainerStyle;
-      document.body.style.overflow = originalBodyOverflow;
-      window.scrollTo(scrollX, scrollY);
+      document.body.removeChild(overlay);
+      document.body.removeChild(tempContainer);
 
       button.textContent = originalButtonText;
       button.disabled = false;
@@ -882,7 +884,9 @@ document.addEventListener("DOMContentLoaded", () => {
     allButton.className = "color-filter-btn active";
     allButton.dataset.color = "all";
     allButton.textContent = "全て";
-    allButton.style.borderColor = "#c8a464";
+    allButton.style.setProperty("--filter-btn-border-color", "#c8a464");
+    allButton.style.setProperty("--filter-btn-hover-bg-color", "#a48244");
+    allButton.style.setProperty("--filter-btn-hover-text-color", "#ffffff");
     dbColorFilterContainer.appendChild(allButton);
 
     Object.entries(cardColorData).forEach(([id, details]) => {
@@ -891,22 +895,60 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.className = "color-filter-btn";
       btn.dataset.color = id;
       btn.textContent = details.name;
-      btn.style.borderColor = details.color.startsWith("linear")
-        ? "#c8a464"
+      const mainColor = details.color.startsWith("linear")
+        ? "#888" // グラデーションはCSSで直接扱えないため単色にフォールバック
         : details.color;
+      const hoverColor = details.hover.startsWith("linear")
+        ? "#aaa" // グラデーションはCSSで直接扱えないため単色にフォールバック
+        : details.hover;
+
+      btn.style.setProperty("--filter-btn-border-color", mainColor);
+      btn.style.setProperty("--filter-btn-hover-bg-color", hoverColor);
+      btn.style.setProperty("--filter-btn-hover-text-color", details.textColor);
       dbColorFilterContainer.appendChild(btn);
     });
   }
 
   function handleColorFilterClick(e) {
-    if (e.target.classList.contains("color-filter-btn")) {
-      dbColorFilterContainer
-        .querySelector(".active")
-        ?.classList.remove("active");
-      e.target.classList.add("active");
-      selectedColorFilter = e.target.dataset.color;
-      applyDbFiltersAndSort();
+    const button = e.target.closest(".color-filter-btn");
+    if (!button) return;
+
+    const clickedColor = button.dataset.color;
+    const isAllButton = clickedColor === "all";
+
+    if (isAllButton) {
+      // 「全て」ボタンがクリックされたら、"all"のみアクティブにする
+      activeColorFilters.clear();
+      activeColorFilters.add("all");
+    } else {
+      // 色ボタンがクリックされた
+      // まず"all"を非アクティブにする
+      activeColorFilters.delete("all");
+
+      // クリックされた色をトグル
+      if (activeColorFilters.has(clickedColor)) {
+        activeColorFilters.delete(clickedColor);
+      } else {
+        activeColorFilters.add(clickedColor);
+      }
+
+      // もしアクティブな色がなくなったら、"all"に戻す
+      if (activeColorFilters.size === 0) {
+        activeColorFilters.add("all");
+      }
     }
+
+    // 状態(activeColorFilters)に基づいてUIを更新
+    dbColorFilterContainer
+      .querySelectorAll(".color-filter-btn")
+      .forEach((btn) => {
+        btn.classList.toggle(
+          "active",
+          activeColorFilters.has(btn.dataset.color)
+        );
+      });
+
+    applyDbFiltersAndSort();
   }
 
   function handleCardListClick(e) {
@@ -926,9 +968,12 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       e.stopPropagation();
       if (button.classList.contains("save-btn")) {
+        const originalText = button.textContent;
         button.textContent = "準備中...";
+        button.disabled = true;
         downloadSingleCardFromDb(cardId).finally(() => {
-          button.textContent = "保存";
+          button.textContent = originalText;
+          button.disabled = false;
         });
       } else if (button.classList.contains("edit-btn")) {
         document.getElementById("tab-generator").checked = true;
@@ -1152,10 +1197,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function applyDbFiltersAndSort() {
     if (!allCardsData) return;
-    let filteredCards =
-      selectedColorFilter === "all"
-        ? [...allCardsData]
-        : allCardsData.filter((card) => card["色"] === selectedColorFilter);
+    let filteredCards = [...allCardsData];
+
+    // 色フィルター
+    if (!activeColorFilters.has("all") && activeColorFilters.size > 0) {
+      filteredCards = filteredCards.filter((card) =>
+        activeColorFilters.has(card["色"])
+      );
+    }
 
     const searchTerm = dbSearchInput.value.toLowerCase().trim();
     const searchField = dbSearchField.value;
@@ -1190,6 +1239,16 @@ document.addEventListener("DOMContentLoaded", () => {
           return Number(b["ID"]) - Number(a["ID"]);
         case "id-asc":
           return Number(a["ID"]) - Number(b["ID"]);
+        case "timestamp-desc":
+          return (
+            new Date(b["タイムスタンプ"] || 0) -
+            new Date(a["タイムスタンプ"] || 0)
+          );
+        case "timestamp-asc":
+          return (
+            new Date(a["タイムスタンプ"] || 0) -
+            new Date(b["タイムスタンプ"] || 0)
+          );
         case "name-asc":
           return (a["カード名"] || "").localeCompare(b["カード名"] || "");
         case "name-desc":
@@ -1254,6 +1313,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const notesHTML = ""; // 備考欄は表示しない
       const isChecked = selectedCardIds.has(card["ID"]) ? "checked" : "";
+      const timestamp = card["タイムスタンプ"];
+      let formattedTimestamp = "";
+      if (timestamp) {
+        const date = new Date(timestamp);
+        if (!isNaN(date)) {
+          formattedTimestamp = `${date.getFullYear()}/${(
+            "0" +
+            (date.getMonth() + 1)
+          ).slice(-2)}/${("0" + date.getDate()).slice(-2)} ${(
+            "0" + date.getHours()
+          ).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
+        }
+      }
 
       cardElement.innerHTML = `
                 <div class="card-checkbox-container">
@@ -1277,6 +1349,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     ${notesHTML}
                     <p class="db-card-id" style="color: ${textColor}; opacity: 0.8;">ID: ${
         card["ID"]
+      }</p>
+                    <p class="db-card-meta" style="color: ${textColor}; opacity: 0.7; font-size: 0.8em; margin-top: 8px;">最終更新: ${
+        formattedTimestamp || "N/A"
       }</p>
                 </div>
                 <div class="db-card-actions">
@@ -1974,13 +2049,18 @@ document.addEventListener("DOMContentLoaded", () => {
     detailView.addEventListener("click", (e) => {
       const cardId = detailView.dataset.cardId;
       if (!cardId) return;
-      if (e.target.id === "db-info-download-btn") {
+      const targetId = e.target.id;
+
+      if (targetId === "db-info-download-btn") {
         const btn = e.target;
+        const originalText = btn.textContent;
         btn.textContent = "準備中...";
-        downloadSingleCardFromDb(cardId).finally(
-          () => (btn.textContent = "保存")
-        );
-      } else if (e.target.id === "db-info-edit-btn") {
+        btn.disabled = true;
+        downloadSingleCardFromDb(cardId).finally(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        });
+      } else if (targetId === "db-info-edit-btn") {
         loadCardForEditing(cardId);
       } else if (e.target.id === "db-info-delete-btn") {
         const cardName =
@@ -2007,6 +2087,16 @@ document.addEventListener("DOMContentLoaded", () => {
     detailView.style.display = "flex";
     detailView.dataset.cardId = cardId;
     const infoWrapper = document.querySelector(".db-detail-info-wrapper");
+    const colorDetails = cardColorData[cardData["色"]] || {
+      color: "#0d1a50",
+      hover: "#1a2c6d",
+      textColor: "#bdc3c7",
+    };
+    infoWrapper.style.backgroundColor = colorDetails.color.startsWith("linear")
+      ? colorDetails.hover
+      : colorDetails.color;
+    infoWrapper.style.borderColor = colorDetails.hover;
+
     document.getElementById("db-info-id").textContent = cardData["ID"];
     document.getElementById("db-info-name").textContent =
       cardData["カード名"] || "(無題)";
@@ -2035,6 +2125,14 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       sourceSection.style.display = "none";
     }
+    // テキストカラーも設定
+    infoWrapper.querySelectorAll("h2, h4, p, span").forEach((el) => {
+      if (el.id === "db-info-name" || el.tagName === "H4") {
+        el.style.color = "#f0e6d2"; // タイトルやヘッダーは明るい色
+      } else {
+        el.style.color = colorDetails.textColor;
+      }
+    });
     const notesSection = document.getElementById("db-info-notes-section");
     if (cardData["備考"]) {
       document.getElementById("db-info-notes").textContent = cardData["備考"];
@@ -2325,6 +2423,32 @@ document.addEventListener("DOMContentLoaded", () => {
     previewArea.addEventListener("mousedown", startDrag);
     previewArea.addEventListener("touchstart", startDrag, { passive: false });
     previewArea.addEventListener("wheel", handleZoom, { passive: false });
+
+    // --- スマホ長押し対応 ---
+    let longPressTimer;
+    previewArea.addEventListener("contextmenu", (e) => e.preventDefault()); // PCでの右クリックメニューを無効化
+    previewArea.addEventListener(
+      "touchstart",
+      (e) => {
+        if (e.touches.length === 1) {
+          longPressTimer = setTimeout(() => {
+            showCustomAlert(
+              "画像を長押ししました。カードを画像として保存します。"
+            );
+            downloadCard(false);
+          }, 800); // 800msで長押しと判断
+        }
+      },
+      { passive: true }
+    );
+    previewArea.addEventListener("touchend", () =>
+      clearTimeout(longPressTimer)
+    );
+    previewArea.addEventListener("touchmove", () =>
+      clearTimeout(longPressTimer)
+    );
+    // --- ここまで ---
+
     downloadBtn.addEventListener("click", () => downloadCard(false));
     downloadTemplateBtn.addEventListener("click", () => downloadCard(true));
     sparkleCheckbox.addEventListener("change", updateSparkleEffect);
