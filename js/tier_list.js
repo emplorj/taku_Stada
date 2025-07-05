@@ -52,6 +52,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // (中略: formatTextWithMarkdown, groupBy は変更なし)
     function formatTextWithMarkdown(text){return text?text.replace(/^! (.*$)/gim,'<p class="custom-highlight-text">$1</p>').replace(/^# (.*$)/gim,"<h4>$1</h4>").replace(/^## (.*$)/gim,"<h5>$1</h5>").replace(/^### (.*$)/gim,"<h6>$1</h6>").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>"):"";}
+    function parseCsvToArray(csvText) {
+        const lines = csvText.trim().replace(/\r\n|\r/g, "\n").split('\n');
+        const recordsAsStrings = [];
+        let currentRecordLines = [];
+
+        if (lines.length > 0) {
+            // ヘッダー行は常に最初のレコード
+            recordsAsStrings.push(lines[0]);
+            
+            // データ行の処理
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                // 新しいレコードの始まりかチェック
+                if (/^(?:SW|DX3|サタスペ|ネクロニカ),\d+,/.test(line)) {
+                    if (currentRecordLines.length > 0) {
+                        recordsAsStrings.push(currentRecordLines.join('\n'));
+                    }
+                    currentRecordLines = [line];
+                } else {
+                    currentRecordLines.push(line);
+                }
+            }
+            // 最後のレコードを追加
+            if (currentRecordLines.length > 0) {
+                recordsAsStrings.push(currentRecordLines.join('\n'));
+            }
+        }
+
+        // 各レコード文字列をフィールドの配列にパース
+        return recordsAsStrings.map(record => {
+            const fields = [];
+            let inQuote = false;
+            let fieldBuffer = '';
+            for (let i = 0; i < record.length; i++) {
+                const char = record[i];
+                if (char === '"') {
+                    if (inQuote && i + 1 < record.length && record[i + 1] === '"') {
+                        fieldBuffer += '"';
+                        i++; // エスケープされたクォートを処理
+                    } else {
+                        inQuote = !inQuote;
+                    }
+                } else if (char === ',' && !inQuote) {
+                    fields.push(fieldBuffer);
+                    fieldBuffer = '';
+                } else {
+                    fieldBuffer += char;
+                }
+            }
+            fields.push(fieldBuffer);
+            return fields;
+        });
+    }
     function groupBy(array,key){return array.reduce((result,currentValue)=>((result[currentValue[key]]=result[currentValue[key]]||[]).push(currentValue),result),{})}
     
     const mainContainer = document.getElementById('systems-tier-list-container');
@@ -211,13 +264,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // (中略: closeBookModal, buildAllTierLists は変更なし)
     function closeBookModal(){if(modal){modal.style.display="none";document.body.classList.remove("modal-open")}}
-    async function buildAllTierLists(){
-        try{
-            mainContainer.innerHTML="<p>リストを生成中...</p>";
-            const response=await fetch(TIER_LIST_CSV_URL,{cache:"no-cache"});
-            if(!response.ok)throw new Error("Tierリストデータの取得に失敗");
-            const csvText=await response.text(),allRows=parseCsvToArray(csvText),header=allRows[0],dataRows=allRows.slice(1); // parseCsvToArray を使用
-            if(!["system","rankOrder","title","imageUrl","bookUrl"].every(h=>header.includes(h)))throw new Error(`CSVヘッダーに必須項目（system, rankOrder, title, imageUrl, bookUrl）がありません。`);const headerMap={};header.forEach((h,i)=>{headerMap[h.trim()]=i});const allBooks=dataRows.map(row=>{const book={};return Object.keys(headerMap).forEach(key=>{book[key]=(row[headerMap[key]]||"").trim()}),book}).filter(book=>book.system&&book.system.trim()!==""),systems=groupBy(allBooks,"system");generateHtml(systems)}catch(error){console.error("Tierリストの生成に失敗しました:",error),mainContainer.innerHTML=`<p class="error">リストの表示に失敗しました。<br>${error.message}</p>`}
+    async function buildAllTierLists() {
+        try {
+            mainContainer.innerHTML = "<p>リストを生成中...</p>";
+            const response = await fetch(TIER_LIST_CSV_URL, { cache: "no-cache" });
+            if (!response.ok) throw new Error("Tierリストデータの取得に失敗");
+
+            const csvText = await response.text();
+            const allRows = parseCsvToArray(csvText); // 修正されたCSVパーサーを使用
+            
+            // ヘッダー行が空、または必須項目が欠けている場合はエラー
+            if (allRows.length === 0 || allRows[0].length === 0) {
+                throw new Error("CSVデータが空か、ヘッダーがありません。");
+            }
+            const header = allRows[0].map(h => h.trim());
+            const dataRows = allRows.slice(1);
+
+            const requiredHeaders = ["system", "rankOrder", "title", "imageUrl", "bookUrl"];
+            if (!requiredHeaders.every(h => header.includes(h))) {
+                throw new Error(`CSVヘッダーに必須項目（${requiredHeaders.join(', ')}）がありません。`);
+            }
+
+            const headerMap = {};
+            header.forEach((h, i) => { headerMap[h] = i; });
+
+            const allBooks = dataRows.map(row => {
+                // 行が空、または列数がヘッダーと合わない場合はスキップ
+                if (row.length === 0 || row.every(field => field.trim() === '')) return null;
+                
+                const book = {};
+                Object.keys(headerMap).forEach(key => {
+                    book[key] = (row[headerMap[key]] || "").trim();
+                });
+                return book;
+            }).filter(book => book && book.system && book.system.trim() !== ""); // nullや無効なエントリを除外
+
+            const systems = groupBy(allBooks, "system");
+            generateHtml(systems);
+
+        } catch (error) {
+            console.error("Tierリストの生成に失敗しました:", error);
+            mainContainer.innerHTML = `<p class="error">リストの表示に失敗しました。<br>${error.message}</p>`;
+        }
     }
 
     if (closeModalBtn) { closeModalBtn.addEventListener('click', closeBookModal); }
