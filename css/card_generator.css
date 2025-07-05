@@ -692,20 +692,6 @@ body {
   background-color: #a3a3a3;
   color: #fff;
 }
-.light-theme-ui .color-filter-btn {
-  background-color: var(--theme-input-bg, #ecf0f1);
-  color: #34495e;
-  border-color: var(--theme-input-border, #bdc3c7);
-}
-.light-theme-ui .color-filter-btn:hover {
-  background-color: #dfe6e9;
-  color: #2c3e50;
-}
-.light-theme-ui .color-filter-btn.active {
-  background-color: #3498db;
-  color: #fff;
-  border-color: #3498db;
-}
 .light-theme-ui .custom-modal-content {
   background-color: #ecf0f1;
   border-color: #bdc3c7;
@@ -841,17 +827,18 @@ body {
 /* card_generator.css 内の既存の定義と差し替え */
 .modal-content {
   background-color: var(--modal-bg, #1a2c6d);
-  padding: 25px 0 15px;
+  padding: 25px 20px 15px; /* 左右のパディングを20pxに調整 */
   border-radius: 10px;
   width: 90%;
-  max-width: 800px;
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
   border: 1px solid var(--modal-border, #2a3c7d);
   transform: scale(0.95);
   transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  max-height: 85vh;
+  max-width: 800px; /* 幅を広げる */
+
+  max-height: 90vh; /* 高さを少し増やす */
 }
 .modal-overlay.is-visible .modal-content {
   transform: scale(1);
@@ -880,6 +867,7 @@ body {
 }
 .modal-footer {
   margin-top: 25px;
+  padding: 0 20px; /* 左右のパディングを追加 */
 }
 .modal-content .form-group label {
   font-weight: bold;
@@ -1322,9 +1310,10 @@ body {
 
 /* カラーフィルターボタン */
 .color-filter-btn {
-  background-color: var(--theme-input-bg, #0d1a50);
-  color: #bdc3c7;
-  border: 1px solid var(--theme-input-border, #2a3c7d);
+  /* 各色データから設定されるCSS変数を使用 */
+  background-color: var(--filter-btn-bg-color);
+  color: var(--filter-btn-text-color);
+  border: 1px solid var(--filter-btn-border-color);
   border-radius: 5px;
   padding: 8px 12px;
   cursor: pointer;
@@ -1333,13 +1322,13 @@ body {
   white-space: nowrap;
 }
 .color-filter-btn:hover {
-  background-color: var(--controls-panel-bg, #1a2c6d);
-  color: #fff;
+  background-color: var(--filter-btn-hover-bg-color);
+  color: var(--filter-btn-hover-text-color);
 }
 .color-filter-btn.active {
-  background-color: var(--button-bg, #3498db);
-  color: var(--button-color, #ffffff);
-  border-color: var(--button-bg, #3498db);
+  background-color: var(--filter-btn-hover-bg-color); /* 各色のhover色を使用 */
+  color: var(--filter-btn-hover-text-color); /* 各色のhover時の文字色を使用 */
+  border-color: var(--filter-btn-hover-bg-color); /* 各色のhover色を使用 */
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
