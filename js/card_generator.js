@@ -1,4 +1,4 @@
-// card_generator.js (v1.0.7 - Textbox Layout Fix)
+// card_generator.js (v1.0.10 - Final Function Order Fix)
 document.addEventListener("DOMContentLoaded", () => {
   // DOM要素の取得
   const cardColorSelect = document.getElementById("card-color-select");
@@ -58,7 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   const batchDetails = document.querySelector(".batch-processing-details");
 
-  // DBモーダル関連
   const openDbModalBtn = document.getElementById("open-db-modal-btn");
   const dbModalOverlay = document.getElementById("db-modal-overlay");
   const modalCloseBtn = document.getElementById("modal-close-btn");
@@ -67,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const registrantInput = document.getElementById("registrant-input");
   const artistInput = document.getElementById("artist-input");
 
-  // DB表示関連
   const tabDatabase = document.getElementById("tab-database");
   const cardListContainer = document.getElementById("card-list-container");
   const dbSearchInput = document.getElementById("db-search-input");
@@ -78,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   const dbBatchSelectionBar = document.getElementById("db-batch-selection-bar");
 
-  // 定型文モーダル関連
   const openTeikeiModalBtn = document.getElementById("open-teikei-modal-btn");
   const teikeiModalOverlay = document.getElementById("teikei-modal-overlay");
   const teikeiModalCloseBtn = document.getElementById("teikei-modal-close-btn");
@@ -88,7 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "https://script.google.com/macros/s/AKfycby0sdv9U56rGPoyTAViGNAAJGvG-IbmRCJKfodjr5NuzAyUc9n-dfH1UdDEqF0KHZ4U9g/exec";
   const IMGBB_API_KEY = "906b0e42b775a8ba283f16cd35fb667f";
 
-  // 状態管理
   let isDragging = false,
     startX,
     startY;
@@ -96,9 +92,12 @@ document.addEventListener("DOMContentLoaded", () => {
     overlayImageState = { x: 0, y: 0, scale: 1 };
   let imageFitDirection, overlayImageFitDirection;
   let activeManipulationTarget = "base";
-  let currentEditingCardId = null,
-    originalImageUrlForEdit = null,
-    isNewImageSelected = false;
+  let currentEditingCardId = null;
+  let originalImageUrlForEdit = null,
+    originalOverlayImageUrlForEdit = null,
+    isNewImageSelected = false,
+    isNewOverlayImageSelected = false;
+
   let allCardsData = [],
     selectedColorFilter = "all";
   let selectedCardIds = new Set();
@@ -191,112 +190,578 @@ document.addEventListener("DOMContentLoaded", () => {
     FFCF: { name: "フルフレーム(タイトル枠なし)" },
   };
 
-  function initialize() {
-    setupEventListeners();
-    populateSelects();
-    setupColorFilterButtons();
-    restoreAuthorNames();
-    updatePreview();
-    resetImage();
-    scalePreview();
-    handleBatchSectionCollapse();
-    handleUrlParameters();
-    setupDatabaseDetailViewListeners();
-  }
+  // --- Start of Function Definitions (Correct Order) ---
+  // All functions that are called by others should be defined before their callers.
 
-  function setupEventListeners() {
-    ["change", "input"].forEach((event) => {
-      [
-        cardColorSelect,
-        cardTypeSelect,
-        backgroundSelect,
-        cardNameInput,
-        effectInput,
-        flavorInput,
-        flavorSpeakerInput,
-      ].forEach((el) =>
-        el.addEventListener(event, updatePreview, { passive: true })
-      );
-    });
-    imageUpload.addEventListener("change", handleImageUpload);
-    resetImageBtn.addEventListener("click", resetImage);
-    overlayImageUpload.addEventListener("change", handleOverlayImageUpload);
-    resetOverlayImageBtn.addEventListener("click", resetOverlayImage);
-    resetImagePositionBtn.addEventListener(
-      "click",
-      () => cardImage.src && setupImageForDrag()
-    );
-    resetOverlayPositionBtn.addEventListener(
-      "click",
-      () => overlayImage.src && setupOverlayImageForDrag()
-    );
-    editModeRadios.forEach((radio) =>
-      radio.addEventListener("change", (e) => {
-        activeManipulationTarget = e.target.value;
-      })
-    );
-    previewArea.addEventListener("mousedown", startDrag);
-    previewArea.addEventListener("touchstart", startDrag, { passive: false });
-    previewArea.addEventListener("wheel", handleZoom, { passive: false });
-    downloadBtn.addEventListener("click", () => downloadCard(false));
-    downloadTemplateBtn.addEventListener("click", () => downloadCard(true));
-    sparkleCheckbox.addEventListener("change", updateSparkleEffect);
-    openDbModalBtn.addEventListener("click", openDatabaseModal);
-    modalCloseBtn.addEventListener("click", () =>
-      dbModalOverlay.classList.remove("is-visible")
-    );
-    dbModalOverlay.addEventListener("click", (e) => {
-      if (e.target === dbModalOverlay)
-        dbModalOverlay.classList.remove("is-visible");
-    });
-    dbUpdateBtn.addEventListener("click", () => handleDatabaseSave(true));
-    dbCreateBtn.addEventListener("click", () => handleDatabaseSave(false));
-    registrantInput.addEventListener("input", () =>
-      localStorage.setItem("cardGeneratorRegistrant", registrantInput.value)
-    );
-    artistInput.addEventListener("input", () =>
-      localStorage.setItem("cardGeneratorArtist", artistInput.value)
-    );
-    tabDatabase.addEventListener("change", () => {
-      if (tabDatabase.checked) {
-        clearEditingState();
-        fetchAllCards();
+  function adjustTextBoxLayout(effectEl, flavorEl, speakerEl) {
+    requestAnimationFrame(() => {
+      const totalHeight = 177.5;
+      const effectMarginBottom = 1;
+
+      const speakerHeight =
+        speakerEl.style.display !== "none" ? speakerEl.offsetHeight : 0;
+      const flavorHeight =
+        flavorEl.style.display !== "none" ? flavorEl.offsetHeight : 0;
+      const combinedFlavorHeight = flavorHeight + speakerHeight;
+
+      const availableHeightForEffect =
+        totalHeight - combinedFlavorHeight - effectMarginBottom;
+
+      const effectStyle = window.getComputedStyle(effectEl);
+      const effectLineHeight = parseFloat(effectStyle.lineHeight);
+
+      if (effectLineHeight > 0) {
+        const numberOfLines = Math.floor(
+          availableHeightForEffect / effectLineHeight
+        );
+        effectEl.style.maxHeight = `${Math.max(
+          0,
+          numberOfLines * effectLineHeight
+        )}px`;
+      } else {
+        effectEl.style.maxHeight = `${Math.max(0, availableHeightForEffect)}px`;
       }
     });
-    dbColorFilterContainer.addEventListener("click", handleColorFilterClick);
-    dbSearchInput.addEventListener("input", applyDbFiltersAndSort);
-    dbSearchField.addEventListener("change", applyDbFiltersAndSort);
-    dbSortSelect.addEventListener("change", applyDbFiltersAndSort);
-    cardListContainer.addEventListener("click", handleCardListClick);
-    openTeikeiModalBtn.addEventListener("click", openTeikeiModal);
-    teikeiModalCloseBtn.addEventListener("click", () =>
-      teikeiModalOverlay.classList.remove("is-visible")
-    );
-    teikeiModalOverlay.addEventListener("click", (e) => {
-      if (e.target === teikeiModalOverlay)
-        teikeiModalOverlay.classList.remove("is-visible");
+  }
+
+  function updateCardName(text) {
+    const segments = text.split("`");
+    const htmlParts = segments.map((segment, index) => {
+      if (index % 2 === 1) {
+        const rubyMatch = segment.match(/(.+?)\((.+)\)/);
+        if (rubyMatch) {
+          return `<ruby><rb>${rubyMatch[1]}</rb><rt>${rubyMatch[2]}</rt></ruby>`;
+        }
+      }
+      return `<span class="no-ruby">${segment
+        .replace(/</g, "<")
+        .replace(/>/g, ">")}</span>`;
     });
-    teikeiListContainer.addEventListener("click", handleTeikeiListClick);
-    batchFileUpload.addEventListener("change", handleBatchFileUpload);
-    imageFolderUpload.addEventListener("change", handleImageFolderUpload);
-    batchDownloadBtn.addEventListener("click", processBatchDownload);
-    window.addEventListener("resize", scalePreview);
-    window.addEventListener("resize", handleBatchSectionCollapse);
+    const finalHtml = htmlParts.join("\u200B");
+    cardNameContent.classList.toggle(
+      "is-plain-text-only",
+      !finalHtml.includes("<ruby>")
+    );
+    cardNameContent.innerHTML = `<span class="scaler">${finalHtml}</span>`;
+    requestAnimationFrame(() => {
+      const scalerEl = cardNameContent.querySelector(".scaler");
+      if (!scalerEl) return;
+      const availableWidth = cardNameContent.clientWidth;
+      const trueTextWidth = scalerEl.scrollWidth;
+      let scalerTransform = "none";
+      if (trueTextWidth > availableWidth) {
+        scalerTransform = `scaleX(${availableWidth / trueTextWidth})`;
+      }
+      scalerEl.style.transform = scalerTransform;
+    });
   }
 
-  function populateSelects() {
-    Object.entries(cardColorData).forEach(([id, details]) =>
-      cardColorSelect.add(
-        new Option(`${details.name}：${details.description}`, id)
-      )
-    );
-    Object.entries(cardTypes).forEach(([key, details]) =>
-      cardTypeSelect.add(new Option(details.name, key))
-    );
-    cardColorSelect.value = "青";
+  function updateCardImageTransform() {
+    cardImage.style.transform = `translate(${imageState.x}px, ${imageState.y}px) scale(${imageState.scale})`;
   }
 
-  // --- データベース機能 ---
+  function updateOverlayImageTransform() {
+    overlayImage.style.transform = `translate(${overlayImageState.x}px, ${overlayImageState.y}px) scale(${overlayImageState.scale})`;
+  }
+
+  function updateDraggableCursor() {
+    const state =
+      activeManipulationTarget === "base" ? imageState : overlayImageState;
+    const image =
+      activeManipulationTarget === "base" ? cardImage : overlayImage;
+    const container =
+      activeManipulationTarget === "base"
+        ? imageContainer
+        : overlayImageContainer;
+    const fitDirection =
+      activeManipulationTarget === "base"
+        ? imageFitDirection
+        : overlayImageFitDirection;
+    if (!image.src) {
+      previewArea.style.cursor = "default";
+      return;
+    }
+    const canDrag =
+      (fitDirection === "landscape" &&
+        image.offsetWidth * state.scale > container.offsetWidth + 0.1) ||
+      (fitDirection === "portrait" &&
+        image.offsetHeight * state.scale > container.offsetHeight + 0.1) ||
+      state.scale > 1.01;
+    previewArea.style.cursor = canDrag ? "grab" : "default";
+  }
+
+  function setupImageForDrag() {
+    imageState = { x: 0, y: 0, scale: 1 };
+    const containerWidth = imageContainer.offsetWidth;
+    const containerHeight = imageContainer.offsetHeight;
+    const imageWidth = cardImage.naturalWidth;
+    const imageHeight = cardImage.naturalHeight;
+    if (imageWidth === 0 || imageHeight === 0) return;
+    const containerAspect = containerWidth / containerHeight;
+    const imageAspect = imageWidth / imageHeight;
+    let newWidth, newHeight;
+    if (imageAspect > containerAspect) {
+      newHeight = containerHeight;
+      newWidth = newHeight * imageAspect;
+      imageFitDirection = "landscape";
+    } else {
+      newWidth = containerWidth;
+      newHeight = newWidth / imageAspect;
+      imageFitDirection = "portrait";
+    }
+    cardImage.style.width = `${newWidth}px`;
+    cardImage.style.height = `${newHeight}px`;
+    imageState.x = (containerWidth - newWidth) / 2;
+    imageState.y = (containerHeight - newHeight) / 2;
+    updateCardImageTransform(); // 変更
+    updateDraggableCursor();
+  }
+
+  function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
+  }
+
+  function getLuminance(hex) {
+    if (!hex || !hex.startsWith("#")) return 0;
+    let { r, g, b } = hexToRgb(hex);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
+  function updateThemeColor(details) {
+    if (!details) return;
+    const root = document.documentElement;
+    const body = document.body;
+
+    const mainColor = details.color;
+    const darkColor = details.hover;
+    const textColor = details.textColor;
+
+    root.style.setProperty("--button-bg", mainColor);
+    root.style.setProperty("--button-hover-bg", darkColor);
+    root.style.setProperty("--button-color", textColor);
+    root.style.setProperty("--controls-panel-bg", darkColor);
+    root.style.setProperty("--theme-bg-main", darkColor);
+    root.style.setProperty("--theme-input-bg", darkColor);
+    root.style.setProperty("--theme-input-border", mainColor);
+    root.style.setProperty("--modal-bg", darkColor);
+    root.style.setProperty("--modal-border", mainColor);
+    root.style.setProperty("--modal-input-bg", darkColor);
+    root.style.setProperty("--modal-input-border", mainColor);
+    root.style.setProperty("--theme-border", mainColor);
+
+    const rgb = hexToRgb(mainColor);
+    if (rgb) {
+      root.style.setProperty("--button-bg-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+    } else {
+      root.style.setProperty("--button-bg-rgb", "52, 152, 219");
+    }
+
+    const isLightTheme = getLuminance(mainColor) > 160;
+    body.classList.toggle("light-theme-ui", isLightTheme);
+  }
+
+  function checkImageTransparency(imageUrl) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        try {
+          const imageData = ctx.getImageData(0, 0, 1, 1).data;
+          resolve(imageData[3] < 255);
+        } catch (e) {
+          resolve(false);
+        }
+      };
+      img.onerror = () => resolve(false);
+      img.src = imageUrl;
+    });
+  }
+
+  function checkDefaultImageTransparency(src) {
+    checkImageTransparency(src).then((hasTransparency) => {
+      const backgroundGroup = document.getElementById(
+        "background-select-group"
+      );
+      backgroundGroup.style.display = hasTransparency ? "block" : "none";
+      if (hasTransparency) backgroundSelect.value = "hologram_geometric.png";
+      else backgroundSelect.value = "";
+      updatePreview();
+    });
+  }
+
+  function updatePreview() {
+    const selectedColorId = cardColorSelect.value;
+    const selectedType = (cardTypeSelect.value || "").toUpperCase();
+    const colorDetails = cardColorData[selectedColorId];
+    cardNameContent.classList.remove("title-styled");
+    textBoxContainer.classList.remove("textbox-styled");
+    cardNameContainer.style.backgroundImage = `url('Card_asset/タイトル.png')`;
+    imageContainer.style.transition = "none";
+    const isFullFrame = selectedType === "FF" || selectedType === "FFCF";
+    imageContainer.style.height = isFullFrame ? "720px" : "480px";
+    void imageContainer.offsetHeight;
+    imageContainer.style.transition = "";
+    let templateName = `${selectedColorId}カード`;
+    if (isFullFrame) {
+      templateName += "FF";
+    }
+    if (selectedType === "CF") {
+      cardNameContent.classList.add("title-styled");
+      cardNameContainer.style.backgroundImage = "none";
+    } else if (selectedType === "FF") {
+      textBoxContainer.classList.add("textbox-styled");
+    } else if (selectedType === "FFCF") {
+      cardNameContent.classList.add("title-styled");
+      textBoxContainer.classList.add("textbox-styled");
+      cardNameContainer.style.backgroundImage = "none";
+    }
+    const isDefaultImage = cardImage.src.includes("now_painting");
+    if (isDefaultImage) {
+      const newSrc = isFullFrame
+        ? "Card_asset/now_painting_FF.png"
+        : "Card_asset/now_painting.png";
+      if (!cardImage.src.endsWith(newSrc)) {
+        cardImage.src = newSrc;
+        cardImage.onload = () => {
+          setupImageForDrag();
+          checkDefaultImageTransparency(newSrc);
+        };
+      }
+    }
+    cardTemplateImage.src = `Card_asset/テンプレ/${templateName}.png`;
+    const selectedBackground = backgroundSelect.value;
+    backgroundImage.style.display = selectedBackground ? "block" : "none";
+    if (selectedBackground)
+      backgroundImage.src = `Card_asset/${selectedBackground}`;
+    updateCardName(cardNameInput.value);
+    const replacePunctuation = (text) =>
+      text.replace(/、/g, "､").replace(/。/g, "｡");
+    const addSpacingToChars = (text) =>
+      text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => {
+        if (kernChars) return `<span class="char-kern">${kernChars}</span>`;
+        if (parenChars) return `<span class="paren-fix">${parenChars}</span>`;
+        return match;
+      });
+    effectDisplay.innerHTML = addSpacingToChars(
+      replacePunctuation(effectInput.value)
+    );
+    const flavorText = replacePunctuation(flavorInput.value.trim());
+    const speakerText = replacePunctuation(flavorSpeakerInput.value.trim());
+    flavorDisplay.style.display = flavorText ? "block" : "none";
+    let el = flavorDisplay.querySelector(".inner-text");
+    if (!el) {
+      flavorDisplay.innerHTML = '<div class="inner-text"></div>';
+      el = flavorDisplay.querySelector(".inner-text");
+    }
+    el.innerHTML = flavorText.replace(/\n/g, "<br>");
+    flavorSpeakerDisplay.style.display = speakerText ? "block" : "none";
+    if (speakerText) flavorSpeakerDisplay.innerText = `─── ${speakerText}`;
+
+    adjustTextBoxLayout(effectDisplay, flavorDisplay, flavorSpeakerDisplay);
+
+    updateThemeColor(colorDetails);
+    requestAnimationFrame(setupImageForDrag);
+  }
+
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+      isNewImageSelected = true;
+      imageFileName.textContent = file.name;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target.result;
+        cardImage.src = imageUrl;
+        cardImage.onload = () => {
+          setupImageForDrag();
+          checkImageTransparency(imageUrl).then((hasTransparency) => {
+            const backgroundGroup = document.getElementById(
+              "background-select-group"
+            );
+            if (hasTransparency) {
+              backgroundGroup.style.display = "block";
+              backgroundSelect.value = "hologram_geometric.png";
+              updatePreview();
+            } else {
+              backgroundGroup.style.display = "none";
+              if (backgroundSelect.value) {
+                backgroundSelect.value = "";
+                updatePreview();
+              }
+            }
+          });
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function setupOverlayImageForDrag() {
+    overlayImageState = { x: 0, y: 0, scale: 1 };
+    const containerWidth = overlayImageContainer.offsetWidth;
+    const containerHeight = overlayImageContainer.offsetHeight;
+    const imageWidth = overlayImage.naturalWidth;
+    const imageHeight = overlayImage.naturalHeight;
+    if (imageWidth === 0 || imageHeight === 0) return;
+    const scaleToFitWidth = containerWidth / imageWidth;
+    let newWidth = containerWidth;
+    let newHeight = imageHeight * scaleToFitWidth;
+    overlayImage.style.width = `${newWidth}px`;
+    overlayImage.style.height = `${newHeight}px`;
+    overlayImageState.x = 0;
+    overlayImageState.y = 0; // 上寄せに変更
+    updateOverlayImageTransform(); // 変更
+  }
+
+  function handleOverlayImageUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+      isNewOverlayImageSelected = true;
+      overlayImageFileName.textContent = file.name;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        overlayImage.src = e.target.result;
+        overlayImage.style.display = "block";
+        overlayImage.onload = setupOverlayImageForDrag;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function resetOverlayImage() {
+    overlayImage.src = "";
+    overlayImage.style.display = "none";
+    overlayImageUpload.value = "";
+    overlayImageFileName.textContent = "選択されていません";
+    overlayImageState = { x: 0, y: 0, scale: 1 };
+    isNewOverlayImageSelected = true;
+  }
+
+  function resetImage() {
+    clearEditingState();
+    const isFullFrame =
+      cardTypeSelect.value === "FF" || cardTypeSelect.value === "FFCF";
+    const src = isFullFrame
+      ? "Card_asset/now_painting_FF.png"
+      : "Card_asset/now_painting.png";
+    cardImage.src = src;
+    imageUpload.value = "";
+    imageFileName.textContent = "仁科ぬい";
+    cardImage.onload = () => {
+      setupImageForDrag();
+      checkDefaultImageTransparency(src);
+    };
+    checkDefaultImageTransparency(src);
+    updatePreview();
+  }
+
+  function startDrag(e) {
+    if (previewArea.style.cursor === "default") return;
+    e.preventDefault();
+    isDragging = true;
+    previewArea.style.cursor = "grabbing";
+    const state =
+      activeManipulationTarget === "base" ? imageState : overlayImageState;
+    const touch = e.touches ? e.touches[0] : e;
+    startX = touch.clientX - state.x;
+    startY = touch.clientY - state.y;
+    document.addEventListener("mousemove", dragImage);
+    document.addEventListener("mouseup", stopDrag);
+    document.addEventListener("touchmove", dragImage, { passive: false });
+    document.addEventListener("touchend", stopDrag);
+  }
+  function dragImage(e) {
+    if (!isDragging) return;
+    const state =
+      activeManipulationTarget === "base" ? imageState : overlayImageState;
+    const fitDirection =
+      activeManipulationTarget === "base"
+        ? imageFitDirection
+        : overlayImageFitDirection;
+    const touch = e.touches ? e.touches[0] : e;
+
+    // X軸の移動は常に許可
+    if (fitDirection === "landscape" || state.scale > 1) {
+      state.x = touch.clientX - startX;
+    }
+
+    // Y軸の移動は "base" の場合のみ許可
+    if (
+      activeManipulationTarget === "base" &&
+      (fitDirection === "portrait" || state.scale > 1)
+    ) {
+      state.y = touch.clientY - startY;
+    }
+
+    if (activeManipulationTarget === "base") {
+      clampCardImagePosition();
+      updateCardImageTransform();
+    } else {
+      clampOverlayImagePosition();
+      updateOverlayImageTransform();
+    }
+  }
+  function stopDrag() {
+    isDragging = false;
+    updateDraggableCursor();
+    document.removeEventListener("mousemove", dragImage);
+    document.removeEventListener("mouseup", stopDrag);
+    document.removeEventListener("touchmove", dragImage);
+    document.removeEventListener("touchend", stopDrag);
+  }
+  function handleZoom(e) {
+    e.preventDefault();
+    const state =
+      activeManipulationTarget === "base" ? imageState : overlayImageState;
+    const container =
+      activeManipulationTarget === "base"
+        ? imageContainer
+        : overlayImageContainer;
+    const scaleAmount = 0.1;
+    const delta = e.deltaY > 0 ? -1 : 1;
+    const oldScale = state.scale;
+    state.scale = Math.max(1, Math.min(state.scale + delta * scaleAmount, 3));
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    state.x = mouseX - (mouseX - state.x) * (state.scale / oldScale);
+    state.y = mouseY - (mouseY - state.y) * (state.scale / oldScale);
+    if (activeManipulationTarget === "base") {
+      clampCardImagePosition(); // 変更
+      updateCardImageTransform(); // 変更
+    } else {
+      clampOverlayImagePosition(); // 変更
+      updateOverlayImageTransform(); // 変更
+    }
+    updateDraggableCursor();
+  }
+
+  function clampCardImagePosition() {
+    const state = imageState;
+    const image = cardImage;
+    const container = imageContainer;
+    if (!image.src || !image.naturalWidth) return;
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    const scaledWidth = image.offsetWidth * state.scale;
+    const scaledHeight = image.offsetHeight * state.scale;
+    state.x = Math.max(containerWidth - scaledWidth, Math.min(0, state.x));
+    // state.y は常に0に固定されているため、クランプは不要
+    // state.y = Math.max(containerHeight - scaledHeight, Math.min(0, state.y));
+  }
+
+  function clampOverlayImagePosition() {
+    const state = overlayImageState;
+    const image = overlayImage;
+    const container = overlayImageContainer;
+    if (!image.src || !image.naturalWidth) return;
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    const scaledWidth = image.offsetWidth * state.scale;
+    const scaledHeight = image.offsetHeight * state.scale;
+    state.x = Math.max(containerWidth - scaledWidth, Math.min(0, state.x));
+    state.y = Math.max(containerHeight - scaledHeight, Math.min(0, state.y));
+  }
+
+  async function downloadCard(isTemplate = false) {
+    if (!isTemplate && sparkleCheckbox.checked) {
+      return await generateSparkleApng();
+    }
+
+    const button = isTemplate
+      ? downloadTemplateBtn
+      : document.getElementById("download-btn");
+    const originalButtonText = button.textContent;
+    button.textContent = "生成中...";
+    button.disabled = true;
+
+    const generatorContent = document.getElementById("generator-content");
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const originalGeneratorContentStyle = generatorContent.style.cssText;
+    const originalPreviewWrapperStyle = previewWrapper.style.cssText;
+    const originalPreviewPanelStyle = previewPanel.style.cssText;
+    const originalCardContainerStyle = cardContainer.style.cssText;
+    const originalBodyOverflow = document.body.style.overflow;
+
+    try {
+      document.body.style.overflow = "hidden";
+      generatorContent.style.cssText +=
+        "display: block !important; position: absolute !important; left: -9999px !important;";
+      previewWrapper.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 480px !important; height: 720px !important; overflow: visible !important; z-index: -1 !important;`;
+      previewPanel.style.cssText = `width: 480px !important; height: 720px !important; transform: none !important; transform-origin: 0 0 !important;`;
+      cardContainer.style.width = "480px";
+      cardContainer.style.height = "720px";
+
+      document.body.classList.add("is-rendering-output");
+
+      await Promise.all([waitForCardImages(), document.fonts.ready]);
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => setTimeout(resolve, 100))
+      );
+
+      const canvas = await html2canvas(cardContainer, {
+        backgroundColor: null,
+        useCORS: true,
+        scale: highResCheckbox.checked ? 2 : 1,
+        logging: true,
+      });
+
+      const isCanvasBlank = !canvas
+        .getContext("2d")
+        .getImageData(0, 0, canvas.width, canvas.height)
+        .data.some((channel) => channel !== 0);
+
+      if (isCanvasBlank) {
+        throw new Error(
+          "生成されたキャンバスが空白です。画像が正しく読み込まれていないか、描画タイミングの問題が発生しました。"
+        );
+      }
+
+      const link = document.createElement("a");
+      const fileName = isTemplate
+        ? `${cardColorSelect.value}_${
+            cardTypeSelect.value || "Standard"
+          }_template.png`
+        : `${(cardNameInput.value || "custom_card").replace(
+            /[()`/\\?%*:|"<>]/g,
+            ""
+          )}.png`;
+      link.download = fileName;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (err) {
+      console.error("画像生成に失敗しました。", err);
+      showCustomAlert(
+        "画像生成に失敗しました。時間をおいて試すか、コンソールで詳細を確認してください。\n" +
+          err.message
+      );
+    } finally {
+      document.body.classList.remove("is-rendering-output");
+      generatorContent.style.cssText = originalGeneratorContentStyle;
+      previewWrapper.style.cssText = originalPreviewWrapperStyle;
+      previewPanel.style.cssText = originalPreviewPanelStyle;
+      cardContainer.style.cssText = originalCardContainerStyle;
+      document.body.style.overflow = originalBodyOverflow;
+      window.scrollTo(scrollX, scrollY);
+
+      button.textContent = originalButtonText;
+      button.disabled = false;
+    }
+  }
+
   async function handleDatabaseSave(isUpdate) {
     const button = isUpdate ? dbUpdateBtn : dbCreateBtn;
     const originalButtonText = button.textContent;
@@ -304,25 +769,38 @@ document.addEventListener("DOMContentLoaded", () => {
     button.textContent = "処理を開始...";
     try {
       let imageUrl = originalImageUrlForEdit || "DEFAULT";
+      let overlayImageUrl = originalOverlayImageUrlForEdit || "";
+
       if (!cardImage.src || cardImage.src.includes("now_painting")) {
         imageUrl = "DEFAULT";
       } else if (isNewImageSelected) {
-        button.textContent = "画像アップロード中...";
+        button.textContent = "メイン画像アップロード中...";
         const artworkBlob = await generateArtworkBlob(
           (cardTypeSelect.value || "").toUpperCase()
         );
-        if (!artworkBlob || artworkBlob.size === 0) {
-          throw new Error("生成された画像データが空です。");
-        }
-        const now = new Date();
-        const uploadFileName = `${now
-          .getFullYear()
-          .toString()
-          .slice(-2)}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
-          now.getDate()
-        ).padStart(2, "0")}`;
+        if (!artworkBlob || artworkBlob.size === 0)
+          throw new Error("生成されたメイン画像データが空です。");
+        const uploadFileName = `card_art_${new Date().getTime()}`;
         imageUrl = await uploadToImgBB(artworkBlob, uploadFileName);
       }
+
+      if (overlayImage.src && isNewOverlayImageSelected) {
+        button.textContent = "上絵画像アップロード中...";
+        const overlayBlob = await new Promise((resolve) => {
+          const canvas = document.createElement("canvas");
+          canvas.width = overlayImage.naturalWidth;
+          canvas.height = overlayImage.naturalHeight;
+          canvas.getContext("2d").drawImage(overlayImage, 0, 0);
+          canvas.toBlob(resolve, "image/png");
+        });
+        if (!overlayBlob || overlayBlob.size === 0)
+          throw new Error("生成された上絵画像データが空です。");
+        const uploadFileName = `card_overlay_${new Date().getTime()}`;
+        overlayImageUrl = await uploadToImgBB(overlayBlob, uploadFileName);
+      } else if (!overlayImage.src) {
+        overlayImageUrl = "";
+      }
+
       const cardData = {
         name: cardNameInput.value,
         color: cardColorSelect.value,
@@ -331,6 +809,7 @@ document.addEventListener("DOMContentLoaded", () => {
         flavor: flavorInput.value,
         speaker: flavorSpeakerInput.value,
         imageUrl: imageUrl,
+        overlayImageUrl: overlayImageUrl,
         registrant: registrantInput.value,
         artist: artistInput.value,
         source: document.getElementById("source-input").value,
@@ -1248,7 +1727,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (updateUi && typeof dataOrId === "string") {
         currentEditingCardId = dataOrId;
         isNewImageSelected = false;
+        isNewOverlayImageSelected = false;
         originalImageUrlForEdit = cardData["画像URL"] || null;
+        originalOverlayImageUrlForEdit = cardData["上絵画像URL"] || null;
       }
 
       updatePreviewFromData(cardData, true);
@@ -1320,7 +1801,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function clearEditingState() {
     currentEditingCardId = null;
     originalImageUrlForEdit = null;
+    originalOverlayImageUrlForEdit = null;
     isNewImageSelected = false;
+    isNewOverlayImageSelected = false;
     const url = new URL(window.location);
     if (url.searchParams.has("id")) {
       url.searchParams.delete("id");
@@ -1409,729 +1892,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return result.data.url;
   }
 
-  // ========================================================
-  // === 修正点: 新しいテキストボックスレイアウト調整関数 ===
-  // ========================================================
-  function adjustTextBoxLayout(effectEl, flavorEl, speakerEl) {
-    requestAnimationFrame(() => {
-      const totalHeight = 177.5; // テキストボックス全体の高さ
-      const effectMarginBottom = 1;
-
-      // フレーバーテキストと話者の高さを計算
-      const speakerHeight =
-        speakerEl.style.display !== "none" ? speakerEl.offsetHeight : 0;
-      const flavorHeight =
-        flavorEl.style.display !== "none" ? flavorEl.offsetHeight : 0;
-      // 注意: flavorEl.offsetHeight には .inner-text の高さが含まれる
-      const combinedFlavorHeight = flavorHeight + speakerHeight;
-
-      // 効果テキストに利用可能な高さを計算
-      const availableHeightForEffect =
-        totalHeight - combinedFlavorHeight - effectMarginBottom;
-
-      // 効果テキストの行の高さを取得
-      const effectStyle = window.getComputedStyle(effectEl);
-      const effectLineHeight = parseFloat(effectStyle.lineHeight);
-
-      if (effectLineHeight > 0) {
-        // 表示可能な行数を計算
-        const numberOfLines = Math.floor(
-          availableHeightForEffect / effectLineHeight
-        );
-        // max-heightを設定して、はみ出しを防ぐ
-        effectEl.style.maxHeight = `${Math.max(
-          0,
-          numberOfLines * effectLineHeight
-        )}px`;
-      } else {
-        // line-heightが取得できない場合のフォールバック
-        effectEl.style.maxHeight = `${Math.max(0, availableHeightForEffect)}px`;
-      }
-    });
-  }
-
-  function updatePreview() {
-    const selectedColorId = cardColorSelect.value;
-    const selectedType = (cardTypeSelect.value || "").toUpperCase();
-    const colorDetails = cardColorData[selectedColorId];
-    cardNameContent.classList.remove("title-styled");
-    textBoxContainer.classList.remove("textbox-styled");
-    cardNameContainer.style.backgroundImage = `url('Card_asset/タイトル.png')`;
-    imageContainer.style.transition = "none";
-    const isFullFrame = selectedType === "FF" || selectedType === "FFCF";
-    imageContainer.style.height = isFullFrame ? "720px" : "480px";
-    void imageContainer.offsetHeight;
-    imageContainer.style.transition = "";
-    let templateName = `${selectedColorId}カード`;
-    if (isFullFrame) {
-      templateName += "FF";
-    }
-    if (selectedType === "CF") {
-      cardNameContent.classList.add("title-styled");
-      cardNameContainer.style.backgroundImage = "none";
-    } else if (selectedType === "FF") {
-      textBoxContainer.classList.add("textbox-styled");
-    } else if (selectedType === "FFCF") {
-      cardNameContent.classList.add("title-styled");
-      textBoxContainer.classList.add("textbox-styled");
-      cardNameContainer.style.backgroundImage = "none";
-    }
-    const isDefaultImage = cardImage.src.includes("now_painting");
-    if (isDefaultImage) {
-      const newSrc = isFullFrame
-        ? "Card_asset/now_painting_FF.png"
-        : "Card_asset/now_painting.png";
-      if (!cardImage.src.endsWith(newSrc)) {
-        cardImage.src = newSrc;
-        cardImage.onload = () => {
-          setupImageForDrag();
-          checkDefaultImageTransparency(newSrc);
-        };
-      }
-    }
-    cardTemplateImage.src = `Card_asset/テンプレ/${templateName}.png`;
-    const selectedBackground = backgroundSelect.value;
-    backgroundImage.style.display = selectedBackground ? "block" : "none";
-    if (selectedBackground)
-      backgroundImage.src = `Card_asset/${selectedBackground}`;
-    updateCardName(cardNameInput.value);
-    const replacePunctuation = (text) =>
-      text.replace(/、/g, "､").replace(/。/g, "｡");
-    const addSpacingToChars = (text) =>
-      text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => {
-        if (kernChars) return `<span class="char-kern">${kernChars}</span>`;
-        if (parenChars) return `<span class="paren-fix">${parenChars}</span>`;
-        return match;
-      });
-    effectDisplay.innerHTML = addSpacingToChars(
-      replacePunctuation(effectInput.value)
-    );
-    const flavorText = replacePunctuation(flavorInput.value.trim());
-    const speakerText = replacePunctuation(flavorSpeakerInput.value.trim());
-    flavorDisplay.style.display = flavorText ? "block" : "none";
-    let el = flavorDisplay.querySelector(".inner-text");
-    if (!el) {
-      flavorDisplay.innerHTML = '<div class="inner-text"></div>';
-      el = flavorDisplay.querySelector(".inner-text");
-    }
-    el.innerHTML = flavorText.replace(/\n/g, "<br>");
-    flavorSpeakerDisplay.style.display = speakerText ? "block" : "none";
-    if (speakerText) flavorSpeakerDisplay.innerText = `─── ${speakerText}`;
-
-    // 新しいレイアウト調整関数を呼び出し
-    adjustTextBoxLayout(effectDisplay, flavorDisplay, flavorSpeakerDisplay);
-
-    updateThemeColor(colorDetails);
-    requestAnimationFrame(setupImageForDrag);
-  }
-
-  function updateCardName(text) {
-    const segments = text.split("`");
-    const htmlParts = segments.map((segment, index) => {
-      if (index % 2 === 1) {
-        const rubyMatch = segment.match(/(.+?)\((.+)\)/);
-        if (rubyMatch) {
-          return `<ruby><rb>${rubyMatch[1]}</rb><rt>${rubyMatch[2]}</rt></ruby>`;
-        }
-      }
-      return `<span class="no-ruby">${segment
-        .replace(/</g, "<")
-        .replace(/>/g, ">")}</span>`;
-    });
-    const finalHtml = htmlParts.join("\u200B");
-    cardNameContent.classList.toggle(
-      "is-plain-text-only",
-      !finalHtml.includes("<ruby>")
-    );
-    cardNameContent.innerHTML = `<span class="scaler">${finalHtml}</span>`;
-    requestAnimationFrame(() => {
-      const scalerEl = cardNameContent.querySelector(".scaler");
-      if (!scalerEl) return;
-      const availableWidth = cardNameContent.clientWidth;
-      const trueTextWidth = scalerEl.scrollWidth;
-      let scalerTransform = "none";
-      if (trueTextWidth > availableWidth) {
-        scalerTransform = `scaleX(${availableWidth / trueTextWidth})`;
-      }
-      scalerEl.style.transform = scalerTransform;
-    });
-  }
-  function handleImageUpload(e) {
-    const file = e.target.files[0];
-    if (file) {
-      isNewImageSelected = true;
-      imageFileName.textContent = file.name;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageUrl = e.target.result;
-        cardImage.src = imageUrl;
-        cardImage.onload = () => {
-          setupImageForDrag();
-          checkImageTransparency(imageUrl).then((hasTransparency) => {
-            const backgroundGroup = document.getElementById(
-              "background-select-group"
-            );
-            if (hasTransparency) {
-              backgroundGroup.style.display = "block";
-              backgroundSelect.value = "hologram_geometric.png";
-              updatePreview();
-            } else {
-              backgroundGroup.style.display = "none";
-              if (backgroundSelect.value) {
-                backgroundSelect.value = "";
-                updatePreview();
-              }
-            }
-          });
-        };
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-  function handleOverlayImageUpload(e) {
-    const file = e.target.files[0];
-    if (file) {
-      overlayImageFileName.textContent = file.name;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        overlayImage.src = e.target.result;
-        overlayImage.style.display = "block";
-        overlayImage.onload = setupOverlayImageForDrag;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-  function resetOverlayImage() {
-    overlayImage.src = "";
-    overlayImage.style.display = "none";
-    overlayImageUpload.value = "";
-    overlayImageFileName.textContent = "選択されていません";
-    overlayImageState = { x: 0, y: 0, scale: 1 };
-  }
-  function setupOverlayImageForDrag() {
-    overlayImageState = { x: 0, y: 0, scale: 1 };
-    const containerWidth = overlayImageContainer.offsetWidth;
-    const containerHeight = overlayImageContainer.offsetHeight;
-    const imageWidth = overlayImage.naturalWidth;
-    const imageHeight = overlayImage.naturalHeight;
-    if (imageWidth === 0 || imageHeight === 0) return;
-    const scaleToFitWidth = containerWidth / imageWidth;
-    let newWidth = containerWidth;
-    let newHeight = imageHeight * scaleToFitWidth;
-    overlayImage.style.width = `${newWidth}px`;
-    overlayImage.style.height = `${newHeight}px`;
-    overlayImageState.x = 0;
-    overlayImageState.y = (containerHeight - newHeight) / 2;
-    updateImageTransform();
-  }
-  function resetImage() {
-    clearEditingState();
-    const isFullFrame =
-      cardTypeSelect.value === "FF" || cardTypeSelect.value === "FFCF";
-    const src = isFullFrame
-      ? "Card_asset/now_painting_FF.png"
-      : "Card_asset/now_painting.png";
-    cardImage.src = src;
-    imageUpload.value = "";
-    imageFileName.textContent = "仁科ぬい";
-    cardImage.onload = () => {
-      setupImageForDrag();
-      checkDefaultImageTransparency(src);
-    };
-    checkDefaultImageTransparency(src);
-    updatePreview();
-  }
-  function setupImageForDrag() {
-    imageState = { x: 0, y: 0, scale: 1 };
-    const containerWidth = imageContainer.offsetWidth;
-    const containerHeight = imageContainer.offsetHeight;
-    const imageWidth = cardImage.naturalWidth;
-    const imageHeight = cardImage.naturalHeight;
-    if (imageWidth === 0 || imageHeight === 0) return;
-    const containerAspect = containerWidth / containerHeight;
-    const imageAspect = imageWidth / imageHeight;
-    let newWidth, newHeight;
-    if (imageAspect > containerAspect) {
-      newHeight = containerHeight;
-      newWidth = newHeight * imageAspect;
-      imageFitDirection = "landscape";
-    } else {
-      newWidth = containerWidth;
-      newHeight = newWidth / imageAspect;
-      imageFitDirection = "portrait";
-    }
-    cardImage.style.width = `${newWidth}px`;
-    cardImage.style.height = `${newHeight}px`;
-    imageState.x = (containerWidth - newWidth) / 2;
-    imageState.y = (containerHeight - newHeight) / 2;
-    updateImageTransform();
-    updateDraggableCursor();
-  }
-  function updateImageTransform() {
-    cardImage.style.transform = `translate(${imageState.x}px, ${imageState.y}px) scale(${imageState.scale})`;
-    overlayImage.style.transform = `translate(${overlayImageState.x}px, ${overlayImageState.y}px) scale(${overlayImageState.scale})`;
-  }
-  function updateDraggableCursor() {
-    const state =
-      activeManipulationTarget === "base" ? imageState : overlayImageState;
-    const image =
-      activeManipulationTarget === "base" ? cardImage : overlayImage;
-    const container =
-      activeManipulationTarget === "base"
-        ? imageContainer
-        : overlayImageContainer;
-    const fitDirection =
-      activeManipulationTarget === "base"
-        ? imageFitDirection
-        : overlayImageFitDirection;
-    if (!image.src) {
-      previewArea.style.cursor = "default";
-      return;
-    }
-    const canDrag =
-      (fitDirection === "landscape" &&
-        image.offsetWidth * state.scale > container.offsetWidth + 0.1) ||
-      (fitDirection === "portrait" &&
-        image.offsetHeight * state.scale > container.offsetHeight + 0.1) ||
-      state.scale > 1.01;
-    previewArea.style.cursor = canDrag ? "grab" : "default";
-  }
-  function startDrag(e) {
-    if (previewArea.style.cursor === "default") return;
-    e.preventDefault();
-    isDragging = true;
-    previewArea.style.cursor = "grabbing";
-    const state =
-      activeManipulationTarget === "base" ? imageState : overlayImageState;
-    const touch = e.touches ? e.touches[0] : e;
-    startX = touch.clientX - state.x;
-    startY = touch.clientY - state.y;
-    document.addEventListener("mousemove", dragImage);
-    document.addEventListener("mouseup", stopDrag);
-    document.addEventListener("touchmove", dragImage, { passive: false });
-    document.addEventListener("touchend", stopDrag);
-  }
-  function dragImage(e) {
-    if (!isDragging) return;
-    const state =
-      activeManipulationTarget === "base" ? imageState : overlayImageState;
-    const fitDirection =
-      activeManipulationTarget === "base"
-        ? imageFitDirection
-        : overlayImageFitDirection;
-    const touch = e.touches ? e.touches[0] : e;
-    if (fitDirection === "landscape" || state.scale > 1)
-      state.x = touch.clientX - startX;
-    if (fitDirection === "portrait" || state.scale > 1)
-      state.y = touch.clientY - startY;
-    clampImagePosition();
-    updateImageTransform();
-  }
-  function stopDrag() {
-    isDragging = false;
-    updateDraggableCursor();
-    document.removeEventListener("mousemove", dragImage);
-    document.removeEventListener("mouseup", stopDrag);
-    document.removeEventListener("touchmove", dragImage);
-    document.removeEventListener("touchend", stopDrag);
-  }
-  function handleZoom(e) {
-    e.preventDefault();
-    const state =
-      activeManipulationTarget === "base" ? imageState : overlayImageState;
-    const container =
-      activeManipulationTarget === "base"
-        ? imageContainer
-        : overlayImageContainer;
-    const scaleAmount = 0.1;
-    const delta = e.deltaY > 0 ? -1 : 1;
-    const oldScale = state.scale;
-    state.scale = Math.max(1, Math.min(state.scale + delta * scaleAmount, 3));
-    const rect = container.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    state.x = mouseX - (mouseX - state.x) * (state.scale / oldScale);
-    state.y = mouseY - (mouseY - state.y) * (state.scale / oldScale);
-    clampImagePosition();
-    updateImageTransform();
-    updateDraggableCursor();
-  }
-  function clampImagePosition() {
-    const clamp = (state, image, container) => {
-      if (!image.src || !image.naturalWidth) return;
-      const containerWidth = container.offsetWidth;
-      const containerHeight = container.offsetHeight;
-      const scaledWidth = image.offsetWidth * state.scale;
-      const scaledHeight = image.offsetHeight * state.scale;
-      state.x = Math.max(containerWidth - scaledWidth, Math.min(0, state.x));
-      state.y = Math.max(containerHeight - scaledHeight, Math.min(0, state.y));
-    };
-    clamp(imageState, cardImage, imageContainer);
-    clamp(overlayImageState, overlayImage, overlayImageContainer);
-  }
-
-  async function downloadCard(isTemplate = false) {
-    if (!isTemplate && sparkleCheckbox.checked) {
-      return await generateSparkleApng();
-    }
-
-    const button = isTemplate
-      ? downloadTemplateBtn
-      : document.getElementById("download-btn");
-    const originalButtonText = button.textContent;
-    button.textContent = "生成中...";
-    button.disabled = true;
-
-    const generatorContent = document.getElementById("generator-content");
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-    const originalGeneratorContentStyle = generatorContent.style.cssText;
-    const originalPreviewWrapperStyle = previewWrapper.style.cssText;
-    const originalPreviewPanelStyle = previewPanel.style.cssText;
-    const originalCardContainerStyle = cardContainer.style.cssText;
-    const originalBodyOverflow = document.body.style.overflow;
-
-    try {
-      document.body.style.overflow = "hidden";
-      generatorContent.style.cssText +=
-        "display: block !important; position: absolute !important; left: -9999px !important;";
-      previewWrapper.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 480px !important; height: 720px !important; overflow: visible !important; z-index: -1 !important;`;
-      previewPanel.style.cssText = `width: 480px !important; height: 720px !important; transform: none !important; transform-origin: 0 0 !important;`;
-      cardContainer.style.width = "480px";
-      cardContainer.style.height = "720px";
-
-      document.body.classList.add("is-rendering-output");
-
-      await Promise.all([waitForCardImages(), document.fonts.ready]);
-      await new Promise((resolve) =>
-        requestAnimationFrame(() => setTimeout(resolve, 100))
-      );
-
-      const canvas = await html2canvas(cardContainer, {
-        backgroundColor: null,
-        useCORS: true,
-        scale: highResCheckbox.checked ? 2 : 1,
-        logging: true,
-      });
-
-      const isCanvasBlank = !canvas
-        .getContext("2d")
-        .getImageData(0, 0, canvas.width, canvas.height)
-        .data.some((channel) => channel !== 0);
-
-      if (isCanvasBlank) {
-        throw new Error(
-          "生成されたキャンバスが空白です。画像が正しく読み込まれていないか、描画タイミングの問題が発生しました。"
-        );
-      }
-
-      const link = document.createElement("a");
-      const fileName = isTemplate
-        ? `${cardColorSelect.value}_${
-            cardTypeSelect.value || "Standard"
-          }_template.png`
-        : `${(cardNameInput.value || "custom_card").replace(
-            /[()`/\\?%*:|"<>]/g,
-            ""
-          )}.png`;
-      link.download = fileName;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    } catch (err) {
-      console.error("画像生成に失敗しました。", err);
-      showCustomAlert(
-        "画像生成に失敗しました。時間をおいて試すか、コンソールで詳細を確認してください。\n" +
-          err.message
-      );
-    } finally {
-      document.body.classList.remove("is-rendering-output");
-      generatorContent.style.cssText = originalGeneratorContentStyle;
-      previewWrapper.style.cssText = originalPreviewWrapperStyle;
-      previewPanel.style.cssText = originalPreviewPanelStyle;
-      cardContainer.style.cssText = originalCardContainerStyle;
-      document.body.style.overflow = originalBodyOverflow;
-      window.scrollTo(scrollX, scrollY);
-
-      button.textContent = originalButtonText;
-      button.disabled = false;
-    }
-  }
-
-  async function createSparkleApngBlob() {
-    const baseImageElements = [
-      backgroundImage,
-      cardTemplateImage,
-      imageContainer,
-      overlayImageContainer,
-    ];
-    const textElements = [cardNameContainer, textBoxContainer];
-
-    textElements.forEach((el) => (el.style.opacity = 0));
-    sparkleOverlayImage.style.display = "none";
-    await new Promise((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(resolve))
-    );
-
-    const baseCanvas = await html2canvas(cardContainer, {
-      backgroundColor: null,
-      useCORS: true,
-      scale: 1,
-    });
-
-    textElements.forEach((el) => (el.style.opacity = 1));
-    baseImageElements.forEach((el) => (el.style.opacity = 0));
-    await new Promise((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(resolve))
-    );
-
-    const textCanvas = await html2canvas(cardContainer, {
-      backgroundColor: null,
-      useCORS: true,
-      scale: 1,
-    });
-
-    const sparkleBuffer = await (
-      await fetch("Card_asset/加算してキラキラ.png")
-    ).arrayBuffer();
-    let sparkleApng = UPNG.decode(sparkleBuffer);
-    const sparkleFrames = UPNG.toRGBA8(sparkleApng);
-    const newFrames = [];
-    const { width, height } = baseCanvas;
-
-    for (let i = 0; i < sparkleFrames.length; i++) {
-      const frameData = sparkleFrames[i];
-      const frameCanvas = document.createElement("canvas");
-      frameCanvas.width = width;
-      frameCanvas.height = height;
-      const frameCtx = frameCanvas.getContext("2d", {
-        willReadFrequently: true,
-      });
-      frameCtx.drawImage(baseCanvas, 0, 0);
-      const tempSparkleCanvas = document.createElement("canvas");
-      tempSparkleCanvas.width = sparkleApng.width;
-      tempSparkleCanvas.height = sparkleApng.height;
-      tempSparkleCanvas
-        .getContext("2d", { willReadFrequently: true })
-        .putImageData(
-          new ImageData(
-            new Uint8ClampedArray(frameData),
-            sparkleApng.width,
-            sparkleApng.height
-          ),
-          0,
-          0
-        );
-      frameCtx.globalCompositeOperation = "lighter";
-      frameCtx.drawImage(tempSparkleCanvas, 0, 0, width, height);
-      frameCtx.globalCompositeOperation = "source-over";
-      frameCtx.drawImage(textCanvas, 0, 0);
-      newFrames.push(frameCtx.getImageData(0, 0, width, height).data.buffer);
-    }
-
-    const delays = sparkleApng.frames.map((f) => f.delay);
-    const newApngBuffer = UPNG.encode(newFrames, width, height, 0, delays);
-    const blob = new Blob([newApngBuffer], { type: "image/png" });
-
-    textElements.forEach((el) => (el.style.opacity = 1));
-    baseImageElements.forEach((el) => (el.style.opacity = 1));
-    sparkleOverlayImage.style.display = sparkleCheckbox.checked
-      ? "block"
-      : "none";
-
-    return blob;
-  }
-
-  async function generateArtworkBlob(cardType) {
-    const elementsToModify = [
-      document.getElementById("card-template-image"),
-      document.getElementById("card-name-container"),
-      document.getElementById("text-box-container"),
-      document.getElementById("sparkle-overlay-image"),
-    ];
-    const originalStyles = [];
-    try {
-      elementsToModify.forEach((el) => {
-        if (el) {
-          originalStyles.push({
-            element: el,
-            originalDisplay: el.style.display,
-          });
-          el.style.display = "none";
-        }
-      });
-      const fullCardCanvas = await html2canvas(previewPanel, {
-        backgroundColor: null,
-        useCORS: true,
-      });
-      const isFullFrame = cardType === "FF" || cardType === "FFCF";
-      if (isFullFrame) {
-        return await new Promise((resolve) =>
-          fullCardCanvas.toBlob(resolve, "image/png")
-        );
-      } else {
-        const croppedCanvas = document.createElement("canvas");
-        croppedCanvas.width = 480;
-        croppedCanvas.height = 480;
-        const ctx = croppedCanvas.getContext("2d", {
-          willReadFrequently: true,
-        });
-        ctx.drawImage(fullCardCanvas, 0, 0, 480, 480, 0, 0, 480, 480);
-        return await new Promise((resolve) =>
-          croppedCanvas.toBlob(resolve, "image/png")
-        );
-      }
-    } finally {
-      originalStyles.forEach((item) => {
-        item.element.style.display = item.originalDisplay;
-      });
-    }
-  }
-  async function generateSparkleApng() {
-    const button = downloadBtn;
-    const originalButtonText = button.textContent;
-    button.textContent = "キラAPNGを生成中...";
-    button.disabled = true;
-    const originalTransform = previewPanel.style.transform;
-    previewPanel.style.transform = "none";
-    try {
-      const blob = await createSparkleApngBlob();
-      const link = document.createElement("a");
-      const fileName = `${(cardNameInput.value || "custom_card").replace(
-        /[()`]/g,
-        ""
-      )}_kira.png`;
-      link.download = fileName;
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(link.href);
-    } catch (err) {
-      console.error("キラAPNGの生成に失敗しました。", err);
-      showCustomAlert(
-        `キラAPNGの生成中にエラーが発生しました。\n詳細: ${err.message}`
-      );
-    } finally {
-      button.textContent = originalButtonText;
-      button.disabled = false;
-      previewPanel.style.transform = originalTransform;
-    }
-  }
-  function hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : null;
-  }
-  function getLuminance(hex) {
-    if (!hex || !hex.startsWith("#")) return 0;
-    let { r, g, b } = hexToRgb(hex);
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  }
-  function updateThemeColor(details) {
-    if (!details) return;
-    const root = document.documentElement;
-    const body = document.body;
-
-    const mainColor = details.color;
-    const darkColor = details.hover;
-    const textColor = details.textColor;
-
-    root.style.setProperty("--button-bg", mainColor);
-    root.style.setProperty("--button-hover-bg", darkColor);
-    root.style.setProperty("--button-color", textColor);
-    root.style.setProperty("--controls-panel-bg", darkColor);
-    root.style.setProperty("--theme-bg-main", darkColor);
-    root.style.setProperty("--theme-input-bg", darkColor);
-    root.style.setProperty("--theme-input-border", mainColor);
-    root.style.setProperty("--modal-bg", darkColor);
-    root.style.setProperty("--modal-border", mainColor);
-    root.style.setProperty("--modal-input-bg", darkColor);
-    root.style.setProperty("--modal-input-border", mainColor);
-    root.style.setProperty("--theme-border", mainColor);
-
-    const rgb = hexToRgb(mainColor);
-    if (rgb) {
-      root.style.setProperty("--button-bg-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
-    } else {
-      root.style.setProperty("--button-bg-rgb", "52, 152, 219");
-    }
-
-    const isLightTheme = getLuminance(mainColor) > 160;
-    body.classList.toggle("light-theme-ui", isLightTheme);
-  }
-  function handleBatchFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    batchFileName.textContent = file.name;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target.result;
-        if (file.name.endsWith(".json")) {
-          batchData = JSON.parse(content);
-        } else if (file.name.endsWith(".csv")) {
-          batchData = parseCsv(content).map((item) => ({
-            cardName: item["カード名"],
-            color: colorNameToIdMap[item["色"]] || "青",
-            type: item["タイプ"],
-            background:
-              item["背景"] === "◇"
-                ? "hologram_geometric.png"
-                : item["背景"] === "☆"
-                ? "hologram_glitter.png"
-                : "",
-            image: item["イラスト"],
-            effect: item["効果説明"],
-            flavor: item["フレーバー"],
-            speaker: item["フレーバー名"],
-            sparkle: (item["キラ"] || "").toLowerCase() === "true",
-          }));
-        } else {
-          throw new Error("サポートされていないファイル形式です。");
-        }
-        batchDownloadBtn.disabled = false;
-        showCustomAlert(
-          `${batchData.length}件のカードデータを読み込みました。`
-        );
-      } catch (error) {
-        console.error("ファイル処理エラー:", error);
-        showCustomAlert(`エラー: ${error.message}`);
-        batchFileName.textContent = "選択されていません";
-        batchDownloadBtn.disabled = true;
-        batchData = [];
-      }
-    };
-    reader.readAsText(file);
-  }
-  function parseCsv(csvText) {
-    const lines = csvText.trim().replace(/\r\n/g, "\n").split("\n");
-    const headers = lines[0].split(",").map((h) => h.trim());
-    const data = [];
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i]) continue;
-      const values = lines[i]
-        .split(",")
-        .map((v) => v.trim().replace(/^"(.*)"$/, "$1"));
-      const entry = {};
-      headers.forEach((header, index) => {
-        entry[header] = values[index];
-      });
-      data.push(entry);
-    }
-    return data;
-  }
-  function handleImageFolderUpload(event) {
-    const files = event.target.files;
-    if (files.length === 0) return;
-    localImageFiles = {};
-    for (const file of files) {
-      localImageFiles[file.name] = URL.createObjectURL(file);
-    }
-    imageFolderName.textContent = `${files.length}個の画像を選択`;
-  }
   function updatePreviewFromData(data, fromDB = false) {
     cardColorSelect.value = data["色"] || data.color || "青";
     cardTypeSelect.value = data["タイプ"] || data.type || "";
@@ -2185,39 +1945,21 @@ document.addEventListener("DOMContentLoaded", () => {
     cardImage.crossOrigin = "Anonymous";
     cardImage.src = finalImageUrl;
 
+    let overlayImageUrl = data["上絵画像URL"] || "";
+    if (overlayImageUrl) {
+      overlayImage.crossOrigin = "Anonymous";
+      overlayImage.src = overlayImageUrl;
+      overlayImage.style.display = "block";
+      if (fromDB) {
+        overlayImageFileName.textContent = overlayImageUrl.split("/").pop();
+      }
+    } else {
+      resetOverlayImage();
+    }
+    // 画像が読み込まれた後に位置を調整
+    overlayImage.onload = setupOverlayImageForDrag;
+
     updatePreview();
-  }
-  function checkImageTransparency(imageUrl) {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        try {
-          const imageData = ctx.getImageData(0, 0, 1, 1).data;
-          resolve(imageData[3] < 255);
-        } catch (e) {
-          resolve(false);
-        }
-      };
-      img.onerror = () => resolve(false);
-      img.src = imageUrl;
-    });
-  }
-  function checkDefaultImageTransparency(src) {
-    checkImageTransparency(src).then((hasTransparency) => {
-      const backgroundGroup = document.getElementById(
-        "background-select-group"
-      );
-      backgroundGroup.style.display = hasTransparency ? "block" : "none";
-      if (hasTransparency) backgroundSelect.value = "hologram_geometric.png";
-      else backgroundSelect.value = "";
-      updatePreview();
-    });
   }
 
   function setupDatabaseDetailViewListeners() {
@@ -2339,6 +2081,17 @@ document.addEventListener("DOMContentLoaded", () => {
     elements.cardImage.crossOrigin = "Anonymous";
     elements.cardImage.src = imageUrl;
     elements.imageContainer.style.height = isFullFrame ? "720px" : "480px";
+
+    let overlayImageUrl = cardData["上絵画像URL"];
+    if (overlayImageUrl) {
+      elements.overlayImage.crossOrigin = "Anonymous";
+      elements.overlayImage.src = overlayImageUrl;
+      elements.overlayImage.style.display = "block";
+    } else {
+      elements.overlayImage.src = "";
+      elements.overlayImage.style.display = "none";
+    }
+
     updateCardNameForPreview(
       cardData["カード名"] || "",
       elements.nameContent,
@@ -2379,7 +2132,6 @@ document.addEventListener("DOMContentLoaded", () => {
     flavorEl.innerHTML = flavorText.replace(/\n/g, "<br>");
     elements.speaker.innerText = speakerText ? `─── ${speakerText}` : "";
 
-    // 新しいレイアウト調整関数を呼び出し
     adjustTextBoxLayout(elements.effect, elements.flavor, elements.speaker);
   }
 
@@ -2442,5 +2194,184 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return Promise.all(promises);
   }
+
+  function handleBatchFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    batchFileName.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target.result;
+        if (file.name.endsWith(".json")) {
+          batchData = JSON.parse(content);
+        } else if (file.name.endsWith(".csv")) {
+          batchData = parseCsv(content).map((item) => ({
+            cardName: item["カード名"],
+            color: colorNameToIdMap[item["色"]] || "青",
+            type: item["タイプ"],
+            background:
+              item["背景"] === "◇"
+                ? "hologram_geometric.png"
+                : item["背景"] === "☆"
+                ? "hologram_glitter.png"
+                : "",
+            image: item["イラスト"],
+            effect: item["効果説明"],
+            flavor: item["フレーバー"],
+            speaker: item["フレーバー名"],
+            sparkle: (item["キラ"] || "").toLowerCase() === "true",
+          }));
+        } else {
+          throw new Error("サポートされていないファイル形式です。");
+        }
+        batchDownloadBtn.disabled = false;
+        showCustomAlert(
+          `${batchData.length}件のカードデータを読み込みました。`
+        );
+      } catch (error) {
+        console.error("ファイル処理エラー:", error);
+        showCustomAlert(`エラー: ${error.message}`);
+        batchFileName.textContent = "選択されていません";
+        batchDownloadBtn.disabled = true;
+        batchData = [];
+      }
+    };
+    reader.readAsText(file);
+  }
+  function parseCsv(csvText) {
+    const lines = csvText.trim().replace(/\r\n/g, "\n").split("\n");
+    const headers = lines[0].split(",").map((h) => h.trim());
+    const data = [];
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i]) continue;
+      const values = lines[i]
+        .split(",")
+        .map((v) => v.trim().replace(/^"(.*)"$/, "$1"));
+      const entry = {};
+      headers.forEach((header, index) => {
+        entry[header] = values[index];
+      });
+      data.push(entry);
+    }
+    return data;
+  }
+  function handleImageFolderUpload(event) {
+    const files = event.target.files;
+    if (files.length === 0) return;
+    localImageFiles = {};
+    for (const file of files) {
+      localImageFiles[file.name] = URL.createObjectURL(file);
+    }
+    imageFolderName.textContent = `${files.length}個の画像を選択`;
+  }
+
+  function populateSelects() {
+    Object.entries(cardColorData).forEach(([id, details]) =>
+      cardColorSelect.add(
+        new Option(`${details.name}：${details.description}`, id)
+      )
+    );
+    Object.entries(cardTypes).forEach(([key, details]) =>
+      cardTypeSelect.add(new Option(details.name, key))
+    );
+    cardColorSelect.value = "青";
+  }
+
+  function initialize() {
+    setupEventListeners();
+    populateSelects();
+    setupColorFilterButtons();
+    restoreAuthorNames();
+    updatePreview();
+    resetImage();
+    scalePreview();
+    handleBatchSectionCollapse();
+    handleUrlParameters();
+    setupDatabaseDetailViewListeners();
+  }
+
+  function setupEventListeners() {
+    ["change", "input"].forEach((event) => {
+      [
+        cardColorSelect,
+        cardTypeSelect,
+        backgroundSelect,
+        cardNameInput,
+        effectInput,
+        flavorInput,
+        flavorSpeakerInput,
+      ].forEach((el) =>
+        el.addEventListener(event, updatePreview, { passive: true })
+      );
+    });
+    imageUpload.addEventListener("change", handleImageUpload);
+    resetImageBtn.addEventListener("click", resetImage);
+    overlayImageUpload.addEventListener("change", handleOverlayImageUpload);
+    resetOverlayImageBtn.addEventListener("click", resetOverlayImage);
+    resetImagePositionBtn.addEventListener(
+      "click",
+      () => cardImage.src && setupImageForDrag()
+    );
+    resetOverlayPositionBtn.addEventListener(
+      "click",
+      () => overlayImage.src && setupOverlayImageForDrag()
+    );
+    editModeRadios.forEach((radio) =>
+      radio.addEventListener("change", (e) => {
+        activeManipulationTarget = e.target.value;
+      })
+    );
+    previewArea.addEventListener("mousedown", startDrag);
+    previewArea.addEventListener("touchstart", startDrag, { passive: false });
+    previewArea.addEventListener("wheel", handleZoom, { passive: false });
+    downloadBtn.addEventListener("click", () => downloadCard(false));
+    downloadTemplateBtn.addEventListener("click", () => downloadCard(true));
+    sparkleCheckbox.addEventListener("change", updateSparkleEffect);
+    openDbModalBtn.addEventListener("click", openDatabaseModal);
+    modalCloseBtn.addEventListener("click", () =>
+      dbModalOverlay.classList.remove("is-visible")
+    );
+    dbModalOverlay.addEventListener("click", (e) => {
+      if (e.target === dbModalOverlay)
+        dbModalOverlay.classList.remove("is-visible");
+    });
+    dbUpdateBtn.addEventListener("click", () => handleDatabaseSave(true));
+    dbCreateBtn.addEventListener("click", () => handleDatabaseSave(false));
+    registrantInput.addEventListener("input", () =>
+      localStorage.setItem("cardGeneratorRegistrant", registrantInput.value)
+    );
+    artistInput.addEventListener("input", () =>
+      localStorage.setItem("cardGeneratorArtist", artistInput.value)
+    );
+    tabDatabase.addEventListener("change", () => {
+      if (tabDatabase.checked) {
+        clearEditingState();
+        fetchAllCards();
+      }
+    });
+    dbColorFilterContainer.addEventListener("click", handleColorFilterClick);
+    dbSearchInput.addEventListener("input", applyDbFiltersAndSort);
+    dbSearchField.addEventListener("change", applyDbFiltersAndSort);
+    dbSortSelect.addEventListener("change", applyDbFiltersAndSort);
+    cardListContainer.addEventListener("click", handleCardListClick);
+    openTeikeiModalBtn.addEventListener("click", openTeikeiModal);
+    teikeiModalCloseBtn.addEventListener("click", () =>
+      teikeiModalOverlay.classList.remove("is-visible")
+    );
+    teikeiModalOverlay.addEventListener("click", (e) => {
+      if (e.target === teikeiModalOverlay)
+        teikeiModalOverlay.classList.remove("is-visible");
+    });
+    teikeiListContainer.addEventListener("click", handleTeikeiListClick);
+    batchFileUpload.addEventListener("change", handleBatchFileUpload);
+    imageFolderUpload.addEventListener("change", handleImageFolderUpload);
+    batchDownloadBtn.addEventListener("click", processBatchDownload);
+    window.addEventListener("resize", scalePreview);
+    window.addEventListener("resize", handleBatchSectionCollapse);
+  }
+
+  // --- End of Function Definitions ---
+
   initialize();
 });
