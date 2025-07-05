@@ -763,9 +763,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const notesText = card["備考"]
         ? card["備考"].replace(/"/g, "&quot;")
         : "";
-      const notesHTML = card["備考"]
-        ? `<p class="db-card-notes" title="${notesText}" style="color: ${textColor};">${notesText}</p>`
-        : "";
+      const notesHTML = "";
       const isChecked = selectedCardIds.has(card["ID"]) ? "checked" : "";
 
       cardElement.innerHTML = `
