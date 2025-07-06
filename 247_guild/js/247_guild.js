@@ -164,7 +164,24 @@ document.addEventListener("DOMContentLoaded", function () {
       nameClass = "name-m"; // 8〜10文字
     }
 
+    // 登場回数表示のロジックをcommon.jsから移植
+    let appearanceCountHtml = "";
+    const count = parseInt(adventurer.appearances, 10);
+    if (!isNaN(count)) {
+      // 0の場合も表示
+      let tier = "1"; // デフォルトの階層
+      if (count >= 5) {
+        tier = "4";
+      } else if (count >= 3) {
+        tier = "3";
+      } else if (count >= 2) {
+        tier = "2";
+      }
+      appearanceCountHtml = `<div class="character-appearance-count" data-count-tier="${tier}">${count}回</div>`;
+    }
+
     card.innerHTML = `
+        ${appearanceCountHtml}
         <div class="adventurer-level">Lv${cl}</div>
         <h3 class="character-name ${nameClass}">${name}</h3>
         <p class="member-spec">${race} / ${birth}</p>

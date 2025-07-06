@@ -10,16 +10,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     csvUrl =
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv";
     sortAndSliceLogic = (characters) => {
-      const adventurersWithLevel = characters.filter(
-        (char) => char.adventurerLevel !== ""
+      const relevantCharacters = characters.filter(
+        (char) =>
+          char.adventurerLevel !== "" || parseInt(char.appearanceCount, 10) > 0
       );
-      adventurersWithLevel.sort(
-        (a, b) =>
-          parseInt(b.adventurerLevel, 10) - parseInt(a.adventurerLevel, 10)
-      );
-      return adventurersWithLevel.slice(
+      relevantCharacters.sort((a, b) => {
+        const levelA = parseInt(a.adventurerLevel, 10) || 0;
+        const levelB = parseInt(b.adventurerLevel, 10) || 0;
+        if (levelA !== levelB) {
+          return levelB - levelA; // 冒険者レベルで降順
+        }
+        const countA = parseInt(a.appearanceCount, 10) || 0;
+        const countB = parseInt(b.appearanceCount, 10) || 0;
+        return countB - countA; // 登場数で降順
+      });
+      return relevantCharacters.slice(
         0,
-        Math.min(5, adventurersWithLevel.length)
+        Math.min(5, relevantCharacters.length)
       );
     };
   } else if (currentPath.includes("index.html") || currentPath === "/") {

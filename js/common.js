@@ -154,7 +154,8 @@ window.createMainPageCharacterCard = (character) => {
   // 登場回数表示のロジックを更新
   let appearanceCountHtml = "";
   const count = parseInt(character.appearanceCount, 10);
-  if (!isNaN(count) && count > 0) {
+  // appearanceCountが存在し、数値として有効な場合は常に表示
+  if (!isNaN(count)) {
     let tier = "1"; // デフォルトの階層
     if (count >= 5) {
       tier = "4";
