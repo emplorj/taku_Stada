@@ -30,11 +30,11 @@
 }
 
 .member-card h3.character-name {
-  margin: 0; /* ユーザーの要望によりマージンを削除 */
   font-size: 1.6rem;
   font-weight: 700;
   font-family: "Noto Serif JP", serif;
   color: #3a2d2d;
+  margin-top: 20px;
 }
 
 .character-meta {

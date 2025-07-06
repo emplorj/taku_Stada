@@ -356,69 +356,52 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>`;
   }
 
-  function robustParseCsv(csvText) {
-    const text = csvText.trim().replace(/\r\n|\r/g, "\n");
-    const lines = [];
-    let fields = [];
-    let currentField = "";
-    let inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i];
-      if (inQuotes) {
-        if (char === '"') {
-          if (i + 1 < text.length && text[i + 1] === '"') {
-            currentField += '"';
-            i++;
-          } else {
-            inQuotes = false;
-          }
-        } else {
-          currentField += char;
-        }
-      } else {
-        if (char === '"') {
-          inQuotes = true;
-        } else if (char === ",") {
-          fields.push(currentField);
-          currentField = "";
-        } else if (char === "\n") {
-          fields.push(currentField);
-          lines.push(fields);
-          fields = [];
-          currentField = "";
-        } else {
-          currentField += char;
-        }
-      }
-    }
-    if (fields.length > 0 || currentField) {
-      fields.push(currentField);
-      lines.push(fields);
-    }
-    return lines;
-  }
-
   function parseCsvAndPreprocess(csvText) {
-    const lines = robustParseCsv(csvText);
+    const results = Papa.parse(csvText, {
+      header: false, // ヘッダーは手動で処理
+      skipEmptyLines: true,
+    });
+
+    const lines = results.data;
     if (lines.length < 2) return { played: [], unplayed: [] };
+
     const headers = lines[0];
     const scenarios = { played: [], unplayed: [] };
     let currentSection = "played";
+
+    // ヘッダーのインデックスを事前に取得
+    const getHeaderIndex = (headerName) => headers.indexOf(headerName);
+
     for (let i = 1; i < lines.length; i++) {
       const row = lines[i];
-      if (!row || row.length < headers.length || row.every((cell) => !cell))
+      if (!row || row.length < headers.length || row.every((cell) => !cell)) {
         continue;
-      if (row[1] === "シナリオ名") {
+      }
+
+      // 未走セクションの開始を検出
+      if (row[getHeaderIndex("シナリオ名")] === "シナリオ名") {
         currentSection = "unplayed";
         continue;
       }
-      if (!row[1]) continue;
+
+      // シナリオ名がない行はスキップ
+      if (!row[getHeaderIndex("シナリオ名")]) {
+        continue;
+      }
+
       const obj = {};
-      headers.forEach((header, j) => (obj[header] = (row[j] || "").trim()));
+      headers.forEach((header, j) => {
+        obj[header] = (row[j] || "").trim();
+      });
+
+      // レビューがないものはスキップ
       const hasReview =
         (obj["難易度"] && obj["難易度"].includes("★")) ||
         (obj["難(2人目)"] && obj["難(2人目)"].includes("★"));
-      if (!hasReview) continue;
+      if (!hasReview) {
+        continue;
+      }
+
       const scenarioData = {
         name: obj["シナリオ名"],
         urlAuthor: obj["URL/作者"],
@@ -457,6 +440,7 @@ document.addEventListener("DOMContentLoaded", () => {
         omoro: obj["オモロポイント（皆で書こ）"],
         comment: obj["その他（あるいはコメント欄）"],
       };
+
       const pStr = obj["人数"].replace("人", "");
       const p = pStr.split(/[-～]/);
       scenarioData.players = {
@@ -464,12 +448,14 @@ document.addEventListener("DOMContentLoaded", () => {
         max: parseInt(p[1] || p[0]) || 99,
         isFree: pStr === "自由",
       };
+
       const dStr = obj["日数"].replace("日", "");
       const d = dStr.split(/[-～]/);
       scenarioData.days = {
         min: parseInt(d[0]) || 0,
         max: parseInt(d[1] || d[0]) || 99,
       };
+
       for (let k = 1; k <= 3; k++) {
         const suffix = k === 1 ? "" : `(${k}人目)`;
         const difficulty = obj[`難易度${suffix}`] || obj[`難${suffix}`];

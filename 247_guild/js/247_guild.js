@@ -79,26 +79,39 @@ document.addEventListener("DOMContentLoaded", function () {
         throw new Error(`CSVの取得に失敗: ${response.statusText}`);
       const csvText = await response.text();
 
-      // Use a simple split-based parser, assuming no newlines within fields.
-      const allRows = csvText
-        .trim()
-        .split("\n")
-        .map((row) => row.split(","));
-      const dataRows = allRows.slice(2); // Skip first two rows
+      // PapaParseを使ってCSVを解析
+      const results = Papa.parse(csvText, {
+        header: false, // ヘッダーは手動で処理するためfalse
+        skipEmptyLines: true,
+      });
+
+      const allRows = results.data;
+      const dataRows = allRows.slice(2); // Skip first two rows (assuming header is on row 2, data starts on row 3)
 
       const adventurers = dataRows
-        .map((row) => ({
-          name: row[5] ? row[5].trim() : "",
-          appearances: row[6] ? row[6].trim() : "",
-          pl: row[4] ? row[4].trim() : "",
-          race: row[7] ? row[7].trim() : "",
-          birth: row[11] ? row[11].trim() : "", // '生まれ'
-          cl: row[8] ? row[8].trim() : "", // CL (AL)
-        }))
-        .filter(
-          (adv) =>
-            adv.name && adv.appearances && !isNaN(parseInt(adv.appearances, 10))
-        );
+        .map((row) => {
+          // CSVの列インデックスを直接指定
+          const name = row[5] ? row[5].trim() : "";
+          const appearances = row[6] ? row[6].trim() : "";
+          const pl = row[4] ? row[4].trim() : "";
+          const race = row[7] ? row[7].trim() : "";
+          const birth = row[11] ? row[11].trim() : ""; // '生まれ'
+          const cl = row[8] ? row[8].trim() : ""; // CL (AL)
+
+          if (!name || !appearances || isNaN(parseInt(appearances, 10))) {
+            return null; // 無効な行はスキップ
+          }
+
+          return {
+            name,
+            appearances,
+            pl,
+            race,
+            birth,
+            cl,
+          };
+        })
+        .filter(Boolean); // nullを除外
 
       const featuredCandidates = adventurers.filter(
         (adv) => parseInt(adv.appearances, 10) >= 1

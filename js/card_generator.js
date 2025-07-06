@@ -1735,33 +1735,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   function parseDatabaseCsv(csvText) {
-    const lines = csvText.trim().replace(/\r\n/g, "\n").split("\n");
-    if (lines.length < 1) return [];
-    const headers = lines[0].split(",").map((h) => h.trim());
-    const data = [];
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i]) continue;
-      const values = [];
-      let inQuotes = false;
-      let currentField = "";
-      for (const char of lines[i]) {
-        if (char === '"') {
-          inQuotes = !inQuotes;
-        } else if (char === "," && !inQuotes) {
-          values.push(currentField.trim());
-          currentField = "";
-        } else {
-          currentField += char;
-        }
-      }
-      values.push(currentField.trim());
-      const entry = {};
-      headers.forEach((header, index) => {
-        entry[header] = values[index] || "";
-      });
-      data.push(entry);
-    }
-    return data.reverse();
+    const results = Papa.parse(csvText, {
+      header: true, // ヘッダー行をオブジェクトのキーとして使用
+      skipEmptyLines: true,
+    });
+    // 最新のデータが上に来るように逆順にする
+    return results.data.reverse();
   }
   function handleUrlParameters() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -2338,21 +2317,11 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.readAsText(file);
   }
   function parseCsv(csvText) {
-    const lines = csvText.trim().replace(/\r\n/g, "\n").split("\n");
-    const headers = lines[0].split(",").map((h) => h.trim());
-    const data = [];
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i]) continue;
-      const values = lines[i]
-        .split(",")
-        .map((v) => v.trim().replace(/^"(.*)"$/, "$1"));
-      const entry = {};
-      headers.forEach((header, index) => {
-        entry[header] = values[index];
-      });
-      data.push(entry);
-    }
-    return data;
+    const results = Papa.parse(csvText, {
+      header: true, // ヘッダー行をオブジェクトのキーとして使用
+      skipEmptyLines: true,
+    });
+    return results.data;
   }
   function handleImageFolderUpload(event) {
     const files = event.target.files;

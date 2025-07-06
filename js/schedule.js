@@ -19,43 +19,11 @@ const NAME_ALIASES = {
 };
 
 function parseCsvToArray(csvText) {
-  const rows = [];
-  let currentRow = [];
-  let inQuotes = false;
-  let currentField = "";
-  csvText = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  for (let i = 0; i < csvText.length; i++) {
-    const char = csvText[i];
-    if (inQuotes) {
-      if (char === '"' && i + 1 < csvText.length && csvText[i + 1] === '"') {
-        currentField += '"';
-        i++;
-      } else if (char === '"') {
-        inQuotes = false;
-      } else {
-        currentField += char;
-      }
-    } else {
-      if (char === '"') {
-        inQuotes = true;
-      } else if (char === ",") {
-        currentRow.push(currentField);
-        currentField = "";
-      } else if (char === "\n") {
-        currentRow.push(currentField);
-        rows.push(currentRow);
-        currentRow = [];
-        currentField = "";
-      } else {
-        currentField += char;
-      }
-    }
-  }
-  if (currentField || currentRow.length > 0) {
-    currentRow.push(currentField);
-    rows.push(currentRow);
-  }
-  return rows.filter((row) => row.length > 1 || (row.length === 1 && row[0]));
+  const results = Papa.parse(csvText, {
+    header: false, // ヘッダーは手動で処理
+    skipEmptyLines: true,
+  });
+  return results.data;
 }
 function isNextDay(d1, d2) {
   const n = new Date(d1);
