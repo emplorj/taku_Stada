@@ -49,6 +49,14 @@
             <ul class="tool-card-list" id="schedule-links-container">
             </ul>
         </div>
+        <section id="featured-adventurers" class="content-section">
+            <h2 class="start-title"><i class="fa-solid fa-star"></i> いろんなキャラ</h2>
+            <div class="plain-text-block intro-block">
+                <p>ここで登場したいろんなキャラを見てみよう！</p>
+            </div>
+            <div class="card-container member-list">
+            </div>
+        </section>
 
         <h2 id="slides-section" class="start-title"><a href="slides.html">📖 スライド置き場</a></h2>
         <div class="plain-text-block intro-block">
@@ -119,17 +127,6 @@
             </div>
         </div>
 
-        <section id="featured-adventurers" class="content-section">
-            <h2 class="start-title"><i class="fa-solid fa-star"></i> 注目のキャラクター</h2>
-            <div class="plain-text-block intro-block">
-                <p>
-                    ここで登場したいろんなキャラを見てみよう！
-                </p>
-            </div>
-            <div class="card-container member-list">
-            </div>
-        </section>
-
         <footer>
             <p>© 2025 卓スタダ.</p>
         </footer>
@@ -137,229 +134,8 @@
 
     <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
     <script src="js/common.js"></script>
+    <script src="js/character_card_loader.js"></script>
 
-    <script>
-        // ★★★★★ index.html 専用のスクリプトをここに記述 ★★★★★
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // --- 色リスト生成 ---
-            const colorListContainer = document.getElementById('trpg-color-list');
-            if (colorListContainer) {
-                const systemsToShow = [
-                    { displayName: 'クトゥルフ神話TRPG', colorNameDesc: '緑', cssVar: '--color-coc' },
-                    { displayName: 'クトゥルフ神話TRPG(秘匿)', colorNameDesc: '濃緑', cssVar: '--color-coc-secret' },
-                    { displayName: 'ソード・ワールド2.5', colorNameDesc: '薄赤', cssVar: '--color-sw' },
-                    { displayName: 'ダブルクロス The 3rd Edition', colorNameDesc: '赤', cssVar: '--color-dx3' },
-                    { displayName: '永い後日談のネクロニカ', colorNameDesc: '灰', cssVar: '--color-nechronica' },
-                    { displayName: 'サタスペ', colorNameDesc: 'オレンジ', cssVar: '--color-satasupe' },
-                    { displayName: 'マモノスクランブル', colorNameDesc: '黄橙', cssVar: '--color-mamoburu' },
-                    { displayName: '銀剣のステラナイツ', colorNameDesc: '暗い青', cssVar: '--color-gin剣' },
-                    { displayName: 'ウマ娘TRPG', colorNameDesc: '桃', cssVar: '--color-umamusume' },
-                    { displayName: 'シノビガミ', colorNameDesc: '紫', cssVar: '--color-shinobigami' },
-                    { displayName: 'アリアンロッドRPG 2E', colorNameDesc: '黄色', cssVar: '--color-ar' }
-                ];
-                systemsToShow.forEach(sys => {
-                    const style = getComputedStyle(document.documentElement);
-                    const colorCode = style.getPropertyValue(sys.cssVar).trim() || style.getPropertyValue('--color-default').trim();
-                    const listItem = document.createElement('li');
-                    listItem.classList.add('color-list-item');
-                    listItem.innerHTML = `<span class="color-list-text">${sys.displayName}：（${sys.colorNameDesc}）</span> <span class="color-chip" style="background-color: ${colorCode};"></span> <code>${colorCode}</code> <button class="copy-color-button" data-colorcode="${colorCode}" title="カラーコードをコピー">コピー</button>`;
-                    colorListContainer.appendChild(listItem);
-                });
-                colorListContainer.addEventListener('click', function (event) {
-                    const button = event.target.closest('.copy-color-button');
-                    if (button) {
-                        navigator.clipboard.writeText(button.dataset.colorcode).then(() => {
-                            const originalText = button.textContent; button.textContent = 'OK!'; button.disabled = true;
-                            setTimeout(() => { button.textContent = originalText; button.disabled = false; }, 1500);
-                        });
-                    }
-                });
-            }
-        });
-
-        // --- OGPカードリスト生成 ---
-        // (省略)
-
-        // ★★★ 注目のキャラクターさん (ここからが修正箇所) ★★★
-
-        // システム名からCSS変数を取得する関数
-        const getSystemColor = (tableName) => {
-            const systemMap = {
-                'CoC': '--color-coc',
-                'SW2.5': '--color-sw',
-                'DX3': '--color-dx3',
-                'ネクロニカ': '--color-nechronica',
-                'サタスペ': '--color-satasupe',
-                'マモブル': '--color-mamoburu',
-                '銀剣': '--color-gin剣',
-                'ウマ娘TRPG': '--color-umamusume',
-                'シノビガミ': '--color-shinobigami',
-                'アリアンロッドRPG 2E': '--color-ar'
-            };
-            for (const key in systemMap) {
-                if (tableName.startsWith(key)) {
-                    const color = getComputedStyle(document.documentElement).getPropertyValue(systemMap[key]).trim();
-                    return color || getComputedStyle(document.documentElement).getPropertyValue('--color-default').trim();
-                }
-            }
-            return getComputedStyle(document.documentElement).getPropertyValue('--color-default').trim();
-        };
-
-        // キャラクターカードを生成してHTML要素を作成する関数
-        const createMainPageCharacterCard = (character) => {
-            const card = document.createElement('div');
-            card.className = 'member-card';
-
-            const quoteHtml = character.quote ? character.quote.replace(/\\n/g, '<br>') : '';
-            const systemColor = getSystemColor(character.tableName);
-            card.style.borderLeft = `5px solid ${systemColor}`;
-
-            // 性別アイコンの決定
-            let genderIcon = 'fa-genderless';
-            if (character.gender === '男') {
-                genderIcon = 'fa-mars';
-            } else if (character.gender === '女') {
-                genderIcon = 'fa-venus';
-            }
-
-            // 年齢表示の整形
-            let ageText = '年齢不明';
-            if (character.age) {
-                const isNumeric = /^\d+$/.test(character.age);
-                ageText = isNumeric ? character.age + '歳' : character.age;
-            }
-
-            // サタスペの場合のジョブの色を決定
-            let jobColorStyle = '';
-            if (character.tableName.startsWith('サタスペ')) {
-                jobColorStyle = `style="color: ${systemColor};"`;
-            }
-
-            // ★変更: 登場回数表示のロジックを更新
-            let appearanceCountHtml = '';
-            const count = parseInt(character.appearanceCount, 10);
-            if (!isNaN(count) && count > 0) {
-                let tier = '1'; // デフォルトの階層
-                if (count >= 5) {
-                    tier = '4';
-                } else if (count >= 3) {
-                    tier = '3';
-                } else if (count >= 2) {
-                    tier = '2';
-                }
-                // data-count-tier属性を追加し、テキストに「回」を付与
-                appearanceCountHtml = `<div class="character-appearance-count" data-count-tier="${tier}">${count}回</div>`;
-            }
-            // ★追加: 冒険者レベル表示のHTML
-            const adventurerLevelHtml = character.adventurerLevel
-                ? `<div class="adventurer-level">Lv${character.adventurerLevel}</div>`
-                : '';
-            // カードのHTMLを組み立て
-            card.innerHTML = `
-                ${appearanceCountHtml}
-                <div class="character-system-tag" style="background-color: ${systemColor};">${character.tableName || 'システム不明'}</div>
-                <h3 class="character-name">${character.pcName || 'PC名不明'}</h3>
-                <div class="character-meta">
-                    <span class="meta-item">
-                        <i class="fa-solid ${genderIcon}"></i>
-                        <span>${character.gender || '性別不明'}</span>
-                    </span>
-                    <span class="meta-item">
-                        <i class="fa-solid fa-cake-candles"></i>
-                        <span>${ageText}</span>
-                    </span>
-                    <span class="meta-item">
-                        <i class="fa-solid fa-ruler-vertical"></i>
-                        <span>${character.height ? character.height + 'cm' : '身長不明'}</span>
-                    </span>
-                </div>
-                <p class="character-job" ${jobColorStyle}>${character.job || 'ジョブ不明'}</p>
-                <p class="character-quote member-desc">${quoteHtml}</p>
-                <p class="pl-name">PL: ${character.pl || 'PL不明'}</p>
-            `;
-            return card;
-        };
-
-        // メインの処理
-        const setupMainPageAdventurers = async () => {
-            const container = document.querySelector('#featured-adventurers .member-list');
-            if (!container) return;
-            container.innerHTML = '<p style="text-align: center; width: 100%;">キャラクター情報を読み込んでいます...</p>';
-
-            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv';
-
-            try {
-                const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error(`CSVの取得に失敗: ${response.statusText}`);
-                const csvText = await response.text();
-
-                // PapaParseを使ってCSVを解析
-                Papa.parse(csvText, {
-                    complete: function (results) {
-                        const allRows = results.data;
-
-                        // ヘッダー行とデータ行を特定 (ご提供のCSVの構造に合わせる)
-                        const headerRow = allRows[1];
-                        const dataRows = allRows.slice(2);
-
-                        const getIndex = (name) => headerRow.indexOf(name);
-
-                        const characters = dataRows.map(row => {
-                            // 列数がヘッダーと合わない行はスキップ
-                            if (row.length < headerRow.length) return null;
-
-                            const pcName = row[getIndex('PC名')] ? row[getIndex('PC名')].trim() : '';
-                            if (!pcName) return null;
-
-                            let genderDisplay = '性別不明';
-                            const rawGender = row[getIndex('性別')] ? String(row[getIndex('性別')]).trim().toUpperCase() : '';
-                            if (rawGender === 'TRUE') {
-                                genderDisplay = '男';
-                            } else if (rawGender === 'FALSE') {
-                                genderDisplay = '女';
-                            }
-
-                            const originalTableName = row[getIndex('卓名')] ? row[getIndex('卓名')].trim() : '';
-
-                            return {
-                                tableName: originalTableName.normalize('NFKC'),
-                                gender: genderDisplay,
-                                age: row[getIndex('年齢')] ? String(row[getIndex('年齢')]).trim() : '',
-                                height: row[getIndex('身長')] ? String(row[getIndex('身長')]).trim() : '',
-                                pcName: pcName,
-                                pl: row[getIndex('PL')] ? row[getIndex('PL')].trim() : '',
-                                job: row[getIndex('ジョブ')] ? row[getIndex('ジョブ')].trim() : '',
-                                quote: row[getIndex('セリフ')] ? row[getIndex('セリフ')].trim() : '',
-                                appearanceCount: row[getIndex('登場数')] ? String(row[getIndex('登場数')]).trim() : '0'
-                            };
-                        }).filter(Boolean);
-
-                        if (characters.length === 0) {
-                            container.innerHTML = '<p>現在、注目のキャラクターはいません。</p>';
-                            return;
-                        }
-
-                        const shuffled = characters.sort(() => 0.5 - Math.random());
-                        const selected = shuffled.slice(0, Math.min(5, shuffled.length));
-
-                        container.innerHTML = '';
-                        selected.forEach(char => {
-                            const card = createMainPageCharacterCard(char);
-                            container.appendChild(card);
-                        });
-                    }
-                });
-
-            } catch (error) {
-                console.error('注目のキャラクター機能(index.html)でエラー:', error);
-                container.innerHTML = '<p>情報の読み込みに失敗しました。</p>';
-            }
-        };
-
-        // ページの読み込みが完了したら実行
-        document.addEventListener('DOMContentLoaded', setupMainPageAdventurers);
-    </script>
 </body>
 
 </html>

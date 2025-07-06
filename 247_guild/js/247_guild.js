@@ -133,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const card = createAdventurerCard(adv);
         container.appendChild(card);
       });
+      adjustFontSizes(); // 動的に生成されたカードにも適用
     } catch (error) {
       console.error("注目の冒険者さん機能でエラー:", error);
       container.innerHTML = "<p>情報の読み込みに失敗しました。</p>";
@@ -149,9 +150,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const birth = adventurer.birth || "生まれ不明";
     const cl = adventurer.cl || "?";
 
+    // ★追加: 名前の長さに応じたクラスを決定
+    let nameClass = "";
+    const nameLength = name ? name.length : 0;
+
+    if (nameLength >= 20) {
+      nameClass = "name-xxl"; // 20文字以上 (折り返しあり)
+    } else if (nameLength >= 16) {
+      nameClass = "name-xl"; // 16文字以上
+    } else if (nameLength > 10) {
+      nameClass = "name-l"; // 11〜15文字
+    } else if (nameLength > 7) {
+      nameClass = "name-m"; // 8〜10文字
+    }
+
     card.innerHTML = `
         <div class="adventurer-level">Lv${cl}</div>
-        <h3>${name}</h3>
+        <h3 class="character-name ${nameClass}">${name}</h3>
         <p class="member-spec">${race} / ${birth}</p>
         <p class="pl-name">PL: ${plName}</p>
     `;
@@ -346,5 +361,60 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       },
     });
+  }
+});
+
+// --- 名前の長さに応じてフォントサイズを調整する機能 ---
+function adjustFontSizes() {
+  requestAnimationFrame(() => {
+    // レンダリング後に実行
+    const cards = document.querySelectorAll(".member-card");
+    cards.forEach((card) => {
+      const nameElement = card.querySelector("h3.character-name"); // character-nameクラスを持つh3を対象
+      if (nameElement) {
+        let currentSize = 1.6; // 初期フォントサイズ (CSSに合わせる)
+        nameElement.style.fontSize = `${currentSize}rem`; // 初期サイズを明示的に設定
+
+        // card.clientWidth は padding を含まない要素のコンテンツ幅
+        // member-card の padding は左右 1.5rem なので、合計 3rem (約48px)
+        const cardInnerWidth = card.clientWidth - 16 * 1.5 * 2; // 1rem = 16px と仮定
+
+        // 文字がはみ出している間、フォントサイズを小さくする
+        while (nameElement.scrollWidth > cardInnerWidth && currentSize > 0.8) {
+          currentSize -= 0.05; // より細かく調整
+          nameElement.style.fontSize = `${currentSize}rem`;
+        }
+      }
+    });
+  });
+}
+
+// 初期読み込み時にも実行
+adjustFontSizes();
+// ウィンドウのリサイズ時にも実行 (必要であれば)
+window.addEventListener("resize", adjustFontSizes);
+
+// --- ギルドスタッフにも冒険者レベルを表示する機能 ---
+const memberCards = document.querySelectorAll("#staff .member-card");
+memberCards.forEach((card) => {
+  const level = card.dataset.adventurerLevel;
+  if (level) {
+    const levelElement = document.createElement("div");
+    levelElement.className = "adventurer-level";
+
+    if (level === "???") {
+      const glitchChars =
+        "█縲繝繧繝輔ぃ繧ｮ繧ｹ繝√繧ク繝ュ繝ォ繝｡繧｢繧ｨ繧ｪ繧ｶ繧ｷ繧ｹ繧ｾ繧ｿ繝√ヂ繝・繝ヱ繝セ繝";
+      setInterval(() => {
+        const glitchChar = glitchChars.charAt(
+          Math.floor(Math.random() * glitchChars.length)
+        );
+        levelElement.textContent = `Lv${glitchChar}`;
+      }, 150);
+    } else {
+      levelElement.textContent = `Lv${level}`;
+    }
+
+    card.insertBefore(levelElement, card.firstChild);
   }
 });
