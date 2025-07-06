@@ -12,6 +12,10 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://emplorj.github.io/taku_Stada/" />
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="css/featured-character.css">
+    <!-- ★追加: 高性能CSVパーサー -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 
 <body>
@@ -36,7 +40,6 @@
                     rel="noopener noreferrer">はいすいかん(@haisuikan_trpg)</a>さんからのアドバイスをまとめました。</p>
             <p>「どんな神話生物を使えばいいの？」「ストーリーの組み立て方が分からない！」といった疑問を解決し、自作シナリオを回そう！</p>
             <ul class="tool-card-list" id="coc-qa-links-container">
-                <!-- CoC Q&A links will be inserted here by JavaScript -->
             </ul>
         </div>
 
@@ -44,7 +47,6 @@
         <div class="plain-text-block intro-block">
             <p>今後のセッション予定などを確認できます。</p>
             <ul class="tool-card-list" id="schedule-links-container">
-                <!-- Schedule links will be inserted here by JavaScript -->
             </ul>
         </div>
 
@@ -67,7 +69,6 @@
         <h2 id="archive-section" class="start-title">アーカイブ</h2>
         <div class="plain-text-block intro-block">
             <ul class="tool-card-list" id="archive-links-container">
-                <!-- Archive links will be inserted here by JavaScript -->
             </ul>
         </div>
 
@@ -83,14 +84,12 @@
         <h2 id="ccfolia-tools-section" class="start-title">ツール</h2>
         <div class="plain-text-block intro-block">
             <ul class="tool-card-list" id="tool-card-list-container">
-                <!-- ここにJavaScriptでOGPカードが挿入されます -->
             </ul>
         </div>
 
         <h2 id="content-policy-section" class="start-title">地雷チェックシート</h2>
         <div class="plain-text-block intro-block">
             <ul class="tool-card-list" id="content-policy-container">
-                <!-- Content policy links will be inserted here by JavaScript -->
             </ul>
         </div>
 
@@ -119,6 +118,17 @@
                 <button class="copy-button" onclick="copyCodeToClipboard('yutosheet-template')">コピー</button>
             </div>
         </div>
+
+        <section id="featured-adventurers" class="content-section">
+            <h2 class="start-title"><i class="fa-solid fa-star"></i> 注目のキャラクター</h2>
+            <div class="plain-text-block intro-block">
+                <p>
+                    ここで登場したいろんなキャラを見てみよう！
+                </p>
+            </div>
+            <div class="card-container member-list">
+            </div>
+        </section>
 
         <footer>
             <p>© 2025 卓スタダ.</p>
@@ -166,150 +176,189 @@
                     }
                 });
             }
-
-            // --- ロゴクリックイベント ---
-            const mainLogo = document.getElementById('main-logo');
-            const miniLogo = document.getElementById('mini-logo');
-
-            if (mainLogo) {
-                mainLogo.addEventListener('click', function () {
-                    window.location.href = 'sutada_chara.html';
-                });
-            }
-
-            if (miniLogo) {
-                miniLogo.addEventListener('click', function () {
-                    window.location.href = 'sutada_chara.html#coc-mini-section'; // miniCoCのセクションIDに合わせる
-                });
-            }
         });
 
         // --- OGPカードリスト生成 ---
-        const toolData = [
-            { category: "試し振りなど", url: "https://ccfolia.com/rooms/6584j5uuj", title: "楽屋ココフォリア", author: "おれ・ココフォリア", manual: true, description: "ココフォリアの公式ルームです。", icon: "fa-solid fa-dice-d20" },
-            { category: "キャラクターシート", url: "https://kurian.websozai.jp/charaPiece/top", title: "キャラシコピペツール (CoC, SW等)", author: "@Kuuriku_Sora", manual: true, description: "各種キャラクターシートをココフォリア用に整形します。", icon: "fa-solid fa-paste" },
-            { category: "キャラクターシート", url: "https://script.google.com/macros/s/AKfycbwUPjuiBEGUrfrKcKZCrRAqiB7V687tbA5uxy7PbKxSkgMGnoIMob7yK0PNEvBoUcbTTA/exec", title: "キャラシコピペツール (DX3rd, サタスペ等)", author: "おれ", manual: true, description: "Google Apps Script製のキャラクターシート整形ツール。", icon: "fa-solid fa-file-lines" },
-            { category: "キャラクターシート", url: "https://docs.google.com/spreadsheets/d/1jMnjoqxiJZanm6L9-HsXw1crxBdQB_SZQgM4O8Tk7MM/", title: "ダブルクロス コンボジェネレーター", author: "おれ", manual: true, description: "Googleスプレッドシート上で動作するコンボビルダー。", icon: "fa-solid fa-table-cells" },
-            { category: "キャラクターシート", url: "https://docs.google.com/presentation/d/1ZHHNs_yR37joGYSBiYfQ_C_mwmhdFNHmxkA7fItBkKs/edit#slide=id.g2710a927f4d_0_5", title: "ダブルクロス コンボジェネレーター (説明)", author: "おれ", manual: true, description: "コンボジェネレーターの使い方を解説したスライド。", icon: "fa-solid fa-person-chalkboard" },
-            { category: "ログ・テキスト整形", url: "https://sirubedon.github.io/ccfolia-log-to-xlsx/", title: "ココフォリアログ→Excel変換", author: "しるべ", manual: true, description: "ココフォリアのログをExcel形式に変換します。", icon: "fa-solid fa-file-excel" },
-            { category: "ログ・テキスト整形", url: "https://sirubedon.github.io/CCfoliaLogConverterWithImages/", title: "ココフォリア/Tekeyログ整形 (画像埋込)", author: "しるべ", manual: true, description: "ログに画像サムネイルを埋め込んで整形します。", icon: "fa-solid fa-image" },
-            { category: "立ち絵", url: "https://x.com/qxoiUioxp/status/1898323502731796480", title: "動画→動く画像(APNG)変換", author: "しるべ", manual: true, description: "動画ファイルをAPNG形式にオンラインで変換します。", icon: "fa-solid fa-film" },
-            { category: "アフタープレイ", url: "https://x.com/qxoiUioxp/status/1898323502731796480", title: "卓報告ジェネレーター", author: "しるべ vs ダスト", manual: true, description: "SNSで報告するためのテンプレを作ります。", icon: "fa-brands fa-twitter" }
-        ];
+        // (省略)
 
-        const toolCardContainer = document.getElementById('tool-card-list-container');
+        // ★★★ 注目のキャラクターさん (ここからが修正箇所) ★★★
 
-        if (toolCardContainer) {
-            const groupedByCategory = toolData.reduce((acc, tool) => {
-                const category = tool.category || 'その他';
-                if (!acc[category]) acc[category] = [];
-                acc[category].push(tool);
-                return acc;
-            }, {});
-
-            for (const category in groupedByCategory) {
-                const categoryHeader = document.createElement('h3');
-                categoryHeader.className = 'tool-author-header'; // Re-use style
-                categoryHeader.textContent = category;
-                toolCardContainer.appendChild(categoryHeader);
-
-                const categoryToolList = document.createElement('ul');
-                categoryToolList.className = 'tool-card-list';
-
-                groupedByCategory[category].forEach(tool => {
-                    const wrapper = document.createElement('li');
-                    wrapper.className = 'ogp-card-wrapper';
-
-                    const cardPlaceholder = document.createElement('div');
-
-                    if (tool.manual) {
-                        renderManualCard(tool, cardPlaceholder);
-                    } else {
-                        cardPlaceholder.className = 'ogp-card';
-                        cardPlaceholder.innerHTML = `<a href="${tool.url}" target="_blank" rel="noopener noreferrer"><div class="ogp-card-content"><p>読み込み中...</p></div></a>`;
-                        fetchOgpData(tool.url, cardPlaceholder);
-                    }
-
-                    wrapper.appendChild(cardPlaceholder);
-                    categoryToolList.appendChild(wrapper);
-                });
-                toolCardContainer.appendChild(categoryToolList);
+        // システム名からCSS変数を取得する関数
+        const getSystemColor = (tableName) => {
+            const systemMap = {
+                'CoC': '--color-coc',
+                'SW2.5': '--color-sw',
+                'DX3': '--color-dx3',
+                'ネクロニカ': '--color-nechronica',
+                'サタスペ': '--color-satasupe',
+                'マモブル': '--color-mamoburu',
+                '銀剣': '--color-gin剣',
+                'ウマ娘TRPG': '--color-umamusume',
+                'シノビガミ': '--color-shinobigami',
+                'アリアンロッドRPG 2E': '--color-ar'
+            };
+            for (const key in systemMap) {
+                if (tableName.startsWith(key)) {
+                    const color = getComputedStyle(document.documentElement).getPropertyValue(systemMap[key]).trim();
+                    return color || getComputedStyle(document.documentElement).getPropertyValue('--color-default').trim();
+                }
             }
-        }
+            return getComputedStyle(document.documentElement).getPropertyValue('--color-default').trim();
+        };
 
-        // --- Schedule Links Generation ---
-        const scheduleData = [
-            { url: "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw", title: "デイコード", description: "キャラシサイトと連携した日程調整ツール。予定の入力はこちらから。", icon: "fa-solid fa-calendar-plus", manual: true }
-        ];
+        // キャラクターカードを生成してHTML要素を作成する関数
+        const createMainPageCharacterCard = (character) => {
+            const card = document.createElement('div');
+            card.className = 'member-card';
 
-        const scheduleLinksContainer = document.getElementById('schedule-links-container');
+            const quoteHtml = character.quote ? character.quote.replace(/\\n/g, '<br>') : '';
+            const systemColor = getSystemColor(character.tableName);
+            card.style.borderLeft = `5px solid ${systemColor}`;
 
-        if (scheduleLinksContainer) {
-            scheduleData.forEach(item => {
-                const wrapper = document.createElement('li');
-                wrapper.className = 'ogp-card-wrapper';
-                const cardPlaceholder = document.createElement('div');
-                renderManualCard(item, cardPlaceholder);
-                wrapper.appendChild(cardPlaceholder);
-                scheduleLinksContainer.appendChild(wrapper);
-            });
-        }
+            // 性別アイコンの決定
+            let genderIcon = 'fa-genderless';
+            if (character.gender === '男') {
+                genderIcon = 'fa-mars';
+            } else if (character.gender === '女') {
+                genderIcon = 'fa-venus';
+            }
 
-        // --- Archive Links Generation ---
-        const archiveData = [
-            { url: "https://docs.google.com/spreadsheets/d/17wStGJ37GjaINrjZMFZgmacYOPeH9F8ZiahhtJd_nxI/", title: "スプレッドシート", description: "卓の履歴や、キャラのまとめ、PLの所持ルールブックなんかをここに記す", icon: "img/spreadsheet.svg", manual: true },
-            { url: "https://www.dropbox.com/scl/fo/lnuvslrnsqqyye3ka3dfa/APfMlkTTNNrt9Lgnx5sOOVA?rlkey=t5ltutxf80yqz8p499dae7loj&dl=0", title: "ログ置き場（Dropbox）", description: "終わったシナリオのログが一元的にみられたらいいねってところ。(Discord: 該当チャンネル)", icon: "fa-brands fa-dropbox", manual: true }
-        ];
+            // 年齢表示の整形
+            let ageText = '年齢不明';
+            if (character.age) {
+                const isNumeric = /^\d+$/.test(character.age);
+                ageText = isNumeric ? character.age + '歳' : character.age;
+            }
 
-        const archiveLinksContainer = document.getElementById('archive-links-container');
+            // サタスペの場合のジョブの色を決定
+            let jobColorStyle = '';
+            if (character.tableName.startsWith('サタスペ')) {
+                jobColorStyle = `style="color: ${systemColor};"`;
+            }
 
-        if (archiveLinksContainer) {
-            archiveData.forEach(item => {
-                const wrapper = document.createElement('li');
-                wrapper.className = 'ogp-card-wrapper';
-                const cardPlaceholder = document.createElement('div');
-                renderManualCard(item, cardPlaceholder); // Use renderManualCard for these
-                wrapper.appendChild(cardPlaceholder);
-                archiveLinksContainer.appendChild(wrapper);
-            });
-        }
+            // ★変更: 登場回数表示のロジックを更新
+            let appearanceCountHtml = '';
+            const count = parseInt(character.appearanceCount, 10);
+            if (!isNaN(count) && count > 0) {
+                let tier = '1'; // デフォルトの階層
+                if (count >= 5) {
+                    tier = '4';
+                } else if (count >= 3) {
+                    tier = '3';
+                } else if (count >= 2) {
+                    tier = '2';
+                }
+                // data-count-tier属性を追加し、テキストに「回」を付与
+                appearanceCountHtml = `<div class="character-appearance-count" data-count-tier="${tier}">${count}回</div>`;
+            }
+            // ★追加: 冒険者レベル表示のHTML
+            const adventurerLevelHtml = character.adventurerLevel
+                ? `<div class="adventurer-level">Lv${character.adventurerLevel}</div>`
+                : '';
+            // カードのHTMLを組み立て
+            card.innerHTML = `
+                ${appearanceCountHtml}
+                <div class="character-system-tag" style="background-color: ${systemColor};">${character.tableName || 'システム不明'}</div>
+                <h3 class="character-name">${character.pcName || 'PC名不明'}</h3>
+                <div class="character-meta">
+                    <span class="meta-item">
+                        <i class="fa-solid ${genderIcon}"></i>
+                        <span>${character.gender || '性別不明'}</span>
+                    </span>
+                    <span class="meta-item">
+                        <i class="fa-solid fa-cake-candles"></i>
+                        <span>${ageText}</span>
+                    </span>
+                    <span class="meta-item">
+                        <i class="fa-solid fa-ruler-vertical"></i>
+                        <span>${character.height ? character.height + 'cm' : '身長不明'}</span>
+                    </span>
+                </div>
+                <p class="character-job" ${jobColorStyle}>${character.job || 'ジョブ不明'}</p>
+                <p class="character-quote member-desc">${quoteHtml}</p>
+                <p class="pl-name">PL: ${character.pl || 'PL不明'}</p>
+            `;
+            return card;
+        };
 
-        // --- Content Policy Link Generation ---
-        const contentPolicyData = [
-            { url: "https://booth.pm/ja/items/3432975", title: "細かすぎる地雷チェックシート", description: "セッション前に参加者間の認識を合わせるため、弊社では規定のものとして下記シートの使用を推奨しています。", icon: "fa-solid fa-file-shield", manual: true }
-        ];
+        // メインの処理
+        const setupMainPageAdventurers = async () => {
+            const container = document.querySelector('#featured-adventurers .member-list');
+            if (!container) return;
+            container.innerHTML = '<p style="text-align: center; width: 100%;">キャラクター情報を読み込んでいます...</p>';
 
-        const contentPolicyContainer = document.getElementById('content-policy-container');
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv';
 
-        if (contentPolicyContainer) {
-            contentPolicyData.forEach(item => {
-                const wrapper = document.createElement('li');
-                wrapper.className = 'ogp-card-wrapper';
-                const cardPlaceholder = document.createElement('div');
-                renderManualCard(item, cardPlaceholder);
-                wrapper.appendChild(cardPlaceholder);
-                contentPolicyContainer.appendChild(wrapper);
-            });
-        }
+            try {
+                const response = await fetch(csvUrl);
+                if (!response.ok) throw new Error(`CSVの取得に失敗: ${response.statusText}`);
+                const csvText = await response.text();
 
-        // --- CoC Q&A Links Generation ---
-        const cocQaData = [
-            { url: "https://docs.google.com/spreadsheets/d/1MifivHkro_g2S_9QFYJoCa4eBaSNw-JqoEexGCEr41w/edit?usp=sharing", title: "シナリオテンプレ／CoC", description: "クトゥルフ神話TRPGのシナリオ作成用テンプレート。（作：あばれぢから）", icon: "fa-solid fa-file-pen", manual: true },
-            { url: "https://docs.google.com/spreadsheets/d/1W5Hhm-GpknEec8vKPIqxfWGl8JADwY5Dj_3b33m45aA/", title: "シナリオテンプレ／DX3rd", description: "ダブルクロス3rdのシナリオ作成用テンプレート。", icon: "fa-solid fa-file-pen", manual: true }
-        ];
+                // PapaParseを使ってCSVを解析
+                Papa.parse(csvText, {
+                    complete: function (results) {
+                        const allRows = results.data;
 
-        const cocQaLinksContainer = document.getElementById('coc-qa-links-container');
+                        // ヘッダー行とデータ行を特定 (ご提供のCSVの構造に合わせる)
+                        const headerRow = allRows[1];
+                        const dataRows = allRows.slice(2);
 
-        if (cocQaLinksContainer) {
-            cocQaData.forEach(item => {
-                const wrapper = document.createElement('li');
-                wrapper.className = 'ogp-card-wrapper';
-                const cardPlaceholder = document.createElement('div');
-                renderManualCard(item, cardPlaceholder);
-                wrapper.appendChild(cardPlaceholder);
-                cocQaLinksContainer.appendChild(wrapper);
-            });
-        }
+                        const getIndex = (name) => headerRow.indexOf(name);
+
+                        const characters = dataRows.map(row => {
+                            // 列数がヘッダーと合わない行はスキップ
+                            if (row.length < headerRow.length) return null;
+
+                            const pcName = row[getIndex('PC名')] ? row[getIndex('PC名')].trim() : '';
+                            if (!pcName) return null;
+
+                            let genderDisplay = '性別不明';
+                            const rawGender = row[getIndex('性別')] ? String(row[getIndex('性別')]).trim().toUpperCase() : '';
+                            if (rawGender === 'TRUE') {
+                                genderDisplay = '男';
+                            } else if (rawGender === 'FALSE') {
+                                genderDisplay = '女';
+                            }
+
+                            const originalTableName = row[getIndex('卓名')] ? row[getIndex('卓名')].trim() : '';
+
+                            return {
+                                tableName: originalTableName.normalize('NFKC'),
+                                gender: genderDisplay,
+                                age: row[getIndex('年齢')] ? String(row[getIndex('年齢')]).trim() : '',
+                                height: row[getIndex('身長')] ? String(row[getIndex('身長')]).trim() : '',
+                                pcName: pcName,
+                                pl: row[getIndex('PL')] ? row[getIndex('PL')].trim() : '',
+                                job: row[getIndex('ジョブ')] ? row[getIndex('ジョブ')].trim() : '',
+                                quote: row[getIndex('セリフ')] ? row[getIndex('セリフ')].trim() : '',
+                                appearanceCount: row[getIndex('登場数')] ? String(row[getIndex('登場数')]).trim() : '0'
+                            };
+                        }).filter(Boolean);
+
+                        if (characters.length === 0) {
+                            container.innerHTML = '<p>現在、注目のキャラクターはいません。</p>';
+                            return;
+                        }
+
+                        const shuffled = characters.sort(() => 0.5 - Math.random());
+                        const selected = shuffled.slice(0, Math.min(5, shuffled.length));
+
+                        container.innerHTML = '';
+                        selected.forEach(char => {
+                            const card = createMainPageCharacterCard(char);
+                            container.appendChild(card);
+                        });
+                    }
+                });
+
+            } catch (error) {
+                console.error('注目のキャラクター機能(index.html)でエラー:', error);
+                container.innerHTML = '<p>情報の読み込みに失敗しました。</p>';
+            }
+        };
+
+        // ページの読み込みが完了したら実行
+        document.addEventListener('DOMContentLoaded', setupMainPageAdventurers);
     </script>
 </body>
 

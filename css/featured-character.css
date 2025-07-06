@@ -1,0 +1,153 @@
+/* ===================================================
+   注目の冒険者・キャラクターカード 共通スタイル
+   =================================================== */
+
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 280px);
+  gap: 2rem;
+  justify-content: center;
+}
+
+/* ★★★ レイアウトの要 ★★★ */
+.member-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-left: 5px solid var(--primary-color);
+  border-radius: 8px;
+  width: 250px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s, opacity 0.4s, width 0.4s,
+    border-color 0.3s;
+  position: relative;
+  margin: 0; /* 追加: 他のスタイルが影響しているか確認 */
+  /* ↓↓↓ この2行がカードの高さを揃え、内部要素を柔軟に配置するのに不可欠です ↓↓↓ */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 子要素を水平方向に中央揃え */
+}
+
+.member-card h3.character-name {
+  margin: 0; /* ユーザーの要望によりマージンを削除 */
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-family: "Noto Serif JP", serif;
+  color: #3a2d2d;
+}
+
+.character-meta {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 0.8rem;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1em;
+  font-family: "Noto Serif JP", serif;
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.meta-item .fa-solid {
+  color: #888;
+  font-size: 0.9em;
+  width: 1.2em;
+  text-align: center;
+}
+
+.character-job {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.8rem;
+  min-height: 2.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Noto Serif JP", serif;
+}
+
+.character-quote {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: left;
+  color: #444;
+  font-style: italic;
+  padding: 1em 0;
+}
+
+/* ★★★ レイアウトの要 ★★★ */
+.pl-name {
+  font-size: 0.9em;
+  color: #888;
+  text-align: right;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  /* ↓↓↓ この一行がPL名をカードの下部に固定します ↓↓↓ */
+  margin-top: auto;
+}
+
+.character-system-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ccc;
+  color: white;
+  padding: 0.3em 0.6em;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  font-family: "Cinzel", serif;
+  text-transform: uppercase;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 登場回数バッジ */
+.character-appearance-count {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  padding: 0.3em 0.8em;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  min-width: 2.5em;
+  box-sizing: border-box;
+}
+.adventurer-level {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #ddd; /* 薄いグレーで見やすく */
+  font-family: "Cinzel", serif; /* 指定のフォント */
+  z-index: 1; /* タグより手前に来るように */
+}
+/* 登場回数に応じた色の設定 */
+.character-appearance-count[data-count-tier="1"] {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+.character-appearance-count[data-count-tier="2"] {
+  background-color: rgba(81, 184, 33, 0.9);
+}
+.character-appearance-count[data-count-tier="3"] {
+  background-color: rgba(214, 164, 28, 0.9);
+}
+.character-appearance-count[data-count-tier="4"] {
+  background-color: rgba(193, 28, 13, 0.9);
+}
