@@ -1859,3 +1859,43 @@ input[type="checkbox"].switch:checked::after {
   font-size: 0.9em;
   cursor: pointer;
 }
+/* ===================================================
+   特別告知セクション
+   =================================================== */
+.special-announcement {
+  background: linear-gradient(145deg, #4a3d3d, #2c1d1d);
+  color: #fff;
+  border: 2px solid var(--wood-color);
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.4);
+}
+.special-announcement h3 {
+  font-family: "Cinzel", serif;
+  color: #ffd700;
+  margin: 0 0 1rem 0;
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+}
+.special-announcement h3 i {
+  margin: 0 0.5em;
+}
+.announcement-title {
+  font-family: "Noto Serif JP", serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.announcement-subtitle {
+  font-size: 1.2rem;
+  margin: 0.5rem 0 1rem 0;
+  font-style: italic;
+  opacity: 0.9;
+}
+.announcement-desc {
+  margin: 0;
+  line-height: 1.7;
+}
