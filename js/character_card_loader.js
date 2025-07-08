@@ -5,7 +5,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   let sortAndSliceLogic;
 
   // index.html と 247_guild/index.html で異なるロジックを適用
-  if (currentPath.includes("247_guild/index.html")) {
+  // GitHub Pagesでのサブディレクトリパスを考慮
+  const isGitHubPages = window.location.hostname.includes("github.io");
+  const basePath = isGitHubPages ? "/taku_Stada" : "";
+
+  if (
+    currentPath.endsWith("247_guild/") ||
+    currentPath.endsWith("247_guild/index.html")
+  ) {
     containerSelector = "#members .member-list";
     csvUrl =
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv";
@@ -29,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         Math.min(5, relevantCharacters.length)
       );
     };
-  } else if (currentPath.includes("index.html") || currentPath === "/") {
+  } else if (currentPath.endsWith("/") || currentPath.endsWith("/index.html")) {
     containerSelector = "#featured-adventurers .member-list";
     csvUrl =
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv";
