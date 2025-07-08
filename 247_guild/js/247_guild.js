@@ -68,8 +68,15 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!container) return;
     container.innerHTML = "<p>読み込み中...</p>";
 
-    const csvUrl =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1134936986&single=true&output=csv";
+    // 現在のページがギルドサイトのトップページか判定
+    const isGuildTopPage =
+      window.location.pathname.includes("247_guild/index.html") ||
+      window.location.pathname.endsWith("247_guild/");
+
+    // ページに応じてCSVのURLを決定
+    const csvUrl = isGuildTopPage
+      ? "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv"
+      : "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1134936986&single=true&output=csv";
 
     try {
       const response = await fetch(
@@ -91,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const adventurers = dataRows
         .map((row) => {
           // CSVの列インデックスを直接指定
+          const system = row[2] ? row[2].trim() : ""; // システム列を追加
           const name = row[5] ? row[5].trim() : "";
           const appearances = row[6] ? row[6].trim() : "";
           const pl = row[4] ? row[4].trim() : "";
@@ -109,13 +117,26 @@ document.addEventListener("DOMContentLoaded", function () {
             race,
             birth,
             cl,
+            system, // systemプロパティを追加
           };
         })
         .filter(Boolean); // nullを除外
 
-      const featuredCandidates = adventurers.filter(
-        (adv) => parseInt(adv.appearances, 10) >= 1
-      );
+      // ページに応じてフィルタリング
+      const featuredCandidates = adventurers.filter((adv) => {
+        const hasMinAppearances = parseInt(adv.appearances, 10) >= 1;
+        if (isGuildTopPage) {
+          // ギルドトップページではシステムでフィルタしない
+          return hasMinAppearances;
+        } else {
+          // それ以外のページではSWのキャラのみ表示
+          return (
+            hasMinAppearances &&
+            adv.system &&
+            adv.system.toUpperCase().startsWith("SW")
+          );
+        }
+      });
 
       if (featuredCandidates.length === 0) {
         container.innerHTML = "<p>注目の冒険者さんは現在いません。</p>";
