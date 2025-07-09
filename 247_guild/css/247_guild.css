@@ -244,7 +244,6 @@ a {
 #guild-facilities .facility-item h3 {
   font-family: "Cinzel", serif;
   color: var(--secondary-color);
-  font-size: 1.6rem;
   margin-top: 0;
   margin-bottom: 0.8rem;
 }
@@ -401,7 +400,7 @@ a {
   align-items: center;
 }
 .flyer-image {
-  max-width: 150px;
+  max-width: 130px;
   height: auto;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
   transform: rotate(-5deg);
@@ -416,13 +415,13 @@ a {
 .flyer-image-container::before {
   content: "";
   position: absolute;
-  top: -15px;
-  left: -15px;
-  right: -15px;
-  bottom: -15px;
-  background-image: url("/taku_Stada/247_guild/img/依頼書テンプレ.png");
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background-image: url("../img/依頼書テンプレ.png");
   background-repeat: no-repeat;
-  background-size: 70% 85%;
+  background-size: contain;
   background-position: center;
   z-index: 0;
   transform: rotate(-5deg);
@@ -1198,4 +1197,10 @@ a {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* 247_guild/index.html の #members セクション内のカードにのみ適用 */
+#members .character-system-tag,
+#members .character-job {
+  display: none;
 }

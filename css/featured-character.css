@@ -30,12 +30,11 @@
 }
 
 .member-card h3.character-name {
-  font-size: 1.4rem; /* 少し小さくして1行に収まりやすくする */
   font-weight: 700;
   font-family: "Noto Serif JP", serif;
   color: #3a2d2d;
   margin-top: 10px;
-  margin-bottom: 5px; /* 少しマージンを設ける */
+  margin-bottom: 0; /* 間隔を詰める */
   height: 4.5rem; /* すべてのカードで高さを統一 */
   width: 100%;
   /* ▼テキストの垂直・水平中央揃え▼ */
@@ -47,13 +46,11 @@
   overflow: hidden; /* はみ出した部分を非表示 */
   text-overflow: ellipsis; /* 省略記号(...)を表示 */
   line-height: 1.4;
-  /* ▼デフォルト(〜7文字)のフォントサイズ▼ */
-  font-size: 2rem;
 }
 
 /* ▼JSで付与されるクラスごとのスタイル▼ */
 .member-card h3.character-name.name-m {
-  /* 8〜10文字 */
+  /* 0〜10文字 */
   font-size: 2rem;
 }
 .member-card h3.character-name.name-l {
@@ -65,15 +62,16 @@
   font-size: 1rem; /* フォントを小さく */
 }
 .member-card h3.character-name.name-xxl {
-  /* 16文字以上 */
-  font-size: 1.2rem; /* フォントを小さく */
-  white-space: normal; /* 折り返しを許可 */
-  text-overflow: clip; /* 折り返す場合は省略記号は不要 */
+  /* 20文字以上 */
+  font-size: 0.8rem; /* フォントをさらに小さく */
+  white-space: nowrap; /* 折り返しを禁止 */
+  text-overflow: ellipsis; /* 省略記号(...)を表示 */
 }
 
 .character-meta {
   font-size: 0.95rem;
   color: #555;
+  margin-top: 0; /* 間隔を詰める */
   margin-bottom: 0.5rem;
   display: flex;
   justify-content: center;
@@ -121,7 +119,7 @@
 }
 
 .member-desc {
-  white-space: pre-wrap; /* 説明文の改行を有効にする */
+  /* white-space: pre-wrap; */ /* 説明文の改行を有効にする */
 }
 
 /* ★★★ レイアウトの要 ★★★ */

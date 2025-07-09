@@ -68,63 +68,105 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!container) return;
     container.innerHTML = "<p>読み込み中...</p>";
 
-    // 現在のページがギルドサイトのトップページか判定
-    const isGuildTopPage =
-      window.location.pathname.includes("247_guild/index.html") ||
-      window.location.pathname.endsWith("247_guild/");
-
-    // ページに応じてCSVのURLを決定
-    const csvUrl = isGuildTopPage
-      ? "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv"
-      : "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1134936986&single=true&output=csv";
+    const CHARACTER_CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv"; // キャラ名鑑
+    const SWINFO_CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1134936986&single=true&output=csv"; // SWinfo
 
     try {
-      const response = await fetch(
-        `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`
+      // キャラ名鑑CSVの取得とパース
+      const characterResponse = await fetch(
+        `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`
       );
-      if (!response.ok)
-        throw new Error(`CSVの取得に失敗: ${response.statusText}`);
-      const csvText = await response.text();
-
-      // PapaParseを使ってCSVを解析
-      const results = Papa.parse(csvText, {
-        header: false, // ヘッダーは手動で処理するためfalse
+      if (!characterResponse.ok)
+        throw new Error(
+          `キャラ名鑑CSVの取得に失敗: ${characterResponse.statusText}`
+        );
+      const characterCsvText = await characterResponse.text();
+      const characterResults = Papa.parse(characterCsvText, {
+        header: false,
         skipEmptyLines: true,
       });
+      const characterDataRows = characterResults.data.slice(1); // ヘッダー行をスキップ
 
-      const allRows = results.data;
-      const dataRows = allRows.slice(2); // Skip first two rows (assuming header is on row 2, data starts on row 3)
+      // SWinfo CSVの取得とパース
+      const swinfoResponse = await fetch(
+        `https://corsproxy.io/?${encodeURIComponent(SWINFO_CSV_URL)}`
+      );
+      if (!swinfoResponse.ok)
+        throw new Error(`SWinfoCSVの取得に失敗: ${swinfoResponse.statusText}`);
+      const swinfoCsvText = await swinfoResponse.text();
+      const swinfoResults = Papa.parse(swinfoCsvText, {
+        header: false,
+        skipEmptyLines: true,
+      });
+      const swinfoDataRows = swinfoResults.data.slice(2); // ヘッダー行をスキップ
 
-      const adventurers = dataRows
+      // キャラ名鑑データをIDでマップ化
+      const characterMap = new Map();
+      characterDataRows.forEach((row) => {
+        const id = row[0] ? row[0].trim() : "";
+        if (id) {
+          characterMap.set(id, {
+            age: row[4] ? row[4].trim() : "",
+            height: row[5] ? row[5].trim() : "",
+            pcName: row[11] ? row[11].trim() : "",
+            pl: row[10] ? row[10].trim() : "",
+            appearanceCount: row[6] ? row[6].trim() : "0",
+            gender: row[2]
+              ? row[2].trim().toUpperCase() === "TRUE"
+                ? "男"
+                : row[2].trim().toUpperCase() === "FALSE"
+                ? "女"
+                : "性別不明"
+              : "性別不明",
+            job: row[13] ? row[13].trim() : "",
+            quote: row[14] ? row[14].trim() : "",
+          });
+        }
+      });
+
+      // SWinfoデータを処理し、キャラ名鑑データと結合
+      const adventurers = swinfoDataRows
         .map((row) => {
-          // CSVの列インデックスを直接指定
-          const system = row[2] ? row[2].trim() : ""; // システム列を追加
-          const name = row[5] ? row[5].trim() : "";
-          const appearances = row[6] ? row[6].trim() : "";
-          const pl = row[4] ? row[4].trim() : "";
-          const race = row[7] ? row[7].trim() : "";
-          const birth = row[11] ? row[11].trim() : ""; // '生まれ'
-          const cl = row[8] ? row[8].trim() : ""; // CL (AL)
+          const id = row[2] ? row[2].trim() : ""; // SWinfoのID列
+          const characterInfo = characterMap.get(id);
 
-          if (!name || !appearances || isNaN(parseInt(appearances, 10))) {
+          if (
+            !characterInfo ||
+            !characterInfo.pcName ||
+            isNaN(parseInt(characterInfo.appearanceCount, 10))
+          ) {
             return null; // 無効な行はスキップ
           }
 
+          const system = row[3] ? row[3].trim() : ""; // SWinfoの卓名
+          const cl = row[8] ? row[8].trim() : ""; // SWinfoのCL
+
           return {
-            name,
-            appearances,
-            pl,
-            race,
-            birth,
-            cl,
-            system, // systemプロパティを追加
+            pcName: characterInfo.pcName,
+            appearanceCount: characterInfo.appearanceCount,
+            pl: characterInfo.pl,
+            race: row[7] ? row[7].trim() : "", // SWinfoの種族
+            birth: row[11] ? row[11].trim() : "", // SWinfoの生まれ
+            cl: cl,
+            tableName: system,
+            gender: characterInfo.gender,
+            age: characterInfo.age,
+            height: characterInfo.height,
+            job: characterInfo.job,
+            quote: characterInfo.quote,
           };
         })
         .filter(Boolean); // nullを除外
 
       // ページに応じてフィルタリング
+      const isGuildTopPage =
+        window.location.pathname.includes("247_guild/index.html") ||
+        window.location.pathname.endsWith("247_guild/");
+
       const featuredCandidates = adventurers.filter((adv) => {
-        const hasMinAppearances = parseInt(adv.appearances, 10) >= 1;
+        const hasMinAppearances = parseInt(adv.appearanceCount, 10) >= 1;
         if (isGuildTopPage) {
           // ギルドトップページではシステムでフィルタしない
           return hasMinAppearances;
@@ -132,8 +174,8 @@ document.addEventListener("DOMContentLoaded", function () {
           // それ以外のページではSWのキャラのみ表示
           return (
             hasMinAppearances &&
-            adv.system &&
-            adv.system.toUpperCase().startsWith("SW")
+            adv.tableName &&
+            adv.tableName.toUpperCase().startsWith("SW")
           );
         }
       });
@@ -151,64 +193,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
       container.innerHTML = "";
       selectedAdventurers.forEach((adv) => {
-        const card = createAdventurerCard(adv);
+        const card = window.createMainPageCharacterCard(adv);
         container.appendChild(card);
       });
-      adjustFontSizes(); // 動的に生成されたカードにも適用
+      // adjustFontSizes(); // 動的に生成されたカードにも適用
     } catch (error) {
       console.error("注目の冒険者さん機能でエラー:", error);
       container.innerHTML = "<p>情報の読み込みに失敗しました。</p>";
     }
-  };
-
-  const createAdventurerCard = (adventurer) => {
-    const card = document.createElement("div");
-    card.className = "member-card adventurer-feature-card";
-
-    const name = adventurer.name || "名前不明";
-    const plName = adventurer.pl || "PL不明";
-    const race = adventurer.race || "種族不明";
-    const birth = adventurer.birth || "生まれ不明";
-    const cl = adventurer.cl || "?";
-
-    // ★追加: 名前の長さに応じたクラスを決定
-    let nameClass = "";
-    const nameLength = name ? name.length : 0;
-
-    if (nameLength >= 20) {
-      nameClass = "name-xxl"; // 20文字以上 (折り返しあり)
-    } else if (nameLength >= 16) {
-      nameClass = "name-xl"; // 16文字以上
-    } else if (nameLength > 10) {
-      nameClass = "name-l"; // 11〜15文字
-    } else if (nameLength > 7) {
-      nameClass = "name-m"; // 8〜10文字
-    }
-
-    // 登場回数表示のロジックをcommon.jsから移植
-    let appearanceCountHtml = "";
-    const count = parseInt(adventurer.appearances, 10);
-    if (!isNaN(count)) {
-      // 0の場合も表示
-      let tier = "1"; // デフォルトの階層
-      if (count >= 5) {
-        tier = "4";
-      } else if (count >= 3) {
-        tier = "3";
-      } else if (count >= 2) {
-        tier = "2";
-      }
-      appearanceCountHtml = `<div class="character-appearance-count" data-count-tier="${tier}">${count}回</div>`;
-    }
-
-    card.innerHTML = `
-        ${appearanceCountHtml}
-        <div class="adventurer-level">Lv${cl}</div>
-        <h3 class="character-name ${nameClass}">${name}</h3>
-        <p class="member-spec">${race} / ${birth}</p>
-        <p class="pl-name">PL: ${plName}</p>
-    `;
-    return card;
   };
 
   setupFeaturedAdventurers();
@@ -403,34 +395,23 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // --- 名前の長さに応じてフォントサイズを調整する機能 ---
-function adjustFontSizes() {
-  requestAnimationFrame(() => {
-    // レンダリング後に実行
-    const cards = document.querySelectorAll(".member-card");
-    cards.forEach((card) => {
-      const nameElement = card.querySelector("h3.character-name"); // character-nameクラスを持つh3を対象
-      if (nameElement) {
-        let currentSize = 1.6; // 初期フォントサイズ (CSSに合わせる)
-        nameElement.style.fontSize = `${currentSize}rem`; // 初期サイズを明示的に設定
-
-        // card.clientWidth は padding を含まない要素のコンテンツ幅
-        // member-card の padding は左右 1.5rem なので、合計 3rem (約48px)
-        const cardInnerWidth = card.clientWidth - 16 * 1.5 * 2; // 1rem = 16px と仮定
-
-        // 文字がはみ出している間、フォントサイズを小さくする
-        while (nameElement.scrollWidth > cardInnerWidth && currentSize > 0.8) {
-          currentSize -= 0.05; // より細かく調整
-          nameElement.style.fontSize = `${currentSize}rem`;
-        }
+function adjustStaffCardFontSizes() {
+  const staffCards = document.querySelectorAll("#staff .member-card");
+  staffCards.forEach((card) => {
+    const nameElement = card.querySelector("h3.character-name");
+    if (nameElement) {
+      // ラズヒェル・リリベラードはインラインスタイルで処理されるため、ここでは何もしない
+      if (nameElement.textContent.trim() !== "ラズヒェル・リリベラード") {
+        nameElement.className = window.getCharacterNameClass(
+          nameElement.textContent.trim()
+        );
       }
-    });
+    }
   });
 }
 
-// 初期読み込み時にも実行
-adjustFontSizes();
-// ウィンドウのリサイズ時にも実行 (必要であれば)
-window.addEventListener("resize", adjustFontSizes);
+// ページ読み込み時にギルドスタッフのカードにもフォントサイズ調整を適用
+adjustStaffCardFontSizes();
 
 // --- ギルドスタッフにも冒険者レベルを表示する機能 ---
 const memberCards = document.querySelectorAll("#staff .member-card");

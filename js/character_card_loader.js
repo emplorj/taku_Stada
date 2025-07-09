@@ -1,3 +1,146 @@
+// システム名からCSS変数を取得する関数
+function getSystemColor(tableName) {
+  const systemMap = {
+    CoC: "--color-coc",
+    "SW2.5": "--color-sw",
+    DX3: "--color-dx3",
+    ネクロニカ: "--color-nechronica",
+    サタスペ: "--color-satasupe",
+    マモブル: "--color-mamoburu",
+    銀剣: "--color-gin剣",
+    ウマ娘TRPG: "--color-umamusume",
+    シノビガミ: "--color-shinobigami",
+    "アリアンロッドRPG 2E": "--color-ar",
+  };
+  for (const key in systemMap) {
+    if (tableName.startsWith(key)) {
+      const color = getComputedStyle(document.documentElement)
+        .getPropertyValue(systemMap[key])
+        .trim();
+      return (
+        color ||
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--color-default")
+          .trim()
+      );
+    }
+  }
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue("--color-default")
+    .trim();
+}
+
+// 名前の長さに応じてCSSクラスを返す共通関数
+function getCharacterNameClass(name) {
+  const nameLength = name ? name.length : 0;
+  let nameClass = "character-name";
+
+  if (nameLength >= 20) {
+    nameClass += " name-xxl";
+  } else if (nameLength >= 16) {
+    nameClass += " name-xl";
+  } else if (nameLength > 8) {
+    nameClass += " name-l";
+  } else {
+    nameClass += " name-m";
+  }
+  return nameClass;
+}
+
+// キャラクターカードを生成してHTML要素を作成する関数
+function createMainPageCharacterCard(character) {
+  const card = document.createElement("div");
+  card.className = "member-card";
+
+  const quoteHtml = character.quote
+    ? character.quote.replace(/\\n/g, "<br>")
+    : "";
+  const systemColor = getSystemColor(character.tableName);
+  // 247_guild/index.html のカードではCSSでボーダー色を制御するため、ここでは設定しない
+  // card.style.borderLeft = `5px solid ${systemColor}`;
+
+  // 性別アイコンの決定
+  let genderIcon = "fa-genderless";
+  if (character.gender === "男") {
+    genderIcon = "fa-mars";
+  } else if (character.gender === "女") {
+    genderIcon = "fa-venus";
+  }
+
+  // 年齢表示の整形
+  let ageText = "年齢不明";
+  if (character.age) {
+    const isNumeric = /^\d+$/.test(character.age);
+    ageText = isNumeric ? character.age + "歳" : character.age;
+  }
+
+  // ジョブの色はシステムカラーを反映しない
+  let jobColorStyle = "";
+
+  // 登場回数表示のロジックを更新
+  let appearanceCountHtml = "";
+  const count = parseInt(character.appearanceCount, 10);
+  // appearanceCountが存在し、数値として有効な場合は常に表示
+  if (!isNaN(count)) {
+    let tier = "1"; // デフォルトの階層
+    if (count >= 5) {
+      tier = "4";
+    } else if (count >= 3) {
+      tier = "3";
+    } else if (count >= 2) {
+      tier = "2";
+    }
+    // data-count-tier属性を追加し、テキストに「回」を付与
+    appearanceCountHtml = `<div class="character-appearance-count" data-count-tier="${tier}">${count}回</div>`;
+  }
+  // 冒険者レベル表示のHTML (clプロパティも考慮)
+  const adventurerLevelHtml =
+    character.adventurerLevel || character.cl
+      ? `<div class="adventurer-level">Lv${
+          character.adventurerLevel || character.cl
+        }</div>`
+      : "";
+  const nameClass = getCharacterNameClass(character.pcName);
+  // カードのHTMLを組み立て
+  card.innerHTML = `
+        ${appearanceCountHtml}
+        ${adventurerLevelHtml}
+        <div class="character-system-tag" style="background-color: ${systemColor};">${
+    character.tableName || "システム不明"
+  }</div>
+        <h3 class="${nameClass}">${character.pcName || "PC名不明"}</h3>
+        <div class="character-meta">
+            <span class="meta-item">
+                <i class="fa-solid ${genderIcon}"></i>
+                <span>${character.gender || "性別不明"}</span>
+            </span>
+            <span class="meta-item">
+                <i class="fa-solid fa-cake-candles"></i>
+                <span>${ageText}</span>
+            </span>
+            <span class="meta-item">
+                <i class="fa-solid fa-ruler-vertical"></i>
+                <span>${
+                  character.height ? character.height + "cm" : "身長不明"
+                }</span>
+            </span>
+        </div>
+        ${
+          character.race || character.birth
+            ? `<p class="character-job">${character.race || "種族不明"} / ${
+                character.birth || "生まれ不明"
+              }</p>`
+            : ""
+        }
+        <p class="character-job" ${jobColorStyle}>${
+    character.job || "ジョブ不明"
+  }</p>
+        <p class="character-quote member-desc">${quoteHtml}</p>
+        <p class="pl-name">PL: ${character.pl || "PL不明"}</p>
+    `;
+  return card;
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
   const currentPath = window.location.pathname;
   let containerSelector;
@@ -127,7 +270,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         container.innerHTML = "";
         selected.forEach((char) => {
-          const card = window.createMainPageCharacterCard(char);
+          const card = createMainPageCharacterCard(char);
           container.appendChild(card);
         });
       },
