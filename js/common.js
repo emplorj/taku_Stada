@@ -192,6 +192,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const svgElement = placeholder.querySelector("svg");
             if (svgElement) {
               svgElement.classList.add("menu-icon");
+              // cls-2 の fill を強制的に白に設定
+              const cls2Elements = svgElement.querySelectorAll(".cls-2");
+              cls2Elements.forEach((el) => {
+                el.style.fill = "#ffffff";
+              });
             }
           } else {
             console.error("Failed to fetch SVG:", svgPath, response.statusText);

@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "name": "アーデルハイト・フォン・アーレンス",
+    "turns": 23,
+    "kills": 5,
+    "status": "成功"
+  },
+  {
+    "id": 2,
+    "name": "スヴェトラーナ・ドチュニコヴァ",
+    "turns": 2,
+    "kills": 9,
+    "status": "成功"
+  },
+  {
+    "id": 3,
+    "name": "エフィアルティア",
+    "turns": 2,
+    "kills": 9,
+    "status": "成功"
+  },
+  {
+    "id": 4,
+    "name": "イヌニク",
+    "turns": 6,
+    "kills": 9,
+    "status": "成功"
+  },
+  {
+    "id": 5,
+    "name": "ミカ・ニシナ",
+    "turns": 4,
+    "kills": 9,
+    "status": "成功"
+  },
+  {
+    "id": 6,
+    "name": "ジーニス・ゲオルロッテ",
+    "turns": 11,
+    "kills": 9,
+    "status": "成功"
+  },
+  {
+    "id": 7,
+    "name": "ロイ・マグナス",
+    "turns": 7,
+    "kills": 9,
+    "status": "成功"
+  },
+  {
+    "id": 8,
+    "name": "ガマネー・コチョバキン",
+    "turns": 5,
+    "kills": 9,
+    "status": "成功"
+  },
+  {
+    "id": 8,
+    "name": "ヤミカ・リースト",
+    "turns": 2,
+    "kills": 9,
+    "status": "成功"
+  },
+  {
+    "id": 8,
+    "name": "バイトさん",
+    "turns": 6,
+    "kills": 0,
+    "status": "成功"
+  }
+]

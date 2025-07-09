@@ -1204,3 +1204,125 @@ a {
 #members .character-job {
   display: none;
 }
+
+/* ランキングテーブル */
+.ranking-table-container {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.ranking-table-container h4 {
+  font-family: "Cinzel", serif;
+  font-size: 1.5rem;
+  color: #f0e6d2;
+  text-align: center;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #c89b3c;
+  padding-bottom: 0.5rem;
+}
+
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #f0e6d2;
+}
+
+.ranking-table th,
+.ranking-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+.ranking-table th {
+  background-color: rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+  font-family: "Noto Serif JP", serif;
+}
+
+.ranking-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.ranking-table tbody tr:hover {
+  background-color: rgba(200, 155, 60, 0.2);
+}
+
+.ranking-table td:first-child {
+  text-align: center;
+  font-weight: bold;
+  color: #c89b3c;
+  width: 50px;
+}
+
+/* ランキングの折りたたみ */
+.ranking-details {
+  margin-top: 2rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  border: 1px solid #444;
+  overflow: hidden; /* 子要素の角丸を維持 */
+}
+
+.ranking-details summary {
+  display: block;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-family: "Cinzel", serif;
+  font-size: 1.5rem;
+  color: #f0e6d2;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid #444;
+  outline: none;
+  position: relative;
+  user-select: none;
+}
+
+.ranking-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.ranking-details summary::before {
+  content: "\f078"; /* Font Awesome chevron-down icon */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+}
+
+.ranking-details[open] summary::before {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.ranking-details .sub-heading {
+  margin-bottom: 0; /* summary内のh3のデフォルトマージンをリセット */
+  border-bottom: none; /* summary内のh3のボーダーをリセット */
+  padding-bottom: 0; /* summary内のh3のパディングをリセット */
+}
+
+.ranking-details .sub-heading i {
+  margin-right: 0.5rem;
+  color: #c89b3c;
+}
+
+/* 失敗した行のスタイル */
+.ranking-table tbody tr.failed-attempt {
+  opacity: 0.6;
+  font-style: italic;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.ranking-table tbody tr.failed-attempt td {
+  color: #ff6666;
+}
+
+/* 中央揃えテキスト */
+.center-text {
+  text-align: center !important;
+}

@@ -359,6 +359,37 @@ document.addEventListener("DOMContentLoaded", function () {
   /* ===================================================
      ヒドラスライドショー初期化
      =================================================== */
+  // ヒドラ討伐ソロ！の画像パスリスト
+  const hydraImagePaths = [
+    "img/hydra/1.png",
+    "img/hydra/2.png",
+    "img/hydra/3.png",
+    "img/hydra/4.png",
+    "img/hydra/5.png",
+    "img/hydra/6.png",
+    "img/hydra/7.png",
+    "img/hydra/8.png",
+    "img/hydra/9.png",
+    "img/hydra/10.png",
+    "img/hydra/11.png",
+    "img/hydra/12.png",
+  ];
+
+  // Swiper スライドを動的に生成
+  const swiperWrapper = document.querySelector(".hydra-swiper .swiper-wrapper");
+  if (swiperWrapper) {
+    hydraImagePaths.forEach((path) => {
+      const slide = document.createElement("div");
+      slide.classList.add("swiper-slide");
+      const img = document.createElement("img");
+      img.src = path;
+      img.alt = path.split("/").pop().split(".")[0]; // ファイル名からaltテキストを生成
+      img.loading = "lazy";
+      slide.appendChild(img);
+      swiperWrapper.appendChild(slide);
+    });
+  }
+
   if (typeof Swiper !== "undefined") {
     const hydraSwiper = new Swiper(".hydra-swiper", {
       loop: true,

@@ -226,18 +226,7 @@
           <!-- Swiper -->
           <div class="swiper hydra-swiper">
             <div class="swiper-wrapper">
-              <!-- Slides -->
-              <div class="swiper-slide"><img src="img/hydra/1.png" alt="アーデルハイト・フォン・アーレンス" loading="lazy"></div>
-              <div class="swiper-slide"><img src="img/hydra/2.png" alt="スヴェトラーナ・ドチュニコヴァ" loading="lazy"></div>
-              <div class="swiper-slide"><img src="img/hydra/3.png" alt="エフィアルティア" loading="lazy"></div>
-              <div class="swiper-slide"><img src="img/hydra/4.png" alt="イヌニク" loading="lazy"></div>
-              <div class="swiper-slide"><img src="img/hydra/5.png" alt="ミカ・ニシナ" loading="lazy"></div>
-              <div class="swiper-slide"><img src="img/hydra/6.png" alt="ジーニス・ゲオルロッテ" loading="lazy">
-              </div>
-              <div class="swiper-slide"><img src="img/hydra/7.png" alt="ロイ・マグナス" loading="lazy"></div>
-              <div class="swiper-slide"><img src="img/hydra/8.png" alt="ガマネー・コチョバキン" loading="lazy">
-              </div>
-              <div class="swiper-slide"><img src="img/hydra/9.png" alt="イヌニク（再）" loading="lazy"></div>
+              <!-- JavaScriptでスライドが挿入されます -->
             </div>
             <!-- If we need pagination -->
             <div class="swiper-pagination"></div>
@@ -246,6 +235,26 @@
             <div class="swiper-button-prev"></div>
             <div class="swiper-button-next"></div>
           </div>
+          <details id="hydra-ranking-details" class="ranking-details">
+            <summary class="sub-heading">
+              <i class="fa-solid fa-trophy"></i>討伐ターン数ランキング
+            </summary>
+            <div class="ranking-table-container">
+              <table class="ranking-table">
+                <thead>
+                  <tr>
+                    <th>順位</th>
+                    <th>名前</th>
+                    <th>ターン数</th>
+                    <th>討伐本数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- ここにランキングデータが挿入されます -->
+                </tbody>
+              </table>
+            </div>
+          </details>
         </div>
         <details>
           <summary class="sub-heading">
@@ -839,6 +848,7 @@
     </footer>
     <script src="../js/common.js"></script>
     <script src="js/247_guild.js"></script>
+    <script src="js/hydra_ranking.js"></script>
     <script src="../js/dice_roller.js"></script>
   </div>
 </body>

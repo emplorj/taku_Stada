@@ -1,29 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 96 96" fill="currentColor">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 96 96">
   <defs>
     <style>
-      .cls-1, .cls-2 {
-        fill: #0366d6; /* 他のアイコンと同じ色に固定 */
-      }
-
-      .cls-2 {
-        display: none;
+      .cls-1 {
+        fill: #0366d6;
       }
     </style>
   </defs>
-  <!-- Generator: Adobe Illustrator 28.7.7, SVG Export Plug-In . SVG Version: 1.2.0 Build 194)  -->
+  <!-- Generator: Adobe Illustrator 28.7.8, SVG Export Plug-In . SVG Version: 1.2.0 Build 200)  -->
   <g>
     <g id="_レイヤー_1" data-name="レイヤー_1">
-      <g>
-        <rect class="cls-1" x="34" y="58" width="8" height="4"/>
-        <rect class="cls-1" x="34" y="50" width="8" height="4"/>
-        <rect class="cls-1" x="34" y="66" width="8" height="4"/>
-        <rect class="cls-1" x="46" y="66" width="16" height="4"/>
-        <path class="cls-1" d="M60,6H22c-3.3,0-6,2.7-6,6v72c0,3.3,2.7,6,6,6h52c3.3,0,6-2.7,6-6V26L60,6ZM66,50v24H30v-28h36v4ZM74.9,26h-13.9c-.6,0-1-.4-1-1v-13.9c0-.9,1.1-1.3,1.7-.7l13.9,13.9c.6.6.2,1.7-.7,1.7Z"/>
-        <rect class="cls-1" x="46" y="50" width="16" height="4"/>
-        <rect class="cls-1" x="46" y="58" width="16" height="4"/>
+      <g id="_レイヤー_1-2" data-name="_レイヤー_1">
+        <g>
+          <rect class="cls-1" x="34" y="58" width="8" height="4"/>
+          <rect class="cls-1" x="34" y="50" width="8" height="4"/>
+          <rect class="cls-1" x="34" y="66" width="8" height="4"/>
+          <rect class="cls-1" x="46" y="66" width="16" height="4"/>
+          <path class="cls-1" d="M60,6H22c-3.3,0-6,2.7-6,6v72c0,3.3,2.7,6,6,6h52c3.3,0,6-2.7,6-6V26L60,6ZM66,50v24H30v-28h36v4ZM74.9,26h-13.9c-.6,0-1-.4-1-1v-13.9c0-.9,1.1-1.3,1.7-.7l13.9,13.9c.6.6.2,1.7-.7,1.7Z"/>
+          <rect class="cls-1" x="46" y="50" width="16" height="4"/>
+          <rect class="cls-1" x="46" y="58" width="16" height="4"/>
+        </g>
       </g>
-      <path class="cls-2" d="M60,26l20,20v-20h-20Z"/>
     </g>
   </g>
 </svg>
