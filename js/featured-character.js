@@ -17,7 +17,7 @@ function getSystemColor(tableName) {
     ネクロニカ: "--color-nechronica",
     サタスペ: "--color-satasupe",
     マモブル: "--color-mamoburu",
-    銀剣: "--color-gin剣",
+    銀剣: "--color-stellar",
     ウマ娘TRPG: "--color-umamusume",
     シノビガミ: "--color-shinobigami",
     "アリアンロッドRPG 2E": "--color-ar",
