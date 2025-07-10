@@ -1200,12 +1200,6 @@ a {
   }
 }
 
-/* 247_guild/index.html の #members セクション内のカードにのみ適用 */
-#members .character-system-tag,
-#members .character-job {
-  display: none;
-}
-
 /* ランキングテーブル */
 .ranking-table-container {
   margin-top: 2rem;

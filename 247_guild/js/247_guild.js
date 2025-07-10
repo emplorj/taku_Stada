@@ -62,151 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- 注目の冒険者さん 機能 (REVISED) ---
-  const setupFeaturedAdventurers = async () => {
-    const container = document.querySelector("#members .member-list");
-    if (!container) return;
-    container.innerHTML = "<p>読み込み中...</p>";
-
-    const CHARACTER_CSV_URL =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv"; // キャラ名鑑
-    const SWINFO_CSV_URL =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1134936986&single=true&output=csv"; // SWinfo
-
-    try {
-      // キャラ名鑑CSVの取得とパース
-      const characterResponse = await fetch(
-        `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`
-      );
-      if (!characterResponse.ok)
-        throw new Error(
-          `キャラ名鑑CSVの取得に失敗: ${characterResponse.statusText}`
-        );
-      const characterCsvText = await characterResponse.text();
-      const characterResults = Papa.parse(characterCsvText, {
-        header: false,
-        skipEmptyLines: true,
-      });
-      const characterDataRows = characterResults.data.slice(1); // ヘッダー行をスキップ
-
-      // SWinfo CSVの取得とパース
-      const swinfoResponse = await fetch(
-        `https://corsproxy.io/?${encodeURIComponent(SWINFO_CSV_URL)}`
-      );
-      if (!swinfoResponse.ok)
-        throw new Error(`SWinfoCSVの取得に失敗: ${swinfoResponse.statusText}`);
-      const swinfoCsvText = await swinfoResponse.text();
-      const swinfoResults = Papa.parse(swinfoCsvText, {
-        header: false,
-        skipEmptyLines: true,
-      });
-      const swinfoDataRows = swinfoResults.data.slice(2); // ヘッダー行をスキップ
-
-      // キャラ名鑑データをIDでマップ化
-      const characterMap = new Map();
-      characterDataRows.forEach((row) => {
-        const id = row[0] ? row[0].trim() : "";
-        if (id) {
-          characterMap.set(id, {
-            age: row[4] ? row[4].trim() : "",
-            height: row[5] ? row[5].trim() : "",
-            pcName: row[11] ? row[11].trim() : "",
-            pl: row[10] ? row[10].trim() : "",
-            appearanceCount: row[6] ? row[6].trim() : "0",
-            gender: row[2]
-              ? row[2].trim().toUpperCase() === "TRUE"
-                ? "男"
-                : row[2].trim().toUpperCase() === "FALSE"
-                ? "女"
-                : "性別不明"
-              : "性別不明",
-            job: row[13] ? row[13].trim() : "",
-            quote: row[14] ? row[14].trim() : "",
-          });
-        }
-      });
-
-      // SWinfoデータを処理し、キャラ名鑑データと結合
-      const adventurers = swinfoDataRows
-        .map((row) => {
-          const id = row[2] ? row[2].trim() : ""; // SWinfoのID列
-          const characterInfo = characterMap.get(id);
-
-          if (
-            !characterInfo ||
-            !characterInfo.pcName ||
-            isNaN(parseInt(characterInfo.appearanceCount, 10))
-          ) {
-            return null; // 無効な行はスキップ
-          }
-
-          const system = row[3] ? row[3].trim() : ""; // SWinfoの卓名
-          const cl = row[8] ? row[8].trim() : ""; // SWinfoのCL
-
-          return {
-            pcName: characterInfo.pcName,
-            appearanceCount: characterInfo.appearanceCount,
-            pl: characterInfo.pl,
-            race: row[7] ? row[7].trim() : "", // SWinfoの種族
-            birth: row[11] ? row[11].trim() : "", // SWinfoの生まれ
-            cl: cl,
-            tableName: system,
-            gender: characterInfo.gender,
-            age: characterInfo.age,
-            height: characterInfo.height,
-            job: characterInfo.job,
-            quote: characterInfo.quote,
-          };
-        })
-        .filter(Boolean); // nullを除外
-
-      // ページに応じてフィルタリング
-      const isGuildTopPage =
-        window.location.pathname.includes("247_guild/index.html") ||
-        window.location.pathname.endsWith("247_guild/");
-
-      const featuredCandidates = adventurers.filter((adv) => {
-        const hasMinAppearances = parseInt(adv.appearanceCount, 10) >= 1;
-        if (isGuildTopPage) {
-          // ギルドトップページではシステムでフィルタしない
-          return hasMinAppearances;
-        } else {
-          // それ以外のページではSWのキャラのみ表示
-          return (
-            hasMinAppearances &&
-            adv.tableName &&
-            adv.tableName.toUpperCase().startsWith("SW")
-          );
-        }
-      });
-
-      if (featuredCandidates.length === 0) {
-        container.innerHTML = "<p>注目の冒険者さんは現在いません。</p>";
-        return;
-      }
-
-      const shuffled = featuredCandidates.sort(() => 0.5 - Math.random());
-      const selectedAdventurers = shuffled.slice(
-        0,
-        Math.min(5, shuffled.length)
-      );
-
-      container.innerHTML = "";
-      selectedAdventurers.forEach((adv) => {
-        const card = window.createMainPageCharacterCard(adv);
-        container.appendChild(card);
-      });
-      // adjustFontSizes(); // 動的に生成されたカードにも適用
-    } catch (error) {
-      console.error("注目の冒険者さん機能でエラー:", error);
-      container.innerHTML = "<p>情報の読み込みに失敗しました。</p>";
-    }
-  };
-
-  setupFeaturedAdventurers();
-
-  // ★★★ 修正点 ★★★
-  // スムーズスクロール関数を、他の機能からも使えるようにこの位置に移動しました。
+  // スムーズスクロール関数
   const smoothScrollTo = (targetId) => {
     const targetElement = document.querySelector(targetId);
     if (targetElement) {
@@ -251,7 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (href && href.startsWith("#")) {
           event.preventDefault(); // デフォルトのアンカーリンク動作をキャンセル
           const targetId = href;
-          // ★修正：グローバルスコープにある関数を呼び出す
           smoothScrollTo(targetId);
         }
         // どのリンクをクリックしてもメニューは閉じる
@@ -281,9 +136,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalImg = document.getElementById("modal-map-image");
     const closeModal = document.querySelector(".map-modal-close");
     const body = document.body;
-
-    // ★★★ 修正点 ★★★
-    // ここにあった smoothScrollTo 関数は上に移動しました。
 
     // モーダルを開く共通関数
     const openModal = (imageElement) => {
@@ -390,6 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Swiperライブラリが読み込まれていれば、スライドショーを初期化
   if (typeof Swiper !== "undefined") {
     const hydraSwiper = new Swiper(".hydra-swiper", {
       loop: true,
@@ -426,6 +279,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // --- 名前の長さに応じてフォントサイズを調整する機能 ---
+// （featured-character.jsのグローバル関数 `getCharacterNameClass` を利用します）
 function adjustStaffCardFontSizes() {
   const staffCards = document.querySelectorAll("#staff .member-card");
   staffCards.forEach((card) => {
@@ -433,9 +287,12 @@ function adjustStaffCardFontSizes() {
     if (nameElement) {
       // ラズヒェル・リリベラードはインラインスタイルで処理されるため、ここでは何もしない
       if (nameElement.textContent.trim() !== "ラズヒェル・リリベラード") {
-        nameElement.className = window.getCharacterNameClass(
-          nameElement.textContent.trim()
-        );
+        // windowオブジェクト経由でグローバル関数を呼び出す
+        if (typeof window.getCharacterNameClass === "function") {
+          nameElement.className = window.getCharacterNameClass(
+            nameElement.textContent.trim()
+          );
+        }
       }
     }
   });
