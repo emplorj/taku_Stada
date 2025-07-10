@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // DOM要素キャッシュ
   const sidebarLinks = document.querySelectorAll("#form-sidebar .sidebar-link");
   const formPanels = document.querySelectorAll(".form-panel");
-  const raceSelect = document.getElementById("race");
   const regulationSelect = document.getElementById("regulation-select");
   const expTotalInput = document.getElementById("expTotal");
   const moneyTotalInput = document.getElementById("moneyTotal");
@@ -17,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "growth-results-container"
   );
 
-  // ★ 修正: 新しいグリッドコンテナを取得
   const statsGridContainer = document.getElementById("stats-grid-container");
   const usePriorityCheck = document.getElementById("use-priority-check");
   const resetPriorityBtn = document.getElementById("reset-priority-btn");
@@ -44,26 +42,21 @@ document.addEventListener("DOMContentLoaded", () => {
     11: "筋力",
     12: "敏捷度",
   };
+  let growthRowCounter = 0;
 
   function initialize() {
-    populateRaces();
+    // レギュ・成長タブ
     populateRegulations();
-    setupStatsGrid(); // ★ 新しいグリッド設定関数を呼ぶ
+    setupStatsGrid();
+
+    // 基本情報タブ
+    setupBasicInfoPanel();
+    updatePersonalDataOutput();
+
+    // 全体
     setupEventListeners();
     regulationSelect.dispatchEvent(new Event("change"));
-    updateAllStatTotals(); // ★ 初期計算を呼ぶ
-  }
-
-  function populateRaces() {
-    raceSelect.innerHTML = "";
-    for (const groupName in Races) {
-      const optgroup = document.createElement("optgroup");
-      optgroup.label = groupName;
-      Races[groupName].forEach((race) => {
-        optgroup.appendChild(new Option(race.name, race.name));
-      });
-      raceSelect.appendChild(optgroup);
-    }
+    updateAllStatTotals();
   }
 
   function populateRegulations() {
@@ -73,11 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ★★★★★ 新しいStatsGridを生成する関数 ★★★★★
   function setupStatsGrid() {
-    statsGridContainer.innerHTML = ""; // コンテナをクリア
-
-    // --- ヘッダー行 ---
+    statsGridContainer.innerHTML = "";
     const emptyHeader = document.createElement("div");
     statsGridContainer.appendChild(emptyHeader);
     statNames.forEach((name) => {
@@ -86,8 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
       header.textContent = name;
       statsGridContainer.appendChild(header);
     });
-
-    // --- 行の定義 ---
     const rows = [
       { label: "優先度", type: "priority" },
       { label: "初期ステータス", type: "initial" },
@@ -96,13 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
       { label: "合計", type: "total" },
       { label: "合計B", type: "bonus" },
     ];
-
     rows.forEach((rowData) => {
       const label = document.createElement("div");
       label.className = "grid-label";
       label.textContent = rowData.label;
       statsGridContainer.appendChild(label);
-
       statNames.forEach((name, index) => {
         let cell;
         switch (rowData.type) {
@@ -112,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cell.dataset.stat = name;
             cell.innerHTML = '<option value="99">-</option>';
             for (let i = 1; i <= 6; i++) cell.add(new Option(i, i));
-            cell.value = index + 1; // デフォルト値
+            cell.value = index + 1;
             break;
           case "initial":
             cell = document.createElement("input");
@@ -131,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             break;
           case "growth":
             cell = document.createElement("div");
-            cell.id = `summary-count-${name}`; // 既存のIDを維持
+            cell.id = `summary-count-${name}`;
             cell.textContent = "0";
             break;
           case "total":
@@ -152,6 +138,64 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ★★★★★ ここからキャラクター情報パネル用の新関数群 ★★★★★
+  function setupBasicInfoPanel() {
+    const container = document.getElementById("personal-data-fields-container");
+    container.innerHTML = "";
+    const standardItems = {
+      身長: "",
+      体重: "",
+      髪: "",
+      瞳: "",
+      肌: "",
+    };
+    for (const key in standardItems) {
+      const newRow = addPersonalDataRow(key, standardItems[key]);
+      // ★★★ 単位ボタンの追加ロジック ★★★
+      if (key === "身長" || key === "体重") {
+        const unit = key === "身長" ? "cm" : "kg";
+        const unitBtn = document.createElement("button");
+        unitBtn.type = "button";
+        unitBtn.className = "unit-btn";
+        unitBtn.textContent = unit;
+        unitBtn.dataset.unit = unit;
+        // valueの後、削除ボタンの前に挿入
+        const valueInput = newRow.querySelector(".personal-data-value");
+        valueInput.insertAdjacentElement("afterend", unitBtn);
+      }
+    }
+  }
+
+  function addPersonalDataRow(key = "", value = "") {
+    const container = document.getElementById("personal-data-fields-container");
+    const template = document.getElementById("template-personal-data-row");
+    const clone = template.content.cloneNode(true);
+    const newRow = clone.querySelector(".dynamic-row");
+    newRow.querySelector(".personal-data-key").value = key;
+    newRow.querySelector(".personal-data-value").value = value;
+    container.appendChild(clone);
+    return newRow; // ★ 追加した行要素を返す
+  }
+
+  function updatePersonalDataOutput() {
+    const outputTextarea = document.getElementById("personal-data-output");
+    if (!outputTextarea) return;
+
+    let output = "[>]**パーソナルデータ\n";
+    document
+      .querySelectorAll("#personal-data-fields-container .personal-data-row")
+      .forEach((row) => {
+        const key = row.querySelector(".personal-data-key").value.trim();
+        const value = row.querySelector(".personal-data-value").value.trim();
+        if (key) {
+          output += `:${key}|${value}\n`;
+        }
+      });
+    output += "[---]";
+    outputTextarea.value = output;
+  }
+  // ★★★★★ キャラクター情報パネル用関数ここまで ★★★★★
+
   function setupEventListeners() {
     sidebarLinks.forEach((link) => {
       link.addEventListener("click", (e) => {
@@ -165,18 +209,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    // --- レギュ・成長タブのイベント ---
     regulationSelect.addEventListener("change", updateRegulationValues);
     rollGrowthBtn.addEventListener("click", handleRollGrowth);
-
     growthResultsContainer.addEventListener("click", (event) => {
       if (event.target.classList.contains("stat-candidate")) {
         handleCandidateClick(event.target);
       }
     });
-
     usePriorityCheck.addEventListener("change", applyPriorityToAllRows);
-
-    // ★ 修正: イベントリスナーを新しい要素に紐付け
     statsGridContainer.addEventListener("change", (e) => {
       if (e.target.classList.contains("priority-select")) {
         handlePriorityChange(e.target);
@@ -200,43 +241,80 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAllStatTotals();
       }
     });
-
     resetPriorityBtn.addEventListener("click", () => {
       statsGridContainer
         .querySelectorAll(".priority-select")
         .forEach((select) => {
-          select.value = "99"; // すべて「-」に設定
+          select.value = "99";
         });
-      // 優先度変更ハンドラを呼び出して、重複を解消し、UIを更新
-      statNames.forEach((name) => {
-        handlePriorityChange(
-          statsGridContainer.querySelector(
-            `.priority-select[data-stat="${name}"]`
-          )
-        );
-      });
       applyPriorityToAllRows();
     });
 
-    document.querySelectorAll(".add-row-btn").forEach((button) => {
-      button.addEventListener("click", () => {
-        const targetId = button.dataset.target;
-        const templateId = button.dataset.template;
-        const targetContainer = document.getElementById(targetId);
-        const template = document.getElementById(templateId);
-        if (targetContainer && template) {
-          targetContainer.appendChild(template.content.cloneNode(true));
+    // --- 基本情報タブのイベント ---
+    const basicPanel = document.getElementById("panel-basic");
+    if (basicPanel) {
+      // ★★★ 単位ボタンとコピーボタンのリスナーを追加 ★★★
+      basicPanel.addEventListener("click", (e) => {
+        if (e.target.classList.contains("unit-btn")) {
+          const row = e.target.closest(".personal-data-row");
+          const valueInput = row.querySelector(".personal-data-value");
+          valueInput.value += e.target.dataset.unit;
+          valueInput.dispatchEvent(new Event("input", { bubbles: true })); // 変更を通知
+          valueInput.focus();
+        }
+        if (
+          e.target.id === "copy-personal-data-btn" ||
+          e.target.closest("#copy-personal-data-btn")
+        ) {
+          const outputTextarea = document.getElementById(
+            "personal-data-output"
+          );
+          navigator.clipboard
+            .writeText(outputTextarea.value)
+            .then(() => {
+              const btn = document.getElementById("copy-personal-data-btn");
+              const originalText = btn.innerHTML;
+              btn.innerHTML = "コピーしました！";
+              setTimeout(() => {
+                btn.innerHTML = originalText;
+              }, 2000);
+            })
+            .catch((err) => {
+              console.error("コピーに失敗しました", err);
+            });
         }
       });
-    });
 
-    document
-      .querySelector(".controls-panel")
-      .addEventListener("click", (event) => {
-        if (event.target.closest(".remove-row-btn")) {
-          event.target.closest(".dynamic-row").remove();
+      const fieldsContainer = document.getElementById(
+        "personal-data-fields-container"
+      );
+      fieldsContainer.addEventListener("input", (e) => {
+        if (
+          e.target.classList.contains("personal-data-key") ||
+          e.target.classList.contains("personal-data-value")
+        ) {
+          updatePersonalDataOutput();
         }
       });
+      document
+        .getElementById("add-personal-data-row-btn")
+        .addEventListener("click", () => {
+          addPersonalDataRow();
+        });
+    }
+
+    // --- 汎用イベント（削除ボタン） ---
+    document.addEventListener("click", (event) => {
+      if (event.target.closest(".remove-row-btn")) {
+        const row = event.target.closest(".dynamic-row");
+        if (row) {
+          row.remove();
+          if (row.classList.contains("personal-data-row")) {
+            updatePersonalDataOutput();
+          }
+        }
+      }
+    });
   }
 
   function updateRegulationValues() {
@@ -284,6 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleRollGrowth() {
     growthResultsContainer.innerHTML = "";
+    growthRowCounter = 0;
     const count = parseInt(growthCountInput.value, 10) || 0;
     if (count === 0) {
       calculateGrowthSummary();
@@ -295,19 +374,16 @@ document.addEventListener("DOMContentLoaded", () => {
     applyPriorityToAllRows();
   }
 
-  let growthRowCounter = 0; // 通し番号用のカウンター
-
   function displayGrowthResult(stat1, stat2) {
-    growthRowCounter++; // カウンターをインクリメント
+    growthRowCounter++;
     const template = document.getElementById("template-growth-row");
     const clone = template.content.cloneNode(true);
     const row = clone.querySelector(".growth-row");
 
-    // 通し番号用の要素を作成し、追加
     const numberSpan = document.createElement("span");
     numberSpan.textContent = `${growthRowCounter}.`;
-    numberSpan.classList.add("growth-row-number"); // スタイル用にクラスを追加
-    row.prepend(numberSpan); // 候補1の前に挿入
+    numberSpan.classList.add("growth-row-number");
+    row.prepend(numberSpan);
 
     const btn1 = row.querySelector('.stat-candidate[data-choice="1"]');
     const btn2 = row.querySelector('.stat-candidate[data-choice="2"]');
@@ -399,11 +475,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const countSpan = document.getElementById(`summary-count-${statName}`);
       if (countSpan) countSpan.textContent = counts[statName];
     });
-    // ★ 成長の計算が終わったら、全体の合計も更新する
     updateAllStatTotals();
   }
 
-  // ★★★★★ 全てのステータス合計値を計算・更新する新関数 ★★★★★
   function updateAllStatTotals() {
     statNames.forEach((name) => {
       const initial =

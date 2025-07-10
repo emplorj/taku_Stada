@@ -306,8 +306,6 @@ hr.section-divider {
   font-weight: bold;
   color: var(--text-color);
   white-space: nowrap;
-  text-align: right; /* 追加 */
-  flex-grow: 1; /* 追加 */
 }
 .regulation-row-top .form-item-inline select {
   width: 100%;
@@ -333,7 +331,6 @@ hr.section-divider {
   font-size: 0.9em;
   width: 90px;
   text-align: right;
-  flex-grow: 1; /* 追加 */
 }
 .regulation-flex-row input {
   width: 64px;
@@ -360,7 +357,7 @@ hr.section-divider {
   background: #3e538e;
 }
 
-/* ★★★ カラム2: 優先度・合計エリア (新規追加) ★★★ */
+/* カラム2: 優先度・合計エリア */
 #stats-grid-container {
   display: grid;
   grid-template-columns: auto repeat(6, 1fr);
@@ -456,11 +453,10 @@ hr.section-divider {
 .growth-results-header,
 .growth-row {
   display: grid;
-
-  grid-template-columns: 30px 1fr 1fr 1fr; /* 通し番号用にカラムを追加 */
-  gap: 10px; /* ギャップを調整 */
+  grid-template-columns: 30px 1fr 1fr 1fr;
+  gap: 10px;
   align-items: center;
-  text-align: center; /* 中央揃えを維持 */
+  text-align: center;
   padding: 0 5px 8px 5px;
 }
 .growth-results-header {
@@ -469,24 +465,9 @@ hr.section-divider {
   border-bottom: 1px solid var(--wood-color);
   margin-bottom: 5px;
   padding-bottom: 8px;
-  grid-template-columns: 30px 1fr 1fr 1fr; /* growth-row と同じカラム設定 */
-  text-align: center; /* ヘッダー全体を中央揃えに */
-}
-.growth-results-header span:first-child {
-  /* No. */
-  /* display: none; を削除 */
-}
-.growth-results-header span:nth-child(2),
-.growth-results-header span:nth-child(3),
-.growth-results-header span:nth-child(4) {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-left: 0; /* パディングを削除 */
 }
 
 .growth-row-number {
-  /* 通し番号のスタイル */
   font-weight: bold;
   color: var(--text-color);
   text-align: right;
@@ -496,8 +477,8 @@ hr.section-divider {
   flex-grow: 1;
   overflow-y: auto;
   padding-right: 5px;
-  max-height: 55vh; /* スクロールが出る高さを指定 */
-  scrollbar-gutter: stable both-edges; /* スクロールバーのスペースを予約 */
+  max-height: 55vh;
+  scrollbar-gutter: stable both-edges;
 }
 .stat-candidate {
   width: 100%;
@@ -509,8 +490,8 @@ hr.section-divider {
   background-color: rgba(0, 0, 0, 0.4);
   color: #ccc;
   transition: all 0.2s ease;
-  min-width: 60px; /* 最小幅を設定してガタつきを軽減 */
-  text-align: center; /* ボタン内のテキストを中央揃えに */
+  min-width: 60px;
+  text-align: center;
 }
 .stat-candidate.selected {
   color: white;
@@ -533,6 +514,61 @@ hr.section-divider {
   padding: 7px;
   border-radius: 4px;
   border: 1px dashed transparent;
+}
+
+/* ★★★ パーソナルデータ用のスタイルを追加 ★★★ */
+#personal-data-fields-container {
+  border-top: none; /* 上の線は不要なので消す */
+  max-height: 35vh; /* 高さを指定してスクロール可能に */
+  overflow-y: auto;
+  padding-right: 5px;
+  scrollbar-gutter: stable;
+}
+.personal-data-row {
+  align-items: center;
+}
+.personal-data-key {
+  flex: 0 0 30%;
+}
+.personal-data-value {
+  flex-grow: 1;
+}
+.generated-data-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+.generated-data-header h4 {
+  border-bottom: none;
+  margin: 0;
+}
+.copy-btn {
+  background-color: var(--secondary-color);
+  border-color: #3e538e;
+}
+.copy-btn i {
+  margin-right: 5px;
+}
+#personal-data-output {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
+    monospace;
+  line-height: 1.6;
+  white-space: pre;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid #444;
+}
+.unit-btn {
+  flex-shrink: 0;
+  padding: 5px 8px;
+  font-size: 0.8em;
+  font-weight: bold;
+  background-color: #555;
+  border: 1px solid #777;
+  color: #eee;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: -5px; /* valueフィールドと少し重ねる */
 }
 
 /* 色分け */
