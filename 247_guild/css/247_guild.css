@@ -26,7 +26,7 @@ body.guild-background {
 
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  min-height: 100vh;
   margin: 0;
   padding-top: var(--header-height);
   box-sizing: border-box;
@@ -41,13 +41,14 @@ body {
   /* スムーズスクロールを有効にする */
   scroll-behavior: smooth;
 
-  /* Flexboxを使ってフッターを一番下に固定する */
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-
   /* bodyの背景色は、本来のレンガ色に戻します */
   background-color: var(--background-color);
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 /* --- メインコンテンツの領域設定 --- */

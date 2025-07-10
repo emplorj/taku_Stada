@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SW2.5 簡易ジェネレーター - 帝国の鉢巻</title>
+  <!-- OGP -->
+  <meta property="og:title" content="SW2.5 簡易ジェネレーター - 帝国の鉢巻" />
+  <meta property="og:description" content="ソード・ワールド2.5のキャラクターシートデータを入力し、ゆとシートⅡ用のJSONデータを生成します。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://emplorj.github.io/taku_Stada/247_guild/sw25_generator.html" />
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="css/247_guild.css">
+  <link rel="stylesheet" href="css/request_form.css">
+  <!-- ★★★ 修正後のCSSファイルへのリンク ★★★ -->
+  <link rel="stylesheet" href="css/sw25_generator.css">
+  <!-- Fonts and Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+JP:wght@400;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body data-no-sidemenu="true" class="guild-background">
+  <div class="page-wrapper">
+    <!-- ヘッダー -->
+    <header class="page-header page-header-with-actions">
+      <h1>SW2.5 簡易ジェネレーター</h1>
+      <p class="subtitle">キャラクターデータを入力します。</p>
+      <nav class="page-nav">
+        <a href="index.html">ギルドトップへ戻る</a>
+      </nav>
+    </header>
+
+    <main class="main-content">
+      <div class="generator-layout">
+        <!-- サイドバーナビゲーション -->
+        <nav id="form-sidebar">
+          <ul>
+            <li><a href="#" class="sidebar-link active" data-target="panel-regulation-growth"><i
+                  class="fa-solid fa-scroll"></i> レギュ・成長</a></li>
+            <li><a href="#" class="sidebar-link" data-target="panel-basic"><i class="fa-solid fa-user"></i> 基本情報</a>
+            </li>
+            <li><a href="#" class="sidebar-link" data-target="panel-equipment-items"><i
+                  class="fa-solid fa-shield-halved"></i> 装備・所持品</a></li>
+          </ul>
+        </nav>
+
+        <!-- フォームパネル -->
+        <div class="controls-panel">
+          <form id="char-sheet-form">
+            <!-- 作成レギュレーション & 成長結果 -->
+            <div id="panel-regulation-growth" class="form-panel active">
+              <div class="panel-3-column-layout">
+                <!-- カラム1: レギュレーション -->
+                <div class="panel-column">
+                  <h3>作成レギュレーション</h3>
+                  <div class="regulation-container">
+                    <div class="regulation-row-top">
+                      <div class="form-item-inline">
+                        <label for="regulation-select">作成レベル帯:</label>
+                        <select id="regulation-select"></select>
+                      </div>
+                    </div>
+                    <div class="regulation-flex-row">
+                      <div class="form-item-inline"><label for="expTotal">合計経験点:</label><input type="number"
+                          id="expTotal" readonly></div>
+                      <div class="form-item-inline"><label for="moneyTotal">所持金:</label><input type="number"
+                          id="moneyTotal" readonly></div>
+                      <div class="form-item-inline"><label for="honor">名誉点:</label><input type="number" id="honor"
+                          readonly></div>
+                      <div class="form-item-inline"><label for="abyssShard">アビスシャード:</label><input type="number"
+                          id="abyssShard" readonly></div>
+                      <div class="form-item-inline"><label for="growthCount">成長回数:</label><input type="number"
+                          id="growthCount" readonly></div>
+                      <button type="button" id="roll-growth-btn"><i class="fa-solid fa-dice"></i>
+                        成長</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- カラム2: 優先度・合計 -->
+                <div class="panel-column">
+                  <h3>優先度・合計</h3>
+                  <!-- ★★★ 修正後のHTML構造 ★★★ -->
+                  <div id="stats-grid-container" class="stats-grid">
+                    <!-- JSで内容を生成 -->
+                  </div>
+                  <div class="priority-controls">
+                    <div class="checkbox-container">
+                      <input type="checkbox" id="use-priority-check" class="switch">
+                      <label for="use-priority-check">優先順位で自動選択</label>
+                    </div>
+                    <div class="priority-note-wrapper">
+                      <span class="priority-note">(数字が低いほど優先度 高)</span>
+                      <button type="button" id="reset-priority-btn" class="small-button">優先度をクリア</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- カラム3: 成長結果リスト -->
+                <div class="panel-column">
+                  <h3>成長結果</h3>
+                  <div class="growth-results-wrapper">
+                    <div class="growth-results-header">
+                      <span>No.</span>
+                      <span>候補1</span>
+                      <span>候補2</span>
+                      <span>確定</span>
+                    </div>
+                    <div id="growth-results-container">
+                      <!-- 成長結果がここに挿入されます -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 基本情報 -->
+            <div id="panel-basic" class="form-panel">
+              <h3>キャラクター基本情報</h3>
+              <div class="form-grid">
+                <label for="characterName">キャラクター名:</label><input type="text" id="characterName" name="characterName"
+                  required>
+                <label for="playerName">プレイヤー名:</label><input type="text" id="playerName" name="playerName">
+                <label for="race">種族:</label><select id="race" name="race"></select>
+                <label for="age">年齢:</label><input type="text" id="age" name="age">
+                <label for="gender">性別:</label><input type="text" id="gender" name="gender">
+              </div>
+            </div>
+
+            <!-- 装備・所持品 -->
+            <div id="panel-equipment-items" class="form-panel">
+              <h3>装備・所持品</h3>
+              <div class="equipment-container">
+                <h4><i class="fa-solid fa-gavel"></i> 武器</h4>
+                <div id="weapons-container" class="dynamic-rows-container"></div>
+                <button type="button" class="add-row-btn" data-target="weapons-container"
+                  data-template="template-weapon"><i class="fa fa-plus"></i> 武器を追加</button>
+              </div>
+              <hr class="section-divider">
+              <div class="equipment-container">
+                <h4><i class="fa-solid fa-shield-halved"></i> 防具</h4>
+                <div id="armours-container" class="dynamic-rows-container"></div>
+                <button type="button" class="add-row-btn" data-target="armours-container"
+                  data-template="template-armour"><i class="fa fa-plus"></i> 防具を追加</button>
+              </div>
+              <hr class="section-divider">
+              <div class="equipment-container">
+                <h4><i class="fa-solid fa-sack-dollar"></i> 所持品</h4>
+                <div class="form-grid">
+                  <label for="items" style="grid-column: 1 / -1; text-align: left;">アイテムリスト:</label>
+                  <textarea id="items" name="items" rows="10" placeholder="冒険者セット
+保存食(1週間分)
+など、1行に1アイテムを記入" style="grid-column: 1 / -1;"></textarea>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- Templates for dynamic rows -->
+    <template id="template-growth-row">
+      <div class="growth-row">
+        <button type="button" class="stat-candidate" data-choice="1"></button>
+        <button type="button" class="stat-candidate" data-choice="2"></button>
+        <span class="stat-confirmed"></span>
+      </div>
+    </template>
+
+    <template id="template-weapon">
+      <div class="dynamic-row weapon-row">
+        <input type="text" class="weapon-name" placeholder="武器名"><input type="text" class="weapon-usage"
+          placeholder="用法"><input type="number" class="weapon-reqd" placeholder="必筋"><input type="text"
+          class="weapon-acc" placeholder="命中+"><select class="weapon-class"></select><input type="text"
+          class="weapon-rate" placeholder="威力"><input type="number" class="weapon-crit" placeholder="C値"><input
+          type="text" class="weapon-dmg" placeholder="追加D"><input type="text" class="weapon-note"
+          placeholder="備考"><button type="button" class="remove-row-btn"><i class="fa fa-times"></i></button>
+      </div>
+    </template>
+    <template id="template-armour">
+      <div class="dynamic-row armour-row">
+        <input type="text" class="armour-name" placeholder="防具名"><input type="number" class="armour-reqd"
+          placeholder="必筋"><input type="number" class="armour-eva" placeholder="回避"><input type="number"
+          class="armour-def" placeholder="防護"><select class="armour-category"></select><input type="text"
+          class="armour-note" placeholder="備考"><button type="button" class="remove-row-btn"><i
+            class="fa fa-times"></i></button>
+      </div>
+    </template>
+    <!-- End of Templates -->
+
+    <!-- フッター -->
+    <footer>
+      <img src="../img/hachimaki.svg" alt="" class="footer-logo">
+      <p>© 冒険者ギルド「帝国の鉢巻」</p>
+    </footer>
+  </div>
+
+  <div id="result-message" class="toast-notification"></div>
+
+  <!-- Scripts -->
+  <script src="../js/common.js"></script>
+  <script src="./js/247_guild.js"></script>
+  <script src="./js/sw25_data.js"></script>
+  <!-- ★★★ 修正後のJSファイルへのリンク ★★★ -->
+  <script src="./js/sw25_generator.js"></script>
+</body>
+
+</html>
