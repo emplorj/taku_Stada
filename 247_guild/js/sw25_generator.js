@@ -7,7 +7,37 @@ document.addEventListener("DOMContentLoaded", () => {
     Weapons,
     Armours,
     Items,
+    GeneralSkills,
+    SkillLevelGuides,
   } = window.sw25_data;
+
+  const enhancementData = {
+    weapon: [
+      {
+        name: "オーダーメイド",
+        prices: { B: 300, A: 1000, S: 3000, SS: 6000 },
+      },
+      { name: "銀製武器", prices: { B: 1000, A: 2000, S: 4000, SS: 6000 } },
+      {
+        name: "魔法の武器+1",
+        prices: { B: 5000, A: 10000, S: 20000, SS: null },
+      },
+      { name: "妖精の武器", prices: { B: 1500, A: 3000, S: 6000, SS: 9000 } },
+      {
+        name: "イグニダイト加工",
+        prices: { B: 5000, A: 10000, S: 20000, SS: 40000 },
+      },
+      { name: "アビス強化", prices: { B: 2000, A: 4000, S: 8000, SS: 12000 } },
+    ],
+    armour: [
+      { name: "魔法の鎧+1", prices: { B: 5000, A: 10000, S: 20000, SS: null } },
+      { name: "防弾加工の鎧", prices: { B: 1500, A: 3000, S: 6000, SS: 9000 } },
+      {
+        name: "マナタイトの追加装甲",
+        prices: { B: 5000, A: 10000, S: 20000, SS: 30000 },
+      },
+    ],
+  };
 
   // DOM要素キャッシュ
   const sidebarLinks = document.querySelectorAll("#form-sidebar .sidebar-link");
@@ -25,6 +55,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const statsGridContainer = document.getElementById("stats-grid-container");
   const usePriorityCheck = document.getElementById("use-priority-check");
   const resetPriorityBtn = document.getElementById("reset-priority-btn");
+  const addGeneralSkillBtn = document.getElementById("add-general-skill-btn");
+  const generalSkillsContainer = document.getElementById(
+    "general-skills-container"
+  );
+  const skillProgressBar = document.getElementById("general-skill-progress");
+  const totalLevelSpan = document.getElementById("general-skill-total-level");
 
   const statNames = ["器用度", "敏捷度", "筋力", "生命力", "知力", "精神力"];
   const statClassMap = {
@@ -51,6 +87,459 @@ document.addEventListener("DOMContentLoaded", () => {
   let growthRowCounter = 0;
   let userCashbookContent = "";
 
+  function setupEnhancementPanel() {
+    const panel = document.getElementById("enhancement-panel");
+    if (!panel) return;
+    panel.innerHTML = "";
+
+    const createSection = (title, items) => {
+      const sectionDiv = document.createElement("div");
+      sectionDiv.className = "enhancement-section";
+
+      const titleEl = document.createElement("h4");
+      titleEl.className = "enhancement-section-title";
+      titleEl.textContent = title;
+      sectionDiv.appendChild(titleEl);
+
+      items.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "enhancement-row";
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "enhancement-name";
+        nameSpan.textContent = item.name;
+        row.appendChild(nameSpan);
+
+        const buttonsDiv = document.createElement("div");
+        buttonsDiv.className = "enhancement-buttons";
+        Object.keys(item.prices).forEach((rank) => {
+          const price = item.prices[rank];
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "enhancement-btn";
+          btn.textContent = rank;
+          btn.dataset.name = item.name;
+          btn.dataset.rank = rank;
+          btn.disabled = price === null;
+          if (price !== null) btn.dataset.price = price;
+          buttonsDiv.appendChild(btn);
+        });
+        row.appendChild(buttonsDiv);
+        sectionDiv.appendChild(row);
+      });
+      return sectionDiv;
+    };
+
+    panel.appendChild(createSection("武器強化一覧", enhancementData.weapon));
+    panel.appendChild(createSection("防具強化一覧", enhancementData.armour));
+  }
+
+  function handleEnhancementButtonClick(button) {
+    const name = button.dataset.name;
+    const rank = button.dataset.rank;
+    const price = parseInt(button.dataset.price, 10);
+    const newEntry = `: ${name}（${rank}）|::-${price}`;
+
+    userCashbookContent = userCashbookContent
+      ? `${userCashbookContent}\n${newEntry}`
+      : newEntry;
+
+    updateAllItems();
+  }
+
+  function setupItemPanel() {
+    const container = document.getElementById("items-container");
+    container.innerHTML = "";
+    const adventureSetData = Items["一般装備品・消耗品など"]["冒険者セット"][0];
+    if (adventureSetData) {
+      addItemRow({
+        name: adventureSetData.name,
+        freeName: adventureSetData.name,
+        unitPrice: adventureSetData.price,
+        effect: adventureSetData.note,
+      });
+    }
+    addItemRow();
+    addItemRow();
+  }
+
+  function handleItemNameChange({ target: nameInputElement }) {
+    const row = nameInputElement.closest(".item-row");
+    const selectedValue = nameInputElement.value;
+    const allItems = Object.values(Items)
+      .flatMap((category) => Object.values(category))
+      .flat();
+    const selectedItem = allItems.find((item) => item.name === selectedValue);
+
+    const magicCheck = row.querySelector(".item-magic-check");
+    if (magicCheck)
+      magicCheck.checked = !!(selectedItem && selectedItem.isMagic);
+
+    if (selectedItem) {
+      row.querySelector(".item-unit-price").value = selectedItem.price || 0;
+      row.querySelector(".item-effect").value = selectedItem.note || "";
+    } else {
+      row.querySelector(".item-unit-price").value = "";
+      row.querySelector(".item-effect").value = "";
+    }
+    updateAllItems();
+  }
+
+  function updateCashbookAndMoney() {
+    const cashbookTextarea = document.getElementById("cashbook");
+    const folderToggle = document.getElementById("item-folder-toggle").checked;
+    const folderTitle =
+      document.getElementById("item-folder-title").value.trim() || "初期投資";
+    let autoEntries = [];
+    let autoTotalCost = 0;
+
+    document
+      .querySelectorAll(".weapon-row, .armour-row, .item-row")
+      .forEach((row) => {
+        const priceInput = row.querySelector(
+          ".weapon-price, .armour-price, .item-total-price"
+        );
+        const nameSelect = row.querySelector(
+          ".weapon-name-select, .armour-name-select, .item-name-select"
+        );
+        const nameFree = row.querySelector(
+          ".weapon-name-free, .armour-name-free, .item-name-free"
+        );
+
+        let name = "";
+        if (nameSelect && nameSelect.style.display !== "none")
+          name = nameSelect.value;
+        else if (nameFree) name = nameFree.value.trim();
+
+        if (name === "free" || !name) return;
+
+        if (priceInput) {
+          const price = parseFloat(priceInput.value) || 0;
+          if (price > 0) {
+            autoTotalCost += price;
+            const isMagic =
+              row.querySelector(".item-magic-check")?.checked || false;
+            const prefix = isMagic ? "[魔]" : "";
+            const nameText =
+              name.startsWith("〈") && name.endsWith("〉")
+                ? name
+                : `〈${name}〉`;
+            const unitPrice =
+              parseFloat(
+                row.querySelector(
+                  ".item-unit-price, .weapon-price, .armour-price"
+                )?.value
+              ) || price;
+            const quantity =
+              parseInt(row.querySelector(".item-quantity")?.value, 10) || 1;
+
+            if (quantity > 1 && row.classList.contains("item-row")) {
+              autoEntries.push(
+                `: ${prefix}${nameText}|::-` + unitPrice + "*" + quantity
+              );
+            } else {
+              autoEntries.push(`: ${prefix}${nameText}|::-` + price);
+            }
+          }
+        }
+      });
+
+    let autoBlock = "";
+    if (autoEntries.length > 0) {
+      autoBlock = folderToggle
+        ? `[>]**${folderTitle}\n` + autoEntries.join("\n") + `\n[---]`
+        : autoEntries.join("\n");
+    }
+
+    cashbookTextarea.value =
+      autoBlock +
+      (userCashbookContent
+        ? (autoBlock ? "\n" : "") + userCashbookContent
+        : "");
+
+    let userTotalCost = 0;
+    if (userCashbookContent) {
+      const userEntries = userCashbookContent.split("\n");
+      userEntries.forEach((line) => {
+        const match = line.match(/::(-?\d+)/);
+        if (match) userTotalCost -= parseInt(match[1], 10);
+      });
+    }
+
+    const finalTotalCost = autoTotalCost + userTotalCost;
+    document.getElementById(
+      "money-sidebar-items-total"
+    ).textContent = `-${finalTotalCost}`;
+    updateRemainingMoney();
+  }
+
+  function setupEventListeners() {
+    const form = document.getElementById("char-sheet-form");
+    const enhancementBtn = document.getElementById("toggle-enhancement-btn");
+    const enhancementPanel = document.getElementById("enhancement-panel");
+
+    if (enhancementBtn) {
+      enhancementBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        if (enhancementPanel.classList.contains("visible")) {
+          enhancementPanel.classList.remove("visible");
+        } else {
+          // ★★★ ここからが修正箇所 ★★★
+          const rect = enhancementBtn.getBoundingClientRect();
+          const panelWidth = enhancementPanel.offsetWidth;
+          const panelHeight = enhancementPanel.offsetHeight;
+          const windowWidth = window.innerWidth;
+          const margin = 10; // 画面端からの余白
+
+          // 水平位置の計算
+          let finalLeft = rect.left;
+          // パネルの右端が画面の右端を越える場合
+          if (rect.left + panelWidth > windowWidth) {
+            // 画面の右端に合わせる
+            finalLeft = windowWidth - panelWidth - margin;
+          }
+
+          // 垂直位置の計算
+          let finalTop = rect.top - panelHeight - margin;
+          // パネルの上端が画面の上端を越える場合
+          if (finalTop < 0) {
+            // ボタンの下に表示する
+            finalTop = rect.bottom + margin;
+          }
+
+          // 計算した位置を適用
+          enhancementPanel.style.left = `${finalLeft}px`;
+          enhancementPanel.style.top = `${finalTop}px`;
+
+          enhancementPanel.classList.add("visible");
+          // ★★★ ここまでが修正箇所 ★★★
+        }
+      });
+    }
+
+    if (enhancementPanel) {
+      enhancementPanel.addEventListener("click", (e) => {
+        if (
+          e.target.classList.contains("enhancement-btn") &&
+          !e.target.disabled
+        ) {
+          handleEnhancementButtonClick(e.target);
+        }
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      if (
+        enhancementPanel &&
+        !enhancementPanel.contains(e.target) &&
+        e.target !== enhancementBtn
+      ) {
+        enhancementPanel.classList.remove("visible");
+      }
+    });
+
+    form.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target === enhancementBtn) return;
+
+      const addBtn = target.closest(".add-row-btn");
+      const removeBtn = target.closest(".remove-row-btn");
+      const selectBtn = target.closest(".select-toggle-btn, .item-select-btn");
+      const copyBtn = target.closest(".copy-btn");
+      const copySkillBtn = target.closest(".copy-skill-name-btn");
+      const unitBtn = target.closest(".unit-btn");
+
+      if (target.id === "randomize-skill-names-btn") {
+        handleRandomizeSkillNames();
+        return;
+      }
+      if (target.id === "randomize-skill-all-btn") {
+        handleRandomizeAll();
+        return;
+      }
+
+      if (addBtn) {
+        const templateId = addBtn.dataset.template;
+        if (templateId === "template-weapon") addWeaponRow();
+        else if (templateId === "template-armour") addArmourRow();
+        else if (templateId === "template-item") addItemRow();
+        else if (addBtn.id === "add-general-skill-btn") addGeneralSkillRow();
+        else if (addBtn.id === "add-personal-data-row-btn")
+          addPersonalDataRow();
+        return;
+      }
+      if (removeBtn) {
+        const row = removeBtn.closest(".dynamic-row");
+        if (row) {
+          row.remove();
+          updateAllItems();
+          if (row.classList.contains("general-skill-row"))
+            updateGeneralSkillTotal();
+          if (row.classList.contains("personal-data-row"))
+            updatePersonalDataOutput();
+        }
+        return;
+      }
+
+      if (selectBtn) {
+        const cell = selectBtn.closest(".item-name-cell");
+        if (cell) {
+          const selectEl = cell.querySelector("select");
+          const freeInputEl = cell.querySelector("input[type='text']");
+          if (selectEl.style.display !== "none") {
+            selectEl.style.display = "none";
+            freeInputEl.style.display = "block";
+            freeInputEl.value = selectEl.value;
+            freeInputEl.focus();
+          } else {
+            const freeText = freeInputEl.value.trim().replace(/[〈〉]/g, "");
+            let found = false;
+            if (freeText) {
+              for (let option of selectEl.options) {
+                const optionText = option.textContent
+                  .replace(/\[.*?\]\s*/, "")
+                  .replace(/[〈〉]/g, "");
+                if (optionText === freeText) {
+                  selectEl.value = option.value;
+                  found = true;
+                  break;
+                }
+              }
+            }
+            selectEl.style.display = "block";
+            freeInputEl.style.display = "none";
+            if (found) {
+              selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+          }
+        }
+      }
+
+      if (copyBtn) {
+        const id = copyBtn.id;
+        if (id === "copy-personal-data-btn")
+          navigator.clipboard.writeText(
+            document.getElementById("personal-data-output").value
+          );
+        if (id === "copy-items-list-btn")
+          navigator.clipboard.writeText(
+            document.getElementById("items-output").value
+          );
+        if (id === "copy-cashbook-btn")
+          navigator.clipboard.writeText(
+            document.getElementById("cashbook").value
+          );
+      }
+
+      if (copySkillBtn) {
+        const skillName = copySkillBtn
+          .closest(".skill-name-cell")
+          .querySelector(".general-skill-select").value;
+        if (skillName) navigator.clipboard.writeText(skillName);
+      }
+
+      if (unitBtn) {
+        const valueInput = unitBtn
+          .closest(".personal-data-row")
+          .querySelector(".personal-data-value");
+        valueInput.value += unitBtn.dataset.unit;
+        valueInput.dispatchEvent(new Event("input", { bubbles: true }));
+        valueInput.focus();
+      }
+    });
+
+    form.addEventListener("input", (e) => {
+      if (
+        e.target.matches(
+          ".item-magic-check, .item-name-free, .item-unit-price, .item-quantity, .item-effect, .item-points, .weapon-price, .armour-price, .weapon-name-free, .armour-name-free"
+        )
+      ) {
+        updateAllItems();
+      }
+      if (e.target.matches("#item-folder-toggle, #item-folder-title")) {
+        updateAllItems();
+      }
+      if (e.target.classList.contains("initial-stat-input")) {
+        updateAllStatTotals();
+      }
+      if (e.target.matches(".personal-data-key, .personal-data-value")) {
+        updatePersonalDataOutput();
+      }
+      if (e.target.classList.contains("general-skill-level-slider")) {
+        const row = e.target.closest(".general-skill-row");
+        const level = e.target.value;
+        row.querySelector(
+          ".general-skill-level-display"
+        ).textContent = `Lv ${level}`;
+        row.querySelector(".level-guide-text").textContent =
+          SkillLevelGuides[level];
+        updateGeneralSkillTotal();
+      }
+    });
+
+    form.addEventListener("change", (e) => {
+      const target = e.target;
+      if (target.matches(".weapon-name-select")) handleWeaponNameChange(target);
+      if (target.matches(".armour-name-select")) handleArmourNameChange(target);
+      if (target.matches(".item-name-select")) handleItemNameChange({ target });
+    });
+
+    document.getElementById("cashbook").addEventListener("input", (e) => {
+      const regex = /(\[>\]\*\*.*?\n[\s\S]*?\[---\]\n*)/;
+      const match = e.target.value.match(regex);
+      userCashbookContent = e.target.value
+        .replace(match ? match[0] : "", "")
+        .trim();
+      updateAllItems();
+    });
+
+    document
+      .getElementById("money-sidebar-other")
+      .addEventListener("input", updateRemainingMoney);
+    sidebarLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const targetId = link.dataset.target;
+        sidebarLinks.forEach((l) => l.classList.remove("active"));
+        link.classList.add("active");
+        formPanels.forEach((panel) =>
+          panel.classList.toggle("active", panel.id === targetId)
+        );
+      });
+    });
+
+    regulationSelect.addEventListener("change", updateRegulationValues);
+    rollGrowthBtn.addEventListener("click", handleRollGrowth);
+    growthResultsContainer.addEventListener("click", (event) => {
+      if (event.target.classList.contains("stat-candidate"))
+        handleCandidateClick(event.target);
+    });
+    usePriorityCheck.addEventListener("change", applyPriorityToAllRows);
+    statsGridContainer.addEventListener("change", (e) => {
+      if (e.target.classList.contains("priority-select")) {
+        handlePriorityChange(e.target);
+        applyPriorityToAllRows();
+      }
+    });
+    statsGridContainer.addEventListener("click", (e) => {
+      if (e.target.classList.contains("bracelet-btn")) {
+        const currentValue = parseInt(e.target.dataset.value, 10);
+        let nextValue = currentValue === 0 ? 2 : currentValue === 2 ? 1 : 0;
+        e.target.dataset.value = nextValue;
+        e.target.textContent = nextValue === 0 ? "0" : `+${nextValue}`;
+        updateAllStatTotals();
+      }
+    });
+    resetPriorityBtn.addEventListener("click", () => {
+      statsGridContainer
+        .querySelectorAll(".priority-select")
+        .forEach((select) => {
+          select.value = "99";
+        });
+      applyPriorityToAllRows();
+    });
+  }
+
   function initialize() {
     populateRegulations();
     setupStatsGrid();
@@ -58,10 +547,15 @@ document.addEventListener("DOMContentLoaded", () => {
     addWeaponRow();
     addArmourRow();
     setupItemPanel();
+    addGeneralSkillRow();
+    setupEnhancementPanel();
     setupEventListeners();
     regulationSelect.dispatchEvent(new Event("change"));
     updateAllStatTotals();
   }
+
+  // ここから下の関数は、すべて initialize() から呼び出されるヘルパー関数です
+  // (コードの可読性のために、主要なロジックをここにまとめています)
 
   function populateRegulations() {
     if (!regulationSelect) return;
@@ -235,16 +729,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (itemNameSelect) {
       itemNameSelect.innerHTML =
         '<option value="">アイテムをリストから選択</option>';
-      for (const cat in Items) {
-        const optgroup = document.createElement("optgroup");
-        optgroup.label = cat;
-        Items[cat].forEach((item) => {
-          const option = document.createElement("option");
-          option.textContent = item.name;
-          option.value = item.name;
-          optgroup.appendChild(option);
-        });
-        itemNameSelect.appendChild(optgroup);
+      for (const largeCategoryName in Items) {
+        const largeCategory = Items[largeCategoryName];
+        const largeOptgroup = document.createElement("optgroup");
+        largeOptgroup.label = `▼ ${largeCategoryName}`;
+        itemNameSelect.appendChild(largeOptgroup);
+        for (const mediumCategoryName in largeCategory) {
+          const items = largeCategory[mediumCategoryName];
+          const mediumOptgroup = document.createElement("optgroup");
+          mediumOptgroup.label = `　└ ${mediumCategoryName}`;
+          items.forEach((item) => {
+            const option = document.createElement("option");
+            option.textContent = item.name;
+            option.value = item.name;
+            mediumOptgroup.appendChild(option);
+          });
+          itemNameSelect.appendChild(mediumOptgroup);
+        }
       }
       itemNameSelect.add(new Option("その他（自由入力）", "free"));
     }
@@ -277,14 +778,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .content.cloneNode(true);
     populateEquipmentCategories(clone.querySelector(".armour-row"));
     container.appendChild(clone);
-  }
-
-  function setupItemPanel() {
-    const container = document.getElementById("items-container");
-    container.innerHTML = "";
-    addItemRow({ freeName: "冒険者セット", unitPrice: 100 });
-    addItemRow();
-    addItemRow();
   }
 
   function addItemRow({
@@ -363,7 +856,6 @@ document.addEventListener("DOMContentLoaded", () => {
           else if (points <= 15) unitPrice = 300 * points;
           else unitPrice = 400 * points;
         } else {
-          // マナチャージクリスタル
           unitPrice = 500 * points;
         }
         unitPriceInput.value = unitPrice;
@@ -406,76 +898,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function updateCashbookAndMoney() {
-    const cashbookTextarea = document.getElementById("cashbook");
-    const folderToggle = document.getElementById("item-folder-toggle").checked;
-    const folderTitle =
-      document.getElementById("item-folder-title").value.trim() || "初期投資";
-    let autoEntries = [];
-    let totalCost = 0;
-
-    document
-      .querySelectorAll(".weapon-row, .armour-row, .item-row")
-      .forEach((row) => {
-        const priceInput = row.querySelector(
-          ".weapon-price, .armour-price, .item-total-price"
-        );
-        const nameSelect = row.querySelector(
-          ".weapon-name-select, .armour-name-select, .item-name-select"
-        );
-        const nameFree = row.querySelector(
-          ".weapon-name-free, .armour-name-free, .item-name-free"
-        );
-        let name = "";
-        if (nameSelect && nameSelect.style.display !== "none")
-          name = nameSelect.value;
-        else if (nameFree) name = nameFree.value.trim();
-        if (name === "free" || !name) return;
-
-        if (priceInput) {
-          const price = parseFloat(priceInput.value) || 0;
-          if (name && price > 0) {
-            totalCost += price;
-            const isMagic =
-              row.querySelector(".item-magic-check")?.checked || false;
-            const prefix = isMagic ? "[魔]" : "";
-            const nameText =
-              name.startsWith("〈") && name.endsWith("〉")
-                ? name
-                : `〈${name}〉`;
-            const unitPrice =
-              parseFloat(
-                row.querySelector(
-                  ".item-unit-price, .weapon-price, .armour-price"
-                )?.value
-              ) || price;
-            const quantity =
-              parseInt(row.querySelector(".item-quantity")?.value, 10) || 1;
-            if (quantity > 1 && row.classList.contains("item-row")) {
-              autoEntries.push(
-                `: ${prefix}${nameText}|::-` + unitPrice + "*" + quantity
-              );
-            } else {
-              autoEntries.push(`: ${prefix}${nameText}|::-` + price);
-            }
-          }
-        }
-      });
-
-    let autoBlock = "";
-    if (autoEntries.length > 0) {
-      autoBlock = folderToggle
-        ? `[>]**${folderTitle}\n` + autoEntries.join("\n") + `\n[---]`
-        : autoEntries.join("\n");
-    }
-    cashbookTextarea.value =
-      autoBlock + (userCashbookContent ? "\n\n" + userCashbookContent : "");
-    document.getElementById(
-      "money-sidebar-items-total"
-    ).textContent = `-${totalCost}`;
-    updateRemainingMoney();
-  }
-
   function updateRemainingMoney() {
     const regulationMoney =
       parseInt(
@@ -501,12 +923,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const magicCheck = row.querySelector(".item-magic-check");
     if (magicCheck) magicCheck.checked = !!(data && data.isMagic);
 
-    // 命中(acc)を含むフィールドのマッピング
     const fields = {
       price: ".weapon-price",
       usage: ".weapon-usage",
       req: ".weapon-req",
-      acc: ".weapon-acc", // 命中のマッピングを追加
+      acc: ".weapon-acc",
       rate: ".weapon-rate",
       crit: ".weapon-crit",
       dmg: ".weapon-dmg",
@@ -514,7 +935,6 @@ document.addEventListener("DOMContentLoaded", () => {
       rank: ".weapon-rank",
       note: ".weapon-note",
     };
-
     if (data && row) {
       for (const key in fields) {
         const field = row.querySelector(fields[key]);
@@ -528,7 +948,7 @@ document.addEventListener("DOMContentLoaded", () => {
               value = data.might;
               break;
             default:
-              value = data[key] !== undefined ? data[key] : ""; // accが0の場合も表示
+              value = data[key] !== undefined ? data[key] : "";
           }
           field.value = value;
         }
@@ -542,7 +962,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAllItems();
   }
 
-  // ★★★ この関数を修正 ★★★
   function handleArmourNameChange(selectElement) {
     const selectedArmourName = selectElement.value;
     const row = selectElement.closest(".armour-row");
@@ -557,16 +976,14 @@ document.addEventListener("DOMContentLoaded", () => {
       req: ".armour-req",
       eva: ".armour-eva",
       def: ".armour-def",
-      cls: ".armour-category", // dataの 'cls' を elementの '.armour-category' にマッピング
+      cls: ".armour-category",
       note: ".armour-note",
     };
 
     if (data && row) {
       for (const key in fields) {
         const field = row.querySelector(fields[key]);
-        if (field) {
-          field.value = data[key] || "";
-        }
+        if (field) field.value = data[key] || "";
       }
     } else if (row) {
       for (const key in fields) {
@@ -577,181 +994,57 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAllItems();
   }
 
-  function handleItemNameChange({ target: nameInputElement }) {
-    const row = nameInputElement.closest(".item-row");
-    const selectedValue = nameInputElement.value;
-    const allItems = Object.values(Items).flat();
-    const selectedItem = allItems.find((item) => item.name === selectedValue);
+  function addGeneralSkillRow(skillName = "", level = 0) {
+    const template = document.getElementById("template-general-skill-row");
+    const clone = template.content.cloneNode(true);
+    const newRow = clone.querySelector(".general-skill-row");
+    const select = newRow.querySelector(".general-skill-select");
+    const slider = newRow.querySelector(".general-skill-level-slider");
+    const levelDisplay = newRow.querySelector(".general-skill-level-display");
+    const guideText = newRow.querySelector(".level-guide-text");
 
-    const magicCheck = row.querySelector(".item-magic-check");
-    if (magicCheck)
-      magicCheck.checked = !!(selectedItem && selectedItem.isMagic);
+    select.innerHTML = '<option value="">技能を選択</option>';
+    GeneralSkills.forEach((skill) => select.add(new Option(skill, skill)));
 
-    if (selectedItem) {
-      const price = selectedItem.price;
-      row.querySelector(".item-unit-price").value =
-        typeof price === "string" &&
-        (price.includes("x") || price.includes("~"))
-          ? parseInt(price) || 0
-          : parseInt(price) || 0;
-      row.querySelector(".item-effect").value = selectedItem.note || "";
-    } else {
-      row.querySelector(".item-unit-price").value = "";
-      row.querySelector(".item-effect").value = "";
-    }
-    updateAllItems();
+    if (skillName) select.value = skillName;
+    slider.value = level;
+    levelDisplay.textContent = `Lv ${level}`;
+    guideText.textContent = SkillLevelGuides[level];
+
+    generalSkillsContainer.appendChild(clone);
   }
 
-  function setupEventListeners() {
-    const form = document.getElementById("char-sheet-form");
-
-    form.addEventListener("click", (event) => {
-      const target = event.target;
-      const addBtn = target.closest(".add-row-btn");
-      const removeBtn = target.closest(".remove-row-btn");
-      const selectBtn = target.closest(".select-toggle-btn, .item-select-btn");
-      const copyPersonalBtn = target.closest("#copy-personal-data-btn");
-      const copyItemsBtn = target.closest("#copy-items-list-btn");
-      const copyCashbookBtn = target.closest("#copy-cashbook-btn");
-      const unitBtn = target.closest(".unit-btn");
-
-      if (addBtn) {
-        const templateId = addBtn.dataset.template;
-        if (templateId === "template-weapon") addWeaponRow();
-        else if (templateId === "template-armour") addArmourRow();
-        else if (templateId === "template-item") addItemRow();
-        else if (addBtn.id === "add-personal-data-row-btn")
-          addPersonalDataRow();
-        return;
-      }
-      if (removeBtn) {
-        const row = removeBtn.closest(".dynamic-row");
-        if (row) {
-          row.remove();
-          updateAllItems();
-        }
-        return;
-      }
-
-      if (selectBtn) {
-        const cell = selectBtn.closest(".item-name-cell");
-        if (cell) {
-          const selectEl = cell.querySelector("select");
-          const freeInputEl = cell.querySelector("input[type='text']");
-          if (selectEl.style.display !== "none") {
-            selectEl.style.display = "none";
-            freeInputEl.style.display = "block";
-            freeInputEl.focus();
-          } else {
-            selectEl.style.display = "block";
-            freeInputEl.style.display = "none";
-            selectEl.focus();
-          }
-        }
-      }
-
-      if (copyPersonalBtn)
-        navigator.clipboard.writeText(
-          document.getElementById("personal-data-output").value
-        );
-      if (copyItemsBtn)
-        navigator.clipboard.writeText(
-          document.getElementById("items-output").value
-        );
-      if (copyCashbookBtn)
-        navigator.clipboard.writeText(
-          document.getElementById("cashbook").value
-        );
-      if (unitBtn) {
-        const valueInput = unitBtn
-          .closest(".personal-data-row")
-          .querySelector(".personal-data-value");
-        valueInput.value += unitBtn.dataset.unit;
-        valueInput.dispatchEvent(new Event("input", { bubbles: true }));
-        valueInput.focus();
-      }
-    });
-
-    form.addEventListener("input", (e) => {
-      if (
-        e.target.matches(
-          ".item-magic-check, .item-name-free, .item-unit-price, .item-quantity, .item-effect, .item-points, .weapon-price, .armour-price, .weapon-name-free, .armour-name-free"
-        )
-      ) {
-        updateAllItems();
-      }
-      if (e.target.matches("#item-folder-toggle, #item-folder-title")) {
-        updateAllItems();
-      }
-      if (e.target.classList.contains("initial-stat-input")) {
-        updateAllStatTotals();
-      }
-      if (e.target.matches(".personal-data-key, .personal-data-value")) {
-        updatePersonalDataOutput();
-      }
-    });
-
-    form.addEventListener("change", (e) => {
-      const target = e.target;
-      if (target.matches(".weapon-name-select")) handleWeaponNameChange(target);
-      if (target.matches(".armour-name-select")) handleArmourNameChange(target);
-      if (target.matches(".item-name-select"))
-        handleItemNameChange({ target: target });
-    });
-
-    document.getElementById("cashbook").addEventListener("input", (e) => {
-      const regex = /(\[>\]\*\*.*?\n[\s\S]*?\[---\]\n*)/;
-      const match = e.target.value.match(regex);
-      userCashbookContent = e.target.value
-        .replace(match ? match[1] : "", "")
-        .trim();
-    });
+  function updateGeneralSkillTotal() {
+    let totalLevel = 0;
+    const maxLevel = 10;
     document
-      .getElementById("money-sidebar-other")
-      .addEventListener("input", updateRemainingMoney);
-
-    sidebarLinks.forEach((link) => {
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        const targetId = link.dataset.target;
-        sidebarLinks.forEach((l) => l.classList.remove("active"));
-        link.classList.add("active");
-        formPanels.forEach((panel) =>
-          panel.classList.toggle("active", panel.id === targetId)
-        );
+      .querySelectorAll(".general-skill-level-slider")
+      .forEach((slider) => {
+        totalLevel += parseInt(slider.value, 10);
       });
-    });
 
-    regulationSelect.addEventListener("change", updateRegulationValues);
-    rollGrowthBtn.addEventListener("click", handleRollGrowth);
-    growthResultsContainer.addEventListener("click", (event) => {
-      if (event.target.classList.contains("stat-candidate"))
-        handleCandidateClick(event.target);
-    });
-    usePriorityCheck.addEventListener("change", applyPriorityToAllRows);
-    statsGridContainer.addEventListener("change", (e) => {
-      if (e.target.classList.contains("priority-select")) {
-        handlePriorityChange(e.target);
-        applyPriorityToAllRows();
-      }
-    });
-    statsGridContainer.addEventListener("click", (e) => {
-      if (e.target.classList.contains("bracelet-btn")) {
-        const currentValue = parseInt(e.target.dataset.value, 10);
-        let nextValue = currentValue === 0 ? 2 : currentValue === 2 ? 1 : 0;
-        e.target.dataset.value = nextValue;
-        e.target.textContent = nextValue === 0 ? "0" : `+${nextValue}`;
-        updateAllStatTotals();
-      }
-    });
-    resetPriorityBtn.addEventListener("click", () => {
-      statsGridContainer
-        .querySelectorAll(".priority-select")
-        .forEach((select) => {
-          select.value = "99";
-        });
-      applyPriorityToAllRows();
-    });
+    if (skillProgressBar) {
+      const segments = skillProgressBar.querySelectorAll(".progress-segment");
+      const isOverLimit = totalLevel > maxLevel;
+      segments.forEach((segment, index) => {
+        const isActive = index < totalLevel;
+        segment.classList.toggle("active", isActive);
+        segment.classList.remove("is-last-active");
+        if (isActive) segment.classList.toggle("over-limit", isOverLimit);
+        else segment.classList.remove("over-limit");
+      });
+      if (totalLevel > 0 && !isOverLimit)
+        segments[totalLevel - 1].classList.add("is-last-active");
+    }
+
+    if (totalLevelSpan) {
+      const valueSpan = totalLevelSpan.querySelector(".cost-value");
+      if (valueSpan) valueSpan.textContent = totalLevel;
+      totalLevelSpan.classList.toggle("over-limit", totalLevel > maxLevel);
+    }
+
+    if (addGeneralSkillBtn)
+      addGeneralSkillBtn.disabled = totalLevel >= maxLevel;
   }
 
   function updateRegulationValues() {
@@ -795,6 +1088,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     return priorities;
   }
+
   function handlePriorityChange(changedSelect) {
     const newValue = changedSelect.value;
     if (newValue === "99") return;
@@ -805,6 +1099,7 @@ document.addEventListener("DOMContentLoaded", () => {
           select.value = "99";
       });
   }
+
   function rollSingleGrowth() {
     const sum =
       Math.floor(Math.random() * 6) + 1 + (Math.floor(Math.random() * 6) + 1);
@@ -813,6 +1108,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resultStat = statNames[Math.floor(Math.random() * 6)];
     return resultStat;
   }
+
   function handleRollGrowth() {
     growthResultsContainer.innerHTML = "";
     growthRowCounter = 0;
@@ -825,6 +1121,7 @@ document.addEventListener("DOMContentLoaded", () => {
       displayGrowthResult(rollSingleGrowth(), rollSingleGrowth());
     applyPriorityToAllRows();
   }
+
   function displayGrowthResult(stat1, stat2) {
     growthRowCounter++;
     const clone = document
@@ -847,6 +1144,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateGrowthRow(row);
     growthResultsContainer.appendChild(clone);
   }
+
   function handleCandidateClick(button) {
     const row = button.closest(".growth-row");
     row
@@ -858,6 +1156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateGrowthRow(row);
     calculateGrowthSummary();
   }
+
   function applyPriorityToAllRows() {
     if (!usePriorityCheck.checked) return;
     const priorities = getPriorities();
@@ -882,6 +1181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     calculateGrowthSummary();
   }
+
   function updateGrowthRow(rowElement) {
     const selectedBtn = rowElement.querySelector(".stat-candidate.selected");
     const confirmedSpan = rowElement.querySelector(".stat-confirmed");
@@ -901,6 +1201,7 @@ document.addEventListener("DOMContentLoaded", () => {
       confirmedSpan.textContent = "―";
     }
   }
+
   function calculateGrowthSummary() {
     const counts = statNames.reduce((acc, name) => ({ ...acc, [name]: 0 }), {});
     growthResultsContainer.querySelectorAll(".growth-row").forEach((row) => {
@@ -914,6 +1215,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     updateAllStatTotals();
   }
+
   function updateAllStatTotals() {
     statNames.forEach((name) => {
       const initial =
@@ -943,6 +1245,56 @@ document.addEventListener("DOMContentLoaded", () => {
         `.stat-bonus[data-stat="${name}"]`
       ).textContent = bonus;
     });
+  }
+
+  function partitionInteger(total, maxValue) {
+    let parts = [];
+    let currentTotal = 0;
+    while (currentTotal < total) {
+      let remaining = total - currentTotal;
+      let maxPart = Math.min(maxValue, remaining);
+      let newPart = Math.floor(Math.random() * maxPart) + 1;
+      parts.push(newPart);
+      currentTotal += newPart;
+    }
+    let excess = parts.reduce((a, b) => a + b, 0) - total;
+    while (excess > 0) {
+      let partIndex = Math.floor(Math.random() * parts.length);
+      if (parts[partIndex] > 1) {
+        parts[partIndex]--;
+        excess--;
+      }
+    }
+    return parts.filter((p) => p > 0);
+  }
+
+  function handleRandomizeSkillNames() {
+    let availableSkills = [...GeneralSkills];
+    const skillRows =
+      generalSkillsContainer.querySelectorAll(".general-skill-row");
+    skillRows.forEach((row) => {
+      const select = row.querySelector(".general-skill-select");
+      if (availableSkills.length > 0) {
+        const skillIndex = Math.floor(Math.random() * availableSkills.length);
+        const selectedSkill = availableSkills.splice(skillIndex, 1)[0];
+        select.value = selectedSkill;
+      } else {
+        select.value = "";
+      }
+    });
+  }
+
+  function handleRandomizeAll() {
+    generalSkillsContainer.innerHTML = "";
+    const levelsToAssign = partitionInteger(10, 5);
+    let availableSkills = [...GeneralSkills];
+    levelsToAssign.forEach((level) => {
+      if (availableSkills.length === 0) return;
+      const skillIndex = Math.floor(Math.random() * availableSkills.length);
+      const selectedSkill = availableSkills.splice(skillIndex, 1)[0];
+      addGeneralSkillRow(selectedSkill, level);
+    });
+    updateGeneralSkillTotal();
   }
 
   initialize();

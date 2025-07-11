@@ -1321,3 +1321,16 @@ a {
 .center-text {
   text-align: center !important;
 }
+/* === 一般技能パネルの追加スタイル === */
+.general-skill-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.random-btn {
+  background-color: var(--primary-color);
+  border-color: #8c1c19;
+}
+.random-btn:hover {
+  background-color: #d64541;
+}
