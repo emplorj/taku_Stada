@@ -1,3 +1,5 @@
+// sw25_generator.js の内容をすべてこれで置き換え
+
 document.addEventListener("DOMContentLoaded", () => {
   const {
     Races,
@@ -62,27 +64,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const skillProgressBar = document.getElementById("general-skill-progress");
   const totalLevelSpan = document.getElementById("general-skill-total-level");
 
-  const statNames = ["器用度", "敏捷度", "筋力", "生命力", "知力", "精神力"];
+  const statNames = ["器用", "敏捷", "筋力", "生命", "知力", "精神"];
   const statClassMap = {
-    器用度: "stat-器用度",
-    敏捷度: "stat-敏捷度",
+    器用: "stat-器用",
+    敏捷: "stat-敏捷",
     筋力: "stat-筋力",
-    生命力: "stat-生命力",
+    生命: "stat-生命",
     知力: "stat-知力",
-    精神力: "stat-精神力",
+    精神: "stat-精神",
   };
   const growthMap = {
-    2: "器用度",
-    3: "敏捷度",
-    4: "筋力",
-    5: "生命力",
-    6: "知力",
-    7: "ランダム",
-    8: "知力",
-    9: "精神力",
-    10: "生命力",
-    11: "筋力",
-    12: "敏捷度",
+    1: "器用",
+    2: "敏捷",
+    3: "筋力",
+    4: "生命",
+    5: "知力",
+    6: "精神",
   };
   let growthRowCounter = 0;
   let userCashbookContent = "";
@@ -284,35 +281,26 @@ document.addEventListener("DOMContentLoaded", () => {
         if (enhancementPanel.classList.contains("visible")) {
           enhancementPanel.classList.remove("visible");
         } else {
-          // ★★★ ここからが修正箇所 ★★★
           const rect = enhancementBtn.getBoundingClientRect();
           const panelWidth = enhancementPanel.offsetWidth;
           const panelHeight = enhancementPanel.offsetHeight;
           const windowWidth = window.innerWidth;
-          const margin = 10; // 画面端からの余白
+          const margin = 10;
 
-          // 水平位置の計算
           let finalLeft = rect.left;
-          // パネルの右端が画面の右端を越える場合
           if (rect.left + panelWidth > windowWidth) {
-            // 画面の右端に合わせる
             finalLeft = windowWidth - panelWidth - margin;
           }
 
-          // 垂直位置の計算
           let finalTop = rect.top - panelHeight - margin;
-          // パネルの上端が画面の上端を越える場合
           if (finalTop < 0) {
-            // ボタンの下に表示する
             finalTop = rect.bottom + margin;
           }
 
-          // 計算した位置を適用
           enhancementPanel.style.left = `${finalLeft}px`;
           enhancementPanel.style.top = `${finalTop}px`;
 
           enhancementPanel.classList.add("visible");
-          // ★★★ ここまでが修正箇所 ★★★
         }
       });
     }
@@ -364,7 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (templateId === "template-armour") addArmourRow();
         else if (templateId === "template-item") addItemRow();
         else if (addBtn.id === "add-general-skill-btn") addGeneralSkillRow();
-        else if (addBtn.id === "add-personal-data-row-btn")
+        else if (templateId === "template-personal-data-row")
           addPersonalDataRow();
         return;
       }
@@ -440,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (unitBtn) {
         const valueInput = unitBtn
-          .closest(".personal-data-row")
+          .closest(".personal-data-value-wrapper")
           .querySelector(".personal-data-value");
         valueInput.value += unitBtn.dataset.unit;
         valueInput.dispatchEvent(new Event("input", { bubbles: true }));
@@ -554,9 +542,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAllStatTotals();
   }
 
-  // ここから下の関数は、すべて initialize() から呼び出されるヘルパー関数です
-  // (コードの可読性のために、主要なロジックをここにまとめています)
-
   function populateRegulations() {
     if (!regulationSelect) return;
     Regulations.forEach((reg, index) => {
@@ -569,6 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
     statsGridContainer.appendChild(document.createElement("div"));
     statNames.forEach((name) => {
       const header = document.createElement("div");
+      const statNameWithDo = name.endsWith("度") ? name : name + "度";
       header.className = `grid-header ${statClassMap[name]}`;
       header.textContent = name;
       statsGridContainer.appendChild(header);
@@ -660,17 +646,17 @@ document.addEventListener("DOMContentLoaded", () => {
         unitBtn.textContent = unit;
         unitBtn.dataset.unit = unit;
         newRow
-          .querySelector(".personal-data-value")
-          .insertAdjacentElement("afterend", unitBtn);
+          .querySelector(".personal-data-value-wrapper")
+          .appendChild(unitBtn);
       }
     }
   }
 
   function addPersonalDataRow(key = "", value = "") {
     const container = document.getElementById("personal-data-fields-container");
-    const clone = document
-      .getElementById("template-personal-data-row")
-      .content.cloneNode(true);
+    const template = document.getElementById("template-personal-data-row");
+    if (!template) return;
+    const clone = template.content.cloneNode(true);
     const newRow = clone.querySelector(".dynamic-row");
     newRow.querySelector(".personal-data-key").value = key;
     newRow.querySelector(".personal-data-value").value = value;
@@ -1101,12 +1087,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function rollSingleGrowth() {
-    const sum =
-      Math.floor(Math.random() * 6) + 1 + (Math.floor(Math.random() * 6) + 1);
-    let resultStat = growthMap[sum];
-    if (resultStat === "ランダム")
-      resultStat = statNames[Math.floor(Math.random() * 6)];
-    return resultStat;
+    const diceRoll = Math.floor(Math.random() * 6) + 1;
+    return growthMap[diceRoll];
   }
 
   function handleRollGrowth() {
@@ -1136,8 +1118,14 @@ document.addEventListener("DOMContentLoaded", () => {
     btn1.textContent = stat1;
     btn2.textContent = stat2;
     if (stat1 === stat2) {
-      btn1.classList.add("selected");
-      btn2.classList.add("selected");
+      btn1.classList.add(
+        "selected",
+        statClassMap[stat1]
+      ); /* statClassMap[stat1]を追加 */
+      btn2.classList.add(
+        "selected",
+        statClassMap[stat2]
+      ); /* statClassMap[stat2]を追加 */
       btn1.disabled = true;
       btn2.disabled = true;
     }
@@ -1185,16 +1173,31 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateGrowthRow(rowElement) {
     const selectedBtn = rowElement.querySelector(".stat-candidate.selected");
     const confirmedSpan = rowElement.querySelector(".stat-confirmed");
-    rowElement.querySelectorAll(".stat-candidate").forEach((btn) =>
-      statNames.forEach((name) => {
-        if (statClassMap[btn.textContent])
-          btn.classList.remove(statClassMap[btn.textContent]);
-      })
-    );
-    confirmedSpan.className = "stat-confirmed";
+    const [btn1, btn2] = rowElement.querySelectorAll(".stat-candidate");
+    const areBothDisabled = btn1.disabled && btn2.disabled; // stat1 === stat2 の場合
+
+    // 選択が変更された場合のみ、stat-candidateから既存のクラスを削除
+    // ただし、両方がdisabledの場合は削除しない（両方に色を付けたままにするため）
+    if (!areBothDisabled) {
+      rowElement.querySelectorAll(".stat-candidate").forEach((btn) =>
+        statNames.forEach((name) => {
+          if (statClassMap[btn.textContent])
+            btn.classList.remove(statClassMap[btn.textContent]);
+        })
+      );
+    }
+
+    confirmedSpan.className = "stat-confirmed"; // まず基本クラスにリセット
+
     if (selectedBtn) {
       const statName = selectedBtn.textContent;
+      // selectedBtn に statClassMap を再適用 (areBothDisabled の場合は既に付いているが、念のため)
       selectedBtn.classList.add(statClassMap[statName]);
+      confirmedSpan.textContent = statName;
+      confirmedSpan.classList.add(statClassMap[statName] || "");
+    } else if (areBothDisabled) {
+      // stat1 === stat2 で、かつ selectedBtn がない場合（ありえないが念のため）
+      const statName = btn1.textContent; // どちらのボタンでも同じステータス名
       confirmedSpan.textContent = statName;
       confirmedSpan.classList.add(statClassMap[statName] || "");
     } else {

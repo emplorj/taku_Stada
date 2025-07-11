@@ -121,8 +121,10 @@
                 <!-- カラム2: 優先度・合計 -->
                 <div class="panel-column">
                   <h3>優先度・合計</h3>
-                  <div id="stats-grid-container" class="stats-grid">
-                    <!-- JSで内容を生成 -->
+                  <div class="stats-grid-wrapper">
+                    <div id="stats-grid-container" class="stats-grid">
+                      <!-- JSで内容を生成 -->
+                    </div>
                   </div>
                   <div class="priority-controls">
                     <div class="checkbox-container">
@@ -362,7 +364,9 @@
     <template id="template-personal-data-row">
       <div class="dynamic-row personal-data-row">
         <input type="text" class="personal-data-key" placeholder="項目 (例: 好き)" />
-        <input type="text" class="personal-data-value" placeholder="値 (例: 150cm)" />
+        <div class="personal-data-value-wrapper">
+          <input type="text" class="personal-data-value" placeholder="値 (例: 150cm)" />
+        </div>
         <button type="button" class="remove-row-btn">
           <i class="fa fa-times"></i>
         </button>
