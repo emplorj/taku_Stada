@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SW2.5 簡易ジェネレーター - 帝国の鉢巻</title>
+  <title>SW2.5 便利ツール - 帝国の鉢巻</title>
   <!-- OGP -->
-  <meta property="og:title" content="SW2.5 簡易ジェネレーター - 帝国の鉢巻" />
+  <meta property="og:title" content="SW2.5 便利ツール - 帝国の鉢巻" />
   <meta property="og:description" content="ソード・ワールド2.5のキャラクターシートデータを入力し、ゆとシートⅡ用のJSONデータを生成します。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://emplorj.github.io/taku_Stada/247_guild/sw25_generator.html" />
@@ -26,9 +26,9 @@
 <body data-no-sidemenu="true" class="guild-background">
   <div class="page-wrapper">
     <!-- ヘッダー -->
-    <header class="page-header page-header-with-actions">
-      <h1>SW2.5 簡易ジェネレーター</h1>
-      <p class="subtitle">キャラクターデータを入力します。</p>
+    <header class="page-header ">
+      <h1>SW2.5 便利ツール</h1>
+      <p class="subtitle">ゆとシートで使ったりする、便利ツールがあります。</p>
       <nav class="page-nav">
         <a href="index.html">ギルドトップへ戻る</a>
       </nav>
@@ -36,17 +36,38 @@
 
     <main class="main-content">
       <div class="generator-layout">
-        <!-- サイドバーナビゲーション -->
-        <nav id="form-sidebar">
-          <ul>
-            <li><a href="#" class="sidebar-link active" data-target="panel-regulation-growth"><i
-                  class="fa-solid fa-scroll"></i> レギュ・成長</a></li>
-            <li><a href="#" class="sidebar-link" data-target="panel-basic"><i class="fa-solid fa-user"></i> 基本情報</a>
-            </li>
-            <li><a href="#" class="sidebar-link" data-target="panel-equipment-items"><i
-                  class="fa-solid fa-shield-halved"></i> 装備・所持品</a></li>
-          </ul>
-        </nav>
+        <div id="main-sidebar">
+          <nav id="form-sidebar">
+            <ul>
+              <li><a href="#" class="sidebar-link active" data-target="panel-regulation-growth"><i
+                    class="fa-solid fa-scroll"></i> レギュ・成長</a></li>
+              <li><a href="#" class="sidebar-link" data-target="panel-basic"><i class="fa-solid fa-user"></i> 基本情報</a>
+              </li>
+              <li><a href="#" class="sidebar-link" data-target="panel-equipment-items"><i
+                    class="fa-solid fa-shield-halved"></i> 装備・所持品</a></li>
+            </ul>
+          </nav>
+          <div id="money-sidebar-panel">
+            <h3><i class="fas fa-coins"></i> 所持金管理</h3>
+            <div class="money-row">
+              <label>レギュ所持金:</label>
+              <span id="money-sidebar-regulation">0</span>
+            </div>
+            <div class="money-row">
+              <label>装備・アイテム合計:</label>
+              <span id="money-sidebar-items-total">0</span>
+            </div>
+            <div class="money-row">
+              <label>その他収支:</label>
+              <input type="number" id="money-sidebar-other" value="0">
+            </div>
+            <hr>
+            <div class="money-row total">
+              <label>残金:</label>
+              <span id="money-sidebar-remaining">0</span>
+            </div>
+          </div>
+        </div>
 
         <!-- フォームパネル -->
         <div class="controls-panel">
@@ -84,8 +105,8 @@
                 <!-- カラム2: 優先度・合計 -->
                 <div class="panel-column">
                   <h3>優先度・合計</h3>
-                  <div id="stats-grid-container">
-                    <!-- JSがこの中身を生成します -->
+                  <div id="stats-grid-container" class="stats-grid">
+                    <!-- JSで内容を生成 -->
                   </div>
                   <div class="priority-controls">
                     <div class="checkbox-container">
@@ -123,50 +144,87 @@
                 <div id="personal-data-fields-container" class="dynamic-rows-container">
                   <!-- JSがここにキー・バリューの行を生成します -->
                 </div>
-                <button type="button" id="add-personal-data-row-btn" class="add-row-btn">
+                <button type="button" class="add-row-btn" data-template="template-personal-data-row">
                   <i class="fa fa-plus"></i> 項目を追加
                 </button>
                 <hr class="section-divider">
-                <!-- ★★★ ここからHTML修正 ★★★ -->
                 <div class="generated-data-header">
                   <h4><i class="fa-solid fa-file-alt"></i> 生成データ</h4>
                   <button type="button" id="copy-personal-data-btn" class="small-button copy-btn">
                     <i class="fa-solid fa-copy"></i> コピー
                   </button>
                 </div>
-                <!-- ★★★ HTML修正ここまで ★★★ -->
                 <textarea id="personal-data-output" rows="12" readonly></textarea>
               </div>
             </div>
 
-            <!-- 装備・所持品 -->
             <div id="panel-equipment-items" class="form-panel">
               <h3>装備・所持品</h3>
               <div class="equipment-container">
-                <h4><i class="fa-solid fa-gavel"></i> 武器</h4>
-                <div id="weapons-container" class="dynamic-rows-container"></div>
-                <button type="button" class="add-row-btn" data-target="weapons-container"
-                  data-template="template-weapon"><i class="fa fa-plus"></i> 武器を追加</button>
-              </div>
-              <hr class="section-divider">
-              <div class="equipment-container">
-                <h4><i class="fa-solid fa-shield-halved"></i> 防具</h4>
-                <div id="armours-container" class="dynamic-rows-container"></div>
-                <button type="button" class="add-row-btn" data-target="armours-container"
-                  data-template="template-armour"><i class="fa fa-plus"></i> 防具を追加</button>
-              </div>
-              <hr class="section-divider">
-              <div class="equipment-container">
-                <h4><i class="fa-solid fa-sack-dollar"></i> 所持品</h4>
-                <div class="form-grid">
-                  <label for="items" style="grid-column: 1 / -1; text-align: left;">アイテムリスト:</label>
-                  <textarea id="items" name="items" rows="10" placeholder="冒険者セット
-保存食(1週間分)
-など、1行に1アイテムを記入" style="grid-column: 1 / -1;"></textarea>
+                <div class="equipment-section-header">
+                  <h4><i class="fa-solid fa-gavel"></i> 武器</h4>
                 </div>
+                <div class="equipment-header weapon-header">
+                  <span>武器名</span><span>価格</span><span>用法</span><span>必筋</span><span>命中+</span><span>威力</span><span>C値</span><span>追加D</span><span>カテゴリ</span><span>ランク</span><span>備考</span><span></span>
+                </div>
+                <div id="weapons-container" class="dynamic-rows-container"></div>
+                <button type="button" class="add-row-btn" data-template="template-weapon"><i class="fa fa-plus"></i>
+                  武器を追加</button>
+              </div>
+              <hr class="section-divider">
+              <div class="equipment-container">
+                <div class="equipment-section-header">
+                  <h4><i class="fa-solid fa-shield-halved"></i> 防具</h4>
+                </div>
+                <div class="equipment-header armour-header">
+                  <span>防具名</span><span>価格</span><span>ランク</span><span>必筋</span><span>回避</span><span>防護</span><span>カテゴリ</span><span>備考</span><span></span>
+                </div>
+                <div id="armours-container" class="dynamic-rows-container"></div>
+                <button type="button" class="add-row-btn" data-template="template-armour"><i class="fa fa-plus"></i>
+                  防具を追加</button>
+              </div>
+              <hr class="section-divider">
+              <div class="equipment-container">
+                <div class="equipment-section-header">
+                  <h4><i class="fa-solid fa-sack-dollar"></i> 所持品</h4>
+                </div>
+                <div class="item-folder-controls">
+                  <input type="checkbox" id="item-folder-toggle" class="switch" checked>
+                  <label for="item-folder-toggle">折りたたみ出力</label>
+                  <input type="text" id="item-folder-title" value="初期投資">
+                </div>
+                <div class="equipment-header item-header">
+                  <span class="item-header-magic">魔</span>
+                  <span class="item-header-name">名前</span>
+                  <span class="item-points-header">点数</span>
+                  <span class="item-header-unit-price">単価</span>
+                  <span class="item-header-quantity">個数</span>
+                  <span class="item-header-total-price">価格</span>
+                  <span class="item-header-effect">効果</span>
+                  <span class="item-header-remove"></span>
+                </div>
+                <div id="items-container" class="dynamic-rows-container">
+                  <!-- JSがアイテム行を生成 -->
+                </div>
+                <div class="item-controls-footer">
+                  <button type="button" class="add-row-btn" data-template="template-item"><i class="fa fa-plus"></i>
+                    所持品を追加</button>
+                  <div class="copy-buttons-group">
+                    <button type="button" id="copy-items-list-btn" class="small-button copy-btn"><i
+                        class="fa-solid fa-copy"></i> 所持品リストをコピー</button>
+                    <button type="button" id="copy-cashbook-btn" class="small-button copy-btn"><i
+                        class="fa-solid fa-copy"></i> 収支履歴をコピー</button>
+                  </div>
+                </div>
+
+                <hr class="section-divider">
+                <h4><i class="fa-solid fa-list-alt"></i> 所持品リスト（自動生成）</h4>
+                <textarea id="items-output" rows="8" readonly></textarea>
+
+                <h4><i class="fa-solid fa-calculator"></i> 収支履歴（自動生成）</h4>
+                <textarea id="cashbook" rows="8"></textarea>
               </div>
             </div>
-
           </form>
         </div>
       </div>
@@ -184,21 +242,43 @@
 
     <template id="template-weapon">
       <div class="dynamic-row weapon-row">
-        <input type="text" class="weapon-name" placeholder="武器名"><input type="text" class="weapon-usage"
-          placeholder="用法"><input type="number" class="weapon-reqd" placeholder="必筋"><input type="text"
-          class="weapon-acc" placeholder="命中+"><select class="weapon-class"></select><input type="text"
-          class="weapon-rate" placeholder="威力"><input type="number" class="weapon-crit" placeholder="C値"><input
-          type="text" class="weapon-dmg" placeholder="追加D"><input type="text" class="weapon-note"
-          placeholder="備考"><button type="button" class="remove-row-btn"><i class="fa fa-times"></i></button>
+        <label class="magic-item-toggle-label"><input type="checkbox" class="item-magic-check"><i
+            class="fa-solid fa-wand-magic-sparkles"></i></label>
+        <div class="item-name-cell">
+          <input type="text" class="weapon-name-free" placeholder="武器名" style="display:none;">
+          <select class="weapon-name-select"></select>
+          <button type="button" class="select-toggle-btn small-button"><i class="fa-solid fa-list"></i></button>
+        </div>
+        <input type="number" class="weapon-price" placeholder="価格">
+        <input type="text" class="weapon-usage" placeholder="用法">
+        <input type="number" class="weapon-req" placeholder="必筋">
+        <input type="text" class="weapon-acc" placeholder="命中+">
+        <input type="text" class="weapon-rate" placeholder="威力">
+        <input type="number" class="weapon-crit" placeholder="C値">
+        <input type="text" class="weapon-dmg" placeholder="追加D">
+        <select class="weapon-class"></select>
+        <input type="text" class="weapon-rank" placeholder="ランク" readonly>
+        <input type="text" class="weapon-note" placeholder="備考">
+        <button type="button" class="remove-row-btn"><i class="fa fa-times"></i></button>
       </div>
     </template>
     <template id="template-armour">
       <div class="dynamic-row armour-row">
-        <input type="text" class="armour-name" placeholder="防具名"><input type="number" class="armour-reqd"
-          placeholder="必筋"><input type="number" class="armour-eva" placeholder="回避"><input type="number"
-          class="armour-def" placeholder="防護"><select class="armour-category"></select><input type="text"
-          class="armour-note" placeholder="備考"><button type="button" class="remove-row-btn"><i
-            class="fa fa-times"></i></button>
+        <label class="magic-item-toggle-label"><input type="checkbox" class="item-magic-check"><i
+            class="fa-solid fa-wand-magic-sparkles"></i></label>
+        <div class="item-name-cell">
+          <input type="text" class="armour-name-free" placeholder="防具名" style="display:none;">
+          <select class="armour-name-select"></select>
+          <button type="button" class="select-toggle-btn small-button"><i class="fa-solid fa-list"></i></button>
+        </div>
+        <input type="number" class="armour-price" placeholder="価格">
+        <input type="text" class="armour-rank" placeholder="ランク" readonly>
+        <input type="number" class="armour-req" placeholder="必筋">
+        <input type="text" class="armour-eva" placeholder="回避">
+        <input type="number" class="armour-def" placeholder="防護">
+        <select class="armour-category"></select>
+        <input type="text" class="armour-note" placeholder="備考">
+        <button type="button" class="remove-row-btn"><i class="fa fa-times"></i></button>
       </div>
     </template>
 
@@ -207,6 +287,26 @@
         <input type="text" class="personal-data-key" placeholder="項目 (例: 好き)">
         <input type="text" class="personal-data-value" placeholder="値 (例: 150cm)">
         <!-- 単位ボタンはJSでここに追加される -->
+        <button type="button" class="remove-row-btn"><i class="fa fa-times"></i></button>
+      </div>
+    </template>
+
+    <template id="template-item-row">
+      <div class="dynamic-row item-row">
+        <label class="magic-item-toggle-label"><input type="checkbox" class="item-magic-check"><i
+            class="fa-solid fa-wand-magic-sparkles"></i></label>
+        <div class="item-name-cell">
+          <input type="text" class="item-name-free" placeholder="アイテム名">
+          <select class="item-name-select" style="display:none;"></select>
+          <!-- ▼ 「点数」のinputをこの位置に移動 ▼ -->
+          <input type="number" class="item-points" placeholder="点数">
+          <button type="button" class="item-select-btn small-button"><i class="fa-solid fa-list"></i></button>
+        </div>
+        <!-- ▲ 元々ここにあった「点数」のinputは削除 ▲ -->
+        <input type="number" class="item-unit-price" placeholder="単価">
+        <input type="number" class="item-quantity" value="1" placeholder="個数">
+        <input type="number" class="item-total-price" placeholder="価格" readonly>
+        <input type="text" class="item-effect" placeholder="効果・メモ">
         <button type="button" class="remove-row-btn"><i class="fa fa-times"></i></button>
       </div>
     </template>

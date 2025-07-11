@@ -28,7 +28,6 @@
   padding: 0;
 }
 .page-header-with-actions h1 {
-  font-family: "Cinzel", "Noto Serif JP", serif;
   font-size: 1.8em;
 }
 .page-header-with-actions .subtitle {
@@ -49,15 +48,22 @@
   width: 100%;
 }
 
+/* サイドバー全体をまとめるコンテナ */
+#main-sidebar {
+  flex: 0 0 240px;
+  position: sticky;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
 /* --- サイドバーナビゲーション --- */
 #form-sidebar {
-  flex: 0 0 240px;
   background-color: var(--panel-bg-color);
   padding: 15px;
   border-radius: 8px;
   border: 1px solid var(--wood-color);
-  position: sticky;
-  top: 100px;
 }
 #form-sidebar ul {
   list-style: none;
@@ -92,6 +98,51 @@
 #form-sidebar li a i {
   width: 20px;
   text-align: center;
+}
+
+/* 所持金管理サイドバー */
+#money-sidebar-panel {
+  background-color: var(--panel-bg-color);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--wood-color);
+}
+#money-sidebar-panel h3 {
+  font-size: 1.1em;
+  margin: 0 0 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--wood-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.money-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+}
+.money-row label {
+  font-weight: bold;
+}
+.money-row span,
+.money-row input {
+  font-weight: bold;
+  text-align: right;
+}
+#money-sidebar-panel input {
+  width: 80px;
+  padding: 5px;
+  font-size: 1em;
+}
+#money-sidebar-panel hr {
+  border-color: var(--wood-color);
+  margin: 10px 0;
+}
+.money-row.total {
+  font-size: 1.1em;
+  color: var(--gold-color);
 }
 
 /* --- コントロールパネル --- */
@@ -172,6 +223,17 @@ textarea {
   font-family: inherit;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+select option,
+select optgroup {
+  background-color: #333;
+  color: #eee;
+}
+select optgroup {
+  font-weight: bold;
+  font-style: italic;
+  color: var(--gold-color);
+}
+
 input:focus,
 select:focus,
 textarea:focus {
@@ -516,10 +578,10 @@ hr.section-divider {
   border: 1px dashed transparent;
 }
 
-/* ★★★ パーソナルデータ用のスタイルを追加 ★★★ */
+/* 基本情報パネル用のスタイル */
 #personal-data-fields-container {
-  border-top: none; /* 上の線は不要なので消す */
-  max-height: 35vh; /* 高さを指定してスクロール可能に */
+  border-top: none;
+  max-height: 35vh;
   overflow-y: auto;
   padding-right: 5px;
   scrollbar-gutter: stable;
@@ -568,7 +630,356 @@ hr.section-divider {
   color: #eee;
   border-radius: 4px;
   cursor: pointer;
-  margin-left: -5px; /* valueフィールドと少し重ねる */
+  margin-left: -5px;
+}
+
+/* ★★★ 装備・所持品パネル用のスタイル ★★★ */
+.equipment-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Cinzel", "Noto Serif JP", serif;
+  color: var(--gold-color);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid var(--wood-color);
+  padding-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.3em;
+}
+.equipment-section-header h4 {
+  border-bottom: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.equipment-header {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  font-weight: bold;
+  color: var(--gold-color);
+  border-bottom: 1px solid var(--wood-color);
+  padding: 0 5px 5px;
+  margin-bottom: 10px;
+}
+.equipment-header span {
+  box-sizing: border-box;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+.equipment-header span:first-child {
+  flex: 0 0 30px;
+}
+.equipment-header span:nth-child(2) {
+  flex: 1 1 15rem;
+  justify-content: flex-start;
+}
+
+/* 武器ヘッダーの列定義 */
+.weapon-header > span:nth-child(3) {
+  flex: 0 0 5em;
+}
+.weapon-header > span:nth-child(4) {
+  flex: 0 0 4em;
+}
+.weapon-header > span:nth-child(5) {
+  flex: 0 0 3em;
+}
+.weapon-header > span:nth-child(6) {
+  flex: 0 0 4em;
+}
+.weapon-header > span:nth-child(7) {
+  flex: 0 0 3em;
+}
+.weapon-header > span:nth-child(8) {
+  flex: 0 0 3em;
+}
+.weapon-header > span:nth-child(9) {
+  flex: 0 0 4em;
+}
+.weapon-header > span:nth-child(10) {
+  flex: 0 0 8em;
+}
+.weapon-header > span:nth-child(11) {
+  flex: 0 0 3em;
+}
+.weapon-header > span:nth-child(12) {
+  flex: 1 1 8em;
+  justify-content: flex-start;
+}
+.weapon-header > span:nth-child(13) {
+  flex: 0 0 28px;
+}
+
+/* 武器行の列定義 */
+.weapon-row > *:nth-child(1) {
+  flex: 0 0 30px;
+}
+.weapon-row > *:nth-child(2) {
+  flex: 1 1 15rem;
+}
+.weapon-row > *:nth-child(3) {
+  flex: 0 0 5em;
+}
+.weapon-row > *:nth-child(4) {
+  flex: 0 0 4em;
+}
+.weapon-row > *:nth-child(5) {
+  flex: 0 0 3em;
+}
+.weapon-row > *:nth-child(6) {
+  flex: 0 0 4em;
+}
+.weapon-row > *:nth-child(7) {
+  flex: 0 0 3em;
+}
+.weapon-row > *:nth-child(8) {
+  flex: 0 0 3em;
+}
+.weapon-row > *:nth-child(9) {
+  flex: 0 0 4em;
+}
+.weapon-row > *:nth-child(10) {
+  flex: 0 0 8em;
+}
+.weapon-row > *:nth-child(11) {
+  flex: 0 0 3em;
+}
+.weapon-row > *:nth-child(12) {
+  flex: 1 1 8em;
+}
+
+/* 防具ヘッダーの列定義 */
+.armour-header > span:nth-child(3) {
+  flex: 0 0 5em;
+}
+.armour-header > span:nth-child(4) {
+  flex: 0 0 3em;
+}
+.armour-header > span:nth-child(5) {
+  flex: 0 0 3em;
+}
+.armour-header > span:nth-child(6) {
+  flex: 0 0 3em;
+}
+.armour-header > span:nth-child(7) {
+  flex: 0 0 3em;
+}
+.armour-header > span:nth-child(8) {
+  flex: 0 0 8em;
+}
+.armour-header > span:nth-child(9) {
+  flex: 1 1 8em;
+  justify-content: flex-start;
+}
+.armour-header > span:nth-child(10) {
+  flex: 0 0 28px;
+}
+
+/* 防具行の列定義 */
+.armour-row > *:nth-child(1) {
+  flex: 0 0 30px;
+}
+.armour-row > *:nth-child(2) {
+  flex: 1 1 15rem;
+}
+.armour-row > *:nth-child(3) {
+  flex: 0 0 5em;
+}
+.armour-row > *:nth-child(4) {
+  flex: 0 0 3em;
+}
+.armour-row > *:nth-child(5) {
+  flex: 0 0 3em;
+}
+.armour-row > *:nth-child(6) {
+  flex: 0 0 3em;
+}
+.armour-row > *:nth-child(7) {
+  flex: 0 0 3em;
+}
+.armour-row > *:nth-child(8) {
+  flex: 0 0 8em;
+}
+.armour-row > *:nth-child(9) {
+  flex: 1 1 8em;
+}
+
+.weapon-row .item-name-cell,
+.armour-row .item-name-cell {
+  flex: 1 1 15rem;
+  min-width: 10rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.weapon-row .item-name-cell > *,
+.armour-row .item-name-cell > * {
+  flex-grow: 1;
+  width: 100%;
+}
+.select-toggle-btn {
+  padding: 5px 8px;
+  flex-shrink: 0;
+  flex-grow: 0 !important;
+  width: auto !important;
+  height: 38px;
+}
+.weapon-name-select,
+.armour-name-select {
+  width: 100%;
+}
+
+.item-folder-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.item-folder-controls label {
+  white-space: nowrap;
+}
+.item-folder-controls input[type="text"] {
+  flex-grow: 1;
+}
+
+.item-header-magic {
+  flex: 0 0 30px;
+}
+.item-header-name {
+  flex: 1 1 15rem;
+  min-width: 10rem;
+  justify-content: flex-start !important;
+}
+.item-points-header {
+  flex: 0 0 5em;
+  display: none;
+}
+.item-header-unit-price {
+  flex: 0 0 6em;
+}
+.item-header-quantity {
+  flex: 0 0 4em;
+}
+.item-header-total-price {
+  flex: 0 0 6em;
+}
+.item-header-effect {
+  flex: 1 1 10rem;
+  min-width: 8rem;
+  justify-content: flex-start !important;
+}
+.item-header-remove {
+  flex: 0 0 28px;
+}
+
+#panel-equipment-items.points-column-visible .item-points-header {
+  display: block;
+}
+
+.item-row {
+  flex-wrap: nowrap;
+}
+.item-row > * {
+  flex-shrink: 0;
+}
+
+.magic-item-toggle-label {
+  flex: 0 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.item-name-cell {
+  flex: 1 1 15rem;
+  min-width: 10rem;
+}
+.item-points {
+  flex: 0 0 5em;
+  display: none;
+}
+.item-unit-price {
+  flex: 0 0 6em;
+}
+.item-quantity {
+  flex: 0 0 4em;
+}
+.item-total-price {
+  flex: 0 0 6em;
+}
+.item-effect {
+  flex: 1 1 10rem;
+  min-width: 8rem;
+}
+
+.item-row.is-crystal .item-points {
+  display: block;
+}
+.item-row.is-crystal .item-name-cell {
+  flex-basis: calc(15rem - 5em - 10px);
+}
+
+.item-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.item-name-cell .item-name-free,
+.item-name-cell .item-name-select {
+  flex-grow: 1;
+  min-width: 5rem;
+}
+.item-select-btn {
+  flex-shrink: 0;
+  height: 38px;
+}
+
+.magic-item-toggle-label {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 30px;
+}
+.magic-item-toggle-label input[type="checkbox"] {
+  display: none;
+}
+.magic-item-toggle-label i {
+  font-size: 1.2em;
+  color: #666;
+  text-shadow: none;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+.magic-item-toggle-label input[type="checkbox"]:checked + i {
+  color: var(--gold-color);
+  text-shadow: 0 0 5px var(--gold-glow);
+}
+
+.item-controls-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+.copy-buttons-group {
+  display: flex;
+  gap: 10px;
+}
+#items-output,
+#cashbook {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
+    monospace;
+  line-height: 1.6;
+  white-space: pre;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid #444;
 }
 
 /* 色分け */
@@ -590,6 +1001,7 @@ hr.section-divider {
 .stat-精神力 {
   color: #b0b0b0 !important;
 }
+
 .stat-candidate.selected.stat-器用度 {
   background-color: #daa520;
   border-color: #ffd700;
@@ -614,6 +1026,7 @@ hr.section-divider {
   background-color: #4a4a4a;
   border-color: #a9a9a9;
 }
+
 .stat-confirmed.stat-器用度 {
   border-color: #daa520;
   color: #ffd700;
@@ -650,19 +1063,15 @@ hr.section-divider {
     flex-direction: column;
     gap: 15px;
   }
-  #form-sidebar {
+  #main-sidebar {
     position: static;
     width: 100%;
-  }
-  #form-sidebar ul {
-    display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
   }
-  #form-sidebar li a {
-    font-size: 0.9em;
-    padding: 8px 10px;
+  #form-sidebar,
+  #money-sidebar-panel {
+    flex-grow: 1;
   }
 }
 @media (max-width: 768px) {
@@ -679,4 +1088,30 @@ hr.section-divider {
   .regulation-flex-row {
     grid-template-columns: 1fr;
   }
+}
+
+/* === ランク別の豪華な文字色 === */
+
+/* Aランクの色 (ブロンズ風) */
+option[data-rank="A"] {
+  color: #cda434 !important;
+  font-weight: bold;
+}
+
+/* Sランクの色 (ゴールド) */
+option[data-rank="S"] {
+  color: #ffc700 !important;
+  font-weight: bold;
+}
+
+/* SSランクの色 (輝くゴールド) */
+option[data-rank="SS"] {
+  color: #ffdf80 !important;
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+}
+
+/* ブラウザによってはoptgroupのスタイルが優先される場合があるため、こちらも定義 */
+optgroup {
+  color: var(--gold-color) !important;
 }
