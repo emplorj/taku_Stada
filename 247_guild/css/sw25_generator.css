@@ -335,7 +335,7 @@ hr.section-divider {
 /* --- レギュ・成長パネル --- */
 .panel-3-column-layout {
   display: grid;
-  grid-template-columns: 1fr 0.5fr 1fr; /* 左右の幅をさらに増やし、優先度を相対的に狭くする */
+  grid-template-columns: 0.8fr 0.7fr 1fr; /* 作成レギュレーションを狭くし、優先度を広くする */
   gap: 20px;
   align-items: start;
 }
@@ -450,13 +450,13 @@ hr.section-divider {
 }
 #stats-grid-container {
   display: grid;
-  grid-template-columns: auto repeat(6, 1fr);
-  gap: 8px 10px;
+  grid-template-columns: 70px repeat(6, 60px); /* ラベル列を70px、数字列を45pxに固定 */
+  gap: 5px; /* ギャップを調整 */
   background-color: rgba(0, 0, 0, 0.2);
   padding: 5px;
   border-radius: 6px;
   align-items: center;
-  min-width: 420px;
+  min-width: 360px; /* 最小幅を360pxに調整 */
 }
 #stats-grid-container > * {
   text-align: center;
@@ -469,32 +469,39 @@ hr.section-divider {
 .grid-label {
   text-align: right;
   font-size: 0.9em;
-  padding-right: 10px;
+  padding-right: 5px; /* パディングを調整 */
+}
+.initial-status-label {
+  transform: scaleX(0.7); /* 縦長にする */
+  transform-origin: center center; /* 変形の基準点を中央に設定 */
+  white-space: nowrap; /* 折り返しを防ぐ */
+  text-align: center; /* 中央揃えにする */
+  margin-left: -5px; /* 左に微調整 */
 }
 #stats-grid-container select {
   text-align: left;
-  padding: 5px 5px 5px 10px; /* 左パディングを調整してテキストをずらす */
+  padding: 3px 3px 3px 5px; /* パディングを調整 */
   width: 100%;
-  font-size: 1em; /* 文字サイズを小さくする */
+  font-size: 0.9em; /* 文字サイズを調整 */
 }
 #stats-grid-container input[type="number"] {
-  padding: 5px;
+  padding: 3px; /* パディングを調整 */
   width: 100%;
 }
 .bracelet-btn {
   background-color: rgba(0, 0, 0, 0.4);
   color: #ccc;
   border: 1px solid #555;
-  padding: 5px;
+  padding: 3px; /* パディングを調整 */
   width: 100%;
   cursor: pointer;
   border-radius: 4px;
   font-weight: bold;
-  font-size: 1em;
+  font-size: 0.9em; /* フォントサイズを調整 */
 }
 .stat-total,
 .stat-bonus {
-  font-size: 1.2em;
+  font-size: 1.1em; /* フォントサイズを調整 */
 }
 
 .priority-controls {
@@ -1549,6 +1556,55 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   /* --- レギュ・成長パネルの調整 --- */
   .panel-3-column-layout {
     grid-template-columns: 1fr;
+  }
+  #priority-total-heading {
+    transform-origin: center bottom; /* 変形の基準点を下中央に設定 */
+    white-space: nowrap; /* 折り返しを防ぐ */
+    margin-bottom: 5px; /* 下の要素との間隔を調整 */
+  }
+
+  /* カラム2: 優先度・合計エリアの調整 */
+  .stats-grid-wrapper {
+    overflow-x: auto;
+    margin-left: -15px; /* controls-panelのpaddingを相殺 */
+    margin-right: -15px; /* controls-panelのpaddingを相殺 */
+    padding: 0 15px; /* 内部の要素のパディングを確保 */
+  }
+  #stats-grid-container {
+    display: grid;
+    grid-template-columns: 60px repeat(6, 1fr); /* スマホ表示時の幅: ラベル列を60pxに固定し、数字列を均等に広げる */
+    gap: 5px; /* ギャップを調整 */
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 3px 5px; /* 左右のパディングを調整 */
+    border-radius: 6px;
+    align-items: center;
+    min-width: 320px; /* スマホ表示時の最小幅を調整 */
+  }
+  .initial-status-label {
+    transform: scaleX(0.7); /* 縦長にする */
+    transform-origin: center center; /* 変形の基準点を中央に設定 */
+    white-space: nowrap; /* 折り返しを防ぐ */
+  }
+  .grid-header {
+    font-size: 0.6em; /* スマホ表示時のフォントサイズ */
+  }
+  .grid-label {
+    font-size: 0.6em; /* スマホ表示時のフォントサイズ */
+  }
+  #stats-grid-container select {
+    font-size: 0.7em; /* スマホ表示時の文字サイズ */
+    padding: 2px 2px 2px 3px; /* スマホ表示時のパディング */
+  }
+  #stats-grid-container input[type="number"] {
+    padding: 2px; /* スマホ表示時のパディング */
+  }
+  .bracelet-btn {
+    font-size: 0.7em; /* スマホ表示時のフォントサイズ */
+    padding: 2px; /* スマホ表示時のパディング */
+  }
+  .stat-total,
+  .stat-bonus {
+    font-size: 0.9em; /* スマホ表示時のフォントサイズ */
   }
   .regulation-flex-row {
     grid-template-columns: 1fr;

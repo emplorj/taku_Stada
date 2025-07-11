@@ -570,6 +570,8 @@ document.addEventListener("DOMContentLoaded", () => {
     rows.forEach((rowData) => {
       const label = document.createElement("div");
       label.className = "grid-label";
+      if (rowData.type === "initial")
+        label.classList.add("initial-status-label");
       label.textContent = rowData.label;
       statsGridContainer.appendChild(label);
       statNames.forEach((name, index) => {
