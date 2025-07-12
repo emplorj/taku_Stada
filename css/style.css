@@ -80,7 +80,6 @@ body {
     ),
     radial-gradient(circle at 90% 80%, #3498db 0%, rgba(6, 17, 68, 0) 50%);
   background-size: 200% 200%;
-  animation: background-pan 60s linear infinite alternate;
   position: relative;
 
   display: flex; /* Make body a flex container */
@@ -91,15 +90,6 @@ body {
 a {
   color: #87cefa;
   text-decoration: underline; /* ★ この行を追加 */
-}
-
-@keyframes background-pan {
-  0% {
-    background-position: 0% 0%;
-  }
-  100% {
-    background-position: 100% 100%;
-  }
 }
 
 /* ==========================================================================
