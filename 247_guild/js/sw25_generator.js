@@ -377,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (selectEl.style.display !== "none") {
             selectEl.style.display = "none";
             freeInputEl.style.display = "block";
-            freeInputEl.value = selectEl.value;
+            freeInputEl.value = selectEl.value === "free" ? "" : selectEl.value;
             freeInputEl.focus();
           } else {
             const freeText = freeInputEl.value.trim().replace(/[〈〉]/g, "");
