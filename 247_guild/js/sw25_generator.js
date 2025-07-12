@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     Items,
     GeneralSkills,
     SkillLevelGuides,
+    ItemSets,
+    RecommendedItems,
   } = window.sw25_data;
 
   const enhancementData = {
@@ -269,39 +271,383 @@ document.addEventListener("DOMContentLoaded", () => {
     updateRemainingMoney();
   }
 
+  // ★★★ ツールチップ制御用の変数を追加 ★★★
+  let tooltipElement = null;
+
+  // ★★★ setupItemSetsPanel 関数を修正 ★★★
+  function setupItemSetsPanel() {
+    const panel = document.getElementById("item-sets-panel");
+    if (!panel || !ItemSets) return;
+    panel.innerHTML = "";
+
+    // ★ ツールチップ用のdiv要素がなければ作成
+    if (!tooltipElement) {
+      tooltipElement = document.createElement("div");
+      tooltipElement.className = "dynamic-tooltip";
+      document.body.appendChild(tooltipElement);
+    }
+
+    Object.entries(ItemSets).forEach(([categoryName, sets]) => {
+      const sectionDiv = document.createElement("div");
+      sectionDiv.className = "enhancement-section";
+
+      const titleEl = document.createElement("h4");
+      titleEl.className = "enhancement-section-title";
+      titleEl.textContent = categoryName;
+      sectionDiv.appendChild(titleEl);
+
+      sets.forEach((set) => {
+        const row = document.createElement("div");
+        row.className = "item-set-row";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "item-set-name";
+        nameSpan.textContent = set.name;
+        row.appendChild(nameSpan);
+
+        const priceSpan = document.createElement("span");
+        priceSpan.textContent = `(${set.price.toLocaleString()}G)`;
+        priceSpan.style.color = "#ccc";
+        priceSpan.style.fontSize = "0.9em";
+        row.appendChild(priceSpan);
+
+        const tooltipTrigger = document.createElement("i");
+        tooltipTrigger.className =
+          "fas fa-question-circle item-set-tooltip-trigger";
+
+        const tooltipContent = set.items
+          .map((item) => {
+            const name = item.freeName || item.name;
+            const points = item.points ? `(${item.points}点)` : "";
+            return `・${name}${points} x ${item.quantity}`;
+          })
+          .join("\n");
+
+        // ★★★ JSによるツールチップ制御ロジック（タイマーなし） ★★★
+        tooltipTrigger.addEventListener("mouseenter", (e) => {
+          tooltipElement.innerHTML = tooltipContent;
+          tooltipElement.classList.add("visible");
+
+          let x = e.clientX + 15;
+          let y = e.clientY + 15;
+
+          const tooltipRect = tooltipElement.getBoundingClientRect();
+          if (x + tooltipRect.width > window.innerWidth) {
+            x = e.clientX - tooltipRect.width - 15;
+          }
+          if (y + tooltipRect.height > window.innerHeight) {
+            y = e.clientY - tooltipRect.height - 15;
+          }
+
+          tooltipElement.style.left = `${x}px`;
+          tooltipElement.style.top = `${y}px`;
+        });
+
+        tooltipTrigger.addEventListener("mousemove", (e) => {
+          let x = e.clientX + 15;
+          let y = e.clientY + 15;
+
+          const tooltipRect = tooltipElement.getBoundingClientRect();
+          if (x + tooltipRect.width > window.innerWidth) {
+            x = e.clientX - tooltipRect.width - 15;
+          }
+          if (y + tooltipRect.height > window.innerHeight) {
+            y = e.clientY - tooltipRect.height - 15;
+          }
+
+          tooltipElement.style.left = `${x}px`;
+          tooltipElement.style.top = `${y}px`;
+        });
+
+        tooltipTrigger.addEventListener("mouseleave", () => {
+          tooltipElement.classList.remove("visible");
+        });
+
+        row.appendChild(tooltipTrigger);
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "item-set-btn";
+        btn.textContent = "購入";
+        btn.onclick = () => handleItemSetPurchase(set.items);
+        row.appendChild(btn);
+
+        sectionDiv.appendChild(row);
+      });
+      panel.appendChild(sectionDiv);
+    });
+  }
+
+  // ★追加: アイテムセット購入を処理する関数
+  function handleItemSetPurchase(items) {
+    if (!items || items.length === 0) return;
+
+    const allItemRows = Array.from(
+      document.querySelectorAll("#items-container .item-row")
+    );
+    const emptySlots = allItemRows.filter((row) => {
+      const nameSelect = row.querySelector(".item-name-select");
+      const nameFree = row.querySelector(".item-name-free");
+      return (
+        (nameSelect.style.display !== "none" && !nameSelect.value) ||
+        (nameFree.style.display !== "none" && !nameFree.value.trim())
+      );
+    });
+
+    let emptySlotIndex = 0;
+
+    items.forEach((itemData) => {
+      const itemMaster = Object.values(Items)
+        .flatMap((category) => Object.values(category).flat())
+        .find((i) => i.name === itemData.name);
+
+      const newRowData = {
+        name: itemMaster ? itemMaster.name : "free",
+        freeName: itemData.freeName || itemMaster?.name || itemData.name,
+        unitPrice: itemMaster?.price || 0,
+        quantity: itemData.quantity || 1,
+        effect: itemMaster?.note || "",
+        points: itemData.points || "",
+      };
+
+      // 空きスロットがあればそこを埋める
+      if (emptySlotIndex < emptySlots.length) {
+        const targetRow = emptySlots[emptySlotIndex];
+
+        const nameSelect = targetRow.querySelector(".item-name-select");
+        const nameFree = targetRow.querySelector(".item-name-free");
+        const pointsInput = targetRow.querySelector(".item-points");
+        const unitPriceInput = targetRow.querySelector(".item-unit-price");
+        const quantityInput = targetRow.querySelector(".item-quantity");
+        const effectInput = targetRow.querySelector(".item-effect");
+        const magicCheck = targetRow.querySelector(".item-magic-check");
+
+        // 値を設定
+        if (newRowData.name === "free") {
+          nameSelect.style.display = "none";
+          nameFree.style.display = "block";
+          nameFree.value = newRowData.freeName;
+        } else {
+          nameSelect.style.display = "block";
+          nameFree.style.display = "none";
+          nameSelect.value = newRowData.name;
+        }
+        pointsInput.value = newRowData.points;
+        unitPriceInput.value = newRowData.unitPrice;
+        quantityInput.value = newRowData.quantity;
+        effectInput.value = newRowData.effect;
+        magicCheck.checked = !!itemMaster?.isMagic;
+
+        // イベントを発火させて合計金額などを再計算
+        nameSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+        emptySlotIndex++;
+      } else {
+        // 空きスロットがなければ末尾に追加
+        addItemRow(newRowData);
+      }
+    });
+
+    // ポップアップを閉じる
+    const panel = document.getElementById("item-sets-panel");
+    if (panel) panel.classList.remove("visible");
+  }
+
+  function setupRecommendedItemsPanel() {
+    const panel = document.getElementById("recommended-items-panel");
+    if (!panel || !RecommendedItems) return;
+
+    panel.innerHTML = `
+      <h3><i class="fas fa-clipboard-list"></i> 技能ごとの必須/推奨アイテムリスト</h3>
+      <div id="recommended-items-table-wrapper">
+        <table id="recommended-items-table">
+          <thead>
+            <tr>
+              <th>技能</th>
+              <th>アイテム</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    `;
+
+    const tableBody = panel.querySelector("tbody");
+    const groupedItems = RecommendedItems.reduce((acc, item) => {
+      acc[item.skill] = acc[item.skill] || [];
+      acc[item.skill].push(item);
+      return acc;
+    }, {});
+
+    for (const skill in groupedItems) {
+      const items = groupedItems[skill];
+      const row = document.createElement("tr");
+
+      const skillCell = document.createElement("td");
+      skillCell.className = "skill-cell";
+      skillCell.textContent = skill;
+      if (items.length > 1) {
+        skillCell.rowSpan = items.length;
+      }
+      row.appendChild(skillCell);
+
+      appendItemCell(row, items[0]);
+      tableBody.appendChild(row);
+
+      for (let i = 1; i < items.length; i++) {
+        const subsequentRow = document.createElement("tr");
+        appendItemCell(subsequentRow, items[i]);
+        tableBody.appendChild(subsequentRow);
+      }
+    }
+  }
+
+  function appendItemCell(tr, itemData) {
+    const itemCell = document.createElement("td");
+    itemCell.className = "item-cell";
+
+    const itemNameSpan = document.createElement("span");
+    itemNameSpan.className = "item-name";
+    itemNameSpan.textContent = itemData.item;
+
+    // CSSで制御するため、クラスを付与
+    if (itemData.required) {
+      itemNameSpan.classList.add("required");
+    }
+    itemCell.appendChild(itemNameSpan);
+
+    if (itemData.anchor) {
+      const anchorLink = document.createElement("a");
+      anchorLink.href = itemData.anchor;
+      anchorLink.className = "small-button action-btn";
+      anchorLink.textContent = "選択へ";
+      anchorLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        document
+          .querySelector(itemData.anchor)
+          ?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("recommended-items-panel")
+          .classList.remove("visible");
+      });
+      itemCell.appendChild(anchorLink);
+    } else if (itemData.name) {
+      const addButton = document.createElement("button");
+      addButton.type = "button";
+      addButton.className = "small-button action-btn";
+      addButton.textContent = "追加";
+      addButton.addEventListener("click", () =>
+        handleRecommendedItemAdd(itemData.name)
+      );
+      itemCell.appendChild(addButton);
+    }
+    tr.appendChild(itemCell);
+  }
+
+  function handleRecommendedItemAdd(itemName) {
+    const itemMaster = Object.values(Items)
+      .flatMap((category) => Object.values(category).flat())
+      .find((i) => i.name === itemName);
+
+    if (!itemMaster) return;
+
+    const newRowData = {
+      name: itemName,
+      freeName: itemName,
+      unitPrice: itemMaster.price || 0,
+      quantity: 1,
+      effect: itemMaster.note || "",
+    };
+
+    const allItemRows = Array.from(
+      document.querySelectorAll("#items-container .item-row")
+    );
+    const emptySlot = allItemRows.find((row) => {
+      const nameSelect = row.querySelector(".item-name-select");
+      const nameFree = row.querySelector(".item-name-free");
+      return (
+        (nameSelect.style.display !== "none" && !nameSelect.value) ||
+        (nameFree.style.display !== "none" && !nameFree.value.trim())
+      );
+    });
+
+    if (emptySlot) {
+      // 空きスロットを埋める
+      const nameSelect = emptySlot.querySelector(".item-name-select");
+      nameSelect.style.display = "block";
+      emptySlot.querySelector(".item-name-free").style.display = "none";
+      nameSelect.value = newRowData.name;
+      nameSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    } else {
+      // 末尾に追加
+      addItemRow(newRowData);
+    }
+  }
+  // ★★★ここまで追加★★★
+
   function setupEventListeners() {
     const form = document.getElementById("char-sheet-form");
     const enhancementBtn = document.getElementById("toggle-enhancement-btn");
     const enhancementPanel = document.getElementById("enhancement-panel");
+    const itemSetsBtn = document.getElementById("toggle-item-sets-btn");
+    const itemSetsPanel = document.getElementById("item-sets-panel");
+    const recommendedBtn = document.getElementById(
+      "toggle-recommended-items-btn"
+    );
+    const recommendedPanel = document.getElementById("recommended-items-panel");
+
+    const togglePopup = (button, panel) => {
+      if (panel.classList.contains("visible")) {
+        panel.classList.remove("visible");
+      } else {
+        document
+          .querySelectorAll(".enhancement-panel-container.visible")
+          .forEach((p) => p.classList.remove("visible"));
+
+        const rect = button.getBoundingClientRect();
+        const panelWidth = panel.offsetWidth;
+        const panelHeight = panel.offsetHeight;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const margin = 10;
+
+        let finalLeft = rect.left;
+        if (rect.left + panelWidth > windowWidth) {
+          finalLeft = windowWidth - panelWidth - margin;
+        }
+
+        let finalTop = rect.top;
+        if (rect.top + panelHeight > windowHeight) {
+          finalTop = windowHeight - panelHeight - margin;
+        }
+        if (finalTop < 0) {
+          finalTop = margin;
+        }
+
+        panel.style.left = `${finalLeft}px`;
+        panel.style.top = `${finalTop}px`;
+        panel.classList.add("visible");
+      }
+    };
 
     if (enhancementBtn) {
       enhancementBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+        togglePopup(enhancementBtn, enhancementPanel);
+      });
+    }
 
-        if (enhancementPanel.classList.contains("visible")) {
-          enhancementPanel.classList.remove("visible");
-        } else {
-          const rect = enhancementBtn.getBoundingClientRect();
-          const panelWidth = enhancementPanel.offsetWidth;
-          const panelHeight = enhancementPanel.offsetHeight;
-          const windowWidth = window.innerWidth;
-          const margin = 10;
+    if (itemSetsBtn) {
+      itemSetsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        togglePopup(itemSetsBtn, itemSetsPanel);
+      });
+    }
 
-          let finalLeft = rect.left;
-          if (rect.left + panelWidth > windowWidth) {
-            finalLeft = windowWidth - panelWidth - margin;
-          }
-
-          let finalTop = rect.top - panelHeight - margin;
-          if (finalTop < 0) {
-            finalTop = rect.bottom + margin;
-          }
-
-          enhancementPanel.style.left = `${finalLeft}px`;
-          enhancementPanel.style.top = `${finalTop}px`;
-
-          enhancementPanel.classList.add("visible");
-        }
+    if (recommendedBtn) {
+      recommendedBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        togglePopup(recommendedBtn, recommendedPanel);
       });
     }
 
@@ -317,18 +663,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.addEventListener("click", (e) => {
-      if (
-        enhancementPanel &&
-        !enhancementPanel.contains(e.target) &&
-        e.target !== enhancementBtn
-      ) {
-        enhancementPanel.classList.remove("visible");
-      }
+      document
+        .querySelectorAll(".enhancement-panel-container.visible")
+        .forEach((panel) => {
+          let associatedButton;
+          if (panel.id === "enhancement-panel")
+            associatedButton = enhancementBtn;
+          else if (panel.id === "item-sets-panel")
+            associatedButton = itemSetsBtn;
+          else if (panel.id === "recommended-items-panel")
+            associatedButton = recommendedBtn;
+
+          if (
+            associatedButton &&
+            !panel.contains(e.target) &&
+            e.target !== associatedButton
+          ) {
+            panel.classList.remove("visible");
+          }
+        });
     });
 
     form.addEventListener("click", (event) => {
       const target = event.target;
-      if (target === enhancementBtn) return;
+      if (
+        target === enhancementBtn ||
+        target === itemSetsBtn ||
+        target === recommendedBtn
+      )
+        return;
 
       const addBtn = target.closest(".add-row-btn");
       const removeBtn = target.closest(".remove-row-btn");
@@ -537,6 +900,8 @@ document.addEventListener("DOMContentLoaded", () => {
     setupItemPanel();
     addGeneralSkillRow();
     setupEnhancementPanel();
+    setupItemSetsPanel();
+    setupRecommendedItemsPanel(); // ★追加
     setupEventListeners();
     regulationSelect.dispatchEvent(new Event("change"));
     updateAllStatTotals();
@@ -627,11 +992,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("personal-data-fields-container");
     container.innerHTML = "";
     const standardItems = {
-      キャラクター名: "",
-      プレイヤー名: "",
-      種族: "",
-      年齢: "",
-      性別: "",
       身長: "",
       体重: "",
       髪: "",

@@ -212,13 +212,20 @@
                   <input type="checkbox" id="item-folder-toggle" class="switch" checked />
                   <label for="item-folder-toggle">折りたたみ出力</label>
                   <input type="text" id="item-folder-title" value="初期投資" />
-                  <button type="button" id="toggle-enhancement-btn" class="small-button">
-                    武器/防具強化
-                  </button>
                 </div>
+
+                <!-- 強化パネル（フローティングに変更） -->
                 <div id="enhancement-panel" class="enhancement-panel-container">
                   <!-- JSが強化項目をここに生成します -->
                 </div>
+                <!-- ★追加: アイテムセットパネル -->
+                <div id="item-sets-panel" class="enhancement-panel-container item-sets-panel-container">
+                  <!-- JSがセット項目をここに生成します -->
+                </div>
+                <!-- ★追加: 推奨アイテムパネル -->
+                <div id="recommended-items-panel" class="enhancement-panel-container recommended-items-panel-container">
+                </div>
+
                 <div class="equipment-header item-header">
                   <span class="item-header-magic">魔</span>
                   <span class="item-header-name">名前</span>
@@ -237,6 +244,19 @@
                     <i class="fa fa-plus"></i>
                     所持品を追加
                   </button>
+                  <!-- ★変更: ボタンをフッターに集約 -->
+                  <div class="action-buttons-group">
+                    <!-- ★変更: ボタンの順序を変更 -->
+                    <button type="button" id="toggle-recommended-items-btn" class="small-button">
+                      推奨アイテム
+                    </button>
+                    <button type="button" id="toggle-enhancement-btn" class="small-button">
+                      武器/防具強化
+                    </button>
+                    <button type="button" id="toggle-item-sets-btn" class="small-button">
+                      アイテムセット購入
+                    </button>
+                  </div>
                   <div class="copy-buttons-group">
                     <button type="button" id="copy-items-list-btn" class="small-button copy-btn">
                       <i class="fa-solid fa-copy"></i> 所持品リストをコピー
