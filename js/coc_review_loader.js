@@ -9,6 +9,21 @@ document.addEventListener("DOMContentLoaded", () => {
   let allScenarios = { played: [], unplayed: [] };
   let activePopover = null;
 
+  // フィルターのデフォルト状態を定義
+  const getDefaultFilters = () => ({
+    players: [],
+    difficulty: [],
+    loss: [],
+    hardship: [],
+    charSpec: [],
+    showUnplayed: true,
+    showBeginner: true,
+    showSecret: true,
+    sort: "default",
+  });
+
+  let currentFilters = getDefaultFilters();
+
   function setupControls() {
     const filterControls = document.createElement("div");
     filterControls.className = "filter-controls";
@@ -44,13 +59,15 @@ document.addEventListener("DOMContentLoaded", () => {
     displayFilterGroup.innerHTML = `
            <label>表示シナリオ</label>
            <div class="checkboxes">
-               <input type="checkbox" id="show-unplayed-toggle" value="unplayed" checked><label for="show-unplayed-toggle">未走</label>
-               <input type="checkbox" id="show-beginner-toggle" value="beginner" checked><label for="show-beginner-toggle">スタダ</label>
-               <input type="checkbox" id="show-secret-toggle" value="secret" checked><label for="show-secret-toggle">秘匿</label>
+               <input type="checkbox" id="show-unplayed-toggle" value="unplayed"><label for="show-unplayed-toggle">未走</label>
+               <input type="checkbox" id="show-beginner-toggle" value="beginner"><label for="show-beginner-toggle">スタダ</label>
+               <input type="checkbox" id="show-secret-toggle" value="secret"><label for="show-secret-toggle">秘匿</label>
            </div>
        `;
     filterControls.appendChild(displayFilterGroup);
     controlsContainer.appendChild(filterControls);
+
+    // イベントリスナーを設定
     document
       .getElementById("sort-select")
       .addEventListener("change", applyFiltersAndSort);
@@ -69,6 +86,35 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", closePopoverOnClickOutside);
   }
 
+  function loadFiltersFromLocalStorage() {
+    try {
+      const savedFilters = JSON.parse(localStorage.getItem("cocReviewFilters"));
+      if (savedFilters) {
+        // 保存されたフィルターとデフォルトをマージして、新しいキーに対応
+        currentFilters = { ...getDefaultFilters(), ...savedFilters };
+      }
+    } catch (e) {
+      console.error("Failed to load filters from localStorage", e);
+      currentFilters = getDefaultFilters();
+    }
+    // UIの状態を復元
+    document.getElementById("sort-select").value = currentFilters.sort;
+    document.getElementById("show-unplayed-toggle").checked =
+      currentFilters.showUnplayed;
+    document.getElementById("show-beginner-toggle").checked =
+      currentFilters.showBeginner;
+    document.getElementById("show-secret-toggle").checked =
+      currentFilters.showSecret;
+  }
+
+  function saveFiltersToLocalStorage() {
+    try {
+      localStorage.setItem("cocReviewFilters", JSON.stringify(currentFilters));
+    } catch (e) {
+      console.error("Failed to save filters to localStorage", e);
+    }
+  }
+
   function togglePopover(event) {
     event.stopPropagation();
     const btn = event.currentTarget;
@@ -83,20 +129,32 @@ document.addEventListener("DOMContentLoaded", () => {
     popover.className = "popover-container";
     popover.id = `${filterType}-popover`;
     let checkboxesHtml = '<div class="checkboxes">';
+
+    const savedFilterValues = currentFilters[filterType] || [];
+    const createCheckbox = (val, text) => {
+      // 保存された値がない場合は全選択、ある場合はその値に基づいてチェック状態を決定
+      const isChecked =
+        savedFilterValues.length === 0 ||
+        savedFilterValues.includes(String(val));
+      return `<input type="checkbox" id="popover-${filterType}-${val}" value="${val}" ${
+        isChecked ? "checked" : ""
+      }><label for="popover-${filterType}-${val}">${text}</label>`;
+    };
+
     if (filterType === "players") {
       ["1", "2", "3", "4", "5", "free"].forEach((val) => {
         const text =
           val === "free" ? "自由" : val === "5" ? "5人以上" : `${val}人`;
-        checkboxesHtml += `<input type="checkbox" id="popover-${filterType}-${val}" value="${val}" checked><label for="popover-${filterType}-${val}">${text}</label>`;
+        checkboxesHtml += createCheckbox(val, text);
       });
     } else {
       ["1", "2", "3", "4", "5", "6"].forEach((val) => {
-        checkboxesHtml += `<input type="checkbox" id="popover-${filterType}-${val}" value="${val}" checked><label for="popover-${filterType}-${val}">★${val}</label>`;
+        checkboxesHtml += createCheckbox(val, `★${val}`);
       });
-      checkboxesHtml += `<input type="checkbox" id="popover-${filterType}-q" value="?" checked><label for="popover-${filterType}-q">★?</label>`;
+      checkboxesHtml += createCheckbox("?", "★?");
       if (filterType === "charSpec") {
-        checkboxesHtml += `<input type="checkbox" id="popover-${filterType}-minus" value="-" checked><label for="popover-${filterType}-minus">★-</label>`;
-        checkboxesHtml += `<input type="checkbox" id="popover-${filterType}-cont" value="継続" checked><label for="popover-${filterType}-cont">継続</label>`;
+        checkboxesHtml += createCheckbox("-", "★-");
+        checkboxesHtml += createCheckbox("継続", "継続");
       }
     }
     checkboxesHtml += "</div>";
@@ -125,31 +183,45 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function applyFiltersAndSort() {
-    const getCheckedValues = (key) => {
-      const popover = document.getElementById(`${key}-popover`);
-      if (!popover) return null;
-      return Array.from(popover.querySelectorAll("input:checked")).map(
-        (cb) => cb.value
-      );
-    };
-
-    const sortValue = document.getElementById("sort-select").value;
-    const showUnplayed = document.getElementById(
+    // 現在のUIの状態からcurrentFiltersオブジェクトを更新
+    currentFilters.sort = document.getElementById("sort-select").value;
+    currentFilters.showUnplayed = document.getElementById(
       "show-unplayed-toggle"
     ).checked;
-    const showBeginner = document.getElementById(
+    currentFilters.showBeginner = document.getElementById(
       "show-beginner-toggle"
     ).checked;
-    const showSecret = document.getElementById("show-secret-toggle").checked;
+    currentFilters.showSecret =
+      document.getElementById("show-secret-toggle").checked;
 
-    const playersFilter = getCheckedValues("players");
-    const difficultyFilter = getCheckedValues("difficulty");
-    const lossFilter = getCheckedValues("loss");
-    const hardshipFilter = getCheckedValues("hardship");
-    const charSpecFilter = getCheckedValues("charSpec");
+    const filterCategories = [
+      "players",
+      "difficulty",
+      "loss",
+      "hardship",
+      "charSpec",
+    ];
+    filterCategories.forEach((key) => {
+      const popover = document.getElementById(`${key}-popover`);
+      if (popover) {
+        const checkedInputs = popover.querySelectorAll("input:checked");
+        const allInputs = popover.querySelectorAll("input");
+        // 全チェックか全未チェックの場合、フィルターを空（=全適用）にする
+        if (
+          checkedInputs.length === 0 ||
+          checkedInputs.length === allInputs.length
+        ) {
+          currentFilters[key] = [];
+        } else {
+          currentFilters[key] = Array.from(checkedInputs).map((cb) => cb.value);
+        }
+      }
+    });
+
+    saveFiltersToLocalStorage();
 
     const checkRating = (filter, reviewValue, key) => {
-      if (!filter) return true;
+      if (!filter || filter.length === 0) return true;
       if (key === "charSpec") {
         return filter.includes(reviewValue);
       }
@@ -159,16 +231,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const filterFunction = (s) => {
       // 表示フィルター
-      const isNormalPlayed = !s.isUnplayed && !s.isBeginner && !s.isSecret;
-      let isDisplayed = isNormalPlayed;
-      if (showUnplayed && s.isUnplayed) isDisplayed = true;
-      if (showBeginner && s.isBeginner) isDisplayed = true;
-      if (showSecret && s.isSecret) isDisplayed = true;
+      let isDisplayed = false;
+      if (currentFilters.showUnplayed && s.isUnplayed) isDisplayed = true;
+      if (currentFilters.showBeginner && s.isBeginner) isDisplayed = true;
+      if (currentFilters.showSecret && s.isSecret) isDisplayed = true;
+      // 通常シナリオの表示判定
+      if (!s.isUnplayed && !s.isBeginner && !s.isSecret) {
+        isDisplayed = true;
+      }
       if (!isDisplayed) return false;
 
       // 項目別フィルター
-      if (playersFilter) {
-        let match = playersFilter.some((filterVal) => {
+      if (currentFilters.players.length > 0) {
+        let match = currentFilters.players.some((filterVal) => {
           if (filterVal === "free" && s.players.isFree) return true;
           const num = parseInt(filterVal, 10);
           if (num === 5 && s.players.min >= 5) return true;
@@ -179,14 +254,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const firstReview = s.reviews[0];
-      if (!firstReview) return true; // レビューがないものは以降のフィルターはパス
+      if (!firstReview) return true;
 
-      if (!checkRating(difficultyFilter, firstReview.difficulty, "difficulty"))
+      if (
+        !checkRating(
+          currentFilters.difficulty,
+          firstReview.difficulty,
+          "difficulty"
+        )
+      )
         return false;
-      if (!checkRating(lossFilter, firstReview.lossRate, "loss")) return false;
-      if (!checkRating(hardshipFilter, firstReview.hardship, "hardship"))
+      if (!checkRating(currentFilters.loss, firstReview.lossRate, "loss"))
         return false;
-      if (!checkRating(charSpecFilter, firstReview.charSpec, "charSpec"))
+      if (
+        !checkRating(currentFilters.hardship, firstReview.hardship, "hardship")
+      )
+        return false;
+      if (
+        !checkRating(currentFilters.charSpec, firstReview.charSpec, "charSpec")
+      )
         return false;
 
       return true;
@@ -197,8 +283,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ...allScenarios.unplayed,
     ].filter(filterFunction);
 
-    if (sortValue !== "default") {
-      const [key, order] = sortValue.split("-");
+    if (currentFilters.sort !== "default") {
+      const [key, order] = currentFilters.sort.split("-");
       const sortKeyMap = {
         difficulty: "difficulty",
         loss: "lossRate",
@@ -502,7 +588,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const csvText = await response.text();
       allScenarios = parseCsvAndPreprocess(csvText);
       setupControls();
-      applyFiltersAndSort();
+      loadFiltersFromLocalStorage(); // フィルター状態をロード
+      applyFiltersAndSort(); // ロードしたフィルターを適用して初期表示
     } catch (error) {
       console.error("Error initializing the page:", error);
       scenariosPlaceholder.innerHTML = `<p>データの読み込みに失敗しました。管理者にご連絡ください。<br>エラー: ${error.message}</p>`;
