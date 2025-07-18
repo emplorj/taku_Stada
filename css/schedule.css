@@ -42,7 +42,6 @@
   font-size: 1.1em;
   font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
     "Meiryo", sans-serif; /* 週表示のフォント変更 */
-  font-weight: bold;
   color: #343a40;
 }
 #calendar-grid {
