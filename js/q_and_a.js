@@ -552,28 +552,51 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function parseQandA(csvText) {
+    const requiredHeaders = ["ID", "システム", "PL名", "PC名"];
     const results = Papa.parse(csvText, {
-      header: true, // ヘッダー行をオブジェクトのキーとして使用
+      header: false,
       skipEmptyLines: true,
     });
-    const allData = results.data;
 
-    // ヘッダーのインデックスを動的に取得
-    const headerKeys = Object.keys(allData[0] || {});
-    const idIndex = headerKeys.indexOf("ID");
-    const systemIndex = headerKeys.indexOf("システム");
-    const plNameIndex = headerKeys.indexOf("PL名");
-    const pcNameIndex = headerKeys.indexOf("PC名");
-    const firstScenarioIndex = headerKeys.indexOf("初登場シナリオ");
-    const imageUrlIndex = headerKeys.indexOf("画像URL");
-    const fontIndex = headerKeys.indexOf("フォント");
+    const rows = results.data;
+    const headerIndex = rows.findIndex((row) =>
+      requiredHeaders.every((h) => row.includes(h))
+    );
+
+    if (headerIndex === -1) {
+      console.error("ヘッダー行が見つかりません。", rows);
+      throw new Error(
+        `必須ヘッダー（${requiredHeaders.join(
+          ", "
+        )}）を含む行が見つかりません。`
+      );
+    }
+
+    const header = rows[headerIndex].map((h) => h.trim());
+    const dataRows = rows.slice(headerIndex + 1);
+
+    const allData = dataRows.map((row) => {
+      const obj = {};
+      header.forEach((key, i) => {
+        // データがヘッダーより短い場合を考慮
+        obj[key] = row[i] !== undefined ? row[i] : "";
+      });
+      return obj;
+    });
+
+    const headerKeys = header;
     const remarksIndex = headerKeys.indexOf(REMARKS_HEADER);
     const q1Index = headerKeys.findIndex((h) => h && h.trim().startsWith("Q1"));
 
-    questions = headerKeys.slice(
-      q1Index,
-      remarksIndex !== -1 ? remarksIndex : headerKeys.length
-    );
+    if (q1Index === -1) {
+      console.warn("質問項目（Q1...）が見つかりませんでした。");
+      questions = [];
+    } else {
+      questions = headerKeys.slice(
+        q1Index,
+        remarksIndex !== -1 ? remarksIndex : headerKeys.length
+      );
+    }
 
     return allData
       .map((row) => {
