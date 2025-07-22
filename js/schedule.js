@@ -164,7 +164,12 @@ function groupAndFormatDatesWithWeekday(fullDateStrings) {
 async function getSharedEventData() {
   try {
     const response = await fetch(SPREADSHEET_URL);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      console.error(
+        `スプレッドシート (${SPREADSHEET_URL}) の読み込みに失敗しました: HTTP status ${response.status}`
+      );
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const csvText = await response.text();
     const rows = parseCsvToArray(csvText);
     let rawEvents = [];
@@ -519,6 +524,10 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     copySelectedDatesBtn: document.getElementById("copy-selected-dates-btn"),
     // ▼▼▼ 変更箇所: 新しいDOM要素を追加 ▼▼▼
     continuousDaysInput: document.getElementById("continuous-days-input"),
+    // ▼▼▼ 変更箇所: 新しいDOM要素を追加 ▼▼▼
+    newPresetNameInput: document.getElementById("new-preset-name"),
+    savePresetBtn: document.getElementById("save-preset-btn"),
+    deletePresetBtn: document.getElementById("delete-preset-btn"),
     // ▲▲▲ 変更箇所 ▲▲▲
   };
   let daycordNames = [],
@@ -526,6 +535,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     selectedNames = [],
     scenarioData = [],
     participantPresets = {},
+    userPresets = {}, // ユーザー定義プリセットを保持する新しい変数
     selectedDates = [];
 
   const updateDisplay = () => {
@@ -543,6 +553,104 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         formattedDates || dom.selectedDatesDisplay.placeholder; // 候補日がない場合はプレースホルダーを使用
     }
   };
+
+  // ▼▼▼ 変更箇所: ユーザープリセット関連の関数を追加 ▼▼▼
+  const USER_PRESETS_KEY = "daycordUserPresets";
+
+  function loadUserPresets() {
+    try {
+      const storedPresets = localStorage.getItem(USER_PRESETS_KEY);
+      userPresets = storedPresets ? JSON.parse(storedPresets) : {};
+    } catch (e) {
+      console.error("ユーザープリセットの読み込みに失敗しました:", e);
+      userPresets = {};
+    }
+  }
+
+  function saveUserPreset(presetName, participants) {
+    if (!presetName || participants.length === 0) {
+      alert("プリセット名と参加者を選択してください。");
+      return;
+    }
+    userPresets[presetName] = participants;
+    try {
+      localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(userPresets));
+      alert(`プリセット「${presetName}」を保存しました！`);
+      updatePresetDropdown();
+      if (dom.newPresetNameInput) dom.newPresetNameInput.value = ""; // 入力フィールドをクリア
+    } catch (e) {
+      console.error("ユーザープリセットの保存に失敗しました:", e);
+      alert("プリセットの保存に失敗しました。");
+    }
+  }
+
+  function deleteUserPreset(presetName) {
+    if (
+      !presetName ||
+      presetName === "--all-participants--" ||
+      presetName === "--all-active--" ||
+      participantPresets[presetName]
+    ) {
+      alert("このプリセットは削除できません。");
+      return;
+    }
+    if (confirm(`プリセット「${presetName}」を削除しますか？`)) {
+      delete userPresets[presetName];
+      try {
+        localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(userPresets));
+        alert(`プリセット「${presetName}」を削除しました。`);
+        updatePresetDropdown();
+        if (dom.presetSel) dom.presetSel.value = ""; // 選択をリセット
+        selectedNames = []; // 選択中の参加者もクリア
+        updateDisplay();
+      } catch (e) {
+        console.error("ユーザープリセットの削除に失敗しました:", e);
+        alert("プリセットの削除に失敗しました。");
+      }
+    }
+  }
+
+  function updatePresetDropdown() {
+    if (!dom.presetSel) return;
+    dom.presetSel.innerHTML =
+      '<option value="">-- プリセットを選択 --</option>'; // 既存のオプションをクリア
+
+    // 組み込みプリセットを追加
+    const builtInPresets = {
+      "--all-participants--": "全員",
+      "--all-active--": "未記入以外全員",
+    };
+
+    for (const presetName in builtInPresets) {
+      const option = document.createElement("option");
+      option.value = presetName;
+      option.textContent = `[⭐️] ${builtInPresets[presetName]}`;
+      dom.presetSel.appendChild(option);
+    }
+
+    // presets.json から読み込んだプリセットを追加
+    const fetchedPresetNames = Object.keys(participantPresets).sort((a, b) =>
+      a.localeCompare(b, "ja")
+    );
+    fetchedPresetNames.forEach((presetName) => {
+      const option = document.createElement("option");
+      option.value = presetName;
+      option.textContent = `[⭐️] ${presetName}`;
+      dom.presetSel.appendChild(option);
+    });
+
+    // ユーザー定義プリセットを追加
+    const userPresetNames = Object.keys(userPresets).sort((a, b) =>
+      a.localeCompare(b, "ja")
+    );
+    userPresetNames.forEach((presetName) => {
+      const option = document.createElement("option");
+      option.value = presetName;
+      option.textContent = presetName;
+      dom.presetSel.appendChild(option);
+    });
+  }
+  // ▲▲▲ 変更箇所 ▲▲▲
 
   function processScenarioData() {
     const today = new Date();
@@ -914,25 +1022,36 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const [daycordResponse, presetResponse] = await Promise.all([
         fetch(DAYCORD_PROXY_URL),
         fetch(PRESETS_JSON_URL)
-          .then((res) => res.json())
-          .catch(() => ({})),
+          .then((res) => {
+            if (!res.ok) {
+              console.warn(
+                `プリセットファイル (${PRESETS_JSON_URL}) の読み込みに失敗しました: HTTP status ${res.status}`
+              );
+              return {}; // エラーでも空のオブジェクトを返す
+            }
+            return res.json();
+          })
+          .catch((err) => {
+            console.error(
+              `プリセットファイル (${PRESETS_JSON_URL}) のパースに失敗しました:`,
+              err
+            );
+            return {}; // パースエラーでも空のオブジェクトを返す
+          }),
       ]);
       participantPresets = presetResponse;
-      const presetFragment = document.createDocumentFragment();
-      for (const presetName in participantPresets) {
-        const option = document.createElement("option");
-        option.value = presetName;
-        option.textContent = presetName;
-        presetFragment.appendChild(option);
-      }
-      if (dom.presetSel) {
-        dom.presetSel.appendChild(presetFragment);
-      }
+      loadUserPresets(); // ユーザープリセットを読み込む
+      updatePresetDropdown(); // プリセットドロップダウンを更新
 
       const htmlText = await daycordResponse.text();
       const doc = new DOMParser().parseFromString(htmlText, "text/html");
       const table = doc.querySelector("table.schedule_table");
-      if (!table) throw new Error("デイコードのテーブルが見つかりません。");
+      if (!table) {
+        console.error(
+          "デイコードのテーブルが見つかりません。HTML構造が変更された可能性があります。"
+        );
+        throw new Error("デイコードのテーブルが見つかりません。");
+      }
 
       const headerRow = table.querySelector("tr#namerow"),
         bodyRows = table.querySelectorAll('tbody tr[id^="row_"]');
@@ -1002,6 +1121,22 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       }
     });
 
+  // ▼▼▼ 変更箇所: ユーザープリセット保存・削除ボタンのイベントリスナーを追加 ▼▼▼
+  if (dom.savePresetBtn) {
+    dom.savePresetBtn.addEventListener("click", () => {
+      const presetName = dom.newPresetNameInput.value.trim();
+      saveUserPreset(presetName, selectedNames);
+    });
+  }
+
+  if (dom.deletePresetBtn) {
+    dom.deletePresetBtn.addEventListener("click", () => {
+      const selectedPresetName = dom.presetSel.value;
+      deleteUserPreset(selectedPresetName);
+    });
+  }
+  // ▲▲▲ 変更箇所 ▲▲▲
+
   if (dom.clearBtn)
     dom.clearBtn.addEventListener("click", () => {
       if (selectedNames.length > 0) {
@@ -1057,8 +1192,12 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         selectedNames = daycordNames.filter((name, index) =>
           schedule.some((day) => day.availability[index] !== "－")
         );
+      } else if (presetName === "--all-participants--") {
+        // 「全員」プリセットの追加
+        selectedNames = [...daycordNames];
       } else {
-        const presetParticipants = participantPresets[presetName] || [];
+        const presetParticipants =
+          participantPresets[presetName] || userPresets[presetName] || [];
         const participantsOnDaycord = presetParticipants.map((name) =>
           getDayCodeName(name)
         );

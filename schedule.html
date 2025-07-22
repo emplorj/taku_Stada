@@ -87,33 +87,49 @@
       </a>
 
       <div class="daycord-controls-wrapper">
-        <div class="filter-container">
-          <label for="scenario-filter-select">シナリオから:</label>
-          <div class="select-wrapper">
-            <select id="scenario-filter-select">
-              <option value="">-- シナリオを選択 --</option>
-            </select>
+        <div class="controls-row">
+          <div class="filter-container">
+            <label for="scenario-filter-select">シナリオから:</label>
+            <div class="select-wrapper">
+              <select id="scenario-filter-select">
+                <option value="">-- シナリオを選択 --</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-container participant-selector-container">
+            <label for="daycord-name-select">参加者を選択:</label>
+            <div class="participant-selector">
+              <select id="daycord-name-select">
+                <option value="">-- 名前を選択 --</option>
+              </select>
+              <button id="add-participant-btn" class="control-btn" title="参加者を追加">+</button>
+              <button id="clear-participants-btn" class="control-btn" title="参加者を全削除">×</button>
+            </div>
           </div>
         </div>
-        <div class="filter-container">
-          <label for="preset-filter-select">プリセットから:</label>
-          <div class="select-wrapper">
-            <select id="preset-filter-select">
-              <option value="">-- プリセットを選択 --</option>
-            </select>
+        <div class="controls-row">
+          <div class="filter-container">
+            <label for="preset-filter-select">プリセットから:</label>
+            <div class="select-wrapper">
+              <select id="preset-filter-select">
+                <option value="">-- プリセットを選択 --</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div class="filter-container participant-selector-container">
-          <label for="daycord-name-select">参加者を選択:</label>
-          <div class="participant-selector">
-            <select id="daycord-name-select">
-              <option value="">-- 名前を選択 --</option>
-            </select>
-            <button id="add-participant-btn" class="control-btn" title="参加者を追加">+</button>
-            <button id="clear-participants-btn" class="control-btn" title="参加者を全削除">×</button>
+          <!-- ユーザープリセット管理UIの追加 -->
+          <div class="filter-container user-preset-management">
+            <label for="new-preset-name">プリセット保存:</label>
+            <div class="preset-input-group">
+              <input type="text" id="new-preset-name" placeholder="新しいプリセット名">
+              <button id="save-preset-btn" class="control-btn" title="現在の参加者をプリセットとして保存"><i
+                  class="fa-solid fa-floppy-disk"></i></button>
+              <button id="delete-preset-btn" class="control-btn" title="選択中のプリセットを削除"><i
+                  class="fa-solid fa-trash-can"></i></button>
+            </div>
           </div>
         </div>
       </div>
+      <p class="preset-note">※ プリセットはブラウザに保存されます。デフォルトプリセット（[⭐️]と表示）は削除できません。</p>
 
       <details id="daycord-legend">
         <summary>
