@@ -338,6 +338,51 @@
   font-size: 1em;
 }
 
+/* 選択モード用の追加スタイル */
+.toggle-switch-container.mode-toggle {
+  margin: 0; /* 上下のマージンをリセット */
+}
+
+/* スイッチのラベルにテキストを表示するためのスタイル */
+.toggle-switch-container.mode-toggle {
+  gap: 5px; /* スイッチとテキストの間隔を調整 */
+}
+
+.toggle-label-wrapper {
+  position: relative; /* 子要素を絶対配置するための基準 */
+  min-width: 40px; /* テキストが収まるための最小幅を確保 */
+  height: 1.2em; /* 親要素の高さを確保 (font-size * line-height) */
+}
+
+.toggle-label-on,
+.toggle-label-off {
+  position: absolute; /* 同じ位置に重ねて配置 */
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 0.9em;
+  font-weight: bold;
+  white-space: nowrap;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+/* デフォルトでは「追加」を透明にする */
+.toggle-label-on {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* チェックが入ったら「上書き」を透明にし、「追加」を表示 */
+.switch:checked ~ .toggle-label-wrapper .toggle-label-off {
+  opacity: 0;
+  visibility: hidden;
+}
+.switch:checked ~ .toggle-label-wrapper .toggle-label-on {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* ==========================================================================
    7. フィルタリング機能
    ========================================================================== */
@@ -355,6 +400,7 @@
 .daycord-controls-wrapper .filter-container {
   margin-top: 0;
   flex-grow: 1;
+  min-width: 250px; /* 最小幅を設定して折り返しやすくする */
 }
 
 .filter-container {
@@ -617,6 +663,9 @@
   position: sticky;
   left: 0;
   background-color: transparent;
+  text-align: left; /* 参加者名を左揃えに */
+  padding-left: 35px; /* 削除ボタンのスペースを確保 */
+  white-space: nowrap; /* 名前と注釈が改行されないように */
 }
 
 .daycord-table thead th:first-child::before,
@@ -738,6 +787,11 @@
   align-items: center;
   flex-grow: 1;
 }
+
+.participant-selector-container {
+  flex-grow: 2; /* 手動追加セクションが広がりすぎないように調整 */
+}
+
 #daycord-name-select {
   background-color: #0d1a50;
   color: #eee;
@@ -781,7 +835,7 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 25px;
+  width: 30px; /* ボタンの幅を少し広げる */
   background-color: #f14668;
   color: #fff;
   border: none;
@@ -1070,4 +1124,28 @@
 }
 #delete-preset-btn:hover {
   background-color: #a93226;
+}
+
+/* ==========================================================================
+   15. デイコード未登録者スタイル
+   ========================================================================== */
+.unregistered-note {
+  color: #aaa;
+  font-size: 0.8em;
+  font-style: italic;
+  margin-left: 5px;
+}
+
+.daycord-table tbody tr.unregistered-row {
+  opacity: 0.7;
+  background-color: rgba(44, 62, 80, 0.3); /* 通常の偶数行より少し濃いめ */
+}
+
+.daycord-table tbody tr.unregistered-row:hover {
+  opacity: 1;
+  background-color: rgba(52, 152, 219, 0.25) !important;
+}
+
+.daycord-table tbody tr.unregistered-row td {
+  background-color: transparent; /* 個別のセルの背景色をリセット */
 }

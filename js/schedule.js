@@ -529,6 +529,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     savePresetBtn: document.getElementById("save-preset-btn"),
     deletePresetBtn: document.getElementById("delete-preset-btn"),
     // ▲▲▲ 変更箇所 ▲▲▲
+    selectionModeToggle: document.getElementById("selection-mode-toggle"),
   };
   let daycordNames = [],
     schedule = [],
@@ -735,9 +736,10 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const eventsOnDay = eventsByDate.get(key) || [];
       if (eventsOnDay.length > 0) cell.classList.add("has-event");
       eventsOnDay.forEach((e) => {
-        const bgColor = COLORS[e.system] || COLORS["default"];
+        const system = e.system || ""; // システム名が空の場合に対応
+        const bgColor = COLORS[system] || COLORS["default"];
         const textColor = getContrastColor(bgColor);
-        let tooltipContent = `${e.system}『${
+        let tooltipContent = `${system}『${
           e.eventName
         }』<br><strong>GM:</strong> ${e.gm || "未定"}`;
         if (e.participants && e.participants.length > 0) {
@@ -750,67 +752,101 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         eventDiv.className = "daycord-event-entry";
         eventDiv.style.cssText = `background-color:${bgColor};color:${textColor};`;
         eventDiv.dataset.tooltipContent = encodedTooltip;
-        eventDiv.textContent = e.system;
+        // システム名がない場合は、高さを確保するために non-breaking space を入れる
+        eventDiv.innerHTML = system ? system : "&nbsp;";
+        if (!system) {
+          eventDiv.style.minHeight = "1.2em"; // テキストがある場合とおおよそ同じ高さを確保
+          eventDiv.style.boxSizing = "border-box";
+        }
         cell.appendChild(eventDiv);
       });
     });
 
     selectedNames.forEach((name) => {
       const nameIndex = daycordNames.indexOf(name);
-      if (nameIndex === -1) return;
       const row = tbody.insertRow();
       const nameCell = row.insertCell();
       nameCell.innerHTML = `<button class="remove-participant-btn" data-name="${name}">×</button>${name}`;
-      schedule.forEach((day) => {
-        const cell = row.insertCell();
-        const dateStr = day.date.split("(")[0];
-        cell.dataset.dateCol = dateStr;
-        const parts = dateStr.split("/");
-        const key = `${parts[0]}/${String(parts[1]).padStart(2, "0")}/${String(
-          parts[2]
-        ).padStart(2, "0")}`;
-        const eventsOnDay = eventsByDate.get(key) || [];
-        const participantEvent = eventsOnDay.find((e) =>
-          [e.gm, ...e.participants].map((p) => getDayCodeName(p)).includes(name)
-        );
-        if (eventsOnDay.length > 0) {
-          cell.classList.add("has-event");
-        }
-        const span = document.createElement("span");
-        span.className = "daycord-status-tag";
-        if (participantEvent) {
-          cell.classList.add("is-conflicting");
-          const system = participantEvent.system;
-          const bgColor = COLORS[system] || COLORS["default"];
-          span.style.cssText = `background-color:${bgColor}; color:${getContrastColor(
-            bgColor
-          )};`;
-          let tooltipContent = `${system}『${participantEvent.eventName}』<br><strong>GM:</strong> ${participantEvent.gm}`;
-          if (participantEvent.participants.length > 0)
-            tooltipContent += `<br><strong>PL:</strong> ${participantEvent.participants.join(
-              ", "
+
+      if (nameIndex === -1) {
+        // デイコードに名前がない参加者
+        nameCell.innerHTML += ` <span class="unregistered-note">(予定未入力)</span>`;
+        row.classList.add("unregistered-row");
+        schedule.forEach((day) => {
+          const cell = row.insertCell();
+          const span = document.createElement("span");
+          span.className = "daycord-status-tag status-hyphen";
+          span.textContent = "－";
+          cell.appendChild(span);
+
+          // 予定がある日の背景色を付ける
+          const dateStr = day.date.split("(")[0];
+          const parts = dateStr.split("/");
+          const key = `${parts[0]}/${String(parts[1]).padStart(
+            2,
+            "0"
+          )}/${String(parts[2]).padStart(2, "0")}`;
+          const eventsOnDay = eventsByDate.get(key) || [];
+          if (eventsOnDay.length > 0) {
+            cell.classList.add("has-event");
+          }
+        });
+      } else {
+        // デイコードに名前がある参加者 (既存のロジック)
+        schedule.forEach((day) => {
+          const cell = row.insertCell();
+          const dateStr = day.date.split("(")[0];
+          cell.dataset.dateCol = dateStr;
+          const parts = dateStr.split("/");
+          const key = `${parts[0]}/${String(parts[1]).padStart(
+            2,
+            "0"
+          )}/${String(parts[2]).padStart(2, "0")}`;
+          const eventsOnDay = eventsByDate.get(key) || [];
+          const participantEvent = eventsOnDay.find((e) =>
+            [e.gm, ...e.participants]
+              .map((p) => getDayCodeName(p))
+              .includes(name)
+          );
+          if (eventsOnDay.length > 0) {
+            cell.classList.add("has-event");
+          }
+          const span = document.createElement("span");
+          span.className = "daycord-status-tag";
+          if (participantEvent) {
+            cell.classList.add("is-conflicting");
+            const system = participantEvent.system;
+            const bgColor = COLORS[system] || COLORS["default"];
+            span.style.cssText = `background-color:${bgColor}; color:${getContrastColor(
+              bgColor
+            )};`;
+            let tooltipContent = `${system}『${participantEvent.eventName}』<br><strong>GM:</strong> ${participantEvent.gm}`;
+            if (participantEvent.participants.length > 0)
+              tooltipContent += `<br><strong>PL:</strong> ${participantEvent.participants.join(
+                ", "
+              )}`;
+            cell.dataset.tooltipContent = tooltipContent.replace(/"/g, '"');
+            span.textContent = system;
+          } else {
+            const status = day.availability[nameIndex] || "－";
+            const statusClass = `status-${status.replace(
+              /[◎〇△×▢－]/g,
+              (c) =>
+                ({
+                  "◎": "o",
+                  〇: "maru",
+                  "△": "sankaku",
+                  "×": "batsu",
+                  "▢": "shikaku",
+                  "－": "hyphen",
+                }[c])
             )}`;
-          cell.dataset.tooltipContent = tooltipContent.replace(/"/g, '"');
-          span.textContent = system;
-        } else {
-          const status = day.availability[nameIndex] || "－";
-          const statusClass = `status-${status.replace(
-            /[◎〇△×▢－]/g,
-            (c) =>
-              ({
-                "◎": "o",
-                〇: "maru",
-                "△": "sankaku",
-                "×": "batsu",
-                "▢": "shikaku",
-                "－": "hyphen",
-              }[c])
-          )}`;
-          span.classList.add(statusClass);
-          span.textContent = status;
-        }
-        cell.appendChild(span);
-      });
+            span.classList.add(statusClass);
+            span.textContent = status;
+          }
+          cell.appendChild(span);
+        });
+      }
     });
     dom.tableCont.innerHTML = "";
     dom.tableCont.appendChild(table);
@@ -1158,26 +1194,26 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
   if (dom.scenarioSel)
     dom.scenarioSel.addEventListener("change", () => {
       const eventName = dom.scenarioSel.value;
-      if (dom.presetSel) dom.presetSel.value = "";
-      if (!eventName) {
+      const isAppendMode =
+        dom.selectionModeToggle && dom.selectionModeToggle.checked;
+      if (!isAppendMode) {
         selectedNames = [];
-      } else {
+        if (dom.presetSel) dom.presetSel.value = "";
+      }
+
+      if (eventName) {
         const event = scenarioData.find((d) => d.eventName === eventName);
         if (event) {
           const participantsOnSheet = [event.gm, ...event.participants].filter(
             Boolean
           );
-          const participantsOnDaycord = participantsOnSheet.map((name) =>
+          const newParticipants = participantsOnSheet.map((name) =>
             getDayCodeName(name)
           );
-          selectedNames = [
-            ...new Set(
-              participantsOnDaycord.filter((name) =>
-                daycordNames.includes(name)
-              )
-            ),
-          ];
+          selectedNames = [...new Set([...selectedNames, ...newParticipants])];
         }
+      } else if (!isAppendMode) {
+        selectedNames = [];
       }
       updateDisplay();
     });
@@ -1185,27 +1221,33 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
   if (dom.presetSel)
     dom.presetSel.addEventListener("change", () => {
       const presetName = dom.presetSel.value;
-      if (dom.scenarioSel) dom.scenarioSel.value = "";
-      if (!presetName) {
+      const isAppendMode =
+        dom.selectionModeToggle && dom.selectionModeToggle.checked;
+
+      if (!isAppendMode) {
         selectedNames = [];
-      } else if (presetName === "--all-active--") {
-        selectedNames = daycordNames.filter((name, index) =>
+        if (dom.scenarioSel) dom.scenarioSel.value = "";
+      }
+
+      let newParticipants = [];
+      if (presetName === "--all-active--") {
+        newParticipants = daycordNames.filter((name, index) =>
           schedule.some((day) => day.availability[index] !== "－")
         );
       } else if (presetName === "--all-participants--") {
-        // 「全員」プリセットの追加
-        selectedNames = [...daycordNames];
-      } else {
+        newParticipants = [...daycordNames];
+      } else if (presetName) {
         const presetParticipants =
           participantPresets[presetName] || userPresets[presetName] || [];
-        const participantsOnDaycord = presetParticipants.map((name) =>
+        newParticipants = presetParticipants.map((name) =>
           getDayCodeName(name)
         );
-        selectedNames = [
-          ...new Set(
-            participantsOnDaycord.filter((name) => daycordNames.includes(name))
-          ),
-        ];
+      }
+
+      if (newParticipants.length > 0) {
+        selectedNames = [...new Set([...selectedNames, ...newParticipants])];
+      } else if (!isAppendMode && !presetName) {
+        selectedNames = [];
       }
       updateDisplay();
     });

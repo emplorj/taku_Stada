@@ -49,6 +49,27 @@
             <ul class="tool-card-list" id="schedule-links-container">
             </ul>
         </div>
+
+        <!-- 今日の予定表示エリア -->
+        <div class="plain-text-block intro-block">
+            <div class="today-schedule-header">
+                <h3><i class="fa-solid fa-bell"></i> 今日の予定</h3>
+                <div class="status-help-icon">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <div class="status-tooltip">
+                        <strong>雰囲気の目安</strong>
+                        <p><b>🔵 ゆる:</b> 横でゲームのマルチやってても全然話題関係なくても大丈夫</p>
+                        <p><b>🟢 普通:</b> いきなり叫ぶとか歌うとかじゃなければ作業とかゲームやってたりしてもいいし普通に観客も雑談しながら一緒に盛り上がっていいよ</p>
+                        <p><b>🟡 静かめ:</b> 参加者声だしてもいいけど自主的には喋らないでね</p>
+                        <p><b>🔴 ガチ:</b> ガチガチのやつなので参加者以外は声出しなしで</p>
+                    </div>
+                </div>
+            </div>
+            <div id="today-schedule-content">
+                <p>予定を読み込んでいます...</p>
+            </div>
+        </div>
+
         <section id="featured-adventurers" class="content-section">
             <h2 class="start-title"><i class="fa-solid fa-star"></i> いろんなキャラ</h2>
             <div class="plain-text-block intro-block">
@@ -483,6 +504,216 @@
                     cocQaLinksContainer.appendChild(wrapper);
                 });
             }
+
+            // --- 今日の予定を表示 ---
+            const SPREADSHEET_URL_TODAY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=783716063&single=true&output=csv";
+
+            function parseCsvToArrayForToday(csvText) {
+                return Papa.parse(csvText, { header: false, skipEmptyLines: true }).data;
+            }
+
+            function isNextDayForToday(d1, d2) {
+                const n = new Date(d1);
+                n.setDate(n.getDate() + 1);
+                return n.getFullYear() === d2.getFullYear() && n.getMonth() === d2.getMonth() && n.getDate() === d2.getDate();
+            }
+
+            function formatDateForToday(d) {
+                return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
+            }
+
+            function areArraysEqualForToday(a1, a2) {
+                if (!a1 && !a2) return true;
+                if (!a1 || !a2 || a1.length !== a2.length) return false;
+                const s1 = [...a1].sort(), s2 = [...a2].sort();
+                return s1.every((v, i) => v === s2[i]);
+            }
+
+            function getContrastColorForToday(hex) {
+                if (!hex) return "#000000";
+                hex = hex.replace("#", "");
+                const r = parseInt(hex.substr(0, 2), 16), g = parseInt(hex.substr(2, 2), 16), b = parseInt(hex.substr(4, 2), 16);
+                return (r * 299 + g * 587 + b * 114) / 1000 >= 128 ? "#000000" : "#FFFFFF";
+            }
+
+            async function getSharedEventDataForToday() {
+                try {
+                    const response = await fetch(SPREADSHEET_URL_TODAY);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const csvText = await response.text();
+                    const rows = parseCsvToArrayForToday(csvText);
+                    let rawEvents = [];
+                    const normalize = (str) => typeof str !== "string" || !str ? "" : str.replace(/　/g, " ").trim().replace(/\s+/g, " ");
+                    for (let i = 1; i < rows.length; i++) {
+                        const values = rows[i];
+                        if (!values || values.length < 4 || !normalize(values[3])) continue;
+                        const eventName = normalize(values[3]);
+                        const system = normalize(values[2]);
+                        const gm = normalize(values[4] || "");
+                        const participants = Array.from({ length: 6 }, (_, j) => normalize(values[5 + j])).filter(Boolean);
+                        const dateStr = (values[1] || "").split("(")[0].trim();
+                        const parts = dateStr.split("/");
+                        let eventData = { id: `event-${i}`, system, eventName, gm, participants, hasDate: false };
+                        if (parts.length === 3) {
+                            const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                            if (!isNaN(date.getTime())) {
+                                eventData.date = date;
+                                eventData.endDate = new Date(date);
+                                eventData.hasDate = true;
+                            }
+                        }
+                        rawEvents.push(eventData);
+                    }
+                    const datedEvents = rawEvents.filter((e) => e.hasDate).sort((a, b) => a.date.getTime() - b.date.getTime());
+                    const mergedEvents = [];
+                    let currentGroup = null;
+                    for (const event of datedEvents) {
+                        if (currentGroup && currentGroup.system === event.system && currentGroup.eventName === event.eventName && (currentGroup.gm || "") === (event.gm || "") && areArraysEqualForToday(currentGroup.participants, event.participants) && isNextDayForToday(currentGroup.endDate, event.date)) {
+                            currentGroup.endDate = new Date(event.date);
+                        } else {
+                            if (currentGroup) mergedEvents.push(currentGroup);
+                            currentGroup = { ...event };
+                        }
+                    }
+                    if (currentGroup) mergedEvents.push(currentGroup);
+                    const eventsByDate = new Map();
+                    mergedEvents.forEach((e) => {
+                        let d = new Date(e.date);
+                        while (d.getTime() <= e.endDate.getTime()) {
+                            const dateStr = formatDateForToday(d);
+                            if (!eventsByDate.has(dateStr)) eventsByDate.set(dateStr, []);
+                            eventsByDate.get(dateStr).push(e);
+                            d.setDate(d.getDate() + 1);
+                        }
+                    });
+                    return { eventsByDate };
+                } catch (error) {
+                    console.error("Error fetching or parsing shared event data:", error);
+                    return { eventsByDate: new Map() };
+                }
+            }
+
+            function loadSystemColorsForToday() {
+                const colors = {};
+                const styles = getComputedStyle(document.documentElement);
+                const map = {
+                    "--color-coc": "CoC", "--color-coc-secret": "CoC-㊙", "--color-dx3": "DX3", "--color-sw": "SW", "--color-sw2-5": "SW2.5",
+                    "--color-nechronica": "ネクロニカ", "--color-satasupe": "サタスペ", "--color-mamoburu": "マモブル", "--color-stellar": "銀剣",
+                    "--color-ar": "AR2E", "--color-default": "default",
+                };
+                for (const cssVar in map) {
+                    const color = styles.getPropertyValue(cssVar).trim();
+                    if (color) colors[map[cssVar]] = color;
+                }
+                return colors;
+            }
+
+            async function displayTodaySchedule() {
+                const container = document.getElementById("today-schedule-content");
+                if (!container) return;
+
+                try {
+                    const { eventsByDate } = await getSharedEventDataForToday();
+                    const COLORS = loadSystemColorsForToday();
+                    const todayStr = formatDateForToday(new Date());
+                    const todaysEvents = eventsByDate.get(todayStr) || [];
+
+                    if (todaysEvents.length === 0) {
+                        container.innerHTML = "<p>今日の予定はありません。</p>";
+                        return;
+                    }
+
+                    let listHtml = '<ul class="today-schedule-list">';
+                    todaysEvents.forEach(event => {
+                        const bgColor = COLORS[event.system] || COLORS["default"] || '#cccccc';
+                        const textColor = getContrastColorForToday(bgColor);
+                        const isSecretByDefault = event.system === 'CoC-㊙';
+
+                        listHtml += `
+                            <li class="today-schedule-item" data-event-id="${event.id}">
+                                <div class="schedule-info-wrapper">
+                                    <div class="schedule-main">
+                                        <span class="schedule-system-tag" style="background-color:${bgColor}; color:${textColor};">${event.system}</span>
+                                        <strong class="schedule-title">『${event.eventName}』</strong>
+                                    </div>
+                                    <div class="schedule-details">
+                                        <span><strong>GM:</strong> ${event.gm || 'N/A'}</span>
+                                        <span><strong>PL:</strong> ${event.participants.join("、") || 'N/A'}</span>
+                                    </div>
+                                </div>
+                                <div class="schedule-controls">
+                                    <div class="status-selectors">
+                                        <select class="status-icon-select" aria-label="雰囲気を選択">
+                                            <option value="">雰囲気</option>
+                                            <option value="🔵">🔵 ゆる</option>
+                                            <option value="🟢" selected>🟢 普通</option>
+                                            <option value="🟡">🟡 静かめ</option>
+                                            <option value="🔴">🔴 ガチ</option>
+                                        </select>
+                                        <div class="additional-icons">
+                                            <label title="秘匿・ネタバレ注意">
+                                                <input type="checkbox" class="additional-icon-check" value="㊙️" ${isSecretByDefault ? 'checked' : ''}>
+                                                <span>㊙️</span>
+                                            </label>
+                                            <label title="見てほしい！">
+                                                <input type="checkbox" class="additional-icon-check" value="✨">
+                                                <span>✨</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button class="copy-status-button">コピー</button>
+                                </div>
+                            </li>`;
+                    });
+                    listHtml += '</ul>';
+                    container.innerHTML = listHtml;
+
+                    // Add event listener for copy buttons using event delegation
+                    container.addEventListener('click', function (e) {
+                        if (e.target.classList.contains('copy-status-button')) {
+                            const item = e.target.closest('.today-schedule-item');
+                            if (!item) return;
+
+                            const systemTag = item.querySelector('.schedule-system-tag');
+                            const titleEl = item.querySelector('.schedule-title');
+                            const system = systemTag ? systemTag.textContent : '';
+                            const title = titleEl ? titleEl.textContent : '';
+
+                            const statusSelect = item.querySelector('.status-icon-select');
+                            const mainIcon = statusSelect ? statusSelect.value : '';
+
+                            const additionalChecks = item.querySelectorAll('.additional-icon-check:checked');
+                            let additionalIcons = '';
+                            additionalChecks.forEach(check => {
+                                additionalIcons += check.value;
+                            });
+
+                            const copyText = `${additionalIcons}${mainIcon}${system} ${title}`.trim();
+
+                            if (navigator.clipboard) {
+                                navigator.clipboard.writeText(copyText).then(() => {
+                                    const button = e.target;
+                                    const originalText = button.textContent;
+                                    button.textContent = 'OK!';
+                                    button.disabled = true;
+                                    setTimeout(() => {
+                                        button.textContent = originalText;
+                                        button.disabled = false;
+                                    }, 1500);
+                                }).catch(err => {
+                                    console.error('コピーに失敗しました', err);
+                                    alert('コピーに失敗しました。');
+                                });
+                            }
+                        }
+                    });
+
+                } catch (error) {
+                    console.error("今日の予定の表示に失敗しました:", error);
+                    container.innerHTML = "<p>予定の読み込みに失敗しました。</p>";
+                }
+            }
+            displayTodaySchedule();
         });
     </script>
     <script src="js/featured-character.js"></script>

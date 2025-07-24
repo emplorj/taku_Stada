@@ -96,24 +96,35 @@
               </select>
             </div>
           </div>
-          <div class="filter-container participant-selector-container">
-            <label for="daycord-name-select">参加者を選択:</label>
-            <div class="participant-selector">
-              <select id="daycord-name-select">
-                <option value="">-- 名前を選択 --</option>
-              </select>
-              <button id="add-participant-btn" class="control-btn" title="参加者を追加">+</button>
-              <button id="clear-participants-btn" class="control-btn" title="参加者を全削除">×</button>
-            </div>
-          </div>
-        </div>
-        <div class="controls-row">
           <div class="filter-container">
             <label for="preset-filter-select">プリセットから:</label>
             <div class="select-wrapper">
               <select id="preset-filter-select">
                 <option value="">-- プリセットを選択 --</option>
               </select>
+            </div>
+          </div>
+          <div class="filter-container">
+            <label for="selection-mode-toggle">選択モード:</label>
+            <div class="toggle-switch-container mode-toggle">
+              <input type="checkbox" id="selection-mode-toggle" class="switch">
+              <label for="selection-mode-toggle"></label>
+              <div class="toggle-label-wrapper">
+                <span class="toggle-label-off">上書き</span>
+                <span class="toggle-label-on">追加</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="controls-row">
+          <div class="filter-container participant-selector-container">
+            <label for="daycord-name-select">参加者を手動追加:</label>
+            <div class="participant-selector">
+              <select id="daycord-name-select">
+                <option value="">-- 名前を選択 --</option>
+              </select>
+              <button id="add-participant-btn" class="control-btn" title="参加者を追加">+</button>
+              <button id="clear-participants-btn" class="control-btn" title="参加者を全削除">×</button>
             </div>
           </div>
           <!-- ユーザープリセット管理UIの追加 -->
