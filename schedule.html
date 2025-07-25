@@ -158,20 +158,24 @@
 
       <div id="availability-results-container">
         <div class="availability-header">
-          <h4>候補日</h4>
-          <!-- ▼▼▼ 変更箇所 ▼▼▼ -->
-          <div class="availability-controls-group">
+          <div class="availability-header-main">
+            <h4>候補日</h4>
             <div class="continuous-days-filter">
               <label for="continuous-days-input">連続</label>
               <input type="number" id="continuous-days-input" min="2" placeholder="N">
               <label for="continuous-days-input">日以上</label>
             </div>
+          </div>
+          <div class="availability-toggle-group">
             <div class="toggle-switch-container">
               <input type="checkbox" id="include-pending-checkbox" class="switch">
               <label for="include-pending-checkbox">未記入を〇とする</label>
             </div>
+            <div class="toggle-switch-container">
+              <input type="checkbox" id="toggle-conflict-display-btn" class="switch">
+              <label for="toggle-conflict-display-btn">重複をステータス表示</label>
+            </div>
           </div>
-          <!-- ▲▲▲ 変更箇所 ▲▲▲ -->
         </div>
         <div class="availability-line">
           <span class="line-label line-yoyu" data-tooltip="全員が夜参加可能（◎, 〇）">余裕</span>

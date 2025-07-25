@@ -242,6 +242,10 @@
   }
 }
 
+.rich-link-icon img {
+  height: 32px; /* スマートフォンでのアイコン高さを調整 */
+}
+
 /* ==========================================================================
    4. 予定リストテーブル
    ========================================================================== */
@@ -316,6 +320,13 @@
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.8em;
+  /* ダミー行のスタイル */
+  .dummy-row td {
+    text-align: center;
+    color: #888;
+    padding: 40px 0; /* 上下に十分なパディングを持たせて高さを確保 */
+    font-style: italic;
+  }
   margin-right: 8px;
   line-height: 1.2;
   vertical-align: middle;
@@ -458,11 +469,22 @@
     width: 100%;
   }
   .preset-input-group {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     flex-wrap: nowrap;
   }
   #new-preset-name {
-    flex-grow: 1;
+    flex: 1; /* grow, shrink, basis の設定で幅を調整 */
+    min-width: 0;
+  }
+
+  .participant-selector {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .participant-selector {
+    flex: 1;
     min-width: 0;
   }
 }
@@ -1027,17 +1049,36 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+  flex-wrap: wrap;
 }
 .availability-header h4 {
   margin: 0;
 }
 
 /* 連続日数フィルターと未記入チェックボックスを横並びにするコンテナ */
-.availability-controls-group {
+.availability-header-main {
   display: flex;
   align-items: center;
-  gap: 20px; /* 要素間の間隔 */
-  flex-wrap: wrap; /* 必要に応じて折り返す */
+  gap: 20px;
+}
+
+.availability-toggle-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin-top: 15px;
+}
+
+@media (min-width: 769px) {
+  .availability-toggle-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    width: auto;
+    margin-top: 0;
+  }
 }
 
 #availability-results-container .toggle-switch-container {

@@ -16,6 +16,7 @@ const NAME_ALIASES = {
   vara: "☭",
   くれいど: "qre1d/くれいど",
   viw: "ゔぃｗ",
+  yotchi: "よっち",
 };
 
 function parseCsvToArray(csvText) {
@@ -379,6 +380,16 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
       listFragment.appendChild(r);
     });
     dom.listBody.appendChild(listFragment);
+
+    // 予定がない場合にダミー行を追加
+    if (dom.listRows.length === 0) {
+      const r = document.createElement("tr");
+      r.className = "dummy-row";
+      // 5列すべてを結合したセルにメッセージを表示
+      r.innerHTML =
+        '<td colspan="5">現在予定されているセッションはありません。</td>';
+      dom.listBody.appendChild(r);
+    }
   }
   function updateCalendarView() {
     const endDate = new Date(state.currentStartDate);
@@ -530,6 +541,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     deletePresetBtn: document.getElementById("delete-preset-btn"),
     // ▲▲▲ 変更箇所 ▲▲▲
     selectionModeToggle: document.getElementById("selection-mode-toggle"),
+    toggleConflictBtn: document.getElementById("toggle-conflict-display-btn"),
   };
   let daycordNames = [],
     schedule = [],
@@ -538,6 +550,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     participantPresets = {},
     userPresets = {}, // ユーザー定義プリセットを保持する新しい変数
     selectedDates = [];
+  let showConflictAsStatus = false;
 
   const updateDisplay = () => {
     renderTable();
@@ -813,23 +826,9 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
           }
           const span = document.createElement("span");
           span.className = "daycord-status-tag";
-          if (participantEvent) {
-            cell.classList.add("is-conflicting");
-            const system = participantEvent.system;
-            const bgColor = COLORS[system] || COLORS["default"];
-            span.style.cssText = `background-color:${bgColor}; color:${getContrastColor(
-              bgColor
-            )};`;
-            let tooltipContent = `${system}『${participantEvent.eventName}』<br><strong>GM:</strong> ${participantEvent.gm}`;
-            if (participantEvent.participants.length > 0)
-              tooltipContent += `<br><strong>PL:</strong> ${participantEvent.participants.join(
-                ", "
-              )}`;
-            cell.dataset.tooltipContent = tooltipContent.replace(/"/g, '"');
-            span.textContent = system;
-          } else {
-            const status = day.availability[nameIndex] || "－";
-            const statusClass = `status-${status.replace(
+          const originalStatus = day.availability[nameIndex] || "－";
+          const getStatusClass = (status) =>
+            `status-${status.replace(
               /[◎〇△×▢－]/g,
               (c) =>
                 ({
@@ -841,8 +840,30 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
                   "－": "hyphen",
                 }[c])
             )}`;
-            span.classList.add(statusClass);
-            span.textContent = status;
+
+          if (participantEvent) {
+            cell.classList.add("is-conflicting");
+            let tooltipContent = `<b>元のステータス: ${originalStatus}</b><hr>${participantEvent.system}『${participantEvent.eventName}』<br><strong>GM:</strong> ${participantEvent.gm}`;
+            if (participantEvent.participants.length > 0)
+              tooltipContent += `<br><strong>PL:</strong> ${participantEvent.participants.join(
+                ", "
+              )}`;
+            cell.dataset.tooltipContent = tooltipContent.replace(/"/g, '"');
+
+            if (showConflictAsStatus) {
+              span.classList.add(getStatusClass(originalStatus));
+              span.textContent = originalStatus;
+            } else {
+              const system = participantEvent.system;
+              const bgColor = COLORS[system] || COLORS["default"];
+              span.style.cssText = `background-color:${bgColor}; color:${getContrastColor(
+                bgColor
+              )};`;
+              span.textContent = system;
+            }
+          } else {
+            span.classList.add(getStatusClass(originalStatus));
+            span.textContent = originalStatus;
           }
           cell.appendChild(span);
         });
@@ -1286,6 +1307,13 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
   }
 
   fetchAndProcessData();
+
+  if (dom.toggleConflictBtn) {
+    dom.toggleConflictBtn.addEventListener("change", (e) => {
+      showConflictAsStatus = e.target.checked;
+      renderTable();
+    });
+  }
 }
 
 // --- メイン実行 ---
