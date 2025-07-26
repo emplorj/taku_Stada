@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>成長チェック抽出ツール for CoC - 卓スタダ</title>
+
+  <meta property="og:title" content="成長チェック抽出ツール for CoC - 卓スタダ" />
+  <meta property="og:description" content="ココフォリアのログからクトゥルフ神話TRPGの成長ロール対象ダイスを抽出するツールです。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://emplorj.github.io/taku_Stada/growth_checker.html" />
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.css">
+  <link rel="stylesheet" href="css/growth_checker.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+
+<body>
+  <div id="header-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="main-content">
+    <header class="main-header">
+      <h1><i class="fa-solid fa-square-check"></i> 成長チェック抽出ツール</h1>
+      <p class="subtitle">for CCFOLIA & CoC</p>
+    </header>
+
+    <div id="growth-checker-app" class="plain-text-block" v-cloak>
+
+      <div class="file-drop-area" @dragover.prevent @dragenter.prevent="dragEnter" @dragleave.prevent="dragLeave"
+        @drop.prevent="drop" :class="{ 'is-drag-over': isEnter }">
+        <i class="fa-solid fa-file-arrow-up"></i>
+        <p>ここにココフォリアのログHTMLファイルをドラッグ＆ドロップ</p>
+        <p class="or-text">または</p>
+        <label class="file-select-button">
+          ファイルを選択
+          <input type="file" @change="onFileChange" accept=".html,.txt" style="display: none;">
+        </label>
+        <p v-if="fileName" class="file-name-display">読み込みファイル: {{ fileName }}</p>
+      </div>
+
+      <div class="options-container" v-if="detectedVersion">
+        <h3 class="options-header">
+          <span><i class="fa-solid fa-gears"></i> 抽出オプション <span class="detected-version-badge">{{ detectedVersion ===
+              'coc6' ? '6版' : '7版' }}として検出</span></span>
+          <div class="preset-buttons">
+            <button @click="setPreset('critFumbleInitial')">クリファン初期値</button>
+            <button @click="setPreset('official')">公式準拠</button>
+          </div>
+        </h3>
+
+        <div v-if="detectedVersion === 'coc6'" class="options-grid">
+          <label><input type="checkbox" v-model="options.coc6.critical"> クリティカル</label>
+          <label><input type="checkbox" v-model="options.coc6.fumble"> ファンブル</label>
+          <label><input type="checkbox" v-model="options.coc6.special"> スペシャル</label>
+          <label><input type="checkbox" v-model="options.coc6.success"> 通常成功</label>
+          <label class="checkbox-with-input">
+            <input type="checkbox" v-model="options.coc6.luckyNumber">
+            出目指定:
+            <input type="number" v-model.number="luckyNumber" min="1" max="100" class="lucky-number-input">
+          </label>
+        </div>
+        <div v-if="detectedVersion === 'coc7'" class="options-grid">
+          <label><input type="checkbox" v-model="options.coc7.critical"> クリティカル</label>
+          <label><input type="checkbox" v-model="options.coc7.fumble"> ファンブル</label>
+          <label><input type="checkbox" v-model="options.coc7.extreme"> イクストリーム成功</label>
+          <label><input type="checkbox" v-model="options.coc7.hard"> ハード成功</label>
+          <label><input type="checkbox" v-model="options.coc7.regular"> レギュラー成功</label>
+        </div>
+
+        <div class="toggle-options">
+          <label class="switch-label"><input type="checkbox" v-model="includeAbilityRolls" class="switch-checkbox">
+            〈アイデア〉やCONなどの能力値ロールを抽出する</label>
+          <label class="switch-label"><input type="checkbox" v-model="useTwoColumnLayout" class="switch-checkbox">
+            抽出結果を横に並べてで表示する（スクショ用）</label>
+        </div>
+      </div>
+
+      <div class="results-container" v-if="hasResults">
+        <div class="results-header">
+          <h2 class="start-title">抽出結果</h2>
+          <button class="copy-all-button" v-if="hasResults" @click="copyAllSummaries($event)">
+            <i class="fa-solid fa-layer-group"></i> まとめをすべてコピー
+          </button>
+        </div>
+
+        <div class="settings-container">
+          <div class="settings-block" v-if="characterNames.length > 0">
+            <h4><i class="fa-solid fa-user-gear"></i> 探索者の設定</h4>
+            <div class="character-settings-grid">
+              <div v-for="charName in characterNames" :key="charName" class="character-settings-item">
+                <span class="char-name-label">{{ charName }}</span>
+                <label class="evasion-label">
+                  <input type="checkbox" v-model="evasionOverrides[charName]"> 回避初期値
+                </label>
+                <select v-model="mergeTargets[charName]">
+                  <option :value="charName">（まとめない）</option>
+                  <option value="__HIDE__">→ 非表示にする</option>
+                  <option v-for="targetName in characterNames" :key="targetName" :value="targetName"
+                    v-if="targetName !== charName">
+                    → {{ targetName }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-grid" :class="{ 'two-column-layout': useTwoColumnLayout }">
+          <div v-for="(logs, characterName) in mergedResults" :key="characterName" class="character-result-block">
+            <div class="character-header">
+              <h3>{{ characterName }}</h3>
+              <button class="copy-summary-button" @click="copyToClipboard(summaryResults[characterName], $event)"
+                @mouseover="showTooltip(characterName, $event)" @mouseleave="hideTooltip"
+                v-if="summaryResults[characterName]">
+                <i class="fa-solid fa-paste"></i> まとめをコピー
+              </button>
+            </div>
+            <ul>
+              <li v-for="(log, index) in logs" :key="index" :class="{ 'is-initial-success': log.isInitialSuccess }">
+                <span class="log-text" v-html="log.text"></span>
+                <span v-if="log.isInitialSuccess" class="initial-success-badge">初期値成功</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dice-chart-container" v-if="hasDiceStats && selectedChartCharacter">
+          <div class="chart-header">
+            <h2 class="start-title">出目グラフ</h2>
+            <select v-model="selectedChartCharacter" class="chart-character-selector">
+              <option v-for="charName in visibleCharacterNames" :key="charName" :value="charName">
+                {{ charName }}
+              </option>
+            </select>
+          </div>
+          <div class="bar-chart">
+            <canvas id="diceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="logContent" class="no-results">
+        <p>指定された条件に一致するログは見つかりませんでした。</p>
+      </div>
+
+      <div class="summary-tooltip" v-if="tooltip.visible" :style="{ top: tooltip.y + 'px', left: tooltip.x + 'px' }">
+        <pre>{{ tooltip.content }}</pre>
+      </div>
+    </div>
+    <footer>
+      <p>© 2025 卓スタダ.</p>
+    </footer>
+  </div>
+
+  <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
+  <script src="js/common.js"></script>
+  <script src="js/growth_checker.js"></script>
+</body>
+
+</html>
