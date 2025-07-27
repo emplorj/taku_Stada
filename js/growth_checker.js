@@ -250,21 +250,30 @@ new Vue({
             const roll = parseInt(match[1], 10);
             if (!stats[character]) {
               stats[character] = {
-                counts: Array(10).fill(0),
+                successCounts: Array(10).fill(0),
+                failureCounts: Array(10).fill(0),
                 total: 0,
                 maxCount: 0,
               };
             }
             const binIndex = Math.floor((roll - 1) / 10);
             if (binIndex >= 0 && binIndex < 10) {
-              stats[character].counts[binIndex]++;
+              if (this.isSuccessRoll(diceRollText)) {
+                stats[character].successCounts[binIndex]++;
+              } else if (this.isFailureRoll(diceRollText)) {
+                stats[character].failureCounts[binIndex]++;
+              }
               stats[character].total++;
             }
           }
         }
       });
       for (const charName in stats) {
-        stats[charName].maxCount = Math.max(...stats[charName].counts);
+        stats[charName].maxCount = Math.max(
+          ...stats[charName].successCounts.map(
+            (val, i) => val + stats[charName].failureCounts[i]
+          )
+        );
       }
       return stats;
     },
@@ -282,7 +291,8 @@ new Vue({
         if (this.mergeTargets[targetName] === "__HIDE__") continue;
         if (!mergedStats[targetName]) {
           mergedStats[targetName] = {
-            counts: Array(10).fill(0),
+            successCounts: Array(10).fill(0),
+            failureCounts: Array(10).fill(0),
             total: 0,
             maxCount: 0,
           };
@@ -290,12 +300,17 @@ new Vue({
         const sourceStats = this.diceRollStats[charName];
         mergedStats[targetName].total += sourceStats.total;
         for (let i = 0; i < 10; i++) {
-          mergedStats[targetName].counts[i] += sourceStats.counts[i];
+          mergedStats[targetName].successCounts[i] +=
+            sourceStats.successCounts[i];
+          mergedStats[targetName].failureCounts[i] +=
+            sourceStats.failureCounts[i];
         }
       }
       for (const charName in mergedStats) {
         mergedStats[charName].maxCount = Math.max(
-          ...mergedStats[charName].counts
+          ...mergedStats[charName].successCounts.map(
+            (val, i) => val + mergedStats[charName].failureCounts[i]
+          )
         );
       }
       return mergedStats;
@@ -343,13 +358,22 @@ new Vue({
 
       const stats = this.visibleDiceRollStats[charName];
       const data = {
-        labels: stats.counts.map((_, i) => `${i * 10 + 1}～${(i + 1) * 10}`),
+        labels: stats.successCounts.map(
+          (_, i) => `${i * 10 + 1}～${(i + 1) * 10}`
+        ),
         datasets: [
           {
-            label: `${charName}の出目`,
-            data: stats.counts,
-            backgroundColor: "rgba(75, 192, 192, 0.6)",
+            label: "成功",
+            data: stats.successCounts,
+            backgroundColor: "rgba(75, 192, 192, 0.6)", // 成功の色
             borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
+          },
+          {
+            label: "失敗",
+            data: stats.failureCounts,
+            backgroundColor: "rgba(255, 99, 132, 0.6)", // 失敗の色
+            borderColor: "rgba(255, 99, 132, 1)",
             borderWidth: 1,
           },
         ],
@@ -365,7 +389,11 @@ new Vue({
             duration: 500,
           },
           scales: {
+            x: {
+              stacked: true,
+            },
             y: {
+              stacked: true,
               beginAtZero: true,
               ticks: {
                 stepSize: 1,
@@ -382,7 +410,7 @@ new Vue({
           },
           plugins: {
             legend: {
-              display: false,
+              display: true, // 凡例を表示
             },
             tooltip: {
               callbacks: {
@@ -390,14 +418,16 @@ new Vue({
                   return `出目: ${tooltipItems[0].label}`;
                 },
                 label: (tooltipItem) => {
-                  return `回数: ${tooltipItem.raw}回`;
+                  const total =
+                    stats.successCounts[tooltipItem.dataIndex] +
+                    stats.failureCounts[tooltipItem.dataIndex];
+                  return `${tooltipItem.dataset.label}: ${tooltipItem.raw}回 (合計: ${total}回)`;
                 },
               },
             },
             datalabels: {
-              anchor: "end",
-              align: "end",
-              offset: -4,
+              anchor: "center", // ラベルをバーの中央に配置
+              align: "center",
               color: "white",
               font: {
                 weight: "bold",
@@ -494,6 +524,51 @@ new Vue({
           (opt.extreme && diceRoll.endsWith("＞ イクストリーム成功")) ||
           (opt.hard && diceRoll.endsWith("＞ ハード成功")) ||
           (opt.regular && diceRoll.endsWith("＞ レギュラー成功"))
+        );
+      }
+    },
+    isSuccessRoll(diceRoll) {
+      const opt = this.options[this.detectedVersion];
+      if (!opt) return false;
+      if (this.detectedVersion === "coc6") {
+        return (
+          (opt.critical && diceRoll.includes("決定的成功")) ||
+          (opt.special && diceRoll.includes("＞ スペシャル")) ||
+          (opt.success &&
+            diceRoll.endsWith("＞ 成功") &&
+            !diceRoll.includes("決定的成功"))
+        );
+      } else {
+        return (
+          (opt.critical && diceRoll.endsWith("＞ クリティカル")) ||
+          (opt.extreme && diceRoll.endsWith("＞ イクストリーム成功")) ||
+          (opt.hard && diceRoll.endsWith("＞ ハード成功")) ||
+          (opt.regular && diceRoll.endsWith("＞ レギュラー成功"))
+        );
+      }
+    },
+    isFailureRoll(diceRoll) {
+      const opt = this.options[this.detectedVersion];
+      if (!opt) return false;
+      if (this.detectedVersion === "coc6") {
+        return (
+          (opt.fumble && diceRoll.includes("致命的失敗")) ||
+          (!this.isSuccessRoll(diceRoll) &&
+            !diceRoll.includes("致命的失敗") &&
+            !diceRoll.includes("決定的成功") &&
+            !diceRoll.includes("＞ スペシャル") &&
+            !diceRoll.endsWith("＞ 成功") &&
+            !diceRoll.match(`＞ ${this.luckyNumber} ＞`))
+        );
+      } else {
+        return (
+          (opt.fumble && diceRoll.endsWith("＞ ファンブル")) ||
+          (!this.isSuccessRoll(diceRoll) &&
+            !diceRoll.endsWith("＞ クリティカル") &&
+            !diceRoll.endsWith("＞ イクストリーム成功") &&
+            !diceRoll.endsWith("＞ ハード成功") &&
+            !diceRoll.endsWith("＞ レギュラー成功") &&
+            !diceRoll.endsWith("＞ ファンブル"))
         );
       }
     },
