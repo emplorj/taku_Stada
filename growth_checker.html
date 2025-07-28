@@ -142,7 +142,7 @@
           <div class="results-grid" :class="{ 'two-column-layout': useTwoColumnLayout }">
             <div v-for="(logs, characterName) in mergedResults" :key="characterName" class="character-result-block">
               <div class="character-header">
-                <h3>{{ characterName }}</h3>
+                <h3><span>{{ characterName }}</span></h3>
                 <button class="copy-summary-button" @click="copyToClipboard(summaryResults[characterName], $event)"
                   @mouseover="showTooltip(characterName, $event)" @mouseleave="hideTooltip"
                   v-if="summaryResults[characterName]">
@@ -188,6 +188,26 @@
                 class="switch-checkbox"> ダイスロールを除外する</label>
             <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.onlyQuoted"
                 class="switch-checkbox"> 「」『』で囲まれたセリフのみ抽出</label>
+            <!-- ▼▼▼ 修正点 ▼▼▼ -->
+            <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.applyLineBreaks"
+                class="switch-checkbox"> コピーする際にセリフ内改行を適用する</label>
+            <!-- ▲▲▲ 修正点 ▲▲▲ -->
+          </div>
+
+          <!-- タブ選択 (追加) -->
+          <div v-if="tabNames.length > 1" class="tab-options">
+            <div class="tab-options-header">
+              <h4><i class="fa-solid fa-folder-tree"></i> タブ選択</h4>
+              <div class="tab-selection-buttons">
+                <button @click="selectMainTab">メインのみ</button>
+                <button @click="selectAllTabs">全表示</button>
+              </div>
+            </div>
+            <div class="options-grid">
+              <label v-for="tab in tabNames" :key="tab">
+                <input type="checkbox" :value="tab" v-model="selectedTabs"> {{ tab }}
+              </label>
+            </div>
           </div>
         </div>
 
@@ -199,11 +219,35 @@
             </button>
           </div>
 
+          <!-- 探索者の設定 (追加) -->
+          <div class="settings-container">
+            <details class="settings-block" v-if="characterNames.length > 0" open>
+              <summary>
+                <h4><i class="fa-solid fa-user-gear"></i> 探索者の設定</h4>
+              </summary>
+              <div class="character-settings-grid">
+                <div v-for="charName in characterNames" :key="charName" class="character-settings-item">
+                  <span class="char-name-label">{{ charName }}</span>
+                  <!-- 空白を維持するためのプレースホルダー -->
+                  <span class="evasion-label-placeholder"></span>
+                  <select v-model="mergeTargets[charName]">
+                    <option :value="charName">（まとめない）</option>
+                    <option value="__HIDE__">→ 非表示にする</option>
+                    <option v-for="targetName in characterNames" :key="targetName" :value="targetName"
+                      v-if="targetName !== charName">
+                      → {{ targetName }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </details>
+          </div>
+
           <details v-for="charData in dialogueResults" :key="charData.character" class="character-result-block" open>
             <summary class="character-header">
               <h3 :style="{ color: charData.color }">
                 <input type="checkbox" @change="toggleSelectCharacter(charData.character, $event.target.checked)">
-                <span>{{ charData.character }}</span>
+                {{ charData.character }}
               </h3>
             </summary>
             <ul>

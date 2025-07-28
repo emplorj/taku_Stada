@@ -299,13 +299,20 @@
   align-items: center;
   border-bottom: 2px solid #3498db;
 }
+/* ▼▼▼ 修正 ▼▼▼ */
 .character-header h3 {
   margin: 0;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "Corporate-Logo-Bold", sans-serif; /* デフォルトフォントを指定 */
   display: flex;
   align-items: center;
   gap: 10px;
+  overflow: hidden; /* 追加 */
+  text-overflow: ellipsis; /* 追加 */
+  white-space: nowrap; /* 追加 */
 }
+/* .character-header h3 span は不要になるため削除 */
+/* ▲▲▲ 修正 ▲▲▲ */
+
 .copy-summary-button {
   background-color: #3498db;
   color: white;
@@ -357,6 +364,7 @@
   font-size: 0.96em;
   word-break: break-all;
   flex-grow: 1;
+  white-space: pre-wrap; /* 改行を保持し、必要に応じて折り返す */
 }
 .log-text strong {
   color: #ea9999;
@@ -428,7 +436,7 @@
 }
 .character-settings-item {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(80px, 2fr) auto minmax(100px, 1fr); /* 探索者名、チェックボックス、プルダウンの幅を調整 */
   gap: 15px;
   align-items: center;
   padding: 8px 0;
@@ -438,10 +446,10 @@
   border-bottom: none;
 }
 .char-name-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   font-weight: bold;
+  word-break: break-all; /* 名前が長すぎる場合に改行されるように変更 */
+  white-space: normal; /* nowrapを解除 */
+  min-width: 80px; /* 最小幅を設定して名前の表示領域を確保 */
 }
 .evasion-label {
   display: flex;
@@ -458,6 +466,8 @@
   padding: 5px 8px;
   font-family: inherit;
   font-size: 0.9em;
+  width: 100%; /* 親要素のグリッド列の幅に合わせる */
+  box-sizing: border-box; /* paddingとborderをwidthに含める */
 }
 
 .summary-tooltip {
@@ -585,7 +595,7 @@ summary.character-header h3 {
   gap: 10px;
   margin: 0;
   font-family: "Corporate-Logo-Bold", sans-serif;
-  padding: 4px 20px 0px 28px; /* 上下のパディングを均等に調整 */
+  padding: 4px 20px 0px 28px;
   position: relative;
 }
 
