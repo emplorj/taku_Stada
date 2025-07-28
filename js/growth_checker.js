@@ -39,6 +39,7 @@ new Vue({
     tabNames: [],
     selectedTabs: [],
     parsedLogs: [],
+    characterDialogueSelection: {}, // 新しいデータプロパティ
     alwaysExcludeRolls: ["SAN", "SAN値チェック", "正気度ロール"],
     conditionalRolls: [
       "幸運",
@@ -142,6 +143,7 @@ new Vue({
         this.tabNames = [];
         this.selectedTabs = [];
         this.selectedChartCharacter = null;
+        this.characterDialogueSelection = {}; // 初期化
         return;
       }
 
@@ -192,6 +194,15 @@ new Vue({
       };
       doc.body.childNodes.forEach((node) => processNode(node, "メイン"));
       this.parsedLogs = allLogs;
+
+      // characterDialogueSelection の初期化
+      this.parsedLogs.forEach((log, index) => {
+        const charName = log.character || "（名前なし）";
+        if (!this.characterDialogueSelection[charName]) {
+          this.$set(this.characterDialogueSelection, charName, {});
+        }
+        this.$set(this.characterDialogueSelection[charName], index, false);
+      });
 
       const tabs = new Set(["メイン", "情報", "雑談"]);
       this.parsedLogs.forEach((log) => tabs.add(log.tab));
@@ -414,7 +425,7 @@ new Vue({
           id: index,
           tab: log.tab,
           message: log.message,
-          selected: false,
+          selected: this.characterDialogueSelection[charName]?.[index] || false,
         });
       });
       return Object.keys(grouped).map((key) => ({
@@ -746,15 +757,25 @@ new Vue({
         (c) => c.character === charName
       );
       if (charData) {
-        charData.dialogues.forEach((d) => (d.selected = isChecked));
+        charData.dialogues.forEach((d) => {
+          this.$set(this.characterDialogueSelection[charName], d.id, isChecked);
+        });
       }
     },
     copySelectedDialogues(event) {
       let textToCopy = "";
+      const isSingleCharacter = this.dialogueResults.length === 1;
+
       this.dialogueResults.forEach((charData) => {
         const selectedDialogues = charData.dialogues
           .filter((d) => d.selected)
-          .map((d) => `${charData.character}: ${d.message}`);
+          .map((d) => {
+            if (isSingleCharacter) {
+              return d.message;
+            } else {
+              return `${charData.character}: ${d.message}`;
+            }
+          });
 
         if (selectedDialogues.length > 0) {
           textToCopy += selectedDialogues.join("\n") + "\n";
