@@ -1,6 +1,7 @@
 new Vue({
-  el: "#growth-checker-app",
+  el: "#log-tool-app",
   data: {
+    activeTool: "growth", // 'growth' or 'dialogue'
     logContent: "",
     fileName: "",
     detectedVersion: null,
@@ -11,6 +12,7 @@ new Vue({
         special: true,
         success: true,
         luckyNumber: false,
+        failure: true,
       },
       coc7: {
         critical: true,
@@ -18,7 +20,12 @@ new Vue({
         extreme: true,
         hard: true,
         regular: true,
+        failure: true,
       },
+    },
+    dialogueOptions: {
+      excludeDiceRolls: true,
+      onlyQuoted: true,
     },
     luckyNumber: 1,
     includeAbilityRolls: false,
@@ -28,7 +35,10 @@ new Vue({
     mergeTargets: {},
     tooltip: { visible: false, content: "", x: 0, y: 0 },
     selectedChartCharacter: null,
-    chartInstance: null, // Chart.jsのインスタンスを保持
+    chartInstance: null,
+    tabNames: [],
+    selectedTabs: [],
+    parsedLogs: [],
     alwaysExcludeRolls: ["SAN", "SAN値チェック", "正気度ロール"],
     conditionalRolls: [
       "幸運",
@@ -108,14 +118,11 @@ new Vue({
     },
   },
   watch: {
-    // グラフで選択されている探索者が変更されたらアニメーションを実行
     selectedChartCharacter(newChar) {
       this.updateChart(newChar);
     },
-    // マージ設定が変わった時もグラフを更新
     mergeTargets: {
       handler() {
-        // 現在選択されているキャラが非表示になった場合、表示可能な別のキャラを選択し直す
         if (
           this.visibleCharacterNames.length > 0 &&
           !this.visibleCharacterNames.includes(this.selectedChartCharacter)
@@ -124,50 +131,131 @@ new Vue({
         } else if (this.visibleCharacterNames.length === 0) {
           this.selectedChartCharacter = null;
         } else {
-          // 統合状態が変わっただけなら再描画
           this.updateChart(this.selectedChartCharacter);
         }
       },
       deep: true,
     },
+    logContent(newContent) {
+      if (!newContent) {
+        this.parsedLogs = [];
+        this.tabNames = [];
+        this.selectedTabs = [];
+        this.selectedChartCharacter = null;
+        return;
+      }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(newContent, "text/html");
+      const allLogs = [];
+      const logRegex = /^\s*(?:\[(.*?)\]\s*)?(.*?)\s*:\s*(.*)$/s;
+
+      const processNode = (node, currentTab) => {
+        if (node.nodeName === "P") {
+          const color = node.style.color || ""; // 色情報を取得
+          const spans = node.querySelectorAll("span");
+          if (spans.length >= 3) {
+            let tab =
+              (spans[0]
+                ? spans[0].textContent.trim().replace(/[\[\]]/g, "")
+                : currentTab) || "メイン";
+            const character = spans[1] ? spans[1].textContent.trim() : "";
+            const message = spans[2] ? spans[2].textContent.trim() : "";
+            if (tab.toLowerCase() === "main") tab = "メイン";
+            if (tab.toLowerCase() === "info") tab = "情報";
+            if (tab.toLowerCase() === "other") tab = "雑談";
+            if (character || message)
+              allLogs.push({ tab, character, message, color });
+          } else {
+            const textContent = node.textContent.trim();
+            const match = textContent.match(logRegex);
+            if (match) {
+              let tab = match[1] ? match[1].trim() : currentTab;
+              if (tab.toLowerCase() === "main") tab = "メイン";
+              if (tab.toLowerCase() === "info") tab = "情報";
+              if (tab.toLowerCase() === "other") tab = "雑談";
+              const character = match[2].trim();
+              const message = match[3].trim();
+              if (character || message)
+                allLogs.push({ tab, character, message, color });
+            }
+          }
+        } else if (node.nodeName === "DETAILS") {
+          const summary = node.querySelector("summary");
+          const newTabName = summary
+            ? summary.textContent.trim().replace(/[\[\]]/g, "")
+            : "タブ";
+          node.childNodes.forEach((child) => processNode(child, newTabName));
+        } else if (node.nodeType === 1) {
+          node.childNodes.forEach((child) => processNode(child, currentTab));
+        }
+      };
+      doc.body.childNodes.forEach((node) => processNode(node, "メイン"));
+      this.parsedLogs = allLogs;
+
+      const tabs = new Set(["メイン", "情報", "雑談"]);
+      this.parsedLogs.forEach((log) => tabs.add(log.tab));
+
+      this.tabNames = [
+        "メイン",
+        "情報",
+        "雑談",
+        ...[...tabs].filter((t) => !["メイン", "情報", "雑談"].includes(t)),
+      ];
+      this.selectedTabs = [...this.tabNames];
+      this.detectedVersion = this.logContent.includes(
+        "ボーナス・ペナルティダイス"
+      )
+        ? "coc7"
+        : "coc6";
+      this.setPreset("official");
+
+      this.$nextTick(() => {
+        if (this.visibleCharacterNames.length > 0) {
+          this.selectedChartCharacter = this.visibleCharacterNames[0];
+        } else {
+          this.selectedChartCharacter = null;
+        }
+      });
+    },
   },
   computed: {
     characterNames() {
-      return Object.keys(this.processedResults);
+      return [
+        ...new Set(this.parsedLogs.map((log) => log.character).filter(Boolean)),
+      ].sort();
+    },
+    diceRollingCharacters() {
+      return Object.keys(this.processedResults).sort();
     },
     visibleCharacterNames() {
-      return Object.keys(this.mergedResults);
+      const names = Object.keys(this.mergedResults);
+      return names.length > 1 ? ["★みんな", ...names] : names;
     },
     hasResults() {
       return this.logContent && this.characterNames.length > 0;
     },
     processedResults() {
       if (!this.logContent) return {};
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(this.logContent, "text/html");
-      const paragraphs = doc.querySelectorAll("p");
       const filteredLogs = [];
-      paragraphs.forEach((p) => {
-        const spans = p.querySelectorAll("span");
-        if (
-          spans.length >= 3 &&
-          spans[2] &&
-          spans[2].textContent.includes("＞")
-        ) {
-          const character = spans[1]
-            ? spans[1].textContent.trim()
-            : "（名前なし）";
-          const diceRoll = spans[2].textContent.trim();
-          const skillName = this.getSkillName(diceRoll);
-          const skillValue = this.getSkillValue(diceRoll);
-          if (!skillName || skillValue === null) return;
-          if (this.alwaysExcludeRolls.some((ex) => skillName.includes(ex)))
-            return;
-          if (!this.includeAbilityRolls && this.isConditionalRoll(skillName))
-            return;
-          if (!this.isMatch(diceRoll)) return;
-          filteredLogs.push({ character, diceRoll, skillName, skillValue });
-        }
+      this.parsedLogs.forEach((log) => {
+        if (!this.selectedTabs.includes(log.tab)) return;
+        if (!log.message.includes("＞")) return;
+        const skillName = this.getSkillName(log.message);
+        const skillValue = this.getSkillValue(log.message);
+        if (!skillName || skillValue === null) return;
+        if (this.alwaysExcludeRolls.some((ex) => skillName.includes(ex)))
+          return;
+        if (!this.includeAbilityRolls && this.isConditionalRoll(skillName))
+          return;
+        if (!this.isMatch(log.message)) return;
+        filteredLogs.push({
+          character: log.character,
+          diceRoll: log.message,
+          skillName,
+          skillValue,
+          tab: log.tab,
+        });
       });
       const grouped = {};
       filteredLogs.forEach((log) => {
@@ -180,12 +268,14 @@ new Vue({
         const isInitial = this.isInitialSuccess(
           log.skillName,
           log.skillValue,
-          charName
+          charName,
+          log.diceRoll
         );
         grouped[charName].push({
           skill: log.skillName,
-          text: this.formatLogText(log.diceRoll),
+          formattedText: this.formatLogText(log.diceRoll),
           isInitialSuccess: isInitial,
+          tab: log.tab,
         });
       });
       return grouped;
@@ -202,22 +292,18 @@ new Vue({
           targetName = this.mergeTargets[targetName];
         }
         if (this.mergeTargets[targetName] === "__HIDE__") continue;
-        if (!merged[targetName]) {
-          merged[targetName] = [];
-        }
+        if (!merged[targetName]) merged[targetName] = [];
         merged[targetName].push(...this.processedResults[charName]);
       }
       return merged;
     },
     summaryResults() {
       const summary = {};
-      const results = this.mergedResults;
-      for (const charName in results) {
-        const skills = results[charName].map((log) => log.skill);
+      for (const charName in this.mergedResults) {
+        const skills = this.mergedResults[charName].map((log) => log.skill);
         const uniqueSkills = [...new Set(skills)];
-        if (uniqueSkills.length > 0) {
+        if (uniqueSkills.length > 0)
           summary[charName] = "◆" + charName + "\n" + uniqueSkills.join("\n");
-        }
       }
       return summary;
     },
@@ -233,38 +319,26 @@ new Vue({
     diceRollStats() {
       if (!this.logContent) return {};
       const stats = {};
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(this.logContent, "text/html");
-      const paragraphs = doc.querySelectorAll("p");
       const rollRegex = /\(1D100.*?\)\s*＞\s*(\d+)/;
-
-      paragraphs.forEach((p) => {
-        const spans = p.querySelectorAll("span");
-        if (spans.length >= 3 && spans[2]) {
-          const character = spans[1]
-            ? spans[1].textContent.trim()
-            : "（名前なし）";
-          const diceRollText = spans[2].textContent.trim();
-          const match = diceRollText.match(rollRegex);
-          if (match && match[1]) {
-            const roll = parseInt(match[1], 10);
-            if (!stats[character]) {
-              stats[character] = {
-                successCounts: Array(10).fill(0),
-                failureCounts: Array(10).fill(0),
-                total: 0,
-                maxCount: 0,
-              };
-            }
-            const binIndex = Math.floor((roll - 1) / 10);
-            if (binIndex >= 0 && binIndex < 10) {
-              if (this.isSuccessRoll(diceRollText)) {
-                stats[character].successCounts[binIndex]++;
-              } else if (this.isFailureRoll(diceRollText)) {
-                stats[character].failureCounts[binIndex]++;
-              }
-              stats[character].total++;
-            }
+      this.parsedLogs.forEach((log) => {
+        if (!this.selectedTabs.includes(log.tab)) return;
+        const rollMatch = log.message.match(rollRegex);
+        if (rollMatch && rollMatch[1]) {
+          const character = log.character || "（名前なし）";
+          const roll = parseInt(rollMatch[1], 10);
+          if (!stats[character])
+            stats[character] = {
+              successCounts: Array(10).fill(0),
+              failureCounts: Array(10).fill(0),
+              total: 0,
+              maxCount: 0,
+            };
+          const binIndex = Math.floor((roll - 1) / 10);
+          if (binIndex >= 0 && binIndex < 10) {
+            if (this.isAnySuccess(log.message))
+              stats[character].successCounts[binIndex]++;
+            else stats[character].failureCounts[binIndex]++;
+            stats[character].total++;
           }
         }
       });
@@ -289,14 +363,13 @@ new Vue({
           targetName = this.mergeTargets[targetName];
         }
         if (this.mergeTargets[targetName] === "__HIDE__") continue;
-        if (!mergedStats[targetName]) {
+        if (!mergedStats[targetName])
           mergedStats[targetName] = {
             successCounts: Array(10).fill(0),
             failureCounts: Array(10).fill(0),
             total: 0,
             maxCount: 0,
           };
-        }
         const sourceStats = this.diceRollStats[charName];
         mergedStats[targetName].total += sourceStats.total;
         for (let i = 0; i < 10; i++) {
@@ -315,6 +388,41 @@ new Vue({
       }
       return mergedStats;
     },
+    dialogueResults() {
+      if (!this.logContent) return [];
+      let logs = this.parsedLogs;
+
+      if (this.dialogueOptions.onlyQuoted) {
+        logs = logs.filter(
+          (log) => log.message.startsWith("「") || log.message.startsWith("『")
+        );
+      }
+      if (this.dialogueOptions.excludeDiceRolls) {
+        logs = logs.filter((log) => !log.message.includes("＞"));
+      }
+
+      const grouped = {};
+      logs.forEach((log, index) => {
+        const charName = log.character || "（名前なし）";
+        if (!grouped[charName]) {
+          grouped[charName] = { dialogues: [], color: null };
+        }
+        if (!grouped[charName].color && log.color) {
+          grouped[charName].color = log.color;
+        }
+        grouped[charName].dialogues.push({
+          id: index,
+          tab: log.tab,
+          message: log.message,
+          selected: false,
+        });
+      });
+      return Object.keys(grouped).map((key) => ({
+        character: key,
+        dialogues: grouped[key].dialogues,
+        color: grouped[key].color || "#eee",
+      }));
+    },
   },
   methods: {
     handleFile(file) {
@@ -325,38 +433,36 @@ new Vue({
         this.evasionOverrides = {};
         this.mergeTargets = {};
         this.logContent = e.target.result;
-        this.detectedVersion = this.logContent.includes(
-          "ボーナス・ペナルティダイス"
-        )
-          ? "coc7"
-          : "coc6";
-        this.setPreset("official");
-        this.$nextTick(() => {
-          if (this.visibleCharacterNames.length > 0) {
-            this.selectedChartCharacter = this.visibleCharacterNames[0];
-          } else {
-            this.selectedChartCharacter = null;
-          }
-          this.$nextTick(() => {
-            this.updateChart(this.selectedChartCharacter);
-          });
-        });
       };
       reader.readAsText(file);
     },
     updateChart(charName) {
       const ctx = document.getElementById("diceChart");
       if (!ctx) return;
-
-      if (this.chartInstance) {
-        this.chartInstance.destroy();
-      }
-
-      if (!charName || !this.visibleDiceRollStats[charName]) {
+      if (this.chartInstance) this.chartInstance.destroy();
+      if (
+        !charName ||
+        (charName !== "★みんな" && !this.visibleDiceRollStats[charName])
+      )
         return;
+      let stats;
+      if (charName === "★みんな") {
+        stats = {
+          successCounts: Array(10).fill(0),
+          failureCounts: Array(10).fill(0),
+          total: 0,
+        };
+        for (const name in this.visibleDiceRollStats) {
+          const charStats = this.visibleDiceRollStats[name];
+          stats.total += charStats.total;
+          for (let i = 0; i < 10; i++) {
+            stats.successCounts[i] += charStats.successCounts[i];
+            stats.failureCounts[i] += charStats.failureCounts[i];
+          }
+        }
+      } else {
+        stats = this.visibleDiceRollStats[charName];
       }
-
-      const stats = this.visibleDiceRollStats[charName];
       const data = {
         labels: stats.successCounts.map(
           (_, i) => `${i * 10 + 1}～${(i + 1) * 10}`
@@ -365,76 +471,62 @@ new Vue({
           {
             label: "成功",
             data: stats.successCounts,
-            backgroundColor: "rgba(75, 192, 192, 0.6)", // 成功の色
+            backgroundColor: "rgba(75, 192, 192, 0.6)",
             borderColor: "rgba(75, 192, 192, 1)",
             borderWidth: 1,
           },
           {
             label: "失敗",
             data: stats.failureCounts,
-            backgroundColor: "rgba(255, 99, 132, 0.6)", // 失敗の色
+            backgroundColor: "rgba(255, 99, 132, 0.6)",
             borderColor: "rgba(255, 99, 132, 1)",
             borderWidth: 1,
           },
         ],
       };
-
       this.chartInstance = new Chart(ctx, {
         type: "bar",
         data: data,
         plugins: [ChartDataLabels],
         options: {
-          devicePixelRatio: 2, // 解像度を2倍にする
-          animation: {
-            duration: 500,
-          },
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 500 },
           scales: {
-            x: {
-              stacked: true,
-            },
+            x: { stacked: true, ticks: { color: "#bdc3c7" } },
             y: {
               stacked: true,
               beginAtZero: true,
-              ticks: {
-                stepSize: 1,
-              },
+              ticks: { stepSize: 1, color: "#bdc3c7" },
               afterDataLimits: (scale) => {
-                scale.max = scale.max * 1.1;
+                scale.max = Math.max(1, scale.max * 1.1);
               },
             },
           },
-          layout: {
-            padding: {
-              right: 10,
-            },
-          },
+          layout: { padding: { top: 20, right: 10 } },
           plugins: {
-            legend: {
-              display: true, // 凡例を表示
-            },
+            legend: { display: true, labels: { color: "#eee" } },
             tooltip: {
               callbacks: {
-                title: (tooltipItems) => {
-                  return `出目: ${tooltipItems[0].label}`;
-                },
+                title: (tooltipItems) => `出目: ${tooltipItems[0].label}`,
                 label: (tooltipItem) => {
+                  let currentStats =
+                    charName === "★みんな"
+                      ? stats
+                      : this.visibleDiceRollStats[charName];
                   const total =
-                    stats.successCounts[tooltipItem.dataIndex] +
-                    stats.failureCounts[tooltipItem.dataIndex];
+                    currentStats.successCounts[tooltipItem.dataIndex] +
+                    currentStats.failureCounts[tooltipItem.dataIndex];
                   return `${tooltipItem.dataset.label}: ${tooltipItem.raw}回 (合計: ${total}回)`;
                 },
               },
             },
             datalabels: {
-              anchor: "center", // ラベルをバーの中央に配置
+              anchor: "center",
               align: "center",
               color: "white",
-              font: {
-                weight: "bold",
-              },
-              formatter: (value) => {
-                return value > 0 ? value : "";
-              },
+              font: { weight: "bold" },
+              formatter: (value) => (value > 0 ? value : ""),
             },
           },
         },
@@ -462,8 +554,10 @@ new Vue({
       if (presetName === "critFumbleInitial") {
         versionOptions.critical = true;
         versionOptions.fumble = true;
+        versionOptions.failure = true;
       } else if (presetName === "official") {
         versionOptions.critical = true;
+        versionOptions.failure = true;
         if (this.detectedVersion === "coc6") {
           versionOptions.success = true;
           versionOptions.special = true;
@@ -493,8 +587,18 @@ new Vue({
         : null;
     },
     getSkillValue(diceRoll) {
-      const valueMatch = diceRoll.match(/CCB?<=(\d+)/);
-      return valueMatch ? parseInt(valueMatch[1], 10) : null;
+      const valueMatch = diceRoll.match(/CCB?<=\s*([\d\+\-\*\/×]+)/);
+      if (valueMatch && valueMatch[1]) {
+        try {
+          const expression = valueMatch[1].replace(/×/g, "*");
+          return new Function("return " + expression)();
+        } catch (e) {
+          const simpleMatch = diceRoll.match(/CCB?<=(\d+)/);
+          if (simpleMatch && simpleMatch[1])
+            return parseInt(simpleMatch[1], 10);
+        }
+      }
+      return null;
     },
     isConditionalRoll(skillName) {
       return this.conditionalRolls.some((cr) => {
@@ -515,7 +619,8 @@ new Vue({
             !diceRoll.includes("決定的成功")) ||
           (opt.luckyNumber &&
             this.luckyNumber > 0 &&
-            diceRoll.match(`＞ ${this.luckyNumber} ＞`))
+            diceRoll.match(`＞ ${this.luckyNumber} ＞`)) ||
+          (opt.failure && this.isFailureRoll(diceRoll))
         );
       } else {
         return (
@@ -523,7 +628,18 @@ new Vue({
           (opt.fumble && diceRoll.endsWith("＞ ファンブル")) ||
           (opt.extreme && diceRoll.endsWith("＞ イクストリーム成功")) ||
           (opt.hard && diceRoll.endsWith("＞ ハード成功")) ||
-          (opt.regular && diceRoll.endsWith("＞ レギュラー成功"))
+          (opt.regular && diceRoll.endsWith("＞ レギュラー成功")) ||
+          (opt.failure && this.isFailureRoll(diceRoll))
+        );
+      }
+    },
+    isAnySuccess(diceRoll) {
+      if (this.detectedVersion === "coc6") {
+        return diceRoll.includes("成功") || diceRoll.includes("スペシャル");
+      } else {
+        // coc7
+        return (
+          diceRoll.includes("成功") || diceRoll.endsWith("＞ クリティカル")
         );
       }
     },
@@ -550,35 +666,47 @@ new Vue({
     isFailureRoll(diceRoll) {
       const opt = this.options[this.detectedVersion];
       if (!opt) return false;
-      if (this.detectedVersion === "coc6") {
-        return (
-          (opt.fumble && diceRoll.includes("致命的失敗")) ||
-          (!this.isSuccessRoll(diceRoll) &&
-            !diceRoll.includes("致命的失敗") &&
-            !diceRoll.includes("決定的成功") &&
-            !diceRoll.includes("＞ スペシャル") &&
-            !diceRoll.endsWith("＞ 成功") &&
-            !diceRoll.match(`＞ ${this.luckyNumber} ＞`))
-        );
-      } else {
-        return (
-          (opt.fumble && diceRoll.endsWith("＞ ファンブル")) ||
-          (!this.isSuccessRoll(diceRoll) &&
-            !diceRoll.endsWith("＞ クリティカル") &&
-            !diceRoll.endsWith("＞ イクストリーム成功") &&
-            !diceRoll.endsWith("＞ ハード成功") &&
-            !diceRoll.endsWith("＞ レギュラー成功") &&
-            !diceRoll.endsWith("＞ ファンブル"))
-        );
-      }
+      return (
+        (opt.fumble &&
+          (diceRoll.includes("致命的失敗") ||
+            diceRoll.endsWith("＞ ファンブル"))) ||
+        (opt.failure && !this.isAnySuccess(diceRoll))
+      );
     },
-    isInitialSuccess(skillName, skillValue, charName) {
+    isInitialSuccess(skillName, skillValue, charName, diceRoll) {
+      if (!this.isAnySuccess(diceRoll)) return false;
       if (skillName === "回避") return !!this.evasionOverrides[charName];
       const initialValue = this.initialSkills[skillName];
       return initialValue !== undefined && skillValue === initialValue;
     },
+    getRollResultType(diceRoll) {
+      if (this.detectedVersion === "coc6") {
+        if (diceRoll.includes("決定的成功")) return "critical";
+        if (diceRoll.includes("致命的失敗")) return "fumble";
+        if (diceRoll.includes("＞ スペシャル")) return "special";
+        if (diceRoll.endsWith("＞ 成功")) return "success";
+        if (diceRoll.includes("失敗")) return "failure";
+      } else {
+        if (diceRoll.endsWith("＞ クリティカル")) return "critical";
+        if (diceRoll.endsWith("＞ ファンブル")) return "fumble";
+        if (diceRoll.endsWith("＞ イクストリーム成功")) return "extreme";
+        if (diceRoll.endsWith("＞ ハード成功")) return "hard";
+        if (diceRoll.endsWith("＞ レギュラー成功")) return "success";
+        if (diceRoll.includes("失敗")) return "failure";
+      }
+      return "unknown";
+    },
     formatLogText(diceRoll) {
-      return diceRoll.replace(/(【.+?】)/, "<strong>$1</strong>");
+      const resultType = this.getRollResultType(diceRoll);
+      const skillFormatted = diceRoll.replace(
+        /(【.+?】)/,
+        "<strong>$1</strong>"
+      );
+      const coloredResult = skillFormatted.replace(
+        /＞\s*([^＞]*)$/,
+        `＞ <span class="result-status result-${resultType}">$1</span>`
+      );
+      return coloredResult;
     },
     copyToClipboard(text, event) {
       if (!text) return;
@@ -612,6 +740,36 @@ new Vue({
           }, 1500);
         })
         .catch((err) => console.error("一括コピーに失敗しました", err));
+    },
+    toggleSelectCharacter(charName, isChecked) {
+      const charData = this.dialogueResults.find(
+        (c) => c.character === charName
+      );
+      if (charData) {
+        charData.dialogues.forEach((d) => (d.selected = isChecked));
+      }
+    },
+    copySelectedDialogues(event) {
+      let textToCopy = "";
+      this.dialogueResults.forEach((charData) => {
+        const selectedDialogues = charData.dialogues
+          .filter((d) => d.selected)
+          .map((d) => `${charData.character}: ${d.message}`);
+
+        if (selectedDialogues.length > 0) {
+          textToCopy += selectedDialogues.join("\n") + "\n";
+        }
+      });
+      this.copyToClipboard(textToCopy.trim(), event);
+    },
+    selectMainTab() {
+      this.selectedTabs = [];
+      if (this.tabNames.includes("メイン")) {
+        this.selectedTabs.push("メイン");
+      }
+    },
+    selectAllTabs() {
+      this.selectedTabs = [...this.tabNames];
     },
   },
 });

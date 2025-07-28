@@ -27,11 +27,17 @@
 
   <div class="main-content">
     <header class="main-header">
-      <h1><i class="fa-solid fa-square-check"></i> 成長チェック抽出ツール</h1>
+      <h1><i class="fa-solid fa-file-export"></i> ログ抽出ツール</h1>
       <p class="subtitle">for CCFOLIA & CoC</p>
     </header>
 
-    <div id="growth-checker-app" class="plain-text-block" v-cloak>
+    <div id="log-tool-app" class="plain-text-block" v-cloak>
+      <div class="tool-tabs">
+        <button :class="{ active: activeTool === 'growth' }" @click="activeTool = 'growth'"><i
+            class="fa-solid fa-square-check"></i> 成長チェック</button>
+        <button :class="{ active: activeTool === 'dialogue' }" @click="activeTool = 'dialogue'"><i
+            class="fa-solid fa-comments"></i> セリフ抽出</button>
+      </div>
 
       <div class="file-drop-area" @dragover.prevent @dragenter.prevent="dragEnter" @dragleave.prevent="dragLeave"
         @drop.prevent="drop" :class="{ 'is-drag-over': isEnter }">
@@ -39,115 +45,183 @@
         <p>ここにココフォリアのログHTMLファイルをドラッグ＆ドロップ</p>
         <p class="or-text">または</p>
         <label class="file-select-button">
-          ファイルを選択
           <input type="file" @change="onFileChange" accept=".html,.txt" style="display: none;">
+          ファイルを選択
         </label>
         <p v-if="fileName" class="file-name-display">読み込みファイル: {{ fileName }}</p>
       </div>
 
-      <div class="options-container" v-if="detectedVersion">
-        <h3 class="options-header">
-          <span><i class="fa-solid fa-gears"></i> 抽出オプション <span class="detected-version-badge">{{ detectedVersion ===
-              'coc6' ? '6版' : '7版' }}として検出</span></span>
-          <div class="preset-buttons">
-            <button @click="setPreset('critFumbleInitial')">クリファン初期値</button>
-            <button @click="setPreset('official')">公式準拠</button>
+      <!-- 成長チェック機能 -->
+      <div v-if="activeTool === 'growth' && logContent">
+        <div class="options-container" v-if="detectedVersion">
+          <h3 class="options-header">
+            <span><i class="fa-solid fa-gears"></i> 抽出オプション <span class="detected-version-badge">{{ detectedVersion
+                === 'coc6' ? '6版' : '7版' }}として検出</span></span>
+            <div class="preset-buttons">
+              <button @click="setPreset('critFumbleInitial')">クリファン初期値</button>
+              <button @click="setPreset('official')">公式準拠</button>
+            </div>
+          </h3>
+
+          <div v-if="detectedVersion === 'coc6'" class="options-grid">
+            <label><input type="checkbox" v-model="options.coc6.critical"> クリティカル</label>
+            <label><input type="checkbox" v-model="options.coc6.fumble"> ファンブル</label>
+            <label><input type="checkbox" v-model="options.coc6.special"> スペシャル</label>
+            <label><input type="checkbox" v-model="options.coc6.success"> 通常成功</label>
+            <label><input type="checkbox" v-model="options.coc6.failure"> 失敗</label>
+            <label class="checkbox-with-input">
+              <input type="checkbox" v-model="options.coc6.luckyNumber">
+              出目指定:
+              <input type="number" v-model.number="luckyNumber" min="1" max="100" class="lucky-number-input">
+            </label>
           </div>
-        </h3>
+          <div v-if="detectedVersion === 'coc7'" class="options-grid">
+            <label><input type="checkbox" v-model="options.coc7.critical"> クリティカル</label>
+            <label><input type="checkbox" v-model="options.coc7.fumble"> ファンブル</label>
+            <label><input type="checkbox" v-model="options.coc7.extreme"> イクストリーム成功</label>
+            <label><input type="checkbox" v-model="options.coc7.hard"> ハード成功</label>
+            <label><input type="checkbox" v-model="options.coc7.regular"> レギュラー成功</label>
+            <label><input type="checkbox" v-model="options.coc7.failure"> 失敗</label>
+          </div>
 
-        <div v-if="detectedVersion === 'coc6'" class="options-grid">
-          <label><input type="checkbox" v-model="options.coc6.critical"> クリティカル</label>
-          <label><input type="checkbox" v-model="options.coc6.fumble"> ファンブル</label>
-          <label><input type="checkbox" v-model="options.coc6.special"> スペシャル</label>
-          <label><input type="checkbox" v-model="options.coc6.success"> 通常成功</label>
-          <label class="checkbox-with-input">
-            <input type="checkbox" v-model="options.coc6.luckyNumber">
-            出目指定:
-            <input type="number" v-model.number="luckyNumber" min="1" max="100" class="lucky-number-input">
-          </label>
-        </div>
-        <div v-if="detectedVersion === 'coc7'" class="options-grid">
-          <label><input type="checkbox" v-model="options.coc7.critical"> クリティカル</label>
-          <label><input type="checkbox" v-model="options.coc7.fumble"> ファンブル</label>
-          <label><input type="checkbox" v-model="options.coc7.extreme"> イクストリーム成功</label>
-          <label><input type="checkbox" v-model="options.coc7.hard"> ハード成功</label>
-          <label><input type="checkbox" v-model="options.coc7.regular"> レギュラー成功</label>
-        </div>
-
-        <div class="toggle-options">
-          <label class="switch-label"><input type="checkbox" v-model="includeAbilityRolls" class="switch-checkbox">
-            〈アイデア〉やCONなどの能力値ロールを抽出する</label>
-          <label class="switch-label"><input type="checkbox" v-model="useTwoColumnLayout" class="switch-checkbox">
-            抽出結果を横に並べてで表示する（スクショ用）</label>
-        </div>
-      </div>
-
-      <div class="results-container" v-if="hasResults">
-        <div class="results-header">
-          <h2 class="start-title">抽出結果</h2>
-          <button class="copy-all-button" v-if="hasResults" @click="copyAllSummaries($event)">
-            <i class="fa-solid fa-layer-group"></i> まとめをすべてコピー
-          </button>
-        </div>
-
-        <div class="settings-container">
-          <div class="settings-block" v-if="characterNames.length > 0">
-            <h4><i class="fa-solid fa-user-gear"></i> 探索者の設定</h4>
-            <div class="character-settings-grid">
-              <div v-for="charName in characterNames" :key="charName" class="character-settings-item">
-                <span class="char-name-label">{{ charName }}</span>
-                <label class="evasion-label">
-                  <input type="checkbox" v-model="evasionOverrides[charName]"> 回避初期値
-                </label>
-                <select v-model="mergeTargets[charName]">
-                  <option :value="charName">（まとめない）</option>
-                  <option value="__HIDE__">→ 非表示にする</option>
-                  <option v-for="targetName in characterNames" :key="targetName" :value="targetName"
-                    v-if="targetName !== charName">
-                    → {{ targetName }}
-                  </option>
-                </select>
+          <div v-if="tabNames.length > 1" class="tab-options">
+            <div class="tab-options-header">
+              <h4><i class="fa-solid fa-folder-tree"></i> タブ選択</h4>
+              <div class="tab-selection-buttons">
+                <button @click="selectMainTab">メインのみ</button>
+                <button @click="selectAllTabs">全表示</button>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="results-grid" :class="{ 'two-column-layout': useTwoColumnLayout }">
-          <div v-for="(logs, characterName) in mergedResults" :key="characterName" class="character-result-block">
-            <div class="character-header">
-              <h3>{{ characterName }}</h3>
-              <button class="copy-summary-button" @click="copyToClipboard(summaryResults[characterName], $event)"
-                @mouseover="showTooltip(characterName, $event)" @mouseleave="hideTooltip"
-                v-if="summaryResults[characterName]">
-                <i class="fa-solid fa-paste"></i> まとめをコピー
-              </button>
+            <div class="options-grid">
+              <label v-for="tab in tabNames" :key="tab">
+                <input type="checkbox" :value="tab" v-model="selectedTabs"> {{ tab }}
+              </label>
             </div>
-            <ul>
-              <li v-for="(log, index) in logs" :key="index" :class="{ 'is-initial-success': log.isInitialSuccess }">
-                <span class="log-text" v-html="log.text"></span>
-                <span v-if="log.isInitialSuccess" class="initial-success-badge">初期値成功</span>
-              </li>
-            </ul>
+          </div>
+
+          <div class="toggle-options">
+            <label class="switch-label"><input type="checkbox" v-model="includeAbilityRolls" class="switch-checkbox">
+              〈アイデア〉やCONなどの能力値ロールを抽出する</label>
+            <label class="switch-label"><input type="checkbox" v-model="useTwoColumnLayout" class="switch-checkbox">
+              抽出結果を横に並べてで表示する（スクショ用）</label>
           </div>
         </div>
 
-        <div class="dice-chart-container" v-if="hasDiceStats && selectedChartCharacter">
-          <div class="chart-header">
-            <h2 class="start-title">出目グラフ</h2>
-            <select v-model="selectedChartCharacter" class="chart-character-selector">
-              <option v-for="charName in visibleCharacterNames" :key="charName" :value="charName">
-                {{ charName }}
-              </option>
-            </select>
+        <div class="results-container" v-if="hasResults">
+          <div class="results-header">
+            <h2 class="start-title">抽出結果</h2>
+            <button class="copy-all-button" v-if="hasResults" @click="copyAllSummaries($event)">
+              <i class="fa-solid fa-layer-group"></i> まとめをすべてコピー
+            </button>
           </div>
-          <div class="bar-chart">
-            <canvas id="diceChart"></canvas>
+
+          <div class="settings-container">
+            <details class="settings-block" v-if="diceRollingCharacters.length > 0" open>
+              <summary>
+                <h4><i class="fa-solid fa-user-gear"></i> 探索者の設定</h4>
+              </summary>
+              <div class="character-settings-grid">
+                <div v-for="charName in diceRollingCharacters" :key="charName" class="character-settings-item">
+                  <span class="char-name-label">{{ charName }}</span>
+                  <label class="evasion-label">
+                    <input type="checkbox" v-model="evasionOverrides[charName]"> 回避初期値
+                  </label>
+                  <select v-model="mergeTargets[charName]">
+                    <option :value="charName">（まとめない）</option>
+                    <option value="__HIDE__">→ 非表示にする</option>
+                    <option v-for="targetName in diceRollingCharacters" :key="targetName" :value="targetName"
+                      v-if="targetName !== charName">
+                      → {{ targetName }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </details>
           </div>
+
+          <div class="results-grid" :class="{ 'two-column-layout': useTwoColumnLayout }">
+            <div v-for="(logs, characterName) in mergedResults" :key="characterName" class="character-result-block">
+              <div class="character-header">
+                <h3>{{ characterName }}</h3>
+                <button class="copy-summary-button" @click="copyToClipboard(summaryResults[characterName], $event)"
+                  @mouseover="showTooltip(characterName, $event)" @mouseleave="hideTooltip"
+                  v-if="summaryResults[characterName]">
+                  <i class="fa-solid fa-paste"></i> まとめをコピー
+                </button>
+              </div>
+              <ul>
+                <li v-for="(log, index) in logs" :key="index" :class="{ 'is-initial-success': log.isInitialSuccess }">
+                  <span class="log-tab-badge">[{{ log.tab }}]</span>
+                  <span class="log-text" v-html="log.formattedText"></span>
+                  <span v-if="log.isInitialSuccess" class="initial-success-badge">初期値成功</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="dice-chart-container" v-if="hasDiceStats && selectedChartCharacter">
+            <div class="chart-header">
+              <h2 class="start-title">出目グラフ</h2>
+              <select v-model="selectedChartCharacter" class="chart-character-selector">
+                <option v-for="charName in visibleCharacterNames" :key="charName" :value="charName">
+                  {{ charName }}
+                </option>
+              </select>
+            </div>
+            <div class="bar-chart">
+              <canvas id="diceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="logContent" class="no-results">
+          <p>指定された条件に一致するログは見つかりませんでした。</p>
         </div>
       </div>
 
-      <div v-else-if="logContent" class="no-results">
-        <p>指定された条件に一致するログは見つかりませんでした。</p>
+      <!-- セリフ抽出機能 -->
+      <div v-if="activeTool === 'dialogue' && logContent">
+        <div class="options-container">
+          <h3 class="options-header"><span><i class="fa-solid fa-gears"></i> 抽出オプション</span></h3>
+          <div class="toggle-options">
+            <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.excludeDiceRolls"
+                class="switch-checkbox"> ダイスロールを除外する</label>
+            <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.onlyQuoted"
+                class="switch-checkbox"> 「」『』で囲まれたセリフのみ抽出</label>
+          </div>
+        </div>
+
+        <div class="results-container" v-if="dialogueResults.length > 0">
+          <div class="results-header">
+            <h2 class="start-title">抽出結果</h2>
+            <button class="copy-all-button" @click="copySelectedDialogues($event)">
+              <i class="fa-solid fa-clipboard-check"></i> チェックしたセリフをコピー
+            </button>
+          </div>
+
+          <details v-for="charData in dialogueResults" :key="charData.character" class="character-result-block" open>
+            <summary class="character-header">
+              <h3 :style="{ color: charData.color }">
+                <input type="checkbox" @change="toggleSelectCharacter(charData.character, $event.target.checked)">
+                <span>{{ charData.character }}</span>
+              </h3>
+            </summary>
+            <ul>
+              <li v-for="(dialogue, index) in charData.dialogues" :key="index">
+                <input type="checkbox" v-model="dialogue.selected" class="dialogue-checkbox">
+                <span class="log-tab-badge">[{{ dialogue.tab }}]</span>
+                <span class="log-text">{{ dialogue.message }}</span>
+                <button class="copy-icon-button" @click="copyToClipboard(dialogue.message, $event)" title="このセリフをコピー">
+                  <i class="fa-solid fa-paste"></i>
+                </button>
+              </li>
+            </ul>
+          </details>
+
+        </div>
+        <div v-else class="no-results">
+          <p>指定された条件に一致するログは見つかりませんでした。</p>
+        </div>
       </div>
 
       <div class="summary-tooltip" v-if="tooltip.visible" :style="{ top: tooltip.y + 'px', left: tooltip.x + 'px' }">
