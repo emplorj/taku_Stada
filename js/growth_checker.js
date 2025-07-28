@@ -250,7 +250,14 @@ new Vue({
 
       this.$nextTick(() => {
         if (this.visibleCharacterNames.length > 0) {
-          this.selectedChartCharacter = this.visibleCharacterNames[0];
+          // 「★みんな」が存在すればそれを優先的に選択、そうでなければ最初のキャラクターを選択
+          if (this.visibleCharacterNames.includes("★みんな")) {
+            this.selectedChartCharacter = "★みんな";
+          } else {
+            this.selectedChartCharacter = this.visibleCharacterNames[0];
+          }
+          // グラフを明示的に更新
+          this.updateChart(this.selectedChartCharacter);
         } else {
           this.selectedChartCharacter = null;
         }

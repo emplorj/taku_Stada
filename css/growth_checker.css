@@ -528,7 +528,7 @@
 }
 #diceChart {
   width: 100% !important;
-  height: 250px !important;
+  height: 50vh !important; /* 高さを50vhに変更 */
 }
 
 /* --- 結果の色分け --- */
