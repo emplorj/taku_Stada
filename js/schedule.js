@@ -330,7 +330,7 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
       if (i === 6) h.classList.add("saturday-header");
       calendarFragment.appendChild(h);
     });
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 28; i++) {
       const c = document.createElement("div");
       c.className = "calendar-cell";
       const n = document.createElement("div");
@@ -393,7 +393,7 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
   }
   function updateCalendarView() {
     const endDate = new Date(state.currentStartDate);
-    endDate.setDate(state.currentStartDate.getDate() + 6);
+    endDate.setDate(state.currentStartDate.getDate() + 27);
     if (dom.display)
       dom.display.textContent = `${formatDate(
         state.currentStartDate
