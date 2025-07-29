@@ -60,13 +60,18 @@
               <td class="text-right"><input type="number" v-model.number="effect.level" min="1" class="text-right"></td>
               <td class="text-right"><input type="number" v-model.number="effect.maxLevel" min="1" class="text-right">
               </td>
-              <td><input type="text" v-model="effect.timing"></td>
-              <td><input type="text" v-model="effect.skill"></td>
-              <td><input type="text" v-model="effect.difficulty"></td>
-              <td><input type="text" v-model="effect.target"></td>
+              <td><input-with-dropdown v-model="effect.timing" :options="dropdownOptions.timing"></input-with-dropdown>
+              </td>
+              <td><input-with-dropdown v-model="effect.skill" :options="dropdownOptions.skill"></input-with-dropdown>
+              </td>
+              <td><input-with-dropdown v-model="effect.difficulty"
+                  :options="dropdownOptions.difficulty"></input-with-dropdown></td>
+              <td><input-with-dropdown v-model="effect.target" :options="dropdownOptions.target"></input-with-dropdown>
+              </td>
               <td><input type="text" v-model="effect.range"></td>
               <td class="text-right"><input type="text" v-model="effect.cost" class="text-right"></td>
-              <td><input type="text" v-model="effect.limit"></td>
+              <td><input-with-dropdown v-model="effect.limit" :options="dropdownOptions.limit"></input-with-dropdown>
+              </td>
               <td><textarea v-model="effect.effect"></textarea></td>
               <td><textarea v-model="effect.notes"></textarea></td>
               <td class="action-cell">
@@ -107,13 +112,14 @@
               <td><input type="text" v-model="ee.name"></td>
               <td class="text-right"><input type="number" v-model.number="ee.level" min="1" class="text-right"></td>
               <td class="text-right"><input type="number" v-model.number="ee.maxLevel" min="1" class="text-right"></td>
-              <td><input type="text" v-model="ee.timing"></td>
-              <td><input type="text" v-model="ee.skill"></td>
-              <td><input type="text" v-model="ee.difficulty"></td>
-              <td><input type="text" v-model="ee.target"></td>
+              <td><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing"></input-with-dropdown></td>
+              <td><input-with-dropdown v-model="ee.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
+              <td><input-with-dropdown v-model="ee.difficulty"
+                  :options="dropdownOptions.difficulty"></input-with-dropdown></td>
+              <td><input-with-dropdown v-model="ee.target" :options="dropdownOptions.target"></input-with-dropdown></td>
               <td><input type="text" v-model="ee.range"></td>
               <td class="text-right"><input type="text" v-model="ee.cost" class="text-right"></td>
-              <td><input type="text" v-model="ee.limit"></td>
+              <td><input-with-dropdown v-model="ee.limit" :options="dropdownOptions.limit"></input-with-dropdown></td>
               <td><textarea v-model="ee.effect"></textarea></td>
               <td><textarea v-model="ee.notes"></textarea></td>
               <td class="action-cell">
@@ -267,6 +273,19 @@
 
   <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
   <script src="js/common.js"></script>
+
+  <script type="text/x-template" id="input-with-dropdown-template">
+    <div class="input-with-dropdown" @click.stop>
+      <input type="text" :value="value" @input="handleInput">
+      <span class="dropdown-arrow" @click.prevent.stop="toggleDropdown" v-if="options.length > 0">▼</span>
+      <ul v-if="isOpen && options.length > 0" class="dropdown-menu">
+        <li v-for="option in options" :key="option" @click="selectOption(option)">
+          {{ option }}
+        </li>
+      </ul>
+    </div>
+  </script>
+
   <script src="js/dx3_combo_generator.js"></script>
 </body>
 

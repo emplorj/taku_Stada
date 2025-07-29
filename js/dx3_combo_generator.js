@@ -1,5 +1,45 @@
 // dx3_combo_generator.js
 
+Vue.component("input-with-dropdown", {
+  template: "#input-with-dropdown-template",
+  props: {
+    value: String,
+    options: {
+      type: Array,
+      default: () => [],
+    },
+  },
+  data() {
+    return {
+      isOpen: false,
+    };
+  },
+  methods: {
+    toggleDropdown() {
+      if (this.options.length > 0) {
+        this.isOpen = !this.isOpen;
+      }
+    },
+    selectOption(option) {
+      this.$emit("input", option);
+      this.isOpen = false;
+    },
+    handleInput(event) {
+      this.$emit("input", event.target.value);
+    },
+    closeDropdown() {
+      this.isOpen = false;
+    },
+  },
+  mounted() {
+    document.addEventListener("click", this.closeDropdown);
+    this.$el.addEventListener("click", (e) => e.stopPropagation());
+  },
+  beforeDestroy() {
+    document.removeEventListener("click", this.closeDropdown);
+  },
+});
+
 new Vue({
   el: "#dx3-app",
   data: {
@@ -23,6 +63,67 @@ new Vue({
     isEffectSelectModalOpen: false,
     editingComboIndex: -1,
     tempSelectedEffectNames: [],
+    dropdownOptions: {
+      difficulty: ["-", "自動成功", "対決", "効果参照"],
+      skill: [
+        "-",
+        "シンドローム",
+        "白兵",
+        "射撃",
+        "RC",
+        "交渉",
+        "白兵/射撃",
+        "白兵/RC",
+        "回避",
+        "知覚",
+        "意志",
+        "調達",
+        "【肉体】",
+        "【感覚】",
+        "【精神】",
+        "【社会】",
+        "運転",
+        "芸術",
+        "知識",
+        "情報",
+        "効果参照",
+      ],
+      timing: [
+        "オート",
+        "マイナー",
+        "メジャー",
+        "メジャー/リア",
+        "リアクション",
+        "セットアップ",
+        "イニシアチブ",
+        "クリンナップ",
+        "常時",
+        "効果参照",
+      ],
+      target: [
+        "自身",
+        "単体",
+        "範囲(選択)",
+        "シーン(選択)",
+        "範囲",
+        "シーン",
+        "効果参照",
+        "[LV+1]体",
+        "2体",
+        "3体",
+      ],
+      limit: [
+        "-",
+        "ピュア",
+        "80%",
+        "100%",
+        "120%",
+        "Dロイス",
+        "リミット",
+        "RB",
+        "従者専用",
+      ],
+    },
   },
   created() {
     this.effects = [
