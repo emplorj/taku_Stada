@@ -685,21 +685,46 @@ new Vue({
       return values;
     },
     isEffectDisabled(effect) {
+      const normalizeTiming = (str) => {
+        if (!str) return "";
+        return str
+          .toLowerCase()
+          .replace(/ﾒｼﾞｬｰ/g, "メジャー")
+          .replace(/ﾏｲﾅｰ/g, "マイナー")
+          .replace(/ﾘｱｸｼｮﾝ/g, "リアクション")
+          .replace(/ﾘｱ/g, "リア")
+          .replace(/ｵｰﾄ/g, "オート")
+          .replace(/ｾｯﾄｱｯﾌﾟ/g, "セットアップ")
+          .replace(/ｲﾆｼｱﾁﾌﾞ/g, "イニシアチブ")
+          .replace(/ｸﾘﾝﾅｯﾌﾟ/g, "クリンナップ")
+          .replace(/\//g, "／");
+      };
+
       const allRegisteredEffects = [...this.effects, ...this.easyEffects];
       const selectedEffectObjects = this.tempSelectedEffectNames
         .map((name) => allRegisteredEffects.find((e) => e.name === name))
         .filter((e) => e);
+
       const primaryTimingEffect = selectedEffectObjects.find(
-        (e) => e.timing && e.timing.toLowerCase() !== "オート"
+        (e) => e.timing && normalizeTiming(e.timing) !== "オート"
       );
+
       if (!primaryTimingEffect) return false;
-      const primaryTiming = primaryTimingEffect.timing.toLowerCase();
-      const effectTiming = effect.timing ? effect.timing.toLowerCase() : "";
-      return (
-        effectTiming !== "オート" &&
-        effectTiming !== "" &&
-        effectTiming !== primaryTiming
+
+      const primaryTimings = normalizeTiming(primaryTimingEffect.timing).split(
+        "／"
       );
+      const effectTimingStr = normalizeTiming(effect.timing);
+
+      if (effectTimingStr === "オート" || effectTimingStr === "") return false;
+
+      const effectTimings = effectTimingStr.split("／");
+
+      const isTimingMatch = primaryTimings.some((pt) =>
+        effectTimings.includes(pt)
+      );
+
+      return !isTimingMatch;
     },
     addEffect() {
       this.effects.push({
