@@ -44,7 +44,8 @@ new Vue({
     //
     // --- ★★★ ここにあなたのGASウェブアプリURLを貼り付けてください ★★★ ---
     //
-    gasWebAppUrl: "ここにあなたのGASウェブアプリURLを貼り付け",
+    gasWebAppUrl:
+      "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec",
     //
     // -----------------------------------------------------------
     //
