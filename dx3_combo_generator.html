@@ -26,6 +26,29 @@
 
     <div id="dx3-app" class="plain-text-block" v-cloak @click="closeAllDropdowns">
 
+      <div class="db-sync-block">
+        <label class="db-url-input">
+          <span>キャラクターシートURL:</span>
+          <input type="text" v-model.trim="characterSheetUrl" placeholder="ゆとシート/Vampire-bloodのURLを入力"
+            @keyup.enter="loadFromDb">
+        </label>
+        <div class="db-buttons">
+          <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+          <button @click="importFromSheet" class="btn-import" :disabled="isBusy" title="キャラシから引用">
+            <i class="fas fa-magic"></i> 引用
+          </button>
+          <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
+          <button @click="loadFromDb" class="btn-load" :disabled="isBusy" title="DBから読込"><i
+              class="fas fa-cloud-download-alt"></i> 読込</button>
+          <button @click="overwriteSave" class="btn-save" :disabled="isBusy" title="上書き保存"><i class="fas fa-save"></i>
+            保存</button>
+          <button @click="deleteFromDb" class="btn-delete" :disabled="isBusy" title="削除"><i
+              class="fas fa-trash-alt"></i> 削除</button>
+        </div>
+      </div>
+      <p v-if="statusMessage" class="status-message" :class="{ 'error': statusIsError }">{{ statusMessage }}</p>
+
+
       <div class="character-info-grid">
         <label>キャラクター名: <input type="text" v-model="characterName"></label>
         <label>総経験点: <input type="number" v-model.number="totalXp"></label>

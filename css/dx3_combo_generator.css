@@ -1,5 +1,90 @@
 /* dx3_combo_generator.css */
 
+.db-sync-block {
+  background-color: #2c2c2c;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap; /* スマホなどで折り返す */
+  align-items: flex-end; /* 要素の下端を揃える */
+  gap: 15px;
+}
+/* 修正後（db-url-input というクラス名で正しく指定） */
+.db-url-input {
+  flex-grow: 1; /* 入力欄が伸びるように */
+  min-width: 250px;
+}
+.db-url-input span {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+}
+.db-url-input input {
+  background-color: #0d1a50;
+  border: 1px solid #2a3c7d;
+  color: #eee;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box; /* paddingを含めて幅100%にする */
+}
+.db-buttons {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.db-buttons button {
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.9em;
+  color: white;
+}
+.db-buttons button.btn-load {
+  background-color: #3498db; /* 読込 */
+}
+.db-buttons button.btn-import {
+  background-color: #9b59b6; /* 引用 */
+}
+.db-buttons button.btn-save {
+  background-color: #2ecc71; /* 保存 */
+}
+.db-buttons button.btn-delete {
+  background-color: #e74c3c; /* 削除 */
+}
+.db-buttons button:hover:not(:disabled) {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+.db-buttons button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.status-message {
+  width: 100%;
+  margin: -5px 0 15px 0;
+  padding: 0 15px;
+  min-height: 1.2em;
+  font-size: 0.9em;
+  color: #87cefa;
+  text-align: center;
+  transition: color 0.3s;
+  box-sizing: border-box;
+}
+.status-message.error {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+/* (以下、既存のCSSは変更なし) */
 .character-info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -93,11 +178,9 @@
 .dx3-table input.text-right {
   text-align: right;
 }
-
 .input-with-dropdown {
   position: relative;
 }
-
 .input-with-dropdown .dropdown-arrow {
   position: absolute;
   right: 8px;
@@ -108,11 +191,9 @@
   color: #87cefa;
   font-size: 0.8em;
 }
-
 .input-with-dropdown:hover .dropdown-arrow {
   display: block;
 }
-
 .input-with-dropdown .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -128,17 +209,14 @@
   overflow-y: auto;
   min-width: 100%;
 }
-
 .input-with-dropdown .dropdown-menu li {
   padding: 8px 12px;
   color: #eee;
   cursor: pointer;
 }
-
 .input-with-dropdown .dropdown-menu li:hover {
   background-color: #1a2c6d;
 }
-
 .effects-table td:nth-child(1) {
   min-width: 150px;
 }
@@ -176,7 +254,6 @@
 .effects-table td:nth-child(13) {
   min-width: 80px;
 }
-
 .add-btn,
 .delete-btn,
 .setting-btn {
@@ -210,7 +287,6 @@
   display: flex;
   gap: 5px;
 }
-
 .combo-block {
   background-color: #2c2c2c;
   border-radius: 8px;
@@ -296,7 +372,6 @@
   color: #eee;
   border-radius: 3px;
 }
-
 .effect-select-button {
   display: block;
   width: 100%;
@@ -318,7 +393,6 @@
 .effect-select-button i {
   margin-right: 8px;
 }
-
 .combo-details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -374,7 +448,6 @@
   border-radius: 0 4px 4px 0;
   border-left: none;
 }
-
 .combo-palette-display {
   background-color: #0d1a50;
   padding: 5px;
@@ -416,8 +489,6 @@
   background-color: #6aa84f;
   cursor: not-allowed;
 }
-
-/* Floating Panel & Modal Styles */
 .floating-panel {
   position: absolute;
   z-index: 1001;
@@ -534,7 +605,6 @@
   max-width: 42px;
   text-align: right;
 }
-
 .modal-footer {
   text-align: right;
   margin-top: 20px;
@@ -564,7 +634,6 @@
 .modal-footer button:hover {
   background-color: #2980b9;
 }
-
 .effect-select-modal .modal-body {
   max-height: 60vh;
   overflow-y: auto;
@@ -600,7 +669,6 @@
 .effect-select-modal label.disabled:hover {
   background-color: transparent;
 }
-
 @media (max-width: 768px) {
   .combo-details-grid {
     grid-template-columns: 1fr;

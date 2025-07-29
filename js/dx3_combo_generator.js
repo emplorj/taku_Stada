@@ -10,9 +10,7 @@ Vue.component("input-with-dropdown", {
     },
   },
   data() {
-    return {
-      isOpen: false,
-    };
+    return { isOpen: false };
   },
   methods: {
     toggleDropdown() {
@@ -43,6 +41,17 @@ Vue.component("input-with-dropdown", {
 new Vue({
   el: "#dx3-app",
   data: {
+    //
+    // --- ★★★ ここにあなたのGASウェブアプリURLを貼り付けてください ★★★ ---
+    //
+    gasWebAppUrl: "ここにあなたのGASウェブアプリURLを貼り付け",
+    //
+    // -----------------------------------------------------------
+    //
+    characterSheetUrl: "",
+    isBusy: false,
+    statusMessage: "",
+    statusIsError: false,
     characterName: "春日恭二（例）",
     totalXp: 165,
     effects: [],
@@ -292,154 +301,379 @@ new Vue({
   },
   computed: {
     effectXp() {
-      return this.effects.reduce((total, effect) => {
-        if (!effect.level || effect.level <= 0) return total;
-        return (
-          total +
-          (Number(effect.level) === 1
-            ? 15
-            : 15 + (Number(effect.level) - 1) * 5)
-        );
-      }, 0);
+      return this.effects.reduce(
+        (t, e) =>
+          e.level > 0
+            ? t + (Number(e.level) === 1 ? 15 : 15 + (Number(e.level) - 1) * 5)
+            : t,
+        0
+      );
     },
     easyEffectXp() {
-      return this.easyEffects.reduce((total, ee) => {
-        if (!ee.level || ee.level <= 0) return total;
-        return total + Number(ee.level) * 2;
-      }, 0);
+      return this.easyEffects.reduce(
+        (t, e) => (e.level > 0 ? t + Number(e.level) * 2 : t),
+        0
+      );
     },
     usedXp() {
       return this.effectXp + this.easyEffectXp;
     },
     processedCombos() {
       const allEffects = [...this.effects, ...this.easyEffects];
-
       return this.combos.map((combo) => {
         const comboLevelBonus = combo.comboLevelBonus || 0;
         const relevantEffects = combo.effectNames
-          .map((name) =>
-            allEffects.find((e) => e.name === name && e.name !== "")
-          )
-          .filter((e) => e);
-
-        const calcResult = (valueKey) => {
-          let total = 0;
-          const breakdown = relevantEffects
-            .map((effect) => {
-              if (!effect.values || !effect.values[valueKey]) return "";
-              const effectiveLevel =
-                (Number(effect.level) || 0) + comboLevelBonus;
-              const base = Number(effect.values[valueKey].base) || 0;
-              const perLevel = Number(effect.values[valueKey].perLevel) || 0;
-              const value = base + effectiveLevel * perLevel;
-              total += value;
-              return `${effect.name}(Lv${effectiveLevel}): ${base} + (${effectiveLevel}*${perLevel}) = ${value}`;
-            })
-            .filter((s) => s)
-            .join("\n");
-          return { total, breakdown };
-        };
-
-        const diceResult = calcResult("dice");
-        const achieveResult = calcResult("achieve");
-        const atkResult = calcResult("attack");
-
-        let critTotal = 10;
-        const critBreakdown = relevantEffects
-          .map((effect) => {
-            if (!effect.values || !effect.values.crit) return "";
-            const base = Number(effect.values.crit.base) || 0;
-            if (base > 0) {
-              const effectiveLevel =
-                (Number(effect.level) || 0) + comboLevelBonus;
-              const perLevel = Number(effect.values.crit.perLevel) || 0;
-              const min = Number(effect.values.crit.min) || 2;
-              const value = Math.max(base - effectiveLevel * perLevel, min);
-              if (value < critTotal) critTotal = value;
-              return `${effect.name}(Lv${effectiveLevel}): max(${base} - (${effectiveLevel}*${perLevel}), ${min}) = ${value}`;
-            }
-            return "";
-          })
-          .filter((s) => s)
-          .join("\n");
-
-        const autoCost = relevantEffects.reduce((sum, effect) => {
-          const effectiveLevel = (Number(effect.level) || 0) + comboLevelBonus;
-          return sum + (this.parseCost(effect.cost, effectiveLevel) || 0);
-        }, 0);
-        const totalCost = autoCost + (combo.cost_manual || 0);
-        const costBreakdown =
-          relevantEffects
-            .map(
-              (e) =>
-                `${e.name}: ${this.parseCost(
-                  e.cost,
-                  (Number(e.level) || 0) + comboLevelBonus
-                )}`
-            )
-            .join("\n") + `\n手動:${combo.cost_manual || 0}`;
-
-        const totalAtk = (combo.atk_weapon || 0) + atkResult.total;
-        const atkBreakdown =
-          `武器ATK: ${combo.atk_weapon || 0}\n` + atkResult.breakdown;
-
+          .map((n) => allEffects.find((e) => e.name === n && n !== ""))
+          .filter(Boolean);
+        const calc = (key) =>
+          relevantEffects.reduce(
+            (acc, effect) => {
+              if (!effect.values?.[key]) return acc;
+              const lvl = (Number(effect.level) || 0) + comboLevelBonus;
+              const val =
+                (Number(effect.values[key].base) || 0) +
+                lvl * (Number(effect.values[key].perLevel) || 0);
+              acc.total += val;
+              acc.breakdown.push(`${effect.name}(Lv${lvl}): ${val}`);
+              return acc;
+            },
+            { total: 0, breakdown: [] }
+          );
+        const dice = calc("dice");
+        const achieve = calc("achieve");
+        const attack = calc("attack");
+        let crit = relevantEffects.reduce((minCrit, effect) => {
+          if (!effect.values?.crit?.base) return minCrit;
+          const lvl = (Number(effect.level) || 0) + comboLevelBonus;
+          const val = Math.max(
+            (Number(effect.values.crit.base) || 10) -
+              lvl * (Number(effect.values.crit.perLevel) || 0),
+            Number(effect.values.crit.min) || 2
+          );
+          return Math.min(minCrit, val);
+        }, 10);
+        const cost =
+          relevantEffects.reduce(
+            (sum, e) =>
+              sum +
+              (this.parseCost(
+                e.cost,
+                (Number(e.level) || 0) + comboLevelBonus
+              ) || 0),
+            0
+          ) + (combo.cost_manual || 0);
+        const totalAtk = (combo.atk_weapon || 0) + attack.total;
         const compositionText = relevantEffects
-          .map((e) => {
-            const effectiveLevel = (Number(e.level) || 0) + comboLevelBonus;
-            if (e.maxLevel == 1 && e.level == 1) return `《${e.name}》`;
-            if (comboLevelBonus > 0)
-              return `《${e.name}》Lv${e.level}+${comboLevelBonus}`;
-            return `《${e.name}》Lv${e.level}`;
-          })
+          .map(
+            (e) =>
+              `《${e.name}》${
+                e.maxLevel === 1 && e.level === 1
+                  ? ""
+                  : `Lv${e.level}${
+                      comboLevelBonus > 0 ? `+${comboLevelBonus}` : ""
+                    }`
+              }`
+          )
           .join("+");
-
         const primarySkill =
           relevantEffects.find((e) => e.skill)?.skill || "{技能}";
-        const diceFormula = `(${primarySkill}+{能力値}+{侵蝕率D}+${diceResult.total})DX${critTotal}+${achieveResult.total}`;
-        const chatPalette = `◆${combo.name}\n侵蝕値:${totalCost} ATK:${totalAtk}\n${diceFormula}`;
-
+        const chatPalette = `◆${combo.name}\n侵蝕値:${cost} ATK:${totalAtk}\n(${primarySkill}+{能力値}+{侵蝕率D}+${dice.total})DX${crit}+${achieve.total}`;
         return {
           ...combo,
-          totalDice: diceResult.total,
-          diceBreakdown: diceResult.breakdown,
-          finalCrit: critTotal,
-          critBreakdown,
-          totalAchieve: achieveResult.total,
-          achieveBreakdown: achieveResult.breakdown,
+          totalDice: dice.total,
+          finalCrit: crit,
+          totalAchieve: achieve.total,
           totalAtk,
-          atkBreakdown,
-          totalCost,
-          costBreakdown,
+          totalCost: cost,
           compositionText,
           chatPalette,
         };
       });
     },
     activeModalTabLabel() {
-      const tab = this.modalTabs.find((t) => t.key === this.activeModalTab);
-      return tab ? tab.label : "";
+      return (
+        (this.modalTabs.find((t) => t.key === this.activeModalTab) || {})
+          .label || ""
+      );
     },
   },
   methods: {
-    isEffectDisabled(effect) {
-      const allRegisteredEffects = [...this.effects, ...this.easyEffects];
-      const selectedEffectObjects = this.tempSelectedEffectNames
-        .map((name) => allRegisteredEffects.find((e) => e.name === name))
-        .filter((e) => e);
-      const primaryTimingEffect = selectedEffectObjects.find(
-        (e) => e.timing && e.timing.toLowerCase() !== "オート"
-      );
+    // --- DB連携/引用メソッド ---
+    showStatus(message, isError = false, duration = 4000) {
+      this.statusMessage = message;
+      this.statusIsError = isError;
+      if (duration > 0) {
+        setTimeout(() => {
+          this.statusMessage = "";
+          this.statusIsError = false;
+        }, duration);
+      }
+    },
+    validateInputs() {
+      if (!this.characterSheetUrl) {
+        this.showStatus("キャラクターシートのURLを入力してください。", true);
+        return false;
+      }
+      return true;
+    },
+    async overwriteSave() {
+      if (
+        !this.validateInputs() ||
+        !this.gasWebAppUrl.startsWith("https://script.google.com/") ||
+        !confirm(
+          "現在の内容でデータを上書き保存しますか？\n（このURLのデータがなければ新規作成されます）"
+        )
+      )
+        return;
+      this.isBusy = true;
+      this.showStatus("保存中...", false, 0);
+      const dataToSave = {
+        characterName: this.characterName,
+        totalXp: this.totalXp,
+        effects: this.effects,
+        easyEffects: this.easyEffects,
+        combos: this.combos,
+      };
+      try {
+        const response = await fetch(this.gasWebAppUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "save",
+            id: this.characterSheetUrl,
+            data: dataToSave,
+          }),
+        });
+        const result = await response.json();
+        if (result.status !== "success")
+          throw new Error(result.message || "不明なエラー");
+        this.showStatus("保存しました！");
+      } catch (error) {
+        console.error("Save Error:", error);
+        this.showStatus(`保存エラー: ${error.message}`, true);
+      } finally {
+        this.isBusy = false;
+      }
+    },
+    async deleteFromDb() {
+      if (
+        !this.validateInputs() ||
+        !this.gasWebAppUrl.startsWith("https://script.google.com/") ||
+        !confirm(
+          `本当にこのURLのデータを削除しますか？\nこの操作は元に戻せません。\n\nURL: ${this.characterSheetUrl}`
+        )
+      )
+        return;
+      this.isBusy = true;
+      this.showStatus("削除中...", false, 0);
+      try {
+        const response = await fetch(this.gasWebAppUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "delete",
+            id: this.characterSheetUrl,
+          }),
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+          this.showStatus("削除しました。");
+        } else if (result.status === "not_found") {
+          this.showStatus("削除対象のデータは見つかりませんでした。", true);
+        } else {
+          throw new Error(result.message || "不明なエラー");
+        }
+      } catch (error) {
+        console.error("Delete Error:", error);
+        this.showStatus(`削除エラー: ${error.message}`, true);
+      } finally {
+        this.isBusy = false;
+      }
+    },
+    async loadFromDb() {
+      if (
+        !this.validateInputs() ||
+        !this.gasWebAppUrl.startsWith("https://script.google.com/")
+      )
+        return;
+      this.isBusy = true;
+      this.showStatus("読み込み中...", false, 0);
+      const url = new URL(this.gasWebAppUrl);
+      url.searchParams.append("id", this.characterSheetUrl);
+      try {
+        const response = await fetch(url);
+        const result = await response.json();
+        if (result.status === "success") {
+          const d = result.data;
+          this.characterName = d.characterName || "名称未設定";
+          this.totalXp = d.totalXp || 130;
+          this.effects = (d.effects || []).map((e) => ({
+            ...e,
+            values: e.values || this.createDefaultValues(),
+          }));
+          this.easyEffects = (d.easyEffects || []).map((e) => ({
+            ...e,
+            values: e.values || this.createDefaultValues(),
+          }));
+          this.combos = d.combos || [];
+          this.showStatus("読み込みが完了しました。");
+        } else if (result.status === "not_found") {
+          this.showStatus(
+            "このURLのデータは見つかりませんでした。新規に作成して「保存」できます。"
+          );
+        } else {
+          throw new Error(result.message || "不明なエラー");
+        }
+      } catch (error) {
+        console.error("Load Error:", error);
+        this.showStatus(`読込エラー: ${error.message}`, true);
+      } finally {
+        this.isBusy = false;
+      }
+    },
 
-      if (!primaryTimingEffect) return false;
+    async importFromSheet() {
+      if (!this.characterSheetUrl) {
+        this.showStatus("キャラクターシートのURLを入力してください。", true);
+        return;
+      }
+      this.isBusy = true;
+      this.showStatus("キャラシから引用中...", false, 0);
+      try {
+        let importedData;
+        if (this.characterSheetUrl.includes("yutorize.2-d.jp")) {
+          importedData = await this.importFromYutoSheet_direct(
+            this.characterSheetUrl
+          );
+        } else if (
+          this.characterSheetUrl.includes("charasheet.vampire-blood.net")
+        ) {
+          if (
+            !this.gasWebAppUrl ||
+            !this.gasWebAppUrl.startsWith("https://script.google.com/")
+          ) {
+            throw new Error(
+              "GASのURLが設定されていません。JSファイルを編集してください。"
+            );
+          }
+          importedData = await this.importFromHokanjo_gas(
+            this.characterSheetUrl
+          );
+        } else {
+          throw new Error("サポートされていないURLです。");
+        }
+        const effectsCount = (importedData.effects || []).length;
+        const easyEffectsCount = (importedData.easyEffects || []).length;
+        if (
+          !confirm(
+            `「${importedData.characterName}」のデータを引用します。\n\n・総経験点: ${importedData.totalXp}\n・エフェクト: ${effectsCount}件\n・イージーエフェクト: ${easyEffectsCount}件\n\n現在のデータは上書きされます。よろしいですか？`
+          )
+        ) {
+          this.showStatus("引用をキャンセルしました。");
+          this.isBusy = false;
+          return;
+        }
+        this.characterName = importedData.characterName;
+        this.totalXp = importedData.totalXp;
+        this.effects = (importedData.effects || []).map((e) => ({
+          ...this.createDefaultEffect(),
+          ...e,
+          values: this.createDefaultValues(),
+        }));
+        this.easyEffects = (importedData.easyEffects || []).map((e) => ({
+          ...this.createDefaultEffect(),
+          ...e,
+          values: this.createDefaultValues(),
+        }));
+        this.showStatus("キャラクターシートからデータを引用しました！");
+      } catch (error) {
+        console.error("Import Error:", error);
+        this.showStatus(`引用エラー: ${error.message}`, true, 6000);
+      } finally {
+        this.isBusy = false;
+      }
+    },
 
-      const primaryTiming = primaryTimingEffect.timing.toLowerCase();
-      const effectTiming = effect.timing ? effect.timing.toLowerCase() : "";
+    async importFromYutoSheet_direct(url) {
+      const jsonUrl = url + (url.includes("?") ? "&" : "?") + "mode=json";
+      const response = await fetch(jsonUrl);
+      if (!response.ok) {
+        throw new Error(
+          `ゆとシートAPIへのアクセスに失敗しました (ステータス: ${response.status})`
+        );
+      }
+      const jsonData = await response.json();
 
-      return (
-        effectTiming !== "オート" &&
-        effectTiming !== "" &&
-        effectTiming !== primaryTiming
-      );
+      const effects = [];
+      const easyEffects = [];
+      // effectNum は通常エフェクトの数、trashNumはイージーエフェクトを含むことがある
+      const effectNum = parseInt(jsonData.effectNum, 10) || 0;
+
+      for (let i = 1; i <= effectNum; i++) {
+        const nameKey = `effect${i}Name`;
+        if (jsonData[nameKey]) {
+          const effect = {
+            name: jsonData[nameKey],
+            level: parseInt(jsonData[`effect${i}Lv`], 10) || 1,
+            maxLevel: 5,
+            timing: jsonData[`effect${i}Timing`] || "",
+            skill: jsonData[`effect${i}Skill`] || "自動",
+            difficulty: jsonData[`effect${i}Dfclty`] || "自動",
+            target: jsonData[`effect${i}Target`] || "",
+            range: jsonData[`effect${i}Range`] || "",
+            cost: jsonData[`effect${i}Encroach`] || "",
+            limit: jsonData[`effect${i}Restrict`] || "",
+            effect: jsonData[`effect${i}Note`] || "",
+          };
+
+          if (jsonData[`effect${i}Type`] === "easy") {
+            easyEffects.push(effect);
+          } else {
+            // "auto" (ワーディングなど) も通常エフェクトとして扱う
+            effects.push(effect);
+          }
+        }
+      }
+
+      return {
+        characterName: jsonData.characterName,
+        totalXp: parseInt(jsonData.expTotal, 10) || 130,
+        effects: effects,
+        easyEffects: easyEffects,
+      };
+    },
+
+    async importFromHokanjo_gas(url) {
+      const gasUrl = new URL(this.gasWebAppUrl);
+      gasUrl.searchParams.append("action", "import");
+      gasUrl.searchParams.append("url", url);
+      const response = await fetch(gasUrl);
+      const result = await response.json();
+      if (result.status === "success") {
+        return result.data;
+      } else {
+        throw new Error(
+          result.message || "キャラクター保管所の解析に失敗しました。"
+        );
+      }
+    },
+
+    // --- 既存のUI操作メソッド ---
+    createDefaultEffect() {
+      return {
+        name: "",
+        level: 1,
+        maxLevel: 1,
+        timing: "",
+        skill: "",
+        difficulty: "",
+        target: "",
+        range: "",
+        cost: "",
+        limit: "",
+        effect: "",
+        notes: "",
+      };
     },
     createDefaultValues() {
       const values = {};
@@ -448,6 +682,23 @@ new Vue({
       });
       values.crit.min = 2;
       return values;
+    },
+    isEffectDisabled(effect) {
+      const allRegisteredEffects = [...this.effects, ...this.easyEffects];
+      const selectedEffectObjects = this.tempSelectedEffectNames
+        .map((name) => allRegisteredEffects.find((e) => e.name === name))
+        .filter((e) => e);
+      const primaryTimingEffect = selectedEffectObjects.find(
+        (e) => e.timing && e.timing.toLowerCase() !== "オート"
+      );
+      if (!primaryTimingEffect) return false;
+      const primaryTiming = primaryTimingEffect.timing.toLowerCase();
+      const effectTiming = effect.timing ? effect.timing.toLowerCase() : "";
+      return (
+        effectTiming !== "オート" &&
+        effectTiming !== "" &&
+        effectTiming !== primaryTiming
+      );
     },
     addEffect() {
       this.effects.push({
@@ -514,32 +765,15 @@ new Vue({
       const num = parseInt(str, 10);
       return isNaN(num) ? 0 : num;
     },
-    replaceLvl(text, level) {
-      if (!text) return "";
-      let result = String(text);
-      return result
-        .replace(
-          /\[\s*LV\s*([*+])\s*(\d+)\s*\]/gi,
-          (match, operator, value) => {
-            const numValue = parseInt(value, 10);
-            if (operator === "*") return level * numValue;
-            if (operator === "+") return level + numValue;
-            return match;
-          }
-        )
-        .replace(/LV/gi, String(level));
-    },
     openEffectPanel(event, effect, type, index) {
       this.editingEffect = JSON.parse(JSON.stringify(effect));
       this.editingEffectType = type;
       this.editingEffectIndex = index;
-
       const rect = event.target.getBoundingClientRect();
       this.panelStyle = {
         top: `${rect.bottom + window.scrollY + 5}px`,
         left: `${rect.left + window.scrollX - 250}px`,
       };
-
       this.isPanelOpen = true;
       this.activeModalTab = "dice";
     },
