@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.css">
   <link rel="stylesheet" href="css/dx3_combo_generator.css">
 
-
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
 </head>
 
@@ -22,10 +21,100 @@
   <div class="main-content">
     <header class="main-header">
       <h1><i class="fa-solid fa-burst"></i> DX3 コンボジェネレーター</h1>
-      <p class="subtitle">キャラシのURLを入力して、キャラシから引用することができるぞ！ここを触ってもキャラシに反映されるわけではないから要注意だ！
-      </p>
-      </p>
+      <p class="subtitle">キャラシのURLを入力して、キャラシから引用することができるぞ！ここを触ってもキャラシに反映されるわけではないから要注意だ！</p>
     </header>
+    <script type="text/x-template" id="input-with-dropdown-template">
+      <div class="input-with-dropdown" @click.stop>
+        <input type="text" :value="value" @input="handleInput">
+        <span class="dropdown-arrow" @click.prevent.stop="toggleDropdown($event)" v-if="options.length > 0">▼</span>
+        <ul v-if="isOpen && options.length > 0" class="dropdown-menu" :style="dropdownStyle">
+          <li v-for="option in options" :key="option" @click="selectOption(option)">
+            {{ option }}
+          </li>
+        </ul>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="input-with-dropdown-template">
+      <div class="input-with-dropdown" @click.stop>
+        <input type="text" :value="value" @input="handleInput">
+        <span class="dropdown-arrow" @click.prevent.stop="toggleDropdown($event)" v-if="options.length > 0">▼</span>
+        <ul v-if="isOpen && options.length > 0" class="dropdown-menu" :style="dropdownStyle">
+          <li v-for="option in options" :key="option" @click="selectOption(option)">
+            {{ option }}
+          </li>
+        </ul>
+      </div>
+    </script>
+
+    <script>
+      Vue.component("input-with-dropdown", {
+        template: "#input-with-dropdown-template",
+        props: {
+          value: String,
+          options: {
+            type: Array,
+            default: () => [],
+          },
+        },
+        data() {
+          return {
+            isOpen: false,
+            dropdownStyle: {},
+          };
+        },
+        methods: {
+          toggleDropdown(event) {
+            if (this.options.length === 0) {
+              return;
+            }
+
+            this.isOpen = !this.isOpen;
+
+            if (this.isOpen) {
+              const inputElement = this.$el.querySelector('input[type="text"]');
+
+              if (inputElement) {
+                const inputRect = inputElement.getBoundingClientRect();
+                this.dropdownStyle = {
+                  position: 'fixed',
+                  top: `${inputRect.bottom}px`,
+                  left: `${inputRect.left}px`,
+                  width: `${inputRect.width}px`,
+                  zIndex: 9999,
+                };
+              } else {
+                this.isOpen = false;
+              }
+            } else {
+              this.dropdownStyle = {};
+            }
+          },
+          selectOption(option) {
+            this.$emit("input", option);
+            this.isOpen = false;
+            this.dropdownStyle = {};
+          },
+          handleInput(event) {
+            this.$emit("input", event.target.value);
+          },
+          closeDropdown() {
+            if (this.isOpen) {
+              this.isOpen = false;
+              this.dropdownStyle = {};
+            }
+          },
+        },
+        mounted() {
+          document.addEventListener("click", this.closeDropdown);
+          this.$el.addEventListener("click", (e) => e.stopPropagation());
+        },
+        beforeDestroy() {
+          document.removeEventListener("click", this.closeDropdown);
+        },
+      });
+    </script>
+
     <div id="dx3-app" class="plain-text-block" v-cloak @click="closeAllDropdowns">
 
       <div class="top-info-wrapper">
@@ -34,26 +123,21 @@
             <label class="db-url-input">
               <span>キャラクターシートURL:</span>
               <input type="text" v-model.trim="characterSheetUrl" placeholder="ゆとシート/Vampire-bloodのURLを入力"
-                @keyup.enter="loadFromDb">
+                @keyup.enter="importFromSheet">
             </label>
             <div class="db-buttons">
-              <!-- ▼▼▼ ここから追加 ▼▼▼ -->
-              <button @click="importFromSheet" class="btn-import" :disabled="isBusy" title="キャラシから引用">
-                <i class="fas fa-magic"></i> 引用
-              </button>
-              <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
+              <button @click="importFromSheet" class="btn-import" :disabled="isBusy" title="キャラシから引用"><i
+                  class="fas fa-magic"></i> 引用</button>
               <button @click="loadFromDb" class="btn-load" :disabled="isBusy" title="DBから読込"><i
                   class="fas fa-cloud-download-alt"></i> 読込</button>
               <button @click="overwriteSave" class="btn-save" :disabled="isBusy" title="上書き保存"><i
-                  class="fas fa-save"></i>
-                保存</button>
+                  class="fas fa-save"></i> 保存</button>
               <button @click="deleteFromDb" class="btn-delete" :disabled="isBusy" title="削除"><i
                   class="fas fa-trash-alt"></i> 削除</button>
             </div>
           </div>
           <p v-if="statusMessage" class="status-message" :class="{ 'error': statusIsError }">{{ statusMessage }}</p>
         </div>
-
         <div class="character-info-grid">
           <label>キャラクター名: <input type="text" v-model="characterName" placeholder="PC名"></label>
           <label>総経験点: <input type="number" v-model.number="totalXp"></label>
@@ -163,49 +247,122 @@
       </div>
       <button @click="addEasyEffect" class="add-btn"><i class="fa-solid fa-plus"></i> イージーエフェクトを追加</button>
 
+      <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> アイテム <span class="xp-display">(使用経験点: {{
+          itemXp }})</span></h2>
+      <div class="table-wrapper">
+        <table class="dx3-table items-table">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>Lv</th>
+              <th>種別</th>
+              <th>技能</th>
+              <th>命中</th>
+              <th>攻撃力</th>
+              <th>ガード値</th>
+              <th>射程</th>
+              <th>侵蝕値</th>
+              <th>経験点</th>
+              <th>備考</th>
+              <th>設定</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in items">
+              <td><input type="text" v-model="item.name"></td>
+              <td class="text-right"><input type="number" v-model.number="item.level" min="1" class="text-right"></td>
+              <td><input type="text" v-model="item.type"></td>
+              <td><input-with-dropdown v-model="item.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
+              <td><input type="text" v-model="item.accuracy" class="text-right"></td>
+              <td><input type="text" v-model="item.attack" class="text-right"></td>
+              <td><input type="text" v-model="item.guard" class="text-right"></td>
+              <td><input type="text" v-model="item.range"></td>
+              <td class="text-right"><input type="text" v-model="item.cost" class="text-right"></td>
+              <td class="text-right"><input type="number" v-model.number="item.xp" class="text-right"></td>
+              <td><textarea v-model="item.notes"></textarea></td>
+              <td class="action-cell">
+                <button @click.stop="openEffectPanel($event, item, 'item', index)" class="setting-btn" title="詳細設定"><i
+                    class="fa-solid fa-gear"></i></button>
+                <button @click="removeItem(index)" class="delete-btn" title="削除"><i
+                    class="fa-solid fa-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button @click="addItem" class="add-btn"><i class="fa-solid fa-plus"></i> アイテムを追加</button>
+
       <h2 class="section-title"><i class="fa-solid fa-cubes-stacked"></i> コンボデータ</h2>
       <div v-for="(combo, index) in processedCombos" class="combo-block">
         <div class="combo-header">
           <input type="text" v-model="combos[index].name" class="combo-name-input">
-          <label class="combo-level-select">
-            コンボLv:
-            <select v-model.number="combos[index].comboLevelBonus">
+          <label class="combo-level-select">コンボLv:<select v-model.number="combos[index].comboLevelBonus">
               <option v-for="n in 6" :value="n-1">+{{ n-1 }}</option>
-            </select>
-          </label>
+            </select></label>
           <button @click="removeCombo(index)" class="delete-btn"><i class="fa-solid fa-trash"></i></button>
         </div>
-
         <div class="combo-stats-bar">
           <div class="stat-item" :title="combo.diceBreakdown">ダイス: {{ combo.totalDice }}</div>
           <div class="stat-item" :title="combo.critBreakdown">C値: {{ combo.finalCrit }}</div>
           <div class="stat-item" :title="combo.achieveBreakdown">達成値: +{{ combo.totalAchieve }}</div>
-          <div class="stat-item weapon-atk-input">武器ATK: <input type="number" v-model.number="combos[index].atk_weapon">
+          <div class="stat-item target-setting">
+            <span>対象: <input type="text"
+                :value="combos[index].targetMode === 'auto' ? combo.target : combos[index].manualTarget"
+                :readonly="combos[index].targetMode === 'auto'"
+                @input="combos[index].manualTarget = $event.target.value" class="manual-input"></span>
+            <div class="mode-toggle">
+              <button @click="combos[index].targetMode = 'auto'"
+                :class="{active: combos[index].targetMode === 'auto'}">自動</button>
+              <button @click="combos[index].targetMode = 'manual'"
+                :class="{active: combos[index].targetMode === 'manual'}">手動</button>
+            </div>
           </div>
-          <div class="stat-item" :title="combo.atkBreakdown">ATK: {{ combo.totalAtk }}</div>
+          <div class="stat-item range-setting">
+            <span>射程: <input type="text"
+                :value="combos[index].rangeMode === 'auto' ? combo.range : combos[index].manualRange"
+                :readonly="combos[index].rangeMode === 'auto'" @input="combos[index].manualRange = $event.target.value"
+                class="manual-input"></span>
+            <div class="mode-toggle">
+              <button @click="combos[index].rangeMode = 'auto'"
+                :class="{active: combos[index].rangeMode === 'auto'}">自動</button>
+              <button @click="combos[index].rangeMode = 'manual'"
+                :class="{active: combos[index].rangeMode === 'manual'}">手動</button>
+            </div>
+          </div>
+
+          <div class="stat-item base-ability-input">
+            <span>技能値:</span>
+            <select v-model="combos[index].baseAbility.skill">
+              <option v-for="opt in dropdownOptions.baseSkillSelect" :value="opt">{{ opt }}</option>
+            </select>
+            <input type="number" v-model.number="combos[index].baseAbility.value">
+          </div>
+
           <div class="stat-item" :title="combo.costBreakdown">侵蝕値: {{ combo.totalCost }}</div>
         </div>
-
-        <button @click="openEffectSelectModal(index)" class="effect-select-button">
-          <i class="fa-solid fa-check-double"></i> 組合せ ({{ combos[index].effectNames.length }}件選択中): {{
-          combo.compositionText }}
-        </button>
-
+        <button @click="openEffectSelectModal(index)" class="effect-select-button"><i
+            class="fa-solid fa-check-double"></i> 組合せ ({{ (combos[index].effectNames ? combos[index].effectNames.length
+          : 0) + (combos[index].itemNames ? combos[index].itemNames.length : 0) }}件選択中): {{ combo.compositionText
+          }}</button>
         <div class="combo-details-grid">
           <div class="combo-textarea-wrapper">
-            <div class="textarea-header">
-              <label>フレーバーテキスト</label>
-            </div>
+            <div class="textarea-header"><label>フレーバーテキスト</label></div>
             <textarea v-model="combos[index].flavor" placeholder="例: 相手を焼き尽くす。"></textarea>
           </div>
           <div class="combo-textarea-wrapper">
             <div class="textarea-header">
               <label>効果解説</label>
-              <div class="mode-toggle">
-                <button @click="combos[index].effectDescriptionMode = 'auto'"
-                  :class="{active: combos[index].effectDescriptionMode === 'auto'}">自動転記</button>
-                <button @click="switchToManualMode(combos[index], index)"
-                  :class="{active: combos[index].effectDescriptionMode === 'manual'}">手動編集</button>
+              <div class="header-controls">
+                <label class="advanced-parsing-switch" title="ONにすると、効果解説内の[LV*3]のような計算式を自動で解決して表示します。">
+                  <input type="checkbox" v-model="combos[index].enableAdvancedParsing" class="switch">
+                  <span>計算式を解決</span>
+                </label>
+                <div class="mode-toggle">
+                  <button @click="combos[index].effectDescriptionMode = 'auto'"
+                    :class="{active: combos[index].effectDescriptionMode === 'auto'}">自動転記</button>
+                  <button @click="switchToManualMode(combos[index], index)"
+                    :class="{active: combos[index].effectDescriptionMode === 'manual'}">手動編集</button>
+                </div>
               </div>
             </div>
             <textarea v-if="combos[index].effectDescriptionMode === 'manual'"
@@ -213,80 +370,74 @@
             <textarea v-else readonly :value="combo.autoEffectText"></textarea>
           </div>
         </div>
-
         <div class="combo-palette-display">
           <div class="copy-container">
             <textarea readonly :value="combo.chatPalette"></textarea>
             <button @click="copyToClipboard(combo.chatPalette, $event)"><i class="fa-solid fa-paste"></i></button>
           </div>
         </div>
+
       </div>
       <button @click="addCombo" class="add-btn"><i class="fa-solid fa-plus"></i> コンボを追加</button>
 
-      <!-- Effect Details Floating Panel -->
       <div v-if="isPanelOpen" class="floating-panel" :style="panelStyle" @click.stop>
         <div class="panel-header">
-          <h3>{{ editingEffect.name || '新規' }} 詳細設定</h3>
-          <button @click="closeEffectPanel" class="close-btn">×</button>
+          <h3>{{ editingEffect.name || '新規' }} 詳細設定</h3><button @click="closeEffectPanel" class="close-btn">×</button>
         </div>
         <div class="panel-body">
-          <div class="modal-tabs">
-            <button v-for="tab in modalTabs" :key="tab.key" :class="{ active: activeModalTab === tab.key }"
-              @click="activeModalTab = tab.key">{{ tab.label }}</button>
+          <div class="modal-tabs"><button v-for="tab in modalTabs" :key="tab.key"
+              :class="{ active: activeModalTab === tab.key }" @click="activeModalTab = tab.key">{{ tab.label }}</button>
           </div>
           <div class="modal-tab-content">
             <div v-show="activeModalTab !== 'crit'" class="panel-grid">
-              <div class="input-group">
-                <label>{{ activeModalTabLabel }} 基本値: <span class="input-example">(例: <span
-                      class="color-base">+X</span>)</span></label>
-                <input type="number" v-model.number="editingEffect.values[activeModalTab].base">
-              </div>
-              <div class="input-group">
-                <label>{{ activeModalTabLabel }} Lv毎加算: <span class="input-example">(例: <span
-                      class="color-per-level">LV×N</span>)</span></label>
-                <input type="number" v-model.number="editingEffect.values[activeModalTab].perLevel">
-              </div>
+              <div class="input-group"><label>{{ activeModalTabLabel }} 基本値: <span class="input-example">(例: <span
+                      class="color-base">+X</span>)</span></label><input type="number"
+                  v-model.number="editingEffect.values[activeModalTab].base"></div>
+              <div class="input-group" v-if="editingEffectType !== 'item'"><label>{{ activeModalTabLabel }} Lv毎加算: <span
+                    class="input-example">(例: <span class="color-per-level">LV×N</span>)</span></label><input
+                  type="number" v-model.number="editingEffect.values[activeModalTab].perLevel"></div>
             </div>
             <div v-show="activeModalTab === 'crit'">
-              <div class="input-group">
-                <label>C値 基本値:</label>
-                <input type="number" v-model.number="editingEffect.values.crit.base">
-              </div>
-              <div class="input-group">
-                <label>C値 Lv毎減算:</label>
-                <input type="number" v-model.number="editingEffect.values.crit.perLevel">
-              </div>
-              <div class="input-group">
-                <label>C値 下限:</label>
-                <input type="number" v-model.number="editingEffect.values.crit.min">
-              </div>
+              <div class="input-group"><label>C値 基本値:</label><input type="number"
+                  v-model.number="editingEffect.values.crit.base"></div>
+              <div class="input-group" v-if="editingEffectType !== 'item'"><label>C値 Lv毎減算:</label><input type="number"
+                  v-model.number="editingEffect.values.crit.perLevel"></div>
+              <div class="input-group"><label>C値 下限:</label><input type="number"
+                  v-model.number="editingEffect.values.crit.min"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Effect Selection Modal -->
       <div v-if="isEffectSelectModalOpen" class="modal-overlay" @click.self="cancelEffectSelection">
         <div class="modal-content effect-select-modal">
           <div class="modal-header">
-            <h3>コンボのエフェクトを選択</h3>
-            <button @click="cancelEffectSelection" class="close-btn">×</button>
+            <h3>コンボのエフェクトを選択</h3><button @click="cancelEffectSelection" class="close-btn">×</button>
           </div>
           <div class="modal-body">
             <div class="option-group">
               <strong>エフェクト</strong>
               <label v-for="effect in effects" :key="effect.name + editingComboIndex + 'effect-select'"
-                :class="{disabled: isEffectDisabled(effect)}">
-                <input type="checkbox" :value="effect.name" v-model="tempSelectedEffectNames"
-                  :disabled="isEffectDisabled(effect)"> {{ effect.name }} ({{ effect.timing }})
-              </label>
+                :class="{disabled: isEffectDisabled(effect)}"><input type="checkbox" :value="effect"
+                  v-model="tempSelectedEffects" :disabled="isEffectDisabled(effect)"> {{ effect.name }} ({{
+                effect.timing }})</label>
             </div>
             <div class="option-group">
               <strong>イージーエフェクト</strong>
               <label v-for="ee in easyEffects" :key="ee.name + editingComboIndex + 'ee-select'"
-                :class="{disabled: isEffectDisabled(ee)}">
-                <input type="checkbox" :value="ee.name" v-model="tempSelectedEffectNames"
-                  :disabled="isEffectDisabled(ee)"> {{ ee.name }} ({{ ee.timing }})
+                :class="{disabled: isEffectDisabled(ee)}"><input type="checkbox" :value="ee"
+                  v-model="tempSelectedEffects" :disabled="isEffectDisabled(ee)"> {{ ee.name }} ({{ ee.timing
+                }})</label>
+            </div>
+            <div class="option-group">
+              <strong>アイテム</strong>
+              <label v-for="item in items" :key="item.name + editingComboIndex + 'item-select'"
+                class="item-select-label">
+                <input type="checkbox" :value="item" v-model="tempSelectedItems">
+                <span>{{ item.name }} ({{ item.type }})</span>
+                <button @click.stop.prevent="toggleShowInComboName(item)"
+                  :class="{active: isShowInComboName(item.name)}" :disabled="!isItemSelected(item.name)"
+                  class="show-in-combo-btn" title="クリックでコンボ名への表示／非表示を切替">コンボ</button>
               </label>
             </div>
           </div>
@@ -303,17 +454,6 @@
   <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
   <script src="js/common.js"></script>
 
-  <script type="text/x-template" id="input-with-dropdown-template">
-    <div class="input-with-dropdown" @click.stop>
-      <input type="text" :value="value" @input="handleInput">
-      <span class="dropdown-arrow" @click.prevent.stop="toggleDropdown" v-if="options.length > 0">▼</span>
-      <ul v-if="isOpen && options.length > 0" class="dropdown-menu">
-        <li v-for="option in options" :key="option" @click="selectOption(option)">
-          {{ option }}
-        </li>
-      </ul>
-    </div>
-  </script>
 
   <script src="js/dx3_combo_generator.js"></script>
 </body>

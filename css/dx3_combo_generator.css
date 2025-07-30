@@ -6,14 +6,13 @@
   border-radius: 8px;
   margin-bottom: 10px;
   display: flex;
-  flex-wrap: nowrap; /* 1行にまとめる */
-  align-items: flex-end; /* 要素の下端を揃える */
+  flex-wrap: nowrap;
+  align-items: flex-end;
   gap: 15px;
 }
-/* 修正後（db-url-input というクラス名で正しく指定） */
 .db-url-input {
-  flex-grow: 1; /* 入力欄が伸びるように */
-  min-width: 50px; /* URL欄の最小幅をさらに調整 */
+  flex-grow: 1;
+  min-width: 50px;
 }
 .db-url-input span {
   display: block;
@@ -27,7 +26,7 @@
   padding: 8px;
   border-radius: 4px;
   width: 100%;
-  box-sizing: border-box; /* paddingを含めて幅100%にする */
+  box-sizing: border-box;
 }
 .db-buttons {
   display: flex;
@@ -48,16 +47,16 @@
   color: white;
 }
 .db-buttons button.btn-load {
-  background-color: #3498db; /* 読込 */
+  background-color: #3498db;
 }
 .db-buttons button.btn-import {
-  background-color: #9b59b6; /* 引用 */
+  background-color: #9b59b6;
 }
 .db-buttons button.btn-save {
-  background-color: #2ecc71; /* 保存 */
+  background-color: #2ecc71;
 }
 .db-buttons button.btn-delete {
-  background-color: #e74c3c; /* 削除 */
+  background-color: #e74c3c;
 }
 .db-buttons button:hover:not(:disabled) {
   opacity: 0.8;
@@ -83,28 +82,23 @@
   color: #e74c3c;
   font-weight: bold;
 }
-
-/* (以下、既存のCSSは変更なし) */
 .top-info-wrapper {
   display: flex;
   gap: 15px;
   margin-bottom: 25px;
-  align-items: stretch; /* 高さを揃える */
+  align-items: stretch;
 }
-
 .db-sync-container {
-  flex: 1.2; /* URL欄の幅をさらに調整 */
+  flex: 1.2;
   display: flex;
   flex-direction: column;
 }
-
 .db-sync-block {
-  flex-grow: 1; /* コンテナ内で高さを埋める */
+  flex-grow: 1;
 }
-
 .character-info-grid {
   display: grid;
-  grid-template-columns: minmax(100px, 0.7fr) repeat(3, minmax(40px, 0.2fr)); /* キャラ名と経験点の幅を調整 */
+  grid-template-columns: minmax(100px, 0.7fr) repeat(3, minmax(40px, 0.2fr));
   gap: 15px;
   background-color: #2c2c2c;
   padding: 15px;
@@ -117,24 +111,14 @@
   gap: 5px;
   font-size: 0.9em;
 }
-.character-info-grid input[type="text"],
-.character-info-grid input[type="number"] {
+.character-info-grid input {
   background-color: #0d1a50;
   border: 1px solid #2a3c7d;
   color: #eee;
   padding: 8px;
   border-radius: 4px;
-  width: 100%; /* 親要素の幅に合わせる */
+  width: 100%;
   box-sizing: border-box;
-}
-.character-info-grid span {
-  background-color: #0d1a50;
-  border: 1px solid #2a3c7d;
-  color: #eee;
-  padding: 8px;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 1.1em;
 }
 .section-title {
   font-family: "Corporate-Logo-Bold", sans-serif;
@@ -150,7 +134,7 @@
   margin-left: 10px;
 }
 .table-wrapper {
-  overflow-x: visible; /* プルダウンメニューが枠外に出るのを防ぐため */
+  overflow-x: auto;
   margin-bottom: 15px;
 }
 .dx3-table {
@@ -161,10 +145,11 @@
 .dx3-table th,
 .dx3-table td {
   border: 1px solid #2a3c7d;
+  padding: 8px;
   text-align: left;
   font-size: 0.9em;
   vertical-align: middle;
-  position: relative; /* プルダウンメニューがセルを基準に配置されるように */
+  position: relative;
 }
 .dx3-table .text-right {
   text-align: right;
@@ -194,9 +179,6 @@
   min-height: 40px;
   white-space: normal;
 }
-.dx3-table input.text-right {
-  text-align: right;
-}
 .input-with-dropdown {
   position: relative;
 }
@@ -206,18 +188,12 @@
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  display: none;
   color: #87cefa;
   font-size: 0.8em;
-}
-.input-with-dropdown:hover .dropdown-arrow {
-  display: block;
+  display: none;
 }
 .input-with-dropdown .dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 999;
+  z-index: 9999; /* JavaScriptで設定されるため、CSSからは削除 */
   background-color: #2c2c2c;
   border: 1px solid #4a5c9a;
   border-radius: 4px;
@@ -226,7 +202,6 @@
   padding: 5px 0;
   max-height: 200px;
   overflow-y: auto;
-  min-width: 100%;
 }
 .input-with-dropdown .dropdown-menu li {
   padding: 8px 12px;
@@ -236,31 +211,36 @@
 .input-with-dropdown .dropdown-menu li:hover {
   background-color: #1a2c6d;
 }
+.input-with-dropdown:hover .dropdown-arrow {
+  display: block;
+}
 .effects-table td:nth-child(1) {
   min-width: 150px;
 }
 .effects-table td:nth-child(2),
 .effects-table td:nth-child(3) {
-  width: 20px;
-}
-.effects-table td:nth-child(4) {
-  min-width: 90px;
-}
-.effects-table td:nth-child(5) {
-  min-width: 80px;
-}
-.effects-table td:nth-child(6) {
-  min-width: 80px;
-}
-.effects-table td:nth-child(7),
-.effects-table td:nth-child(8) {
-  width: 64px;
-}
-.effects-table td:nth-child(9) {
   width: 40px;
 }
+
+.input-with-dropdown .dropdown-menu::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+.input-with-dropdown .dropdown-menu {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.effects-table td:nth-child(4),
+.effects-table td:nth-child(5),
+.effects-table td:nth-child(6),
+.effects-table td:nth-child(7),
+.effects-table td:nth-child(8) {
+  min-width: 90px;
+}
+.effects-table td:nth-child(9) {
+  width: 60px;
+}
 .effects-table td:nth-child(10) {
-  width: 50px;
+  width: 80px;
 }
 .effects-table td:nth-child(11) {
   min-width: 300px;
@@ -271,7 +251,32 @@
   white-space: normal;
 }
 .effects-table td:nth-child(13) {
+  width: 80px;
+}
+.items-table td:nth-child(1) {
+  min-width: 150px;
+}
+.items-table td:nth-child(2) {
+  width: 40px;
+}
+.items-table td:nth-child(3),
+.items-table td:nth-child(4) {
   min-width: 80px;
+}
+.items-table td:nth-child(5),
+.items-table td:nth-child(6),
+.items-table td:nth-child(7),
+.items-table td:nth-child(8),
+.items-table td:nth-child(9),
+.items-table td:nth-child(10) {
+  width: 60px;
+}
+.items-table td:nth-child(11) {
+  min-width: 200px;
+  white-space: normal;
+}
+.items-table td:nth-child(12) {
+  width: 80px;
 }
 .add-btn,
 .delete-btn,
@@ -290,32 +295,44 @@
 .delete-btn {
   background-color: #e74c3c;
 }
-.setting-btn {
-  background-color: #6c757d;
-}
-.add-btn:hover {
-  background-color: #2980b9;
-}
 .delete-btn:hover {
   background-color: #c0392b;
+}
+.setting-btn {
+  background-color: #6c757d;
 }
 .setting-btn:hover {
   background-color: #5a6268;
 }
-
 .delete-btn:disabled,
 .setting-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 .delete-btn:disabled:hover,
 .setting-btn:disabled:hover {
-  background-color: initial; /* ホバーエフェクトを無効化 */
+  background-color: initial;
 }
 .action-cell {
   display: flex;
   gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
+.combo-title-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.advanced-parsing-switch {
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.advanced-parsing-switch .switch {
+  margin-right: 5px;
 }
 .combo-block {
   background-color: #2c2c2c;
@@ -378,6 +395,10 @@
   color: #eee;
   font-weight: bold;
   border-right: 1px solid #555;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 .stat-item:last-child {
   border-right: none;
@@ -386,22 +407,27 @@
   cursor: help;
   background-color: #4f4f4f;
 }
-.weapon-atk-input {
+.base-ability-input {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
   flex-basis: 150px;
   flex-grow: 0.5;
+  padding: 5px 10px;
+  border-radius: 4px;
 }
-.weapon-atk-input input {
-  width: 60px;
-  text-align: right;
-  padding: 4px;
+.base-ability-input select,
+.base-ability-input input {
   background-color: #0d1a50;
   border: 1px solid #4a5c9a;
   color: #eee;
+  padding: 4px;
   border-radius: 3px;
+}
+.base-ability-input input {
+  width: 60px;
+  text-align: right;
 }
 .effect-select-button {
   display: block;
@@ -446,6 +472,11 @@
   margin: 0;
   font-weight: bold;
   font-size: 0.9em;
+}
+.combo-textarea-wrapper .header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .combo-textarea-wrapper textarea {
   width: 100%;
@@ -604,9 +635,6 @@
   gap: 10px;
   align-items: center;
 }
-.panel-grid-crit {
-  display: block;
-}
 .panel-grid-crit .input-group,
 .modal-tab-content .input-group {
   display: flex;
@@ -700,14 +728,95 @@
 .effect-select-modal label.disabled:hover {
   background-color: transparent;
 }
+.item-select-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.item-select-label span {
+  flex-grow: 1;
+}
+.show-in-combo-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.8em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.show-in-combo-btn.active {
+  background-color: #2ecc71;
+}
+.show-in-combo-btn:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.combo-manual-settings {
+  background-color: #1a2c6d;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+  border: 1px solid #4a5c9a;
+}
+
+.combo-manual-settings h3 {
+  font-family: "Corporate-Logo-Bold", sans-serif;
+  color: #87cefa;
+  margin-top: 0;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed #4a5c9a;
+}
+
+.combo-manual-settings .setting-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.combo-manual-settings .setting-group label {
+  flex-shrink: 0;
+  width: 60px;
+  font-size: 0.9em;
+}
+
+.combo-manual-settings .setting-controls {
+  display: flex;
+  flex-grow: 1;
+  gap: 5px;
+}
+
+.combo-manual-settings input[type="text"] {
+  flex-grow: 1;
+  background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+  padding: 5px;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+.combo-manual-settings input[type="text"]:disabled {
+  background-color: #3c3c3c;
+  color: #bbb;
+  cursor: not-allowed;
+}
+
+.combo-manual-settings .mode-toggle button {
+  padding: 5px 10px;
+  font-size: 0.85em;
+}
 
 @media (max-width: 1024px) {
-  /* より広いブレークポイントに変更 */
   .top-info-wrapper {
     flex-direction: column;
   }
 }
-
 @media (max-width: 768px) {
   .combo-details-grid {
     grid-template-columns: 1fr;
@@ -719,4 +828,41 @@
     flex-basis: 33.33%;
     border-bottom: 1px solid #555;
   }
+}
+
+.stat-item .setting-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%; /* 親要素の幅に合わせる */
+  justify-content: center; /* 中央寄せ */
+}
+
+.stat-item span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-item span input.manual-input {
+  width: 60px; /* 幅を固定 */
+  min-width: 40px; /* 最小幅も設定 */
+  text-align: center; /* テキストを中央寄せ */
+  box-sizing: border-box; /* パディングとボーダーを幅に含める */
+  padding: 5px; /* パディングを追加 */
+  border-radius: 3px; /* 角を丸くする */
+  background-color: #0d1a50; /* 背景色 */
+  border: 1px solid #4a5c9a; /* ボーダー */
+  color: #eee; /* 文字色 */
+}
+
+.stat-item span input.manual-input[readonly] {
+  background-color: #3c3c3c; /* 読み取り専用の背景色 */
+  color: #bbb; /* 読み取り専用の文字色 */
+  cursor: not-allowed; /* カーソルを変更 */
+}
+
+.stat-item .mode-toggle button {
+  padding: 3px 6px; /* ボタンのパディングを調整 */
+  font-size: 0.75em; /* フォントサイズを小さくする */
 }
