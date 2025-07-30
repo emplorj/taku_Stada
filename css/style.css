@@ -85,6 +85,7 @@ body {
   display: flex; /* Make body a flex container */
   flex-direction: column; /* Stack children vertically */
   overflow-y: auto; /* Add this line to allow body to scroll */
+  overflow-x: hidden; /* Prevent horizontal scrollbar */
 }
 
 a {
@@ -123,7 +124,7 @@ h1 {
   box-sizing: border-box;
   flex-grow: 1; /* Allow main-content to grow and take available space */
   overflow-y: auto; /* Add scrollbar only to main-content if needed */
-  overflow-x: hidden; /* ::after要素のはみ出しをクリップ */
+  overflow-x: visible; /* プルダウンメニューが枠外に出るのを防ぐため */
 }
 .page-content-header {
   flex-shrink: 0;
@@ -134,8 +135,8 @@ h1 {
   position: fixed; /* 画面に固定 */
   top: 20px; /* 上からの位置 */
   left: 20px; /* 左からの位置 */
-  width: 180px; /* メニューの基本幅 */
-  padding: 20px; /* 内側の余白 */
+  width: 200px; /* メニューの基本幅 */
+  padding: 10px 20px; /* 内側の余白 */
   background-color: rgba(6, 17, 68, 0.8);
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -275,21 +276,12 @@ nav.side-menu li {
   margin: 0;
 }
 
-nav.side-menu > ul {
-  padding-top: 15px;
-}
-
 .side-menu ul ul {
   padding-left: 15px; /* ネストされたリストのインデント */
-  margin-top: 5px; /* ネストされたリストの上のスペース */
 }
 
 .side-menu .submenu li {
-  margin-bottom: 6px; /* ネストされたリストアイテムのマージンを小さく */
-}
-
-.side-menu > ul > li {
-  margin-bottom: 4px;
+  margin-bottom: 4px; /* ネストされたリストアイテムのマージンを小さく */
 }
 
 .side-menu a {
@@ -299,7 +291,7 @@ nav.side-menu > ul {
   color: #b0c4de;
   transition: color 0.3s ease;
   display: block; /* クリック範囲を広げる */
-  padding: 2px 0;
+  padding: 1px 0;
   display: flex; /* 1. Flexboxを有効にして、中の要素（アイコンとテキスト）を横並びに */
   align-items: center; /* 2. アイコンとテキストを垂直方向の中央に揃える */
 }
@@ -315,7 +307,6 @@ nav.side-menu > ul {
 .side-menu a.active {
   /* JavaScriptでアクティブなリンクをハイライトする場合の準備 */
   color: #fff;
-  font-weight: bold;
 }
 
 /* サイドメニューのもくじタイトル */
@@ -1368,7 +1359,6 @@ body.no-scroll {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-bottom: 15px;
   margin-bottom: 15px;
   border-bottom: 1px solid #4a5c9a;
 }
@@ -1460,6 +1450,8 @@ body.no-scroll {
    ========================================================================== */
 .side-menu .has-submenu > .submenu-trigger {
   position: relative;
+  color: #fff;
+  padding-left: 1.7em; /* 矢印のスペースを確保 */
 }
 
 .side-menu .has-submenu > .submenu-trigger::after {
@@ -1468,9 +1460,14 @@ body.no-scroll {
   left: 0; /* アイコンと同じ左端に配置 */
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.7em;
+  font-size: 1em;
   color: #b0c4de;
   transition: transform 0.3s ease;
+}
+
+/* 「メインページ項目」以外のsubmenu-triggerの矢印を非表示にする */
+.side-menu li:not(:first-of-type).has-submenu > .submenu-trigger::after {
+  content: none;
 }
 
 .side-menu .has-submenu > .submenu-trigger.active::after {
@@ -1486,18 +1483,11 @@ body.no-scroll {
   overflow: hidden;
   transition: max-height 0.4s ease-in-out;
   box-sizing: border-box;
-  padding-left: 15px; /* インデント */
-  margin-top: 5px;
-}
-
-.side-menu .has-submenu > .submenu-trigger {
-  padding-left: 1.7em; /* 矢印のスペースを確保 */
 }
 
 .side-menu .submenu li a {
-  font-size: 0.9em;
+  font-size: 1em;
   color: #9ab5d9;
-  padding-left: 1.7em; /* 他の項目とインデントを合わせる */
 }
 /* ==========================================================================
    22. Swiper スライダー調整 (CoC_Q&A.html)

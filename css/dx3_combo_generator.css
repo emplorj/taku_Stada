@@ -6,14 +6,14 @@
   border-radius: 8px;
   margin-bottom: 10px;
   display: flex;
-  flex-wrap: wrap; /* スマホなどで折り返す */
+  flex-wrap: nowrap; /* 1行にまとめる */
   align-items: flex-end; /* 要素の下端を揃える */
   gap: 15px;
 }
 /* 修正後（db-url-input というクラス名で正しく指定） */
 .db-url-input {
   flex-grow: 1; /* 入力欄が伸びるように */
-  min-width: 250px;
+  min-width: 50px; /* URL欄の最小幅をさらに調整 */
 }
 .db-url-input span {
   display: block;
@@ -85,14 +85,31 @@
 }
 
 /* (以下、既存のCSSは変更なし) */
-.character-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+.top-info-wrapper {
+  display: flex;
   gap: 15px;
   margin-bottom: 25px;
+  align-items: stretch; /* 高さを揃える */
+}
+
+.db-sync-container {
+  flex: 1.2; /* URL欄の幅をさらに調整 */
+  display: flex;
+  flex-direction: column;
+}
+
+.db-sync-block {
+  flex-grow: 1; /* コンテナ内で高さを埋める */
+}
+
+.character-info-grid {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.7fr) repeat(3, minmax(40px, 0.2fr)); /* キャラ名と経験点の幅を調整 */
+  gap: 15px;
   background-color: #2c2c2c;
   padding: 15px;
   border-radius: 8px;
+  flex: 1;
 }
 .character-info-grid label {
   display: flex;
@@ -107,6 +124,8 @@
   color: #eee;
   padding: 8px;
   border-radius: 4px;
+  width: 100%; /* 親要素の幅に合わせる */
+  box-sizing: border-box;
 }
 .character-info-grid span {
   background-color: #0d1a50;
@@ -131,7 +150,7 @@
   margin-left: 10px;
 }
 .table-wrapper {
-  overflow-x: auto;
+  overflow-x: visible; /* プルダウンメニューが枠外に出るのを防ぐため */
   margin-bottom: 15px;
 }
 .dx3-table {
@@ -142,10 +161,10 @@
 .dx3-table th,
 .dx3-table td {
   border: 1px solid #2a3c7d;
-  padding: 8px;
   text-align: left;
   font-size: 0.9em;
   vertical-align: middle;
+  position: relative; /* プルダウンメニューがセルを基準に配置されるように */
 }
 .dx3-table .text-right {
   text-align: right;
@@ -198,7 +217,7 @@
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 10;
+  z-index: 999;
   background-color: #2c2c2c;
   border: 1px solid #4a5c9a;
   border-radius: 4px;
@@ -283,6 +302,17 @@
 .setting-btn:hover {
   background-color: #5a6268;
 }
+
+.delete-btn:disabled,
+.setting-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.delete-btn:disabled:hover,
+.setting-btn:disabled:hover {
+  background-color: initial; /* ホバーエフェクトを無効化 */
+}
 .action-cell {
   display: flex;
   gap: 5px;
@@ -298,6 +328,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
   padding-bottom: 10px;
   margin-bottom: 10px;
   border-bottom: 1px dashed #4a5c9a;
@@ -307,7 +338,7 @@
   border: 1px solid #4a5c9a;
   color: #eee;
   font-family: "Corporate-Logo-Bold", sans-serif;
-  font-size: 1.2em;
+  font-size: 1.1em;
   flex-grow: 1;
   padding: 5px;
   border-radius: 4px;
@@ -319,7 +350,7 @@
   background-color: #1a2c6d;
 }
 .combo-level-select {
-  margin-left: 15px;
+  margin-right: 15px;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -669,6 +700,14 @@
 .effect-select-modal label.disabled:hover {
   background-color: transparent;
 }
+
+@media (max-width: 1024px) {
+  /* より広いブレークポイントに変更 */
+  .top-info-wrapper {
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 768px) {
   .combo-details-grid {
     grid-template-columns: 1fr;

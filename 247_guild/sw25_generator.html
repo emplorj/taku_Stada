@@ -335,12 +335,14 @@
       <div class="dynamic-row weapon-row">
         <label class="magic-item-toggle-label"><input type="checkbox" class="item-magic-check" /><i
             class="fa-solid fa-wand-magic-sparkles"></i></label>
-        <div class="item-name-cell">
-          <input type="text" class="weapon-name-free" placeholder="武器名" style="display: none" />
-          <select class="weapon-name-select"></select>
-          <button type="button" class="select-toggle-btn small-button">
+        <div class="item-name-cell input-with-dropdown">
+          <input type="text" class="weapon-name-free" placeholder="武器名" />
+          <span class="dropdown-arrow select-toggle-btn small-button">
             <i class="fa-solid fa-list"></i>
-          </button>
+          </span>
+          <ul class="dropdown-menu">
+            <!-- Options will be dynamically added by JavaScript -->
+          </ul>
         </div>
         <input type="number" class="weapon-price" placeholder="価格" />
         <input type="text" class="weapon-usage" placeholder="用法" />
@@ -361,12 +363,14 @@
       <div class="dynamic-row armour-row">
         <label class="magic-item-toggle-label"><input type="checkbox" class="item-magic-check" /><i
             class="fa-solid fa-wand-magic-sparkles"></i></label>
-        <div class="item-name-cell">
-          <input type="text" class="armour-name-free" placeholder="防具名" style="display: none" />
-          <select class="armour-name-select"></select>
-          <button type="button" class="select-toggle-btn small-button">
+        <div class="item-name-cell input-with-dropdown">
+          <input type="text" class="armour-name-free" placeholder="防具名" />
+          <span class="dropdown-arrow select-toggle-btn small-button">
             <i class="fa-solid fa-list"></i>
-          </button>
+          </span>
+          <ul class="dropdown-menu">
+            <!-- Options will be dynamically added by JavaScript -->
+          </ul>
         </div>
         <input type="number" class="armour-price" placeholder="価格" />
         <input type="text" class="armour-rank" placeholder="ランク" readonly />
@@ -397,14 +401,16 @@
       <div class="dynamic-row item-row">
         <label class="magic-item-toggle-label"><input type="checkbox" class="item-magic-check" /><i
             class="fa-solid fa-wand-magic-sparkles"></i></label>
-        <div class="item-name-cell">
+        <div class="item-name-cell input-with-dropdown">
           <input type="text" class="item-name-free" placeholder="アイテム名" />
-          <select class="item-name-select" style="display: none"></select>
-          <input type="number" class="item-points" placeholder="点数" />
-          <button type="button" class="item-select-btn small-button">
+          <span class="dropdown-arrow item-select-btn small-button">
             <i class="fa-solid fa-list"></i>
-          </button>
+          </span>
+          <ul class="dropdown-menu">
+            <!-- Options will be dynamically added by JavaScript -->
+          </ul>
         </div>
+        <input type="number" class="item-points" placeholder="点数" />
         <input type="number" class="item-unit-price" placeholder="単価" />
         <input type="number" class="item-quantity" value="1" placeholder="個数" />
         <input type="number" class="item-total-price" placeholder="価格" readonly />

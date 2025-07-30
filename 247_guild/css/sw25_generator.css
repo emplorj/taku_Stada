@@ -790,7 +790,9 @@ hr.section-divider {
   position: relative;
   display: flex;
   align-items: center;
-  flex-grow: 1;
+  /* flex-grow: 1; を削除し、幅を固定 */
+  width: 15rem; /* テキストボックスの幅を固定 */
+  min-width: 10rem; /* 最小幅も維持 */
 }
 .item-name-cell .item-name-free,
 .item-name-cell .item-name-select {
@@ -798,12 +800,107 @@ hr.section-divider {
   width: 100%;
   box-sizing: border-box;
 }
+/* .select-toggle-btn と .item-select-btn の共通スタイル */
 .select-toggle-btn,
 .item-select-btn {
   flex-shrink: 0;
   margin-left: 5px;
   height: 30px;
   width: auto;
+}
+
+/* dropdown-arrow のスタイルを select-toggle-btn にも適用 */
+.item-name-cell .select-toggle-btn,
+.item-name-cell .item-select-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0; /* 既存のマージンをリセット */
+  height: auto; /* 高さを自動調整 */
+  width: auto; /* 幅を自動調整 */
+  padding: 5px; /* クリックしやすいようにパディングを追加 */
+  background-color: transparent; /* 背景を透明に */
+  border: none; /* ボーダーをなくす */
+  color: var(--gold-color); /* アイコンの色をテーマカラーに */
+  font-size: 1.2em; /* アイコンサイズを調整 */
+  z-index: 1; /* 入力フィールドより手前に */
+}
+
+.item-name-cell .select-toggle-btn:hover,
+.item-name-cell .item-select-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* ホバーエフェクト */
+}
+
+/* input-with-dropdown のスタイル */
+.input-with-dropdown {
+  /* .item-name-cell に既に position: relative; があるため、ここでは不要 */
+}
+
+.input-with-dropdown .dropdown-arrow {
+  position: absolute;
+  right: 8px; /* ボタンの右端に合わせる */
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: block; /* 常に表示 */
+  color: var(--gold-color); /* SW2.5のテーマカラーに合わせる */
+  padding: 0; /* ボタンのパディングをリセット */
+  background: none; /* ボタンの背景をなくす */
+  border: none; /* ボタンのボーダーをなくす */
+}
+
+/* .item-select-btn が dropdown-arrow の役割を果たすため、そのスタイルを調整 */
+.item-name-cell .item-select-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0; /* 既存のマージンをリセット */
+  height: auto; /* 高さを自動調整 */
+  width: auto; /* 幅を自動調整 */
+  padding: 5px; /* クリックしやすいようにパディングを追加 */
+  background-color: transparent; /* 背景を透明に */
+  border: none; /* ボーダーをなくす */
+  color: var(--gold-color); /* アイコンの色をテーマカラーに */
+  font-size: 1.2em; /* アイコンサイズを調整 */
+  z-index: 1; /* 入力フィールドより手前に */
+}
+
+.item-name-cell .item-select-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* ホバーエフェクト */
+}
+
+.input-with-dropdown .dropdown-menu {
+  position: fixed; /* JavaScriptで位置を制御するため fixed に変更 */
+  /* top, left はJavaScriptで設定するため、ここでは削除またはコメントアウト */
+  /* top: 100%; */
+  /* left: 0; */
+  z-index: 9999; /* 確実に手前に表示 */
+  background-color: var(--panel-bg-color); /* SW2.5のテーマカラーに合わせる */
+  border: 1px solid var(--wood-color); /* SW2.5のテーマカラーに合わせる */
+  border-radius: 4px;
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 5px 0;
+  max-height: 200px;
+  overflow-y: auto;
+  /* min-width: 100%; を削除 */
+  /* max-width は削除し、コンテンツの幅に合わせる */
+  overflow-x: auto; /* 横方向のスクロールを許可 */
+  box-sizing: border-box; /* パディングとボーダーを幅に含める */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: none; /* デフォルトは非表示 */
+}
+
+.input-with-dropdown .dropdown-menu li {
+  padding: 8px 12px;
+  color: var(--text-color); /* SW2.5のテーマカラーに合わせる */
+  cursor: pointer;
+}
+
+.input-with-dropdown .dropdown-menu li:hover {
+  background-color: rgba(0, 0, 0, 0.4); /* input-bg-colorに近い色 */
 }
 .item-folder-controls {
   position: relative;

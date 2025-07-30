@@ -53,8 +53,8 @@ new Vue({
     isBusy: false,
     statusMessage: "",
     statusIsError: false,
-    characterName: "春日恭二（例）",
-    totalXp: 165,
+    characterName: "",
+    totalXp: 130,
     effects: [],
     easyEffects: [],
     combos: [],
@@ -138,177 +138,52 @@ new Vue({
   created() {
     this.effects = [
       {
-        name: "コンセントレイト：キュマイラ",
-        level: 3,
-        maxLevel: 3,
-        timing: "メジャー",
-        skill: "シンドローム",
-        difficulty: "-",
-        target: "-",
-        range: "-",
-        cost: "2",
-        limit: "-",
-        effect: "組み合わせた判定のクリティカル値を-LVする(下限値7)。",
-        notes: "",
-        values: {
-          dice: { base: 0, perLevel: 0 },
-          crit: { base: 10, perLevel: 1, min: 7 },
-          achieve: { base: 0, perLevel: 0 },
-          attack: { base: 0, perLevel: 0 },
-        },
-      },
-      {
-        name: "渇きの主",
-        level: 2,
-        maxLevel: 5,
-        timing: "メジャー",
-        skill: "白兵",
-        difficulty: "対決",
-        target: "単体",
-        range: "至近",
-        cost: "4",
-        limit: "-",
-        effect: "装甲無視。HPを[LV*4]点回復。素手か《赫き剣》限定。",
-        notes: "",
-        values: {
-          dice: { base: 0, perLevel: 0 },
-          crit: { base: 0, perLevel: 0, min: 2 },
-          achieve: { base: 0, perLevel: 0 },
-          attack: { base: 0, perLevel: 0 },
-        },
-      },
-      {
-        name: "吸収",
-        level: 2,
-        maxLevel: 3,
-        timing: "メジャー",
-        skill: "白兵/射撃",
-        difficulty: "対決",
-        target: "-",
-        range: "武器",
-        cost: "2",
-        limit: "-",
-        effect: "ダメージを与えたら対象の判定ダイス-LV個。",
-        notes: "",
-        values: {
-          dice: { base: 0, perLevel: 0 },
-          crit: { base: 0, perLevel: 0, min: 2 },
-          achieve: { base: 0, perLevel: 0 },
-          attack: { base: 0, perLevel: 0 },
-        },
-      },
-      {
-        name: "オールレンジ",
-        level: 2,
-        maxLevel: 5,
-        timing: "メジャー",
-        skill: "白兵/射撃",
-        difficulty: "対決",
-        target: "-",
-        range: "武器",
-        cost: "2",
-        limit: "-",
-        effect: "判定のダイスを+LV個する。",
-        notes: "",
-        values: {
-          dice: { base: 0, perLevel: 1 },
-          crit: { base: 0, perLevel: 0, min: 2 },
-          achieve: { base: 0, perLevel: 0 },
-          attack: { base: 0, perLevel: 0 },
-        },
-      },
-      {
-        name: "イージスの盾",
-        level: 2,
-        maxLevel: 3,
+        name: "ワーディング",
+        level: 1,
+        maxLevel: 1,
         timing: "オート",
-        skill: "",
+        skill: "-",
         difficulty: "自動成功",
-        target: "-",
-        range: "至近",
-        cost: "3",
+        target: "シーン",
+        range: "視界",
+        cost: "0",
         limit: "-",
-        effect: "ガード値+(LV)D",
+        effect:
+          "いつでも使用できる。シーンに登場している非オーヴァードのキャラクターは全員エキストラとなる。逆に登場しているオーヴァードは使用されたことが自動的に分かるものとする。このエフェクトの効果は、シーン中持続する。",
         notes: "",
-        values: {
-          dice: { base: 0, perLevel: 0 },
-          crit: { base: 0, perLevel: 0, min: 2 },
-          achieve: { base: 0, perLevel: 0 },
-          attack: { base: 0, perLevel: 0 },
-        },
+        values: this.createDefaultValues(),
       },
       {
-        name: "獣の力",
-        level: 2,
-        maxLevel: 5,
-        timing: "メジャー",
-        skill: "白兵",
-        difficulty: "対決",
-        target: "-",
-        range: "武器",
-        cost: "2",
-        limit: "-",
-        effect: "白兵攻撃の攻撃力を+[LV*2]する。",
-        notes: "",
-        values: {
-          dice: { base: 0, perLevel: 0 },
-          crit: { base: 0, perLevel: 0, min: 2 },
-          achieve: { base: 0, perLevel: 0 },
-          attack: { base: 0, perLevel: 2 },
-        },
-      },
-      {
-        name: "破壊の爪",
-        level: 2,
-        maxLevel: 5,
-        timing: "マイナー",
-        skill: "",
+        name: "リザレクト",
+        level: 1,
+        maxLevel: 1,
+        timing: "オート",
+        skill: "-",
         difficulty: "自動成功",
         target: "自身",
         range: "至近",
-        cost: "3",
-        limit: "-",
-        effect: "素手変更。攻撃力[LV*2+8]。",
+        cost: "効果参照",
+        limit: "100%↓",
+        effect:
+          "重圧を受けていても使用可能。あなたが戦闘不能になった時か、シーンの終了時に使用する。あなたは戦闘不能を回復し、HPを(LV)D点回復する。回復したHPと同じだけ、あなたの侵蝕率が上昇する。このエフェクトは侵触率100%以上では使用できない。",
         notes: "",
-        values: {
-          dice: { base: 0, perLevel: 0 },
-          crit: { base: 0, perLevel: 0, min: 2 },
-          achieve: { base: 0, perLevel: 0 },
-          attack: { base: 8, perLevel: 2 },
-        },
-      },
-      {
-        name: "ハンティングスタイル",
-        level: 2,
-        maxLevel: 3,
-        timing: "マイナー",
-        skill: "",
-        difficulty: "自動成功",
-        target: "自身",
-        range: "至近",
-        cost: "1",
-        limit: "-",
-        effect: "戦闘移動。離脱可。1シナリオLV回。",
-        notes: "",
-        values: {
-          dice: { base: 0, perLevel: 0 },
-          crit: { base: 0, perLevel: 0, min: 2 },
-          achieve: { base: 0, perLevel: 0 },
-          attack: { base: 0, perLevel: 0 },
-        },
+        values: this.createDefaultValues(),
       },
     ];
+    this.addEffect();
+    this.addEasyEffect();
     this.addCombo();
   },
   computed: {
     effectXp() {
-      return this.effects.reduce(
-        (t, e) =>
-          e.level > 0
-            ? t + (Number(e.level) === 1 ? 15 : 15 + (Number(e.level) - 1) * 5)
-            : t,
-        0
-      );
+      return this.effects.reduce((t, e) => {
+        if (e.level > 0 && !this.isEssentialEffect(e.name)) {
+          return (
+            t + (Number(e.level) === 1 ? 15 : 15 + (Number(e.level) - 1) * 5)
+          );
+        }
+        return t;
+      }, 0);
     },
     easyEffectXp() {
       return this.easyEffects.reduce(
@@ -320,12 +195,9 @@ new Vue({
       return this.effectXp + this.easyEffectXp;
     },
     processedCombos() {
-      const allEffects = [...this.effects, ...this.easyEffects];
       return this.combos.map((combo) => {
         const comboLevelBonus = combo.comboLevelBonus || 0;
-        const relevantEffects = combo.effectNames
-          .map((n) => allEffects.find((e) => e.name === n && n !== ""))
-          .filter(Boolean);
+        const relevantEffects = this._getRelevantEffects(combo.effectNames);
         const calc = (key) =>
           relevantEffects.reduce(
             (acc, effect) => {
@@ -344,13 +216,14 @@ new Vue({
         const achieve = calc("achieve");
         const attack = calc("attack");
         let crit = relevantEffects.reduce((minCrit, effect) => {
-          if (!effect.values?.crit?.base) return minCrit;
           const lvl = (Number(effect.level) || 0) + comboLevelBonus;
-          const val = Math.max(
-            (Number(effect.values.crit.base) || 10) -
-              lvl * (Number(effect.values.crit.perLevel) || 0),
-            Number(effect.values.crit.min) || 2
-          );
+          const base = effect.values.crit.base ?? 0;
+          if (base === 0) return minCrit; // C値を変更しないエフェクトは無視
+
+          const perLevel = effect.values.crit.perLevel ?? 0;
+          const min = effect.values.crit.min ?? 2;
+
+          const val = Math.max(base - lvl * perLevel, min);
           return Math.min(minCrit, val);
         }, 10);
         const cost =
@@ -376,9 +249,42 @@ new Vue({
               }`
           )
           .join("+");
-        const primarySkill =
-          relevantEffects.find((e) => e.skill)?.skill || "{技能}";
-        const chatPalette = `◆${combo.name}\n侵蝕値:${cost} ATK:${totalAtk}\n(${primarySkill}+{能力値}+{侵蝕率D}+${dice.total})DX${crit}+${achieve.total}`;
+        const autoEffectText = relevantEffects.map((e) => e.effect).join("\n");
+        const mainActionEffect =
+          relevantEffects.find(
+            (e) =>
+              e.timing &&
+              ["メジャー", "メジャー/リア", "リアクション"].includes(e.timing)
+          ) ||
+          relevantEffects.find(
+            (e) => e.timing && e.timing !== "オート" && e.timing !== "常時"
+          ) ||
+          relevantEffects[0];
+
+        const timing = mainActionEffect ? mainActionEffect.timing : "";
+        const skill = mainActionEffect ? mainActionEffect.skill : "{技能}";
+        const target = mainActionEffect ? mainActionEffect.target : "";
+        const range = mainActionEffect ? mainActionEffect.range : "";
+
+        let chatPaletteLines = [];
+        chatPaletteLines.push(`◆${combo.name}`);
+        if (compositionText) {
+          chatPaletteLines.push(compositionText);
+        }
+        if (combo.flavor && combo.flavor.trim()) {
+          chatPaletteLines.push(`『${combo.flavor.trim()}』`);
+        }
+        chatPaletteLines.push(
+          `侵蝕値:${cost}　タイミング:${timing}　技能:${skill}　対象:${target}　射程:${range}　C値:${crit}`
+        );
+        if (autoEffectText && autoEffectText.trim()) {
+          chatPaletteLines.push(autoEffectText.trim());
+        }
+        chatPaletteLines.push(
+          `(${skill}+{能力値}+{侵蝕率D}+${dice.total})DX${crit}+${achieve.total}`
+        );
+
+        const chatPalette = chatPaletteLines.join("\n");
         return {
           ...combo,
           totalDice: dice.total,
@@ -387,6 +293,7 @@ new Vue({
           totalAtk,
           totalCost: cost,
           compositionText,
+          autoEffectText,
           chatPalette,
         };
       });
@@ -398,8 +305,56 @@ new Vue({
       );
     },
   },
+  watch: {
+    effects: {
+      handler: "handleEffectChange",
+      deep: true,
+    },
+    easyEffects: {
+      handler: "handleEffectChange",
+      deep: true,
+    },
+  },
   methods: {
+    handleEffectChange(newEffects, oldEffects) {
+      if (!newEffects) return;
+      newEffects.forEach((effect, index) => {
+        const oldName = oldEffects?.[index]?.name;
+        const newName = effect.name;
+        if (newName !== oldName) {
+          const name = (newName || "").toLowerCase();
+          const isConcentrate =
+            name.includes("コンセントレイト") ||
+            name.includes("ｺﾝｾﾝﾄﾚｲﾄ") ||
+            name.includes("コンセ");
+
+          if (isConcentrate) {
+            effect.values.crit.base = 10;
+            effect.values.crit.perLevel = 1;
+            effect.values.crit.min = 7;
+          }
+        }
+      });
+    },
     // --- DB連携/引用メソッド ---
+    _getRelevantEffects(effectNames) {
+      const allEffects = [...this.effects, ...this.easyEffects];
+      if (!effectNames || !Array.isArray(effectNames)) {
+        return [];
+      }
+      return effectNames
+        .map((name) => {
+          if (!name || typeof name !== "string" || !name.trim()) return null;
+          const trimmedName = name.trim();
+          return allEffects.find(
+            (effect) =>
+              effect.name &&
+              typeof effect.name === "string" &&
+              effect.name.trim() === trimmedName
+          );
+        })
+        .filter(Boolean);
+    },
     showStatus(message, isError = false, duration = 4000) {
       this.statusMessage = message;
       this.statusIsError = isError;
@@ -563,6 +518,47 @@ new Vue({
         } else {
           throw new Error("サポートされていないURLです。");
         }
+
+        // 保管庫からのインポートの場合、ワーディングとリザレクトを自動追加
+        if (
+          this.characterSheetUrl.includes("charasheet.vampire-blood.net") &&
+          importedData.effects
+        ) {
+          const importedEffectNames = importedData.effects.map((e) => e.name);
+          if (!importedEffectNames.includes("リザレクト")) {
+            importedData.effects.unshift({
+              name: "リザレクト",
+              level: 1,
+              maxLevel: 1,
+              timing: "オート",
+              skill: "-",
+              difficulty: "自動成功",
+              target: "自身",
+              range: "至近",
+              cost: "効果参照",
+              limit: "100%↓",
+              effect:
+                "重圧を受けていても使用可能。あなたが戦闘不能になった時か、シーンの終了時に使用する。あなたは戦闘不能を回復し、HPを(LV)D点回復する。回復したHPと同じだけ、あなたの侵蝕率が上昇する。このエフェクトは侵触率100%以上では使用できない。",
+            });
+          }
+          if (!importedEffectNames.includes("ワーディング")) {
+            importedData.effects.unshift({
+              name: "ワーディング",
+              level: 1,
+              maxLevel: 1,
+              timing: "オート",
+              skill: "-",
+              difficulty: "自動成功",
+              target: "シーン",
+              range: "視界",
+              cost: "0",
+              limit: "-",
+              effect:
+                "いつでも使用できる。シーンに登場している非オーヴァードのキャラクターは全員エキストラとなる。逆に登場しているオーヴァードは使用されたことが自動的に分かるものとする。このエフェクトの効果は、シーン中持続する。",
+            });
+          }
+        }
+
         const effectsCount = (importedData.effects || []).length;
         const easyEffectsCount = (importedData.easyEffects || []).length;
         if (
@@ -660,6 +656,10 @@ new Vue({
     },
 
     // --- 既存のUI操作メソッド ---
+    isEssentialEffect(effectName) {
+      const essentialEffects = ["ワーディング", "リザレクト"];
+      return essentialEffects.includes(effectName);
+    },
     createDefaultEffect() {
       return {
         name: "",
@@ -681,7 +681,8 @@ new Vue({
       this.modalTabs.forEach((tab) => {
         values[tab.key] = { base: 0, perLevel: 0 };
       });
-      values.crit.min = 2;
+      values.crit.base = 0; // C値の基本は0(変更なし)
+      values.crit.min = 10; // C値の下限は基本10
       return values;
     },
     isEffectDisabled(effect) {
@@ -729,7 +730,7 @@ new Vue({
     addEffect() {
       this.effects.push({
         name: "",
-        level: 1,
+        level: "",
         maxLevel: 1,
         timing: "",
         skill: "",
@@ -749,7 +750,7 @@ new Vue({
     addEasyEffect() {
       this.easyEffects.push({
         name: "",
-        level: 1,
+        level: "",
         maxLevel: 1,
         timing: "",
         skill: "",
@@ -838,10 +839,9 @@ new Vue({
     },
     switchToManualMode(combo, index) {
       if (combo.effectDescriptionMode === "auto") {
-        const processed = this.processedCombos[index];
-        if (processed) {
-          combo.manualEffectDescription = processed.autoEffectText;
-        }
+        const relevantEffects = this._getRelevantEffects(combo.effectNames);
+        const autoEffectText = relevantEffects.map((e) => e.effect).join("\n");
+        combo.manualEffectDescription = autoEffectText;
       }
       combo.effectDescriptionMode = "manual";
     },

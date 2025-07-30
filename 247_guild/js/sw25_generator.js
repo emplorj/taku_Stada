@@ -85,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   let growthRowCounter = 0;
   let userCashbookContent = "";
+  let openDropdownElement = null; // 現在開いているプルダウンメニューを追跡
 
   function setupEnhancementPanel() {
     const panel = document.getElementById("enhancement-panel");
@@ -161,9 +162,73 @@ document.addEventListener("DOMContentLoaded", () => {
     addItemRow();
   }
 
+  // プルダウンメニューの開閉とフィルタリングのヘルパー関数
+  function openDropdown(dropdownMenu) {
+    closeAllDropdowns(); // 他の開いているプルダウンを閉じる
+
+    const inputElement = dropdownMenu
+      .closest(".input-with-dropdown")
+      .querySelector("input[type='text']");
+    const rect = inputElement.getBoundingClientRect();
+
+    dropdownMenu.style.position = "fixed"; // position を fixed に変更
+    dropdownMenu.style.left = `${rect.left}px`;
+    dropdownMenu.style.top = `${rect.bottom + window.scrollY}px`; // 入力フィールドの下に配置
+    dropdownMenu.style.width = `${inputElement.offsetWidth}px`; // 入力フィールドの幅に合わせる
+
+    // 画面の下端からはみ出す場合（上方向に開く）
+    if (
+      rect.bottom + dropdownMenu.offsetHeight > window.innerHeight &&
+      rect.top - dropdownMenu.offsetHeight > 0
+    ) {
+      dropdownMenu.style.top = `${rect.top - dropdownMenu.offsetHeight - 5}px`; // 入力フィールドの上に配置
+    }
+
+    dropdownMenu.style.display = "block";
+    openDropdownElement = dropdownMenu;
+  }
+
+  function closeDropdown(dropdownMenu) {
+    dropdownMenu.style.display = "none";
+    if (openDropdownElement === dropdownMenu) {
+      openDropdownElement = null;
+    }
+  }
+
+  function toggleDropdown(dropdownMenu) {
+    if (dropdownMenu.style.display === "block") {
+      closeDropdown(dropdownMenu);
+    } else {
+      openDropdown(dropdownMenu);
+    }
+  }
+
+  function filterDropdownOptions(inputElement, dropdownMenu) {
+    const filterText = inputElement.value.toLowerCase();
+    const options = dropdownMenu.querySelectorAll("li");
+    let hasVisibleOptions = false;
+    options.forEach((li) => {
+      // フィルタリングロジックを削除し、常に表示
+      li.style.display = "block";
+      hasVisibleOptions = true;
+    });
+    if (hasVisibleOptions) {
+      openDropdown(dropdownMenu);
+    } else {
+      closeDropdown(dropdownMenu);
+    }
+  }
+
+  function closeAllDropdowns() {
+    if (openDropdownElement) {
+      openDropdownElement.style.display = "none";
+      openDropdownElement = null;
+    }
+  }
+
   function handleItemNameChange({ target: nameInputElement }) {
     const row = nameInputElement.closest(".item-row");
-    const selectedValue = nameInputElement.value;
+    const selectedValue = nameInputElement.value; // input要素の値を取得
     const allItems = Object.values(Items)
       .flatMap((category) => Object.values(category))
       .flat();
@@ -176,10 +241,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedItem) {
       row.querySelector(".item-unit-price").value = selectedItem.price || 0;
       row.querySelector(".item-effect").value = selectedItem.note || "";
-    } else {
-      row.querySelector(".item-unit-price").value = "";
-      row.querySelector(".item-effect").value = "";
     }
+    // else { // データが見つからない場合に空欄にするロジックを削除
+    //   row.querySelector(".item-unit-price").value = "";
+    //   row.querySelector(".item-effect").value = "";
+    // }
     updateAllItems();
   }
 
@@ -204,10 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ".weapon-name-free, .armour-name-free, .item-name-free"
         );
 
-        let name = "";
-        if (nameSelect && nameSelect.style.display !== "none")
-          name = nameSelect.value;
-        else if (nameFree) name = nameFree.value.trim();
+        let name = nameFree ? nameFree.value.trim() : "";
 
         if (name === "free" || !name) return;
 
@@ -563,21 +626,17 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll("#items-container .item-row")
     );
     const emptySlot = allItemRows.find((row) => {
-      const nameSelect = row.querySelector(".item-name-select");
-      const nameFree = row.querySelector(".item-name-free");
-      return (
-        (nameSelect.style.display !== "none" && !nameSelect.value) ||
-        (nameFree.style.display !== "none" && !nameFree.value.trim())
-      );
+      const nameInput = row.querySelector(".item-name-free");
+      return !nameInput.value.trim(); // input の値が空であれば空きスロット
     });
 
     if (emptySlot) {
       // 空きスロットを埋める
-      const nameSelect = emptySlot.querySelector(".item-name-select");
-      nameSelect.style.display = "block";
-      emptySlot.querySelector(".item-name-free").style.display = "none";
-      nameSelect.value = newRowData.name;
-      nameSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      const nameInput = emptySlot.querySelector(".item-name-free");
+      nameInput.value = newRowData.name;
+      // input イベントを発火させて、プルダウンのフィルタリングと関連情報の更新をトリガー
+      nameInput.dispatchEvent(new Event("input", { bubbles: true }));
+      nameInput.dispatchEvent(new Event("change", { bubbles: true })); // handleItemNameChange をトリガー
     } else {
       // 末尾に追加
       addItemRow(newRowData);
@@ -686,6 +745,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("click", (event) => {
       const target = event.target;
+      // プルダウンメニューのクリックはここで処理しない
+      if (target.closest(".dropdown-menu")) return;
+
       if (
         target === enhancementBtn ||
         target === itemSetsBtn ||
@@ -695,7 +757,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const addBtn = target.closest(".add-row-btn");
       const removeBtn = target.closest(".remove-row-btn");
-      const selectBtn = target.closest(".select-toggle-btn, .item-select-btn");
+      // selectBtn のロジックは新しいプルダウンで置き換えられるため削除
       const copyBtn = target.closest(".copy-btn");
       const copySkillBtn = target.closest(".copy-skill-name-btn");
       const unitBtn = target.closest(".unit-btn");
@@ -730,40 +792,6 @@ document.addEventListener("DOMContentLoaded", () => {
             updatePersonalDataOutput();
         }
         return;
-      }
-
-      if (selectBtn) {
-        const cell = selectBtn.closest(".item-name-cell");
-        if (cell) {
-          const selectEl = cell.querySelector("select");
-          const freeInputEl = cell.querySelector("input[type='text']");
-          if (selectEl.style.display !== "none") {
-            selectEl.style.display = "none";
-            freeInputEl.style.display = "block";
-            freeInputEl.value = selectEl.value === "free" ? "" : selectEl.value;
-            freeInputEl.focus();
-          } else {
-            const freeText = freeInputEl.value.trim().replace(/[〈〉]/g, "");
-            let found = false;
-            if (freeText) {
-              for (let option of selectEl.options) {
-                const optionText = option.textContent
-                  .replace(/\[.*?\]\s*/, "")
-                  .replace(/[〈〉]/g, "");
-                if (optionText === freeText) {
-                  selectEl.value = option.value;
-                  found = true;
-                  break;
-                }
-              }
-            }
-            selectEl.style.display = "block";
-            freeInputEl.style.display = "none";
-            if (found) {
-              selectEl.dispatchEvent(new Event("change", { bubbles: true }));
-            }
-          }
-        }
       }
 
       if (copyBtn) {
@@ -830,9 +858,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("change", (e) => {
       const target = e.target;
-      if (target.matches(".weapon-name-select")) handleWeaponNameChange(target);
-      if (target.matches(".armour-name-select")) handleArmourNameChange(target);
-      if (target.matches(".item-name-select")) handleItemNameChange({ target });
+      if (target.matches(".weapon-name-free")) handleWeaponNameChange(target);
+      if (target.matches(".armour-name-free")) handleArmourNameChange(target);
+      if (target.matches(".item-name-free")) handleItemNameChange({ target });
+    });
+
+    // ドキュメント全体のクリックでプルダウンを閉じる
+    document.addEventListener("click", (e) => {
+      if (openDropdownElement && !e.target.closest(".input-with-dropdown")) {
+        closeDropdown(openDropdownElement);
+      }
     });
 
     document.getElementById("cashbook").addEventListener("input", (e) => {
@@ -1041,62 +1076,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function populateEquipmentCategories(row) {
-    const weaponNameSelect = row.querySelector(".weapon-name-select");
-    const armourNameSelect = row.querySelector(".armour-name-select");
+    // weaponNameSelect, armourNameSelect, itemNameSelect のロジックは
+    // 新しい populateWeaponDropdown, populateArmourDropdown, populateItemDropdown に置き換えられるため削除
     const weaponClassSelect = row.querySelector(".weapon-class");
     const armourCategorySelect = row.querySelector(".armour-category");
-    const itemNameSelect = row.querySelector(".item-name-select");
-
-    const populateSelect = (select, data, groupBy, defaultOptionText) => {
-      if (!select) return;
-      select.innerHTML = `<option value="">${defaultOptionText}</option>`;
-      const grouped = data.reduce((acc, item) => {
-        (acc[item[groupBy]] = acc[item[groupBy]] || []).push(item);
-        return acc;
-      }, {});
-      for (const cat in grouped) {
-        const optgroup = document.createElement("optgroup");
-        optgroup.label = cat;
-        grouped[cat].forEach((item) => {
-          const option = document.createElement("option");
-          option.textContent = item.rank
-            ? `[${item.rank}] ${item.name}`
-            : item.name;
-          option.value = item.name;
-          if (item.rank) option.dataset.rank = item.rank;
-          optgroup.appendChild(option);
-        });
-        select.appendChild(optgroup);
-      }
-      select.add(new Option("その他（自由入力）", "free"));
-    };
-
-    populateSelect(weaponNameSelect, Weapons, "cls", "武器をリストから選択");
-    populateSelect(armourNameSelect, Armours, "cls", "防具をリストから選択");
-
-    if (itemNameSelect) {
-      itemNameSelect.innerHTML =
-        '<option value="">アイテムをリストから選択</option>';
-      for (const largeCategoryName in Items) {
-        const largeCategory = Items[largeCategoryName];
-        const largeOptgroup = document.createElement("optgroup");
-        largeOptgroup.label = `▼ ${largeCategoryName}`;
-        itemNameSelect.appendChild(largeOptgroup);
-        for (const mediumCategoryName in largeCategory) {
-          const items = largeCategory[mediumCategoryName];
-          const mediumOptgroup = document.createElement("optgroup");
-          mediumOptgroup.label = `　└ ${mediumCategoryName}`;
-          items.forEach((item) => {
-            const option = document.createElement("option");
-            option.textContent = item.name;
-            option.value = item.name;
-            mediumOptgroup.appendChild(option);
-          });
-          itemNameSelect.appendChild(mediumOptgroup);
-        }
-      }
-      itemNameSelect.add(new Option("その他（自由入力）", "free"));
-    }
 
     if (weaponClassSelect) {
       weaponClassSelect.innerHTML = '<option value="">-</option>';
@@ -1110,13 +1093,63 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function populateWeaponDropdown(dropdownMenu) {
+    dropdownMenu.innerHTML = "";
+    Weapons.forEach((weapon) => {
+      const li = document.createElement("li");
+      li.textContent = weapon.rank
+        ? `[${weapon.rank}] ${weapon.name}`
+        : weapon.name;
+      li.dataset.value = weapon.name;
+      dropdownMenu.appendChild(li);
+    });
+  }
+
+  function populateArmourDropdown(dropdownMenu) {
+    dropdownMenu.innerHTML = "";
+    Armours.forEach((armour) => {
+      const li = document.createElement("li");
+      li.textContent = armour.rank
+        ? `[${armour.rank}] ${armour.name}`
+        : armour.name;
+      li.dataset.value = armour.name;
+      dropdownMenu.appendChild(li);
+    });
+  }
+
   function addWeaponRow() {
     const container = document.getElementById("weapons-container");
     const clone = document
       .getElementById("template-weapon")
       .content.cloneNode(true);
-    populateEquipmentCategories(clone.querySelector(".weapon-row"));
+    const newRow = clone.querySelector(".weapon-row");
+    const nameInput = newRow.querySelector(".weapon-name-free");
+    const dropdownMenu = newRow.querySelector(".dropdown-menu");
+    const dropdownArrow = newRow.querySelector(".dropdown-arrow");
+
+    populateEquipmentCategories(newRow); // weaponClassSelect の初期化のため
+    populateWeaponDropdown(dropdownMenu);
+
+    nameInput.addEventListener("input", () => {
+      filterDropdownOptions(nameInput, dropdownMenu);
+      openDropdown(dropdownMenu);
+    });
+
+    dropdownArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleDropdown(dropdownMenu);
+    });
+
+    dropdownMenu.addEventListener("click", (e) => {
+      if (e.target.tagName === "LI") {
+        nameInput.value = e.target.dataset.value;
+        closeDropdown(dropdownMenu);
+        nameInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+
     container.appendChild(clone);
+    handleWeaponNameChange(nameInput); // 初期値の反映
   }
 
   function addArmourRow() {
@@ -1124,13 +1157,53 @@ document.addEventListener("DOMContentLoaded", () => {
     const clone = document
       .getElementById("template-armour")
       .content.cloneNode(true);
-    populateEquipmentCategories(clone.querySelector(".armour-row"));
+    const newRow = clone.querySelector(".armour-row");
+    const nameInput = newRow.querySelector(".armour-name-free");
+    const dropdownMenu = newRow.querySelector(".dropdown-menu");
+    const dropdownArrow = newRow.querySelector(".dropdown-arrow");
+
+    populateEquipmentCategories(newRow); // armourCategorySelect の初期化のため
+    populateArmourDropdown(dropdownMenu);
+
+    nameInput.addEventListener("input", () => {
+      filterDropdownOptions(nameInput, dropdownMenu);
+      openDropdown(dropdownMenu);
+    });
+
+    dropdownArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleDropdown(dropdownMenu);
+    });
+
+    dropdownMenu.addEventListener("click", (e) => {
+      if (e.target.tagName === "LI") {
+        nameInput.value = e.target.dataset.value;
+        closeDropdown(dropdownMenu);
+        nameInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+
     container.appendChild(clone);
+    handleArmourNameChange(nameInput); // 初期値の反映
+  }
+
+  function populateItemDropdown(dropdownMenu) {
+    dropdownMenu.innerHTML = ""; // Clear existing options
+    const allItems = Object.values(Items)
+      .flatMap((category) => Object.values(category).flat())
+      .map((item) => item.name); // Get all item names
+
+    allItems.forEach((itemName) => {
+      const li = document.createElement("li");
+      li.textContent = itemName;
+      li.dataset.value = itemName; // Store the value in a data attribute
+      dropdownMenu.appendChild(li);
+    });
   }
 
   function addItemRow({
     isMagic = false,
-    name = "free",
+    name = "", // Default to empty string for new input-with-dropdown
     unitPrice = "",
     quantity = 1,
     effect = "",
@@ -1142,26 +1215,44 @@ document.addEventListener("DOMContentLoaded", () => {
       .content.cloneNode(true);
     const newRow = clone.querySelector(".item-row");
 
-    const nameSelect = newRow.querySelector(".item-name-select");
-    const nameFree = newRow.querySelector(".item-name-free");
-    populateEquipmentCategories(newRow);
+    const nameInput = newRow.querySelector(".item-name-free");
+    const dropdownMenu = newRow.querySelector(".dropdown-menu");
+    const dropdownArrow = newRow.querySelector(".dropdown-arrow");
 
-    nameSelect.value = name;
-    nameFree.value = freeName;
-    if (name === "free") {
-      nameFree.style.display = "block";
-      nameSelect.style.display = "none";
-    } else {
-      nameFree.style.display = "none";
-      nameSelect.style.display = "block";
-    }
+    // Populate dropdown with all items
+    populateItemDropdown(dropdownMenu);
+
+    // Set initial values
+    nameInput.value = freeName || name; // Use freeName if available, otherwise name
 
     newRow.querySelector(".item-magic-check").checked = isMagic;
     newRow.querySelector(".item-unit-price").value = unitPrice;
     newRow.querySelector(".item-quantity").value = quantity;
     newRow.querySelector(".item-effect").value = effect;
     container.appendChild(clone);
-    handleItemNameChange({ target: nameSelect });
+
+    // Add event listeners for the new dropdown functionality
+    nameInput.addEventListener("input", () => {
+      filterDropdownOptions(nameInput, dropdownMenu);
+      openDropdown(dropdownMenu);
+    });
+
+    dropdownArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleDropdown(dropdownMenu);
+    });
+
+    dropdownMenu.addEventListener("click", (e) => {
+      if (e.target.tagName === "LI") {
+        nameInput.value = e.target.dataset.value;
+        closeDropdown(dropdownMenu);
+        // Trigger change event for the input to update other fields
+        nameInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+
+    // Initial update based on the set name
+    handleItemNameChange({ target: nameInput });
   }
 
   function updateAllItems() {
@@ -1176,10 +1267,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function calculateAllItemTotals() {
     document.querySelectorAll(".item-row").forEach((row) => {
-      const nameSelect = row.querySelector(".item-name-select");
       const nameFree = row.querySelector(".item-name-free");
-      const name =
-        nameSelect.style.display !== "none" ? nameSelect.value : nameFree.value;
+      const name = nameFree ? nameFree.value : "";
 
       const pointsInput = row.querySelector(".item-points");
       const unitPriceInput = row.querySelector(".item-unit-price");
@@ -1220,9 +1309,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let outputLines = [];
     document.querySelectorAll("#items-container .item-row").forEach((row) => {
       const isMagic = row.querySelector(".item-magic-check").checked;
-      let name = row.querySelector(".item-name-select").value;
-      if (name === "free")
-        name = row.querySelector(".item-name-free").value.trim();
+      let name = row.querySelector(".item-name-free").value.trim();
       const quantity =
         parseInt(row.querySelector(".item-quantity").value, 10) || 1;
       const effect = row.querySelector(".item-effect").value.trim();
@@ -1263,9 +1350,9 @@ document.addEventListener("DOMContentLoaded", () => {
       regulationMoney + itemsTotal + other;
   }
 
-  function handleWeaponNameChange(selectElement) {
-    const selectedWeaponName = selectElement.value;
-    const row = selectElement.closest(".weapon-row");
+  function handleWeaponNameChange(nameInputElement) {
+    const selectedWeaponName = nameInputElement.value;
+    const row = nameInputElement.closest(".weapon-row");
     const data = Weapons.find((item) => item.name === selectedWeaponName);
 
     const magicCheck = row.querySelector(".item-magic-check");
@@ -1301,18 +1388,19 @@ document.addEventListener("DOMContentLoaded", () => {
           field.value = value;
         }
       }
-    } else if (row) {
-      for (const key in fields) {
-        if (row.querySelector(fields[key]))
-          row.querySelector(fields[key]).value = "";
-      }
     }
+    // else if (row) { // データが見つからない場合に空欄にするロジックを削除
+    //   for (const key in fields) {
+    //     if (row.querySelector(fields[key]))
+    //       row.querySelector(fields[key]).value = "";
+    //   }
+    // }
     updateAllItems();
   }
 
-  function handleArmourNameChange(selectElement) {
-    const selectedArmourName = selectElement.value;
-    const row = selectElement.closest(".armour-row");
+  function handleArmourNameChange(nameInputElement) {
+    const selectedArmourName = nameInputElement.value;
+    const row = nameInputElement.closest(".armour-row");
     const data = Armours.find((item) => item.name === selectedArmourName);
 
     const magicCheck = row.querySelector(".item-magic-check");
@@ -1333,12 +1421,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const field = row.querySelector(fields[key]);
         if (field) field.value = data[key] || "";
       }
-    } else if (row) {
-      for (const key in fields) {
-        const field = row.querySelector(fields[key]);
-        if (field) field.value = "";
-      }
     }
+    // else if (row) { // データが見つからない場合に空欄にするロジックを削除
+    //   for (const key in fields) {
+    //     const field = row.querySelector(fields[key]);
+    //     if (field) field.value = "";
+    //   }
+    // }
     updateAllItems();
   }
 
@@ -1408,10 +1497,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const existingShardRow = Array.from(
       itemContainer.querySelectorAll(".item-row")
     ).find((row) =>
-      (row.querySelector(".item-name-select").value === "free"
-        ? row.querySelector(".item-name-free").value
-        : row.querySelector(".item-name-select").value
-      ).includes("アビスシャード")
+      row.querySelector(".item-name-free").value.includes("アビスシャード")
     );
     if (existingShardRow) {
       if (reg.abyssShard > 0)
