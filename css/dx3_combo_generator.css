@@ -6,8 +6,7 @@
   border-radius: 8px;
   margin-bottom: 10px;
   display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-end;
+  flex-direction: column;
   gap: 15px;
 }
 .db-url-input {
@@ -69,7 +68,7 @@
 }
 .status-message {
   width: 100%;
-  margin: -5px 0 15px 0;
+  margin: -5px 0 15px 0; /* Reset margin */
   padding: 0 15px;
   min-height: 1.2em;
   font-size: 0.9em;
@@ -515,12 +514,27 @@
   padding: 5px;
   border-radius: 4px;
 }
+
+/* .palette-grid styles removed as they are no longer needed */
 .copy-container {
   position: relative;
 }
+.copy-container {
+  position: relative;
+  margin-bottom: 10px; /* Add margin for spacing */
+  border-bottom: 1px dashed #4a5c9a; /* Add a dashed line */
+  padding-bottom: 10px; /* Space below the line */
+}
+
+.copy-container:last-child {
+  border-bottom: none; /* Remove line from the last item */
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
 .copy-container textarea {
   width: 100%;
-  min-height: 120px;
+  min-height: 96px;
   background-color: transparent;
   border: none;
   color: #eee;
@@ -543,6 +557,13 @@
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.copy-container .dice-formula-textarea {
+  height: 40px !important;
+  min-height: 40px !important;
+  resize: none !important;
+  overflow: hidden !important; /* Hide scrollbar */
 }
 .copy-container button:hover {
   background-color: #2980b9;
@@ -865,4 +886,145 @@
 .stat-item .mode-toggle button {
   padding: 3px 6px; /* ボタンのパディングを調整 */
   font-size: 0.75em; /* フォントサイズを小さくする */
+}
+
+/* Usage Guide Styles */
+.usage-guide {
+  background-color: #2c2c2c;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #2a3c7d;
+  padding: 0; /* Remove padding from details itself */
+}
+
+.usage-guide summary {
+  list-style: none; /* Remove default arrow */
+  display: flex;
+  align-items: center;
+  padding: 20px 25px; /* Add padding to summary */
+  cursor: pointer;
+  position: relative;
+  outline: none; /* Remove outline on focus */
+}
+
+.usage-guide summary::-webkit-details-marker {
+  display: none; /* For Webkit browsers */
+}
+
+.usage-guide summary::before {
+  content: "\f0da"; /* Font Awesome right arrow */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-right: 15px;
+  color: #87cefa;
+  transition: transform 0.2s ease;
+  font-size: 1.2em;
+  transform: translateY(-4px); /* Adjust vertical position */
+}
+
+.usage-guide[open] summary::before {
+  transform: rotate(90deg); /* Rotate arrow when open */
+}
+
+.usage-guide summary .summary-content {
+  display: flex;
+  align-items: baseline; /* Align text baselines */
+  flex-grow: 1;
+  gap: 15px; /* Space between title and subtitle */
+}
+
+.usage-guide summary .summary-content h2 {
+  font-family: "Corporate-Logo-Bold", sans-serif;
+  color: #9b59b6;
+  margin: 0; /* Remove default margin */
+  flex-shrink: 0; /* Prevent h2 from shrinking */
+}
+
+.usage-guide summary .summary-content .subtitle {
+  font-size: 1.1em;
+  color: #bdc3c7;
+  margin: 0; /* Remove default margin */
+  flex-grow: 1; /* Allow subtitle to take available space */
+  text-align: left; /* Align subtitle to left */
+}
+
+.usage-guide .content-wrapper {
+  padding: 0 25px 20px; /* Add padding to content inside details */
+}
+
+.usage-guide p,
+.usage-guide li {
+  line-height: 1.8;
+  color: #eee;
+  padding: 0 25px; /* Add padding to paragraphs and list items */
+}
+
+.usage-guide h3 {
+  font-family: "Corporate-Logo-Bold", sans-serif;
+  color: #3498db;
+  margin-top: 25px;
+  border-bottom: 1px solid #2a3c7d;
+  padding-bottom: 8px;
+  padding-left: 25px; /* Add padding */
+  padding-right: 25px; /* Add padding */
+}
+
+.usage-guide h4 {
+  color: #87cefa;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  padding-left: 25px; /* Add padding */
+  padding-right: 25px; /* Add padding */
+}
+
+.usage-guide p,
+.usage-guide li {
+  line-height: 1.8;
+  color: #eee;
+}
+
+.usage-guide strong {
+  color: #ffc107;
+}
+
+.usage-guide ol,
+.usage-guide ul {
+  padding-left: 50px; /* Adjust padding for lists */
+  padding-right: 25px; /* Add padding */
+}
+
+.usage-guide ul ul {
+  margin-top: 5px;
+}
+
+.usage-guide code {
+  background-color: #0d1a50;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #e74c3c;
+}
+
+.usage-guide i {
+  color: #3498db;
+  margin: 0 2px;
+}
+
+.usage-guide .fa-magic {
+  color: #9b59b6;
+}
+.usage-guide .fa-plus {
+  color: #3498db;
+}
+.usage-guide .fa-check-double {
+  color: #2ecc71;
+}
+.usage-guide .fa-paste {
+  color: #e67e22;
+}
+.usage-guide .fa-save {
+  color: #2ecc71;
+}
+.usage-guide .fa-cloud-download-alt {
+  color: #3498db;
 }

@@ -62,15 +62,19 @@ Vue.component("input-with-dropdown", {
   mounted() {
     document.addEventListener("click", this.closeDropdown);
     this.$el.addEventListener("click", (e) => e.stopPropagation());
+    this.adjustBlockHeights();
+    window.addEventListener("resize", this.adjustBlockHeights);
   },
   beforeDestroy() {
     document.removeEventListener("click", this.closeDropdown);
+    window.removeEventListener("resize", this.adjustBlockHeights);
   },
 });
 
 new Vue({
   el: "#dx3-app",
   data: {
+    isGuideOpen: false, // ★★★ この行を追加 ★★★
     gasWebAppUrl:
       "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec",
     characterSheetUrl: "",
@@ -124,7 +128,7 @@ new Vue({
         "情報",
         "効果参照",
       ],
-      baseSkillSelect: ["技能", "白兵", "射撃", "RC", "交渉"],
+      baseSkillSelect: ["白兵", "射撃", "RC", "交渉"],
       timing: [
         "オート",
         "マイナー",
@@ -482,30 +486,21 @@ new Vue({
             ? combo.manualEffectDescription
             : autoEffectText;
 
-        const chatPalette = [
-          `◆${combo.name}`,
-          compositionText,
-          combo.flavor ? `『${combo.flavor}』` : "",
-          `侵蝕値:${totalCost}　タイミング:${
-            relevantEffects.find((e) => e.timing && e.timing !== "オート")
-              ?.timing || "-"
-          }　技能:${primarySkill}　難易度:${finalDifficulty}　対象:${finalTarget}　射程:${finalRange}　ATK:${totalAtk}　C値:${critTotal}`,
-          diceFormula,
-          effectDescriptionForPalette,
-        ]
-          .filter(Boolean)
-          .join("\n");
-
-        console.log(
-          "Debug: timing =",
-          relevantEffects.find((e) => e.timing && e.timing !== "オート")
-            ?.timing || "-",
-          "finalTarget =",
-          finalTarget,
-          "finalRange =",
-          finalRange
-        ); // 追加
-
+        const chatPalette = {
+          header: [
+            `◆${combo.name}`,
+            compositionText,
+            combo.flavor ? `『${combo.flavor}』` : "",
+            `侵蝕値:${totalCost}　タイミング:${
+              relevantEffects.find((e) => e.timing && e.timing !== "オート")
+                ?.timing || "-"
+            }　技能:${primarySkill}　難易度:${finalDifficulty}　対象:${finalTarget}　射程:${finalRange}　ATK:${totalAtk}　C値:${critTotal}`,
+            effectDescriptionForPalette,
+          ]
+            .filter(Boolean)
+            .join("\n"),
+          diceFormula: diceFormula,
+        };
         return {
           ...combo,
           totalDice: diceResult.total,
@@ -913,7 +908,7 @@ new Vue({
     createDefaultEffect() {
       return {
         name: "",
-        level: 1,
+        level: "" /* Lvを空欄にする */,
         maxLevel: 1,
         timing: "",
         skill: "",
@@ -972,7 +967,7 @@ new Vue({
     addEffect() {
       this.effects.push({
         name: "",
-        level: 1,
+        level: "" /* Lvを空欄にする */,
         maxLevel: 1,
         timing: "",
         skill: "",
@@ -992,7 +987,7 @@ new Vue({
     addEasyEffect() {
       this.easyEffects.push({
         name: "",
-        level: 1,
+        level: "" /* Lvを空欄にする */,
         maxLevel: 1,
         timing: "",
         skill: "",
@@ -1021,7 +1016,7 @@ new Vue({
         effectDescriptionMode: "auto",
         manualEffectDescription: "",
         enableAdvancedParsing: false,
-        baseAbility: { skill: "-", value: 0 },
+        baseAbility: { skill: "白兵", value: 0 },
         manualTarget: "", // 手動設定用
         targetMode: "auto", // auto or manual
         manualRange: "", // 手動設定用
@@ -1351,6 +1346,65 @@ new Vue({
       };
       const regex = /\[(.*?)\]/g;
       return text.replace(regex, replacer);
+    },
+    adjustBlockHeights() {
+      this.$nextTick(() => {
+        const characterInfoGrid = document.querySelector(
+          ".character-info-grid"
+        );
+        const dbSyncBlock = document.querySelector(".db-sync-block");
+        const statusMessage = document.querySelector(".status-message");
+
+        if (characterInfoGrid && dbSyncBlock && statusMessage) {
+          const gridHeight = characterInfoGrid.offsetHeight;
+          // statusMessageの高さとmargin-bottomを考慮してdbSyncBlockの高さを調整
+          const statusMessageHeight = statusMessage.offsetHeight;
+          const statusMessageMarginBottom = parseInt(
+            window.getComputedStyle(statusMessage).marginBottom
+          );
+
+          // dbSyncBlockのpaddingを考慮
+          const dbSyncBlockPaddingTop = parseInt(
+            window.getComputedStyle(dbSyncBlock).paddingTop
+          );
+          const dbSyncBlockPaddingBottom = parseInt(
+            window.getComputedStyle(dbSyncBlock).paddingBottom
+          );
+
+          // db-buttonsの高さも考慮
+          const dbButtons = document.querySelector(".db-buttons");
+          const dbButtonsHeight = dbButtons ? dbButtons.offsetHeight : 0;
+          const dbButtonsMarginBottom = dbButtons
+            ? parseInt(window.getComputedStyle(dbButtons).marginBottom)
+            : 0;
+
+          // db-url-inputの高さも考慮
+          const dbUrlInput = document.querySelector(".db-url-input");
+          const dbUrlInputHeight = dbUrlInput ? dbUrlInput.offsetHeight : 0;
+          const dbUrlInputMarginBottom = dbUrlInput
+            ? parseInt(window.getComputedStyle(dbUrlInput).marginBottom)
+            : 0;
+
+          // db-sync-blockの内部の要素の合計高さを計算
+          // db-url-inputの高さ + db-buttonsの高さ + gap + padding
+          const requiredHeightForDbSyncBlock =
+            dbUrlInputHeight +
+            dbButtonsHeight +
+            15 +
+            dbSyncBlockPaddingTop +
+            dbSyncBlockPaddingBottom;
+
+          // characterInfoGridの高さからstatusMessageの高さを引いたものをdbSyncBlockのmin-heightに設定
+          // ただし、dbSyncBlockの元々のコンテンツの高さより小さくならないようにする
+          const calculatedMinHeight =
+            gridHeight - statusMessageHeight - statusMessageMarginBottom;
+
+          dbSyncBlock.style.minHeight = `${Math.max(
+            calculatedMinHeight,
+            requiredHeightForDbSyncBlock
+          )}px`;
+        }
+      });
     },
   },
 });
