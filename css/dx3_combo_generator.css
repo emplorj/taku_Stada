@@ -13,6 +13,9 @@
   flex-grow: 1;
   min-width: 50px;
 }
+.db-url-input input {
+  flex-grow: 1; /* Make input grow to fill space */
+}
 .db-url-input span {
   display: block;
   margin-bottom: 5px;
@@ -68,7 +71,6 @@
 }
 .status-message {
   width: 100%;
-  margin: -5px 0 15px 0; /* Reset margin */
   padding: 0 15px;
   min-height: 1.2em;
   font-size: 0.9em;
@@ -76,6 +78,11 @@
   text-align: center;
   transition: color 0.3s;
   box-sizing: border-box;
+  position: absolute; /* Absolute positioning */
+  bottom: 0; /* Align to bottom */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for centering */
+  margin-bottom: 5px; /* Add a small margin from the bottom */
 }
 .status-message.error {
   color: #e74c3c;
@@ -91,9 +98,13 @@
   flex: 1.2;
   display: flex;
   flex-direction: column;
+  position: relative; /* For absolute positioning of status-message */
 }
 .db-sync-block {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Distribute space */
 }
 .character-info-grid {
   display: grid;
@@ -260,7 +271,8 @@
 }
 .items-table td:nth-child(3),
 .items-table td:nth-child(4) {
-  min-width: 80px;
+  width: 90px; /* エフェクトのタイミングなどと同じくらいに狭める */
+  min-width: 90px;
 }
 .items-table td:nth-child(5),
 .items-table td:nth-child(6),
@@ -271,7 +283,7 @@
   width: 60px;
 }
 .items-table td:nth-child(11) {
-  min-width: 200px;
+  min-width: 300px; /* 備考欄を広げる */
   white-space: normal;
 }
 .items-table td:nth-child(12) {
