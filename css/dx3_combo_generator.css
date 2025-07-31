@@ -418,12 +418,25 @@
   cursor: help;
   background-color: #4f4f4f;
 }
+
+/* 対象と射程の項目に特化したスタイル */
+.stat-item.target-setting,
+.stat-item.range-setting {
+  flex-basis: 150px; /* 幅を調整 */
+  flex-grow: 1;
+  display: flex; /* flexコンテナにする */
+  flex-wrap: wrap; /* 必要に応じて折り返す */
+  justify-content: center; /* 中央寄せ */
+  align-items: center; /* 中央寄せ */
+  gap: 5px; /* 要素間の隙間 */
+}
+
 .base-ability-input {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  flex-basis: 150px;
+  flex-basis: 120px; /* 幅を調整 */
   flex-grow: 0.5;
   padding: 5px 10px;
   border-radius: 4px;
@@ -875,6 +888,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap; /* テキストの折り返しを防ぐ */
 }
 
 .stat-item span input.manual-input {
@@ -893,6 +907,11 @@
   background-color: #3c3c3c; /* 読み取り専用の背景色 */
   color: #bbb; /* 読み取り専用の文字色 */
   cursor: not-allowed; /* カーソルを変更 */
+}
+
+.stat-item .mode-toggle {
+  display: flex; /* ボタンを横並びにする */
+  margin-top: 5px; /* 上部に少し余白 */
 }
 
 .stat-item .mode-toggle button {

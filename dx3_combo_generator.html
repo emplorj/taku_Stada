@@ -280,7 +280,7 @@
           </tbody>
         </table>
       </div>
-      <button @click="addItem" class="add-btn"><i class="fa-solid fa-plus"></i> アイテムを追加</button>
+      <button @click.stop="addItem" class="add-btn"><i class="fa-solid fa-plus"></i> アイテムを追加</button>
 
       <h2 class="section-title"><i class="fa-solid fa-cubes-stacked"></i> コンボデータ</h2>
       <div v-for="(combo, index) in processedCombos" class="combo-block">
@@ -328,9 +328,10 @@
             <input type="number" v-model.number="combos[index].baseAbility.value">
           </div>
 
+          <div class="stat-item" :title="combo.atkBreakdown">ATK: {{ combo.totalAtk }}</div>
           <div class="stat-item" :title="combo.costBreakdown">侵蝕値: {{ combo.totalCost }}</div>
         </div>
-        <button @click="openEffectSelectModal(index)" class="effect-select-button"><i
+        <button @click.stop="openEffectSelectModal(index)" class="effect-select-button"><i
             class="fa-solid fa-check-double"></i> 組合せ ({{ (combos[index].effectNames ? combos[index].effectNames.length
           : 0) + (combos[index].itemNames ? combos[index].itemNames.length : 0) }}件選択中): {{ combo.compositionText
           }}</button>
@@ -405,10 +406,10 @@
         </div>
       </div>
 
-      <div v-if="isEffectSelectModalOpen" class="modal-overlay" @click.self="cancelEffectSelection">
-        <div class="modal-content effect-select-modal">
+      <div v-if="isEffectSelectModalOpen" class="modal-overlay">
+        <div class="modal-content effect-select-modal" @click.stop>
           <div class="modal-header">
-            <h3>コンボのエフェクトを選択</h3><button @click="cancelEffectSelection" class="close-btn">×</button>
+            <h3>コンボのエフェクトを選択</h3><button @click.stop="cancelEffectSelection" class="close-btn">×</button>
           </div>
           <div class="modal-body">
             <div class="option-group">
@@ -431,15 +432,15 @@
                 class="item-select-label">
                 <input type="checkbox" :value="item" v-model="tempSelectedItems">
                 <span>{{ item.name }} ({{ item.type }})</span>
-                <button @click.stop.prevent="toggleShowInComboName(item)"
-                  :class="{active: isShowInComboName(item.name)}" :disabled="!isItemSelected(item.name)"
-                  class="show-in-combo-btn" title="クリックでコンボ名への表示／非表示を切替">コンボ</button>
+                <button @click.stop="toggleShowInComboName(item)" :class="{active: isShowInComboName(item.name)}"
+                  :disabled="!isItemSelected(item.name)" class="show-in-combo-btn"
+                  title="クリックでコンボ名への表示／非表示を切替">コンボ</button>
               </label>
             </div>
           </div>
           <div class="modal-footer">
-            <button @click="cancelEffectSelection" class="cancel-btn">キャンセル</button>
-            <button @click="confirmEffectSelection">決定</button>
+            <button @click.stop="cancelEffectSelection" class="cancel-btn">キャンセル</button>
+            <button @click.stop="confirmEffectSelection">決定</button>
           </div>
         </div>
       </div>

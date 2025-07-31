@@ -62,12 +62,9 @@ Vue.component("input-with-dropdown", {
   mounted() {
     document.addEventListener("click", this.closeDropdown);
     this.$el.addEventListener("click", (e) => e.stopPropagation());
-    this.adjustBlockHeights();
-    window.addEventListener("resize", this.adjustBlockHeights);
   },
   beforeDestroy() {
     document.removeEventListener("click", this.closeDropdown);
-    window.removeEventListener("resize", this.adjustBlockHeights);
   },
 });
 
@@ -339,8 +336,7 @@ new Vue({
             costBreakdown.push(`【${item.name}】: ${cost}`);
             totalCost += cost;
           }
-          return sum + cost;
-        }, combo.cost_manual || 0);
+        });
         const effectComposition = relevantEffects
           .map(
             (e) =>
@@ -579,7 +575,7 @@ new Vue({
       });
     },
     addItem() {
-      this.items.push({
+      const newItem = {
         name: "",
         level: 1,
         type: "その他",
@@ -592,7 +588,9 @@ new Vue({
         xp: 0,
         notes: "",
         values: this.createDefaultValues(),
-      });
+      };
+      this.items.push(newItem);
+      console.log("addItem called. items array:", this.items); // デバッグ用ログ
     },
     removeItem(index) {
       this.items.splice(index, 1);
@@ -1116,8 +1114,13 @@ new Vue({
         .map((itemData) => this.items.find((i) => i.name === itemData.name))
         .filter(Boolean);
       this.isEffectSelectModalOpen = true;
+      console.log(
+        "openEffectSelectModal called. isEffectSelectModalOpen:",
+        this.isEffectSelectModalOpen
+      ); // デバッグ用ログ
     },
     confirmEffectSelection() {
+      console.log("confirmEffectSelection called"); // デバッグ用ログ
       if (this.editingComboIndex !== -1) {
         const combo = this.combos[this.editingComboIndex];
         const effectNames = this.tempSelectedEffects.map((e) => e.name);
@@ -1158,9 +1161,22 @@ new Vue({
         }
       }
       this.isEffectSelectModalOpen = false;
+      this.$nextTick(() => {
+        console.log(
+          "isEffectSelectModalOpen after confirm:",
+          this.isEffectSelectModalOpen
+        );
+      });
     },
     cancelEffectSelection() {
+      console.log("cancelEffectSelection called"); // デバッグ用ログ
       this.isEffectSelectModalOpen = false;
+      this.$nextTick(() => {
+        console.log(
+          "isEffectSelectModalOpen after cancel:",
+          this.isEffectSelectModalOpen
+        );
+      });
     },
     switchToManualMode(combo, index) {
       if (combo.effectDescriptionMode === "auto") {
@@ -1186,6 +1202,9 @@ new Vue({
     closeAllDropdowns() {
       if (this.isPanelOpen) {
         this.closeEffectPanel();
+      }
+      if (this.isEffectSelectModalOpen) {
+        this.cancelEffectSelection();
       }
     },
     copyToClipboard(text, event) {
