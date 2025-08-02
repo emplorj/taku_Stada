@@ -1,21 +1,22 @@
 /* dx3_combo_generator.css */
-
 .db-sync-block {
   background-color: #2c2c2c;
   padding: 15px;
   border-radius: 8px;
-  margin-bottom: 10px;
+  /* margin-bottom は gap で指定するため不要 */
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-end;
   gap: 15px;
+  height: 100%; /* ★【重要】親(Gridセル)の高さに合わせる */
+  box-sizing: border-box; /* paddingを含めて高さを100%にする */
 }
+
 .db-url-input {
   flex-grow: 1;
   min-width: 50px;
 }
-.db-url-input input {
-  flex-grow: 1; /* Make input grow to fill space */
-}
+
 .db-url-input span {
   display: block;
   margin-bottom: 5px;
@@ -69,6 +70,7 @@
   cursor: not-allowed;
   opacity: 0.7;
 }
+
 .status-message {
   width: 100%;
   padding: 0 15px;
@@ -78,49 +80,58 @@
   text-align: center;
   transition: color 0.3s;
   box-sizing: border-box;
-  position: absolute; /* Absolute positioning */
-  bottom: 0; /* Align to bottom */
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Adjust for centering */
-  margin-bottom: 5px; /* Add a small margin from the bottom */
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  transform: none;
+  margin-bottom: 0;
 }
+
 .status-message.error {
   color: #e74c3c;
   font-weight: bold;
 }
+
 .top-info-wrapper {
-  display: flex;
+  display: grid; /* ★【重要】Gridレイアウトに変更 */
+  grid-template-columns: 1.2fr 1.5fr; /* ★【重要】左右のブロックの幅の比率を指定 */
   gap: 15px;
   margin-bottom: 25px;
   align-items: stretch;
+  position: relative;
 }
-.db-sync-container {
-  flex: 1.2;
-  display: flex;
-  flex-direction: column;
-  position: relative; /* For absolute positioning of status-message */
-}
-.db-sync-block {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Distribute space */
-}
+
 .character-info-grid {
-  display: grid;
-  grid-template-columns: minmax(100px, 0.7fr) repeat(3, minmax(40px, 0.2fr));
+  display: flex;
+  flex-direction: column;
   gap: 15px;
   background-color: #2c2c2c;
   padding: 15px;
   border-radius: 8px;
-  flex: 1;
+  /* flex: 1.5 も不要 (grid-template-columnsで指定するため) */
+  justify-content: center;
 }
+
+.xp-fields-group {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
 .character-info-grid label {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 0.9em;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85em;
+  white-space: nowrap;
+  width: 100%;
 }
+
+.xp-fields-group label {
+  flex: 1;
+}
+
 .character-info-grid input {
   background-color: #0d1a50;
   border: 1px solid #2a3c7d;
@@ -129,6 +140,7 @@
   border-radius: 4px;
   width: 100%;
   box-sizing: border-box;
+  min-width: 60px;
 }
 .section-title {
   font-family: "Corporate-Logo-Bold", sans-serif;
@@ -203,7 +215,7 @@
   display: none;
 }
 .input-with-dropdown .dropdown-menu {
-  z-index: 9999; /* JavaScriptで設定されるため、CSSからは削除 */
+  z-index: 9999;
   background-color: #2c2c2c;
   border: 1px solid #4a5c9a;
   border-radius: 4px;
@@ -233,11 +245,11 @@
 }
 
 .input-with-dropdown .dropdown-menu::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera*/
+  display: none;
 }
 .input-with-dropdown .dropdown-menu {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .effects-table td:nth-child(4),
 .effects-table td:nth-child(5),
@@ -271,7 +283,7 @@
 }
 .items-table td:nth-child(3),
 .items-table td:nth-child(4) {
-  width: 90px; /* エフェクトのタイミングなどと同じくらいに狭める */
+  width: 90px;
   min-width: 90px;
 }
 .items-table td:nth-child(5),
@@ -283,7 +295,7 @@
   width: 60px;
 }
 .items-table td:nth-child(11) {
-  min-width: 300px; /* 備考欄を広げる */
+  min-width: 300px;
   white-space: normal;
 }
 .items-table td:nth-child(12) {
@@ -419,16 +431,15 @@
   background-color: #4f4f4f;
 }
 
-/* 対象と射程の項目に特化したスタイル */
 .stat-item.target-setting,
 .stat-item.range-setting {
-  flex-basis: 150px; /* 幅を調整 */
+  flex-basis: 150px;
   flex-grow: 1;
-  display: flex; /* flexコンテナにする */
-  flex-wrap: wrap; /* 必要に応じて折り返す */
-  justify-content: center; /* 中央寄せ */
-  align-items: center; /* 中央寄せ */
-  gap: 5px; /* 要素間の隙間 */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 
 .base-ability-input {
@@ -436,7 +447,7 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  flex-basis: 120px; /* 幅を調整 */
+  flex-basis: 120px;
   flex-grow: 0.5;
   padding: 5px 10px;
   border-radius: 4px;
@@ -540,26 +551,24 @@
   border-radius: 4px;
 }
 
-/* .palette-grid styles removed as they are no longer needed */
 .copy-container {
   position: relative;
 }
 .copy-container {
   position: relative;
-  margin-bottom: 10px; /* Add margin for spacing */
-  border-bottom: 1px dashed #4a5c9a; /* Add a dashed line */
-  padding-bottom: 10px; /* Space below the line */
+  margin-bottom: 10px;
+  border-bottom: 1px dashed #4a5c9a;
+  padding-bottom: 10px;
 }
 
 .copy-container:last-child {
-  border-bottom: none; /* Remove line from the last item */
+  border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
 }
 
 .copy-container textarea {
   width: 100%;
-  /* min-height: 96px; */
   background-color: transparent;
   border: none;
   color: #eee;
@@ -586,7 +595,6 @@
 }
 
 .copy-container .dice-formula-textarea {
-  /* !important指定を削除し、基本的なスタイルを継承させる */
   min-height: 40px;
 }
 .copy-container button:hover {
@@ -857,136 +865,116 @@
   font-size: 0.85em;
 }
 
-@media (max-width: 1024px) {
-  .top-info-wrapper {
-    flex-direction: column;
-  }
-}
-@media (max-width: 768px) {
-  .combo-details-grid {
-    grid-template-columns: 1fr;
-  }
-  .combo-stats-bar {
-    flex-wrap: wrap;
-  }
-  .stat-item {
-    flex-basis: 33.33%;
-    border-bottom: 1px solid #555;
-  }
-}
-
 .stat-item .setting-controls {
   display: flex;
   align-items: center;
   gap: 5px;
-  width: 100%; /* 親要素の幅に合わせる */
-  justify-content: center; /* 中央寄せ */
+  width: 100%;
+  justify-content: center;
 }
 
 .stat-item span {
   display: flex;
   align-items: center;
   gap: 5px;
-  white-space: nowrap; /* テキストの折り返しを防ぐ */
+  white-space: nowrap;
 }
 
 .stat-item span input.manual-input {
-  width: 60px; /* 幅を固定 */
-  min-width: 40px; /* 最小幅も設定 */
-  text-align: center; /* テキストを中央寄せ */
-  box-sizing: border-box; /* パディングとボーダーを幅に含める */
-  padding: 5px; /* パディングを追加 */
-  border-radius: 3px; /* 角を丸くする */
-  background-color: #0d1a50; /* 背景色 */
-  border: 1px solid #4a5c9a; /* ボーダー */
-  color: #eee; /* 文字色 */
+  width: 60px;
+  min-width: 40px;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 5px;
+  border-radius: 3px;
+  background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
 }
 
 .stat-item span input.manual-input[readonly] {
-  background-color: #3c3c3c; /* 読み取り専用の背景色 */
-  color: #bbb; /* 読み取り専用の文字色 */
-  cursor: not-allowed; /* カーソルを変更 */
+  background-color: #3c3c3c;
+  color: #bbb;
+  cursor: not-allowed;
 }
 
 .stat-item .mode-toggle {
-  display: flex; /* ボタンを横並びにする */
-  margin-top: 5px; /* 上部に少し余白 */
+  display: flex;
+  margin-top: 5px;
 }
 
 .stat-item .mode-toggle button {
-  padding: 3px 6px; /* ボタンのパディングを調整 */
-  font-size: 0.75em; /* フォントサイズを小さくする */
+  padding: 3px 6px;
+  font-size: 0.75em;
 }
 
-/* Usage Guide Styles */
 .usage-guide {
   background-color: #2c2c2c;
   border-radius: 8px;
   margin-bottom: 30px;
   border: 1px solid #2a3c7d;
-  padding: 0; /* Remove padding from details itself */
+  padding: 0;
 }
 
 .usage-guide summary {
-  list-style: none; /* Remove default arrow */
+  list-style: none;
   display: flex;
   align-items: center;
-  padding: 20px 25px; /* Add padding to summary */
+  padding: 20px 25px;
   cursor: pointer;
   position: relative;
-  outline: none; /* Remove outline on focus */
+  outline: none;
 }
 
 .usage-guide summary::-webkit-details-marker {
-  display: none; /* For Webkit browsers */
+  display: none;
 }
 
 .usage-guide summary::before {
-  content: "\f0da"; /* Font Awesome right arrow */
+  content: "\f0da";
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
   margin-right: 15px;
   color: #87cefa;
   transition: transform 0.2s ease;
   font-size: 1.2em;
-  transform: translateY(-4px); /* Adjust vertical position */
+  transform: translateY(-4px);
 }
 
 .usage-guide[open] summary::before {
-  transform: rotate(90deg); /* Rotate arrow when open */
+  transform: rotate(90deg);
 }
 
 .usage-guide summary .summary-content {
   display: flex;
-  align-items: baseline; /* Align text baselines */
+  align-items: baseline;
   flex-grow: 1;
-  gap: 15px; /* Space between title and subtitle */
+  gap: 15px;
 }
 
 .usage-guide summary .summary-content h2 {
   font-family: "Corporate-Logo-Bold", sans-serif;
   color: #9b59b6;
-  margin: 0; /* Remove default margin */
-  flex-shrink: 0; /* Prevent h2 from shrinking */
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .usage-guide summary .summary-content .subtitle {
   font-size: 1.1em;
   color: #bdc3c7;
-  margin: 0; /* Remove default margin */
-  flex-grow: 1; /* Allow subtitle to take available space */
-  text-align: left; /* Align subtitle to left */
+  margin: 0;
+  flex-grow: 1;
+  text-align: left;
 }
 
 .usage-guide .content-wrapper {
-  padding: 0 25px 20px; /* Add padding to content inside details */
+  padding: 0 25px 20px;
 }
 
 .usage-guide p,
 .usage-guide li {
-  line-height: 1.8;
   color: #eee;
-  padding: 0 25px; /* Add padding to paragraphs and list items */
+  padding: 0 25px;
 }
 
 .usage-guide h3 {
@@ -995,22 +983,16 @@
   margin-top: 25px;
   border-bottom: 1px solid #2a3c7d;
   padding-bottom: 8px;
-  padding-left: 25px; /* Add padding */
-  padding-right: 25px; /* Add padding */
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 .usage-guide h4 {
   color: #87cefa;
   margin-top: 20px;
   margin-bottom: 10px;
-  padding-left: 25px; /* Add padding */
-  padding-right: 25px; /* Add padding */
-}
-
-.usage-guide p,
-.usage-guide li {
-  line-height: 1.8;
-  color: #eee;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 .usage-guide strong {
@@ -1019,8 +1001,8 @@
 
 .usage-guide ol,
 .usage-guide ul {
-  padding-left: 50px; /* Adjust padding for lists */
-  padding-right: 25px; /* Add padding */
+  padding-left: 50px;
+  padding-right: 25px;
 }
 
 .usage-guide ul ul {
@@ -1057,4 +1039,150 @@
 }
 .usage-guide .fa-cloud-download-alt {
   color: #3498db;
+}
+
+@media (max-width: 1400px) {
+  .top-info-wrapper {
+    flex-direction: column;
+    grid-template-columns: none;
+  }
+  .combo-details-grid {
+    grid-template-columns: 1fr;
+  }
+  .combo-stats-bar {
+    flex-wrap: wrap;
+    border: none; /* ボーダーを削除 */
+    border-radius: 0; /* 角丸を削除 */
+    background-color: transparent; /* 背景色を透明に */
+    display: grid; /* グリッドレイアウトに変更 */
+    /* 3列のグリッドを定義 */
+    grid-template-areas:
+      "dice crit achieve"
+      "target target target"
+      "range range range"
+      "skill skill skill"
+      "attack cost cost";
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .stat-item {
+    border: 1px solid #555; /* 各アイテムにボーダーを設定 */
+    background-color: #3c3c3c; /* 背景色を再設定 */
+    padding: 8px;
+    flex-basis: auto; /* flex-basisをリセット */
+    min-width: 0; /* min-widthをリセット */
+  }
+
+  /* グリッドエリアに各項目を配置 */
+  .stat-item:nth-child(1) {
+    grid-area: dice;
+  }
+  .stat-item:nth-child(2) {
+    grid-area: crit;
+  }
+  .stat-item:nth-child(3) {
+    grid-area: achieve;
+  }
+  .stat-item.target-setting {
+    grid-area: target;
+  }
+  .stat-item.range-setting {
+    grid-area: range;
+  }
+  .stat-item.base-ability-input {
+    grid-area: skill;
+  }
+  .stat-item:nth-child(7) {
+    grid-area: attack;
+  }
+  .stat-item:nth-child(8) {
+    grid-area: cost;
+    grid-column: 2 / 4;
+  } /* 侵蝕値は2-3列目を占有 */
+
+  .character-info-grid {
+    flex-direction: column;
+  }
+  .xp-fields-group {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .xp-fields-group label {
+    flex-basis: calc(50% - 8px);
+    flex-grow: 1;
+  }
+
+  .db-sync-block {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* ▼▼▼ 追加: 使い方ガイドの高さ問題を修正 ▼▼▼ */
+  .usage-guide summary .summary-content {
+    align-items: center; /* 垂直方向の中央揃えに変更 */
+    flex-wrap: wrap; /* 折り返しを許可 */
+  }
+
+  /* ▼▼▼ 追加: コンボヘッダーのはみ出しを修正 ▼▼▼ */
+  .combo-header {
+    flex-wrap: wrap; /* 折り返しを許可 */
+  }
+  .combo-name-input {
+    flex-basis: 100%; /* 名前入力欄は常に全幅 */
+    order: 1; /* 表示順を1番目に */
+  }
+  .combo-level-select {
+    order: 2; /* 表示順を2番目に */
+    flex-grow: 1; /* 残りのスペースを埋める */
+    margin-right: 0;
+  }
+  .combo-header .delete-btn {
+    order: 3; /* 表示順を3番目に */
+  }
+
+  /* ▼▼▼ 追加: 解説スイッチのレイアウトを修正 ▼▼▼ */
+  .combo-textarea-wrapper .header-controls {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+  }
+  .usage-guide summary {
+    align-items: flex-start; /* 矢印とテキストを上端揃えに */
+    padding: 15px 10px;
+  }
+
+  .usage-guide summary::before {
+    margin-top: 2px; /* 矢印の縦位置を微調整 */
+    transform: none; /* 既存のtransformをリセット */
+  }
+
+  .usage-guide summary .summary-content {
+    flex-direction: column; /* タイトルとサブタイトルを縦積みに変更 */
+    align-items: flex-start; /* 左揃えにする */
+    gap: 5px; /* タイトルとサブタイトルの間の隙間 */
+  }
+
+  .usage-guide summary .summary-content h2 {
+    font-size: 1.3em; /* タイトルの文字サイズを調整 */
+  }
+
+  .usage-guide summary .summary-content .subtitle {
+    font-size: 0.9em; /* サブタイトルの文字サイズを調整 */
+  }
+  .usage-guide .content-wrapper,
+  .usage-guide p,
+  .usage-guide li,
+  .usage-guide h3,
+  .usage-guide h4,
+  .usage-guide ol,
+  .usage-guide ul {
+    padding-left: 5px; /* スマホ表示では左の余白を15pxに統一 */
+    padding-right: 5px; /* スマホ表示では右の余白を15pxに統一 */
+  }
+
+  /* リストのマーカー（・や数字）のための余白を少し追加 */
+  .usage-guide ol,
+  .usage-guide ul {
+    padding-left: 25px;
+  }
+  /* ▲▲▲ ここまで修正・追加 ▲▲▲ */
 }

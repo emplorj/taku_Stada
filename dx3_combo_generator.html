@@ -64,15 +64,15 @@
         <h3>もっと深く知りたい？ならアドバンス機能だ。</h3>
         <p>このツールのヤバさは、ここからかもしれない。</p>
 
-        <h4><i class="fa-solid fa-database"></i> ビルドは全部保存しとけ。</h4>
+        <h4><i class="fa-solid fa-database"></i> 全部保存。</h4>
         <ul>
           <li><strong>「<i class="fas fa-save"></i> 保存」</strong>: 作ったビルドは、URLに紐づけてDBに保存できる。データが飛ぶ心配はない。</li>
           <li><strong>「<i class="fas fa-cloud-download-alt"></i> 読込/引用」</strong>: 保存したビルドはいつでも一発で呼び出せる。セッション直前の準備も余裕。
           </li>
         </ul>
-        <h4><i class="fa-solid fa-gear"></i> 計算ハックの時間だ。「詳細設定」</h4>
+        <h4><i class="fa-solid fa-gear"></i> 「詳細設定」計算をして適用させよう。</h4>
         <p>
-          ここがキモ。<strong>歯車ボタン<i class="fa-solid fa-gear"></i></strong>から、計算の裏側を全部ハックできる。一度設定すれば、あとは全自動だ。
+          ここがキモ。<strong>歯車ボタン<i class="fa-solid fa-gear"></i></strong>から、計算の裏側を全部入力できる。一度設定すれば、あとは全自動だ。
         </p>
         <ul>
           <li><strong>【重要】アイテム攻撃力の連携機能</strong>
@@ -152,14 +152,23 @@
                   class="fas fa-trash-alt"></i> 削除</button>
             </div>
           </div>
-          <p v-if="statusMessage" class="status-message" :class="{ 'error': statusIsError }">{{ statusMessage }}</p>
+
         </div>
         <div class="character-info-grid">
-          <label>キャラクター名: <input type="text" v-model="characterName" placeholder="PC名"></label>
-          <label>総経験点: <input type="number" v-model.number="totalXp"></label>
-          <label>使用経験点: <input type="number" :value="usedXp" readonly class="text-right"></label>
-          <label>残経験点: <input type="number" :value="totalXp - usedXp" readonly class="text-right"></label>
+          <label id="char-name-label">キャラクター名: <input type="text" v-model="characterName" placeholder="PC名"></label>
+
+          <!-- 経験点項目をグループ化するdivを追加 -->
+          <div class="xp-fields-group">
+            <label id="total-xp-label">総経験点: <input type="number" v-model.number="totalXp"></label>
+            <label id="other-xp-label">経験点増減: <input type="number" v-model.number="otherXp"
+                title="アイテム購入以外の経験点増減をここに入力します"></label>
+            <label id="used-xp-label">使用経験点: <input type="number" :value="usedXp" readonly class="text-right"></label>
+            <label id="remaining-xp-label">残経験点: <input type="number" :value="totalXp + otherXp - usedXp" readonly
+                class="text-right"></label>
+          </div>
         </div>
+        <!-- <p>タグをこの位置に移動 -->
+        <p v-if="statusMessage" class="status-message" :class="{ 'error': statusIsError }">{{ statusMessage }}</p>
       </div>
 
       <h2 class="section-title"><i class="fa-solid fa-bolt"></i> エフェクト <span class="xp-display">(使用経験点: {{ effectXp
@@ -185,8 +194,8 @@
           </thead>
           <tbody>
             <tr v-for="(effect, index) in effects">
-              <td><input type="text" v-model="effect.name"></td>
-              <td class="text-right"><input type="number" v-model.number="effect.level" min="1" class="text-right"></td>
+              <td><input type="text" :value="effect.name" @change="updateNameAndSync('effects', index, $event.target.value)"></td>
+              <td class="text-right"><input type="number" :value="effect.level" @input="updateAndSyncLevel('effects', index, $event.target.value)" min="1" class="text-right"></td>
               <td class="text-right"><input type="number" v-model.number="effect.maxLevel" min="1" class="text-right">
               </td>
               <td><input-with-dropdown v-model="effect.timing" :options="dropdownOptions.timing"></input-with-dropdown>
@@ -238,8 +247,8 @@
           </thead>
           <tbody>
             <tr v-for="(ee, index) in easyEffects">
-              <td><input type="text" v-model="ee.name"></td>
-              <td class="text-right"><input type="number" v-model.number="ee.level" min="1" class="text-right"></td>
+              <td><input type="text" :value="ee.name" @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
+              <td class="text-right"><input type="number" :value="ee.level" @input="updateAndSyncLevel('easyEffects', index, $event.target.value)" min="1" class="text-right"></td>
               <td class="text-right"><input type="number" v-model.number="ee.maxLevel" min="1" class="text-right"></td>
               <td><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing"></input-with-dropdown></td>
               <td><input-with-dropdown v-model="ee.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
@@ -285,8 +294,8 @@
           </thead>
           <tbody>
             <tr v-for="(item, index) in items">
-              <td><input type="text" v-model="item.name"></td>
-              <td class="text-right"><input type="number" v-model.number="item.level" min="1" class="text-right"></td>
+              <td><input type="text" :value="item.name" @change="updateNameAndSync('items', index, $event.target.value)"></td>
+              <td class="text-right"><input type="number" :value="item.level" @input="updateAndSyncLevel('items', index, $event.target.value)" min="1" class="text-right"></td>
               <td><input type="text" v-model="item.type"></td>
               <td><input-with-dropdown v-model="item.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
               <td><input type="text" v-model="item.accuracy" class="text-right"></td>

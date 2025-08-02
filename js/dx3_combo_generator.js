@@ -71,15 +71,17 @@ Vue.component("input-with-dropdown", {
 new Vue({
   el: "#dx3-app",
   data: {
-    isGuideOpen: false, // ★★★ この行を追加 ★★★
+    isGuideOpen: false,
     gasWebAppUrl:
       "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec",
     characterSheetUrl: "",
     isBusy: false,
     statusMessage: "",
     statusIsError: false,
+    isDirty: false,
     characterName: "",
     totalXp: 130,
+    otherXp: 0,
     effects: [],
     easyEffects: [],
     items: [],
@@ -202,6 +204,9 @@ new Vue({
     this.addEasyEffect();
     this.addItem();
     this.addCombo();
+    this.$nextTick(() => {
+      this.isDirty = false;
+    });
   },
   computed: {
     effectXp() {
@@ -355,7 +360,7 @@ new Vue({
             this.evaluateEffectText(
               source.effect || source.notes,
               source.level,
-              comboLevelBonus,
+              combo.comboLevelBonus,
               combo.enableAdvancedParsing
             )
           )
@@ -378,7 +383,6 @@ new Vue({
         const diceFormula = `({${abilityName}}+{侵蝕率D}+${diceResult.total})DX${critTotal}+${combo.baseAbility.value}+${achieveResult.total}`;
 
         // 対象と射程の自動計算
-        // 対象の決定ロジック
         const targetOrder = [
           "自身",
           "単体",
@@ -414,7 +418,6 @@ new Vue({
         }
         const autoTarget = determinedTarget;
 
-        // 射程の決定ロジック
         const rangeOrder = [
           "至近",
           "nメートル",
@@ -430,11 +433,8 @@ new Vue({
           const range = effect.range;
           if (range === "武器") {
             hasWeaponRange = true;
-            // 武器の射程をどう扱うか、ここでは一旦無視して後で考慮
             continue;
           }
-          // nメートルを数値として比較できるように正規化するロジックが必要
-          // ここでは単純な文字列比較で優先順位を決定
           if (rangeOrder.indexOf(range) < rangeOrder.indexOf(determinedRange)) {
             determinedRange = range;
           }
@@ -444,7 +444,6 @@ new Vue({
         }
         const autoRange = determinedRange;
 
-        // 難易度の決定ロジック
         const difficultyOrder = ["対決", "効果参照", "自動成功", "-"];
         let determinedDifficulty = "-";
 
@@ -459,7 +458,6 @@ new Vue({
         }
         const autoDifficulty = determinedDifficulty;
 
-        // 手動設定が優先されるロジック
         const finalTarget =
           combo.targetMode === "manual" && combo.manualTarget !== ""
             ? combo.manualTarget
@@ -468,7 +466,7 @@ new Vue({
           combo.rangeMode === "manual" && combo.manualRange !== ""
             ? combo.manualRange
             : autoRange;
-        const finalDifficulty = autoDifficulty; // 難易度は手動設定がないため自動決定のみ
+        const finalDifficulty = autoDifficulty;
 
         const effectDescriptionForPalette =
           combo.effectDescriptionMode === "manual"
@@ -505,8 +503,8 @@ new Vue({
           compositionText,
           autoEffectText,
           chatPalette,
-          target: finalTarget, // コンボオブジェクトに最終的な対象を追加
-          range: finalRange, // コンボオブジェクトに最終的な射程を追加
+          target: finalTarget,
+          range: finalRange,
         };
       });
     },
@@ -517,14 +515,33 @@ new Vue({
       return activeTab ? activeTab.label : "";
     },
   },
-  updated() {
-    this.$nextTick(() => {
-      this.adjustAllTextareaHeights();
-    });
-  },
   watch: {
-    effects: { handler: "handleEffectChange", deep: true },
-    easyEffects: { handler: "handleEffectChange", deep: true },
+    characterName: { handler: "setDataDirty", deep: true },
+    totalXp: { handler: "setDataDirty", deep: true },
+    otherXp: { handler: "setDataDirty", deep: true },
+    // ▼▼▼ ここから修正 ▼▼▼
+    effects: {
+      handler: function (newVal, oldVal) {
+        this.handleEffectChange(newVal, oldVal);
+        this.setDataDirty();
+      },
+      deep: true,
+    },
+    easyEffects: {
+      handler: function (newVal, oldVal) {
+        this.handleEffectChange(newVal, oldVal);
+        this.setDataDirty();
+      },
+      deep: true,
+    },
+    items: {
+      handler: function (newVal, oldVal) {
+        this.setDataDirty();
+      },
+      deep: true
+    },
+    // ▲▲▲ ここまで修正 ▲▲▲
+    combos: { handler: "setDataDirty", deep: true },
     "editingEffect.values.attack": {
       handler(newValue, oldValue) {
         if (
@@ -538,7 +555,62 @@ new Vue({
       deep: true,
     },
   },
+
+  updated() {
+    this.$nextTick(() => {
+      this.adjustAllTextareaHeights();
+    });
+  },
   methods: {
+    // ▼▼▼ このメソッドを丸ごと追加 ▼▼▼
+    updateAndSyncLevel(sourceType, index, value) {
+      const newLevel = Number(value);
+      if (isNaN(newLevel)) return;
+      
+      const item = this[sourceType][index];
+      if (!item || Number(item.level) === newLevel) return;
+
+      // 変更されたアイテムのレベルを更新
+      this.$set(item, 'level', newLevel);
+
+      // 同期処理を呼び出す
+      this.syncEffectAndItemLevels(item.name, newLevel);
+    },
+    // ▲▲▲ ここまで追加 ▲▲▲
+
+    // ▼▼▼ このメソッドを丸ごと置き換え ▼▼▼
+    syncEffectAndItemLevels(changedName, newLevel) {
+      if (!changedName || isNaN(newLevel)) return;
+
+      const listsToSync = {
+        effects: this.effects,
+        easyEffects: this.easyEffects,
+        items: this.items,
+      };
+
+      for (const listName in listsToSync) {
+        listsToSync[listName].forEach(item => {
+          if (item.name === changedName && Number(item.level) !== newLevel) {
+            this.$set(item, 'level', newLevel);
+          }
+        });
+      }
+    },
+    // ▲▲▲ ここまで置き換え ▲▲▲
+    updateNameAndSync(sourceType, index, newName) {
+      const item = this[sourceType][index];
+      if (!item || item.name === newName) return;
+
+      this.$set(item, 'name', newName);
+
+      const existingItem = [...this.effects, ...this.easyEffects, ...this.items].find(i => i.name === newName && i !== item);
+      if (existingItem) {
+        this.syncEffectAndItemLevels(newName, existingItem.level);
+      }
+    },
+    setDataDirty() {
+      this.isDirty = true;
+    },
     parseAttackFormula(item) {
       if (!item || typeof item.attack !== "string") return;
       const formula = item.attack.replace(/\s/g, "");
@@ -553,7 +625,6 @@ new Vue({
       let perLevel = 0;
 
       try {
-        // LVを0として評価し、baseを計算
         const baseFormula = formula.replace(/lv/gi, "(0)");
         const sanitizedBaseFormula = baseFormula.replace(/[^-()\d/*+.]/g, "");
         if (sanitizedBaseFormula) {
@@ -564,7 +635,6 @@ new Vue({
       }
 
       try {
-        // LVを1として評価し、そこからbaseを引いてperLevelを計算
         const perLevelFormula = formula.replace(/lv/gi, "(1)");
         const sanitizedPerLevelFormula = perLevelFormula.replace(
           /[^-()\d/*+.]/g,
@@ -583,7 +653,6 @@ new Vue({
       if (isNaN(base)) base = 0;
       if (isNaN(perLevel)) perLevel = 0;
 
-      // watcherがループしないように、値が異なる場合のみ更新
       if (item.values.attack.base !== base) {
         this.$set(item.values.attack, "base", base);
       }
@@ -610,7 +679,6 @@ new Vue({
         }
       }
 
-      // watcherがループしないように、値が異なる場合のみ更新
       if (item.attack !== formula) {
         this.$set(item, "attack", formula);
       }
@@ -650,7 +718,6 @@ new Vue({
         values: this.createDefaultValues(),
       };
       this.items.push(newItem);
-      console.log("addItem called. items array:", this.items); // デバッグ用ログ
     },
     removeItem(index) {
       this.items.splice(index, 1);
@@ -704,6 +771,7 @@ new Vue({
       const dataToSave = {
         characterName: this.characterName,
         totalXp: this.totalXp,
+        otherXp: this.otherXp,
         effects: this.effects,
         easyEffects: this.easyEffects,
         items: this.items,
@@ -723,6 +791,7 @@ new Vue({
         if (result.status !== "success")
           throw new Error(result.message || "不明なエラー");
         this.showStatus("保存しました！");
+        this.isDirty = false;
       } catch (error) {
         console.error("Save Error:", error);
         this.showStatus(`保存エラー: ${error.message}`, true);
@@ -767,6 +836,15 @@ new Vue({
     },
     async loadFromDb() {
       if (!this.validateInputs()) return;
+
+      if (
+        this.isDirty &&
+        !confirm("現在の編集内容は破棄されます。DBからデータを読み込みますか？")
+      ) {
+        this.showStatus("読み込みをキャンセルしました。");
+        return;
+      }
+
       this.isBusy = true;
       this.showStatus("DBにアクセス中...", false, 0);
       const url = new URL(this.gasWebAppUrl);
@@ -778,18 +856,22 @@ new Vue({
           const d = result.data;
           this.characterName = d.characterName || "名称未設定";
           this.totalXp = d.totalXp || 130;
+          this.otherXp = d.otherXp || 0;
           this.effects = (d.effects || []).map((e) => ({
             ...this.createDefaultEffect(),
             ...e,
+            level: Number(e.level) || 1, // レベルを数値に変換
             values: e.values || this.createDefaultValues(),
           }));
           this.easyEffects = (d.easyEffects || []).map((e) => ({
             ...this.createDefaultEffect(),
             ...e,
+            level: Number(e.level) || 1, // レベルを数値に変換
             values: e.values || this.createDefaultValues(),
           }));
           this.items = (d.items || []).map((i) => ({
             ...i,
+            level: Number(i.level) || 1, // レベルを数値に変換
             values: i.values || this.createDefaultValues(),
           }));
           this.items.forEach((item) => this.parseAttackFormula(item));
@@ -798,6 +880,7 @@ new Vue({
             ...c,
           }));
           this.showStatus("DBからデータを読み込みました。");
+          this.isDirty = false;
 
           if (
             confirm(
@@ -812,7 +895,8 @@ new Vue({
               "DBにデータがありません。\nキャラクターシートから新規にデータを引用しますか？"
             )
           ) {
-            await this.importFromSheet(false); // 新規モードで実行
+            this.otherXp = 0;
+            await this.importFromSheet(false, true); // 新規モード、確認スキップで実行
           } else {
             this.showStatus("操作をキャンセルしました。");
           }
@@ -884,11 +968,11 @@ new Vue({
           return;
         }
 
-        // マージモードでない場合のみ、基本情報とコンボをリセット
         if (!mergeMode) {
           this.characterName = importedData.characterName;
           this.totalXp = importedData.totalXp;
-          this.combos = []; // コンボをリセット
+          this.otherXp = 0;
+          this.combos = [];
         }
 
         this.effects = (importedData.effects || []).map((e) => ({
@@ -932,6 +1016,7 @@ new Vue({
             ? "エフェクトとアイテムを更新しました！"
             : "キャラクターシートからデータを引用しました！"
         );
+        this.isDirty = false;
       } catch (error) {
         console.error("Import Error:", error);
         this.showStatus(`引用エラー: ${error.message}`, true, 6000);
@@ -1002,7 +1087,7 @@ new Vue({
     createDefaultEffect() {
       return {
         name: "",
-        level: "" /* Lvを空欄にする */,
+        level: 1, // 初期値を1に設定
         maxLevel: 1,
         timing: "",
         skill: "",
@@ -1059,41 +1144,13 @@ new Vue({
       return !primaryTimings.some((pt) => sourceTimings.includes(pt));
     },
     addEffect() {
-      this.effects.push({
-        name: "",
-        level: "" /* Lvを空欄にする */,
-        maxLevel: 1,
-        timing: "",
-        skill: "",
-        difficulty: "",
-        target: "",
-        range: "",
-        cost: "",
-        limit: "",
-        effect: "",
-        notes: "",
-        values: this.createDefaultValues(),
-      });
+      this.effects.push(this.createDefaultEffect());
     },
     removeEffect(index) {
       this.effects.splice(index, 1);
     },
     addEasyEffect() {
-      this.easyEffects.push({
-        name: "",
-        level: "" /* Lvを空欄にする */,
-        maxLevel: 1,
-        timing: "",
-        skill: "",
-        difficulty: "",
-        target: "",
-        range: "",
-        cost: "",
-        limit: "",
-        effect: "",
-        notes: "",
-        values: this.createDefaultValues(),
-      });
+      this.easyEffects.push(this.createDefaultEffect());
     },
     removeEasyEffect(index) {
       this.easyEffects.splice(index, 1);
@@ -1202,13 +1259,8 @@ new Vue({
         .map((itemData) => this.items.find((i) => i.name === itemData.name))
         .filter(Boolean);
       this.isEffectSelectModalOpen = true;
-      console.log(
-        "openEffectSelectModal called. isEffectSelectModalOpen:",
-        this.isEffectSelectModalOpen
-      ); // デバッグ用ログ
     },
     confirmEffectSelection() {
-      console.log("confirmEffectSelection called"); // デバッグ用ログ
       if (this.editingComboIndex !== -1) {
         const combo = this.combos[this.editingComboIndex];
         const effectNames = this.tempSelectedEffects.map((e) => e.name);
@@ -1224,7 +1276,6 @@ new Vue({
         this.$set(combo, "effectNames", effectNames);
         this.$set(combo, "itemNames", itemNames);
 
-        // 自動で技能を設定するロジック
         const skillCounts = this.tempSelectedEffects.reduce((acc, effect) => {
           if (effect.skill && effect.skill !== "-") {
             acc[effect.skill] = (acc[effect.skill] || 0) + 1;
@@ -1240,31 +1291,16 @@ new Vue({
             maxCount = skillCounts[skill];
           }
         }
-        // baseSkillSelectに含まれる技能のみを対象とする
         if (this.dropdownOptions.baseSkillSelect.includes(mostFrequentSkill)) {
           this.$set(combo.baseAbility, "skill", mostFrequentSkill);
         } else {
-          // 最も出現回数の多い技能がbaseSkillSelectに含まれない場合、または技能が特定できない場合は"-"を設定
           this.$set(combo.baseAbility, "skill", "-");
         }
       }
       this.isEffectSelectModalOpen = false;
-      this.$nextTick(() => {
-        console.log(
-          "isEffectSelectModalOpen after confirm:",
-          this.isEffectSelectModalOpen
-        );
-      });
     },
     cancelEffectSelection() {
-      console.log("cancelEffectSelection called"); // デバッグ用ログ
       this.isEffectSelectModalOpen = false;
-      this.$nextTick(() => {
-        console.log(
-          "isEffectSelectModalOpen after cancel:",
-          this.isEffectSelectModalOpen
-        );
-      });
     },
     switchToManualMode(combo, index) {
       if (combo.effectDescriptionMode === "auto") {
@@ -1454,17 +1490,6 @@ new Vue({
       const regex = /\[(.*?)\]/g;
       return text.replace(regex, replacer);
     },
-
-    adjustAllTextareaHeights() {
-      const textareas = this.$el.querySelectorAll(".copy-container textarea");
-      textareas.forEach(this.adjustTextareaHeight);
-    },
-    adjustTextareaHeight(textarea) {
-      if (!textarea) return;
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    },
-
     adjustAllTextareaHeights() {
       const textareas = this.$el.querySelectorAll(".copy-container textarea");
       textareas.forEach(this.adjustTextareaHeight);
@@ -1484,48 +1509,28 @@ new Vue({
 
         if (characterInfoGrid && dbSyncBlock && statusMessage) {
           const gridHeight = characterInfoGrid.offsetHeight;
-          // statusMessageの高さとmargin-bottomを考慮してdbSyncBlockの高さを調整
           const statusMessageHeight = statusMessage.offsetHeight;
           const statusMessageMarginBottom = parseInt(
             window.getComputedStyle(statusMessage).marginBottom
           );
-
-          // dbSyncBlockのpaddingを考慮
           const dbSyncBlockPaddingTop = parseInt(
             window.getComputedStyle(dbSyncBlock).paddingTop
           );
           const dbSyncBlockPaddingBottom = parseInt(
             window.getComputedStyle(dbSyncBlock).paddingBottom
           );
-
-          // db-buttonsの高さも考慮
           const dbButtons = document.querySelector(".db-buttons");
           const dbButtonsHeight = dbButtons ? dbButtons.offsetHeight : 0;
-          const dbButtonsMarginBottom = dbButtons
-            ? parseInt(window.getComputedStyle(dbButtons).marginBottom)
-            : 0;
-
-          // db-url-inputの高さも考慮
           const dbUrlInput = document.querySelector(".db-url-input");
           const dbUrlInputHeight = dbUrlInput ? dbUrlInput.offsetHeight : 0;
-          const dbUrlInputMarginBottom = dbUrlInput
-            ? parseInt(window.getComputedStyle(dbUrlInput).marginBottom)
-            : 0;
-
-          // db-sync-blockの内部の要素の合計高さを計算
-          // db-url-inputの高さ + db-buttonsの高さ + gap + padding
           const requiredHeightForDbSyncBlock =
             dbUrlInputHeight +
             dbButtonsHeight +
             15 +
             dbSyncBlockPaddingTop +
             dbSyncBlockPaddingBottom;
-
-          // characterInfoGridの高さからstatusMessageの高さを引いたものをdbSyncBlockのmin-heightに設定
-          // ただし、dbSyncBlockの元々のコンテンツの高さより小さくならないようにする
           const calculatedMinHeight =
             gridHeight - statusMessageHeight - statusMessageMarginBottom;
-
           dbSyncBlock.style.minHeight = `${Math.max(
             calculatedMinHeight,
             requiredHeightForDbSyncBlock
