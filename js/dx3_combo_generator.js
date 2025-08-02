@@ -517,6 +517,11 @@ new Vue({
       return activeTab ? activeTab.label : "";
     },
   },
+  updated() {
+    this.$nextTick(() => {
+      this.adjustAllTextareaHeights();
+    });
+  },
   watch: {
     effects: { handler: "handleEffectChange", deep: true },
     easyEffects: { handler: "handleEffectChange", deep: true },
@@ -799,7 +804,7 @@ new Vue({
               "キャラクターシートの最新データで、エフェクトとアイテムを更新しますか？\n（注意：現在作成中のコンボデータは維持されます）"
             )
           ) {
-            await this.importFromSheet(true); // マージモードで実行
+            await this.importFromSheet(true, true); // マージモード、確認スキップで実行
           }
         } else if (result.status === "not_found") {
           if (
@@ -821,13 +826,24 @@ new Vue({
         this.isBusy = false;
       }
     },
-    async importFromSheet(mergeMode = false) {
+    async importFromSheet(mergeMode = false, skipConfirmation = false) {
       if (!this.characterSheetUrl) {
         this.showStatus("キャラクターシートのURLを入力してください。", true);
         return;
       }
       this.isBusy = true;
       this.showStatus("キャラシから引用中...", false, 0);
+
+      const existingValues = new Map();
+      if (mergeMode) {
+        [...this.effects, ...this.easyEffects, ...this.items].forEach(
+          (item) => {
+            if (item.name) {
+              existingValues.set(item.name, item.values);
+            }
+          }
+        );
+      }
 
       try {
         let importedData;
@@ -854,6 +870,7 @@ new Vue({
           : `「${importedData.characterName}」のデータを新規に引用しますか？\n（現在のデータは全て上書きされます）\n\n`;
 
         if (
+          !skipConfirmation &&
           !confirm(
             confirmMessage +
               `・総経験点: ${importedData.totalXp}\n` +
@@ -877,12 +894,16 @@ new Vue({
         this.effects = (importedData.effects || []).map((e) => ({
           ...this.createDefaultEffect(),
           ...e,
-          values: this.createDefaultValues(),
+          values:
+            (mergeMode && existingValues.get(e.name)) ||
+            this.createDefaultValues(),
         }));
         this.easyEffects = (importedData.easyEffects || []).map((e) => ({
           ...this.createDefaultEffect(),
           ...e,
-          values: this.createDefaultValues(),
+          values:
+            (mergeMode && existingValues.get(e.name)) ||
+            this.createDefaultValues(),
         }));
         const defaultItem = {
           name: "",
@@ -900,7 +921,9 @@ new Vue({
         this.items = (importedData.items || []).map((i) => ({
           ...defaultItem,
           ...i,
-          values: this.createDefaultValues(),
+          values:
+            (mergeMode && existingValues.get(i.name)) ||
+            this.createDefaultValues(),
         }));
         this.items.forEach((item) => this.parseAttackFormula(item));
 
@@ -1430,6 +1453,26 @@ new Vue({
       };
       const regex = /\[(.*?)\]/g;
       return text.replace(regex, replacer);
+    },
+
+    adjustAllTextareaHeights() {
+      const textareas = this.$el.querySelectorAll(".copy-container textarea");
+      textareas.forEach(this.adjustTextareaHeight);
+    },
+    adjustTextareaHeight(textarea) {
+      if (!textarea) return;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    },
+
+    adjustAllTextareaHeights() {
+      const textareas = this.$el.querySelectorAll(".copy-container textarea");
+      textareas.forEach(this.adjustTextareaHeight);
+    },
+    adjustTextareaHeight(textarea) {
+      if (!textarea) return;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
     },
     adjustBlockHeights() {
       this.$nextTick(() => {

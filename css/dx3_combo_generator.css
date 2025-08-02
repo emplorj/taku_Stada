@@ -559,7 +559,7 @@
 
 .copy-container textarea {
   width: 100%;
-  min-height: 96px;
+  /* min-height: 96px; */
   background-color: transparent;
   border: none;
   color: #eee;
@@ -567,7 +567,8 @@
   padding-right: 50px;
   border-radius: 4px;
   box-sizing: border-box;
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   font-family: monospace;
   white-space: pre-wrap;
 }
@@ -585,10 +586,8 @@
 }
 
 .copy-container .dice-formula-textarea {
-  height: 40px !important;
-  min-height: 40px !important;
-  resize: none !important;
-  overflow: hidden !important; /* Hide scrollbar */
+  /* !important指定を削除し、基本的なスタイルを継承させる */
+  min-height: 40px;
 }
 .copy-container button:hover {
   background-color: #2980b9;
