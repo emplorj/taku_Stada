@@ -259,10 +259,15 @@ new Vue({
           });
           if (items && itemKey) {
             items.forEach((item) => {
-              const value = Number(item.values?.[valueKey]?.base) || 0;
+              if (!item.values?.[valueKey]) return;
+              const effectiveLevel =
+                (Number(item.level) || 0) + comboLevelBonus;
+              const base = Number(item.values[valueKey].base) || 0;
+              const perLevel = Number(item.values[valueKey].perLevel) || 0;
+              const value = base + effectiveLevel * perLevel;
               if (value !== 0) {
                 total += value;
-                breakdown.push(`${item.name}: ${value}`);
+                breakdown.push(`${item.name}(Lv${effectiveLevel}): ${value}`);
               }
             });
           }
@@ -270,24 +275,12 @@ new Vue({
         };
         const diceResult = calcResult("dice", relevantItems, "dice");
         const achieveResult = calcResult("achieve", relevantItems, "achieve");
-        const effectAtkResult = calcResult("attack", [], null);
-        let totalAtk = (combo.atk_weapon || 0) + effectAtkResult.total;
+        const atkResult = calcResult("attack", relevantItems, "attack");
+        let totalAtk = (combo.atk_weapon || 0) + atkResult.total;
         const atkBreakdown = [
           `武器ATK: ${combo.atk_weapon || 0}`,
-          effectAtkResult.breakdown,
+          atkResult.breakdown,
         ].filter(Boolean);
-        relevantItems.forEach((item) => {
-          let atk = 0;
-          try {
-            atk = this.evaluateValue(item.attack, item.level);
-          } catch (e) {
-            /* attackが計算できない文字列の場合は何もしない */
-          }
-          if (atk !== 0) {
-            totalAtk += atk;
-            atkBreakdown.push(`${item.name}: ${atk}`);
-          }
-        });
         let critTotal = 10;
         const critBreakdown = [];
         [...relevantEffects, ...relevantItems].forEach((source) => {
@@ -527,9 +520,96 @@ new Vue({
   watch: {
     effects: { handler: "handleEffectChange", deep: true },
     easyEffects: { handler: "handleEffectChange", deep: true },
-    items: { handler: "handleItemChange", deep: true },
+    "editingEffect.values.attack": {
+      handler(newValue, oldValue) {
+        if (
+          this.editingEffectType === "item" &&
+          this.editingEffect &&
+          newValue
+        ) {
+          this.updateAttackFormula(this.editingEffect);
+        }
+      },
+      deep: true,
+    },
   },
   methods: {
+    parseAttackFormula(item) {
+      if (!item || typeof item.attack !== "string") return;
+      const formula = item.attack.replace(/\s/g, "");
+
+      if (formula === "") {
+        this.$set(item.values.attack, "base", 0);
+        this.$set(item.values.attack, "perLevel", 0);
+        return;
+      }
+
+      let base = 0;
+      let perLevel = 0;
+
+      try {
+        // LVを0として評価し、baseを計算
+        const baseFormula = formula.replace(/lv/gi, "(0)");
+        const sanitizedBaseFormula = baseFormula.replace(/[^-()\d/*+.]/g, "");
+        if (sanitizedBaseFormula) {
+          base = new Function("return " + sanitizedBaseFormula)();
+        }
+      } catch (e) {
+        base = 0;
+      }
+
+      try {
+        // LVを1として評価し、そこからbaseを引いてperLevelを計算
+        const perLevelFormula = formula.replace(/lv/gi, "(1)");
+        const sanitizedPerLevelFormula = perLevelFormula.replace(
+          /[^-()\d/*+.]/g,
+          ""
+        );
+        if (sanitizedPerLevelFormula) {
+          const totalAtLv1 = new Function(
+            "return " + sanitizedPerLevelFormula
+          )();
+          perLevel = totalAtLv1 - base;
+        }
+      } catch (e) {
+        perLevel = 0;
+      }
+
+      if (isNaN(base)) base = 0;
+      if (isNaN(perLevel)) perLevel = 0;
+
+      // watcherがループしないように、値が異なる場合のみ更新
+      if (item.values.attack.base !== base) {
+        this.$set(item.values.attack, "base", base);
+      }
+      if (item.values.attack.perLevel !== perLevel) {
+        this.$set(item.values.attack, "perLevel", perLevel);
+      }
+    },
+    updateAttackFormula(item) {
+      if (!item || !item.values || !item.values.attack) return;
+      const { base, perLevel } = item.values.attack;
+      let formula = "";
+
+      if (perLevel !== 0) {
+        if (perLevel === 1) formula += "LV";
+        else if (perLevel === -1) formula += "-LV";
+        else formula += `LV*${perLevel}`;
+      }
+
+      if (base !== 0) {
+        if (formula !== "" && base > 0) {
+          formula += `+${base}`;
+        } else {
+          formula += `${base}`;
+        }
+      }
+
+      // watcherがループしないように、値が異なる場合のみ更新
+      if (item.attack !== formula) {
+        this.$set(item, "attack", formula);
+      }
+    },
     handleEffectChange(newEffects, oldEffects) {
       if (!newEffects) return;
       newEffects.forEach((effect, index) => {
@@ -545,31 +625,6 @@ new Vue({
             effect.values.crit.base = 10;
             effect.values.crit.perLevel = 1;
             effect.values.crit.min = 7;
-          }
-        }
-      });
-    },
-    handleItemChange(newItems, oldItems) {
-      if (!newItems) return;
-      newItems.forEach((item, index) => {
-        const oldName = oldItems?.[index]?.name;
-        const newName = item.name;
-        if (newName && newName !== oldName) {
-          const matchedEffect = [...this.effects, ...this.easyEffects].find(
-            (e) => e.name === newName
-          );
-          if (matchedEffect) {
-            if (matchedEffect.level) {
-              this.$set(item, "level", matchedEffect.level);
-            }
-            if (matchedEffect.effect) {
-              const atkMatch = matchedEffect.effect.match(
-                /攻撃力.*?\[(LV\*?\d+\+?\d+)\]/
-              );
-              if (atkMatch && atkMatch) {
-                this.$set(item, "attack", atkMatch);
-              }
-            }
           }
         }
       });
@@ -706,13 +761,9 @@ new Vue({
       }
     },
     async loadFromDb() {
-      if (
-        !this.validateInputs() ||
-        !this.gasWebAppUrl.startsWith("https://script.google.com/")
-      )
-        return;
+      if (!this.validateInputs()) return;
       this.isBusy = true;
-      this.showStatus("読み込み中...", false, 0);
+      this.showStatus("DBにアクセス中...", false, 0);
       const url = new URL(this.gasWebAppUrl);
       url.searchParams.append("id", this.characterSheetUrl);
       try {
@@ -732,33 +783,52 @@ new Vue({
             ...e,
             values: e.values || this.createDefaultValues(),
           }));
-          this.items = d.items || [];
-          this.combos = (d.combos || []).map((c) => {
-            const defaults = this.createDefaultCombo();
-            return { ...defaults, ...c };
-          });
-          this.showStatus("読み込みが完了しました。");
+          this.items = (d.items || []).map((i) => ({
+            ...i,
+            values: i.values || this.createDefaultValues(),
+          }));
+          this.items.forEach((item) => this.parseAttackFormula(item));
+          this.combos = (d.combos || []).map((c) => ({
+            ...this.createDefaultCombo(),
+            ...c,
+          }));
+          this.showStatus("DBからデータを読み込みました。");
+
+          if (
+            confirm(
+              "キャラクターシートの最新データで、エフェクトとアイテムを更新しますか？\n（注意：現在作成中のコンボデータは維持されます）"
+            )
+          ) {
+            await this.importFromSheet(true); // マージモードで実行
+          }
         } else if (result.status === "not_found") {
-          this.showStatus(
-            "このURLのデータは見つかりませんでした。新規に作成して「保存」できます。"
-          );
+          if (
+            confirm(
+              "DBにデータがありません。\nキャラクターシートから新規にデータを引用しますか？"
+            )
+          ) {
+            await this.importFromSheet(false); // 新規モードで実行
+          } else {
+            this.showStatus("操作をキャンセルしました。");
+          }
         } else {
           throw new Error(result.message || "不明なエラー");
         }
       } catch (error) {
-        console.error("Load Error:", error);
-        this.showStatus(`読込エラー: ${error.message}`, true);
+        console.error("Load/Import Error:", error);
+        this.showStatus(`エラー: ${error.message}`, true);
       } finally {
         this.isBusy = false;
       }
     },
-    async importFromSheet() {
+    async importFromSheet(mergeMode = false) {
       if (!this.characterSheetUrl) {
         this.showStatus("キャラクターシートのURLを入力してください。", true);
         return;
       }
       this.isBusy = true;
       this.showStatus("キャラシから引用中...", false, 0);
+
       try {
         let importedData;
         if (this.characterSheetUrl.includes("yutorize.2-d.jp")) {
@@ -768,32 +838,28 @@ new Vue({
         } else if (
           this.characterSheetUrl.includes("charasheet.vampire-blood.net")
         ) {
-          if (
-            !this.gasWebAppUrl ||
-            !this.gasWebAppUrl.startsWith("https://script.google.com/")
-          ) {
-            throw new Error(
-              "GASのURLが設定されていません。JSファイルを編集してください。"
-            );
-          }
           importedData = await this.importFromHokanjo_gas(
             this.characterSheetUrl
           );
         } else {
           throw new Error("サポートされていないURLです。");
         }
+
         const effectsCount = (importedData.effects || []).length;
         const easyEffectsCount = (importedData.easyEffects || []).length;
-        const itemsCount = (importedData.items || []).length; // ★アイテム数を取得
+        const itemsCount = (importedData.items || []).length;
+
+        const confirmMessage = mergeMode
+          ? `以下の内容でエフェクトとアイテムを上書きしますか？\n（コンボデータは維持されます）\n\n`
+          : `「${importedData.characterName}」のデータを新規に引用しますか？\n（現在のデータは全て上書きされます）\n\n`;
 
         if (
           !confirm(
-            `「${importedData.characterName}」のデータを引用します。\n\n` +
+            confirmMessage +
               `・総経験点: ${importedData.totalXp}\n` +
               `・エフェクト: ${effectsCount}件\n` +
               `・イージーエフェクト: ${easyEffectsCount}件\n` +
-              `・アイテム: ${itemsCount}件\n\n` + // ★確認ダイアログにアイテム数を表示
-              `現在のデータは上書きされます。よろしいですか？`
+              `・アイテム: ${itemsCount}件`
           )
         ) {
           this.showStatus("引用をキャンセルしました。");
@@ -801,8 +867,13 @@ new Vue({
           return;
         }
 
-        this.characterName = importedData.characterName;
-        this.totalXp = importedData.totalXp;
+        // マージモードでない場合のみ、基本情報とコンボをリセット
+        if (!mergeMode) {
+          this.characterName = importedData.characterName;
+          this.totalXp = importedData.totalXp;
+          this.combos = []; // コンボをリセット
+        }
+
         this.effects = (importedData.effects || []).map((e) => ({
           ...this.createDefaultEffect(),
           ...e,
@@ -813,8 +884,6 @@ new Vue({
           ...e,
           values: this.createDefaultValues(),
         }));
-
-        // ★★★ ここから追加 ★★★
         const defaultItem = {
           name: "",
           level: 1,
@@ -833,9 +902,13 @@ new Vue({
           ...i,
           values: this.createDefaultValues(),
         }));
-        // ★★★ ここまで追加 ★★★
+        this.items.forEach((item) => this.parseAttackFormula(item));
 
-        this.showStatus("キャラクターシートからデータを引用しました！");
+        this.showStatus(
+          mergeMode
+            ? "エフェクトとアイテムを更新しました！"
+            : "キャラクターシートからデータを引用しました！"
+        );
       } catch (error) {
         console.error("Import Error:", error);
         this.showStatus(`引用エラー: ${error.message}`, true, 6000);
@@ -1068,20 +1141,12 @@ new Vue({
         top: `${rect.bottom + window.scrollY + 5}px`,
         left: `${rect.left + window.scrollX - 250}px`,
       };
-      if (type === "item") {
-        this.modalTabs = [
-          { key: "dice", label: "ダイス" },
-          { key: "crit", label: "C値" },
-          { key: "achieve", label: "達成値" },
-        ];
-      } else {
-        this.modalTabs = [
-          { key: "dice", label: "ダイス" },
-          { key: "crit", label: "C値" },
-          { key: "achieve", label: "達成値" },
-          { key: "attack", label: "ATK" },
-        ];
-      }
+      this.modalTabs = [
+        { key: "dice", label: "ダイス" },
+        { key: "crit", label: "C値" },
+        { key: "achieve", label: "達成値" },
+        { key: "attack", label: "ATK" },
+      ];
       this.isPanelOpen = true;
       this.activeModalTab = "dice";
     },
