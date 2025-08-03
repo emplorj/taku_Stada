@@ -280,17 +280,21 @@ new Vue({
             if (!source.values?.[valueKey]) return;
             const effectiveLevel =
               (Number(source.level) || 0) + comboLevelBonus;
-            const base = Number(source.values[valueKey].base) || 0;
+            const baseParsed = this.evaluateDiceString(
+              String(source.values[valueKey].base || "0")
+            );
             const perLevel = Number(source.values[valueKey].perLevel) || 0;
-            const value = base + effectiveLevel * perLevel;
+            const finalValue = {
+              dice: baseParsed.dice,
+              fixed: baseParsed.fixed + effectiveLevel * perLevel,
+            };
 
-            if (value !== 0) {
-              const parsed = this.evaluateDiceString(String(value));
-              totalDice += parsed.dice;
-              totalFixed += parsed.fixed;
+            if (finalValue.dice !== 0 || finalValue.fixed !== 0) {
+              totalDice += finalValue.dice;
+              totalFixed += finalValue.fixed;
               breakdown.push(
                 `${source.name}(Lv${effectiveLevel}): ${this.formatDiceString(
-                  parsed
+                  finalValue
                 )}`
               );
             }
@@ -412,10 +416,9 @@ new Vue({
           交渉: "社会",
         };
         const abilityName = skillToAbilityMap[primarySkill] || "能力値";
-        const totalDiceBonus =
-          (combo.baseAbility.value || 0) + diceResult.total;
+        const totalDiceBonus = (combo.baseAbility.value || 0) + diceResult.dice;
 
-        const diceFormula = `({${abilityName}}+{侵蝕率D}+${diceResult.total})DX${critTotal}+${combo.baseAbility.value}+${achieveResult.total}`;
+        const diceFormula = `({${abilityName}}+{侵蝕率D}+${diceResult.dice})DX${critTotal}+${combo.baseAbility.value}+${achieveResult.fixed}`;
 
         // 対象と射程の自動計算
         const targetOrder = [
@@ -530,11 +533,11 @@ new Vue({
         };
         return {
           ...combo,
-          totalDice: diceResult.total,
+          totalDice: diceResult.dice,
           diceBreakdown: diceResult.breakdown,
           finalCrit: critTotal,
           critBreakdown: critBreakdown.join("\n"),
-          totalAchieve: achieveResult.total,
+          totalAchieve: achieveResult.fixed,
           achieveBreakdown: achieveResult.breakdown,
           totalAtk: this.formatDiceString({
             dice: totalAtkDice,
