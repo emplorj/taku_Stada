@@ -261,6 +261,14 @@ new Vue({
     processedCombos() {
       const allEffects = [...this.effects, ...this.easyEffects];
       const allItems = this.items;
+
+      const skillToAbilityMap = {
+        白兵: "肉体",
+        射撃: "感覚",
+        RC: "精神",
+        交渉: "社会",
+      };
+
       return this.combos.map((combo) => {
         const comboLevelBonus = combo.comboLevelBonus || 0;
         const relevantEffects = (combo.effectNames || [])
@@ -405,20 +413,23 @@ new Vue({
           )
           .filter(Boolean)
           .join("\n");
-        const primarySkill =
+        let primarySkill =
           relevantEffects.find((e) => e.skill)?.skill ||
           combo.baseAbility.skill;
 
-        const skillToAbilityMap = {
-          白兵: "肉体",
-          射撃: "感覚",
-          RC: "精神",
-          交渉: "社会",
-        };
-        const abilityName = skillToAbilityMap[primarySkill] || "能力値";
-        const totalDiceBonus = (combo.baseAbility.value || 0) + diceResult.dice;
+        // primarySkill が skillToAbilityMap に存在しない場合、combo.baseAbility.skill を最終的な primarySkill とする
+        if (
+          !this.dropdownOptions.skill.includes(primarySkill) ||
+          !skillToAbilityMap[primarySkill]
+        ) {
+          primarySkill = combo.baseAbility.skill;
+        }
 
-        const diceFormula = `({${abilityName}}+{侵蝕率D}+${diceResult.dice})DX${critTotal}+${combo.baseAbility.value}+${achieveResult.fixed}`;
+        const abilityName = skillToAbilityMap[primarySkill] || "能力値";
+        const totalDiceForFormula =
+          diceResult.dice + (combo.baseAbility.value || 0);
+
+        const diceFormula = `({${abilityName}}+{侵蝕率D}+${totalDiceForFormula})DX${critTotal}+${achieveResult.fixed}`;
 
         // 対象と射程の自動計算
         const targetOrder = [
@@ -533,7 +544,7 @@ new Vue({
         };
         return {
           ...combo,
-          totalDice: diceResult.dice,
+          totalDice: diceResult.dice + (combo.baseAbility.value || 0),
           diceBreakdown: diceResult.breakdown,
           finalCrit: critTotal,
           critBreakdown: critBreakdown.join("\n"),
