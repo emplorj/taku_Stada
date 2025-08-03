@@ -129,7 +129,7 @@ new Vue({
         "情報",
         "効果参照",
       ],
-      baseSkillSelect: ["白兵", "射撃", "RC", "交渉"],
+      baseSkillSelect: ["-", "白兵", "射撃", "RC", "交渉"],
       timing: [
         "オート",
         "マイナー",
