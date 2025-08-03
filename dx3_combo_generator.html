@@ -334,6 +334,10 @@
           <label class="combo-level-select">コンボLv:<select v-model.number="combos[index].comboLevelBonus">
               <option v-for="n in 6" :value="n-1">+{{ n-1 }}</option>
             </select></label>
+          <button @click="moveComboUp(index)" class="move-btn" :disabled="index === 0" title="上へ移動"><i
+              class="fa-solid fa-arrow-up"></i></button>
+          <button @click="moveComboDown(index)" class="move-btn" :disabled="index === processedCombos.length - 1"
+            title="下へ移動"><i class="fa-solid fa-arrow-down"></i></button>
           <button @click="removeCombo(index)" class="delete-btn"><i class="fa-solid fa-trash"></i></button>
         </div>
         <div class="combo-stats-bar">
@@ -433,18 +437,28 @@
           <div class="modal-tab-content">
             <div v-show="activeModalTab !== 'crit'" class="panel-grid">
               <div class="input-group">
-                <label>{{ activeModalTabLabel }} 基本値: <span class="input-example">(例: <span
-                      class="color-base">+X</span>)</span></label>
+                <label>{{ activeModalTabLabel }} 基本値: <span class="input-example">(例: [LV*2<span
+                      class="color-base">+4]</span>)</span></label>
                 <div class="input-with-addon">
-                  <input type="text" v-model="editingEffect.values[activeModalTab].base">
-                  <label v-if="activeModalTab === 'attack'"><input type="checkbox"
-                      v-model="editingEffect.values.attack.isDiceInput"> D</label>
+                  <input type="number" v-model.number="editingEffect.values[activeModalTab].base">
+                  <button
+                    v-if="activeModalTab === 'dice' || activeModalTab === 'achieve' || activeModalTab === 'attack'"
+                    @click.stop="editingEffect.values[activeModalTab].isDiceInput = !editingEffect.values[activeModalTab].isDiceInput"
+                    :class="{active: editingEffect.values[activeModalTab].isDiceInput}" class="dice-toggle-btn"
+                    title="クリックでダイス表記のON/OFFを切替">D</button>
                 </div>
               </div>
               <div class="input-group">
-                <label>{{ activeModalTabLabel }} Lv毎加算: <span class="input-example">(例: <span
-                      class="color-per-level">LV×N</span>)</span></label>
-                <input type="text" v-model="editingEffect.values[activeModalTab].perLevel">
+                <label>{{ activeModalTabLabel }} Lv毎加算: <span class="input-example">(例: [LV*<span
+                      class="color-per-level">2</span>+4])</span></label>
+                <div class="input-with-addon">
+                  <input type="number" v-model.number="editingEffect.values[activeModalTab].perLevel">
+                  <button
+                    v-if="activeModalTab === 'dice' || activeModalTab === 'achieve' || activeModalTab === 'attack'"
+                    @click.stop="editingEffect.values[activeModalTab].isPerLevelDiceInput = !editingEffect.values[activeModalTab].isPerLevelDiceInput"
+                    :class="{active: editingEffect.values[activeModalTab].isPerLevelDiceInput}" class="dice-toggle-btn"
+                    title="クリックでダイス表記のON/OFFを切替">D</button>
+                </div>
               </div>
             </div>
             <div v-show="activeModalTab === 'crit'">

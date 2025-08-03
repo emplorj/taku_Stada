@@ -621,7 +621,7 @@
   border: 1px solid #555;
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  width: 320px;
+  width: 340px;
 }
 .panel-header,
 .modal-header {
@@ -694,7 +694,7 @@
 }
 .panel-grid .input-group {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 120px 1fr; /* ラベルの幅を固定し、入力フィールドが残りのスペースを埋める */
   gap: 10px;
   align-items: center;
 }
@@ -724,12 +724,29 @@
   font-weight: bold;
 }
 .input-with-addon {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 30px; /* 入力フィールドが可変、Dボタンのスペースを30pxに固定 */
   align-items: center;
-  gap: 5px;
+  gap: 0; /* Dボタンと入力フィールドの間のスペースをなくす */
 }
-.input-with-addon input[type="checkbox"] {
-  margin-right: 5px;
+.input-with-addon .dice-toggle-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.8em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0; /* ボタンが縮まないようにする */
+}
+
+.input-with-addon .dice-toggle-btn.active {
+  background-color: #2ecc71;
+}
+
+.input-with-addon .dice-toggle-btn:hover:not(:disabled) {
+  opacity: 0.8;
 }
 .floating-panel .input-group input {
   max-width: 42px;

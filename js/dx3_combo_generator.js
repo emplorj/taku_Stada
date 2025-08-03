@@ -291,10 +291,13 @@ new Vue({
             const baseParsed = this.evaluateDiceString(
               String(source.values[valueKey].base || "0")
             );
-            const perLevel = Number(source.values[valueKey].perLevel) || 0;
+            const perLevelParsed = this.evaluateDiceString(
+              String(source.values[valueKey].perLevel || "0")
+            );
+
             const finalValue = {
-              dice: baseParsed.dice,
-              fixed: baseParsed.fixed + effectiveLevel * perLevel,
+              dice: baseParsed.dice + effectiveLevel * perLevelParsed.dice,
+              fixed: baseParsed.fixed + effectiveLevel * perLevelParsed.fixed,
             };
 
             if (finalValue.dice !== 0 || finalValue.fixed !== 0) {
@@ -1193,7 +1196,12 @@ new Vue({
     createDefaultValues() {
       const values = {};
       this.modalTabs.forEach((tab) => {
-        values[tab.key] = { base: 0, perLevel: 0, isDiceInput: false };
+        values[tab.key] = {
+          base: 0,
+          perLevel: 0,
+          isDiceInput: false,
+          isPerLevelDiceInput: false,
+        };
       });
       values.crit.base = 0;
       values.crit.min = 10;
@@ -1268,6 +1276,23 @@ new Vue({
     },
     removeCombo(index) {
       this.combos.splice(index, 1);
+      this.setDataDirty();
+    },
+    moveComboUp(index) {
+      if (index > 0) {
+        const combo = this.combos[index];
+        this.combos.splice(index, 1);
+        this.combos.splice(index - 1, 0, combo);
+        this.setDataDirty();
+      }
+    },
+    moveComboDown(index) {
+      if (index < this.combos.length - 1) {
+        const combo = this.combos[index];
+        this.combos.splice(index, 1);
+        this.combos.splice(index + 1, 0, combo);
+        this.setDataDirty();
+      }
     },
     evaluateDiceString(str, level = 0) {
       if (typeof str !== "string" && typeof str !== "number") {
@@ -1340,16 +1365,32 @@ new Vue({
     openEffectPanel(event, source, type, index) {
       this.editingEffect = JSON.parse(JSON.stringify(source));
 
-      // "D"が含まれているかチェックしてisDiceInputをセット
-      const attackBase = this.editingEffect.values.attack.base;
-      if (attackBase && String(attackBase).toUpperCase().includes("D")) {
-        this.editingEffect.values.attack.isDiceInput = true;
-        this.editingEffect.values.attack.base = String(attackBase)
-          .toUpperCase()
-          .replace("D", "");
-      } else {
-        this.editingEffect.values.attack.isDiceInput = false;
-      }
+      this.modalTabs.forEach((tab) => {
+        if (tab.key !== "crit") {
+          const baseValue = String(
+            this.editingEffect.values[tab.key].base || "0"
+          );
+          const parsedBase = this.evaluateDiceString(baseValue);
+          this.editingEffect.values[tab.key].isDiceInput = parsedBase.dice > 0;
+          if (parsedBase.dice > 0) {
+            this.editingEffect.values[tab.key].base = parsedBase.dice;
+          } else {
+            this.editingEffect.values[tab.key].base = parsedBase.fixed;
+          }
+
+          const perLevelValue = String(
+            this.editingEffect.values[tab.key].perLevel || "0"
+          );
+          const parsedPerLevel = this.evaluateDiceString(perLevelValue);
+          this.editingEffect.values[tab.key].isPerLevelDiceInput =
+            parsedPerLevel.dice > 0;
+          if (parsedPerLevel.dice > 0) {
+            this.editingEffect.values[tab.key].perLevel = parsedPerLevel.dice;
+          } else {
+            this.editingEffect.values[tab.key].perLevel = parsedPerLevel.fixed;
+          }
+        }
+      });
 
       this.editingEffectType = type;
       this.editingEffectIndex = index;
@@ -1369,20 +1410,27 @@ new Vue({
     },
     closeEffectPanel() {
       if (this.editingEffect) {
-        // "D"チェックボックスの状態に応じて値を更新
-        if (this.editingEffect.values.attack.isDiceInput) {
-          const baseValue = this.editingEffect.values.attack.base;
-          if (baseValue && !String(baseValue).toUpperCase().includes("D")) {
-            this.editingEffect.values.attack.base = `${baseValue}D`;
+        this.modalTabs.forEach((tab) => {
+          if (tab.key !== "crit") {
+            if (this.editingEffect.values[tab.key].isDiceInput) {
+              this.editingEffect.values[tab.key].base = `${
+                this.editingEffect.values[tab.key].base
+              }D`;
+            } else {
+              this.editingEffect.values[tab.key].base =
+                Number(this.editingEffect.values[tab.key].base) || 0;
+            }
+
+            if (this.editingEffect.values[tab.key].isPerLevelDiceInput) {
+              this.editingEffect.values[tab.key].perLevel = `${
+                this.editingEffect.values[tab.key].perLevel
+              }D`;
+            } else {
+              this.editingEffect.values[tab.key].perLevel =
+                Number(this.editingEffect.values[tab.key].perLevel) || 0;
+            }
           }
-        } else {
-          const baseValue = this.editingEffect.values.attack.base;
-          if (baseValue && String(baseValue).toUpperCase().includes("D")) {
-            this.editingEffect.values.attack.base = String(baseValue)
-              .toUpperCase()
-              .replace("D", "");
-          }
-        }
+        });
 
         if (this.editingEffectType === "effect") {
           this.$set(this.effects, this.editingEffectIndex, this.editingEffect);
