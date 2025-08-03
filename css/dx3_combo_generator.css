@@ -62,6 +62,9 @@
 .db-buttons button.btn-import {
   background-color: #9b59b6;
 }
+.db-buttons button.btn-share {
+  background-color: #f39c12;
+}
 .db-buttons button.btn-save {
   background-color: #2ecc71;
 }

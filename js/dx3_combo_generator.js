@@ -77,6 +77,7 @@ new Vue({
     characterSheetUrl: "",
     isBusy: false,
     statusMessage: "",
+    shareUrl: "", // 共有URLを追加
     statusIsError: false,
     isDirty: false,
     characterName: "",
@@ -206,6 +207,24 @@ new Vue({
     this.addCombo();
     this.$nextTick(() => {
       this.isDirty = false;
+      // URLからキャラクターシートURLを読み込む
+      const urlParams = new URLSearchParams(window.location.search);
+      const shortUrl = urlParams.get("url");
+      if (shortUrl) {
+        let fullUrl = "";
+        if (shortUrl.startsWith("v-")) {
+          fullUrl = `https://charasheet.vampire-blood.net/${shortUrl.substring(
+            2
+          )}`;
+        } else if (shortUrl.startsWith("y-")) {
+          fullUrl = `https://yutorize.2-d.jp/ytsheet/dx3rd/?id=${shortUrl.substring(
+            2
+          )}`;
+        }
+        this.characterSheetUrl = fullUrl;
+        this.loadFromDb(); // URLがあれば自動で読み込みを試みる
+      }
+      this.generateShareUrl(); // 初期共有URLを生成
     });
   },
   computed: {
@@ -538,10 +557,16 @@ new Vue({
       handler: function (newVal, oldVal) {
         this.setDataDirty();
       },
-      deep: true
+      deep: true,
     },
     // ▲▲▲ ここまで修正 ▲▲▲
     combos: { handler: "setDataDirty", deep: true },
+    characterSheetUrl: {
+      handler: function (newVal, oldVal) {
+        this.setDataDirty();
+        this.generateShareUrl(); // characterSheetUrlが変更されたら共有URLを更新
+      },
+    },
     "editingEffect.values.attack": {
       handler(newValue, oldValue) {
         if (
@@ -566,12 +591,12 @@ new Vue({
     updateAndSyncLevel(sourceType, index, value) {
       const newLevel = Number(value);
       if (isNaN(newLevel)) return;
-      
+
       const item = this[sourceType][index];
       if (!item || Number(item.level) === newLevel) return;
 
       // 変更されたアイテムのレベルを更新
-      this.$set(item, 'level', newLevel);
+      this.$set(item, "level", newLevel);
 
       // 同期処理を呼び出す
       this.syncEffectAndItemLevels(item.name, newLevel);
@@ -589,9 +614,9 @@ new Vue({
       };
 
       for (const listName in listsToSync) {
-        listsToSync[listName].forEach(item => {
+        listsToSync[listName].forEach((item) => {
           if (item.name === changedName && Number(item.level) !== newLevel) {
-            this.$set(item, 'level', newLevel);
+            this.$set(item, "level", newLevel);
           }
         });
       }
@@ -601,9 +626,13 @@ new Vue({
       const item = this[sourceType][index];
       if (!item || item.name === newName) return;
 
-      this.$set(item, 'name', newName);
+      this.$set(item, "name", newName);
 
-      const existingItem = [...this.effects, ...this.easyEffects, ...this.items].find(i => i.name === newName && i !== item);
+      const existingItem = [
+        ...this.effects,
+        ...this.easyEffects,
+        ...this.items,
+      ].find((i) => i.name === newName && i !== item);
       if (existingItem) {
         this.syncEffectAndItemLevels(newName, existingItem.level);
       }
@@ -1537,6 +1566,29 @@ new Vue({
           )}px`;
         }
       });
+    },
+    generateShareUrl() {
+      if (this.characterSheetUrl) {
+        let shortUrl = "";
+        try {
+          const url = new URL(this.characterSheetUrl);
+          if (url.hostname.includes("charasheet.vampire-blood.net")) {
+            const pathId = url.pathname.split("/").pop();
+            shortUrl = `v-${pathId}`;
+          } else if (url.hostname.includes("yutorize.2-d.jp")) {
+            const queryId = url.searchParams.get("id");
+            shortUrl = `y-${queryId}`;
+          }
+        } catch (e) {
+          // 不正なURLの場合は従来通りエンコード
+          shortUrl = encodeURIComponent(this.characterSheetUrl);
+        }
+
+        const baseUrl = window.location.origin + window.location.pathname;
+        this.shareUrl = `${baseUrl}?url=${shortUrl}`;
+      } else {
+        this.shareUrl = "";
+      }
     },
   },
 });

@@ -148,6 +148,8 @@
                   class="fas fa-cloud-download-alt"></i> 読込/引用</button>
               <button @click="overwriteSave" class="btn-save" :disabled="isBusy" title="上書き保存"><i
                   class="fas fa-save"></i> 保存</button>
+              <button @click="copyToClipboard(shareUrl, $event)" class="btn-share" :disabled="!shareUrl"
+                title="共有URLをコピー"><i class="fas fa-share-nodes"></i> 共有</button>
               <button @click="deleteFromDb" class="btn-delete" :disabled="isBusy" title="削除"><i
                   class="fas fa-trash-alt"></i> 削除</button>
             </div>
@@ -194,8 +196,10 @@
           </thead>
           <tbody>
             <tr v-for="(effect, index) in effects">
-              <td><input type="text" :value="effect.name" @change="updateNameAndSync('effects', index, $event.target.value)"></td>
-              <td class="text-right"><input type="number" :value="effect.level" @input="updateAndSyncLevel('effects', index, $event.target.value)" min="1" class="text-right"></td>
+              <td><input type="text" :value="effect.name"
+                  @change="updateNameAndSync('effects', index, $event.target.value)"></td>
+              <td class="text-right"><input type="number" :value="effect.level"
+                  @input="updateAndSyncLevel('effects', index, $event.target.value)" min="1" class="text-right"></td>
               <td class="text-right"><input type="number" v-model.number="effect.maxLevel" min="1" class="text-right">
               </td>
               <td><input-with-dropdown v-model="effect.timing" :options="dropdownOptions.timing"></input-with-dropdown>
@@ -247,8 +251,11 @@
           </thead>
           <tbody>
             <tr v-for="(ee, index) in easyEffects">
-              <td><input type="text" :value="ee.name" @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
-              <td class="text-right"><input type="number" :value="ee.level" @input="updateAndSyncLevel('easyEffects', index, $event.target.value)" min="1" class="text-right"></td>
+              <td><input type="text" :value="ee.name"
+                  @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
+              <td class="text-right"><input type="number" :value="ee.level"
+                  @input="updateAndSyncLevel('easyEffects', index, $event.target.value)" min="1" class="text-right">
+              </td>
               <td class="text-right"><input type="number" v-model.number="ee.maxLevel" min="1" class="text-right"></td>
               <td><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing"></input-with-dropdown></td>
               <td><input-with-dropdown v-model="ee.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
@@ -294,8 +301,10 @@
           </thead>
           <tbody>
             <tr v-for="(item, index) in items">
-              <td><input type="text" :value="item.name" @change="updateNameAndSync('items', index, $event.target.value)"></td>
-              <td class="text-right"><input type="number" :value="item.level" @input="updateAndSyncLevel('items', index, $event.target.value)" min="1" class="text-right"></td>
+              <td><input type="text" :value="item.name"
+                  @change="updateNameAndSync('items', index, $event.target.value)"></td>
+              <td class="text-right"><input type="number" :value="item.level"
+                  @input="updateAndSyncLevel('items', index, $event.target.value)" min="1" class="text-right"></td>
               <td><input type="text" v-model="item.type"></td>
               <td><input-with-dropdown v-model="item.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
               <td><input type="text" v-model="item.accuracy" class="text-right"></td>
