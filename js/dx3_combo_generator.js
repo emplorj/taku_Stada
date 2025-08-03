@@ -80,6 +80,7 @@ new Vue({
     shareUrl: "", // 共有URLを追加
     statusIsError: false,
     isDirty: false,
+    isInitializing: true,
     characterName: "",
     totalXp: 130,
     otherXp: 0,
@@ -222,9 +223,13 @@ new Vue({
           )}`;
         }
         this.characterSheetUrl = fullUrl;
-        this.loadFromDb(); // URLがあれば自動で読み込みを試みる
+        this.loadFromDb(true); // URLがあれば確認なしで読み込みを試みる
       }
       this.generateShareUrl(); // 初期共有URLを生成
+      this.$nextTick(() => {
+        this.isInitializing = false;
+        this.isDirty = false;
+      });
     });
   },
   computed: {
@@ -267,42 +272,50 @@ new Vue({
           )
           .filter(Boolean);
         const calcResult = (valueKey, items, itemKey) => {
-          let total = 0;
+          let totalDice = 0;
+          let totalFixed = 0;
           const breakdown = [];
-          relevantEffects.forEach((effect) => {
-            if (!effect.values?.[valueKey]) return;
+
+          const processSource = (source) => {
+            if (!source.values?.[valueKey]) return;
             const effectiveLevel =
-              (Number(effect.level) || 0) + comboLevelBonus;
-            const base = Number(effect.values[valueKey].base) || 0;
-            const perLevel = Number(effect.values[valueKey].perLevel) || 0;
+              (Number(source.level) || 0) + comboLevelBonus;
+            const base = Number(source.values[valueKey].base) || 0;
+            const perLevel = Number(source.values[valueKey].perLevel) || 0;
             const value = base + effectiveLevel * perLevel;
+
             if (value !== 0) {
-              total += value;
-              breakdown.push(`${effect.name}(Lv${effectiveLevel}): ${value}`);
+              const parsed = this.evaluateDiceString(String(value));
+              totalDice += parsed.dice;
+              totalFixed += parsed.fixed;
+              breakdown.push(
+                `${source.name}(Lv${effectiveLevel}): ${this.formatDiceString(
+                  parsed
+                )}`
+              );
             }
-          });
+          };
+
+          relevantEffects.forEach(processSource);
           if (items && itemKey) {
-            items.forEach((item) => {
-              if (!item.values?.[valueKey]) return;
-              const effectiveLevel =
-                (Number(item.level) || 0) + comboLevelBonus;
-              const base = Number(item.values[valueKey].base) || 0;
-              const perLevel = Number(item.values[valueKey].perLevel) || 0;
-              const value = base + effectiveLevel * perLevel;
-              if (value !== 0) {
-                total += value;
-                breakdown.push(`${item.name}(Lv${effectiveLevel}): ${value}`);
-              }
-            });
+            items.forEach(processSource);
           }
-          return { total, breakdown: breakdown.join("\n") };
+
+          return {
+            dice: totalDice,
+            fixed: totalFixed,
+            breakdown: breakdown.join("\n"),
+          };
         };
         const diceResult = calcResult("dice", relevantItems, "dice");
         const achieveResult = calcResult("achieve", relevantItems, "achieve");
         const atkResult = calcResult("attack", relevantItems, "attack");
-        let totalAtk = (combo.atk_weapon || 0) + atkResult.total;
+        const weaponAtk = this.evaluateDiceString(combo.atk_weapon || "0");
+        let totalAtkDice = weaponAtk.dice + atkResult.dice;
+        let totalAtkFixed = weaponAtk.fixed + atkResult.fixed;
+
         const atkBreakdown = [
-          `武器ATK: ${combo.atk_weapon || 0}`,
+          `武器ATK: ${this.formatDiceString(weaponAtk)}`,
           atkResult.breakdown,
         ].filter(Boolean);
         let critTotal = 10;
@@ -326,32 +339,35 @@ new Vue({
         if (combo.cost_manual) {
           costBreakdown.push(`手動調整: ${combo.cost_manual}`);
         }
-        let totalCost = relevantEffects.reduce((sum, e) => {
-          let cost = 0;
-          try {
-            cost =
-              this.evaluateValue(
-                e.cost,
-                (Number(e.level) || 0) + comboLevelBonus
-              ) || 0;
-          } catch (e) {
-            /* costが計算できない文字列の場合は0として扱う */
+        let totalCostDice = 0;
+        let totalCostFixed = 0;
+
+        const manualCost = this.evaluateDiceString(combo.cost_manual || "0");
+        totalCostDice += manualCost.dice;
+        totalCostFixed += manualCost.fixed;
+        if (manualCost.dice > 0 || manualCost.fixed > 0) {
+          costBreakdown.push(`手動調整: ${this.formatDiceString(manualCost)}`);
+        }
+
+        relevantEffects.forEach((e) => {
+          const cost = this.evaluateDiceString(
+            e.cost,
+            (Number(e.level) || 0) + comboLevelBonus
+          );
+          if (cost.dice > 0 || cost.fixed > 0) {
+            costBreakdown.push(`《${e.name}》: ${this.formatDiceString(cost)}`);
+            totalCostDice += cost.dice;
+            totalCostFixed += cost.fixed;
           }
-          if (cost !== 0) {
-            costBreakdown.push(`《${e.name}》: ${cost}`);
-          }
-          return sum + cost;
-        }, combo.cost_manual || 0);
+        });
         relevantItems.forEach((item) => {
-          let cost = 0;
-          try {
-            cost = this.evaluateValue(item.cost, item.level);
-          } catch (e) {
-            /* costが計算できない文字列の場合は0として扱う */
-          }
-          if (cost !== 0) {
-            costBreakdown.push(`【${item.name}】: ${cost}`);
-            totalCost += cost;
+          const cost = this.evaluateDiceString(item.cost, item.level);
+          if (cost.dice > 0 || cost.fixed > 0) {
+            costBreakdown.push(
+              `【${item.name}】: ${this.formatDiceString(cost)}`
+            );
+            totalCostDice += cost.dice;
+            totalCostFixed += cost.fixed;
           }
         });
         const effectComposition = relevantEffects
@@ -497,10 +513,15 @@ new Vue({
             `◆${combo.name}`,
             compositionText,
             combo.flavor ? `『${combo.flavor}』` : "",
-            `侵蝕値:${totalCost}　タイミング:${
+            `侵蝕値:${this.formatDiceString({
+              dice: totalCostDice,
+              fixed: totalCostFixed,
+            })}　タイミング:${
               relevantEffects.find((e) => e.timing && e.timing !== "オート")
                 ?.timing || "-"
-            }　技能:${primarySkill}　難易度:${finalDifficulty}　対象:${finalTarget}　射程:${finalRange}　ATK:${totalAtk}　C値:${critTotal}`,
+            }　技能:${primarySkill}　難易度:${finalDifficulty}　対象:${finalTarget}　射程:${finalRange}　ATK:${this.formatDiceString(
+              { dice: totalAtkDice, fixed: totalAtkFixed }
+            )}　C値:${critTotal}`,
             effectDescriptionForPalette,
           ]
             .filter(Boolean)
@@ -515,9 +536,15 @@ new Vue({
           critBreakdown: critBreakdown.join("\n"),
           totalAchieve: achieveResult.total,
           achieveBreakdown: achieveResult.breakdown,
-          totalAtk,
+          totalAtk: this.formatDiceString({
+            dice: totalAtkDice,
+            fixed: totalAtkFixed,
+          }),
           atkBreakdown: atkBreakdown.join("\n"),
-          totalCost,
+          totalCost: this.formatDiceString({
+            dice: totalCostDice,
+            fixed: totalCostFixed,
+          }),
           costBreakdown: costBreakdown.join("\n"),
           compositionText,
           autoEffectText,
@@ -638,6 +665,7 @@ new Vue({
       }
     },
     setDataDirty() {
+      if (this.isInitializing) return;
       this.isDirty = true;
     },
     parseAttackFormula(item) {
@@ -863,11 +891,12 @@ new Vue({
         this.isBusy = false;
       }
     },
-    async loadFromDb() {
+    async loadFromDb(skipConfirm = false) {
       if (!this.validateInputs()) return;
 
       if (
         this.isDirty &&
+        !skipConfirm &&
         !confirm("現在の編集内容は破棄されます。DBからデータを読み込みますか？")
       ) {
         this.showStatus("読み込みをキャンセルしました。");
@@ -1004,13 +1033,30 @@ new Vue({
           this.combos = [];
         }
 
-        this.effects = (importedData.effects || []).map((e) => ({
+        const defaultEffects = this.effects.filter((e) =>
+          this.isEssentialEffect(e.name)
+        );
+        const importedEffects = (importedData.effects || []).map((e) => ({
           ...this.createDefaultEffect(),
           ...e,
           values:
             (mergeMode && existingValues.get(e.name)) ||
             this.createDefaultValues(),
         }));
+
+        const mergedEffects = [...defaultEffects];
+        importedEffects.forEach((imported) => {
+          const existingIndex = mergedEffects.findIndex(
+            (e) => e.name === imported.name
+          );
+          if (existingIndex > -1) {
+            mergedEffects[existingIndex] = imported; // 読み込んだデータで上書き
+          } else {
+            mergedEffects.push(imported);
+          }
+        });
+
+        this.effects = mergedEffects;
         this.easyEffects = (importedData.easyEffects || []).map((e) => ({
           ...this.createDefaultEffect(),
           ...e,
@@ -1133,7 +1179,7 @@ new Vue({
     createDefaultValues() {
       const values = {};
       this.modalTabs.forEach((tab) => {
-        values[tab.key] = { base: 0, perLevel: 0 };
+        values[tab.key] = { base: 0, perLevel: 0, isDiceInput: false };
       });
       values.crit.base = 0;
       values.crit.min = 10;
@@ -1209,40 +1255,88 @@ new Vue({
     removeCombo(index) {
       this.combos.splice(index, 1);
     },
-    evaluateValue(str, level) {
-      if (typeof str !== "string") {
-        throw new Error("Invalid input type");
+    evaluateDiceString(str, level = 0) {
+      if (typeof str !== "string" && typeof str !== "number") {
+        return { dice: 0, fixed: 0 };
       }
 
-      let expression = str.trim();
+      let expression = String(str).trim();
       if (expression === "") {
-        throw new Error("Empty expression");
+        return { dice: 0, fixed: 0 };
       }
 
-      expression = expression
-        .replace(/[×＊]/g, "*")
-        .replace(/[÷／]/g, "/")
-        .replace(/[＋]/g, "+")
-        .replace(/[－‐]/g, "-")
-        .replace(/[（]/g, "(")
-        .replace(/[）]/g, ")")
-        .replace(/ＬＶ|ｌｖ/g, "lv");
+      expression = expression.replace(/lv/gi, level);
 
-      expression = expression.replace(/lv/gi, level || 0);
-
-      if (/[^0-9\s\-\+\*\/\(\)\.]/.test(expression)) {
-        throw new Error("Invalid characters in expression");
-      }
-
+      // 先に四則演算を評価
       try {
-        const result = new Function("return " + expression)();
-        return Number(result);
+        // 安全な評価のために文字を制限
+        if (!/^[0-9dD\s\-\+\*\/\(\)\.]+$/.test(expression)) {
+          // Dが含まれていなければ、単純な数値として評価
+          if (!/[dD]/.test(expression)) {
+            const fixedValue = Number(expression);
+            return { dice: 0, fixed: isNaN(fixedValue) ? 0 : fixedValue };
+          }
+        }
+        expression = new Function("return " + expression)();
+        expression = String(expression);
       } catch (e) {
-        throw new Error("Evaluation failed");
+        // 評価失敗時はそのまま進む
       }
+
+      let dice = 0;
+      let fixed = 0;
+
+      const diceMatch = expression.match(/(\d+)d/i);
+      if (diceMatch) {
+        dice = parseInt(diceMatch[1], 10);
+        expression = expression.replace(/(\d+)d/i, "");
+      }
+
+      expression = expression.replace(/\s/g, "");
+      if (expression) {
+        try {
+          // 残った式を評価
+          const remainingValue = new Function("return " + expression)();
+          if (!isNaN(remainingValue)) {
+            fixed = remainingValue;
+          }
+        } catch (e) {
+          // 評価に失敗した場合は無視
+        }
+      }
+
+      return { dice, fixed };
+    },
+    formatDiceString({ dice, fixed }) {
+      const dicePart = dice > 0 ? `${dice}D` : "";
+      const fixedPart = fixed > 0 ? `${fixed}` : fixed < 0 ? `${fixed}` : "";
+
+      if (dicePart && fixedPart) {
+        return fixed > 0
+          ? `${dicePart}+${fixedPart}`
+          : `${dicePart}${fixedPart}`;
+      }
+      return dicePart || fixedPart || "0";
+    },
+    evaluateValue(str, level) {
+      const result = this.evaluateDiceString(str, level);
+      // D＆Dの平均値は3.5
+      return result.dice * 3.5 + result.fixed;
     },
     openEffectPanel(event, source, type, index) {
       this.editingEffect = JSON.parse(JSON.stringify(source));
+
+      // "D"が含まれているかチェックしてisDiceInputをセット
+      const attackBase = this.editingEffect.values.attack.base;
+      if (attackBase && String(attackBase).toUpperCase().includes("D")) {
+        this.editingEffect.values.attack.isDiceInput = true;
+        this.editingEffect.values.attack.base = String(attackBase)
+          .toUpperCase()
+          .replace("D", "");
+      } else {
+        this.editingEffect.values.attack.isDiceInput = false;
+      }
+
       this.editingEffectType = type;
       this.editingEffectIndex = index;
       const rect = event.target.getBoundingClientRect();
@@ -1261,6 +1355,21 @@ new Vue({
     },
     closeEffectPanel() {
       if (this.editingEffect) {
+        // "D"チェックボックスの状態に応じて値を更新
+        if (this.editingEffect.values.attack.isDiceInput) {
+          const baseValue = this.editingEffect.values.attack.base;
+          if (baseValue && !String(baseValue).toUpperCase().includes("D")) {
+            this.editingEffect.values.attack.base = `${baseValue}D`;
+          }
+        } else {
+          const baseValue = this.editingEffect.values.attack.base;
+          if (baseValue && String(baseValue).toUpperCase().includes("D")) {
+            this.editingEffect.values.attack.base = String(baseValue)
+              .toUpperCase()
+              .replace("D", "");
+          }
+        }
+
         if (this.editingEffectType === "effect") {
           this.$set(this.effects, this.editingEffectIndex, this.editingEffect);
         } else if (this.editingEffectType === "easy") {

@@ -723,6 +723,14 @@
   color: #87cefa;
   font-weight: bold;
 }
+.input-with-addon {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.input-with-addon input[type="checkbox"] {
+  margin-right: 5px;
+}
 .floating-panel .input-group input {
   max-width: 42px;
   text-align: right;

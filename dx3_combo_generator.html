@@ -431,12 +431,20 @@
           </div>
           <div class="modal-tab-content">
             <div v-show="activeModalTab !== 'crit'" class="panel-grid">
-              <div class="input-group"><label>{{ activeModalTabLabel }} 基本値: <span class="input-example">(例: <span
-                      class="color-base">+X</span>)</span></label><input type="number"
-                  v-model.number="editingEffect.values[activeModalTab].base"></div>
-              <div class="input-group"><label>{{ activeModalTabLabel }} Lv毎加算: <span class="input-example">(例: <span
-                      class="color-per-level">LV×N</span>)</span></label><input type="number"
-                  v-model.number="editingEffect.values[activeModalTab].perLevel"></div>
+              <div class="input-group">
+                <label>{{ activeModalTabLabel }} 基本値: <span class="input-example">(例: <span
+                      class="color-base">+X</span>)</span></label>
+                <div class="input-with-addon">
+                  <input type="text" v-model="editingEffect.values[activeModalTab].base">
+                  <label v-if="activeModalTab === 'attack'"><input type="checkbox"
+                      v-model="editingEffect.values.attack.isDiceInput"> D</label>
+                </div>
+              </div>
+              <div class="input-group">
+                <label>{{ activeModalTabLabel }} Lv毎加算: <span class="input-example">(例: <span
+                      class="color-per-level">LV×N</span>)</span></label>
+                <input type="text" v-model="editingEffect.values[activeModalTab].perLevel">
+              </div>
             </div>
             <div v-show="activeModalTab === 'crit'">
               <div class="input-group"><label>C値 基本値:</label><input type="number"
