@@ -5,9 +5,9 @@
   border-radius: 8px;
   /* margin-bottom は gap で指定するため不要 */
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 15px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px; /* ボタンとURL入力の間のスペースを調整 */
   height: 100%; /* ★【重要】親(Gridセル)の高さに合わせる */
   box-sizing: border-box; /* paddingを含めて高さを100%にする */
 }
@@ -15,12 +15,17 @@
 .db-url-input {
   flex-grow: 1;
   min-width: 50px;
+  width: 100%; /* 親要素の幅に合わせる */
+  display: flex; /* Flexboxを適用 */
+  align-items: center; /* 垂直方向の中央揃え */
+  gap: 10px; /* ラベルと入力ボックスの間のスペース */
 }
 
 .db-url-input span {
-  display: block;
-  margin-bottom: 5px;
+  /* display: block; */ /* Flexアイテムになるため不要 */
+  margin-bottom: 0; /* Flexアイテムになるため不要 */
   font-size: 0.9em;
+  flex-shrink: 0; /* ラベルが縮まないようにする */
 }
 .db-url-input input {
   background-color: #0d1a50;
@@ -35,6 +40,8 @@
   display: flex;
   gap: 10px;
   flex-shrink: 0;
+  width: 100%; /* 親要素の幅に合わせる */
+  justify-content: flex-end; /* ボタンを右寄せにする */
 }
 .db-buttons button {
   border: none;
@@ -81,7 +88,7 @@
   transition: color 0.3s;
   box-sizing: border-box;
   position: absolute;
-  bottom: 5px;
+  bottom: -32px;
   left: 0;
   right: 0;
   transform: none;
