@@ -855,10 +855,12 @@ new Vue({
         const response = await fetch(this.gasWebAppUrl, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
+          // ▼▼▼ 修正点: bodyにshareUrlを追加 ▼▼▼
           body: JSON.stringify({
             action: "save",
             id: this.characterSheetUrl,
             data: dataToSave,
+            shareUrl: this.shareUrl, // 共有URLを送信データに含める
           }),
         });
         const result = await response.json();
