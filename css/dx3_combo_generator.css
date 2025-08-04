@@ -313,7 +313,8 @@
 }
 .add-btn,
 .delete-btn,
-.setting-btn {
+.setting-btn,
+.move-btn {
   color: white;
   border: none;
   border-radius: 5px;
@@ -337,13 +338,22 @@
 .setting-btn:hover {
   background-color: #5a6268;
 }
+.move-btn {
+  background-color: #8e44ad;
+}
+.move-btn:hover {
+  background-color: #7b2a9e;
+}
+
 .delete-btn:disabled,
-.setting-btn:disabled {
+.setting-btn:disabled,
+.move-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .delete-btn:disabled:hover,
-.setting-btn:disabled:hover {
+.setting-btn:disabled:hover,
+.move-btn:disabled:hover {
   background-color: initial;
 }
 .action-cell {
@@ -1173,6 +1183,9 @@
   .combo-header .delete-btn {
     order: 3; /* 表示順を3番目に */
   }
+  .combo-header .move-btn {
+    order: 4;
+  }
 
   /* ▼▼▼ 追加: 解説スイッチのレイアウトを修正 ▼▼▼ */
   .combo-textarea-wrapper .header-controls {
@@ -1219,5 +1232,4 @@
   .usage-guide ul {
     padding-left: 25px;
   }
-  /* ▲▲▲ ここまで修正・追加 ▲▲▲ */
 }

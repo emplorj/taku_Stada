@@ -13,7 +13,7 @@ Vue.component("input-with-dropdown", {
   data() {
     return {
       isOpen: false,
-      dropdownStyle: {}, // ここでdropdownStyleを定義
+      dropdownStyle: {},
     };
   },
   methods: {
@@ -21,12 +21,9 @@ Vue.component("input-with-dropdown", {
       if (this.options.length === 0) {
         return;
       }
-
       this.isOpen = !this.isOpen;
-
       if (this.isOpen) {
         const inputElement = this.$el.querySelector('input[type="text"]');
-
         if (inputElement) {
           const inputRect = inputElement.getBoundingClientRect();
           this.dropdownStyle = {
@@ -34,20 +31,19 @@ Vue.component("input-with-dropdown", {
             top: `${inputRect.bottom}px`,
             left: `${inputRect.left}px`,
             width: `${inputRect.width}px`,
-            zIndex: 9999, // 他の要素の上に表示されるように高いz-indexを設定
+            zIndex: 9999,
           };
         } else {
-          // エラーハンドリング: input要素が見つからない場合
           this.isOpen = false;
         }
       } else {
-        this.dropdownStyle = {}; // 閉じる際にスタイルをリセット
+        this.dropdownStyle = {};
       }
     },
     selectOption(option) {
       this.$emit("input", option);
       this.isOpen = false;
-      this.dropdownStyle = {}; // 選択後にスタイルをリセット
+      this.dropdownStyle = {};
     },
     handleInput(event) {
       this.$emit("input", event.target.value);
@@ -55,7 +51,7 @@ Vue.component("input-with-dropdown", {
     closeDropdown() {
       if (this.isOpen) {
         this.isOpen = false;
-        this.dropdownStyle = {}; // 外側クリックで閉じる際にスタイルをリセット
+        this.dropdownStyle = {};
       }
     },
   },
@@ -77,7 +73,7 @@ new Vue({
     characterSheetUrl: "",
     isBusy: false,
     statusMessage: "",
-    shareUrl: "", // 共有URLを追加
+    shareUrl: "",
     statusIsError: false,
     isDirty: false,
     isInitializing: true,
@@ -113,8 +109,8 @@ new Vue({
         "射撃",
         "RC",
         "交渉",
-        "白兵/射撃",
-        "白兵/RC",
+        "白兵／射撃",
+        "白兵／RC",
         "回避",
         "知覚",
         "意志",
@@ -208,7 +204,6 @@ new Vue({
     this.addCombo();
     this.$nextTick(() => {
       this.isDirty = false;
-      // URLからキャラクターシートURLを読み込む
       const urlParams = new URLSearchParams(window.location.search);
       const shortUrl = urlParams.get("url");
       if (shortUrl) {
@@ -223,9 +218,9 @@ new Vue({
           )}`;
         }
         this.characterSheetUrl = fullUrl;
-        this.loadFromDb(true); // URLがあれば確認なしで読み込みを試みる
+        this.loadFromDb(true);
       }
-      this.generateShareUrl(); // 初期共有URLを生成
+      this.generateShareUrl();
       this.$nextTick(() => {
         this.isInitializing = false;
         this.isDirty = false;
@@ -261,14 +256,12 @@ new Vue({
     processedCombos() {
       const allEffects = [...this.effects, ...this.easyEffects];
       const allItems = this.items;
-
       const skillToAbilityMap = {
         白兵: "肉体",
         射撃: "感覚",
         RC: "精神",
         交渉: "社会",
       };
-
       return this.combos.map((combo) => {
         const comboLevelBonus = combo.comboLevelBonus || 0;
         const relevantEffects = (combo.effectNames || [])
@@ -283,7 +276,6 @@ new Vue({
           let totalDice = 0;
           let totalFixed = 0;
           const breakdown = [];
-
           const processSource = (source) => {
             if (!source.values?.[valueKey]) return;
             const effectiveLevel =
@@ -294,12 +286,10 @@ new Vue({
             const perLevelParsed = this.evaluateDiceString(
               String(source.values[valueKey].perLevel || "0")
             );
-
             const finalValue = {
               dice: baseParsed.dice + effectiveLevel * perLevelParsed.dice,
               fixed: baseParsed.fixed + effectiveLevel * perLevelParsed.fixed,
             };
-
             if (finalValue.dice !== 0 || finalValue.fixed !== 0) {
               totalDice += finalValue.dice;
               totalFixed += finalValue.fixed;
@@ -310,12 +300,10 @@ new Vue({
               );
             }
           };
-
           relevantEffects.forEach(processSource);
           if (items && itemKey) {
             items.forEach(processSource);
           }
-
           return {
             dice: totalDice,
             fixed: totalFixed,
@@ -328,7 +316,6 @@ new Vue({
         const weaponAtk = this.evaluateDiceString(combo.atk_weapon || "0");
         let totalAtkDice = weaponAtk.dice + atkResult.dice;
         let totalAtkFixed = weaponAtk.fixed + atkResult.fixed;
-
         const atkBreakdown = [
           `武器ATK: ${this.formatDiceString(weaponAtk)}`,
           atkResult.breakdown,
@@ -356,14 +343,12 @@ new Vue({
         }
         let totalCostDice = 0;
         let totalCostFixed = 0;
-
         const manualCost = this.evaluateDiceString(combo.cost_manual || "0");
         totalCostDice += manualCost.dice;
         totalCostFixed += manualCost.fixed;
         if (manualCost.dice > 0 || manualCost.fixed > 0) {
           costBreakdown.push(`手動調整: ${this.formatDiceString(manualCost)}`);
         }
-
         relevantEffects.forEach((e) => {
           const cost = this.evaluateDiceString(
             e.cost,
@@ -419,22 +404,16 @@ new Vue({
         let primarySkill =
           relevantEffects.find((e) => e.skill)?.skill ||
           combo.baseAbility.skill;
-
-        // primarySkill が skillToAbilityMap に存在しない場合、combo.baseAbility.skill を最終的な primarySkill とする
         if (
           !this.dropdownOptions.skill.includes(primarySkill) ||
           !skillToAbilityMap[primarySkill]
         ) {
           primarySkill = combo.baseAbility.skill;
         }
-
         const abilityName = skillToAbilityMap[primarySkill] || "能力値";
         const totalDiceForFormula =
           diceResult.dice + (combo.baseAbility.value || 0);
-
         const diceFormula = `({${abilityName}}+{侵蝕率D}+${totalDiceForFormula})DX${critTotal}+${achieveResult.fixed}`;
-
-        // 対象と射程の自動計算
         const targetOrder = [
           "自身",
           "単体",
@@ -450,12 +429,11 @@ new Vue({
         ];
         let determinedTarget = "-";
         let hasSelfTarget = false;
-
         for (const effect of relevantEffects) {
           const target = effect.target;
           if (target === "自身") {
             hasSelfTarget = true;
-            break; // 「自身」があれば最優先
+            break;
           }
           if (
             targetOrder.indexOf(target) < targetOrder.indexOf(determinedTarget)
@@ -466,10 +444,9 @@ new Vue({
         if (hasSelfTarget) {
           determinedTarget = "自身";
         } else if (determinedTarget === "-") {
-          determinedTarget = "単体"; // 「-」の場合は「単体」に
+          determinedTarget = "単体";
         }
         const autoTarget = determinedTarget;
-
         const rangeOrder = [
           "至近",
           "nメートル",
@@ -477,10 +454,9 @@ new Vue({
           "視界",
           "-",
           "効果参照",
-        ]; // nメートルは仮
+        ];
         let determinedRange = "-";
-        let hasWeaponRange = false; // 武器射程があるかどうかのフラグ
-
+        let hasWeaponRange = false;
         for (const effect of relevantEffects) {
           const range = effect.range;
           if (range === "武器") {
@@ -492,13 +468,11 @@ new Vue({
           }
         }
         if (determinedRange === "-") {
-          determinedRange = "至近"; // 「-」の場合は「至近」に
+          determinedRange = "至近";
         }
         const autoRange = determinedRange;
-
         const difficultyOrder = ["対決", "効果参照", "自動成功", "-"];
         let determinedDifficulty = "-";
-
         for (const effect of relevantEffects) {
           const difficulty = effect.difficulty;
           if (
@@ -509,7 +483,6 @@ new Vue({
           }
         }
         const autoDifficulty = determinedDifficulty;
-
         const finalTarget =
           combo.targetMode === "manual" && combo.manualTarget !== ""
             ? combo.manualTarget
@@ -519,12 +492,10 @@ new Vue({
             ? combo.manualRange
             : autoRange;
         const finalDifficulty = autoDifficulty;
-
         const effectDescriptionForPalette =
           combo.effectDescriptionMode === "manual"
             ? combo.manualEffectDescription
             : autoEffectText;
-
         const chatPalette = {
           header: [
             `◆${combo.name}`,
@@ -582,7 +553,6 @@ new Vue({
     characterName: { handler: "setDataDirty", deep: true },
     totalXp: { handler: "setDataDirty", deep: true },
     otherXp: { handler: "setDataDirty", deep: true },
-    // ▼▼▼ ここから修正 ▼▼▼
     effects: {
       handler: function (newVal, oldVal) {
         this.handleEffectChange(newVal, oldVal);
@@ -603,12 +573,11 @@ new Vue({
       },
       deep: true,
     },
-    // ▲▲▲ ここまで修正 ▲▲▲
     combos: { handler: "setDataDirty", deep: true },
     characterSheetUrl: {
       handler: function (newVal, oldVal) {
         this.setDataDirty();
-        this.generateShareUrl(); // characterSheetUrlが変更されたら共有URLを更新
+        this.generateShareUrl();
       },
     },
     "editingEffect.values.attack": {
@@ -624,39 +593,27 @@ new Vue({
       deep: true,
     },
   },
-
   updated() {
     this.$nextTick(() => {
       this.adjustAllTextareaHeights();
     });
   },
   methods: {
-    // ▼▼▼ このメソッドを丸ごと追加 ▼▼▼
     updateAndSyncLevel(sourceType, index, value) {
       const newLevel = Number(value);
       if (isNaN(newLevel)) return;
-
       const item = this[sourceType][index];
       if (!item || Number(item.level) === newLevel) return;
-
-      // 変更されたアイテムのレベルを更新
       this.$set(item, "level", newLevel);
-
-      // 同期処理を呼び出す
       this.syncEffectAndItemLevels(item.name, newLevel);
     },
-    // ▲▲▲ ここまで追加 ▲▲▲
-
-    // ▼▼▼ このメソッドを丸ごと置き換え ▼▼▼
     syncEffectAndItemLevels(changedName, newLevel) {
       if (!changedName || isNaN(newLevel)) return;
-
       const listsToSync = {
         effects: this.effects,
         easyEffects: this.easyEffects,
         items: this.items,
       };
-
       for (const listName in listsToSync) {
         listsToSync[listName].forEach((item) => {
           if (item.name === changedName && Number(item.level) !== newLevel) {
@@ -665,21 +622,47 @@ new Vue({
         });
       }
     },
-    // ▲▲▲ ここまで置き換え ▲▲▲
     updateNameAndSync(sourceType, index, newName) {
       const item = this[sourceType][index];
       if (!item || item.name === newName) return;
-
+      const oldName = item.name;
       this.$set(item, "name", newName);
-
-      const existingItem = [
-        ...this.effects,
-        ...this.easyEffects,
-        ...this.items,
-      ].find((i) => i.name === newName && i !== item);
-      if (existingItem) {
-        this.syncEffectAndItemLevels(newName, existingItem.level);
+      const listsToUpdate = {
+        effects: this.effects,
+        easyEffects: this.easyEffects,
+        items: this.items,
+      };
+      for (const listName in listsToUpdate) {
+        listsToUpdate[listName].forEach((i) => {
+          if (i !== item && i.name === oldName) {
+            this.$set(i, "name", newName);
+          }
+        });
       }
+      this.combos.forEach((combo) => {
+        const updateNameInList = (list) => {
+          if (!list) return null;
+          const index = list.indexOf(oldName);
+          if (index > -1) {
+            const newList = [...list];
+            newList[index] = newName;
+            return newList;
+          }
+          return null;
+        };
+        const newEffectNames = updateNameInList(combo.effectNames);
+        if (newEffectNames) {
+          this.$set(combo, "effectNames", newEffectNames);
+        }
+        if (combo.itemNames) {
+          const itemIndex = combo.itemNames.findIndex(
+            (i) => i.name === oldName
+          );
+          if (itemIndex > -1) {
+            this.$set(combo.itemNames[itemIndex], "name", newName);
+          }
+        }
+      });
     },
     setDataDirty() {
       if (this.isInitializing) return;
@@ -688,16 +671,13 @@ new Vue({
     parseAttackFormula(item) {
       if (!item || typeof item.attack !== "string") return;
       const formula = item.attack.replace(/\s/g, "");
-
       if (formula === "") {
         this.$set(item.values.attack, "base", 0);
         this.$set(item.values.attack, "perLevel", 0);
         return;
       }
-
       let base = 0;
       let perLevel = 0;
-
       try {
         const baseFormula = formula.replace(/lv/gi, "(0)");
         const sanitizedBaseFormula = baseFormula.replace(/[^-()\d/*+.]/g, "");
@@ -707,7 +687,6 @@ new Vue({
       } catch (e) {
         base = 0;
       }
-
       try {
         const perLevelFormula = formula.replace(/lv/gi, "(1)");
         const sanitizedPerLevelFormula = perLevelFormula.replace(
@@ -723,10 +702,8 @@ new Vue({
       } catch (e) {
         perLevel = 0;
       }
-
       if (isNaN(base)) base = 0;
       if (isNaN(perLevel)) perLevel = 0;
-
       if (item.values.attack.base !== base) {
         this.$set(item.values.attack, "base", base);
       }
@@ -738,13 +715,11 @@ new Vue({
       if (!item || !item.values || !item.values.attack) return;
       const { base, perLevel } = item.values.attack;
       let formula = "";
-
       if (perLevel !== 0) {
         if (perLevel === 1) formula += "LV";
         else if (perLevel === -1) formula += "-LV";
         else formula += `LV*${perLevel}`;
       }
-
       if (base !== 0) {
         if (formula !== "" && base > 0) {
           formula += `+${base}`;
@@ -752,7 +727,6 @@ new Vue({
           formula += `${base}`;
         }
       }
-
       if (item.attack !== formula) {
         this.$set(item, "attack", formula);
       }
@@ -842,6 +816,7 @@ new Vue({
         return;
       this.isBusy = true;
       this.showStatus("保存中...", false, 0);
+      this.generateShareUrl();
       const dataToSave = {
         characterName: this.characterName,
         totalXp: this.totalXp,
@@ -855,12 +830,11 @@ new Vue({
         const response = await fetch(this.gasWebAppUrl, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          // ▼▼▼ 修正点: bodyにshareUrlを追加 ▼▼▼
           body: JSON.stringify({
             action: "save",
             id: this.characterSheetUrl,
             data: dataToSave,
-            shareUrl: this.shareUrl, // 共有URLを送信データに含める
+            shareUrl: this.shareUrl,
           }),
         });
         const result = await response.json();
@@ -912,7 +886,6 @@ new Vue({
     },
     async loadFromDb(skipConfirm = false) {
       if (!this.validateInputs()) return;
-
       if (
         this.isDirty &&
         !skipConfirm &&
@@ -921,7 +894,6 @@ new Vue({
         this.showStatus("読み込みをキャンセルしました。");
         return;
       }
-
       this.isBusy = true;
       this.showStatus("DBにアクセス中...", false, 0);
       const url = new URL(this.gasWebAppUrl);
@@ -937,18 +909,18 @@ new Vue({
           this.effects = (d.effects || []).map((e) => ({
             ...this.createDefaultEffect(),
             ...e,
-            level: Number(e.level) || 1, // レベルを数値に変換
+            level: Number(e.level) || 1,
             values: e.values || this.createDefaultValues(),
           }));
           this.easyEffects = (d.easyEffects || []).map((e) => ({
             ...this.createDefaultEffect(),
             ...e,
-            level: Number(e.level) || 1, // レベルを数値に変換
+            level: Number(e.level) || 1,
             values: e.values || this.createDefaultValues(),
           }));
           this.items = (d.items || []).map((i) => ({
             ...i,
-            level: Number(i.level) || 1, // レベルを数値に変換
+            level: Number(i.level) || 1,
             values: i.values || this.createDefaultValues(),
           }));
           this.items.forEach((item) => this.parseAttackFormula(item));
@@ -958,13 +930,12 @@ new Vue({
           }));
           this.showStatus("DBからデータを読み込みました。");
           this.isDirty = false;
-
           if (
             confirm(
-              "キャラクターシートの最新データで、エフェクトとアイテムを更新しますか？\n（注意：現在作成中のコンボデータは維持されます）"
+              "キャラクターシートの最新データで、キャラクター名、経験点、エフェクト、アイテムを更新しますか？\n（注意：現在作成中のコンボデータは維持されます）"
             )
           ) {
-            await this.importFromSheet(true, true); // マージモード、確認スキップで実行
+            await this.importFromSheet(true, true);
           }
         } else if (result.status === "not_found") {
           if (
@@ -973,7 +944,7 @@ new Vue({
             )
           ) {
             this.otherXp = 0;
-            await this.importFromSheet(false, true); // 新規モード、確認スキップで実行
+            await this.importFromSheet(false, true);
           } else {
             this.showStatus("操作をキャンセルしました。");
           }
@@ -994,7 +965,6 @@ new Vue({
       }
       this.isBusy = true;
       this.showStatus("キャラシから引用中...", false, 0);
-
       const existingValues = new Map();
       if (mergeMode) {
         [...this.effects, ...this.easyEffects, ...this.items].forEach(
@@ -1005,7 +975,6 @@ new Vue({
           }
         );
       }
-
       try {
         let importedData;
         if (this.characterSheetUrl.includes("yutorize.2-d.jp")) {
@@ -1021,15 +990,12 @@ new Vue({
         } else {
           throw new Error("サポートされていないURLです。");
         }
-
         const effectsCount = (importedData.effects || []).length;
         const easyEffectsCount = (importedData.easyEffects || []).length;
         const itemsCount = (importedData.items || []).length;
-
         const confirmMessage = mergeMode
-          ? `以下の内容でエフェクトとアイテムを上書きしますか？\n（コンボデータは維持されます）\n\n`
+          ? `以下の内容でキャラクター名、経験点、エフェクト、アイテムを更新しますか？\n（コンボデータは維持されます）\n\n`
           : `「${importedData.characterName}」のデータを新規に引用しますか？\n（現在のデータは全て上書きされます）\n\n`;
-
         if (
           !skipConfirmation &&
           !confirm(
@@ -1044,14 +1010,12 @@ new Vue({
           this.isBusy = false;
           return;
         }
-
+        this.characterName = importedData.characterName;
+        this.totalXp = importedData.totalXp;
         if (!mergeMode) {
-          this.characterName = importedData.characterName;
-          this.totalXp = importedData.totalXp;
           this.otherXp = 0;
           this.combos = [];
         }
-
         const defaultEffects = this.effects.filter((e) =>
           this.isEssentialEffect(e.name)
         );
@@ -1062,19 +1026,17 @@ new Vue({
             (mergeMode && existingValues.get(e.name)) ||
             this.createDefaultValues(),
         }));
-
         const mergedEffects = [...defaultEffects];
         importedEffects.forEach((imported) => {
           const existingIndex = mergedEffects.findIndex(
             (e) => e.name === imported.name
           );
           if (existingIndex > -1) {
-            mergedEffects[existingIndex] = imported; // 読み込んだデータで上書き
+            mergedEffects[existingIndex] = imported;
           } else {
             mergedEffects.push(imported);
           }
         });
-
         this.effects = mergedEffects;
         this.easyEffects = (importedData.easyEffects || []).map((e) => ({
           ...this.createDefaultEffect(),
@@ -1104,7 +1066,6 @@ new Vue({
             this.createDefaultValues(),
         }));
         this.items.forEach((item) => this.parseAttackFormula(item));
-
         this.showStatus(
           mergeMode
             ? "エフェクトとアイテムを更新しました！"
@@ -1129,35 +1090,105 @@ new Vue({
       const jsonData = await response.json();
       const effects = [];
       const easyEffects = [];
+      const items = [];
       const effectNum = parseInt(jsonData.effectNum, 10) || 0;
       for (let i = 1; i <= effectNum; i++) {
         const nameKey = `effect${i}Name`;
         if (jsonData[nameKey]) {
           const effect = {
-            name: jsonData[nameKey],
+            name: this.normalizeImportedString(jsonData[nameKey]),
             level: parseInt(jsonData[`effect${i}Lv`], 10) || 1,
             maxLevel: 5,
-            timing: this.toFullWidthKana(jsonData[`effect${i}Timing`]),
-            skill: this.toFullWidthKana(jsonData[`effect${i}Skill`]),
-            difficulty: jsonData[`effect${i}Dfclty`] || "自動",
-            target: jsonData[`effect${i}Target`] || "",
-            range: jsonData[`effect${i}Range`] || "",
-            cost: jsonData[`effect${i}Encroach`] || "",
-            limit: jsonData[`effect${i}Restrict`] || "",
-            effect: jsonData[`effect${i}Note`] || "",
+            timing: this.normalizeSkillName(
+              this.normalizeImportedString(jsonData[`effect${i}Timing`])
+            ),
+            skill: this.normalizeSkillName(
+              this.normalizeImportedString(jsonData[`effect${i}Skill`])
+            ),
+            difficulty:
+              this.normalizeImportedString(jsonData[`effect${i}Dfclty`]) ||
+              "自動",
+            target:
+              this.normalizeImportedString(jsonData[`effect${i}Target`]) || "",
+            range:
+              this.normalizeImportedString(jsonData[`effect${i}Range`]) || "",
+            cost:
+              this.normalizeImportedString(jsonData[`effect${i}Encroach`]) ||
+              "",
+            limit:
+              this.normalizeImportedString(jsonData[`effect${i}Restrict`]) ||
+              "",
+            effect:
+              this.normalizeImportedString(jsonData[`effect${i}Note`]) || "",
           };
           if (jsonData[`effect${i}Type`] === "easy") {
             easyEffects.push(effect);
-          } else {
+          } else if (jsonData[`effect${i}Type`] !== "auto") {
             effects.push(effect);
           }
         }
       }
+      const itemNum = parseInt(jsonData.itemNum, 10) || 0;
+      for (let i = 1; i <= itemNum; i++) {
+        items.push({
+          name: this.normalizeImportedString(jsonData[`item${i}Name`]) || "",
+          level: 1,
+          type: this.normalizeSkillName(
+            this.normalizeImportedString(jsonData[`item${i}Type`])
+          ),
+          skill: "-",
+          accuracy: "",
+          attack: "",
+          guard: "",
+          range: "",
+          cost: "",
+          xp: 0,
+          notes: this.normalizeImportedString(jsonData[`item${i}Note`]) || "",
+        });
+      }
+      const weaponNum = parseInt(jsonData.weaponNum, 10) || 0;
+      for (let i = 1; i <= weaponNum; i++) {
+        items.push({
+          name: this.normalizeImportedString(jsonData[`weapon${i}Name`]) || "",
+          level: 1,
+          type: "武器",
+          skill: this.normalizeSkillName(
+            this.normalizeImportedString(jsonData[`weapon${i}Skill`])
+          ),
+          accuracy: jsonData[`weapon${i}Acc`] || "0",
+          attack: jsonData[`weapon${i}Atk`] || "0",
+          guard: jsonData[`weapon${i}Guard`] || "0",
+          range: jsonData[`weapon${i}Range`] || "至近",
+          cost: "",
+          xp: 0,
+          notes: this.normalizeImportedString(jsonData[`weapon${i}Note`]) || "",
+        });
+      }
+      const armorNum = parseInt(jsonData.armorNum, 10) || 0;
+      for (let i = 1; i <= armorNum; i++) {
+        items.push({
+          name: this.normalizeImportedString(jsonData[`armor${i}Name`]) || "",
+          level: 1,
+          type: "防具",
+          skill: "-",
+          accuracy: "",
+          attack: "",
+          guard: jsonData[`armor${i}Def`] || "0",
+          range: "",
+          cost: "",
+          xp: 0,
+          notes: this.normalizeImportedString(jsonData[`armor${i}Note`]) || "",
+        });
+      }
+
       return {
-        characterName: jsonData.pc_name,
+        characterName: this.normalizeImportedString(
+          jsonData.characterName || jsonData.pc_name
+        ),
         totalXp: parseInt(jsonData.expTotal, 10) || 130,
         effects: effects,
         easyEffects: easyEffects,
+        items: items,
       };
     },
     async importFromHokanjo_gas(url) {
@@ -1167,7 +1198,25 @@ new Vue({
       const response = await fetch(gasUrl);
       const result = await response.json();
       if (result.status === "success") {
-        return result.data;
+        const normalizeRecursively = (obj) => {
+          if (typeof obj === "string") {
+            return this.normalizeImportedString(obj);
+          }
+          if (Array.isArray(obj)) {
+            return obj.map((item) => normalizeRecursively(item));
+          }
+          if (typeof obj === "object" && obj !== null) {
+            const newObj = {};
+            for (const key in obj) {
+              if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                newObj[key] = normalizeRecursively(obj[key]);
+              }
+            }
+            return newObj;
+          }
+          return obj;
+        };
+        return normalizeRecursively(result.data);
       } else {
         throw new Error(
           result.message || "キャラクター保管所の解析に失敗しました。"
@@ -1181,7 +1230,7 @@ new Vue({
     createDefaultEffect() {
       return {
         name: "",
-        level: 1, // 初期値を1に設定
+        level: 1,
         maxLevel: 1,
         timing: "",
         skill: "",
@@ -1267,10 +1316,10 @@ new Vue({
         manualEffectDescription: "",
         enableAdvancedParsing: false,
         baseAbility: { skill: "白兵", value: 0 },
-        manualTarget: "", // 手動設定用
-        targetMode: "auto", // auto or manual
-        manualRange: "", // 手動設定用
-        rangeMode: "auto", // auto or manual
+        manualTarget: "",
+        targetMode: "auto",
+        manualRange: "",
+        rangeMode: "auto",
       };
     },
     addCombo() {
@@ -1300,19 +1349,13 @@ new Vue({
       if (typeof str !== "string" && typeof str !== "number") {
         return { dice: 0, fixed: 0 };
       }
-
       let expression = String(str).trim();
       if (expression === "") {
         return { dice: 0, fixed: 0 };
       }
-
       expression = expression.replace(/lv/gi, level);
-
-      // 先に四則演算を評価
       try {
-        // 安全な評価のために文字を制限
         if (!/^[0-9dD\s\-\+\*\/\(\)\.]+$/.test(expression)) {
-          // Dが含まれていなければ、単純な数値として評価
           if (!/[dD]/.test(expression)) {
             const fixedValue = Number(expression);
             return { dice: 0, fixed: isNaN(fixedValue) ? 0 : fixedValue };
@@ -1320,38 +1363,28 @@ new Vue({
         }
         expression = new Function("return " + expression)();
         expression = String(expression);
-      } catch (e) {
-        // 評価失敗時はそのまま進む
-      }
-
+      } catch (e) {}
       let dice = 0;
       let fixed = 0;
-
       const diceMatch = expression.match(/(\d+)d/i);
       if (diceMatch) {
         dice = parseInt(diceMatch[1], 10);
         expression = expression.replace(/(\d+)d/i, "");
       }
-
       expression = expression.replace(/\s/g, "");
       if (expression) {
         try {
-          // 残った式を評価
           const remainingValue = new Function("return " + expression)();
           if (!isNaN(remainingValue)) {
             fixed = remainingValue;
           }
-        } catch (e) {
-          // 評価に失敗した場合は無視
-        }
+        } catch (e) {}
       }
-
       return { dice, fixed };
     },
     formatDiceString({ dice, fixed }) {
       const dicePart = dice > 0 ? `${dice}D` : "";
       const fixedPart = fixed > 0 ? `${fixed}` : fixed < 0 ? `${fixed}` : "";
-
       if (dicePart && fixedPart) {
         return fixed > 0
           ? `${dicePart}+${fixedPart}`
@@ -1361,12 +1394,10 @@ new Vue({
     },
     evaluateValue(str, level) {
       const result = this.evaluateDiceString(str, level);
-      // D＆Dの平均値は3.5
       return result.dice * 3.5 + result.fixed;
     },
     openEffectPanel(event, source, type, index) {
       this.editingEffect = JSON.parse(JSON.stringify(source));
-
       this.modalTabs.forEach((tab) => {
         if (tab.key !== "crit") {
           const baseValue = String(
@@ -1379,7 +1410,6 @@ new Vue({
           } else {
             this.editingEffect.values[tab.key].base = parsedBase.fixed;
           }
-
           const perLevelValue = String(
             this.editingEffect.values[tab.key].perLevel || "0"
           );
@@ -1393,7 +1423,6 @@ new Vue({
           }
         }
       });
-
       this.editingEffectType = type;
       this.editingEffectIndex = index;
       const rect = event.target.getBoundingClientRect();
@@ -1422,7 +1451,6 @@ new Vue({
               this.editingEffect.values[tab.key].base =
                 Number(this.editingEffect.values[tab.key].base) || 0;
             }
-
             if (this.editingEffect.values[tab.key].isPerLevelDiceInput) {
               this.editingEffect.values[tab.key].perLevel = `${
                 this.editingEffect.values[tab.key].perLevel
@@ -1433,7 +1461,6 @@ new Vue({
             }
           }
         });
-
         if (this.editingEffectType === "effect") {
           this.$set(this.effects, this.editingEffectIndex, this.editingEffect);
         } else if (this.editingEffectType === "easy") {
@@ -1477,14 +1504,12 @@ new Vue({
         });
         this.$set(combo, "effectNames", effectNames);
         this.$set(combo, "itemNames", itemNames);
-
         const skillCounts = this.tempSelectedEffects.reduce((acc, effect) => {
           if (effect.skill && effect.skill !== "-") {
             acc[effect.skill] = (acc[effect.skill] || 0) + 1;
           }
           return acc;
         }, {});
-
         let mostFrequentSkill = "-";
         let maxCount = 0;
         for (const skill in skillCounts) {
@@ -1580,6 +1605,15 @@ new Vue({
       }
       itemData.showInComboName = !itemData.showInComboName;
       this.$forceUpdate();
+    },
+    normalizeImportedString(str) {
+      if (typeof str !== "string" || !str) return str;
+      return str.replace(/―/g, "-");
+    },
+    normalizeSkillName(str) {
+      if (!str) return "";
+      const fullWidthStr = this.toFullWidthKana(str);
+      return fullWidthStr.replace(/[〈〉]/g, "").replace(/\//g, "／");
     },
     toFullWidthKana(str) {
       if (!str) return "";
@@ -1703,40 +1737,13 @@ new Vue({
     },
     adjustBlockHeights() {
       this.$nextTick(() => {
-        const characterInfoGrid = document.querySelector(
+        const characterInfoGrid = this.$el.querySelector(
           ".character-info-grid"
         );
-        const dbSyncBlock = document.querySelector(".db-sync-block");
-        const statusMessage = document.querySelector(".status-message");
-
-        if (characterInfoGrid && dbSyncBlock && statusMessage) {
+        const dbSyncBlock = this.$el.querySelector(".db-sync-block");
+        if (characterInfoGrid && dbSyncBlock) {
           const gridHeight = characterInfoGrid.offsetHeight;
-          const statusMessageHeight = statusMessage.offsetHeight;
-          const statusMessageMarginBottom = parseInt(
-            window.getComputedStyle(statusMessage).marginBottom
-          );
-          const dbSyncBlockPaddingTop = parseInt(
-            window.getComputedStyle(dbSyncBlock).paddingTop
-          );
-          const dbSyncBlockPaddingBottom = parseInt(
-            window.getComputedStyle(dbSyncBlock).paddingBottom
-          );
-          const dbButtons = document.querySelector(".db-buttons");
-          const dbButtonsHeight = dbButtons ? dbButtons.offsetHeight : 0;
-          const dbUrlInput = document.querySelector(".db-url-input");
-          const dbUrlInputHeight = dbUrlInput ? dbUrlInput.offsetHeight : 0;
-          const requiredHeightForDbSyncBlock =
-            dbUrlInputHeight +
-            dbButtonsHeight +
-            15 +
-            dbSyncBlockPaddingTop +
-            dbSyncBlockPaddingBottom;
-          const calculatedMinHeight =
-            gridHeight - statusMessageHeight - statusMessageMarginBottom;
-          dbSyncBlock.style.minHeight = `${Math.max(
-            calculatedMinHeight,
-            requiredHeightForDbSyncBlock
-          )}px`;
+          dbSyncBlock.style.minHeight = `${gridHeight}px`;
         }
       });
     },
@@ -1753,10 +1760,8 @@ new Vue({
             shortUrl = `y-${queryId}`;
           }
         } catch (e) {
-          // 不正なURLの場合は従来通りエンコード
           shortUrl = encodeURIComponent(this.characterSheetUrl);
         }
-
         const baseUrl = window.location.origin + window.location.pathname;
         this.shareUrl = `${baseUrl}?url=${shortUrl}`;
       } else {
