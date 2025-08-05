@@ -442,6 +442,7 @@
   justify-content: center;
   align-items: center;
   gap: 5px;
+  flex-wrap: nowrap;
 }
 .stat-item:last-child {
   border-right: none;
@@ -450,16 +451,18 @@
   cursor: help;
   background-color: #4f4f4f;
 }
-
 .stat-item.target-setting,
-.stat-item.range-setting {
+.stat-item.range-setting,
+.stat-item.timing-setting {
   flex-basis: 150px;
   flex-grow: 1;
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 5px;
+}
+.stat-item.timing-setting {
+  flex-basis: 200px;
 }
 
 .base-ability-input {
@@ -467,8 +470,8 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  flex-basis: 120px;
-  flex-grow: 0.5;
+  flex-basis: 100px;
+  flex-grow: 1;
   padding: 5px 10px;
   border-radius: 4px;
 }
@@ -924,9 +927,17 @@
   gap: 5px;
   white-space: nowrap;
 }
+.stat-item span .input-with-dropdown {
+  flex-grow: 1;
+}
+.stat-item span .input-with-dropdown input {
+  width: 80px;
+  text-align: center;
+  padding: 5px;
+}
 
 .stat-item span input.manual-input {
-  width: 60px;
+  width: 80px;
   min-width: 40px;
   text-align: center;
   box-sizing: border-box;
@@ -937,7 +948,8 @@
   color: #eee;
 }
 
-.stat-item span input.manual-input[readonly] {
+.stat-item span input.manual-input[readonly],
+.stat-item .input-with-dropdown input:disabled {
   background-color: #3c3c3c;
   color: #bbb;
   cursor: not-allowed;
@@ -945,7 +957,6 @@
 
 .stat-item .mode-toggle {
   display: flex;
-  margin-top: 5px;
 }
 
 .stat-item .mode-toggle button {
@@ -1105,8 +1116,9 @@
       "dice crit achieve"
       "target target target"
       "range range range"
-      "skill skill skill"
-      "attack cost cost";
+      "timing timing timing"
+      "skill skill attack"
+      "cost cost cost";
     grid-template-columns: 1fr 1fr 1fr;
   }
   .stat-item {
@@ -1127,22 +1139,24 @@
   .stat-item:nth-child(3) {
     grid-area: achieve;
   }
-  .stat-item.target-setting {
+  .stat-item:nth-child(4) {
     grid-area: target;
   }
-  .stat-item.range-setting {
+  .stat-item:nth-child(5) {
     grid-area: range;
   }
-  .stat-item.base-ability-input {
-    grid-area: skill;
+  .stat-item:nth-child(6) {
+    grid-area: timing;
   }
   .stat-item:nth-child(7) {
-    grid-area: attack;
+    grid-area: skill;
   }
   .stat-item:nth-child(8) {
+    grid-area: attack;
+  }
+  .stat-item:nth-child(9) {
     grid-area: cost;
-    grid-column: 2 / 4;
-  } /* 侵蝕値は2-3列目を占有 */
+  }
 
   .character-info-grid {
     flex-direction: column;

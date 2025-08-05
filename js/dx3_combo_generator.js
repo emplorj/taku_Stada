@@ -9,6 +9,10 @@ Vue.component("input-with-dropdown", {
       type: Array,
       default: () => [],
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -150,6 +154,7 @@ new Vue({
         "2体",
         "3体",
       ],
+      range: ["-", "至近", "武器", "視界", "効果参照"],
       limit: [
         "-",
         "ピュア",
@@ -411,9 +416,15 @@ new Vue({
           primarySkill = combo.baseAbility.skill;
         }
         const abilityName = skillToAbilityMap[primarySkill] || "能力値";
-        const totalDiceForFormula =
-          diceResult.dice + (combo.baseAbility.value || 0);
-        const diceFormula = `({${abilityName}}+{侵蝕率D}+${totalDiceForFormula})DX${critTotal}+${achieveResult.fixed}`;
+        const totalDiceForFormula = diceResult.dice;
+        const totalFixedBonus =
+          (combo.baseAbility.value || 0) + achieveResult.fixed;
+        let diceFormula = `({${abilityName}}+{侵蝕率D}+${totalDiceForFormula})DX${critTotal}`;
+        if (totalFixedBonus > 0) {
+          diceFormula += `+${totalFixedBonus}`;
+        } else if (totalFixedBonus < 0) {
+          diceFormula += `${totalFixedBonus}`;
+        }
         const targetOrder = [
           "自身",
           "単体",
@@ -492,10 +503,50 @@ new Vue({
             ? combo.manualRange
             : autoRange;
         const finalDifficulty = autoDifficulty;
+
+        const timingOrder = [
+          "メジャー",
+          "メジャー／リア",
+          "リアクション",
+          "マイナー",
+          "オート",
+          "セットアップ",
+          "イニシアチブ",
+          "クリンナップ",
+          "常時",
+          "-",
+          "効果参照",
+        ];
+        let determinedTiming = "-";
+        const majorActionTimings = ["メジャー", "メジャー／リア"];
+
+        for (const effect of relevantEffects) {
+          const timing = effect.timing;
+          if (timing === "オート" || timing === "常時") continue;
+          if (
+            timingOrder.indexOf(timing) < timingOrder.indexOf(determinedTiming)
+          ) {
+            determinedTiming = timing;
+          }
+        }
+
+        const autoTiming =
+          determinedTiming === "-" ? "メジャー" : determinedTiming;
+
+        const finalTiming =
+          combo.timingMode === "manual" && combo.manualTiming !== ""
+            ? combo.manualTiming
+            : autoTiming;
+
+        const isMajorAction = majorActionTimings.some((t) =>
+          finalTiming.includes(t)
+        );
+
         const effectDescriptionForPalette =
           combo.effectDescriptionMode === "manual"
             ? combo.manualEffectDescription
             : autoEffectText;
+
         const chatPalette = {
           header: [
             `◆${combo.name}`,
@@ -504,10 +555,7 @@ new Vue({
             `侵蝕値:${this.formatDiceString({
               dice: totalCostDice,
               fixed: totalCostFixed,
-            })}　タイミング:${
-              relevantEffects.find((e) => e.timing && e.timing !== "オート")
-                ?.timing || "-"
-            }　技能:${primarySkill}　難易度:${finalDifficulty}　対象:${finalTarget}　射程:${finalRange}　ATK:${this.formatDiceString(
+            })}　タイミング:${finalTiming}　技能:${primarySkill}　難易度:${finalDifficulty}　対象:${finalTarget}　射程:${finalRange}　ATK:${this.formatDiceString(
               { dice: totalAtkDice, fixed: totalAtkFixed }
             )}　C値:${critTotal}`,
             effectDescriptionForPalette,
@@ -518,12 +566,17 @@ new Vue({
         };
         return {
           ...combo,
-          totalDice: diceResult.dice + (combo.baseAbility.value || 0),
+          totalDice: diceResult.dice,
           diceBreakdown: diceResult.breakdown,
           finalCrit: critTotal,
           critBreakdown: critBreakdown.join("\n"),
-          totalAchieve: achieveResult.fixed,
-          achieveBreakdown: achieveResult.breakdown,
+          totalAchieve: (combo.baseAbility.value || 0) + achieveResult.fixed,
+          achieveBreakdown: [
+            combo.baseAbility.value ? `技能: ${combo.baseAbility.value}` : null,
+            achieveResult.breakdown,
+          ]
+            .filter(Boolean)
+            .join("\n"),
           totalAtk: this.formatDiceString({
             dice: totalAtkDice,
             fixed: totalAtkFixed,
@@ -539,6 +592,8 @@ new Vue({
           chatPalette,
           target: finalTarget,
           range: finalRange,
+          timing: finalTiming,
+          isMajorAction: isMajorAction,
         };
       });
     },
@@ -1320,6 +1375,8 @@ new Vue({
         targetMode: "auto",
         manualRange: "",
         rangeMode: "auto",
+        timingMode: "auto",
+        manualTiming: "",
       };
     },
     addCombo() {

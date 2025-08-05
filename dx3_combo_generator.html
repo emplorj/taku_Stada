@@ -123,7 +123,7 @@
 
     <script type="text/x-template" id="input-with-dropdown-template">
       <div class="input-with-dropdown" @click.stop>
-        <input type="text" :value="value" @input="handleInput">
+        <input type="text" :value="value" @input="handleInput" :disabled="disabled">
         <span class="dropdown-arrow" @click.prevent.stop="toggleDropdown($event)" v-if="options.length > 0">▼</span>
         <ul v-if="isOpen && options.length > 0" class="dropdown-menu" :style="dropdownStyle">
           <li v-for="option in options" :key="option" @click="selectOption(option)">
@@ -345,10 +345,12 @@
           <div class="stat-item" :title="combo.critBreakdown">C値: {{ combo.finalCrit }}</div>
           <div class="stat-item" :title="combo.achieveBreakdown">達成値: +{{ combo.totalAchieve }}</div>
           <div class="stat-item target-setting">
-            <span>対象: <input type="text"
+            <span>対象:
+              <input-with-dropdown
                 :value="combos[index].targetMode === 'auto' ? combo.target : combos[index].manualTarget"
-                :readonly="combos[index].targetMode === 'auto'"
-                @input="combos[index].manualTarget = $event.target.value" class="manual-input"></span>
+                :options="dropdownOptions.target" @input="combos[index].manualTarget = $event"
+                :disabled="combos[index].targetMode === 'auto'"></input-with-dropdown>
+            </span>
             <div class="mode-toggle">
               <button @click="combos[index].targetMode = 'auto'"
                 :class="{active: combos[index].targetMode === 'auto'}">自動</button>
@@ -357,10 +359,11 @@
             </div>
           </div>
           <div class="stat-item range-setting">
-            <span>射程: <input type="text"
-                :value="combos[index].rangeMode === 'auto' ? combo.range : combos[index].manualRange"
-                :readonly="combos[index].rangeMode === 'auto'" @input="combos[index].manualRange = $event.target.value"
-                class="manual-input"></span>
+            <span>射程:
+              <input-with-dropdown :value="combos[index].rangeMode === 'auto' ? combo.range : combos[index].manualRange"
+                :options="dropdownOptions.range" @input="combos[index].manualRange = $event"
+                :disabled="combos[index].rangeMode === 'auto'"></input-with-dropdown>
+            </span>
             <div class="mode-toggle">
               <button @click="combos[index].rangeMode = 'auto'"
                 :class="{active: combos[index].rangeMode === 'auto'}">自動</button>
@@ -368,7 +371,20 @@
                 :class="{active: combos[index].rangeMode === 'manual'}">手動</button>
             </div>
           </div>
-
+          <div class="stat-item timing-setting">
+            <span>タイミング:
+              <input-with-dropdown
+                :value="combos[index].timingMode === 'auto' ? combo.timing : combos[index].manualTiming"
+                :options="dropdownOptions.timing" @input="combos[index].manualTiming = $event"
+                :disabled="combos[index].timingMode === 'auto'"></input-with-dropdown>
+            </span>
+            <div class="mode-toggle">
+              <button @click="combos[index].timingMode = 'auto'"
+                :class="{active: combos[index].timingMode === 'auto'}">自動</button>
+              <button @click="combos[index].timingMode = 'manual'"
+                :class="{active: combos[index].timingMode === 'manual'}">手動</button>
+            </div>
+          </div>
           <div class="stat-item base-ability-input">
             <span>技能値:</span>
             <select v-model="combos[index].baseAbility.skill">
@@ -416,7 +432,7 @@
             <button @click="copyToClipboard(combo.chatPalette.header, $event)"><i
                 class="fa-solid fa-paste"></i></button>
           </div>
-          <div class="copy-container">
+          <div class="copy-container" v-if="combo.isMajorAction">
             <textarea readonly :value="combo.chatPalette.diceFormula" class="dice-formula-textarea"></textarea>
             <button @click="copyToClipboard(combo.chatPalette.diceFormula, $event)"><i
                 class="fa-solid fa-paste"></i></button>
