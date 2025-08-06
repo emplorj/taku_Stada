@@ -886,7 +886,10 @@ new Vue({
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
-            action: "save",
+            // ▼▼▼ ここから修正 ▼▼▼
+            tool: "comboGenerator", // どのツールからのリクエストかを示す
+            action: "save", // 実行したいアクション
+            // ▲▲▲ ここまで修正 ▲▲▲
             id: this.characterSheetUrl,
             data: dataToSave,
             shareUrl: this.shareUrl,
@@ -920,7 +923,10 @@ new Vue({
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
-            action: "delete",
+            // ▼▼▼ ここから修正 ▼▼▼
+            tool: "comboGenerator", // どのツールからのリクエストかを示す
+            action: "delete", // 実行したいアクション
+            // ▲▲▲ ここまで修正 ▲▲▲
             id: this.characterSheetUrl,
           }),
         });
