@@ -1,0 +1,606 @@
+﻿Commit: 272ae6f
+
+=== TREE (top 3 levels) ===
+E:\Github\taku_Stada\.vscode
+E:\Github\taku_Stada\247_guild
+E:\Github\taku_Stada\Card_asset
+E:\Github\taku_Stada\css
+E:\Github\taku_Stada\fonts
+E:\Github\taku_Stada\img
+E:\Github\taku_Stada\js
+E:\Github\taku_Stada\beginner.html
+E:\Github\taku_Stada\card_generator.html
+E:\Github\taku_Stada\CoC_Q&A.html
+E:\Github\taku_Stada\coc_review.html
+E:\Github\taku_Stada\dx3_combo_generator.html
+E:\Github\taku_Stada\gas.js
+E:\Github\taku_Stada\growth_checker.html
+E:\Github\taku_Stada\header.html
+E:\Github\taku_Stada\index.html
+E:\Github\taku_Stada\presets.json
+E:\Github\taku_Stada\q_and_a.html
+E:\Github\taku_Stada\robots.txt
+E:\Github\taku_Stada\schedule.html
+E:\Github\taku_Stada\slides.html
+E:\Github\taku_Stada\sutada_chara.html
+E:\Github\taku_Stada\teikei.txt
+E:\Github\taku_Stada\tier_list.html
+E:\Github\taku_Stada\youbou.md
+E:\Github\taku_Stada\.vscode\settings.json
+E:\Github\taku_Stada\247_guild\css
+E:\Github\taku_Stada\247_guild\data
+E:\Github\taku_Stada\247_guild\img
+E:\Github\taku_Stada\247_guild\js
+E:\Github\taku_Stada\247_guild\archive_サバナイ.html
+E:\Github\taku_Stada\247_guild\index.html
+E:\Github\taku_Stada\247_guild\request_form.html
+E:\Github\taku_Stada\247_guild\sw25_generator.html
+E:\Github\taku_Stada\247_guild\css\247_guild.css
+E:\Github\taku_Stada\247_guild\css\request_form.css
+E:\Github\taku_Stada\247_guild\css\sw25_generator.css
+E:\Github\taku_Stada\247_guild\data\hydra_ranking.json
+E:\Github\taku_Stada\247_guild\img\hydra
+E:\Github\taku_Stada\247_guild\img\auctions.svg
+E:\Github\taku_Stada\247_guild\img\banzoku_icon.svg
+E:\Github\taku_Stada\247_guild\img\board.jpg
+E:\Github\taku_Stada\247_guild\img\board_paper.png
+E:\Github\taku_Stada\247_guild\img\guild_reform_flyer.png
+E:\Github\taku_Stada\247_guild\img\hachimaki1F.png
+E:\Github\taku_Stada\247_guild\img\hachimakiBG.png
+E:\Github\taku_Stada\247_guild\img\pin_shita.png
+E:\Github\taku_Stada\247_guild\img\pin_ue.png
+E:\Github\taku_Stada\247_guild\img\sabanai.png
+E:\Github\taku_Stada\247_guild\img\yakikomi_logo.png
+E:\Github\taku_Stada\247_guild\img\yakikomi_stamp.png
+E:\Github\taku_Stada\247_guild\img\依頼書テンプレ.png
+E:\Github\taku_Stada\247_guild\js\247_guild.js
+E:\Github\taku_Stada\247_guild\js\hydra_ranking.js
+E:\Github\taku_Stada\247_guild\js\request_form.js
+E:\Github\taku_Stada\247_guild\js\sw25_data.js
+E:\Github\taku_Stada\247_guild\js\sw25_generator.js
+E:\Github\taku_Stada\Card_asset\テンプレ
+E:\Github\taku_Stada\Card_asset\裏面
+E:\Github\taku_Stada\Card_asset\hologram_geometric.png
+E:\Github\taku_Stada\Card_asset\hologram_glitter.png
+E:\Github\taku_Stada\Card_asset\image_load_error.png
+E:\Github\taku_Stada\Card_asset\now_painting.png
+E:\Github\taku_Stada\Card_asset\now_painting_FF.png
+E:\Github\taku_Stada\Card_asset\タイトル.png
+E:\Github\taku_Stada\Card_asset\加算してキラキラ.png
+E:\Github\taku_Stada\Card_asset\加算してキラキラ.webp
+E:\Github\taku_Stada\Card_asset\加算してキラキラ90%.webp
+E:\Github\taku_Stada\Card_asset\テンプレ\unuse
+E:\Github\taku_Stada\Card_asset\テンプレ\橙カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\橙カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\橙カードTP.png
+E:\Github\taku_Stada\Card_asset\テンプレ\白カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\白カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\白カードTP.png
+E:\Github\taku_Stada\Card_asset\テンプレ\紫カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\紫カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\紫カードTP.png
+E:\Github\taku_Stada\Card_asset\テンプレ\緑カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\緑カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\緑カードTP.png
+E:\Github\taku_Stada\Card_asset\テンプレ\虹カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\虹カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\虹カードTP.png
+E:\Github\taku_Stada\Card_asset\テンプレ\赤カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\赤カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\赤カードTP.png
+E:\Github\taku_Stada\Card_asset\テンプレ\青カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\青カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\青カードTP.png
+E:\Github\taku_Stada\Card_asset\テンプレ\黄カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\黄カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\黄カードTP.png
+E:\Github\taku_Stada\Card_asset\テンプレ\黒カード.png
+E:\Github\taku_Stada\Card_asset\テンプレ\黒カードFF.png
+E:\Github\taku_Stada\Card_asset\テンプレ\黒カードTP.png
+E:\Github\taku_Stada\Card_asset\裏面\ARカード裏面緑.png
+E:\Github\taku_Stada\Card_asset\裏面\ARカード裏面赤.png
+E:\Github\taku_Stada\Card_asset\裏面\ARカード裏面青.png
+E:\Github\taku_Stada\Card_asset\裏面\ARカード裏面黒.png
+E:\Github\taku_Stada\Card_asset\裏面\CoCカード裏面緑.png
+E:\Github\taku_Stada\Card_asset\裏面\CoCカード裏面赤.png
+E:\Github\taku_Stada\Card_asset\裏面\CoCカード裏面青.png
+E:\Github\taku_Stada\Card_asset\裏面\CoCカード裏面黒.png
+E:\Github\taku_Stada\Card_asset\裏面\nepカード裏面緑.png
+E:\Github\taku_Stada\Card_asset\裏面\nepカード裏面赤.png
+E:\Github\taku_Stada\Card_asset\裏面\nepカード裏面青.png
+E:\Github\taku_Stada\Card_asset\裏面\nepカード裏面黒.png
+E:\Github\taku_Stada\Card_asset\裏面\SWカード裏面緑.png
+E:\Github\taku_Stada\Card_asset\裏面\SWカード裏面赤.png
+E:\Github\taku_Stada\Card_asset\裏面\SWカード裏面青.png
+E:\Github\taku_Stada\Card_asset\裏面\SWカード裏面黒.png
+E:\Github\taku_Stada\Card_asset\裏面\カード裏面緑.png
+E:\Github\taku_Stada\Card_asset\裏面\カード裏面赤.png
+E:\Github\taku_Stada\Card_asset\裏面\カード裏面青.png
+E:\Github\taku_Stada\Card_asset\裏面\カード裏面黒.png
+E:\Github\taku_Stada\css\card_generator.css
+E:\Github\taku_Stada\css\coc_review.css
+E:\Github\taku_Stada\css\dx3_combo_generator.css
+E:\Github\taku_Stada\css\featured-character.css
+E:\Github\taku_Stada\css\growth_checker.css
+E:\Github\taku_Stada\css\q_and_a.css
+E:\Github\taku_Stada\css\schedule.css
+E:\Github\taku_Stada\css\style.css
+E:\Github\taku_Stada\css\sutada_chara.css
+E:\Github\taku_Stada\css\tier-list.css
+E:\Github\taku_Stada\fonts\Corporate-Logo-Bold-ver3.woff2
+E:\Github\taku_Stada\fonts\HigashiOme-Gothic-C.woff2
+E:\Github\taku_Stada\fonts\Makinas-4-Flat.woff2
+E:\Github\taku_Stada\fonts\Vermin Vibes V.otf
+E:\Github\taku_Stada\img\favicon
+E:\Github\taku_Stada\img\portrait
+E:\Github\taku_Stada\img\sutada_display
+E:\Github\taku_Stada\img\systems
+E:\Github\taku_Stada\img\Blackbox.png
+E:\Github\taku_Stada\img\ccf.png
+E:\Github\taku_Stada\img\hachimaki.svg
+E:\Github\taku_Stada\img\haisuikan.png
+E:\Github\taku_Stada\img\icon.png
+E:\Github\taku_Stada\img\Jin.png
+E:\Github\taku_Stada\img\shoukai1.png
+E:\Github\taku_Stada\img\shoukai2.png
+E:\Github\taku_Stada\img\spreadsheet.svg
+E:\Github\taku_Stada\img\ukihito.png
+E:\Github\taku_Stada\img\仁科済.png
+E:\Github\taku_Stada\img\卓スタダminiロゴ.png
+E:\Github\taku_Stada\img\卓スタダロゴ.png
+E:\Github\taku_Stada\img\favicon\apple-touch-icon.png
+E:\Github\taku_Stada\img\favicon\favicon-16x16.png
+E:\Github\taku_Stada\img\favicon\favicon-32x32.png
+E:\Github\taku_Stada\img\favicon\favicon.ico
+E:\Github\taku_Stada\img\portrait\interview.png
+E:\Github\taku_Stada\img\portrait\JinFace.png
+E:\Github\taku_Stada\img\portrait\nazono.png
+E:\Github\taku_Stada\img\portrait\アルフィルク.png
+E:\Github\taku_Stada\img\portrait\ニシナ正面.png
+E:\Github\taku_Stada\img\portrait\ポポロ正面.png
+E:\Github\taku_Stada\img\portrait\ポラリス.png
+E:\Github\taku_Stada\img\sutada_display\coc
+E:\Github\taku_Stada\img\sutada_display\dx
+E:\Github\taku_Stada\img\sutada_display\mini_coc
+E:\Github\taku_Stada\img\sutada_display\nc
+E:\Github\taku_Stada\img\sutada_display\sw
+E:\Github\taku_Stada\img\sutada_display\CoCmini_no.png
+E:\Github\taku_Stada\img\sutada_display\CoC_no.png
+E:\Github\taku_Stada\img\sutada_display\DX_no.png
+E:\Github\taku_Stada\img\sutada_display\NC_no.png
+E:\Github\taku_Stada\img\sutada_display\SW_no.png
+E:\Github\taku_Stada\img\sutada_display\色相環+NC.png
+E:\Github\taku_Stada\img\systems\AR2E.png
+E:\Github\taku_Stada\img\systems\CoC.png
+E:\Github\taku_Stada\img\systems\DX3.png
+E:\Github\taku_Stada\img\systems\SW.png
+E:\Github\taku_Stada\img\systems\サタスペ.png
+E:\Github\taku_Stada\img\systems\シノビガミ.png
+E:\Github\taku_Stada\img\systems\ネクロニカ.png
+E:\Github\taku_Stada\img\systems\マモブル.png
+E:\Github\taku_Stada\img\systems\銀剣.png
+E:\Github\taku_Stada\js\card_generator.js
+E:\Github\taku_Stada\js\coc_review_loader.js
+E:\Github\taku_Stada\js\common.js
+E:\Github\taku_Stada\js\dice_roller.js
+E:\Github\taku_Stada\js\dx3_combo_generator.js
+E:\Github\taku_Stada\js\featured-character.js
+E:\Github\taku_Stada\js\growth_checker.js
+E:\Github\taku_Stada\js\q_and_a.js
+E:\Github\taku_Stada\js\schedule.js
+E:\Github\taku_Stada\js\sutada_chara.js
+E:\Github\taku_Stada\js\tier_list.js
+
+=== package.json ===
+
+=== Configs ===
+
+=== Root/Layout ===
+
+--- E:\Github\taku_Stada\index.html ---
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蜊薙せ繧ｿ繝</title>
+    <!-- OGP (Open Graph Protocol) / Twitter Card -->
+    <meta property="og:title" content="蜊薙せ繧ｿ繝" />
+    <meta property="og:description" content="蜊薙せ繧ｿ繝蜈ｬ蠑上し繧､繝医〒縺吶ゅお繝ｳJ縺碁大ｼｵ繧翫∪縺励◆縲・ />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://emplorj.github.io/taku_Stada/" />
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="css/featured-character.css">
+    <!-- 笘・ｿｽ蜉: 鬮俶ｧ閭ｽCSV繝代・繧ｵ繝ｼ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="main-content">
+        <header class="main-header">
+            <h1>蜊薙せ繧ｿ繝</h1>
+            <p class="subtitle">縺・∪縺ｾ縺ｧ縺ｮ迥ｯ陦・/p>
+        </header>
+
+        <div class="logo-container">
+            <img src="img/蜊薙せ繧ｿ繝繝ｭ繧ｴ.png" alt="蜊薙せ繧ｿ繝繝ｭ繧ｴ" class="logo-image" id="main-logo">
+            <img src="img/蜊薙せ繧ｿ繝mini繝ｭ繧ｴ.png" alt="蜊薙せ繧ｿ繝繝溘ル繝ｭ繧ｴ" class="logo-image mini" id="mini-logo">
+        </div>
+
+        <h2 id="coc-qa-section" class="section-title start-title"><a href="CoC_Q&A.html">笨ｨ 繧ｯ繝医ぇ繝ｫ繝慕･櫁ｩｱTRPG 繧ｷ繝翫Μ繧ｪ繧ｹ繧ｿ繝</a></h2>
+        <div class="plain-text-block intro-block">
+            <p>繧ｯ繝医ぇ繝ｫ繝慕･櫁ｩｱTRPG繧ｷ繝翫Μ繧ｪ菴懈・縺ｫ謔ｩ繧縺ゅ↑縺溘∈縲・a href="https://twitter.com/haisuikan_trpg" target="_blank"
+                    class="plain-text-author-link"
+                    rel="noopener noreferrer">縺ｯ縺・☆縺・°繧・@haisuikan_trpg)</a>縺輔ｓ縺九ｉ縺ｮ繧｢繝峨ヰ繧､繧ｹ繧偵∪縺ｨ繧√∪縺励◆縲・/p>
+            <p>縲後←繧薙↑逾櫁ｩｱ逕溽黄繧剃ｽｿ縺医・縺・＞縺ｮ・溘阪後せ繝医・繝ｪ繝ｼ縺ｮ邨・∩遶九※譁ｹ縺悟・縺九ｉ縺ｪ縺・ｼ√阪→縺・▲縺溽桝蝠上ｒ隗｣豎ｺ縺励∬・菴懊す繝翫Μ繧ｪ繧貞屓縺昴≧・・/p>
+            <ul class="tool-card-list" id="coc-qa-links-container">
+            </ul>
+        </div>
+
+        <h2 id="schedule-section" class="section-title start-title"><a href="schedule.html">套 莠亥ｮ・/a></h2>
+        <div class="plain-text-block intro-block">
+            <p>莉雁ｾ後・繧ｻ繝・す繝ｧ繝ｳ莠亥ｮ壹↑縺ｩ繧堤｢ｺ隱阪〒縺阪∪縺吶・/p>
+            <ul class="tool-card-list" id="schedule-links-container">
+            </ul>
+        </div>
+
+        <!-- 莉頑律縺ｮ莠亥ｮ夊｡ｨ遉ｺ繧ｨ繝ｪ繧｢ -->
+        <div class="plain-text-block intro-block">
+            <div class="today-schedule-header">
+                <h3><i class="fa-solid fa-bell"></i> 莉頑律縺ｮ莠亥ｮ・/h3>
+                <div class="status-help-icon">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <div class="status-tooltip">
+                        <strong>髮ｰ蝗ｲ豌励・逶ｮ螳・/strong>
+                        <p><b>鳩 繧・ｋ:</b> 讓ｪ縺ｧ繧ｲ繝ｼ繝縺ｮ繝槭Ν繝√ｄ縺｣縺ｦ縺ｦ繧ょ・辟ｶ隧ｱ鬘碁未菫ゅ↑縺上※繧ょ､ｧ荳亥､ｫ</p>
+                        <p><b>泙 譎ｮ騾・</b> 縺・″縺ｪ繧雁将縺ｶ縺ｨ縺区ｭ後≧縺ｨ縺九§繧・↑縺代ｌ縺ｰ菴懈･ｭ縺ｨ縺九ご繝ｼ繝繧・▲縺ｦ縺溘ｊ縺励※繧ゅ＞縺・＠譎ｮ騾壹↓隕ｳ螳｢繧る尅隲・＠縺ｪ縺後ｉ荳邱偵↓逶帙ｊ荳翫′縺｣縺ｦ縺・＞繧・/p>
+                        <p><b>泯 髱吶°繧・</b> 蜿ょ刈閠・｣ｰ縺縺励※繧ゅ＞縺・￠縺ｩ閾ｪ荳ｻ逧・↓縺ｯ蝟九ｉ縺ｪ縺・〒縺ｭ</p>
+                        <p><b>閥 繧ｬ繝・</b> 繧ｬ繝√ぎ繝√・繧・▽縺ｪ縺ｮ縺ｧ蜿ょ刈閠・ｻ･螟悶・螢ｰ蜃ｺ縺励↑縺励〒</p>
+                    </div>
+                </div>
+            </div>
+            <div id="today-schedule-content">
+                <p>莠亥ｮ壹ｒ隱ｭ縺ｿ霎ｼ繧薙〒縺・∪縺・..</p>
+            </div>
+        </div>
+
+        <section id="featured-adventurers" class="content-section">
+            <h2 class="start-title"><i class="fa-solid fa-star"></i> 縺・ｍ繧薙↑繧ｭ繝｣繝ｩ</h2>
+            <div class="plain-text-block intro-block">
+                <p>縺薙％縺ｧ逋ｻ蝣ｴ縺励◆縺・ｍ繧薙↑繧ｭ繝｣繝ｩ繧定ｦ九※縺ｿ繧医≧・・/p>
+            </div>
+            <div class="card-container member-list">
+            </div>
+        </section>
+
+        <h2 id="slides-section" class="start-title"><a href="slides.html">当 繧ｹ繝ｩ繧､繝臥ｽｮ縺榊ｴ</a></h2>
+        <div class="plain-text-block intro-block">
+            <p>TRPG縺ｮ繝ｫ繝ｼ繝ｫ隱ｬ譏弱せ繝ｩ繧､繝峨→縺九ｒ髮代↓鄂ｮ縺・→縺丞ｴ謇縲・/p>
+            <p>縲後％繧後←繧薙↑繧薙□縺｣縺托ｼ溘阪▲縺ｦ譎ゅ↓縺ｧ繧りｦ九※縺ｭ</p>
+            <ul class="link-list">
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vSOxfzmGJTdTEXXiXOHIxlueVIfbG9Xuq8NSrv0wrgwLUHV84OfLRcyU-I0WjLSXYFfMJEfcubHJ9KR/pub?start=false&loop=true&delayms=3000"
+                        target="_blank" rel="noopener noreferrer">縺ｯ縺倥ａ繧医≧縲繧ｯ繝医ぇ繝ｫ繝慕･櫁ｩｱRPG</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vTkciQV57Bo7Jzgk85SmrG9JJPMXjaGHYweGxTQhWbeWzD5bKzkcvzBeFQXn1EHwRdM7mHVGpoeI3g4/pub?start=false&loop=false&delayms=3000"
+                        target="_blank" rel="noopener noreferrer">縺ｯ縺倥ａ繧医≧縲繧ｽ繝ｼ繝峨・繝ｯ繝ｼ繝ｫ繝・.5</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vRwmLeSj3YfrpHtB158EME-vQ1LbzuB3cnVfqAmJkAvcvqvv84Yk7U8dGk8Cjw79WVL7ixOETUosDXU/pub?start=false&loop=false&delayms=3000"
+                        target="_blank" rel="noopener noreferrer">縺ｯ縺倥ａ繧医≧ 繝繝悶Ν繧ｯ繝ｭ繧ｹ3rd</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vTTJMqZnvl2aLEbSvDq0lGRIQWkYAL2KsMgworFsdvdzo9KcAiKJtoyhU2Mt6SFZsuZfV7-rMHcd0_U/pub?start=false&loop=false&delayms=3000"
+                        target="_blank" rel="noopener noreferrer">縺ｯ縺倥ａ繧医≧ 繝阪け繝ｭ繝九き</a></li>
+            </ul>
+        </div>
+
+        <h2 id="archive-section" class="start-title">繧｢繝ｼ繧ｫ繧､繝・/h2>
+        <div class="plain-text-block intro-block">
+            <ul class="tool-card-list" id="archive-links-container">
+            </ul>
+        </div>
+
+        <h2 id="char-qa-sheet-section" class="start-title">縺ゅ↑縺溘・繧ｭ繝｣繝ｩ縺ｸ縺ｮ雉ｪ蝠丈ｸ隕ｧ繧ｷ繝ｼ繝・/h2>
+        <div class="plain-text-block intro-block">
+            <ul>
+                <li><a href="q_and_a.html">繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼQ&A繝壹・繧ｸ</a>: 縺薙％縺ｧ繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼ縺ｮ蝗樒ｭ斐ｒ髢ｲ隕ｧ繝ｻ譁ｰ隕冗匳骭ｲ縺ｧ縺阪∪縺吶・/li>
+                <li><a href="https://docs.google.com/spreadsheets/d/1RJrUdz6QbYc_N1X0gub8zdixEIy_8KyV3exf6A9Smoc/edit?gid=0"
+                        target="_blank" rel="noopener noreferrer">Google繧ｹ繝励Ξ繝・ラ繧ｷ繝ｼ繝茨ｼ亥・繝・・繧ｿ・・/a>: 繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼ縺ｸ縺ｮ逅・ｧ｣繧呈ｷｱ繧√ｋ縺溘ａ縺ｮ雉ｪ蝠城寔縺ｧ縺吶・/li>
+            </ul>
+        </div>
+
+        <h2 id="ccfolia-tools-section" class="start-title">繝・・繝ｫ</h2>
+        <div class="plain-text-block intro-block">
+            <ul class="tool-card-list" id="tool-card-list-container">
+            </ul>
+        </div>
+
+        <h2 id="content-policy-section" class="start-title">蝨ｰ髮ｷ繝√ぉ繝・け繧ｷ繝ｼ繝・/h2>
+        <div class="plain-text-block intro-block">
+            <ul class="tool-card-list" id="content-policy-container">
+            </ul>
+        </div>
+
+        <h2 id="color-codes-section" class="start-title">繧ｹ繧ｿ繝縺ｮ繧ｭ繝｣繝ｩ邏ｹ莉九→縺九〒縲∝・騾夊ｦ乗ｼ縺ｨ縺励※逕ｨ縺・※縺・ｋTRPG繧ｷ繧ｹ繝・Β縺ｨ濶ｲ縺ｮ邨・∩蜷医ｏ縺・/h2>
+        <div class="plain-text-block intro-block">
+            <ul class="color-code-list" id="trpg-color-list"></ul>
+            <p>Q.譎ｮ騾壹・髱偵▲縺ｦ菴ｿ繧上↑縺・ｓ・・br>A. 縺昴・莉悶′髱偵↓縺ｪ繧翫′縺｡縲・/p>
+        </div>
+
+        <h2 id="yutosheet-template-section" class="start-title"><a href="https://yutorize.2-d.jp/" target="_blank"
+                rel="noopener noreferrer">繧・→繧ｷ繝ｼ繝・/a>逕ｨ繝代・繧ｽ繝翫Ν諠・ｱ繝・Φ繝励Ξ
+        </h2>
+        <div class="plain-text-block intro-block">
+            <p>縺頑焔謖√■縺ｮ繧・→繧ｷ繝ｼ繝医・縲悟ｮｹ蟋ｿ繝ｻ邨梧ｭｴ縲阪→縺九後◎縺ｮ莉悶阪→縺九・譫縺ｫ縺ｧ繧ゆｻ倥￠蜉縺医※繧ゅｉ縺医ｋ縺ｨ蜉ｩ縺九ｊ縺ｾ縺・br>
+                蜈･繧後◆縺・ュ蝣ｱ縺ｫ豐ｿ縺｣縺ｦ縲∝酔縺伜ｽ｢蠑上〒諠・ｱ繧定ｿｽ蜉縺励※縺｣縺ｦ縺上□縺輔＞・亥･ｽ縺阪↑繧ゅ・縺ｨ縺九∝ｼｱ轤ｹ縺ｨ縺具ｼ・ｼ・/p>
+            <div class="code-block-container">
+                <pre class="code-block" id="yutosheet-template"><code>[>]**繝代・繧ｽ繝翫Ν繝・・繧ｿ
+:諤ｧ蛻･|
+:霄ｫ髟ｷ|
+:菴馴㍾|
+:蟷ｴ鮨｢|
+: 鬮ｪ |
+: 迸ｳ |
+: 閧・|
+[---]</code></pre>
+                <button class="copy-button" onclick="copyCodeToClipboard('yutosheet-template')">繧ｳ繝斐・</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>ﾂｩ 2025 蜊薙せ繧ｿ繝.</p>
+        </footer>
+    </div>
+
+    <button onclick="topFunction()" id="backToTopBtn" title="繝医ャ繝励∈謌ｻ繧・>笆ｲ</button>
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // --- 濶ｲ繝ｪ繧ｹ繝育函謌・---
+            const colorListContainer = document.getElementById("trpg-color-list");
+            if (colorListContainer) {
+                const systemsToShow = [
+                    {
+                        displayName: "繧ｯ繝医ぇ繝ｫ繝慕･櫁ｩｱTRPG",
+                        colorNameDesc: "邱・,
+                        cssVar: "--color-coc",
+                    },
+                    {
+                        displayName: "繧ｯ繝医ぇ繝ｫ繝慕･櫁ｩｱTRPG(遘伜諺)",
+                        colorNameDesc: "豼・ｷ・,
+                        cssVar: "--color-coc-secret",
+                    },
+                    {
+                        displayName: "繧ｽ繝ｼ繝峨・繝ｯ繝ｼ繝ｫ繝・.5",
+                        colorNameDesc: "阮・ｵ､",
+                        cssVar: "--color-sw",
+                    },
+                    {
+                        displayName: "繝繝悶Ν繧ｯ繝ｭ繧ｹ The 3rd Edition",
+                        colorNameDesc: "襍､",
+                        cssVar: "--color-dx3",
+                    },
+                    {
+                        displayName: "豌ｸ縺・ｾ梧律隲・・繝阪け繝ｭ繝九き",
+                        colorNameDesc: "轣ｰ",
+                        cssVar: "--color-nechronica",
+                    },
+                    {
+                        displayName: "繧ｵ繧ｿ繧ｹ繝・,
+                        colorNameDesc: "繧ｪ繝ｬ繝ｳ繧ｸ",
+                        cssVar: "--color-satasupe",
+                    },
+                    {
+                        displayName: "繝槭Δ繝弱せ繧ｯ繝ｩ繝ｳ繝悶Ν",
+                        colorNameDesc: "鮟・ｩ・,
+                        cssVar: "--color-mamoburu",
+                    },
+                    {
+                        displayName: "驫蜑｣縺ｮ繧ｹ繝・Λ繝翫う繝・,
+                        colorNameDesc: "證励＞髱・,
+                        cssVar: "--color-stellar",
+                    },
+                    {
+                        displayName: "繧ｦ繝槫ｨ狼RPG",
+                        colorNameDesc: "譯・,
+                        cssVar: "--color-umamusume",
+                    },
+                    {
+                        displayName: "繧ｷ繝弱ン繧ｬ繝・,
+                        colorNameDesc: "邏ｫ",
+                        cssVar: "--color-shinobigami",
+                    },
+                    {
+                        displayName: "繧｢繝ｪ繧｢繝ｳ繝ｭ繝・ラRPG 2E",
+                        colorNameDesc: "鮟・牡",
+                        cssVar: "--color-ar",
+                    },
+                ];
+                systemsToShow.forEach((sys) => {
+                    const style = getComputedStyle(document.documentElement);
+                    const colorCode =
+                        style.getPropertyValue(sys.cssVar).trim() ||
+                        style.getPropertyValue("--color-default").trim();
+                    const listItem = document.createElement("li");
+                    listItem.classList.add("color-list-item");
+                    listItem.innerHTML = `<span class="color-list-text">${sys.displayName}・夲ｼ・{sys.colorNameDesc}・・/span> <span class="color-chip" style="background-color: ${colorCode};"></span> <code>${colorCode}</code> <button class="copy-color-button" data-colorcode="${colorCode}" title="繧ｫ繝ｩ繝ｼ繧ｳ繝ｼ繝峨ｒ繧ｳ繝斐・">繧ｳ繝斐・</button>`;
+                    colorListContainer.appendChild(listItem);
+                });
+                colorListContainer.addEventListener("click", function (event) {
+                    const button = event.target.closest(".copy-color-button");
+                    if (button) {
+                        navigator.clipboard.writeText(button.dataset.colorcode).then(() => {
+                            const originalText = button.textContent;
+                            button.textContent = "OK!";
+                            button.disabled = true;
+                            setTimeout(() => {
+                                button.textContent = originalText;
+                                button.disabled = false;
+                            }, 1500);
+                        });
+                    }
+                });
+            }
+
+            // --- 繝ｭ繧ｴ繧ｯ繝ｪ繝・け繧､繝吶Φ繝・---
+            const mainLogo = document.getElementById("main-logo");
+            const miniLogo = document.getElementById("mini-logo");
+
+            if (mainLogo) {
+                mainLogo.addEventListener("click", function () {
+                    window.location.href = "sutada_chara.html";
+                });
+            }
+
+            if (miniLogo) {
+                miniLogo.addEventListener("click", function () {
+                    window.location.href = "sutada_chara.html#coc-mini-section"; // miniCoC縺ｮ繧ｻ繧ｯ繧ｷ繝ｧ繝ｳID縺ｫ蜷医ｏ縺帙ｋ
+                });
+            }
+
+            // --- OGP繧ｫ繝ｼ繝峨Μ繧ｹ繝育函謌・---
+            const toolData = [
+                {
+                    category: "隧ｦ縺玲険繧翫↑縺ｩ",
+                    url: "https://ccfolia.com/rooms/6584j5uuj",
+                    title: "讌ｽ螻九さ繧ｳ繝輔か繝ｪ繧｢",
+                    author: "縺翫ｌ繝ｻ繧ｳ繧ｳ繝輔か繝ｪ繧｢",
+                    manual: true,
+                    description: "繧ｳ繧ｳ繝輔か繝ｪ繧｢縺ｮ蜈ｬ蠑上Ν繝ｼ繝縺ｧ縺吶・,
+                    icon: "fa-solid fa-dice-d20",
+                },
+                {
+                    category: "繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼ繧ｷ繝ｼ繝・,
+                    url: "https://kurian.websozai.jp/charaPiece/top",
+                    title: "繧ｭ繝｣繝ｩ繧ｷ繧ｳ繝斐・繝・・繝ｫ (CoC, SW遲・",
+                    author: "@Kuuriku_Sora",
+                    manual: true,
+                    description: "蜷・ｨｮ繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼ繧ｷ繝ｼ繝医ｒ繧ｳ繧ｳ繝輔か繝ｪ繧｢逕ｨ縺ｫ謨ｴ蠖｢縺励∪縺吶・,
+                    icon: "fa-solid fa-paste",
+                },
+                {
+                    category: "繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼ繧ｷ繝ｼ繝・,
+                    url: "https://script.google.com/macros/s/AKfycbwUPjuiBEGUrfrKcKZCrRAqiB7V687tbA5uxy7PbKxSkgMGnoIMob7yK0PNEvBoUcbTTA/exec",
+                    title: "繧ｭ繝｣繝ｩ繧ｷ繧ｳ繝斐・繝・・繝ｫ (DX3rd, 繧ｵ繧ｿ繧ｹ繝夂ｭ・",
+                    author: "縺翫ｌ",
+                    manual: true,
+                    description: "Google Apps Script陬ｽ縺ｮ繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼ繧ｷ繝ｼ繝域紛蠖｢繝・・繝ｫ縲・,
+                    icon: "fa-solid fa-file-lines",
+                },
+                {
+                    category: "繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼ繧ｷ繝ｼ繝・,
+                    url: "https://docs.google.com/spreadsheets/d/1jMnjoqxiJZanm6L9-HsXw1crxBdQB_SZQgM4O8Tk7MM/",
+                    title: "繝繝悶Ν繧ｯ繝ｭ繧ｹ 繧ｳ繝ｳ繝懊ず繧ｧ繝阪Ξ繝ｼ繧ｿ繝ｼ",
+                    author: "縺翫ｌ",
+                    manual: true,
+                    description: "Google繧ｹ繝励Ξ繝・ラ繧ｷ繝ｼ繝井ｸ翫〒蜍穂ｽ懊☆繧九さ繝ｳ繝懊ン繝ｫ繝繝ｼ縲・,
+                    icon: "fa-solid fa-table-cells",
+                },
+                {
+                    category: "繧ｭ繝｣繝ｩ繧ｯ繧ｿ繝ｼ繧ｷ繝ｼ繝・,
+                    url: "https://docs.google.com/presentation/d/1ZHHNs_yR37joGYSBiYfQ_C_mwmhdFNHmxkA7fItBkKs/edit#slide=id.g2710a927f4d_0_5",
+                    title: "繝繝悶Ν繧ｯ繝ｭ繧ｹ 繧ｳ繝ｳ繝懊ず繧ｧ繝阪Ξ繝ｼ繧ｿ繝ｼ (隱ｬ譏・",
+                    author: "縺翫ｌ",
+                    manual: true,
+                    description: "繧ｳ繝ｳ繝懊ず繧ｧ繝阪Ξ繝ｼ繧ｿ繝ｼ縺ｮ菴ｿ縺・婿繧定ｧ｣隱ｬ縺励◆繧ｹ繝ｩ繧､繝峨・,
+                    icon: "fa-solid fa-person-chalkboard",
+                },
+                {
+                    category: "繝ｭ繧ｰ繝ｻ繝・く繧ｹ繝域紛蠖｢",
+                    url: "https://sirubedon.github.io/ccfolia-log-to-xlsx/",
+                    title: "繧ｳ繧ｳ繝輔か繝ｪ繧｢繝ｭ繧ｰ竊脱xcel螟画鋤",
+                    author: "縺励ｋ縺ｹ",
+                    manual: true,
+                    description: "繧ｳ繧ｳ繝輔か繝ｪ繧｢縺ｮ繝ｭ繧ｰ繧脱xcel蠖｢蠑上↓螟画鋤縺励∪縺吶・,
+                    icon: "fa-solid fa-file-excel",
+                },
+                {
+                    category: "繝ｭ繧ｰ繝ｻ繝・く繧ｹ繝域紛蠖｢",
+                    url: "https://sirubedon.github.io/CCfoliaLogConverterWithImages/",
+                    title: "繧ｳ繧ｳ繝輔か繝ｪ繧｢/Tekey繝ｭ繧ｰ謨ｴ蠖｢ (逕ｻ蜒丞沂霎ｼ)",
+                    author: "縺励ｋ縺ｹ",
+                    manual: true,
+                    description: "繝ｭ繧ｰ縺ｫ逕ｻ蜒上し繝繝阪う繝ｫ繧貞沂繧∬ｾｼ繧薙〒謨ｴ蠖｢縺励∪縺吶・,
+                    icon: "fa-solid fa-image",
+                },
+                {
+                    category: "遶九■邨ｵ",
+                    url: "https://x.com/qxoiUioxp/status/1898323502731796480",
+                    title: "蜍慕判竊貞虚縺冗判蜒・APNG)螟画鋤",
+                    author: "縺励ｋ縺ｹ",
+                    manual: true,
+                    description: "蜍慕判繝輔ぃ繧､繝ｫ繧但PNG蠖｢蠑上↓繧ｪ繝ｳ繝ｩ繧､繝ｳ縺ｧ螟画鋤縺励∪縺吶・,
+                    icon: "fa-solid fa-film",
+                },
+                {
+                    category: "繧｢繝輔ち繝ｼ繝励Ξ繧､",
+                    url: "https://x.com/qxoiUioxp/status/1937703792004440501",
+                    title: "蜊灘ｱ蜻翫ず繧ｧ繝阪Ξ繝ｼ繧ｿ繝ｼ",
+                    author: "縺励ｋ縺ｹ vs 繝繧ｹ繝・,
+                    manual: true,
+                    description: "SNS縺ｧ蝣ｱ蜻翫☆繧九◆繧√・繝・Φ繝励Ξ繧剃ｽ懊ｊ縺ｾ縺吶・,
+                    icon: "fa-brands fa-twitter",
+                },
+            ];
+
+            const toolCardContainer = document.getElementById("tool-card-list-container");
+
+            if (toolCardContainer) {
+                const groupedByCategory = toolData.reduce((acc, tool) => {
+                    const category = tool.category || "縺昴・莉・;
+                    if (!acc[category]) acc[category] = [];
+                    acc[category].push(tool);
+                    return acc;
+                }, {});
+
+                for (const category in groupedByCategory) {
+                    const categoryHeader = document.createElement("h3");
+                    categoryHeader.className = "tool-author-header"; // Re-use style
+                    categoryHeader.textContent = category;
+                    toolCardContainer.appendChild(categoryHeader);
+
+                    const categoryToolList = document.createElement("ul");
+                    categoryToolList.className = "tool-card-list";
+
+                    groupedByCategory[category].forEach((tool) => {
+                        const wrapper = document.createElement("li");
+                        wrapper.className = "ogp-card-wrapper";
+
+                        const cardPlaceholder = document.createElement("div");
+
+                        if (tool.manual) {
+                            renderManualCard(tool, cardPlaceholder);
+                        } else {
+                            cardPlaceholder.className = "ogp-card";
+                            cardPlaceholder.innerHTML = `<a href="${tool.url}" target="_blank" rel="noopener noreferrer"><div class="ogp-card-content"><p>隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</p></div></a>`;
+                            fetchOgpData(tool.url, cardPlaceholder);
+                        }
+
+                        wrapper.appendChild(cardPlaceholder);
+                        categoryToolList.appendChild(wrapper);
+                    });
+                    toolCardContainer.appendChild(categoryToolList);
+                }
+            }
+
+            // --- Schedule Links Generation ---
+            const scheduleData = [
+                {
+                    url: "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw",
+                    title: "繝・う繧ｳ繝ｼ繝・,
+                    description:
+                        "繧ｭ繝｣繝ｩ繧ｷ繧ｵ繧､繝医→騾｣謳ｺ縺励◆譌･遞玖ｪｿ謨ｴ繝・・繝ｫ縲ゆｺ亥ｮ壹・蜈･蜉帙・縺薙■繧峨°繧峨・,
+                    icon: "fa-solid fa-calendar-plus",
+                    manual: true,
+                },
+            ];
+
+            const scheduleLinksContainer = document.getElementById(
+                "schedule-links-container"
+[…truncated…]
+
+=== Representative pages/components ===
+
+=== Styles ===
+
