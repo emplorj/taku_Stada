@@ -66,9 +66,9 @@ E:\Github\taku_Stada\Card_asset\image_load_error.png
 E:\Github\taku_Stada\Card_asset\now_painting.png
 E:\Github\taku_Stada\Card_asset\now_painting_FF.png
 E:\Github\taku_Stada\Card_asset\タイトル.png
-E:\Github\taku_Stada\Card_asset\加算してキラキラ.png
-E:\Github\taku_Stada\Card_asset\加算してキラキラ.webp
-E:\Github\taku_Stada\Card_asset\加算してキラキラ90%.webp
+E:\Github\taku_Stada\Card_asset\sparkle_overlay.png
+E:\Github\taku_Stada\Card_asset\sparkle_overlay.webp
+E:\Github\taku_Stada\Card_asset\sparkle_overlay90%.webp
 E:\Github\taku_Stada\Card_asset\テンプレ\unuse
 E:\Github\taku_Stada\Card_asset\テンプレ\橙カード.png
 E:\Github\taku_Stada\Card_asset\テンプレ\橙カードFF.png
