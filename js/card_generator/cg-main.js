@@ -96,6 +96,18 @@ document.addEventListener("DOMContentLoaded", () => {
         passive: false,
       });
       UI.previewArea.addEventListener("wheel", handleZoom, { passive: false });
+      UI.raritySelect.addEventListener("change", (e) => {
+        if (e.target.value === "custom") {
+          UI.rarityUploadGroup.style.display = "block";
+        } else {
+          UI.rarityUploadGroup.style.display = "none";
+        }
+        updatePreview();
+      });
+      UI.rarityImageUpload.addEventListener(
+        "change",
+        IMAGE.handleRarityImageUpload
+      );
 
       const handleDownload = (isTemplate) => {
         const cardData = {

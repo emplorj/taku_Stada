@@ -85,6 +85,22 @@
       reader.readAsDataURL(file);
     },
 
+    // カスタムレアリティ画像のアップロードハンドラ
+    handleRarityImageUpload: (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      S.isNewRarityImageSelected = true; // 新しいカスタムレアリティ画像が選択されたことを示すフラグ
+      UI.rarityFileName.textContent = file.name;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        UI.rarityImage.src = event.target.result;
+        UI.rarityImage.style.display = "block";
+        S.customRarityImageUrl = event.target.result; // カスタムレアリティ画像のURLを保存
+        RENDERER.updatePreview(); // プレビューを更新してレアリティ画像を表示
+      };
+      reader.readAsDataURL(file);
+    },
+
     setupImageForDrag: () => {
       S.imageState = { x: 0, y: 0, scale: 1 };
       const { offsetWidth: cW, offsetHeight: cH } = UI.imageContainer;

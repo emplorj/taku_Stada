@@ -128,6 +128,36 @@
     forceAdjustTextBoxLayout: (effectEl, flavorEl, speakerEl) => {
       RENDERER._performLayoutAdjustment(effectEl, flavorEl, speakerEl);
     },
+    updateRarityDisplay: () => {
+      const rarityValue = UI.raritySelect.value;
+      const showUpload = rarityValue === "custom";
+
+      UI.rarityUploadGroup.style.display = showUpload ? "block" : "none";
+
+      // カスタムが選択されているが、ファイルがまだ選ばれていない場合は非表示
+      if (showUpload && !UI.rarityImageUpload.files.length) {
+        UI.rarityImage.style.display = "none";
+        UI.rarityFileName.textContent = "選択されていません";
+        return;
+      }
+
+      if (rarityValue === "none") {
+        UI.rarityImage.style.display = "none";
+        UI.rarityImageUpload.value = ""; // 選択をリセット
+        UI.rarityFileName.textContent = "選択されていません";
+      } else if (rarityValue === "custom") {
+        if (S.customRarityImageUrl) {
+          UI.rarityImage.src = S.customRarityImageUrl;
+          UI.rarityImage.style.display = "block";
+        } else {
+          UI.rarityImage.style.display = "none";
+        }
+      } else {
+        // noneでもcustomでもない場合（1, 2, 3, 4）
+        UI.rarityImage.src = `Card_asset/rarity/${rarityValue}.png`;
+        UI.rarityImage.style.display = "block";
+      }
+    },
 
     updatePreview: () => {
       const selectedColorId = UI.cardColorSelect.value;
@@ -193,6 +223,8 @@
         UI.flavorDisplay,
         UI.flavorSpeakerDisplay
       );
+      RENDERER.updateRarityDisplay();
+      RENDERER.updateThemeColor(colorDetails);
       RENDERER.updateThemeColor(colorDetails);
       requestAnimationFrame(window.CG_IMAGE.setupImageForDrag);
     },

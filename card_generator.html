@@ -67,16 +67,40 @@
         <div class="creator-container">
           <aside class="controls-panel">
             <div class="form-group form-group-inline">
-              <div class="form-group-item">
+              <!-- ↓↓↓ クラス名を追加 ↓↓↓ -->
+              <div class="form-group-item flex-2">
                 <label for="card-color-select">カードの色</label>
                 <select id="card-color-select"></select>
                 <span id="card-color-description" class="color-description"></span>
               </div>
-              <div class="form-group-item">
+              <!-- ↓↓↓ クラス名を追加 ↓↓↓ -->
+              <div class="form-group-item flex-2">
                 <label for="card-type-select">カードのタイプ</label>
                 <select id="card-type-select"></select>
               </div>
+              <!-- ↓↓↓ クラス名を追加 ↓↓↓ -->
+              <div class="form-group-item flex-1">
+                <label for="rarity-select">レアリティ</label>
+                <select id="rarity-select">
+                  <option value="none" selected>なし</option>
+                  <option value="1">★</option>
+                  <option value="2">★★</option>
+                  <option value="3">★★★</option>
+                  <option value="4">★★★★</option>
+                  <option value="custom">カスタム画像</option>
+                </select>
+              </div>
             </div>
+            <div class="form-group" id="rarity-upload-group" style="display: none;">
+              <label>カスタムレアリティ画像</label>
+              <div class="image-upload-controls">
+                <label for="rarity-image-upload" class="custom-file-upload">選択</label>
+                <input type="file" id="rarity-image-upload" accept="image/*" style="display: none;">
+                <span id="rarity-file-name" class="file-name-display">選択されていません</span>
+              </div>
+            </div>
+            <!-- ↑↑↑ ここまで追加 ↑↑↑ -->
+
             <div class="form-group" id="background-select-group">
               <label for="background-select">カードの背景</label>
               <select id="background-select">
@@ -167,8 +191,21 @@
                   <div id="text-box-container">
                     <div id="effect-display" class="card-text"></div>
                     <div id="flavor-display" class="card-text"></div>
+                    <div id="fla
+                    vor-speaker-display" class="card-text"></div>
+                  </div>
+                  <div id="text-box-container">
+                    <div id="effect-display" class="card-text"></div>
+                    <div id="flavor-display" class="card-text"></div>
                     <div id="flavor-speaker-display" class="card-text"></div>
                   </div>
+
+                  <!-- ↓↓↓ このブロックを追加 ↓↓↓ -->
+                  <div id="rarity-container">
+                    <img id="rarity-image" src="" alt="レアリティ" style="display: none;">
+                  </div>
+                  <!-- ↑↑↑ このブロックを追加 ↑↑↑ -->
+
                 </div> <!-- /#card-container -->
               </div> <!-- /#preview-area -->
             </main>

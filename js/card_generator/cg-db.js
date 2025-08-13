@@ -57,10 +57,13 @@
       try {
         let imageUrl = S.originalImageUrlForEdit || "DEFAULT";
         let overlayImageUrl = S.originalOverlayImageUrlForEdit || "";
+        // ★★★ 変更箇所１：レアリティ用の変数を準備 ★★★
+        let rarityValue = UI.raritySelect.value;
 
+        // メイン画像のアップロード処理
         const imageUploadFile = UI.imageUpload.files[0];
         if (S.isNewImageSelected && imageUploadFile) {
-          button.innerHTML = `<span class="spinner"></span> 画像1/2...`;
+          button.innerHTML = `<span class="spinner"></span> 画像1/3...`;
           imageUrl = await DB.uploadImageViaGAS(imageUploadFile);
         } else if (
           !S.originalImageUrlForEdit &&
@@ -69,10 +72,11 @@
           imageUrl = "DEFAULT";
         }
 
+        // オーバーレイ画像のアップロード処理
         const overlayUploadFile = UI.overlayImageUpload.files[0];
         if (S.isNewOverlayImageSelected) {
           if (overlayUploadFile) {
-            button.innerHTML = `<span class="spinner"></span> 画像2/2...`;
+            button.innerHTML = `<span class="spinner"></span> 画像2/3...`;
             overlayImageUrl = await DB.uploadImageViaGAS(overlayUploadFile);
           } else {
             overlayImageUrl = "";
@@ -84,10 +88,23 @@
           overlayImageUrl = "";
         }
 
+        // ★★★ 変更箇所２：カスタムレアリティ画像のアップロード処理 ★★★
+        const rarityUploadFile = UI.rarityImageUpload.files[0];
+        if (rarityValue === "custom" && rarityUploadFile) {
+          button.innerHTML = `<span class="spinner"></span> 画像3/3...`;
+          // アップロードした画像のURLをrarityValueとして使用
+          rarityValue = await DB.uploadImageViaGAS(rarityUploadFile);
+        } else if (rarityValue === "custom" && !rarityUploadFile) {
+          // カスタムが選択されているがファイルがない場合は「なし」として扱う
+          rarityValue = "none";
+        }
+
         const cardData = {
           name: UI.cardNameInput.value,
           color: UI.cardColorSelect.value,
           type: UI.cardTypeSelect.value,
+          // ★★★ 変更箇所３：処理済みのrarityValueを使用 ★★★
+          rarity: rarityValue,
           effect: UI.effectInput.value,
           flavor: UI.flavorInput.value,
           speaker: UI.flavorSpeakerInput.value,
@@ -547,6 +564,27 @@
       UI.effectInput.value = data["効果説明"] || data.effect || "";
       UI.flavorInput.value = data["フレーバー"] || data.flavor || "";
       UI.flavorSpeakerInput.value = data["話者"] || data.speaker || "";
+
+      // レアリティの処理を追加
+      const rarityValue = data["レアリティ"] || data.rarity || "none";
+      UI.raritySelect.value = rarityValue;
+      if (rarityValue === "custom") {
+        const customRarityImageUrl =
+          data["カスタムレアリティ画像URL"] || data.customRarityImage || "";
+        if (customRarityImageUrl) {
+          S.customRarityImageUrl = customRarityImageUrl;
+          UI.rarityImage.src = customRarityImageUrl;
+          UI.rarityImage.style.display = "block";
+          UI.rarityFileName.textContent = customRarityImageUrl.split("/").pop();
+        } else {
+          S.customRarityImageUrl = null;
+          UI.rarityImage.style.display = "none";
+          UI.rarityFileName.textContent = "選択されていません";
+        }
+      } else {
+        S.customRarityImageUrl = null;
+        UI.rarityImage.style.display = "none"; // デフォルトのレアリティ画像はupdatePreviewで設定される
+      }
 
       const isSparkle =
         (data["キラ"] || data.sparkle)?.toString().toLowerCase() === "true";

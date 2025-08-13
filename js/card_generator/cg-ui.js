@@ -48,6 +48,12 @@
     effectDisplay: get("effect-display"),
     flavorDisplay: get("flavor-display"),
     flavorSpeakerDisplay: get("flavor-speaker-display"),
+    raritySelect: get("rarity-select"),
+    rarityUploadGroup: get("rarity-upload-group"),
+    rarityImageUpload: get("rarity-image-upload"),
+    rarityFileName: get("rarity-file-name"),
+    rarityContainer: get("rarity-container"),
+    rarityImage: get("rarity-image"),
 
     // バッチ処理
     batchDetails: query(".batch-processing-details"),
