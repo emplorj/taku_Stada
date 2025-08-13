@@ -229,8 +229,8 @@ let el = flavorDisplay.querySelector(".inner-text");
 if (!el) { flavorDisplay.innerHTML = '<div class="inner-text"></div>'; el = flavorDisplay.querySelector(".inner-text"); }
 el.innerHTML = safeFlavor.replace(/\n/g, "<br>");
 
-4. アセットの配置
-   ・Card_asset/sparkle_overlay.apng を追加（提供 APNG をこのパスと名称で置く）
+4. アセットの確認
+   ・Card_asset/sparkle_overlay.png （提供 APNG をこのパスと名称で置く）
 
 5. 動作確認
    ・通常保存でプレビューと出力が一致すること

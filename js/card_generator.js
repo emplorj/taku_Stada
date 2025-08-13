@@ -81,147 +81,48 @@ document.addEventListener("DOMContentLoaded", () => {
   const teikeiModalCloseBtn = document.getElementById("teikei-modal-close-btn");
   const teikeiListContainer = document.getElementById("teikei-list-container");
 
-  const GAS_WEB_APP_URL =
-    "https://script.google.com/macros/s/AKfycby0sdv9U56rGPoyTAViGNAAJGvG-IbmRCJKfodjr5NuzAyUc9n-dfH1UdDEqF0KHZ4U9g/exec";
-  const IMGBB_API_KEY = "906b0e42b775a8ba283f16cd35fb667f";
-
-  let isDragging = false,
-    startX,
-    startY;
-  let imageState = { x: 0, y: 0, scale: 1 },
-    overlayImageState = { x: 0, y: 0, scale: 1 };
-  let imageFitDirection, overlayImageFitDirection;
-  let activeManipulationTarget = "base";
-  let currentEditingCardId = null;
-  let originalImageUrlForEdit = null,
-    originalOverlayImageUrlForEdit = null,
-    isNewImageSelected = false,
-    isNewOverlayImageSelected = false;
-
-  let allCardsData = [],
-    activeColorFilters = new Set(["all"]);
-  let selectedCardIds = new Set();
-  let teikeiCategories = [];
-  let batchData = [],
-    localImageFiles = {};
-  const colorNameToIdMap = {
-    赤: "赤",
-    青: "青",
-    緑: "緑",
-    黄: "黄",
-    橙: "橙",
-    紫: "紫",
-    白: "白",
-    黒: "黒",
-    虹: "虹",
-  };
-
-  const cardColorData = {
-    赤: {
-      name: "赤",
-      description: "BAD EVENT",
-      color: "#990000",
-      hover: "#7a0000",
-      textColor: "#FFFFFF",
-    },
-    青: {
-      name: "青",
-      description: "GOOD EVENT",
-      color: "#3366CC",
-      hover: "#2851a3",
-      textColor: "#FFFFFF",
-    },
-    緑: {
-      name: "緑",
-      description: "取得可能",
-      color: "#009933",
-      hover: "#007a29",
-      textColor: "#FFFFFF",
-    },
-    黄: {
-      name: "黄",
-      description: "金銭、トレジャー",
-      color: "#FFCC66",
-      hover: "#d9ad52",
-      textColor: "#2c3e50",
-    },
-    橙: {
-      name: "橙",
-      description: "その他",
-      color: "#996633",
-      hover: "#7a5229",
-      textColor: "#FFFFFF",
-    },
-    紫: {
-      name: "紫",
-      description: "エネミー等",
-      color: "#663366",
-      hover: "#522952",
-      textColor: "#FFFFFF",
-    },
-    白: {
-      name: "白",
-      description: "RPで切り抜ける",
-      color: "#CCCCCC",
-      hover: "#a3a3a3",
-      textColor: "#2c3e50",
-    },
-    黒: {
-      name: "黒",
-      description: "フィールド",
-      color: "#333333",
-      hover: "#1a1a1a",
-      textColor: "#FFFFFF",
-    },
-    虹: {
-      name: "虹",
-      description: "合体/激ヤバ",
-      color:
-        "linear-gradient(45deg, #e74c3c, #f1c40f, #2ecc71, #3498db, #9b59b6)",
-      hover:
-        "linear-gradient(45deg, #c0392b, #e67e22, #27ae60, #2980b9, #8e44ad)",
-      textColor: "#FFFFFF",
-    },
-  };
-  const cardTypes = {
-    "": { name: "標準" },
-    CF: { name: "タイトル枠なし" },
-    FF: { name: "フルフレーム" },
-    FFCF: { name: "フルフレーム(タイトル枠なし)" },
-  };
+  const S = window.CG_STATE;
+  const UI = window.CG_UI_ELEMENTS;
+  const UTILS = window.CG_UTILS;
+  const RENDERER = window.CG_RENDERER;
+  const IMAGE = window.CG_IMAGE;
+  const DB = window.CG_DB;
+  const BATCH = window.CG_BATCH;
 
   // --- Start of Function Definitions (Correct Order) ---
   // All functions that are called by others should be defined before their callers.
 
   function adjustTextBoxLayout(effectEl, flavorEl, speakerEl) {
-    requestAnimationFrame(() => {
-      const totalHeight = 177.5;
-      const effectMarginBottom = 1;
+    // requestAnimationFrameを削除し、同期的に実行する
+    // 要素のスタイルをリセットして正確な高さを取得
+    flavorEl.style.height = "auto";
+    speakerEl.style.height = "auto";
+    effectEl.style.maxHeight = "none";
 
-      const speakerHeight =
-        speakerEl.style.display !== "none" ? speakerEl.offsetHeight : 0;
-      const flavorHeight =
-        flavorEl.style.display !== "none" ? flavorEl.offsetHeight : 0;
-      const combinedFlavorHeight = flavorHeight + speakerHeight;
+    const totalHeight = 177.5; // テキストボックス全体の高さ
+    const effectMarginBottom = 1; // エフェクトとフレーバーの間のマージン
 
-      const availableHeightForEffect =
-        totalHeight - combinedFlavorHeight - effectMarginBottom;
+    // スタイルを再取得して最新の状態を反映
+    const flavorStyle = window.getComputedStyle(flavorEl);
+    const speakerStyle = window.getComputedStyle(speakerEl);
 
-      const effectStyle = window.getComputedStyle(effectEl);
-      const effectLineHeight = parseFloat(effectStyle.lineHeight);
+    // フレーバーテキストと話者の高さを計算（非表示の場合は0）
+    const flavorHeight =
+      flavorStyle.display !== "none"
+        ? flavorEl.getBoundingClientRect().height
+        : 0;
+    const speakerHeight =
+      speakerStyle.display !== "none"
+        ? speakerEl.getBoundingClientRect().height
+        : 0;
+    const combinedFlavorHeight = flavorHeight + speakerHeight;
 
-      if (effectLineHeight > 0) {
-        const numberOfLines = Math.floor(
-          availableHeightForEffect / effectLineHeight
-        );
-        effectEl.style.maxHeight = `${Math.max(
-          0,
-          numberOfLines * effectLineHeight
-        )}px`;
-      } else {
-        effectEl.style.maxHeight = `${Math.max(0, availableHeightForEffect)}px`;
-      }
-    });
+    // エフェクトテキストが使用できる高さを計算
+    const availableHeightForEffect =
+      totalHeight - combinedFlavorHeight - effectMarginBottom;
+
+    // エフェクトテキストの最大高さを設定
+    effectEl.style.maxHeight = `${Math.max(0, availableHeightForEffect)}px`;
   }
 
   function updateCardName(text) {
@@ -446,19 +347,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedBackground)
       backgroundImage.src = `Card_asset/${selectedBackground}`;
     updateCardName(cardNameInput.value);
-    const replacePunctuation = (text) =>
-      text.replace(/、/g, "､").replace(/。/g, "｡");
-    const addSpacingToChars = (text) =>
-      text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => {
-        if (kernChars) return `<span class="char-kern">${kernChars}</span>`;
-        if (parenChars) return `<span class="paren-fix">${parenChars}</span>`;
-        return match;
-      });
-    effectDisplay.innerHTML = addSpacingToChars(
-      replacePunctuation(effectInput.value)
+    effectDisplay.innerHTML = UTILS.addSpacingToChars(
+      UTILS.replacePunctuation(effectInput.value)
     );
-    const flavorText = replacePunctuation(flavorInput.value.trim());
-    const speakerText = replacePunctuation(flavorSpeakerInput.value.trim());
+    const flavorText = UTILS.replacePunctuation(flavorInput.value.trim());
+    const speakerText = UTILS.replacePunctuation(
+      flavorSpeakerInput.value.trim()
+    );
     flavorDisplay.style.display = flavorText ? "block" : "none";
     let el = flavorDisplay.querySelector(".inner-text");
     if (!el) {
@@ -1516,6 +1411,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showCustomAlert("定型文ファイルの読み込みまたはパースに失敗しました。");
       teikeiCategories = [];
     }
+    console.log("teikeiCategories:", teikeiCategories);
   }
 
   function renderTeikeiModal() {
@@ -1542,39 +1438,17 @@ document.addEventListener("DOMContentLoaded", () => {
           const optionButton = document.createElement("button");
           optionButton.className = "teikei-option-btn";
           let replacedText = item.text;
-          const isNumericOption =
-            !isNaN(parseFloat(option)) && isFinite(option);
-          const placeholders = item.text.match(/【[^】]+】/g) || [];
-          let targetPlaceholder = null;
-          if (isNumericOption) {
-            if (placeholders.includes("【N】")) {
-              targetPlaceholder = "【N】";
-            } else {
-              targetPlaceholder = placeholders.find((p) => p !== "【…】");
-              if (!targetPlaceholder) {
-                targetPlaceholder = placeholders.find((p) => p === "【…】");
-              }
-            }
-          } else {
-            targetPlaceholder = placeholders.find(
-              (p) => p !== "【N】" && p !== "【…】"
-            );
-            if (!targetPlaceholder) {
-              targetPlaceholder = placeholders.find((p) => p === "【…】");
-            }
-            if (!targetPlaceholder) {
-              targetPlaceholder = placeholders.find((p) => p === "【N】");
-            }
-          }
-          if (!targetPlaceholder && placeholders.length === 1) {
-            targetPlaceholder = placeholders[0];
-          }
-          if (targetPlaceholder) {
-            replacedText = item.text.replace(targetPlaceholder, option);
+          const placeholders = item.text.match(/【[^】]+】/g);
+          console.log("item.text:", item.text);
+          console.log("placeholders:", placeholders);
+          console.log("option:", option);
+          if (placeholders && placeholders.length > 0) {
+            // 最初のプレースホルダーを置換
+            replacedText = item.text.replace(placeholders[0], option);
+            console.log("replacedText (after replace):", replacedText);
           }
           optionButton.dataset.text = replacedText;
           optionButton.textContent = option;
-          optionsDiv.appendChild(optionButton);
         });
         itemContainer.appendChild(optionsDiv);
       }
@@ -1705,7 +1579,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>`;
       document.body.appendChild(confirmModal);
-      const okBtn = document.getElementById("custom-confirm-ok-btn");
+      const okBtn = document.getElementById("custom-alert-ok-btn");
       const cancelBtn = document.getElementById("custom-confirm-cancel-btn");
       okBtn.focus();
       okBtn.addEventListener("click", () => {
@@ -2186,19 +2060,11 @@ document.addEventListener("DOMContentLoaded", () => {
       "textbox-styled",
       type === "FF" || type === "FFCF"
     );
-    const replacePunctuation = (text) =>
-      text.replace(/、/g, "､").replace(/。/g, "｡");
-    const addSpacingToChars = (text) =>
-      text.replace(/([0-9\-])|([\(\)])/g, (match, kernChars, parenChars) => {
-        if (kernChars) return `<span class="char-kern">${kernChars}</span>`;
-        if (parenChars) return `<span class="paren-fix">${parenChars}</span>`;
-        return match;
-      });
-    elements.effect.innerHTML = addSpacingToChars(
-      replacePunctuation(cardData["効果説明"] || "")
+    elements.effect.innerHTML = UTILS.addSpacingToChars(
+      UTILS.replacePunctuation(cardData["効果説明"] || "")
     );
-    const flavorText = replacePunctuation(cardData["フレーバー"] || "");
-    const speakerText = replacePunctuation(cardData["話者"] || "");
+    const flavorText = UTILS.replacePunctuation(cardData["フレーバー"] || "");
+    const speakerText = UTILS.replacePunctuation(cardData["話者"] || "");
     elements.flavor.style.display = flavorText ? "block" : "none";
     elements.speaker.style.display = speakerText ? "block" : "none";
     let flavorEl = elements.flavor.querySelector(".inner-text");

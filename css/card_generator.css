@@ -71,7 +71,7 @@ body {
 .controls-panel select {
   width: 100%;
   box-sizing: border-box;
-  background-color: var(--theme-input-bg, #0d1a50);
+  background-color: var(--controls-panel-bg, #0d1a50);
   color: #eee;
   border: 1px solid var(--theme-input-border, #2a3c7d);
   border-radius: 4px;
@@ -226,16 +226,17 @@ body {
   position: relative;
   font-family: "RocknRoll One", sans-serif;
   font-size: 28px;
-  white-space: nowrap;
   transform-origin: center;
   color: #000;
   line-height: 1;
   max-width: 334px;
   text-align: center;
+  display: flex; /* ★★★ この行を追加 ★★★ */
+  justify-content: center; /* ★★★ この行を追加 ★★★ */
 }
 #card-name-content .scaler {
-  display: inline-block;
-  transform-origin: center;
+  display: inline-block; /* ★★★ 'block' から 'inline-block' に変更 ★★★ */
+  transform-origin: center; /* スケーリングの基点を中央に設定 */
   white-space: nowrap;
   font-family: "RocknRoll One", sans-serif;
   font-size: 28px;
@@ -320,7 +321,36 @@ body {
   font-weight: 100;
   line-height: 1.25;
   text-align: left;
-  font-feature-settings: "palt";
+  /* paltを無効化し、基本となる文字間隔を詰める */
+  font-feature-settings: normal;
+  letter-spacing: -0.05em;
+  word-break: break-all;
+}
+/* 詰まりすぎると困る文字種ごとに、逆にスペースを追加して調整する */
+
+/* ★★★ あなたの最終要望：数字とアルファベットの間隔を「0.15em」で統一 ★★★ */
+#effect-display .char-kern,
+#db-effect-display .char-kern,
+#effect-display .alpha-kern,
+#db-effect-display .alpha-kern {
+  letter-spacing: 0em; /* 数字、ハイフン、アルファベットの後ろにスペースを追加 */
+}
+
+/* 括弧（() と （））の間隔を調整 */
+#effect-display .paren-open-fix,
+#db-effect-display .paren-open-fix {
+  letter-spacing: 0.1em; /* 開き括弧の後ろにスペースを追加 */
+}
+#effect-display .paren-close-fix,
+#db-effect-display .paren-close-fix {
+  display: inline-block; /* marginを有効にするため */
+  margin-left: 0.1em; /* 閉じ括弧の「手前」にスペースを追加 */
+}
+
+/* カギ括弧（「」）の間隔を調整 */
+#effect-display .quote-fix,
+#db-effect-display .quote-fix {
+  letter-spacing: 0.1em; /* カギ括弧の後ろにスペースを追加 */
 }
 /* フレーバーテキスト欄 (共通スタイル) */
 #flavor-display,
@@ -342,7 +372,7 @@ body {
 #flavor-display > .inner-text,
 #db-flavor-display > .inner-text {
   width: 100%;
-  word-break: break-word;
+  word-break: break-all; /* こちらも同様に設定 */
   overflow-wrap: break-word;
 }
 /* フレーバー話者欄 (共通スタイル) */
@@ -976,7 +1006,10 @@ body {
   margin-top: 30px;
 }
 .db-card {
-  background-color: var(--theme-bg-dark, #0d1a50);
+  background-color: var(
+    --card-main-color,
+    var(--theme-bg-dark, #0d1a50)
+  ); /* --card-main-color を優先 */
   border-radius: 8px;
   overflow: hidden;
   display: flex;
@@ -1309,9 +1342,7 @@ body {
 
 /* カラーフィルターボタン */
 .color-filter-btn {
-  background-color: var(
-    --filter-btn-border-color
-  ); /* JSから渡される色を背景色に */
+  background: var(--filter-btn-background); /* JSから渡される色を背景に */
   color: var(--filter-btn-hover-text-color); /* JSから渡される文字色 */
   border: 2px solid transparent; /* 縁は透明に */
   border-radius: 5px;
@@ -1399,18 +1430,6 @@ body {
 }
 .custom-modal-actions .secondary-button:hover {
   background-color: #5a6268;
-}
-
-/* 画像出力時のズレ補正 */
-.is-rendering-output #effect-display {
-  font-feature-settings: normal !important;
-  letter-spacing: -0.01em !important;
-}
-.is-rendering-output #effect-display .paren-fix {
-  letter-spacing: -0.04em !important;
-}
-.is-rendering-output #effect-display .char-kern {
-  letter-spacing: 0.2em !important;
 }
 
 /* データベース詳細表示画面 */
@@ -1551,7 +1570,6 @@ body {
 }
 
 /* カード名・画像コンテナの共通スタイル */
-#card-name-container,
 #db-card-name-container {
   position: absolute;
   top: 46px;
@@ -1576,7 +1594,6 @@ body {
   transform-origin: center;
   color: #000;
   line-height: 1;
-  max-width: 334px;
   text-align: center;
 }
 #image-container,
@@ -1708,8 +1725,3 @@ body {
   background-color: var(--card-dark-color, #2980b9);
   filter: brightness(1); /* ホバー時の余分な明るさ調整をリセット */
 }
-
-/* 
- * 削除ボタンは既存の !important 指定があるため、この変更の影響を受けません。
- * (例: .delete-btn { background-color: #560000 !important; })
- */

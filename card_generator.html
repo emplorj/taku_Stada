@@ -10,7 +10,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="card_generator.html" />
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/card_generator.css?v=1.0.4">
+  <link rel="stylesheet" href="css/card_generator.css?v=2.0.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=RocknRoll+One&display=swap"
@@ -432,7 +432,16 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="js/common.js"></script>
-  <script src="js/card_generator.js?v=1.0.4"></script>
+
+  <!-- 分割したJSファイルを読み込み -->
+  <script src="js/card_generator/cg-utils.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-state.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-ui.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-renderer.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-image.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-db.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-batch.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-main.js?v=2.0.0"></script>
 </body>
 
 </html>
