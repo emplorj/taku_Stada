@@ -33,7 +33,7 @@
 
     <div id="log-tool-app" class="plain-text-block" v-cloak>
       <div class="tool-tabs">
-        <button :class="{ active: activeTool === 'growth' }" @click="activeTool = 'growth'"><i
+        <button :class="{ active: activeTool === 'growth' }" @click="activeTool = 'growth'" v-if="isCoCLog"><i
             class="fa-solid fa-square-check"></i> 成長チェック</button>
         <button :class="{ active: activeTool === 'dialogue' }" @click="activeTool = 'dialogue'"><i
             class="fa-solid fa-comments"></i> セリフ抽出</button>
@@ -227,7 +227,7 @@
               </summary>
               <div class="character-settings-grid">
                 <div v-for="charName in characterNames" :key="charName" class="character-settings-item">
-                  <span class="char-name-label">{{ charName }}</span>
+                  <span class="char-name-label clickable" @click="scrollToDialogue(charName)">{{ charName }}</span>
                   <!-- 空白を維持するためのプレースホルダー -->
                   <span class="evasion-label-placeholder"></span>
                   <select v-model="mergeTargets[charName]">
@@ -243,7 +243,9 @@
             </details>
           </div>
 
-          <details v-for="charData in dialogueResults" :key="charData.character" class="character-result-block" open>
+          <details v-for="charData in dialogueResults" :key="charData.character" class="character-result-block"
+            :open="charData.isOpen" @toggle="charData.isOpen = $event.target.open"
+            :id="'dialogue-' + charData.character">
             <summary class="character-header">
               <h3 :style="{ color: charData.color }">
                 <input type="checkbox" @change="toggleSelectCharacter(charData.character, $event.target.checked)">

@@ -451,6 +451,17 @@
   white-space: normal; /* nowrapを解除 */
   min-width: 80px; /* 最小幅を設定して名前の表示領域を確保 */
 }
+
+.char-name-label.clickable {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #87cefa; /* クリック可能なことを示す色 */
+  transition: color 0.2s ease;
+}
+
+.char-name-label.clickable:hover {
+  color: #3498db; /* ホバー時の色 */
+}
 .evasion-label {
   display: flex;
   align-items: center;

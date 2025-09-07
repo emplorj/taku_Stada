@@ -2,6 +2,7 @@ new Vue({
   el: "#log-tool-app",
   data: {
     activeTool: "growth", // 'growth' or 'dialogue'
+    isCoCLog: true,
     logContent: "",
     fileName: "",
     detectedVersion: null,
@@ -145,7 +146,18 @@ new Vue({
         this.selectedTabs = [];
         this.selectedChartCharacter = null;
         this.characterDialogueSelection = {};
+        this.isCoCLog = true;
+        this.activeTool = "growth";
+        this.detectedVersion = null;
         return;
+      }
+
+      // CoCログ判定
+      const isCoC = /CCB|ボーナス・ペナルティダイス/i.test(newContent);
+      this.isCoCLog = isCoC;
+
+      if (!isCoC) {
+        this.activeTool = "dialogue";
       }
 
       const parser = new DOMParser();
@@ -221,6 +233,27 @@ new Vue({
         }
       });
 
+      // 名前が近いキャラクターを自動的にまとめる
+      const sortedCharNames = charNames.sort();
+      const processedForMerge = new Set();
+      for (let i = 0; i < sortedCharNames.length; i++) {
+        const char1 = sortedCharNames[i];
+        if (processedForMerge.has(char1)) continue;
+
+        for (let j = i + 1; j < sortedCharNames.length; j++) {
+          const char2 = sortedCharNames[j];
+          if (processedForMerge.has(char2)) continue;
+
+          if (this.areNamesSimilar(char1, char2)) {
+            // 短い方を長い方にまとめる
+            const target = char1.length >= char2.length ? char1 : char2;
+            const source = char1.length < char2.length ? char1 : char2;
+            this.$set(this.mergeTargets, source, target);
+            processedForMerge.add(source);
+          }
+        }
+      }
+
       this.parsedLogs.forEach((log, index) => {
         const charName = log.character || "（名前なし）";
         if (!this.characterDialogueSelection[charName]) {
@@ -239,12 +272,16 @@ new Vue({
         ...[...tabs].filter((t) => !["メイン", "情報", "雑談"].includes(t)),
       ];
       this.selectedTabs = [...this.tabNames];
-      this.detectedVersion = this.logContent.includes(
-        "ボーナス・ペナルティダイス"
-      )
-        ? "coc7"
-        : "coc6";
-      this.setPreset("official");
+      if (this.isCoCLog) {
+        this.detectedVersion = this.logContent.includes(
+          "ボーナス・ペナルティダイス"
+        )
+          ? "coc7"
+          : "coc6";
+        this.setPreset("official");
+      } else {
+        this.detectedVersion = null;
+      }
 
       this.$nextTick(() => {
         if (this.visibleCharacterNames.length > 0) {
@@ -274,7 +311,7 @@ new Vue({
       this.parsedLogs.forEach((log) => {
         if (log.character) {
           if (this.dialogueOptions.onlyQuoted) {
-            if (log.message.startsWith("「") || log.message.startsWith("『")) {
+            if (/^[「『｢]/.test(log.message)) {
               dialogueChars.add(log.character);
             }
           } else {
@@ -470,11 +507,7 @@ new Vue({
           return;
         }
 
-        if (
-          this.dialogueOptions.onlyQuoted &&
-          !log.message.startsWith("「") &&
-          !log.message.startsWith("『")
-        ) {
+        if (this.dialogueOptions.onlyQuoted && !/^[「『｢]/.test(log.message)) {
           return;
         }
 
@@ -513,11 +546,19 @@ new Vue({
         });
       });
 
-      const results = Object.keys(grouped).map((key) => ({
-        character: key,
-        dialogues: grouped[key].dialogues,
-        color: grouped[key].color || "#eee",
-      }));
+      const results = Object.keys(grouped).map((key) => {
+        const charColor = grouped[key].color || "#eee";
+        const isNpcColor =
+          charColor === "rgb(136, 136, 136)" ||
+          charColor.toLowerCase() === "#888888" ||
+          charColor.toLowerCase() === "#888";
+        return {
+          character: key,
+          dialogues: grouped[key].dialogues,
+          color: charColor,
+          isOpen: !isNpcColor,
+        };
+      });
       return results;
     },
   },
@@ -931,6 +972,44 @@ new Vue({
     },
     selectAllTabs() {
       this.selectedTabs = [...this.tabNames];
+    },
+    scrollToDialogue(charName) {
+      const element = document.getElementById("dialogue-" + charName);
+      if (element) {
+        // 要素が閉じている場合は開く
+        if (!element.open) {
+          element.open = true;
+        }
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    },
+    areNamesSimilar(name1, name2) {
+      // どちらかの名前がもう一方の名前の部分文字列である場合
+      if (name1.includes(name2) || name2.includes(name1)) {
+        return true;
+      }
+
+      // 漢字部分が一致するかどうか (例: 如月 太郎 と 如月)
+      const kanji1 = name1.replace(
+        /[\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Latin}\p{sc=Common}\s]/gu,
+        ""
+      );
+      const kanji2 = name2.replace(
+        /[\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Latin}\p{sc=Common}\s]/gu,
+        ""
+      );
+      if (
+        kanji1 &&
+        kanji2 &&
+        (kanji1.includes(kanji2) || kanji2.includes(kanji1))
+      ) {
+        return true;
+      }
+
+      // その他、より複雑な類似性判定ロジックを追加することも可能
+      // 例: レーベンシュタイン距離など
+
+      return false;
     },
   },
 });

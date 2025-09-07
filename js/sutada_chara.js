@@ -23,6 +23,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       title: "クトゥルフ神話TRPGの卓スタダ-miniのキャラたち",
       bgColorClass: "bg-coc-mini",
     },
+    {
+      title: "ソード・ワールド2.5-miniの卓スタダのキャラたち",
+      bgColorClass: "bg-sw-mini",
+    },
   ];
 
   // 各スライドショーに対応するまとめ画像の情報を定義
@@ -37,7 +41,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     4: {
       path: "img/sutada_display/CoCmini_no.png",
       title: "miniCoCキャラクターまとめ",
-    }, // miniCoCにはCoCのまとめ画像を仮で設定
+    },
+    5: {
+      path: "img/sutada_display/SW_no.png",
+      title: "miniSWキャラクターまとめ",
+    },
   };
 
   const slideshowsContainer = document.getElementById("slideshows-container");
@@ -187,7 +195,7 @@ function generateSummaryHtml(imagePath, title) {
 // サーバーサイドAPIがない場合のフォールバック関数
 async function getImagePaths(index) {
   const basePath = "img/sutada_display/";
-  const gameFolders = ["coc/", "sw/", "dx/", "nc/", "mini_coc/"];
+  const gameFolders = ["coc/", "sw/", "dx/", "nc/", "mini_coc/", "mini_sw/"];
   const allImageData = [
     [
       /* CoC */ "A1_takayuki.png",
@@ -337,7 +345,7 @@ async function getImagePaths(index) {
       "miniB-1.png",
       "miniB-2.png",
       "miniB-3.png",
-      "miniA-4.png",
+      "miniB-4.png",
       "miniB-5.png",
       "miniC-1.png",
       "miniC-2.png",
@@ -363,6 +371,24 @@ async function getImagePaths(index) {
       "miniG-2.png",
       "miniG-3.png",
       "miniG-4.png",
+    ],
+    [
+      /* miniSW */
+      "miniA-1.png",
+      "miniA-2.png",
+      "miniA-3.png",
+      "miniA-4.png",
+      "miniA-5.png",
+      "miniB-1.png",
+      "miniB-2.png",
+      "miniB-3.png",
+      "miniB-4.png",
+      "miniB-5.png",
+      "miniC-1.png",
+      "miniC-2.png",
+      "miniC-3.png",
+      "miniC-4.png",
+      "miniC-5.png",
     ],
   ];
 
