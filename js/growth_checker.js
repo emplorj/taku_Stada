@@ -30,7 +30,7 @@ new Vue({
       applyLineBreaks: true,
     },
     luckyNumber: 1,
-    includeAbilityRolls: true,
+    includeAbilityRolls: false,
     useTwoColumnLayout: false,
     isEnter: false,
     evasionOverrides: {},
@@ -364,6 +364,7 @@ new Vue({
           skillName,
           skillValue,
           tab: log.tab,
+          color: log.color,
         });
       });
       const grouped = {};
@@ -374,7 +375,10 @@ new Vue({
           if (!this.mergeTargets[charName]) {
             this.$set(this.mergeTargets, charName, charName);
           }
-          grouped[charName] = [];
+          grouped[charName] = { logs: [], color: null };
+        }
+        if (!grouped[charName].color && log.color) {
+          grouped[charName].color = log.color;
         }
         const isInitial = this.isInitialSuccess(
           log.skillName,
@@ -382,7 +386,7 @@ new Vue({
           charName,
           log.diceRoll
         );
-        grouped[charName].push({
+        grouped[charName].logs.push({
           skill: log.skillName,
           formattedText: this.formatLogText(log.diceRoll),
           isInitialSuccess: isInitial,
@@ -403,15 +407,23 @@ new Vue({
           targetName = this.mergeTargets[targetName];
         }
         if (this.mergeTargets[targetName] === "__HIDE__") continue;
-        if (!merged[targetName]) merged[targetName] = [];
-        merged[targetName].push(...this.processedResults[charName]);
+        if (!merged[targetName]) {
+          merged[targetName] = { logs: [], color: null };
+        }
+        const sourceResult = this.processedResults[charName];
+        merged[targetName].logs.push(...sourceResult.logs);
+        if (!merged[targetName].color && sourceResult.color) {
+          merged[targetName].color = sourceResult.color;
+        }
       }
       return merged;
     },
     summaryResults() {
       const summary = {};
       for (const charName in this.mergedResults) {
-        const skills = this.mergedResults[charName].map((log) => log.skill);
+        const skills = this.mergedResults[charName].logs.map(
+          (log) => log.skill
+        );
         const uniqueSkills = [...new Set(skills)];
         if (uniqueSkills.length > 0)
           summary[charName] = "◆" + charName + "\n" + uniqueSkills.join("\n");
@@ -742,7 +754,7 @@ new Vue({
     getSkillName(diceRoll) {
       let skillMatch = diceRoll.match(/【(.+?)】/);
       if (skillMatch && skillMatch[1]) {
-        return skillMatch[1].replace(/判定|（.*?）/g, "").trim();
+        return skillMatch[1].replace(/判定/g, "").trim();
       }
       skillMatch = diceRoll.match(
         /CCB?\s*<=\s*[\d\(\)\+\-\*\/×]+\s+(.+?)\s*\(/

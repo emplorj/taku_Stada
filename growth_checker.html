@@ -103,7 +103,7 @@
             <label class="switch-label"><input type="checkbox" v-model="includeAbilityRolls" class="switch-checkbox">
               〈アイデア〉やCONなどの能力値ロールを抽出する</label>
             <label class="switch-label"><input type="checkbox" v-model="useTwoColumnLayout" class="switch-checkbox">
-              抽出結果を横に並べてで表示する（スクショ用）</label>
+              抽出結果を2カラムでで表示する（スクショ用）</label>
           </div>
         </div>
 
@@ -140,9 +140,9 @@
           </div>
 
           <div class="results-grid" :class="{ 'two-column-layout': useTwoColumnLayout }">
-            <div v-for="(logs, characterName) in mergedResults" :key="characterName" class="character-result-block">
+            <div v-for="(result, characterName) in mergedResults" :key="characterName" class="character-result-block">
               <div class="character-header">
-                <h3><span>{{ characterName }}</span></h3>
+                <h3 :style="{ color: result.color }">{{ characterName }}</h3>
                 <button class="copy-summary-button" @click="copyToClipboard(summaryResults[characterName], $event)"
                   @mouseover="showTooltip(characterName, $event)" @mouseleave="hideTooltip"
                   v-if="summaryResults[characterName]">
@@ -150,7 +150,8 @@
                 </button>
               </div>
               <ul>
-                <li v-for="(log, index) in logs" :key="index" :class="{ 'is-initial-success': log.isInitialSuccess }">
+                <li v-for="(log, index) in result.logs" :key="index"
+                  :class="{ 'is-initial-success': log.isInitialSuccess }">
                   <span class="log-tab-badge">[{{ log.tab }}]</span>
                   <span class="log-text" v-html="log.formattedText"></span>
                   <span v-if="log.isInitialSuccess" class="initial-success-badge">初期値成功</span>
