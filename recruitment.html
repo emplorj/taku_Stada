@@ -28,15 +28,42 @@
         <h1><i class="fa-solid fa-bullhorn"></i> 募集掲示板</h1>
         <p class="subtitle">現在募集中のセッションや、開催リクエストが可能なシナリオの一覧です。</p>
       </div>
+      <div class="link-container">
+        <a href="coc_review.html" target="_blank" rel="noopener noreferrer" class="rich-link-card">
+          <div class="rich-link-icon"><i class="fa-solid fa-book-open"></i></div>
+          <div class="rich-link-content">
+            <div class="rich-link-title">シナリオレビューを見る</div>
+            <div class="rich-link-description">
+              みんなの感想を参考にしよう
+            </div>
+          </div>
+          <div class="rich-link-arrow">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </div>
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/17wStGJ37GjaINrjZMFZgmacYOPeH9F8ZiahhtJd_nxI/edit?gid=203728295"
+          target="_blank" rel="noopener noreferrer" class="rich-link-card">
+          <div class="rich-link-icon"><img src="img/spreadsheet.svg" alt="スプレッドシート" class="menu-icon"></div>
+          <div class="rich-link-content">
+            <div class="rich-link-title">スプレッドシートを直接見る</div>
+            <div class="rich-link-description">
+              希望提出、シナリオ掲載、ステータス更新はここから
+            </div>
+          </div>
+          <div class="rich-link-arrow">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </div>
+        </a>
+      </div>
 
       <!-- ▼▼▼ 名前選択UIとグローバルボタンのコンテナ ▼▼▼ -->
       <div id="user-control-container" class="user-controls">
         <!-- JSによって中身が生成されます -->
       </div>
-
-      <!-- フィルターコントロール -->
-      <div id="controls-container" class="controls-wrapper"></div>
     </header>
+
+    <!-- フィルターコントロールをヘッダーの外に移動 -->
+    <div id="controls-container" class="controls-wrapper"></div>
 
     <div id="recruitment-list" class="recruitment-list">
       <p class="loading-message">募集中のシナリオを読み込んでいます...</p>

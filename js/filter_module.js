@@ -25,7 +25,7 @@ class FilterableList {
     const defaults = { searchText: "" };
     if (this.config.popoverFilters) {
       Object.keys(this.config.popoverFilters).forEach((key) => {
-        defaults[key] = [];
+        defaults[key] = this.config.popoverFilters[key].values;
       });
     }
     if (this.config.toggleFilters) {
@@ -61,7 +61,7 @@ class FilterableList {
       for (const [key, filterConfig] of Object.entries(
         this.config.popoverFilters
       )) {
-        topRow.innerHTML += `<div class="filter-group"><label>${filterConfig.label}:</label><button class="filter-trigger-btn" data-filter-key="${key}">すべて</button></div>`;
+        topRow.innerHTML += `<div class="filter-group popover-group"><label>${filterConfig.label}:</label><button class="filter-trigger-btn" data-filter-key="${key}">すべて</button></div>`;
       }
     }
     controls.appendChild(topRow);
@@ -110,25 +110,20 @@ class FilterableList {
   applyFiltersAndSort() {
     this.currentFilters.searchText =
       document.getElementById("search-input")?.value.toLowerCase() || "";
+    // ボタンのテキストを更新
     Object.keys(this.config.popoverFilters || {}).forEach((key) => {
-      const popover = document
-        .querySelector(`button[data-filter-key="${key}"]`)
-        ?.parentElement.querySelector(".popover-container");
-      if (popover) {
-        const checked = Array.from(
-          popover.querySelectorAll("input:checked")
-        ).map((cb) => cb.value);
-        const all = Array.from(popover.querySelectorAll("input")).map(
-          (cb) => cb.value
-        );
-        this.currentFilters[key] =
-          checked.length === 0 || checked.length === all.length ? [] : checked;
-        const btn = document.querySelector(`button[data-filter-key="${key}"]`);
-        if (btn) {
-          if (this.currentFilters[key].length === 0) btn.textContent = "すべて";
-          else if (this.currentFilters[key].length === 1)
-            btn.textContent = this.currentFilters[key][0];
-          else btn.textContent = `${this.currentFilters[key].length}件選択`;
+      const btn = document.querySelector(`button[data-filter-key="${key}"]`);
+      if (btn) {
+        const all = this.config.popoverFilters[key].values;
+        const current = this.currentFilters[key];
+        if (current.length === all.length) {
+          btn.textContent = "すべて";
+        } else if (current.length === 0) {
+          btn.textContent = "選択なし";
+        } else if (current.length === 1) {
+          btn.textContent = current[0];
+        } else {
+          btn.textContent = `${current.length}件選択`;
         }
       }
     });
@@ -153,11 +148,12 @@ class FilterableList {
       }
       // ポップオーバーフィルター
       for (const key of Object.keys(this.config.popoverFilters || {})) {
-        if (
-          this.currentFilters[key].length > 0 &&
-          !this.currentFilters[key].includes(item[key])
-        ) {
-          return false;
+        const allValues = this.config.popoverFilters[key].values;
+        // 「すべて選択」状態でない場合のみフィルタリングを実行
+        if (this.currentFilters[key].length < allValues.length) {
+          if (!this.currentFilters[key].includes(item[key])) {
+            return false;
+          }
         }
       }
       // 通常のトグルフィルター (参加状況フィルターは除く)
@@ -186,6 +182,17 @@ class FilterableList {
     this.renderFunction(filteredData);
   }
 
+  updatePopoverFilter() {
+    if (!this.activePopover) return;
+    const key = this.activePopover.btn.dataset.filterKey;
+    const popover = this.activePopover.popover;
+    const checked = Array.from(popover.querySelectorAll("input:checked")).map(
+      (cb) => cb.value
+    );
+    this.currentFilters[key] = checked;
+    this.applyFiltersAndSort();
+  }
+
   togglePopover(event) {
     event.stopPropagation();
     const btn = event.currentTarget;
@@ -201,8 +208,7 @@ class FilterableList {
     const filterConfig = this.config.popoverFilters[filterKey];
     const currentValues = this.currentFilters[filterKey];
     filterConfig.values.forEach((val) => {
-      const isChecked =
-        currentValues.length === 0 || currentValues.includes(val);
+      const isChecked = currentValues.includes(val);
       checkboxesHtml += `<label><input type="checkbox" data-filter-key="${filterKey}" value="${val}" ${
         isChecked ? "checked" : ""
       }>${val}</label>`;
@@ -210,9 +216,13 @@ class FilterableList {
     checkboxesHtml += "</div>";
     popover.innerHTML = checkboxesHtml;
     popover.querySelectorAll('input[type="checkbox"]').forEach((input) => {
-      input.addEventListener("change", () => this.applyFiltersAndSort());
+      input.addEventListener("change", () => this.updatePopoverFilter());
     });
-    btn.parentElement.appendChild(popover);
+    document.body.appendChild(popover); // bodyに直接追加
+    const rect = btn.getBoundingClientRect();
+    popover.style.top = `${rect.bottom + window.scrollY}px`;
+    popover.style.left = `${rect.left + window.scrollX}px`;
+
     btn.classList.add("active");
     popover.classList.add("is-open");
     this.activePopover = { popover, btn, group: btn.parentElement };
@@ -229,7 +239,8 @@ class FilterableList {
   closePopoverOnClickOutside(event) {
     if (
       this.activePopover &&
-      !this.activePopover.group.contains(event.target)
+      !this.activePopover.popover.contains(event.target) &&
+      !this.activePopover.btn.contains(event.target)
     ) {
       this.closeActivePopover();
     }

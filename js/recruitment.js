@@ -1,7 +1,7 @@
 // /js/recruitment.js (最終完成版)
 document.addEventListener("DOMContentLoaded", () => {
   const GAS_WEB_APP_URL =
-    "https://script.google.com/macros/s/AKfycbydDtPK6ui1W4cHcy5GMEfkV_yW61rUo8Puu79C7fzdkupwZaz9583Fi1u7FJWtKXh1Pw/exec";
+    "https://script.google.com/macros/s/AKfycbyZQ3dTGIuIFdrggw0reZqEq1JqyQ8MZHnihGovv_SOkPaRj7EmZ7qgjqpn4VlVuLRv3w/exec";
   const SPREADSHEET_URL =
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=203728295&single=true&output=csv";
 
@@ -12,6 +12,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let allScenarios = [];
   let currentUser = localStorage.getItem("recruitmentUserName") || "";
+  let selectedScenarios = new Set(); // 選択されたシナリオ名を保持するSet
+
+  // ★★★ まとめて送信ボタンとカウンターを生成・更新する関数 ★★★
+  function createBulkSubmitButton() {
+    const controlsWrapper = document.getElementById("controls-container");
+    if (!controlsWrapper) return;
+
+    let submitContainer = document.getElementById("bulk-submit-container");
+    if (!submitContainer) {
+      submitContainer = document.createElement("div");
+      submitContainer.id = "bulk-submit-container";
+      submitContainer.classList.add("bulk-submit-container");
+      // .filter-controls の後（＝絞り込みの下）に挿入
+      controlsWrapper.appendChild(submitContainer);
+    }
+
+    const count = selectedScenarios.size;
+    submitContainer.innerHTML = `
+      <button id="bulk-submit-button" class="bulk-submit-button" ${
+        count === 0 || !currentUser ? "disabled" : ""
+      }>
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>${count}件の興味ありをまとめて送信</span>
+      </button>
+    `;
+
+    if (count > 0) {
+      document
+        .getElementById("bulk-submit-button")
+        .addEventListener("click", handleBulkSubmit);
+    }
+  }
 
   function getSystemColor(systemName) {
     const rootStyle = getComputedStyle(document.documentElement);
@@ -109,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .filter(Boolean);
     const isAlreadyParticipant = allParticipants.includes(currentUser);
     const isAlreadyInterested = interestedUsers.includes(currentUser);
+    const isSelected = selectedScenarios.has(scenario.name);
 
     let buttonText = "興味あり！";
     let buttonDisabled = !currentUser;
@@ -118,6 +151,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (isAlreadyInterested) {
       buttonText = "興味あり！(登録済)";
       buttonDisabled = true;
+    } else if (isSelected) {
+      buttonText = "選択中";
     }
 
     card.innerHTML = `
@@ -169,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             <div class="card-actions">
                 <button class="interest-button ${
-                  isAlreadyInterested ? "added" : ""
+                  isAlreadyInterested ? "added" : isSelected ? "selected" : ""
                 }" data-scenario-name="${scenario.name}" ${
       buttonDisabled ? "disabled" : ""
     }>
@@ -247,53 +282,82 @@ document.addEventListener("DOMContentLoaded", () => {
         "<p class='loading-message'>該当するシナリオはありません。</p>";
       return;
     }
+    // ★★★ 絞り込み結果がすべて「システム」の場合、展開状態にする ★★★
+    const isAllSystem =
+      scenarios.length > 0 && scenarios.every((s) => s.status === "システム");
+
     scenarios.forEach((scenario) => {
       const card = createScenarioCard(scenario);
-      if (collapsedStates.get(scenario.name)) {
+
+      // 保存された開閉状態、または「すべてシステム」の場合の状態を適用
+      const isCollapsed = collapsedStates.has(scenario.name)
+        ? collapsedStates.get(scenario.name)
+        : scenario.status === "システム" && !isAllSystem;
+
+      if (isCollapsed) {
         card.classList.add("is-collapsed");
       }
+
       listContainer.appendChild(card);
     });
   }
 
-  async function handleInterestClick(button) {
-    if (!currentUser) {
-      alert("先に参加者名を選択してください。");
-      return;
-    }
+  // ★★★ ボタンクリックでシナリオを選択/解除する関数 ★★★
+  function toggleScenarioSelection(button) {
     const scenarioName = button.dataset.scenarioName;
+    if (selectedScenarios.has(scenarioName)) {
+      selectedScenarios.delete(scenarioName);
+      button.classList.remove("selected");
+      button.querySelector("span").textContent = "興味あり！";
+    } else {
+      selectedScenarios.add(scenarioName);
+      button.classList.add("selected");
+      button.querySelector("span").textContent = "選択中";
+    }
+    createBulkSubmitButton(); // ボタンの状態を更新
+  }
+  // ★★★ 選択したシナリオをまとめて送信する関数 ★★★
+  async function handleBulkSubmit() {
+    if (selectedScenarios.size === 0 || !currentUser) return;
+
+    const button = document.getElementById("bulk-submit-button");
     const icon = button.querySelector("i");
     const originalText = button.querySelector("span").textContent;
 
     button.disabled = true;
     button.querySelector("span").textContent = "送信中...";
-    icon.classList.remove("fa-star");
+    icon.classList.remove("fa-paper-plane");
     icon.classList.add("spinner");
 
     try {
-      // ▼▼▼ 送信方法をJSON形式に統一 ▼▼▼
       const response = await fetch(GAS_WEB_APP_URL, {
         method: "POST",
         mode: "cors",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "text/plain;charset=utf-8",
         },
         body: JSON.stringify({
-          scenarioName: scenarioName,
+          scenarioNames: Array.from(selectedScenarios), // 複数のシナリオ名を配列で送信
           userName: currentUser,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`サーバーエラー: ${response.status}`);
-      }
-
       const result = await response.json();
 
-      if (result.status === "success") {
-        button.querySelector("span").textContent = "登録完了！";
-        button.classList.add("added");
+      if (result.logs && Array.isArray(result.logs)) {
+        console.groupCollapsed(
+          `[GAS Logs] ${selectedScenarios.size}件のシナリオを処理`
+        );
+        result.logs.forEach((log) => console.log(log));
+        console.groupEnd();
+      }
 
+      if (!response.ok || result.status !== "success") {
+        throw new Error(result.message || "サーバーからエラーが返されました。");
+      }
+
+      // 成功したら、選択状態とUIを更新
+      result.processedScenarios.forEach((scenarioName) => {
         const targetScenario = allScenarios.find(
           (s) => s.name === scenarioName
         );
@@ -302,17 +366,20 @@ document.addEventListener("DOMContentLoaded", () => {
             ? `${targetScenario.interested},${currentUser}`
             : currentUser;
         }
-      } else {
-        throw new Error(result.message);
-      }
+        selectedScenarios.delete(scenarioName);
+      });
+
+      // ページ全体を再描画して、"登録済"の状態を反映
+      window.filterableList.applyFiltersAndSort();
+      alert(`${result.processedScenarios.length}件の登録が完了しました。`);
     } catch (error) {
-      console.error("送信に失敗:", error);
+      console.error("一括送信に失敗:", error);
       alert(`エラーが発生しました: ${error.message}`);
-      button.querySelector("span").textContent = originalText;
-      button.disabled = false;
     } finally {
+      button.querySelector("span").textContent = originalText;
       icon.classList.remove("spinner");
-      icon.classList.add("fa-star");
+      icon.classList.add("fa-paper-plane");
+      createBulkSubmitButton(); // ボタンの状態を最終更新
     }
   }
 
@@ -349,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? "未記入"
                 : row[getIndex("現状")],
             system: (row[getIndex("システム")] || "不明").replace(
-              "ｻﾀｽﾍ゚",
+              /ｻﾀｽﾍﾟ/g,
               "サタスペ"
             ),
             author: row[getIndex("URL/作者")] || "不明",
@@ -411,15 +478,21 @@ document.addEventListener("DOMContentLoaded", () => {
         .addEventListener("change", (e) => {
           currentUser = e.target.value;
           localStorage.setItem("recruitmentUserName", currentUser);
+          // ユーザーが変更されたら、選択をリセット
+          selectedScenarios.clear();
           window.filterableList.applyFiltersAndSort();
+          createBulkSubmitButton();
         });
+
+      // ★★★ 初期状態でボタンを表示 ★★★
+      createBulkSubmitButton();
 
       listContainer.addEventListener("click", (event) => {
         const header = event.target.closest(".card-header");
         const button = event.target.closest(".interest-button");
         if (button) {
           event.preventDefault();
-          handleInterestClick(button);
+          toggleScenarioSelection(button);
         } else if (header) {
           if (event.target.closest("a")) return;
           header.closest(".recruitment-card").classList.toggle("is-collapsed");
