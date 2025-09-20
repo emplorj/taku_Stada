@@ -1,7 +1,7 @@
 // /js/recruitment.js (最終完成版)
 document.addEventListener("DOMContentLoaded", () => {
   const GAS_WEB_APP_URL =
-    "https://script.google.com/macros/s/AKfycbyMLgrJ9Bo0wjx7hkMVMqpaf0SjREjd0qZ8XBKfbrZasKrJI6vRUdJs0jCm1yAwEw-CWg/exec";
+    "https://script.google.com/macros/s/AKfycbydDtPK6ui1W4cHcy5GMEfkV_yW61rUo8Puu79C7fzdkupwZaz9583Fi1u7FJWtKXh1Pw/exec";
   const SPREADSHEET_URL =
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=203728295&single=true&output=csv";
 
