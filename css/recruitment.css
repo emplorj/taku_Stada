@@ -1,0 +1,290 @@
+/* /css/recruitment.css (ボタンをカード内に戻す最終版) */
+:root {
+  /* カラー定義は変更なし */
+  --filter-accent-color: #87cefa;
+  --filter-item-bg: #0d1a50;
+  --filter-border-color: #2a3c7d;
+  --filter-text-primary: #f0f0f0;
+  --filter-text-secondary: #bdc3c7;
+  --status-recruiting: #8e44ad;
+  --status-consultation: #3498db;
+  --status-possible: #27ae60;
+  --status-onhold: #7f8c8d;
+  --status-wait: #f39c12;
+  --status-system: #34495e;
+  --status-info-missing: #95a5a6;
+  --participant-gm: #c0392b;
+  --participant-interested: #8e44ad;
+  --participant-committed: #2980b9;
+  --participant-played: #27ae60;
+}
+
+.page-header {
+  background-color: #1a2c6d;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-main {
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--filter-border-color);
+  margin-bottom: 15px;
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.2em;
+  padding: 40px;
+}
+
+/* ▼▼▼ 名前選択UIのスタイル ▼▼▼ */
+.user-controls {
+  padding-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.user-controls label {
+  font-weight: bold;
+  color: #bdc3c7;
+  flex-shrink: 0;
+}
+.user-controls select {
+  background-color: #0d1a50;
+  color: #eee;
+  border: 1px solid #2a3c7d;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: inherit;
+  min-width: 150px;
+}
+
+.recruitment-card {
+  background-color: #1a2c6d;
+  border-left: 5px solid;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.card-toggle-icon {
+  color: #bdc3c7;
+  transition: transform 0.3s ease-in-out;
+}
+.is-collapsed .card-toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.scenario-title {
+  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-size: 1.4em;
+  margin: 0;
+  color: #f0f0f0;
+  margin-right: auto;
+}
+.scenario-title a {
+  color: inherit;
+  text-decoration: none;
+}
+.scenario-title a:hover {
+  color: #87cefa;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.85em;
+  font-weight: bold;
+  color: #fff;
+  flex-shrink: 0;
+}
+.status-badge[data-status="募集中"] {
+  background-color: var(--status-recruiting);
+}
+.status-badge[data-status="要相談"] {
+  background-color: var(--status-consultation);
+}
+.status-badge[data-status="周回可能"] {
+  background-color: var(--status-possible);
+}
+.status-badge[data-status="停止中"] {
+  background-color: var(--status-onhold);
+}
+.status-badge[data-status="まって！"] {
+  background-color: var(--status-wait);
+}
+.status-badge[data-status="システム"] {
+  background-color: var(--status-system);
+}
+.status-badge[data-status="未記入"] {
+  background-color: transparent;
+  border: 1px solid var(--status-info-missing);
+  color: var(--status-info-missing);
+  opacity: 0.7;
+}
+
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="未記入"] {
+  background-color: var(--status-info-missing);
+  color: #fff;
+  opacity: 1;
+}
+
+.card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #2a3c7d;
+  font-size: 0.9em;
+  margin-top: 8px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #bdc3c7;
+}
+
+.system-tag {
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+}
+
+.card-collapsible-body {
+  padding-top: 12px;
+  max-height: 1000px;
+  transition: max-height 0.4s ease-in-out, padding-top 0.4s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.is-collapsed .card-collapsible-body {
+  max-height: 0;
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.participants-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.participants-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-block: 0;
+}
+.participants-group dt {
+  font-weight: bold;
+  color: #bdc3c7;
+  flex-shrink: 0;
+  width: 70px;
+  text-align: right;
+}
+.participants-group dd {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.participant-tag {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  color: #fff;
+  cursor: help;
+}
+.participant-tag.gm {
+  background-color: var(--participant-gm);
+}
+.participant-tag.interested {
+  background-color: var(--participant-interested);
+}
+.participant-tag.committed {
+  background-color: var(--participant-committed);
+}
+.participant-tag.played {
+  background-color: var(--participant-played);
+}
+
+.notes {
+  font-size: 0.9em;
+  padding-top: 10px;
+  border-top: 1px dashed #2a3c7d;
+  margin-top: 12px;
+}
+.notes strong {
+  color: #bdc3c7;
+}
+.notes p {
+  margin: 5px 0 0 0;
+  line-height: 1.6;
+}
+
+/* ▼▼▼ カード内の興味ありボタンのスタイル ▼▼▼ */
+.card-actions {
+  padding-top: 12px;
+  margin-top: auto; /* ★これを追加して、ボタンを常に一番下に配置 */
+}
+.interest-button {
+  background-color: var(--status-recruiting);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%; /* 幅を100%に */
+  justify-content: center; /* 中央揃え */
+}
+.interest-button:hover:not(:disabled) {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+}
+.interest-button:disabled {
+  background-color: var(--status-onhold);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.interest-button.added {
+  background-color: var(--status-possible);
+}
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-rotate 0.75s linear infinite;
+}
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>募集掲示板 | 卓スタダ</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- ▼▼▼ 汎用フィルタースタイルを読み込み ▼▼▼ -->
+  <link rel="stylesheet" href="css/filter_style.css">
+  <!-- このページ専用のCSS -->
+  <link rel="stylesheet" href="css/recruitment.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+
+<body>
+  <div id="header-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <main class="main-content">
+    <!-- ▼▼▼ ヘッダー構造を変更 ▼▼▼ -->
+    <header class="page-header">
+      <div class="header-main">
+        <h1><i class="fa-solid fa-bullhorn"></i> 募集掲示板</h1>
+        <p class="subtitle">現在募集中のセッションや、開催リクエストが可能なシナリオの一覧です。</p>
+      </div>
+
+      <!-- ▼▼▼ 名前選択UIとグローバルボタンのコンテナ ▼▼▼ -->
+      <div id="user-control-container" class="user-controls">
+        <!-- JSによって中身が生成されます -->
+      </div>
+
+      <!-- フィルターコントロール -->
+      <div id="controls-container" class="controls-wrapper"></div>
+    </header>
+
+    <div id="recruitment-list" class="recruitment-list">
+      <p class="loading-message">募集中のシナリオを読み込んでいます...</p>
+    </div>
+  </main>
+
+  <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
+  <script src="js/common.js"></script>
+  <!-- ▼▼▼ 汎用モジュールと専用JSを読み込み ▼▼▼ -->
+  <script src="js/filter_module.js"></script>
+  <script src="js/recruitment.js"></script>
+</body>
+
+</html>

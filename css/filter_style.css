@@ -1,0 +1,217 @@
+/* /css/filter_style.css (カラー対応版) */
+:root {
+  --filter-accent-color: #87cefa;
+  --filter-item-bg: #0d1a50;
+  --filter-border-color: #2a3c7d;
+  --filter-text-primary: #f0f0f0;
+  --filter-text-secondary: #bdc3c7;
+}
+
+/* ▼▼▼ 上段フィルター用のコンテナを追加 ▼▼▼ */
+.top-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 15px;
+}
+.name-selector-group {
+  flex-basis: 250px;
+}
+.search-group {
+  flex-grow: 1;
+}
+
+.popover-row {
+  margin-bottom: 15px;
+}
+
+.search-and-popover-row {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  position: relative;
+}
+.filter-group label {
+  font-size: 0.9em;
+  color: var(--filter-text-secondary);
+  font-weight: bold;
+}
+.filter-group select,
+.filter-group .filter-trigger-btn {
+  cursor: pointer;
+}
+
+.filter-group input[type="text"] {
+  cursor: text;
+}
+
+.filter-group select,
+.filter-group input[type="text"],
+.filter-trigger-btn {
+  box-sizing: border-box;
+  background-color: var(--filter-item-bg);
+  color: var(--filter-text-primary);
+  border: 1px solid var(--filter-border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  height: 34px;
+}
+.filter-trigger-btn.active {
+  background-color: var(--filter-accent-color);
+  color: #000;
+  font-weight: bold;
+}
+.filter-group select:hover,
+.filter-trigger-btn:hover {
+  border-color: var(--filter-accent-color);
+}
+
+/* ポップオーバーウィンドウ (変更なし) */
+.search-group {
+  min-width: 200px;
+}
+
+.popover-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  background-color: var(--filter-item-bg);
+  border: 1px solid var(--filter-border-color);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  min-width: 250px;
+  display: none; /* Initially hidden */
+}
+
+.popover-container.active {
+  display: block;
+}
+
+.popover-container .checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.checkboxes label:hover {
+  background-color: #2a3c7d;
+}
+.checkboxes label.selected {
+  background-color: var(--filter-accent-color);
+  color: #000;
+  font-weight: bold;
+}
+
+.checkboxes input[type="checkbox"] {
+  display: none;
+}
+
+/* トグルボタンフィルタースタイル */
+.toggle-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 15px;
+}
+.toggle-filter-group > label {
+  font-size: 0.9em;
+  color: var(--filter-text-secondary);
+  font-weight: bold;
+}
+.toggle-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.toggle-buttons label {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--filter-border-color);
+  color: var(--filter-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9em;
+  font-weight: normal;
+  transition: all 0.2s ease;
+  background-color: var(--filter-item-bg); /* 非選択時の色 */
+}
+.toggle-buttons input[type="checkbox"] {
+  display: none;
+}
+.toggle-buttons label:hover {
+  border-color: var(--filter-accent-color);
+  filter: brightness(1.2);
+}
+
+/* ▼▼▼ 選択されたボタンの色をステータスごとに変更 ▼▼▼ */
+.toggle-buttons input[type="checkbox"]:checked + label {
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  border-color: transparent; /* 選択時は枠線を消して一体感を出す */
+}
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="募集中"] {
+  background-color: var(--status-recruiting);
+}
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="要相談"] {
+  background-color: var(--status-consultation);
+}
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="周回可能"] {
+  background-color: var(--status-possible);
+}
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="停止中"] {
+  background-color: var(--status-onhold);
+}
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="まって！"] {
+  background-color: var(--status-wait);
+}
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="システム"] {
+  background-color: var(--status-system);
+}
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="情報なし"] {
+  background-color: var(--status-info-missing);
+}
+
+/* 参加状況フィルターのスタイル */
+.toggle-buttons label[data-status="未参加"],
+.toggle-buttons label[data-status="GM"],
+.toggle-buttons label[data-status="経験者"] {
+  opacity: 0.7;
+  border: 1px solid var(--filter-text-secondary);
+  background-color: transparent;
+  color: var(--filter-text-secondary);
+}
+
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="未参加"],
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="GM"],
+.toggle-buttons input[type="checkbox"]:checked + label[data-status="経験者"] {
+  opacity: 1;
+  background-color: var(--filter-accent-color);
+  color: #000;
+  border-color: transparent;
+}
