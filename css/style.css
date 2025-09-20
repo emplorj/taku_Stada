@@ -281,7 +281,7 @@ nav.side-menu li {
 }
 
 .side-menu .submenu li {
-  margin-bottom: 4px; /* ネストされたリストアイテムのマージンを小さく */
+  margin-bottom: 0px; /* ネストされたリストアイテムのマージンを小さく */
 }
 
 .side-menu a {
