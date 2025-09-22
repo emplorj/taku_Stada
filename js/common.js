@@ -256,11 +256,9 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // 初期ロード時に特定のサブメニューを展開する
-    const initialOpenTriggers = document.querySelectorAll(
-      ".has-submenu:not(:first-of-type) > .submenu-trigger"
-    );
-    initialOpenTriggers.forEach((trigger) => {
+    // 初期ロード時にすべてのサブメニューを展開する
+    const allSubmenuTriggers = document.querySelectorAll(".submenu-trigger");
+    allSubmenuTriggers.forEach((trigger) => {
       trigger.classList.add("active");
       const submenu = trigger.nextElementSibling;
       if (submenu && submenu.classList.contains("submenu")) {

@@ -291,7 +291,6 @@ nav.side-menu li {
   color: #b0c4de;
   transition: color 0.3s ease;
   display: block; /* クリック範囲を広げる */
-  padding: 1px 0;
   display: flex; /* 1. Flexboxを有効にして、中の要素（アイコンとテキスト）を横並びに */
   align-items: center; /* 2. アイコンとテキストを垂直方向の中央に揃える */
 }
@@ -1452,26 +1451,32 @@ body.no-scroll {
   position: relative;
   color: #fff;
   padding-left: 1.7em; /* 矢印のスペースを確保 */
+  font-size: 1em; /* ヘッダーのフォントサイズを1emに */
+}
+
+/* アイコンがないトリガーにも左側のパディングを適用 */
+.side-menu
+  .has-submenu
+  > a.submenu-trigger:not(:has(i)):not(:has(.menu-icon-svg)) {
+  padding-left: 1.7em;
 }
 
 .side-menu .has-submenu > .submenu-trigger::after {
-  content: "▶";
+  content: "";
   position: absolute;
-  left: 0; /* アイコンと同じ左端に配置 */
+  left: 0.5em;
   top: 50%;
-  transform: translateY(-50%);
-  font-size: 1em;
-  color: #b0c4de;
+  transform: translateY(-65%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0.35em 0 0.35em 0.5em; /* サイズを少し小さく */
+  border-color: transparent transparent transparent #b0c4de;
   transition: transform 0.3s ease;
 }
 
-/* 「メインページ項目」以外のsubmenu-triggerの矢印を非表示にする */
-.side-menu li:not(:first-of-type).has-submenu > .submenu-trigger::after {
-  content: none;
-}
-
 .side-menu .has-submenu > .submenu-trigger.active::after {
-  transform: translateY(-50%) rotate(90deg);
+  transform: translateY(-65%) rotate(90deg);
 }
 
 .side-menu .submenu {
@@ -1479,14 +1484,14 @@ body.no-scroll {
   margin: 0;
   padding: 0;
   border: none;
-  max-height: 0;
+  max-height: 0; /* アコーディオンのためにデフォルトで閉じる */
   overflow: hidden;
   transition: max-height 0.4s ease-in-out;
   box-sizing: border-box;
 }
 
 .side-menu .submenu li a {
-  font-size: 1em;
+  font-size: 0.9em; /* サブメニューのフォントサイズを0.9emに */
   color: #9ab5d9;
 }
 /* ==========================================================================
