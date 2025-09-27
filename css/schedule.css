@@ -164,7 +164,8 @@
   border-radius: 3px;
   word-break: break-word;
   font-size: 1.1em; /* Slightly larger event text */
-  font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif; /* イベントエントリのフォントを基本フォントに */
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
+    "Meiryo", sans-serif;
   /* color is set by JS based on background */
 }
 
@@ -312,7 +313,8 @@
 
 .schedule-table td {
   font-size: 0.95em;
-  font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
+    "Meiryo", sans-serif;
 }
 
 .schedule-system-tag {
@@ -870,7 +872,7 @@
   margin: 0;
   border-radius: 0;
   transition: background-color 0.2s;
-  z-index: 1;
+  z-index: 2; /* ::before疑似要素より手前に表示 */
 }
 .remove-participant-btn:hover {
   background-color: #e53e3e;
@@ -992,9 +994,9 @@
   padding: 0.3em 0.75em;
   border-radius: 6px;
   font-size: 0.9em;
-  font-weight: bold;
+  font-weight: normal;
   line-height: 1.2;
-  min-width: 34px;
+  min-width: 24px;
   white-space: nowrap;
 }
 
@@ -1027,10 +1029,14 @@
 }
 
 .daycord-event-entry {
-  padding: 2px 4px;
+  display: block; /* 縦に並ぶように変更 */
+  padding: 3px 4px 1px; /* 上下のパディングを調整 */
   margin-bottom: 2px;
   border-radius: 4px;
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
+    "Meiryo", sans-serif;
   font-size: 0.9em;
+  font-weight: normal;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -1178,15 +1184,196 @@
 }
 
 .daycord-table tbody tr.unregistered-row {
-  opacity: 0.7;
   background-color: rgba(44, 62, 80, 0.3); /* 通常の偶数行より少し濃いめ */
 }
 
-.daycord-table tbody tr.unregistered-row:hover {
+.daycord-table tbody tr.unregistered-row td {
+  opacity: 0.7;
+}
+
+.daycord-table tbody tr.unregistered-row td:first-child {
+  opacity: 1;
+}
+
+.daycord-table tbody tr.unregistered-row:hover td {
   opacity: 1;
   background-color: rgba(52, 152, 219, 0.25) !important;
 }
 
 .daycord-table tbody tr.unregistered-row td {
   background-color: transparent; /* 個別のセルの背景色をリセット */
+}
+
+/* ==========================================================================
+   16. デイコード集計行のスタイル（フィードバック反映版）
+   ========================================================================== */
+.daycord-table .summary-row {
+  background-color: #1a2c6d;
+}
+
+.daycord-table .summary-row td {
+  color: #f0f0f0;
+  padding: 0 4px; /* 縦のパディングを0に */
+  font-size: 0.8em; /* 文字を小さく */
+  font-weight: normal; /* 太字を解除 */
+}
+
+.daycord-table .summary-row td:first-child {
+  background-color: #2c3e50;
+  text-align: left;
+  padding-left: 35px;
+  font-weight: bold; /* ラベルだけ太字に */
+}
+
+.daycord-table .summary-row td.has-count {
+  color: #ffdd57;
+  font-weight: bold; /* 人数がある場合は少し強調 */
+}
+
+/* ==========================================================================
+   17. デイコード集計セルと日付ヘッダーの色分け
+   ========================================================================== */
+
+/* 集計セルの色分け */
+.daycord-table .summary-row td.summary-cell-yoyu {
+  background-color: #16a34a;
+  color: #fff;
+}
+.daycord-table .summary-row td.summary-cell-dakyo {
+  background-color: #ca8a04;
+  color: #fff;
+}
+.daycord-table .summary-row td.summary-cell-hiru {
+  background-color: #4338ca;
+  color: #fff;
+}
+
+/* 日付ヘッダーの色分け */
+.daycord-table thead th.summary-cell-yoyu {
+  background-color: #16a34a;
+}
+.daycord-table thead th.summary-cell-dakyo {
+  background-color: #ca8a04;
+}
+.daycord-table thead th.summary-cell-hiru {
+  background-color: #4338ca;
+}
+
+/* 選択された日付ヘッダーの色を優先 */
+.daycord-table thead th.selected-date-cell {
+  background-color: #00d1b2 !important;
+}
+
+/* 「予定」行の上に区切り線を追加 */
+.daycord-table .event-row td {
+  border-top: 1px solid #34495e;
+}
+
+/* ==========================================================================
+   18. 読み込み中メッセージのスタイル
+   ========================================================================== */
+.loading-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 20px;
+  font-size: 1.1em;
+  color: #aaa;
+}
+
+/* ==========================================================================
+   20. ドラッグ＆ドロップによる並び替え・非表示機能
+   ========================================================================== */
+
+/* ドラッグハンドルのスタイル */
+.drag-handle {
+  cursor: grab;
+  color: #777;
+  font-size: 1.2em;
+  padding: 0 8px 0 12px;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2; /* 削除ボタンより手前に */
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* 参加者名のセルのpaddingを調整してハンドルのスペースを確保 */
+.daycord-table tbody td:first-child {
+  padding-left: 60px; /* 削除ボタン(30px) + ハンドル(30px) */
+}
+
+/* ドラッグ中のプレースホルダーのスタイル */
+.drag-placeholder {
+  background-color: rgba(52, 152, 219, 0.3);
+  height: 34px; /* ドラッグする行の高さに合わせる */
+}
+.drag-placeholder td {
+  border: 1px dashed #3498db;
+}
+
+/* ドラッグされている行自体のスタイル */
+.dragging-row {
+  opacity: 0.5;
+  background-color: #34495e;
+}
+
+/* 一時非表示エリアのスタイル */
+#hidden-participants-container {
+  background-color: #0d1a50;
+  padding: 15px 20px;
+  border-radius: 8px;
+  border: 2px dashed #2a3c7d;
+  margin-top: 20px;
+  min-height: 100px;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+#hidden-participants-container.drag-over {
+  background-color: #1a2c6d;
+  border-color: #3498db;
+}
+
+#hidden-participants-container h4 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+#hidden-participants-container .note {
+  font-size: 0.8em;
+  color: #aaa;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+#hidden-participants-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hidden-participant-tag {
+  background-color: #2c3e50;
+  color: #e0e0e0;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.85em;
+  -webkit-text-stroke: 0.5px #e0e0e0; /* 細い縁取りで太字感を表現 */
+  text-stroke: 0.5px #e0e0e0;
+}
+.hidden-participant-tag:hover {
+  background-color: #3498db;
+}
+
+/* ==========================================================================
+   19. 長いシステム名のフォントサイズ調整
+   ========================================================================== */
+.daycord-status-tag.long-system-name,
+.daycord-event-entry.long-system-name {
+  font-size: 0.7em; /* フォントサイズを小さく調整 */
+  padding: 0.4em 0.5em; /* パディングを微調整して高さを合わせる */
 }
