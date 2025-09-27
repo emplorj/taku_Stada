@@ -543,6 +543,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       "hidden-participants-container"
     ),
     hiddenParticipantsList: document.getElementById("hidden-participants-list"),
+    loadingIndicator: document.getElementById("loading-indicator"),
   };
   let daycordNames = [],
     schedule = [],
@@ -1268,6 +1269,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       if (dom.scenarioSel) dom.scenarioSel.disabled = false;
       if (dom.presetSel) dom.presetSel.disabled = false;
       if (dom.copySelectedDatesBtn) dom.copySelectedDatesBtn.disabled = false;
+      if (dom.loadingIndicator) dom.loadingIndicator.style.display = "none";
     }
   }
 
@@ -1521,13 +1523,27 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
 
 // --- メイン実行 ---
 document.addEventListener("DOMContentLoaded", async () => {
-  const { allEvents, eventsByDate } = await getSharedEventData();
-  const COLORS = loadSystemColors();
-  TooltipManager.init();
-  if (document.getElementById("custom-calendar-container")) {
-    initializeCalendar({ allEvents, eventsByDate, COLORS });
-  }
-  if (document.getElementById("daycord-table-container")) {
-    initializeDaycordFeature({ allEvents, eventsByDate, COLORS });
+  const loadingIndicator = document.getElementById("loading-indicator");
+  if (loadingIndicator) loadingIndicator.style.display = "block";
+
+  try {
+    const { allEvents, eventsByDate } = await getSharedEventData();
+    const COLORS = loadSystemColors();
+    TooltipManager.init();
+
+    if (document.getElementById("custom-calendar-container")) {
+      initializeCalendar({ allEvents, eventsByDate, COLORS });
+    }
+
+    if (document.getElementById("daycord-table-container")) {
+      initializeDaycordFeature({ allEvents, eventsByDate, COLORS });
+    } else {
+      // daycord機能がない場合は、ここでインジケーターを消す
+      if (loadingIndicator) loadingIndicator.style.display = "none";
+    }
+  } catch (error) {
+    console.error("ページの初期化中にエラーが発生しました:", error);
+    // エラーが発生した場合もインジケーターを消す
+    if (loadingIndicator) loadingIndicator.style.display = "none";
   }
 });
