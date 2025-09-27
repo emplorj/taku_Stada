@@ -164,8 +164,6 @@
   border-radius: 3px;
   word-break: break-word;
   font-size: 1.1em; /* Slightly larger event text */
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
   /* color is set by JS based on background */
 }
 
@@ -987,6 +985,9 @@
 }
 
 .daycord-status-tag {
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
+    "Meiryo", sans-serif;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1042,6 +1043,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: help;
+  position: relative;
+  top: 4px;
 }
 .daycord-event-entry:last-child {
   margin-bottom: 0;
@@ -1225,6 +1228,10 @@
   font-weight: bold; /* ラベルだけ太字に */
 }
 
+.daycord-status-tag {
+  position: relative;
+  top: 4px;
+}
 .daycord-table .summary-row td.has-count {
   color: #ffdd57;
   font-weight: bold; /* 人数がある場合は少し強調 */
