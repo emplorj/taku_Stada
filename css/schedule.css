@@ -703,6 +703,12 @@
 .daycord-table tbody td:first-child::before {
   background-color: #2c3e50;
   box-shadow: -1px 0 0 #2c3e50, 2px 0 5px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s; /* ホバー効果を滑らかに */
+}
+
+/* 参加者列のホバー効果 */
+.daycord-table tbody tr:not(.summary-row):hover td:first-child::before {
+  background-color: #34495e; /* 少し明るい色に変更 */
 }
 
 .daycord-table tbody tr.highlight {
@@ -959,8 +965,8 @@
 .daycord-table tbody tr:nth-child(even) {
   background-color: rgba(44, 62, 80, 0.1);
 }
-.daycord-table tbody tr:hover {
-  background-color: rgba(52, 152, 219, 0.2) !important;
+.daycord-table tbody tr:not(.summary-row):hover td {
+  background-color: rgba(52, 152, 219, 0.2);
 }
 
 .daycord-table tbody td:first-child {
@@ -1213,10 +1219,6 @@
 /* ==========================================================================
    16. デイコード集計行のスタイル（フィードバック反映版）
    ========================================================================== */
-.daycord-table .summary-row {
-  background-color: #1a2c6d;
-}
-
 .daycord-table .summary-row td {
   color: #f0f0f0;
   padding: 0 4px; /* 縦のパディングを0に */
@@ -1225,36 +1227,20 @@
 }
 
 .daycord-table .summary-row td:first-child {
-  background-color: #2c3e50;
   text-align: left;
   padding-left: 35px;
   font-weight: bold; /* ラベルだけ太字に */
 }
-
-.daycord-table .summary-row td.has-count {
-  color: #ffdd57;
-  font-weight: bold; /* 人数がある場合は少し強調 */
-}
-
 /* ==========================================================================
    17. デイコード集計セルと日付ヘッダーの色分け
    ========================================================================== */
 
-/* 集計セルの色分け */
-.daycord-table .summary-row td.summary-cell-yoyu {
-  background-color: #16a34a;
-  color: #fff;
-}
-.daycord-table .summary-row td.summary-cell-dakyo {
-  background-color: #ca8a04;
-  color: #fff;
-}
-.daycord-table .summary-row td.summary-cell-hiru {
-  background-color: #4338ca;
-  color: #fff;
+/* 選択された日付ヘッダーの色 */
+.daycord-table thead th.selected-date-cell {
+  background-color: #00d1b2;
 }
 
-/* 日付ヘッダーの色分け */
+/* 日付ヘッダーの色分け（選択色より優先） */
 .daycord-table thead th.summary-cell-yoyu {
   background-color: #16a34a;
 }
@@ -1265,9 +1251,11 @@
   background-color: #4338ca;
 }
 
-/* 選択された日付ヘッダーの色を優先 */
-.daycord-table thead th.selected-date-cell {
-  background-color: #00d1b2 !important;
+/* 日付ヘッダーの文字色 */
+.daycord-table thead th.summary-cell-yoyu .date-header-label,
+.daycord-table thead th.summary-cell-dakyo .date-header-label,
+.daycord-table thead th.summary-cell-hiru .date-header-label {
+  color: #fff;
 }
 
 /* 「予定」行の上に区切り線を追加 */
@@ -1417,4 +1405,69 @@
   100% {
     transform: translateX(100%);
   }
+}
+
+/* ==========================================================================
+   22. 集計行の記号別色分け
+   ========================================================================== */
+/* ラベルセルの色（::beforeで背景を塗りつぶし） */
+.daycord-table tr.summary-row-o td:first-child::before {
+  background-color: #3298dc;
+}
+.daycord-table tr.summary-row-maru td:first-child::before {
+  background-color: #5cb85c;
+}
+.daycord-table tr.summary-row-sankaku td:first-child::before {
+  background-color: #ffdd57;
+}
+.daycord-table tr.summary-row-batsu td:first-child::before {
+  background-color: #f14668;
+}
+.daycord-table tr.summary-row-shikaku td:first-child::before {
+  background-color: #00d1b2;
+}
+
+/* ラベルセルの文字色 */
+.daycord-table tr.summary-row-sankaku td:first-child {
+  color: rgba(0, 0, 0, 0.7);
+}
+.daycord-table tr.summary-row-o td:first-child,
+.daycord-table tr.summary-row-maru td:first-child,
+.daycord-table tr.summary-row-batsu td:first-child,
+.daycord-table tr.summary-row-shikaku td:first-child {
+  color: #fff;
+}
+
+/* 人数セルのデフォルトの薄い背景色 */
+.daycord-table tr.summary-row-o td:not(:first-child) {
+  background-color: rgba(50, 152, 220, 0.2);
+}
+.daycord-table tr.summary-row-maru td:not(:first-child) {
+  background-color: rgba(92, 184, 92, 0.2);
+}
+.daycord-table tr.summary-row-sankaku td:not(:first-child) {
+  background-color: rgba(255, 221, 87, 0.2);
+}
+.daycord-table tr.summary-row-batsu td:not(:first-child) {
+  background-color: rgba(241, 70, 104, 0.2);
+}
+.daycord-table tr.summary-row-shikaku td:not(:first-child) {
+  background-color: rgba(0, 209, 178, 0.2);
+}
+
+/* 行ける日の色を優先して適用 */
+.daycord-table .summary-row td.summary-cell-yoyu:not(:first-child) {
+  background-color: rgba(22, 163, 74, 0.3) !important;
+}
+.daycord-table .summary-row td.summary-cell-dakyo:not(:first-child) {
+  background-color: rgba(202, 138, 4, 0.3) !important;
+}
+.daycord-table .summary-row td.summary-cell-hiru:not(:first-child) {
+  background-color: rgba(67, 56, 202, 0.3) !important;
+}
+
+/* 人数表示があるセルの文字色（白系で統一） */
+.daycord-table .summary-row td.has-count {
+  font-weight: bold;
+  color: #f0f0f0 !important;
 }

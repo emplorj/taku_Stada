@@ -764,11 +764,19 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const dateStr = d.date.split("(")[0];
       th.dataset.dateCol = dateStr;
 
-      const statusesForDay = dailyParticipantStatus[dayIndex];
+      let statusesForDay = dailyParticipantStatus[dayIndex];
       if (statusesForDay && statusesForDay.length > 0) {
+        const includePending =
+          dom.includePendingCheckbox && dom.includePendingCheckbox.checked;
+
+        if (includePending) {
+          statusesForDay = statusesForDay.map((s) => (s === "－" ? "〇" : s));
+        }
+
         const yoyuOk = ["◎", "〇"];
         const dakyoOk = ["◎", "〇", "△"];
         const hiruOk = ["◎", "□"];
+
         if (statusesForDay.every((s) => yoyuOk.includes(s))) {
           th.classList.add("summary-cell-yoyu");
         } else if (statusesForDay.every((s) => dakyoOk.includes(s))) {
@@ -796,11 +804,19 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     summarySymbols.forEach((symbol) => {
       const summaryRow = tbody.insertRow();
       summaryRow.classList.add("summary-row");
+      const symbolClass = `summary-row-${
+        {
+          "◎": "o",
+          〇: "maru",
+          "△": "sankaku",
+          "✕": "batsu",
+          "□": "shikaku",
+        }[symbol] || "default"
+      }`;
+      summaryRow.classList.add(symbolClass);
+
       const titleCell = summaryRow.insertCell();
       titleCell.innerHTML = `<strong>${symbol}</strong>`;
-      if (symbol === "□") {
-        titleCell.classList.add("summary-label-shikaku");
-      }
 
       schedule.forEach((_, dayIndex) => {
         const statusesForDay = dailyParticipantStatus[dayIndex];
@@ -1381,10 +1397,10 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     });
 
   if (dom.includePendingCheckbox)
-    dom.includePendingCheckbox.addEventListener(
-      "change",
-      calculateAvailableDates
-    );
+    dom.includePendingCheckbox.addEventListener("change", () => {
+      calculateAvailableDates();
+      renderTable(); // テーブルの再描画も行う
+    });
   if (dom.continuousDaysInput)
     dom.continuousDaysInput.addEventListener("input", calculateAvailableDates);
 
