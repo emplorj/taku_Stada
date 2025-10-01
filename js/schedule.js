@@ -85,7 +85,7 @@ function loadSystemColors() {
   const styles = getComputedStyle(document.documentElement);
   const map = {
     "--color-coc": "CoC",
-    "--color-coc-secret": "CoC-㊙",
+    "--color-coc-secret": ["CoC-㊙", "CoC-㊙継"],
     "--color-dx3": "DX3",
     "--color-sw": "SW",
     "--color-sw2-5": "SW2.5",
@@ -98,7 +98,16 @@ function loadSystemColors() {
   };
   for (const cssVar in map) {
     const color = styles.getPropertyValue(cssVar).trim();
-    if (color) colors[map[cssVar]] = color;
+    if (color) {
+      const systemNames = map[cssVar];
+      if (Array.isArray(systemNames)) {
+        systemNames.forEach((name) => {
+          colors[name] = color;
+        });
+      } else {
+        colors[systemNames] = color;
+      }
+    }
   }
   return colors;
 }
