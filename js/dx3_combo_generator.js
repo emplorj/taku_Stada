@@ -94,12 +94,7 @@ new Vue({
     editingEffectType: "",
     editingEffectIndex: -1,
     activeModalTab: "dice",
-    modalTabs: [
-      { key: "accuracy", label: "命中" },
-      { key: "attack", label: "攻撃力" },
-      { key: "guard", label: "ガード値" },
-      { key: "crit", label: "C値" },
-    ],
+    modalTabs: [],
     isEffectSelectModalOpen: false,
     editingComboIndex: -1,
     tempSelectedEffects: [],
@@ -284,15 +279,12 @@ new Vue({
             allItems.find((i) => i.name === itemData.name && i.name)
           )
           .filter(Boolean);
-        const calcResult = (valueKey) => {
+        const calcResult = (valueKey, sources) => {
           let totalDice = 0;
           let totalFixed = 0;
           const breakdown = [];
 
-          const processSource = (source, isItem = false) => {
-            // ガード値は計算に含めない
-            if (isItem && valueKey === "guard") return;
-
+          const processSource = (source) => {
             if (!source.values?.[valueKey]) return;
             const effectiveLevel =
               (Number(source.level) || 0) + comboLevelBonus;
@@ -318,8 +310,7 @@ new Vue({
             }
           };
 
-          relevantEffects.forEach((e) => processSource(e, false));
-          relevantItems.forEach((i) => processSource(i, true));
+          sources.forEach(processSource);
 
           return {
             dice: totalDice,
@@ -328,10 +319,13 @@ new Vue({
           };
         };
 
-        const diceResult = calcResult("dice"); // エフェクトのダイス
-        const achieveResult = calcResult("achieve"); // エフェクトの達成値
-        const atkResult = calcResult("attack"); // エフェクト＋アイテムの攻撃力
-        const accuracyResult = calcResult("accuracy"); // アイテムの命中
+        const diceResult = calcResult("dice", relevantEffects);
+        const achieveResult = calcResult("achieve", relevantEffects);
+        const atkResult = calcResult("attack", [
+          ...relevantEffects,
+          ...relevantItems,
+        ]);
+        const accuracyResult = calcResult("accuracy", relevantItems);
         const accuracyBonus = relevantItems.reduce((total, item) => {
           if (item.accuracy) {
             const parsed = this.evaluateDiceString(String(item.accuracy));
@@ -1533,16 +1527,26 @@ new Vue({
     },
     createDefaultValues() {
       const values = {};
-      this.modalTabs.forEach((tab) => {
-        values[tab.key] = {
+      const tabKeys = [
+        "dice",
+        "achieve",
+        "attack",
+        "accuracy",
+        "guard",
+        "crit",
+      ];
+      tabKeys.forEach((key) => {
+        values[key] = {
           base: 0,
           perLevel: 0,
           isDiceInput: false,
           isPerLevelDiceInput: false,
         };
       });
-      values.crit.base = 0;
       values.crit.min = 10;
+      // isDiceInputはcritには不要なので削除
+      delete values.crit.isDiceInput;
+      delete values.crit.isPerLevelDiceInput;
       return values;
     },
     isEffectDisabled(source) {
@@ -1687,6 +1691,23 @@ new Vue({
     },
     openEffectPanel(event, source, type, index) {
       this.editingEffect = JSON.parse(JSON.stringify(source));
+      if (type === "item") {
+        this.modalTabs = [
+          { key: "accuracy", label: "命中" },
+          { key: "attack", label: "攻撃力" },
+          { key: "guard", label: "ガード値" },
+          { key: "crit", label: "C値" },
+        ];
+        this.activeModalTab = "accuracy";
+      } else {
+        this.modalTabs = [
+          { key: "dice", label: "ダイス" },
+          { key: "achieve", label: "達成値" },
+          { key: "attack", label: "ATK" },
+          { key: "crit", label: "C値" },
+        ];
+        this.activeModalTab = "dice";
+      }
       this.modalTabs.forEach((tab) => {
         if (tab.key !== "crit") {
           if (!this.editingEffect.values[tab.key]) {
@@ -1727,14 +1748,7 @@ new Vue({
         top: `${rect.bottom + window.scrollY + 5}px`,
         left: `${rect.left + window.scrollX - 250}px`,
       };
-      this.modalTabs = [
-        { key: "accuracy", label: "命中" },
-        { key: "attack", label: "攻撃力" },
-        { key: "guard", label: "ガード値" },
-        { key: "crit", label: "C値" },
-      ];
       this.isPanelOpen = true;
-      this.activeModalTab = "accuracy";
     },
     closeEffectPanel() {
       if (this.editingEffect) {
