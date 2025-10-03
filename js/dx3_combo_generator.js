@@ -788,133 +788,52 @@ new Vue({
       if (this.isInitializing) return;
       this.isDirty = true;
     },
+    _parseItemFormula(formulaStr) {
+      if (typeof formulaStr !== "string") return { base: "0", perLevel: "0" };
+      const formula = formulaStr.replace(/\s/g, "");
+      if (formula === "") return { base: "0", perLevel: "0" };
+
+      const baseValue = this.evaluateDiceString(formula, 0);
+      const valueAtLv1 = this.evaluateDiceString(formula, 1);
+
+      const perLevelValue = {
+        dice: valueAtLv1.dice - baseValue.dice,
+        fixed: valueAtLv1.fixed - baseValue.fixed,
+      };
+
+      return {
+        base: this.formatDiceString(baseValue),
+        perLevel: this.formatDiceString(perLevelValue),
+      };
+    },
     parseAttackFormula(item) {
       if (!item || typeof item.attack !== "string") return;
-      const formula = item.attack.replace(/\s/g, "");
-      if (formula === "") {
-        this.$set(item.values.attack, "base", 0);
-        this.$set(item.values.attack, "perLevel", 0);
-        return;
+      const parsed = this._parseItemFormula(item.attack);
+      if (item.values.attack.base !== parsed.base) {
+        this.$set(item.values.attack, "base", parsed.base);
       }
-      let base = 0;
-      let perLevel = 0;
-      try {
-        const baseFormula = formula.replace(/lv/gi, "(0)");
-        const sanitizedBaseFormula = baseFormula.replace(/[^-()\d/*+.]/g, "");
-        if (sanitizedBaseFormula) {
-          base = new Function("return " + sanitizedBaseFormula)();
-        }
-      } catch (e) {
-        base = 0;
-      }
-      try {
-        const perLevelFormula = formula.replace(/lv/gi, "(1)");
-        const sanitizedPerLevelFormula = perLevelFormula.replace(
-          /[^-()\d/*+.]/g,
-          ""
-        );
-        if (sanitizedPerLevelFormula) {
-          const totalAtLv1 = new Function(
-            "return " + sanitizedPerLevelFormula
-          )();
-          perLevel = totalAtLv1 - base;
-        }
-      } catch (e) {
-        perLevel = 0;
-      }
-      if (isNaN(base)) base = 0;
-      if (isNaN(perLevel)) perLevel = 0;
-      if (item.values.attack.base !== base) {
-        this.$set(item.values.attack, "base", base);
-      }
-      if (item.values.attack.perLevel !== perLevel) {
-        this.$set(item.values.attack, "perLevel", perLevel);
+      if (item.values.attack.perLevel !== parsed.perLevel) {
+        this.$set(item.values.attack, "perLevel", parsed.perLevel);
       }
     },
     parseAccuracyFormula(item) {
       if (!item || typeof item.accuracy !== "string") return;
-      const formula = item.accuracy.replace(/\s/g, "");
-      if (formula === "") {
-        this.$set(item.values.accuracy, "base", 0);
-        this.$set(item.values.accuracy, "perLevel", 0);
-        return;
+      const parsed = this._parseItemFormula(item.accuracy);
+      if (item.values.accuracy.base !== parsed.base) {
+        this.$set(item.values.accuracy, "base", parsed.base);
       }
-      let base = 0;
-      let perLevel = 0;
-      try {
-        const baseFormula = formula.replace(/lv/gi, "(0)");
-        const sanitizedBaseFormula = baseFormula.replace(/[^-()\d/*+.]/g, "");
-        if (sanitizedBaseFormula) {
-          base = new Function("return " + sanitizedBaseFormula)();
-        }
-      } catch (e) {
-        base = 0;
-      }
-      try {
-        const perLevelFormula = formula.replace(/lv/gi, "(1)");
-        const sanitizedPerLevelFormula = perLevelFormula.replace(
-          /[^-()\d/*+.]/g,
-          ""
-        );
-        if (sanitizedPerLevelFormula) {
-          const totalAtLv1 = new Function(
-            "return " + sanitizedPerLevelFormula
-          )();
-          perLevel = totalAtLv1 - base;
-        }
-      } catch (e) {
-        perLevel = 0;
-      }
-      if (isNaN(base)) base = 0;
-      if (isNaN(perLevel)) perLevel = 0;
-      if (item.values.accuracy.base !== base) {
-        this.$set(item.values.accuracy, "base", base);
-      }
-      if (item.values.accuracy.perLevel !== perLevel) {
-        this.$set(item.values.accuracy, "perLevel", perLevel);
+      if (item.values.accuracy.perLevel !== parsed.perLevel) {
+        this.$set(item.values.accuracy, "perLevel", parsed.perLevel);
       }
     },
     parseGuardFormula(item) {
       if (!item || typeof item.guard !== "string") return;
-      const formula = item.guard.replace(/\s/g, "");
-      if (formula === "") {
-        this.$set(item.values.guard, "base", 0);
-        this.$set(item.values.guard, "perLevel", 0);
-        return;
+      const parsed = this._parseItemFormula(item.guard);
+      if (item.values.guard.base !== parsed.base) {
+        this.$set(item.values.guard, "base", parsed.base);
       }
-      let base = 0;
-      let perLevel = 0;
-      try {
-        const baseFormula = formula.replace(/lv/gi, "(0)");
-        const sanitizedBaseFormula = baseFormula.replace(/[^-()\d/*+.]/g, "");
-        if (sanitizedBaseFormula) {
-          base = new Function("return " + sanitizedBaseFormula)();
-        }
-      } catch (e) {
-        base = 0;
-      }
-      try {
-        const perLevelFormula = formula.replace(/lv/gi, "(1)");
-        const sanitizedPerLevelFormula = perLevelFormula.replace(
-          /[^-()\d/*+.]/g,
-          ""
-        );
-        if (sanitizedPerLevelFormula) {
-          const totalAtLv1 = new Function(
-            "return " + sanitizedPerLevelFormula
-          )();
-          perLevel = totalAtLv1 - base;
-        }
-      } catch (e) {
-        perLevel = 0;
-      }
-      if (isNaN(base)) base = 0;
-      if (isNaN(perLevel)) perLevel = 0;
-      if (item.values.guard.base !== base) {
-        this.$set(item.values.guard, "base", base);
-      }
-      if (item.values.guard.perLevel !== perLevel) {
-        this.$set(item.values.guard, "perLevel", perLevel);
+      if (item.values.guard.perLevel !== parsed.perLevel) {
+        this.$set(item.values.guard, "perLevel", parsed.perLevel);
       }
     },
     updateAttackFormula(item) {
@@ -1153,11 +1072,10 @@ new Vue({
       }
 
       if (
-        this.isDirty &&
         !skipConfirm &&
         !(await this.showConfirmation(
           "DBからの読み込み",
-          "現在の編集内容は破棄されます。DBからデータを読み込みますか？"
+          "現在の表示内容は破棄されます。DBからデータを読み込みますか？"
         ))
       ) {
         this.showStatus("読み込みをキャンセルしました。");
