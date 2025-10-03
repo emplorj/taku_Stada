@@ -1247,4 +1247,14 @@
   .usage-guide ul {
     padding-left: 25px;
   }
+
+  .confirmation-modal .modal-body p {
+    white-space: pre-wrap;
+    color: #eee;
+    line-height: 1.6;
+  }
+
+  .confirmation-modal .modal-footer {
+    justify-content: flex-end;
+  }
 }

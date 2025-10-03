@@ -294,7 +294,7 @@
               <th>攻撃力</th>
               <th>ガード値</th>
               <th>射程</th>
-              <th>侵蝕値</th>
+              <th title="アイテム自身の効果で使用時に侵蝕値が増える場合に記入します（エフェクトのコストは除く）">侵蝕値</th>
               <th>経験点</th>
               <th>備考</th>
               <th>設定</th>
@@ -526,6 +526,21 @@
           <div class="modal-footer">
             <button @click.stop="cancelEffectSelection" class="cancel-btn">キャンセル</button>
             <button @click.stop="confirmEffectSelection">決定</button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="confirmation.show" class="modal-overlay">
+        <div class="modal-content confirmation-modal" @click.stop>
+          <div class="modal-header">
+            <h3>{{ confirmation.title }}</h3>
+          </div>
+          <div class="modal-body">
+            <p v-html="confirmation.message"></p>
+          </div>
+          <div class="modal-footer">
+            <button @click="cancelConfirmation" class="cancel-btn">キャンセル</button>
+            <button @click="confirmConfirmation">OK</button>
           </div>
         </div>
       </div>

@@ -167,6 +167,13 @@ new Vue({
         "従者専用",
       ],
     },
+    confirmation: {
+      show: false,
+      title: "",
+      message: "",
+      resolve: null,
+      reject: null,
+    },
   },
   created() {
     this.effects = [
@@ -664,6 +671,13 @@ new Vue({
     combos: { handler: "setDataDirty", deep: true },
     characterSheetUrl: {
       handler: function (newVal, oldVal) {
+        if (newVal && newVal.includes("#")) {
+          const normalizedUrl = newVal.split("#")[0];
+          if (this.characterSheetUrl !== normalizedUrl) {
+            this.characterSheetUrl = normalizedUrl;
+            return;
+          }
+        }
         this.setDataDirty();
         this.generateShareUrl();
       },
@@ -1044,14 +1058,18 @@ new Vue({
       return true;
     },
     async overwriteSave() {
+      const confirmed = await this.showConfirmation(
+        "データの上書き保存",
+        "現在の内容でデータを上書き保存しますか？<br>（このURLのデータがなければ新規作成されます）"
+      );
       if (
         !this.validateInputs() ||
         !this.gasWebAppUrl.startsWith("https://script.google.com/") ||
-        !confirm(
-          "現在の内容でデータを上書き保存しますか？\n（このURLのデータがなければ新規作成されます）"
-        )
-      )
+        !confirmed
+      ) {
+        if (!confirmed) this.showStatus("保存をキャンセルしました。");
         return;
+      }
       this.isBusy = true;
       this.showStatus("保存中...", false, 0);
       this.generateShareUrl();
@@ -1091,14 +1109,18 @@ new Vue({
       }
     },
     async deleteFromDb() {
+      const confirmed = await this.showConfirmation(
+        "データの削除",
+        `本当にこのURLのデータを削除しますか？<br>この操作は元に戻せません。<br><br>URL: ${this.characterSheetUrl}`
+      );
       if (
         !this.validateInputs() ||
         !this.gasWebAppUrl.startsWith("https://script.google.com/") ||
-        !confirm(
-          `本当にこのURLのデータを削除しますか？\nこの操作は元に戻せません。\n\nURL: ${this.characterSheetUrl}`
-        )
-      )
+        !confirmed
+      ) {
+        if (!confirmed) this.showStatus("削除をキャンセルしました。");
         return;
+      }
       this.isBusy = true;
       this.showStatus("削除中...", false, 0);
       try {
@@ -1133,7 +1155,10 @@ new Vue({
       if (
         this.isDirty &&
         !skipConfirm &&
-        !confirm("現在の編集内容は破棄されます。DBからデータを読み込みますか？")
+        !(await this.showConfirmation(
+          "DBからの読み込み",
+          "現在の編集内容は破棄されます。DBからデータを読み込みますか？"
+        ))
       ) {
         this.showStatus("読み込みをキャンセルしました。");
         return;
@@ -1176,19 +1201,24 @@ new Vue({
             ...this.createDefaultCombo(),
             ...c,
           }));
+          if (this.combos.length === 0) {
+            this.addCombo();
+          }
           this.showStatus("DBからデータを読み込みました。");
           this.isDirty = false;
           if (
-            confirm(
-              "キャラクターシートの最新データで、キャラクター名、経験点、エフェクト、アイテムを更新しますか？\n（注意：現在作成中のコンボデータは維持されます）"
+            await this.showConfirmation(
+              "キャラクターシートからの更新",
+              "キャラクターシートの最新データで、キャラクター名、経験点、エフェクト、アイテムを更新しますか？<br>（注意：現在作成中のコンボデータは維持されます）"
             )
           ) {
             await this.importFromSheet(true, true);
           }
         } else if (result.status === "not_found") {
           if (
-            confirm(
-              "DBにデータがありません。\nキャラクターシートから新規にデータを引用しますか？"
+            await this.showConfirmation(
+              "新規データ引用",
+              "DBにデータがありません。<br>キャラクターシートから新規にデータを引用しますか？"
             )
           ) {
             this.otherXp = 0;
@@ -1246,13 +1276,14 @@ new Vue({
           : `「${importedData.characterName}」のデータを新規に引用しますか？\n（現在のデータは全て上書きされます）\n\n`;
         if (
           !skipConfirmation &&
-          !confirm(
+          !(await this.showConfirmation(
+            mergeMode ? "データ更新の確認" : "新規引用の確認",
             confirmMessage +
-              `・総経験点: ${importedData.totalXp}\n` +
-              `・エフェクト: ${effectsCount}件\n` +
-              `・イージーエフェクト: ${easyEffectsCount}件\n` +
+              `・総経験点: ${importedData.totalXp}<br>` +
+              `・エフェクト: ${effectsCount}件<br>` +
+              `・イージーエフェクト: ${easyEffectsCount}件<br>` +
               `・アイテム: ${itemsCount}件`
-          )
+          ))
         ) {
           this.showStatus("引用をキャンセルしました。");
           this.isBusy = false;
@@ -1263,6 +1294,7 @@ new Vue({
         if (!mergeMode) {
           this.otherXp = 0;
           this.combos = [];
+          this.addCombo();
         }
         const defaultEffects = this.effects.filter((e) =>
           this.isEssentialEffect(e.name)
@@ -1654,6 +1686,14 @@ new Vue({
       this.editingEffect = JSON.parse(JSON.stringify(source));
       this.modalTabs.forEach((tab) => {
         if (tab.key !== "crit") {
+          if (!this.editingEffect.values[tab.key]) {
+            this.$set(this.editingEffect.values, tab.key, {
+              base: 0,
+              perLevel: 0,
+              isDiceInput: false,
+              isPerLevelDiceInput: false,
+            });
+          }
           const baseValue = String(
             this.editingEffect.values[tab.key].base || "0"
           );
@@ -2020,6 +2060,27 @@ new Vue({
         this.shareUrl = `${baseUrl}?url=${shortUrl}`;
       } else {
         this.shareUrl = "";
+      }
+    },
+    showConfirmation(title, message) {
+      return new Promise((resolve, reject) => {
+        this.confirmation.title = title;
+        this.confirmation.message = message;
+        this.confirmation.show = true;
+        this.confirmation.resolve = resolve;
+        this.confirmation.reject = reject;
+      });
+    },
+    confirmConfirmation() {
+      this.confirmation.show = false;
+      if (this.confirmation.resolve) {
+        this.confirmation.resolve(true);
+      }
+    },
+    cancelConfirmation() {
+      this.confirmation.show = false;
+      if (this.confirmation.resolve) {
+        this.confirmation.resolve(false);
       }
     },
   },
