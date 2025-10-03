@@ -95,10 +95,10 @@ new Vue({
     editingEffectIndex: -1,
     activeModalTab: "dice",
     modalTabs: [
-      { key: "dice", label: "ダイス" },
+      { key: "accuracy", label: "命中" },
+      { key: "attack", label: "攻撃力" },
+      { key: "guard", label: "ガード値" },
       { key: "crit", label: "C値" },
-      { key: "achieve", label: "達成値" },
-      { key: "attack", label: "ATK" },
     ],
     isEffectSelectModalOpen: false,
     editingComboIndex: -1,
@@ -277,11 +277,15 @@ new Vue({
             allItems.find((i) => i.name === itemData.name && i.name)
           )
           .filter(Boolean);
-        const calcResult = (valueKey, items, itemKey) => {
+        const calcResult = (valueKey) => {
           let totalDice = 0;
           let totalFixed = 0;
           const breakdown = [];
-          const processSource = (source) => {
+
+          const processSource = (source, isItem = false) => {
+            // ガード値は計算に含めない
+            if (isItem && valueKey === "guard") return;
+
             if (!source.values?.[valueKey]) return;
             const effectiveLevel =
               (Number(source.level) || 0) + comboLevelBonus;
@@ -295,6 +299,7 @@ new Vue({
               dice: baseParsed.dice + effectiveLevel * perLevelParsed.dice,
               fixed: baseParsed.fixed + effectiveLevel * perLevelParsed.fixed,
             };
+
             if (finalValue.dice !== 0 || finalValue.fixed !== 0) {
               totalDice += finalValue.dice;
               totalFixed += finalValue.fixed;
@@ -305,19 +310,42 @@ new Vue({
               );
             }
           };
-          relevantEffects.forEach(processSource);
-          if (items && itemKey) {
-            items.forEach(processSource);
-          }
+
+          relevantEffects.forEach((e) => processSource(e, false));
+          relevantItems.forEach((i) => processSource(i, true));
+
           return {
             dice: totalDice,
             fixed: totalFixed,
             breakdown: breakdown.join("\n"),
           };
         };
-        const diceResult = calcResult("dice", relevantItems, "dice");
-        const achieveResult = calcResult("achieve", relevantItems, "achieve");
-        const atkResult = calcResult("attack", relevantItems, "attack");
+
+        const diceResult = calcResult("dice"); // エフェクトのダイス
+        const achieveResult = calcResult("achieve"); // エフェクトの達成値
+        const atkResult = calcResult("attack"); // エフェクト＋アイテムの攻撃力
+        const accuracyResult = calcResult("accuracy"); // アイテムの命中
+        const accuracyBonus = relevantItems.reduce((total, item) => {
+          if (item.accuracy) {
+            const parsed = this.evaluateDiceString(String(item.accuracy));
+            return total + parsed.dice + parsed.fixed;
+          }
+          return total;
+        }, 0);
+
+        const accuracyBreakdown = relevantItems
+          .map((item) => {
+            if (item.accuracy) {
+              const parsed = this.evaluateDiceString(String(item.accuracy));
+              const itemAccuracyBonus = parsed.dice + parsed.fixed;
+              if (itemAccuracyBonus !== 0) {
+                return `【${item.name}】(命中): +${itemAccuracyBonus}D`;
+              }
+            }
+            return null;
+          })
+          .filter(Boolean);
+
         const weaponAtk = this.evaluateDiceString(combo.atk_weapon || "0");
         let totalAtkDice = weaponAtk.dice + atkResult.dice;
         let totalAtkFixed = weaponAtk.fixed + atkResult.fixed;
@@ -416,9 +444,11 @@ new Vue({
           primarySkill = combo.baseAbility.skill;
         }
         const abilityName = skillToAbilityMap[primarySkill] || "能力値";
-        const totalDiceForFormula = diceResult.dice;
+        const totalDiceForFormula = diceResult.dice + accuracyResult.dice;
         const totalFixedBonus =
-          (combo.baseAbility.value || 0) + achieveResult.fixed;
+          (combo.baseAbility.value || 0) +
+          achieveResult.fixed +
+          accuracyResult.fixed;
         let diceFormula = `({${abilityName}}+{侵蝕率D}+${totalDiceForFormula})DX${critTotal}`;
         if (totalFixedBonus > 0) {
           diceFormula += `+${totalFixedBonus}`;
@@ -566,14 +596,17 @@ new Vue({
         };
         return {
           ...combo,
-          totalDice: diceResult.dice,
-          diceBreakdown: diceResult.breakdown,
+          totalDice: totalDiceForFormula,
+          diceBreakdown: [diceResult.breakdown, accuracyResult.breakdown]
+            .filter(Boolean)
+            .join("\n"),
           finalCrit: critTotal,
           critBreakdown: critBreakdown.join("\n"),
-          totalAchieve: (combo.baseAbility.value || 0) + achieveResult.fixed,
+          totalAchieve: totalFixedBonus,
           achieveBreakdown: [
             combo.baseAbility.value ? `技能: ${combo.baseAbility.value}` : null,
             achieveResult.breakdown,
+            accuracyResult.breakdown,
           ]
             .filter(Boolean)
             .join("\n"),
@@ -643,6 +676,30 @@ new Vue({
           newValue
         ) {
           this.updateAttackFormula(this.editingEffect);
+        }
+      },
+      deep: true,
+    },
+    "editingEffect.values.accuracy": {
+      handler(newValue, oldValue) {
+        if (
+          this.editingEffectType === "item" &&
+          this.editingEffect &&
+          newValue
+        ) {
+          this.updateAccuracyFormula(this.editingEffect);
+        }
+      },
+      deep: true,
+    },
+    "editingEffect.values.guard": {
+      handler(newValue, oldValue) {
+        if (
+          this.editingEffectType === "item" &&
+          this.editingEffect &&
+          newValue
+        ) {
+          this.updateGuardFormula(this.editingEffect);
         }
       },
       deep: true,
@@ -766,6 +823,92 @@ new Vue({
         this.$set(item.values.attack, "perLevel", perLevel);
       }
     },
+    parseAccuracyFormula(item) {
+      if (!item || typeof item.accuracy !== "string") return;
+      const formula = item.accuracy.replace(/\s/g, "");
+      if (formula === "") {
+        this.$set(item.values.accuracy, "base", 0);
+        this.$set(item.values.accuracy, "perLevel", 0);
+        return;
+      }
+      let base = 0;
+      let perLevel = 0;
+      try {
+        const baseFormula = formula.replace(/lv/gi, "(0)");
+        const sanitizedBaseFormula = baseFormula.replace(/[^-()\d/*+.]/g, "");
+        if (sanitizedBaseFormula) {
+          base = new Function("return " + sanitizedBaseFormula)();
+        }
+      } catch (e) {
+        base = 0;
+      }
+      try {
+        const perLevelFormula = formula.replace(/lv/gi, "(1)");
+        const sanitizedPerLevelFormula = perLevelFormula.replace(
+          /[^-()\d/*+.]/g,
+          ""
+        );
+        if (sanitizedPerLevelFormula) {
+          const totalAtLv1 = new Function(
+            "return " + sanitizedPerLevelFormula
+          )();
+          perLevel = totalAtLv1 - base;
+        }
+      } catch (e) {
+        perLevel = 0;
+      }
+      if (isNaN(base)) base = 0;
+      if (isNaN(perLevel)) perLevel = 0;
+      if (item.values.accuracy.base !== base) {
+        this.$set(item.values.accuracy, "base", base);
+      }
+      if (item.values.accuracy.perLevel !== perLevel) {
+        this.$set(item.values.accuracy, "perLevel", perLevel);
+      }
+    },
+    parseGuardFormula(item) {
+      if (!item || typeof item.guard !== "string") return;
+      const formula = item.guard.replace(/\s/g, "");
+      if (formula === "") {
+        this.$set(item.values.guard, "base", 0);
+        this.$set(item.values.guard, "perLevel", 0);
+        return;
+      }
+      let base = 0;
+      let perLevel = 0;
+      try {
+        const baseFormula = formula.replace(/lv/gi, "(0)");
+        const sanitizedBaseFormula = baseFormula.replace(/[^-()\d/*+.]/g, "");
+        if (sanitizedBaseFormula) {
+          base = new Function("return " + sanitizedBaseFormula)();
+        }
+      } catch (e) {
+        base = 0;
+      }
+      try {
+        const perLevelFormula = formula.replace(/lv/gi, "(1)");
+        const sanitizedPerLevelFormula = perLevelFormula.replace(
+          /[^-()\d/*+.]/g,
+          ""
+        );
+        if (sanitizedPerLevelFormula) {
+          const totalAtLv1 = new Function(
+            "return " + sanitizedPerLevelFormula
+          )();
+          perLevel = totalAtLv1 - base;
+        }
+      } catch (e) {
+        perLevel = 0;
+      }
+      if (isNaN(base)) base = 0;
+      if (isNaN(perLevel)) perLevel = 0;
+      if (item.values.guard.base !== base) {
+        this.$set(item.values.guard, "base", base);
+      }
+      if (item.values.guard.perLevel !== perLevel) {
+        this.$set(item.values.guard, "perLevel", perLevel);
+      }
+    },
     updateAttackFormula(item) {
       if (!item || !item.values || !item.values.attack) return;
       const { base, perLevel } = item.values.attack;
@@ -784,6 +927,46 @@ new Vue({
       }
       if (item.attack !== formula) {
         this.$set(item, "attack", formula);
+      }
+    },
+    updateAccuracyFormula(item) {
+      if (!item || !item.values || !item.values.accuracy) return;
+      const { base, perLevel } = item.values.accuracy;
+      let formula = "";
+      if (perLevel !== 0) {
+        if (perLevel === 1) formula += "LV";
+        else if (perLevel === -1) formula += "-LV";
+        else formula += `LV*${perLevel}`;
+      }
+      if (base !== 0) {
+        if (formula !== "" && base > 0) {
+          formula += `+${base}`;
+        } else {
+          formula += `${base}`;
+        }
+      }
+      if (item.accuracy !== formula) {
+        this.$set(item, "accuracy", formula);
+      }
+    },
+    updateGuardFormula(item) {
+      if (!item || !item.values || !item.values.guard) return;
+      const { base, perLevel } = item.values.guard;
+      let formula = "";
+      if (perLevel !== 0) {
+        if (perLevel === 1) formula += "LV";
+        else if (perLevel === -1) formula += "-LV";
+        else formula += `LV*${perLevel}`;
+      }
+      if (base !== 0) {
+        if (formula !== "" && base > 0) {
+          formula += `+${base}`;
+        } else {
+          formula += `${base}`;
+        }
+      }
+      if (item.guard !== formula) {
+        this.$set(item, "guard", formula);
       }
     },
     handleEffectChange(newEffects, oldEffects) {
@@ -984,7 +1167,11 @@ new Vue({
             level: Number(i.level) || 1,
             values: i.values || this.createDefaultValues(),
           }));
-          this.items.forEach((item) => this.parseAttackFormula(item));
+          this.items.forEach((item) => {
+            this.parseAttackFormula(item);
+            this.parseAccuracyFormula(item);
+            this.parseGuardFormula(item);
+          });
           this.combos = (d.combos || []).map((c) => ({
             ...this.createDefaultCombo(),
             ...c,
@@ -1126,7 +1313,11 @@ new Vue({
             (mergeMode && existingValues.get(i.name)) ||
             this.createDefaultValues(),
         }));
-        this.items.forEach((item) => this.parseAttackFormula(item));
+        this.items.forEach((item) => {
+          this.parseAttackFormula(item);
+          this.parseAccuracyFormula(item);
+          this.parseGuardFormula(item);
+        });
         this.showStatus(
           mergeMode
             ? "エフェクトとアイテムを更新しました！"
@@ -1494,13 +1685,13 @@ new Vue({
         left: `${rect.left + window.scrollX - 250}px`,
       };
       this.modalTabs = [
-        { key: "dice", label: "ダイス" },
+        { key: "accuracy", label: "命中" },
+        { key: "attack", label: "攻撃力" },
+        { key: "guard", label: "ガード値" },
         { key: "crit", label: "C値" },
-        { key: "achieve", label: "達成値" },
-        { key: "attack", label: "ATK" },
       ];
       this.isPanelOpen = true;
-      this.activeModalTab = "dice";
+      this.activeModalTab = "accuracy";
     },
     closeEffectPanel() {
       if (this.editingEffect) {

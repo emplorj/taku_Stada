@@ -443,6 +443,7 @@
   align-items: center;
   gap: 5px;
   flex-wrap: nowrap;
+  white-space: nowrap;
 }
 .stat-item:last-child {
   border-right: none;

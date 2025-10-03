@@ -78,19 +78,19 @@
           <li><strong>【重要】アイテム攻撃力の連携機能</strong>
             <ul>
               <li>アイテムの攻撃力設定は、リストの<strong>「攻撃力」欄</strong>と<strong>詳細設定の「ATK」タブ</strong>が<strong>完全に同期する</strong>。</li>
-              <li>例えば、攻撃力欄に<code>LV*4+2</code>と入力すれば、詳細設定のATKが「基本値: 2」「Lv毎加算: 4」に自動で変わる。</li>
+              <li>例えば、攻撃力欄に<code>LV*4+2</code>と入力すれば、詳細設定のATKが「固定値: 2」「Lv毎加算: 4」に自動で変わる。</li>
               <li>逆に、詳細設定をいじれば、それがリアルタイムで攻撃力欄の式に反映される。どっちからでも入力できるから、好きな方を使ってくれ。</li>
             </ul>
           </li>
-          <li><strong>ダイス・達成値・追加攻撃力の定義</strong>
+          <li><strong>ダイス・固定値・追加攻撃力の定義</strong>
             <ul>
-              <li><strong>基本値:</strong> コンボに乗る固定値を入力する。</li>
+              <li><strong>固定値:</strong> コンボに乗る固定値を入力する。</li>
               <li><strong>Lv毎加算:</strong> LVで効果がスケールするやつはここ。「LV*2」なら「2」と入れれば、あとは勝手に計算してくれる。</li>
             </ul>
           </li>
           <li><strong>C値の下げ方</strong>
             <ul>
-              <li><strong>基本値/Lv毎減算:</strong> C値を下げる効果を入力。シンプルに引いてくれる。</li>
+              <li><strong>固定値/Lv毎減算:</strong> C値を下げる効果を入力。シンプルに引いてくれる。</li>
               <li><strong>C値 下限:</strong> C値の最低ライン。「7」とかで設定しとけば、それ以下にはならない。計算ミスがなくて最高。</li>
             </ul>
           </li>
@@ -308,9 +308,10 @@
                   @input="updateAndSyncLevel('items', index, $event.target.value)" min="1" class="text-right"></td>
               <td><input type="text" v-model="item.type"></td>
               <td><input-with-dropdown v-model="item.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
-              <td><input type="text" v-model="item.accuracy" class="text-right"></td>
+              <td><input type="text" v-model="item.accuracy" @change="parseAccuracyFormula(item)" class="text-right">
+              </td>
               <td><input type="text" v-model="item.attack" @change="parseAttackFormula(item)" class="text-right"></td>
-              <td><input type="text" v-model="item.guard" class="text-right"></td>
+              <td><input type="text" v-model="item.guard" @change="parseGuardFormula(item)" class="text-right"></td>
               <td><input type="text" v-model="item.range"></td>
               <td class="text-right"><input type="text" v-model="item.cost" class="text-right"></td>
               <td class="text-right"><input type="number" v-model.number="item.xp" class="text-right"></td>
@@ -343,7 +344,8 @@
         <div class="combo-stats-bar">
           <div class="stat-item" :title="combo.diceBreakdown">ダイス: {{ combo.totalDice }}</div>
           <div class="stat-item" :title="combo.critBreakdown">C値: {{ combo.finalCrit }}</div>
-          <div class="stat-item" :title="combo.achieveBreakdown">達成値: +{{ combo.totalAchieve }}</div>
+          <div class="stat-item" :title="combo.achieveBreakdown">達成値: {{ combo.totalAchieve >= 0 ? '+' : '' }}{{
+            combo.totalAchieve }}</div>
           <div class="stat-item target-setting">
             <span>対象:
               <input-with-dropdown
@@ -453,12 +455,12 @@
           <div class="modal-tab-content">
             <div v-show="activeModalTab !== 'crit'" class="panel-grid">
               <div class="input-group">
-                <label>{{ activeModalTabLabel }} 基本値: <span class="input-example">(例: [LV*2<span
+                <label>{{ activeModalTabLabel }} 固定値: <span class="input-example">(例: [LV*2<span
                       class="color-base">+4]</span>)</span></label>
                 <div class="input-with-addon">
                   <input type="number" v-model.number="editingEffect.values[activeModalTab].base">
                   <button
-                    v-if="activeModalTab === 'dice' || activeModalTab === 'achieve' || activeModalTab === 'attack'"
+                    v-if="activeModalTab === 'dice' || activeModalTab === 'accuracy' || activeModalTab === 'attack' || activeModalTab === 'guard'"
                     @click.stop="editingEffect.values[activeModalTab].isDiceInput = !editingEffect.values[activeModalTab].isDiceInput"
                     :class="{active: editingEffect.values[activeModalTab].isDiceInput}" class="dice-toggle-btn"
                     title="クリックでダイス表記のON/OFFを切替">D</button>
@@ -470,7 +472,7 @@
                 <div class="input-with-addon">
                   <input type="number" v-model.number="editingEffect.values[activeModalTab].perLevel">
                   <button
-                    v-if="activeModalTab === 'dice' || activeModalTab === 'achieve' || activeModalTab === 'attack'"
+                    v-if="activeModalTab === 'dice' || activeModalTab === 'accuracy' || activeModalTab === 'attack' || activeModalTab === 'guard'"
                     @click.stop="editingEffect.values[activeModalTab].isPerLevelDiceInput = !editingEffect.values[activeModalTab].isPerLevelDiceInput"
                     :class="{active: editingEffect.values[activeModalTab].isPerLevelDiceInput}" class="dice-toggle-btn"
                     title="クリックでダイス表記のON/OFFを切替">D</button>
@@ -478,7 +480,7 @@
               </div>
             </div>
             <div v-show="activeModalTab === 'crit'">
-              <div class="input-group"><label>C値 基本値:</label><input type="number"
+              <div class="input-group"><label>C値 固定値:</label><input type="number"
                   v-model.number="editingEffect.values.crit.base"></div>
               <div class="input-group"><label>C値 Lv毎減算:</label><input type="number"
                   v-model.number="editingEffect.values.crit.perLevel"></div>
