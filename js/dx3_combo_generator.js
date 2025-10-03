@@ -272,7 +272,11 @@ new Vue({
       return this.combos.map((combo) => {
         const comboLevelBonus = combo.comboLevelBonus || 0;
         const relevantEffects = (combo.effectNames || [])
-          .map((name) => allEffects.find((e) => e.name === name && e.name))
+          .map((effectData) => {
+            const name =
+              typeof effectData === "string" ? effectData : effectData.name;
+            return allEffects.find((e) => e.name === name && e.name);
+          })
           .filter(Boolean);
         const relevantItems = (combo.itemNames || [])
           .map((itemData) =>
@@ -405,6 +409,13 @@ new Vue({
           }
         });
         const effectComposition = relevantEffects
+          .filter((effect) => {
+            const comboEffectData = (combo.effectNames || []).find(
+              (e) => (typeof e === "string" ? e : e.name) === effect.name
+            );
+            if (typeof comboEffectData === "string") return true;
+            return comboEffectData ? comboEffectData.showInComboName : true;
+          })
           .map(
             (e) =>
               `《${e.name}》Lv${e.level}${
@@ -941,7 +952,9 @@ new Vue({
         return [];
       }
       return effectNames
-        .map((name) => {
+        .map((effectData) => {
+          const name =
+            typeof effectData === "string" ? effectData : effectData.name;
           if (!name || typeof name !== "string" || !name.trim()) return null;
           const trimmedName = name.trim();
           return allEffects.find(
@@ -1714,9 +1727,15 @@ new Vue({
     openEffectSelectModal(comboIndex) {
       this.editingComboIndex = comboIndex;
       const combo = this.combos[comboIndex];
-      this.tempSelectedEffects = (combo.effectNames || [])
-        .map((name) =>
-          [...this.effects, ...this.easyEffects].find((e) => e.name === name)
+      const effectNamesData = (combo.effectNames || []).map((item) =>
+        typeof item === "string" ? { name: item, showInComboName: true } : item
+      );
+      this.$set(combo, "effectNames", effectNamesData);
+      this.tempSelectedEffects = effectNamesData
+        .map((effectData) =>
+          [...this.effects, ...this.easyEffects].find(
+            (e) => e.name === effectData.name
+          )
         )
         .filter(Boolean);
       this.tempSelectedItems = (combo.itemNames || [])
@@ -1727,7 +1746,17 @@ new Vue({
     confirmEffectSelection() {
       if (this.editingComboIndex !== -1) {
         const combo = this.combos[this.editingComboIndex];
-        const effectNames = this.tempSelectedEffects.map((e) => e.name);
+        const effectNames = this.tempSelectedEffects.map((effect) => {
+          const existingEffect = (combo.effectNames || []).find(
+            (e) => e.name === effect.name
+          );
+          return {
+            name: effect.name,
+            showInComboName: existingEffect
+              ? existingEffect.showInComboName
+              : true,
+          };
+        });
         const itemNames = this.tempSelectedItems.map((item) => {
           const existingItem = (combo.itemNames || []).find(
             (i) => i.name === item.name
@@ -1810,6 +1839,37 @@ new Vue({
         .catch((err) => {
           console.error("コピーに失敗しました", err);
         });
+    },
+    isEffectSelected(effectName) {
+      if (!this.isEffectSelectModalOpen) return false;
+      return this.tempSelectedEffects.some(
+        (effect) => effect.name === effectName
+      );
+    },
+    isShowInComboNameForEffect(effectName) {
+      if (!this.isEffectSelectModalOpen) return false;
+      const combo = this.combos[this.editingComboIndex];
+      const effectData = (combo.effectNames || []).find(
+        (e) => e.name === effectName
+      );
+      return effectData ? effectData.showInComboName : true;
+    },
+    toggleShowInComboNameForEffect(effectToToggle) {
+      if (!this.isEffectSelectModalOpen) return;
+      const combo = this.combos[this.editingComboIndex];
+      const isCurrentlySelected = this.tempSelectedEffects.some(
+        (effect) => effect.name === effectToToggle.name
+      );
+      if (!isCurrentlySelected) return;
+
+      let effectData = (combo.effectNames || []).find(
+        (e) => e.name === effectToToggle.name
+      );
+
+      if (effectData) {
+        effectData.showInComboName = !effectData.showInComboName;
+        this.$forceUpdate();
+      }
     },
     isItemSelected(itemName) {
       if (!this.isEffectSelectModalOpen) return false;
