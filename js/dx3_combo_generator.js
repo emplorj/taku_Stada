@@ -1093,7 +1093,7 @@ new Vue({
         const result = await response.json();
         if (result.status !== "success")
           throw new Error(result.message || "不明なエラー");
-        this.showStatus("保存しました！");
+        this.showStatus("保存しました！", false, 2000);
         this.isDirty = false;
       } catch (error) {
         console.error("Save Error:", error);
@@ -1146,6 +1146,12 @@ new Vue({
     },
     async loadFromDb(skipConfirm = false) {
       if (!this.validateInputs()) return;
+
+      // URLのハッシュを確実に除去
+      if (this.characterSheetUrl.includes("#")) {
+        this.characterSheetUrl = this.characterSheetUrl.split("#")[0];
+      }
+
       if (
         this.isDirty &&
         !skipConfirm &&
