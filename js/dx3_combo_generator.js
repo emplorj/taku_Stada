@@ -1179,18 +1179,18 @@ new Vue({
             ...this.createDefaultEffect(),
             ...e,
             level: Number(e.level) || 1,
-            values: e.values || this.createDefaultValues(),
+            values: { ...this.createDefaultValues(), ...(e.values || {}) },
           }));
           this.easyEffects = (d.easyEffects || []).map((e) => ({
             ...this.createDefaultEffect(),
             ...e,
             level: Number(e.level) || 1,
-            values: e.values || this.createDefaultValues(),
+            values: { ...this.createDefaultValues(), ...(e.values || {}) },
           }));
           this.items = (d.items || []).map((i) => ({
             ...i,
             level: Number(i.level) || 1,
-            values: i.values || this.createDefaultValues(),
+            values: { ...this.createDefaultValues(), ...(i.values || {}) },
           }));
           this.items.forEach((item) => {
             this.parseAttackFormula(item);
@@ -1303,8 +1303,9 @@ new Vue({
           ...this.createDefaultEffect(),
           ...e,
           values:
-            (mergeMode && existingValues.get(e.name)) ||
-            this.createDefaultValues(),
+            mergeMode && existingValues.get(e.name)
+              ? { ...this.createDefaultValues(), ...existingValues.get(e.name) }
+              : this.createDefaultValues(),
         }));
         const mergedEffects = [...defaultEffects];
         importedEffects.forEach((imported) => {
@@ -1322,8 +1323,9 @@ new Vue({
           ...this.createDefaultEffect(),
           ...e,
           values:
-            (mergeMode && existingValues.get(e.name)) ||
-            this.createDefaultValues(),
+            mergeMode && existingValues.get(e.name)
+              ? { ...this.createDefaultValues(), ...existingValues.get(e.name) }
+              : this.createDefaultValues(),
         }));
         const defaultItem = {
           name: "",
@@ -1342,8 +1344,9 @@ new Vue({
           ...defaultItem,
           ...i,
           values:
-            (mergeMode && existingValues.get(i.name)) ||
-            this.createDefaultValues(),
+            mergeMode && existingValues.get(i.name)
+              ? { ...this.createDefaultValues(), ...existingValues.get(i.name) }
+              : this.createDefaultValues(),
         }));
         this.items.forEach((item) => {
           this.parseAttackFormula(item);
