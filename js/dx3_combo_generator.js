@@ -435,6 +435,30 @@ new Vue({
         const compositionText = [effectComposition, itemComposition]
           .filter(Boolean)
           .join("+");
+
+        const hiddenBuffs = [
+          ...relevantEffects.filter((effect) => {
+            const comboEffectData = (combo.effectNames || []).find(
+              (e) => (typeof e === "string" ? e : e.name) === effect.name
+            );
+            return (
+              typeof comboEffectData !== "string" &&
+              comboEffectData &&
+              !comboEffectData.showInComboName
+            );
+          }),
+          ...relevantItems.filter((item) => {
+            const comboItemData = (combo.itemNames || []).find(
+              (i) => i.name === item.name
+            );
+            return comboItemData && !comboItemData.showInComboName;
+          }),
+        ].map((b) => b.name);
+
+        const hasHiddenBuffs = hiddenBuffs.length > 0;
+        const hiddenBuffsTooltip = hasHiddenBuffs
+          ? `適用中のバフ: ${hiddenBuffs.join(", ")}`
+          : "";
         const autoEffectText = [...relevantEffects, ...relevantItems]
           .map((source) =>
             this.evaluateEffectText(
@@ -635,6 +659,8 @@ new Vue({
           compositionText,
           autoEffectText,
           chatPalette,
+          hasHiddenBuffs,
+          hiddenBuffsTooltip,
           target: finalTarget,
           range: finalRange,
           timing: finalTiming,
@@ -1504,20 +1530,33 @@ new Vue({
           .replace(/ｸﾘﾝﾅｯﾌﾟ/g, "クリンナップ")
           .replace(/\//g, "／");
       };
-      const selectedSources = this.tempSelectedEffects.filter(
-        (s) => typeof s.timing !== "undefined"
+
+      // これから選択しようとしているエフェクトが既に選択されているか
+      const isCurrentlySelected = this.tempSelectedEffects.some(
+        (e) => e.name === source.name
       );
-      const primaryTimingSource = selectedSources.find(
-        (s) => s.timing && normalizeTiming(s.timing) !== "オート"
-      );
-      if (!primaryTimingSource) return false;
-      const primaryTimings = normalizeTiming(primaryTimingSource.timing).split(
-        "／"
-      );
-      const sourceTimingStr = normalizeTiming(source.timing);
-      if (sourceTimingStr === "オート" || sourceTimingStr === "") return false;
-      const sourceTimings = sourceTimingStr.split("／");
-      return !primaryTimings.some((pt) => sourceTimings.includes(pt));
+
+      // これからチェックを外す場合は、常に操作を許可
+      if (isCurrentlySelected) {
+        return false;
+      }
+
+      // これからチェックを入れる場合、未来のタイミングリストを作成
+      const futureSelectedTimings = [
+        ...this.tempSelectedEffects.map((e) => normalizeTiming(e.timing)),
+        normalizeTiming(source.timing),
+      ];
+
+      const hasDedicatedMajor = futureSelectedTimings.includes("メジャー");
+      const hasDedicatedReaction =
+        futureSelectedTimings.includes("リアクション");
+
+      // メジャー専用とリアクション専用が同時に存在することになる場合は、無効化
+      if (hasDedicatedMajor && hasDedicatedReaction) {
+        return true;
+      }
+
+      return false;
     },
     addEffect() {
       this.effects.push(this.createDefaultEffect());
@@ -1754,7 +1793,7 @@ new Vue({
             name: effect.name,
             showInComboName: existingEffect
               ? existingEffect.showInComboName
-              : true,
+              : effect.timing !== "マイナー",
           };
         });
         const itemNames = this.tempSelectedItems.map((item) => {

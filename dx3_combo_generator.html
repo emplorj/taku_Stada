@@ -116,6 +116,15 @@
             </ul>
           </li>
         </ul>
+
+        <h4><i class="fa-solid fa-ghost"></i> 隠し味としてのバフ。</h4>
+        <p>マイナーアクションのバフみたいに、「コンボ名はスッキリさせたいけど、効果は乗せたい」って時あるだろ？そういう時はこれだ。</p>
+        <ul>
+          <li><strong>「コンボ」ボタンの切り替え:</strong>
+            エフェクトやアイテムを選ぶ時、右側にある「コンボ」ボタンをオフにすると、その効果はコンボ名に表示されなくなる。でも、ダイスやC値の計算にはちゃんと反映されるから安心しろ。</li>
+          <li><strong>(+α)インジケーター:</strong> コンボ名に表示されないバフがある場合、「組合せ」ボタンの横に「(+α)」って表示が出る。カーソルを合わせれば、どの隠しバフが乗ってるか確認できるぞ。
+          </li>
+        </ul>
         <p>じゃ、あとはこのツールで自分だけの最強コンボ、作り込んでくれ。</p>
       </div>
     </details>
@@ -398,10 +407,12 @@
           <div class="stat-item" :title="combo.atkBreakdown">ATK: {{ combo.totalAtk }}</div>
           <div class="stat-item" :title="combo.costBreakdown">侵蝕値: {{ combo.totalCost }}</div>
         </div>
-        <button @click.stop="openEffectSelectModal(index)" class="effect-select-button"><i
-            class="fa-solid fa-check-double"></i> 組合せ ({{ (combos[index].effectNames ? combos[index].effectNames.length
-          : 0) + (combos[index].itemNames ? combos[index].itemNames.length : 0) }}件選択中): {{ combo.compositionText
-          }}</button>
+        <button @click.stop="openEffectSelectModal(index)" class="effect-select-button">
+          <i class="fa-solid fa-check-double"></i> 組合せ ({{ (combos[index].effectNames ? combos[index].effectNames.length
+          : 0) + (combos[index].itemNames ? combos[index].itemNames.length : 0) }}件選択中):
+          {{ combo.compositionText }}
+          <span v-if="combo.hasHiddenBuffs" class="hidden-buff-indicator" :title="combo.hiddenBuffsTooltip">(+α)</span>
+        </button>
         <div class="combo-details-grid">
           <div class="combo-textarea-wrapper">
             <div class="textarea-header"><label>フレーバーテキスト</label></div>
@@ -500,16 +511,25 @@
             <div class="option-group">
               <strong>エフェクト</strong>
               <label v-for="effect in effects" :key="effect.name + editingComboIndex + 'effect-select'"
-                :class="{disabled: isEffectDisabled(effect)}"><input type="checkbox" :value="effect"
-                  v-model="tempSelectedEffects" :disabled="isEffectDisabled(effect)"> {{ effect.name }} ({{
-                effect.timing }})</label>
+                class="item-select-label" :class="{disabled: isEffectDisabled(effect)}">
+                <input type="checkbox" :value="effect" v-model="tempSelectedEffects"
+                  :disabled="isEffectDisabled(effect)">
+                <span>{{ effect.name }} ({{ effect.timing }})</span>
+                <button @click.stop="toggleShowInComboNameForEffect(effect)"
+                  :class="{active: isShowInComboNameForEffect(effect.name)}" :disabled="!isEffectSelected(effect.name)"
+                  class="show-in-combo-btn" title="クリックでコンボ名への表示／非表示を切替">コンボ</button>
+              </label>
             </div>
             <div class="option-group">
               <strong>イージーエフェクト</strong>
               <label v-for="ee in easyEffects" :key="ee.name + editingComboIndex + 'ee-select'"
-                :class="{disabled: isEffectDisabled(ee)}"><input type="checkbox" :value="ee"
-                  v-model="tempSelectedEffects" :disabled="isEffectDisabled(ee)"> {{ ee.name }} ({{ ee.timing
-                }})</label>
+                class="item-select-label" :class="{disabled: isEffectDisabled(ee)}">
+                <input type="checkbox" :value="ee" v-model="tempSelectedEffects" :disabled="isEffectDisabled(ee)">
+                <span>{{ ee.name }} ({{ ee.timing }})</span>
+                <button @click.stop="toggleShowInComboNameForEffect(ee)"
+                  :class="{active: isShowInComboNameForEffect(ee.name)}" :disabled="!isEffectSelected(ee.name)"
+                  class="show-in-combo-btn" title="クリックでコンボ名への表示／非表示を切替">コンボ</button>
+              </label>
             </div>
             <div class="option-group">
               <strong>アイテム</strong>
