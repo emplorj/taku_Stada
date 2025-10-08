@@ -81,26 +81,61 @@
   opacity: 0.7;
 }
 
-.status-message {
-  width: 100%;
-  padding: 0 15px;
-  min-height: 1.2em;
-  font-size: 0.9em;
-  color: #87cefa;
-  text-align: center;
-  transition: color 0.3s;
-  box-sizing: border-box;
-  position: absolute;
-  bottom: -32px;
-  left: 0;
-  right: 0;
-  transform: none;
-  margin-bottom: 0;
+@keyframes slideIn {
+  from {
+    transform: translate(-50%, 100px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
 }
 
-.status-message.error {
-  color: #e74c3c;
+@keyframes slideOut {
+  from {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, 100px);
+    opacity: 0;
+  }
+}
+
+.toast-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px 30px;
+  border-radius: 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.2em;
   font-weight: bold;
+  z-index: 10000;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  border: 2px solid;
+  animation: slideIn 0.3s ease-out forwards, slideOut 0.3s ease-in 1.7s forwards;
+  min-width: 300px;
+  justify-content: center;
+}
+
+.toast-notification.success {
+  background: linear-gradient(135deg, #2ecc71, #28b463);
+  border-color: #a3e9a4;
+}
+
+.toast-notification.error {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border-color: #f5b7b1;
+}
+
+.toast-notification i {
+  font-size: 1.5em;
 }
 
 .top-info-wrapper {
@@ -745,7 +780,7 @@
 }
 .input-with-addon .dice-toggle-btn {
   background-color: #6c757d;
-  color: white;
+  color: rgb(206, 206, 206);
   border: none;
   border-radius: 4px;
   padding: 3px 8px;
@@ -757,6 +792,7 @@
 
 .input-with-addon .dice-toggle-btn.active {
   background-color: #2ecc71;
+  color: white;
 }
 
 .input-with-addon .dice-toggle-btn:hover:not(:disabled) {

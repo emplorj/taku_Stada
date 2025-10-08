@@ -76,9 +76,7 @@ new Vue({
       "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec",
     characterSheetUrl: "",
     isBusy: false,
-    statusMessage: "",
     shareUrl: "",
-    statusIsError: false,
     isDirty: false,
     isInitializing: true,
     characterName: "",
@@ -168,6 +166,11 @@ new Vue({
       message: "",
       resolve: null,
       reject: null,
+    },
+    toast: {
+      show: false,
+      message: "",
+      isError: false,
     },
   },
   created() {
@@ -992,15 +995,13 @@ new Vue({
         })
         .filter(Boolean);
     },
-    showStatus(message, isError = false, duration = 4000) {
-      this.statusMessage = message;
-      this.statusIsError = isError;
-      if (duration > 0) {
-        setTimeout(() => {
-          this.statusMessage = "";
-          this.statusIsError = false;
-        }, duration);
-      }
+    showStatus(message, isError = false, duration = 2000) {
+      this.toast.message = message;
+      this.toast.isError = isError;
+      this.toast.show = true;
+      setTimeout(() => {
+        this.toast.show = false;
+      }, duration);
     },
     validateInputs() {
       if (!this.characterSheetUrl) {
@@ -1051,7 +1052,7 @@ new Vue({
         const result = await response.json();
         if (result.status !== "success")
           throw new Error(result.message || "不明なエラー");
-        this.showStatus("保存しました！", false, 2000);
+        this.showStatus("保存が完了しました！");
         this.isDirty = false;
       } catch (error) {
         console.error("Save Error:", error);
@@ -1541,18 +1542,28 @@ new Vue({
         return false;
       }
 
-      // これからチェックを入れる場合、未来のタイミングリストを作成
-      const futureSelectedTimings = [
-        ...this.tempSelectedEffects.map((e) => normalizeTiming(e.timing)),
-        normalizeTiming(source.timing),
+      const majorLikeTimings = ["メジャー", "メジャー／リア"];
+      const minorLikeTimings = [
+        "マイナー",
+        "セットアップ",
+        "クリンナップ",
+        "イニシアチブ",
+        "リアクション",
       ];
 
-      const hasDedicatedMajor = futureSelectedTimings.includes("メジャー");
-      const hasDedicatedReaction =
-        futureSelectedTimings.includes("リアクション");
+      const normalizedSourceTiming = normalizeTiming(source.timing);
+      const selectedTimings = this.tempSelectedEffects.map((e) =>
+        normalizeTiming(e.timing)
+      );
 
-      // メジャー専用とリアクション専用が同時に存在することになる場合は、無効化
-      if (hasDedicatedMajor && hasDedicatedReaction) {
+      // 補助アクションが選択されている状態で、主軸アクションは選択不可
+      const hasMinorLike = selectedTimings.some((t) =>
+        minorLikeTimings.includes(t)
+      );
+      const sourceIsMajorLike = majorLikeTimings.includes(
+        normalizedSourceTiming
+      );
+      if (hasMinorLike && sourceIsMajorLike) {
         return true;
       }
 
@@ -1785,15 +1796,39 @@ new Vue({
     confirmEffectSelection() {
       if (this.editingComboIndex !== -1) {
         const combo = this.combos[this.editingComboIndex];
+        const majorLikeTimings = ["メジャー", "メジャー／リア"];
+        const minorLikeTimings = [
+          "マイナー",
+          "セットアップ",
+          "クリンナップ",
+          "イニシアチブ",
+          "リアクション",
+        ];
+
+        // 選択されたエフェクトに主軸アクションが含まれているか確認
+        const hasMajorLikeAction = this.tempSelectedEffects.some((e) =>
+          majorLikeTimings.includes(e.timing)
+        );
+
         const effectNames = this.tempSelectedEffects.map((effect) => {
           const existingEffect = (combo.effectNames || []).find(
             (e) => e.name === effect.name
           );
+
+          // 新規追加時のデフォルト表示状態を決定
+          let defaultShowInComboName = true;
+          const isMinorLike = minorLikeTimings.includes(effect.timing);
+
+          // 補助アクションであり、かつ、主軸アクションが選択されている場合
+          if (isMinorLike && hasMajorLikeAction) {
+            defaultShowInComboName = false;
+          }
+
           return {
             name: effect.name,
             showInComboName: existingEffect
-              ? existingEffect.showInComboName
-              : effect.timing !== "マイナー",
+              ? existingEffect.showInComboName // 既存の設定があれば維持
+              : defaultShowInComboName, // なければ計算したデフォルト値
           };
         });
         const itemNames = this.tempSelectedItems.map((item) => {

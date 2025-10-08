@@ -179,7 +179,6 @@
           </div>
         </div>
         <!-- <p>タグをこの位置に移動 -->
-        <p v-if="statusMessage" class="status-message" :class="{ 'error': statusIsError }">{{ statusMessage }}</p>
       </div>
 
       <h2 class="section-title"><i class="fa-solid fa-bolt"></i> エフェクト <span class="xp-display">(使用経験点: {{ effectXp
@@ -566,6 +565,13 @@
       </div>
 
     </div>
+
+    <!-- Toast Notification -->
+    <div v-if="toast.show" class="toast-notification" :class="toast.isError ? 'error' : 'success'">
+      <i class="fa-solid" :class="toast.isError ? 'fa-circle-xmark' : 'fa-circle-check'"></i>
+      <span>{{ toast.message }}</span>
+    </div>
+
   </div>
 
   <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
