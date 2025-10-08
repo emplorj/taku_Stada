@@ -564,14 +564,12 @@
         </div>
       </div>
 
+      <!-- Toast Notification -->
+      <div v-if="toast.show" class="toast-notification" :class="toast.isError ? 'error' : 'success'">
+        <i class="fa-solid" :class="toast.isError ? 'fa-circle-xmark' : 'fa-circle-check'"></i>
+        <span>{{ toast.message }}</span>
+      </div>
     </div>
-
-    <!-- Toast Notification -->
-    <div v-if="toast.show" class="toast-notification" :class="toast.isError ? 'error' : 'success'">
-      <i class="fa-solid" :class="toast.isError ? 'fa-circle-xmark' : 'fa-circle-check'"></i>
-      <span>{{ toast.message }}</span>
-    </div>
-
   </div>
 
   <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
