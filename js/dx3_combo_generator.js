@@ -295,16 +295,29 @@ new Vue({
             if (!source.values?.[valueKey]) return;
             const effectiveLevel =
               (Number(source.level) || 0) + comboLevelBonus;
-            const baseParsed = this.evaluateDiceString(
-              String(source.values[valueKey].base || "0")
-            );
-            const perLevelParsed = this.evaluateDiceString(
-              String(source.values[valueKey].perLevel || "0")
-            );
-            const finalValue = {
-              dice: baseParsed.dice + effectiveLevel * perLevelParsed.dice,
-              fixed: baseParsed.fixed + effectiveLevel * perLevelParsed.fixed,
-            };
+
+            let finalValue;
+            if (valueKey === "dice") {
+              // 'dice'タブの場合は、常にダイスとして扱う
+              const baseDice = Number(source.values.dice.base) || 0;
+              const perLevelDice = Number(source.values.dice.perLevel) || 0;
+              finalValue = {
+                dice: baseDice + effectiveLevel * perLevelDice,
+                fixed: 0,
+              };
+            } else {
+              // 他のタブは従来通り
+              const baseParsed = this.evaluateDiceString(
+                String(source.values[valueKey].base || "0")
+              );
+              const perLevelParsed = this.evaluateDiceString(
+                String(source.values[valueKey].perLevel || "0")
+              );
+              finalValue = {
+                dice: baseParsed.dice + effectiveLevel * perLevelParsed.dice,
+                fixed: baseParsed.fixed + effectiveLevel * perLevelParsed.fixed,
+              };
+            }
 
             if (finalValue.dice !== 0 || finalValue.fixed !== 0) {
               totalDice += finalValue.dice;
@@ -573,6 +586,9 @@ new Vue({
             : autoRange;
         const finalDifficulty = autoDifficulty;
 
+        const judgmentDifficulties = ["対決", "効果参照"];
+        const isJudgmentAction = judgmentDifficulties.includes(finalDifficulty);
+
         const timingOrder = [
           "メジャー",
           "メジャー／リア",
@@ -668,6 +684,7 @@ new Vue({
           range: finalRange,
           timing: finalTiming,
           isMajorAction: isMajorAction,
+          isJudgmentAction: isJudgmentAction,
         };
       });
     },
@@ -1697,34 +1714,41 @@ new Vue({
       }
       this.modalTabs.forEach((tab) => {
         if (tab.key !== "crit") {
-          if (!this.editingEffect.values[tab.key]) {
-            this.$set(this.editingEffect.values, tab.key, {
+          const tabKey = tab.key;
+          if (!this.editingEffect.values[tabKey]) {
+            this.$set(this.editingEffect.values, tabKey, {
               base: 0,
               perLevel: 0,
               isDiceInput: false,
               isPerLevelDiceInput: false,
             });
           }
-          const baseValue = String(
-            this.editingEffect.values[tab.key].base || "0"
+
+          // base value
+          const baseValueStr = String(
+            this.editingEffect.values[tabKey].base || "0"
           );
-          const parsedBase = this.evaluateDiceString(baseValue);
-          this.editingEffect.values[tab.key].isDiceInput = parsedBase.dice > 0;
-          if (parsedBase.dice > 0) {
-            this.editingEffect.values[tab.key].base = parsedBase.dice;
+          if (baseValueStr.toUpperCase().includes("D")) {
+            this.editingEffect.values[tabKey].isDiceInput = true;
+            this.editingEffect.values[tabKey].base =
+              parseInt(baseValueStr, 10) || 0;
           } else {
-            this.editingEffect.values[tab.key].base = parsedBase.fixed;
+            this.editingEffect.values[tabKey].isDiceInput = false;
+            this.editingEffect.values[tabKey].base = Number(baseValueStr) || 0;
           }
-          const perLevelValue = String(
-            this.editingEffect.values[tab.key].perLevel || "0"
+
+          // perLevel value
+          const perLevelValueStr = String(
+            this.editingEffect.values[tabKey].perLevel || "0"
           );
-          const parsedPerLevel = this.evaluateDiceString(perLevelValue);
-          this.editingEffect.values[tab.key].isPerLevelDiceInput =
-            parsedPerLevel.dice > 0;
-          if (parsedPerLevel.dice > 0) {
-            this.editingEffect.values[tab.key].perLevel = parsedPerLevel.dice;
+          if (perLevelValueStr.toUpperCase().includes("D")) {
+            this.editingEffect.values[tabKey].isPerLevelDiceInput = true;
+            this.editingEffect.values[tabKey].perLevel =
+              parseInt(perLevelValueStr, 10) || 0;
           } else {
-            this.editingEffect.values[tab.key].perLevel = parsedPerLevel.fixed;
+            this.editingEffect.values[tabKey].isPerLevelDiceInput = false;
+            this.editingEffect.values[tabKey].perLevel =
+              Number(perLevelValueStr) || 0;
           }
         }
       });
@@ -1740,22 +1764,32 @@ new Vue({
     closeEffectPanel() {
       if (this.editingEffect) {
         this.modalTabs.forEach((tab) => {
-          if (tab.key !== "crit") {
-            if (this.editingEffect.values[tab.key].isDiceInput) {
-              this.editingEffect.values[tab.key].base = `${
-                this.editingEffect.values[tab.key].base
-              }D`;
+          const tabKey = tab.key;
+          if (tabKey !== "crit") {
+            if (tabKey === "dice") {
+              // 'dice'タブは常に数値として保存
+              this.editingEffect.values.dice.base =
+                Number(this.editingEffect.values.dice.base) || 0;
+              this.editingEffect.values.dice.perLevel =
+                Number(this.editingEffect.values.dice.perLevel) || 0;
             } else {
-              this.editingEffect.values[tab.key].base =
-                Number(this.editingEffect.values[tab.key].base) || 0;
-            }
-            if (this.editingEffect.values[tab.key].isPerLevelDiceInput) {
-              this.editingEffect.values[tab.key].perLevel = `${
-                this.editingEffect.values[tab.key].perLevel
-              }D`;
-            } else {
-              this.editingEffect.values[tab.key].perLevel =
-                Number(this.editingEffect.values[tab.key].perLevel) || 0;
+              // 他のタブはD表記を考慮
+              if (this.editingEffect.values[tabKey].isDiceInput) {
+                this.editingEffect.values[
+                  tabKey
+                ].base = `${this.editingEffect.values[tabKey].base}D`;
+              } else {
+                this.editingEffect.values[tabKey].base =
+                  Number(this.editingEffect.values[tabKey].base) || 0;
+              }
+              if (this.editingEffect.values[tabKey].isPerLevelDiceInput) {
+                this.editingEffect.values[
+                  tabKey
+                ].perLevel = `${this.editingEffect.values[tabKey].perLevel}D`;
+              } else {
+                this.editingEffect.values[tabKey].perLevel =
+                  Number(this.editingEffect.values[tabKey].perLevel) || 0;
+              }
             }
           }
         });

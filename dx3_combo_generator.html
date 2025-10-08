@@ -444,7 +444,7 @@
             <button @click="copyToClipboard(combo.chatPalette.header, $event)"><i
                 class="fa-solid fa-paste"></i></button>
           </div>
-          <div class="copy-container" v-if="combo.isMajorAction">
+          <div class="copy-container" v-if="combo.isJudgmentAction">
             <textarea readonly :value="combo.chatPalette.diceFormula" class="dice-formula-textarea"></textarea>
             <button @click="copyToClipboard(combo.chatPalette.diceFormula, $event)"><i
                 class="fa-solid fa-paste"></i></button>
@@ -470,7 +470,7 @@
                 <div class="input-with-addon">
                   <input type="number" v-model.number="editingEffect.values[activeModalTab].base">
                   <button
-                    v-if="activeModalTab === 'dice' || activeModalTab === 'accuracy' || activeModalTab === 'attack' || activeModalTab === 'guard'"
+                    v-if="activeModalTab !== 'dice' && (activeModalTab === 'accuracy' || activeModalTab === 'attack' || activeModalTab === 'guard')"
                     @click.stop="editingEffect.values[activeModalTab].isDiceInput = !editingEffect.values[activeModalTab].isDiceInput"
                     :class="{active: editingEffect.values[activeModalTab].isDiceInput}" class="dice-toggle-btn"
                     title="クリックでダイス表記のON/OFFを切替">D</button>
@@ -482,7 +482,7 @@
                 <div class="input-with-addon">
                   <input type="number" v-model.number="editingEffect.values[activeModalTab].perLevel">
                   <button
-                    v-if="activeModalTab === 'dice' || activeModalTab === 'accuracy' || activeModalTab === 'attack' || activeModalTab === 'guard'"
+                    v-if="activeModalTab !== 'dice' && (activeModalTab === 'accuracy' || activeModalTab === 'attack' || activeModalTab === 'guard')"
                     @click.stop="editingEffect.values[activeModalTab].isPerLevelDiceInput = !editingEffect.values[activeModalTab].isPerLevelDiceInput"
                     :class="{active: editingEffect.values[activeModalTab].isPerLevelDiceInput}" class="dice-toggle-btn"
                     title="クリックでダイス表記のON/OFFを切替">D</button>
