@@ -564,31 +564,6 @@ new Vue({
           determinedRange = "至近";
         }
         const autoRange = determinedRange;
-        const difficultyOrder = ["対決", "効果参照", "自動成功", "-"];
-        let determinedDifficulty = "-";
-        for (const effect of relevantEffects) {
-          const difficulty = effect.difficulty;
-          if (
-            difficultyOrder.indexOf(difficulty) <
-            difficultyOrder.indexOf(determinedDifficulty)
-          ) {
-            determinedDifficulty = difficulty;
-          }
-        }
-        const autoDifficulty = determinedDifficulty;
-        const finalTarget =
-          combo.targetMode === "manual" && combo.manualTarget !== ""
-            ? combo.manualTarget
-            : autoTarget;
-        const finalRange =
-          combo.rangeMode === "manual" && combo.manualRange !== ""
-            ? combo.manualRange
-            : autoRange;
-        const finalDifficulty = autoDifficulty;
-
-        const judgmentDifficulties = ["対決", "効果参照"];
-        const isJudgmentAction = judgmentDifficulties.includes(finalDifficulty);
-
         const timingOrder = [
           "メジャー",
           "メジャー／リア",
@@ -626,6 +601,38 @@ new Vue({
         const isMajorAction = majorActionTimings.some((t) =>
           finalTiming.includes(t)
         );
+
+        const difficultyOrder = ["対決", "効果参照", "自動成功", "-"];
+        let determinedDifficulty = "-";
+        for (const effect of relevantEffects) {
+          const difficulty = effect.difficulty;
+          if (
+            difficultyOrder.indexOf(difficulty) <
+            difficultyOrder.indexOf(determinedDifficulty)
+          ) {
+            determinedDifficulty = difficulty;
+          }
+        }
+
+        if (determinedDifficulty === "-") {
+          if (isMajorAction || finalTiming === "リアクション") {
+            determinedDifficulty = "対決";
+          }
+        }
+
+        const autoDifficulty = determinedDifficulty;
+        const finalTarget =
+          combo.targetMode === "manual" && combo.manualTarget !== ""
+            ? combo.manualTarget
+            : autoTarget;
+        const finalRange =
+          combo.rangeMode === "manual" && combo.manualRange !== ""
+            ? combo.manualRange
+            : autoRange;
+        const finalDifficulty = autoDifficulty;
+
+        const judgmentDifficulties = ["対決", "効果参照"];
+        const isJudgmentAction = judgmentDifficulties.includes(finalDifficulty);
 
         const effectDescriptionForPalette =
           combo.effectDescriptionMode === "manual"
