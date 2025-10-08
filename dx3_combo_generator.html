@@ -444,7 +444,7 @@
             <button @click="copyToClipboard(combo.chatPalette.header, $event)"><i
                 class="fa-solid fa-paste"></i></button>
           </div>
-          <div class="copy-container" v-if="combo.isJudgmentAction">
+          <div class="copy-container" v-if="combo.isMajorAction">
             <textarea readonly :value="combo.chatPalette.diceFormula" class="dice-formula-textarea"></textarea>
             <button @click="copyToClipboard(combo.chatPalette.diceFormula, $event)"><i
                 class="fa-solid fa-paste"></i></button>
@@ -512,7 +512,8 @@
               <label v-for="effect in effects" :key="effect.name + editingComboIndex + 'effect-select'"
                 class="item-select-label" :class="{disabled: isEffectDisabled(effect)}">
                 <input type="checkbox" :value="effect" v-model="tempSelectedEffects"
-                  :disabled="isEffectDisabled(effect)">
+                  :disabled="isEffectDisabled(effect)"
+                  @change="handleEffectSelectionChange(effect, $event.target.checked)">
                 <span>{{ effect.name }} ({{ effect.timing }})</span>
                 <button @click.stop="toggleShowInComboNameForEffect(effect)"
                   :class="{active: isShowInComboNameForEffect(effect.name)}" :disabled="!isEffectSelected(effect.name)"
@@ -523,7 +524,8 @@
               <strong>イージーエフェクト</strong>
               <label v-for="ee in easyEffects" :key="ee.name + editingComboIndex + 'ee-select'"
                 class="item-select-label" :class="{disabled: isEffectDisabled(ee)}">
-                <input type="checkbox" :value="ee" v-model="tempSelectedEffects" :disabled="isEffectDisabled(ee)">
+                <input type="checkbox" :value="ee" v-model="tempSelectedEffects" :disabled="isEffectDisabled(ee)"
+                  @change="handleEffectSelectionChange(ee, $event.target.checked)">
                 <span>{{ ee.name }} ({{ ee.timing }})</span>
                 <button @click.stop="toggleShowInComboNameForEffect(ee)"
                   :class="{active: isShowInComboNameForEffect(ee.name)}" :disabled="!isEffectSelected(ee.name)"
@@ -534,7 +536,8 @@
               <strong>アイテム</strong>
               <label v-for="item in items" :key="item.name + editingComboIndex + 'item-select'"
                 class="item-select-label">
-                <input type="checkbox" :value="item" v-model="tempSelectedItems">
+                <input type="checkbox" :value="item" v-model="tempSelectedItems"
+                  @change="handleEffectSelectionChange(item, $event.target.checked)">
                 <span>{{ item.name }} ({{ item.type }})</span>
                 <button @click.stop="toggleShowInComboName(item)" :class="{active: isShowInComboName(item.name)}"
                   :disabled="!isItemSelected(item.name)" class="show-in-combo-btn"
@@ -560,6 +563,38 @@
           <div class="modal-footer">
             <button @click="cancelConfirmation" class="cancel-btn">キャンセル</button>
             <button @click="confirmConfirmation">OK</button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="updateOptions.show" class="modal-overlay">
+        <div class="modal-content confirmation-modal" @click.stop>
+          <div class="modal-header">
+            <h3>{{ updateOptions.title }}</h3>
+          </div>
+          <div class="modal-body">
+            <p v-html="updateOptions.message"></p>
+          </div>
+          <div class="modal-footer">
+            <button @click="resolveUpdateOptions('cancel')" class="cancel-btn">キャンセル</button>
+            <button @click="resolveUpdateOptions('effects')">エフェクトのみ</button>
+            <button @click="resolveUpdateOptions('all')">すべて更新</button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="updateOptions.show" class="modal-overlay">
+        <div class="modal-content confirmation-modal" @click.stop>
+          <div class="modal-header">
+            <h3>{{ updateOptions.title }}</h3>
+          </div>
+          <div class="modal-body">
+            <p v-html="updateOptions.message"></p>
+          </div>
+          <div class="modal-footer">
+            <button @click="resolveUpdateOptions('cancel')" class="cancel-btn">キャンセル</button>
+            <button @click="resolveUpdateOptions('effects')">エフェクトのみ</button>
+            <button @click="resolveUpdateOptions('all')">すべて更新</button>
           </div>
         </div>
       </div>

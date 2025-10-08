@@ -167,6 +167,12 @@ new Vue({
       resolve: null,
       reject: null,
     },
+    updateOptions: {
+      show: false,
+      title: "",
+      message: "",
+      resolve: null,
+    },
     toast: {
       show: false,
       message: "",
@@ -604,7 +610,15 @@ new Vue({
 
         const difficultyOrder = ["対決", "効果参照", "自動成功", "-"];
         let determinedDifficulty = "-";
-        for (const effect of relevantEffects) {
+
+        // タイミングが一致するエフェクトのみを難易度判定の対象とする
+        const mainTimingEffects = relevantEffects.filter(
+          (e) =>
+            e.timing === finalTiming ||
+            (finalTiming === "メジャー" && e.timing === "メジャー／リア")
+        );
+
+        for (const effect of mainTimingEffects) {
           const difficulty = effect.difficulty;
           if (
             difficultyOrder.indexOf(difficulty) <
@@ -630,9 +644,6 @@ new Vue({
             ? combo.manualRange
             : autoRange;
         const finalDifficulty = autoDifficulty;
-
-        const judgmentDifficulties = ["対決", "効果参照"];
-        const isJudgmentAction = judgmentDifficulties.includes(finalDifficulty);
 
         const effectDescriptionForPalette =
           combo.effectDescriptionMode === "manual"
@@ -691,7 +702,6 @@ new Vue({
           range: finalRange,
           timing: finalTiming,
           isMajorAction: isMajorAction,
-          isJudgmentAction: isJudgmentAction,
         };
       });
     },
@@ -710,6 +720,7 @@ new Vue({
       handler: function (newVal, oldVal) {
         this.handleEffectChange(newVal, oldVal);
         this.setDataDirty();
+        this.syncAllData("effects", newVal);
       },
       deep: true,
     },
@@ -717,12 +728,14 @@ new Vue({
       handler: function (newVal, oldVal) {
         this.handleEffectChange(newVal, oldVal);
         this.setDataDirty();
+        this.syncAllData("easyEffects", newVal);
       },
       deep: true,
     },
     items: {
       handler: function (newVal, oldVal) {
         this.setDataDirty();
+        this.syncAllData("items", newVal);
       },
       deep: true,
     },
@@ -783,6 +796,36 @@ new Vue({
     });
   },
   methods: {
+    syncAllData(sourceType, sourceList) {
+      if (this.isInitializing) return;
+
+      const allLists = {
+        effects: this.effects,
+        easyEffects: this.easyEffects,
+        items: this.items,
+      };
+
+      sourceList.forEach((sourceItem) => {
+        if (!sourceItem.name) return;
+
+        for (const targetType in allLists) {
+          if (sourceType === targetType) continue;
+
+          allLists[targetType].forEach((targetItem) => {
+            if (targetItem.name === sourceItem.name) {
+              const sourceValues = JSON.stringify(sourceItem.values);
+              const targetValues = JSON.stringify(targetItem.values);
+              if (sourceValues !== targetValues) {
+                this.$set(targetItem, "values", JSON.parse(sourceValues));
+              }
+              if (targetItem.level !== sourceItem.level) {
+                this.$set(targetItem, "level", sourceItem.level);
+              }
+            }
+          });
+        }
+      });
+    },
     updateAndSyncLevel(sourceType, index, value) {
       const newLevel = Number(value);
       if (isNaN(newLevel)) return;
@@ -1186,15 +1229,18 @@ new Vue({
           if (this.combos.length === 0) {
             this.addCombo();
           }
-          this.showStatus("DBからデータを読み込みました。");
           this.isDirty = false;
-          if (
-            await this.showConfirmation(
-              "キャラクターシートからの更新",
-              "キャラクターシートの最新データで、キャラクター名、経験点、エフェクト、アイテムを更新しますか？<br>（注意：現在作成中のコンボデータは維持されます）"
-            )
-          ) {
-            await this.importFromSheet(true, true);
+          const updateType = await this.showUpdateOptions(
+            "キャラクターシートからの更新",
+            "キャラクターシートの最新データで何を更新しますか？<br>（注意：現在作成中のコンボデータは維持されます）"
+          );
+
+          if (updateType === "all") {
+            await this.importFromSheet(true, true, "all");
+          } else if (updateType === "effects") {
+            await this.importFromSheet(true, true, "effects");
+          } else {
+            this.showStatus("DBからデータを読み込みました。");
           }
         } else if (result.status === "not_found") {
           if (
@@ -1218,7 +1264,11 @@ new Vue({
         this.isBusy = false;
       }
     },
-    async importFromSheet(mergeMode = false, skipConfirmation = false) {
+    async importFromSheet(
+      mergeMode = false,
+      skipConfirmation = false,
+      importType = "all"
+    ) {
       if (!this.characterSheetUrl) {
         this.showStatus("キャラクターシートのURLを入力してください。", true);
         return;
@@ -1322,24 +1372,33 @@ new Vue({
           xp: 0,
           notes: "",
         };
-        this.items = (importedData.items || []).map((i) => ({
-          ...defaultItem,
-          ...i,
-          values:
-            mergeMode && existingValues.get(i.name)
-              ? { ...this.createDefaultValues(), ...existingValues.get(i.name) }
-              : this.createDefaultValues(),
-        }));
-        this.items.forEach((item) => {
-          this.parseAttackFormula(item);
-          this.parseAccuracyFormula(item);
-          this.parseGuardFormula(item);
-        });
-        this.showStatus(
-          mergeMode
-            ? "エフェクトとアイテムを更新しました！"
-            : "キャラクターシートからデータを引用しました！"
-        );
+        if (importType === "all") {
+          this.items = (importedData.items || []).map((i) => ({
+            ...defaultItem,
+            ...i,
+            values:
+              mergeMode && existingValues.get(i.name)
+                ? {
+                    ...this.createDefaultValues(),
+                    ...existingValues.get(i.name),
+                  }
+                : this.createDefaultValues(),
+          }));
+          this.items.forEach((item) => {
+            this.parseAttackFormula(item);
+            this.parseAccuracyFormula(item);
+            this.parseGuardFormula(item);
+          });
+        }
+        let statusMessage = "キャラクターシートからデータを引用しました！";
+        if (mergeMode) {
+          if (importType === "all") {
+            statusMessage = "エフェクトとアイテムを更新しました！";
+          } else {
+            statusMessage = "エフェクトを更新しました！";
+          }
+        }
+        this.showStatus(statusMessage);
         this.isDirty = false;
       } catch (error) {
         console.error("Import Error:", error);
@@ -1814,24 +1873,37 @@ new Vue({
       }
       this.isPanelOpen = false;
       this.editingEffect = null;
+      this.syncAllData(this.editingEffectType, [this.editingEffect]);
     },
     openEffectSelectModal(comboIndex) {
       this.editingComboIndex = comboIndex;
       const combo = this.combos[comboIndex];
+
       const effectNamesData = (combo.effectNames || []).map((item) =>
         typeof item === "string" ? { name: item, showInComboName: true } : item
       );
       this.$set(combo, "effectNames", effectNamesData);
-      this.tempSelectedEffects = effectNamesData
-        .map((effectData) =>
-          [...this.effects, ...this.easyEffects].find(
-            (e) => e.name === effectData.name
-          )
-        )
-        .filter(Boolean);
-      this.tempSelectedItems = (combo.itemNames || [])
-        .map((itemData) => this.items.find((i) => i.name === itemData.name))
-        .filter(Boolean);
+
+      const itemNamesData = (combo.itemNames || []).map((item) =>
+        typeof item === "string" ? { name: item, showInComboName: true } : item
+      );
+      this.$set(combo, "itemNames", itemNamesData);
+
+      const selectedEffectNames = new Set(effectNamesData.map((e) => e.name));
+      const selectedItemNames = new Set(itemNamesData.map((i) => i.name));
+
+      // 相互選択
+      selectedEffectNames.forEach((name) => selectedItemNames.add(name));
+      selectedItemNames.forEach((name) => selectedEffectNames.add(name));
+
+      this.tempSelectedEffects = [...this.effects, ...this.easyEffects].filter(
+        (e) => selectedEffectNames.has(e.name)
+      );
+
+      this.tempSelectedItems = this.items.filter((i) =>
+        selectedItemNames.has(i.name)
+      );
+
       this.isEffectSelectModalOpen = true;
     },
     confirmEffectSelection() {
@@ -1984,6 +2056,38 @@ new Vue({
       if (effectData) {
         effectData.showInComboName = !effectData.showInComboName;
         this.$forceUpdate();
+      }
+    },
+    handleEffectSelectionChange(item, isSelected) {
+      if (!item.name) return;
+
+      const allEffectsAndItems = [
+        ...this.effects,
+        ...this.easyEffects,
+        ...this.items,
+      ];
+      const sameNameItems = allEffectsAndItems.filter(
+        (i) => i.name === item.name
+      );
+
+      if (isSelected) {
+        sameNameItems.forEach((linkedItem) => {
+          const isEffect = linkedItem.hasOwnProperty("difficulty");
+          const list = isEffect
+            ? this.tempSelectedEffects
+            : this.tempSelectedItems;
+          const exists = list.some((i) => i.name === linkedItem.name);
+          if (!exists) {
+            list.push(linkedItem);
+          }
+        });
+      } else {
+        this.tempSelectedEffects = this.tempSelectedEffects.filter(
+          (e) => e.name !== item.name
+        );
+        this.tempSelectedItems = this.tempSelectedItems.filter(
+          (i) => i.name !== item.name
+        );
       }
     },
     isItemSelected(itemName) {
@@ -2197,6 +2301,20 @@ new Vue({
       this.confirmation.show = false;
       if (this.confirmation.resolve) {
         this.confirmation.resolve(false);
+      }
+    },
+    showUpdateOptions(title, message) {
+      return new Promise((resolve) => {
+        this.updateOptions.title = title;
+        this.updateOptions.message = message;
+        this.updateOptions.show = true;
+        this.updateOptions.resolve = resolve;
+      });
+    },
+    resolveUpdateOptions(decision) {
+      this.updateOptions.show = false;
+      if (this.updateOptions.resolve) {
+        this.updateOptions.resolve(decision);
       }
     },
   },
