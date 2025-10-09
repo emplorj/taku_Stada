@@ -1949,17 +1949,17 @@ new Vue({
           } else {
             // 新規追加時のデフォルト値
             if (majorActionTimings.includes(effect.timing)) {
-              showInGameName = true; // 主軸アクションは常に表示
+              showInComboName = true; // 主軸アクションは常に表示
             } else if (otherTimings.includes(effect.timing)) {
-              showInGameName = !hasMajorAction; // 他のタイミングは、主軸アクションがなければ表示
+              showInComboName = !hasMajorAction; // 他のタイミングは、主軸アクションがなければ表示
             } else {
-              showInGameName = true; // デフォルト
+              showInComboName = true; // デフォルト
             }
           }
 
           return {
             name: effect.name,
-            showInComboName: showInGameName,
+            showInComboName: showInComboName,
           };
         });
         const itemNames = this.tempSelectedItems.map((item) => {
