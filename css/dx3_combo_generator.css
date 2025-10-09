@@ -541,6 +541,16 @@
 .effect-select-button:hover {
   background-color: #1a2c6d;
 }
+.hidden-buff-indicator {
+  font-weight: bold;
+  color: #ffc107;
+  background-color: rgba(255, 193, 7, 0.2);
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-left: 5px;
+  font-size: 0.8em;
+  border: 1px solid rgba(255, 193, 7, 0.5);
+}
 .effect-select-button i {
   margin-right: 8px;
 }
@@ -874,23 +884,36 @@
 .item-select-label span {
   flex-grow: 1;
 }
+.item-select-label.is-excluded {
+  text-decoration: line-through;
+  opacity: 0.6;
+  color: #999;
+}
+
+.item-select-label.is-excluded .show-in-combo-btn {
+  text-decoration: none; /* ボタンのテキストには打ち消し線を適用しない */
+}
 .show-in-combo-btn {
   background-color: #6c757d;
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 3px 8px;
-  font-size: 0.8em;
+  border-radius: 5px;
+  padding: 5px 12px;
+  font-size: 0.9em;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  min-width: 70px;
+  text-align: center;
 }
 .show-in-combo-btn.active {
   background-color: #2ecc71;
+  box-shadow: 0 0 5px #2ecc71;
 }
 .show-in-combo-btn:disabled {
   background-color: #444;
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
+  box-shadow: none;
 }
 
 .combo-manual-settings {

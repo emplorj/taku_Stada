@@ -280,18 +280,72 @@ new Vue({
       };
       return this.combos.map((combo) => {
         const comboLevelBonus = combo.comboLevelBonus || 0;
-        const relevantEffects = (combo.effectNames || [])
-          .map((effectData) => {
-            const name =
-              typeof effectData === "string" ? effectData : effectData.name;
-            return allEffects.find((e) => e.name === name && e.name);
-          })
-          .filter(Boolean);
-        const relevantItems = (combo.itemNames || [])
-          .map((itemData) =>
-            allItems.find((i) => i.name === itemData.name && i.name)
-          )
-          .filter(Boolean);
+
+        const getShowInComboName = (collection, name) => {
+          const data = (collection || []).find(
+            (item) => (typeof item === "string" ? item : item.name) === name
+          );
+          if (typeof data === "object") {
+            return data.showInComboName;
+          }
+          return true; // デフォルトは表示
+        };
+
+        const allSelectedSources = [];
+        const processedNames = new Set();
+
+        // 1. エフェクトを追加
+        (combo.effectNames || []).forEach((effectData) => {
+          const name =
+            typeof effectData === "string" ? effectData : effectData.name;
+          if (name && !processedNames.has(name)) {
+            const effect = allEffects.find((e) => e.name === name);
+            if (effect) {
+              allSelectedSources.push({
+                ...effect,
+                sourceType: "effect",
+                showInComboName: getShowInComboName(combo.effectNames, name),
+              });
+              processedNames.add(name);
+            }
+          }
+        });
+
+        // 2. アイテムを追加（エフェクトと重複しないもの）
+        (combo.itemNames || []).forEach((itemData) => {
+          const name = itemData.name;
+          if (name && !processedNames.has(name)) {
+            const item = allItems.find((i) => i.name === name);
+            if (item) {
+              allSelectedSources.push({
+                ...item,
+                sourceType: "item",
+                showInComboName: itemData.showInComboName,
+              });
+              processedNames.add(name);
+            }
+          }
+        });
+
+        // 3. 計算対象のソースをフィルタリング
+        const relevantSources = allSelectedSources.filter((source) => {
+          // マイナータイミングのエフェクトで、コンボ名に表示しない設定の場合、計算から除外
+          if (
+            source.sourceType === "effect" &&
+            source.timing === "マイナー" &&
+            !source.showInComboName
+          ) {
+            return false;
+          }
+          return true;
+        });
+
+        const relevantEffects = relevantSources.filter(
+          (s) => s.sourceType === "effect"
+        );
+        const relevantItems = relevantSources.filter(
+          (s) => s.sourceType === "item"
+        );
         const calcResult = (valueKey, sources) => {
           let totalDice = 0;
           let totalFixed = 0;
@@ -347,10 +401,7 @@ new Vue({
 
         const diceResult = calcResult("dice", relevantEffects);
         const achieveResult = calcResult("achieve", relevantEffects);
-        const atkResult = calcResult("attack", [
-          ...relevantEffects,
-          ...relevantItems,
-        ]);
+        const atkResult = calcResult("attack", relevantSources);
         const accuracyResult = calcResult("accuracy", relevantItems);
         const accuracyBonus = relevantItems.reduce((total, item) => {
           if (item.accuracy) {
@@ -382,7 +433,7 @@ new Vue({
         ].filter(Boolean);
         let critTotal = 10;
         const critBreakdown = [];
-        [...relevantEffects, ...relevantItems].forEach((source) => {
+        relevantSources.forEach((source) => {
           if (!source.values?.crit?.base || source.values.crit.base === 0)
             return;
           const effectiveLevel = source.level
@@ -409,35 +460,24 @@ new Vue({
         if (manualCost.dice > 0 || manualCost.fixed > 0) {
           costBreakdown.push(`手動調整: ${this.formatDiceString(manualCost)}`);
         }
-        relevantEffects.forEach((e) => {
-          const cost = this.evaluateDiceString(
-            e.cost,
-            (Number(e.level) || 0) + comboLevelBonus
-          );
+        relevantSources.forEach((source) => {
+          const level =
+            source.sourceType === "effect"
+              ? (Number(source.level) || 0) + comboLevelBonus
+              : source.level;
+          const cost = this.evaluateDiceString(source.cost, level);
           if (cost.dice > 0 || cost.fixed > 0) {
-            costBreakdown.push(`《${e.name}》: ${this.formatDiceString(cost)}`);
-            totalCostDice += cost.dice;
-            totalCostFixed += cost.fixed;
-          }
-        });
-        relevantItems.forEach((item) => {
-          const cost = this.evaluateDiceString(item.cost, item.level);
-          if (cost.dice > 0 || cost.fixed > 0) {
+            const prefix = source.sourceType === "effect" ? "《" : "【";
+            const suffix = source.sourceType === "effect" ? "》" : "】";
             costBreakdown.push(
-              `【${item.name}】: ${this.formatDiceString(cost)}`
+              `${prefix}${source.name}${suffix}: ${this.formatDiceString(cost)}`
             );
             totalCostDice += cost.dice;
             totalCostFixed += cost.fixed;
           }
         });
-        const effectComposition = relevantEffects
-          .filter((effect) => {
-            const comboEffectData = (combo.effectNames || []).find(
-              (e) => (typeof e === "string" ? e : e.name) === effect.name
-            );
-            if (typeof comboEffectData === "string") return true;
-            return comboEffectData ? comboEffectData.showInComboName : true;
-          })
+        const effectComposition = allSelectedSources
+          .filter((s) => s.sourceType === "effect" && s.showInComboName)
           .map(
             (e) =>
               `《${e.name}》Lv${e.level}${
@@ -445,51 +485,35 @@ new Vue({
               }`
           )
           .join("+");
-        const itemComposition = relevantItems
-          .filter((item) => {
-            const comboItemData = (combo.itemNames || []).find(
-              (i) => i.name === item.name
-            );
-            return comboItemData ? comboItemData.showInComboName : false;
-          })
+        const itemComposition = allSelectedSources
+          .filter((s) => s.sourceType === "item" && s.showInComboName)
           .map((i) => `【${i.name}】`)
           .join("+");
         const compositionText = [effectComposition, itemComposition]
           .filter(Boolean)
           .join("+");
 
-        const hiddenBuffs = [
-          ...relevantEffects.filter((effect) => {
-            const comboEffectData = (combo.effectNames || []).find(
-              (e) => (typeof e === "string" ? e : e.name) === effect.name
-            );
-            return (
-              typeof comboEffectData !== "string" &&
-              comboEffectData &&
-              !comboEffectData.showInComboName
-            );
-          }),
-          ...relevantItems.filter((item) => {
-            const comboItemData = (combo.itemNames || []).find(
-              (i) => i.name === item.name
-            );
-            return comboItemData && !comboItemData.showInComboName;
-          }),
-        ].map((b) => b.name);
+        const hiddenBuffs = allSelectedSources
+          .filter((s) => !s.showInComboName)
+          .map((s) => s.name);
 
         const hasHiddenBuffs = hiddenBuffs.length > 0;
         const hiddenBuffsTooltip = hasHiddenBuffs
           ? `適用中のバフ: ${hiddenBuffs.join(", ")}`
           : "";
-        const autoEffectText = [...relevantEffects, ...relevantItems]
-          .map((source) =>
-            this.evaluateEffectText(
+        const autoEffectText = allSelectedSources
+          .map((source) => {
+            const level =
+              source.sourceType === "effect" ? source.level : source.level || 1;
+            const levelBonus =
+              source.sourceType === "effect" ? combo.comboLevelBonus : 0;
+            return this.evaluateEffectText(
               source.effect || source.notes,
-              source.level,
-              combo.comboLevelBonus,
+              level,
+              levelBonus,
               combo.enableAdvancedParsing
-            )
-          )
+            );
+          })
           .filter(Boolean)
           .join("\n");
         let primarySkill =
@@ -1596,57 +1620,47 @@ new Vue({
       delete values.crit.isPerLevelDiceInput;
       return values;
     },
-    isEffectDisabled(source) {
-      if (!source || typeof source.timing === "undefined") {
-        return false;
-      }
-      const normalizeTiming = (str) => {
-        if (!str) return "";
-        return str
-          .toLowerCase()
-          .replace(/ﾒｼﾞｬｰ/g, "メジャー")
-          .replace(/ﾏｲﾅｰ/g, "マイナー")
-          .replace(/ﾘｱｸｼｮﾝ/g, "リアクション")
-          .replace(/ﾘｱ/g, "リア")
-          .replace(/ｵｰﾄ/g, "オート")
-          .replace(/ｾｯﾄｱｯﾌﾟ/g, "セットアップ")
-          .replace(/ｲﾆｼｱﾁﾌﾞ/g, "イニシアチブ")
-          .replace(/ｸﾘﾝﾅｯﾌﾟ/g, "クリンナップ")
-          .replace(/\//g, "／");
-      };
+    isEffectExcluded(effect) {
+      if (!this.isEffectSelectModalOpen) return false;
+      const combo = this.combos[this.editingComboIndex];
+      if (!combo) return false;
 
-      // これから選択しようとしているエフェクトが既に選択されているか
+      const effectData = (combo.effectNames || []).find(
+        (e) => e.name === effect.name
+      );
+      const showInComboName = effectData ? effectData.showInComboName : true;
+
+      return effect.timing === "マイナー" && !showInComboName;
+    },
+    isEffectDisabled(source) {
+      if (!source || !source.timing) return false;
+
       const isCurrentlySelected = this.tempSelectedEffects.some(
         (e) => e.name === source.name
       );
-
-      // これからチェックを外す場合は、常に操作を許可
       if (isCurrentlySelected) {
-        return false;
+        return false; // 選択解除は常に許可
       }
 
-      const majorLikeTimings = ["メジャー", "メジャー／リア"];
-      const minorLikeTimings = [
-        "マイナー",
-        "セットアップ",
-        "クリンナップ",
-        "イニシアチブ",
-        "リアクション",
-      ];
+      const majorActionTimings = ["メジャー", "メジャー／リア"];
+      const reactionTimings = ["リアクション", "メジャー／リア"];
 
-      const normalizedSourceTiming = normalizeTiming(source.timing);
-      const selectedTimings = this.tempSelectedEffects.map((e) =>
-        normalizeTiming(e.timing)
+      const isSourceMajor = majorActionTimings.includes(source.timing);
+      const isSourceReaction = reactionTimings.includes(source.timing);
+
+      const hasMajorInSelection = this.tempSelectedEffects.some((e) =>
+        majorActionTimings.includes(e.timing)
+      );
+      const hasReactionInSelection = this.tempSelectedEffects.some((e) =>
+        reactionTimings.includes(e.timing)
       );
 
-      // 補助アクションが選択されている状態で、主軸アクションは選択不可
-      const hasMinorLike = selectedTimings.some((t) =>
-        minorLikeTimings.includes(t)
-      );
-      const sourceIsMajorLike = majorLikeTimings.includes(
-        normalizedSourceTiming
-      );
-      if (hasMinorLike && sourceIsMajorLike) {
+      // 既にリアクションが選択されている場合、メジャーは選択不可
+      if (hasReactionInSelection && isSourceMajor) {
+        return true;
+      }
+      // 既にメジャーが選択されている場合、リアクションは選択不可
+      if (hasMajorInSelection && isSourceReaction) {
         return true;
       }
 
@@ -1909,39 +1923,43 @@ new Vue({
     confirmEffectSelection() {
       if (this.editingComboIndex !== -1) {
         const combo = this.combos[this.editingComboIndex];
-        const majorLikeTimings = ["メジャー", "メジャー／リア"];
-        const minorLikeTimings = [
+        const majorActionTimings = ["メジャー", "メジャー／リア"];
+        const otherTimings = [
           "マイナー",
           "セットアップ",
           "クリンナップ",
           "イニシアチブ",
           "リアクション",
+          "オート",
+          "常時",
         ];
 
-        // 選択されたエフェクトに主軸アクションが含まれているか確認
-        const hasMajorLikeAction = this.tempSelectedEffects.some((e) =>
-          majorLikeTimings.includes(e.timing)
+        const hasMajorAction = this.tempSelectedEffects.some((e) =>
+          majorActionTimings.includes(e.timing)
         );
 
         const effectNames = this.tempSelectedEffects.map((effect) => {
-          const existingEffect = (combo.effectNames || []).find(
+          const existingEffectData = (combo.effectNames || []).find(
             (e) => e.name === effect.name
           );
 
-          // 新規追加時のデフォルト表示状態を決定
-          let defaultShowInComboName = true;
-          const isMinorLike = minorLikeTimings.includes(effect.timing);
-
-          // 補助アクションであり、かつ、主軸アクションが選択されている場合
-          if (isMinorLike && hasMajorLikeAction) {
-            defaultShowInComboName = false;
+          let showInComboName;
+          if (existingEffectData) {
+            showInComboName = existingEffectData.showInComboName;
+          } else {
+            // 新規追加時のデフォルト値
+            if (majorActionTimings.includes(effect.timing)) {
+              showInGameName = true; // 主軸アクションは常に表示
+            } else if (otherTimings.includes(effect.timing)) {
+              showInGameName = !hasMajorAction; // 他のタイミングは、主軸アクションがなければ表示
+            } else {
+              showInGameName = true; // デフォルト
+            }
           }
 
           return {
             name: effect.name,
-            showInComboName: existingEffect
-              ? existingEffect.showInComboName // 既存の設定があれば維持
-              : defaultShowInComboName, // なければ計算したデフォルト値
+            showInComboName: showInGameName,
           };
         });
         const itemNames = this.tempSelectedItems.map((item) => {
