@@ -724,7 +724,7 @@ new Vue({
       if (presetName === "critFumbleInitial") {
         versionOptions.critical = true;
         versionOptions.fumble = true;
-        versionOptions.failure = true;
+        versionOptions.failure = false;
       } else if (presetName === "official") {
         versionOptions.critical = true;
         versionOptions.fumble = false;
