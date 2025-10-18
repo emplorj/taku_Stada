@@ -226,7 +226,7 @@
               <td><textarea v-model="effect.notes"></textarea></td>
               <td class="action-cell">
                 <button @click.stop="openEffectPanel($event, effect, 'effect', index)" class="setting-btn" title="詳細設定"
-                  :disabled="isEssentialEffect(effect.name)"><i class="fa-solid fa-gear"></i></button>
+                  :disabled="isEssentialEffect(effect.name)">係数</button>
                 <button @click="removeEffect(index)" class="delete-btn" title="削除"
                   :disabled="isEssentialEffect(effect.name)"><i class="fa-solid fa-trash"></i></button>
               </td>
@@ -276,8 +276,8 @@
               <td><textarea v-model="ee.effect"></textarea></td>
               <td><textarea v-model="ee.notes"></textarea></td>
               <td class="action-cell">
-                <button @click.stop="openEffectPanel($event, ee, 'easy', index)" class="setting-btn" title="詳細設定"><i
-                    class="fa-solid fa-gear"></i></button>
+                <button @click.stop="openEffectPanel($event, ee, 'easy', index)" class="setting-btn"
+                  title="詳細設定">係数</button>
                 <button @click="removeEasyEffect(index)" class="delete-btn" title="削除"><i
                     class="fa-solid fa-trash"></i></button>
               </td>
@@ -325,8 +325,8 @@
               <td class="text-right"><input type="number" v-model.number="item.xp" class="text-right"></td>
               <td><textarea v-model="item.notes"></textarea></td>
               <td class="action-cell">
-                <button @click.stop="openEffectPanel($event, item, 'item', index)" class="setting-btn" title="詳細設定"><i
-                    class="fa-solid fa-gear"></i></button>
+                <button @click.stop="openEffectPanel($event, item, 'item', index)" class="setting-btn"
+                  title="詳細設定">係数</button>
                 <button @click="removeItem(index)" class="delete-btn" title="削除"><i
                     class="fa-solid fa-trash"></i></button>
               </td>
