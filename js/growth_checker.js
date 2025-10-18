@@ -177,8 +177,10 @@ new Vue({
                 ? spans[0].textContent.trim().replace(/[\[\]]/g, "")
                 : currentTab) || "メイン";
             const character = spans[1] ? spans[1].textContent.trim() : "";
-            const messageText = spans[2] ? spans[2].textContent.trim() : "";
             const messageHtml = spans[2] ? spans[2].innerHTML.trim() : "";
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = messageHtml.replace(/<br\s*\/?>/gi, "\n");
+            const messageText = tempDiv.textContent || tempDiv.innerText || "";
 
             if (tab.toLowerCase() === "main") tab = "メイン";
             if (tab.toLowerCase() === "info") tab = "情報";
@@ -203,12 +205,18 @@ new Vue({
               const character = match[2].trim();
               const message = match[3].trim();
 
+              const colonIndex = node.innerHTML.lastIndexOf(":");
+              const messageHtml =
+                colonIndex > -1
+                  ? node.innerHTML.substring(colonIndex + 1).trim()
+                  : node.innerHTML.trim();
+
               if (character || message)
                 allLogs.push({
                   tab,
                   character,
                   message: message,
-                  messageHtml: message,
+                  messageHtml: messageHtml,
                   color,
                 });
             }
@@ -982,10 +990,11 @@ new Vue({
       this.dialogueResults.forEach((charData) => {
         charData.dialogues.forEach((d) => {
           if (d.selected) {
+            const originalLog = this.parsedLogs[d.id];
             allSelectedDialogues.push({
               id: d.id,
               character: charData.character,
-              message: d.message,
+              messageHtml: originalLog.messageHtml,
             });
           }
         });
@@ -1005,7 +1014,7 @@ new Vue({
 
       const textToCopy = allSelectedDialogues
         .map((d) => {
-          let messageToCopy = d.message;
+          let messageToCopy = this.decodeHtmlEntities(d.messageHtml);
           if (!this.dialogueOptions.applyLineBreaks) {
             messageToCopy = messageToCopy.replace(/\n/g, " ");
           }
@@ -1024,7 +1033,7 @@ new Vue({
       const selectedLogs = this.filteredRawLogs
         .filter((log) => log.selected)
         .map((log) => {
-          let messageToCopy = log.message;
+          let messageToCopy = this.decodeHtmlEntities(log.messageHtml);
           if (!this.dialogueOptions.applyLineBreaks) {
             messageToCopy = messageToCopy.replace(/\n/g, " ");
           }
