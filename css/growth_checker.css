@@ -654,3 +654,45 @@ summary.character-header h3 input[type="checkbox"] {
 .copy-icon-button:hover {
   color: #fff;
 }
+
+/* --- Discord風ログ表示 --- */
+.raw-log-display-discord {
+  background-color: #36393f;
+  border-radius: 8px;
+  padding: 10px 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+  color: #dcddde;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.discord-log-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-top: 1px solid #40444b;
+}
+
+.log-main-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-grow: 1;
+}
+
+.discord-log-line:first-child {
+  border-top: none;
+}
+
+.discord-log-character {
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.discord-log-message {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

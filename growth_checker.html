@@ -37,6 +37,8 @@
             class="fa-solid fa-square-check"></i> 成長チェック</button>
         <button :class="{ active: activeTool === 'dialogue' }" @click="activeTool = 'dialogue'"><i
             class="fa-solid fa-comments"></i> セリフ抽出</button>
+        <button :class="{ active: activeTool === 'raw' }" @click="activeTool = 'raw'"><i
+            class="fa-solid fa-file-lines"></i> ログ表示</button>
       </div>
 
       <div class="file-drop-area" @dragover.prevent @dragenter.prevent="dragEnter" @dragleave.prevent="dragLeave"
@@ -268,6 +270,59 @@
         </div>
         <div v-else class="no-results">
           <p>指定された条件に一致するログは見つかりませんでした。</p>
+        </div>
+      </div>
+
+      <!-- 生ログ表示機能 -->
+      <div v-if="activeTool === 'raw' && logContent">
+        <div class="options-container">
+          <h3 class="options-header"><span><i class="fa-solid fa-gears"></i> 抽出オプション</span></h3>
+          <div class="toggle-options">
+            <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.excludeDiceRolls"
+                class="switch-checkbox"> ダイスロールを除外する</label>
+            <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.onlyQuoted"
+                class="switch-checkbox"> 「」『』で囲まれたセリフのみ抽出</label>
+            <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.applyLineBreaks"
+                class="switch-checkbox"> コピーする際にセリフ内改行を適用する</label>
+          </div>
+          <div v-if="tabNames.length > 1" class="tab-options">
+            <div class="tab-options-header">
+              <h4><i class="fa-solid fa-folder-tree"></i> タブ選択</h4>
+              <div class="tab-selection-buttons">
+                <button @click="selectMainTab">メインのみ</button>
+                <button @click="selectAllTabs">全表示</button>
+              </div>
+            </div>
+            <div class="options-grid">
+              <label v-for="tab in tabNames" :key="tab">
+                <input type="checkbox" :value="tab" v-model="selectedTabs"> {{ tab }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-container">
+          <div class="results-header">
+            <h2 class="start-title">ログ全文</h2>
+            <button class="copy-all-button" @click="copySelectedRawLogs($event)">
+              <i class="fa-solid fa-clipboard-check"></i> チェックしたログをコピー
+            </button>
+          </div>
+          <div class="raw-log-display-discord">
+            <div v-for="log in filteredRawLogs" :key="log.originalIndex" class="discord-log-line">
+              <div class="log-main-content">
+                <input type="checkbox" v-model="log.selected" class="dialogue-checkbox">
+                <span class="log-tab-badge">[{{ log.tab }}]</span>
+                <div>
+                  <span class="discord-log-character" :style="{ color: log.color }">{{ log.character }}: </span>
+                  <span class="discord-log-message" v-html="log.messageHtml"></span>
+                </div>
+              </div>
+              <button class="copy-icon-button" @click="copyToClipboard(log.message, $event)" title="このセリフをコピー">
+                <i class="fa-solid fa-paste"></i>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

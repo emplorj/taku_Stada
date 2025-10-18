@@ -42,6 +42,7 @@ new Vue({
     selectedTabs: [],
     parsedLogs: [],
     characterDialogueSelection: {},
+    rawLogSelection: [],
     alwaysExcludeRolls: ["SAN", "SAN値チェック", "正気度ロール"],
     conditionalRolls: [
       "幸運",
@@ -146,6 +147,7 @@ new Vue({
         this.selectedTabs = [];
         this.selectedChartCharacter = null;
         this.characterDialogueSelection = {};
+        this.rawLogSelection = [];
         this.isCoCLog = true;
         this.activeTool = "growth";
         this.detectedVersion = null;
@@ -260,6 +262,7 @@ new Vue({
           this.$set(this.characterDialogueSelection, charName, {});
         }
         this.$set(this.characterDialogueSelection[charName], index, false);
+        this.$set(this.rawLogSelection, index, false);
       });
 
       const tabs = new Set(["メイン", "情報", "雑談"]);
@@ -331,7 +334,7 @@ new Vue({
     processedResults() {
       if (!this.logContent) return {};
       const filteredLogs = [];
-      this.parsedLogs.forEach((log) => {
+      this.parsedLogs.forEach((log, index) => {
         if (!this.selectedTabs.includes(log.tab)) return;
         if (!log.message.includes("＞")) return;
 
@@ -365,6 +368,7 @@ new Vue({
           skillValue,
           tab: log.tab,
           color: log.color,
+          originalIndex: index,
         });
       });
       const grouped = {};
@@ -391,6 +395,7 @@ new Vue({
           formattedText: this.formatLogText(log.diceRoll),
           isInitialSuccess: isInitial,
           tab: log.tab,
+          originalIndex: log.originalIndex,
         });
       });
       return grouped;
@@ -416,6 +421,12 @@ new Vue({
           merged[targetName].color = sourceResult.color;
         }
       }
+
+      // ログを元の順序でソート
+      for (const charName in merged) {
+        merged[charName].logs.sort((a, b) => a.originalIndex - b.originalIndex);
+      }
+
       return merged;
     },
     summaryResults() {
@@ -571,7 +582,39 @@ new Vue({
           isOpen: !isNpcColor,
         };
       });
+
+      // ログを元の順序でソート
+      results.forEach((charData) => {
+        charData.dialogues.sort((a, b) => a.id - b.id);
+      });
+
       return results;
+    },
+
+    filteredRawLogs() {
+      if (!this.logContent) return [];
+      return this.parsedLogs
+        .map((log, index) => ({
+          ...log,
+          originalIndex: index,
+          selected: this.rawLogSelection[index] || false,
+        }))
+        .filter((log) => {
+          if (!this.selectedTabs.includes(log.tab)) {
+            return false;
+          }
+          if (
+            this.dialogueOptions.onlyQuoted &&
+            !/^[「『｢]/.test(log.message)
+          ) {
+            return false;
+          }
+          const isDiceRoll = this.isDiceRollMessage(log.message);
+          if (this.dialogueOptions.excludeDiceRolls && isDiceRoll) {
+            return false;
+          }
+          return true;
+        });
     },
   },
   methods: {
@@ -976,6 +1019,22 @@ new Vue({
 
       this.copyToClipboard(textToCopy, event);
     },
+
+    copySelectedRawLogs(event) {
+      const selectedLogs = this.filteredRawLogs
+        .filter((log) => log.selected)
+        .map((log) => {
+          let messageToCopy = log.message;
+          if (!this.dialogueOptions.applyLineBreaks) {
+            messageToCopy = messageToCopy.replace(/\n/g, " ");
+          }
+          return `${log.character}: ${messageToCopy}`;
+        });
+
+      const textToCopy = selectedLogs.join("\n");
+      this.copyToClipboard(textToCopy, event);
+    },
+
     selectMainTab() {
       this.selectedTabs = [];
       if (this.tabNames.includes("メイン")) {
