@@ -97,6 +97,7 @@ new Vue({
     editingComboIndex: -1,
     tempSelectedEffects: [],
     tempSelectedItems: [],
+    tempSelectedBuffs: [],
     dropdownOptions: {
       difficulty: ["-", "自動成功", "対決", "効果参照"],
       skill: [
@@ -178,6 +179,8 @@ new Vue({
       message: "",
       isError: false,
     },
+    isBuffSectionOpen: true,
+    isSyncingComboLevel: false,
   },
   created() {
     this.effects = [
@@ -278,74 +281,47 @@ new Vue({
         RC: "精神",
         交渉: "社会",
       };
-      return this.combos.map((combo) => {
+
+      const calculateBaseCombo = (combo) => {
         const comboLevelBonus = combo.comboLevelBonus || 0;
 
-        const getShowInComboName = (collection, name) => {
-          const data = (collection || []).find(
-            (item) => (typeof item === "string" ? item : item.name) === name
-          );
-          if (typeof data === "object") {
-            return data.showInComboName;
-          }
-          return true; // デフォルトは表示
+        const getSourcesFromCombo = (c) => {
+          const sources = [];
+          const names = new Set();
+          (c.effectNames || []).forEach((effectData) => {
+            const name =
+              typeof effectData === "string" ? effectData : effectData.name;
+            if (name && !names.has(name)) {
+              const effect = allEffects.find((e) => e.name === name);
+              if (effect) {
+                sources.push({ ...effect, sourceType: "effect" });
+                names.add(name);
+              }
+            }
+          });
+          (c.itemNames || []).forEach((itemData) => {
+            const name =
+              typeof itemData === "string" ? itemData : itemData.name;
+            if (name && !names.has(name)) {
+              const item = allItems.find((i) => i.name === name);
+              if (item) {
+                sources.push({ ...item, sourceType: "item" });
+                names.add(name);
+              }
+            }
+          });
+          return sources;
         };
 
-        const allSelectedSources = [];
-        const processedNames = new Set();
+        const allSelectedSources = getSourcesFromCombo(combo);
 
-        // 1. エフェクトを追加
-        (combo.effectNames || []).forEach((effectData) => {
-          const name =
-            typeof effectData === "string" ? effectData : effectData.name;
-          if (name && !processedNames.has(name)) {
-            const effect = allEffects.find((e) => e.name === name);
-            if (effect) {
-              allSelectedSources.push({
-                ...effect,
-                sourceType: "effect",
-                showInComboName: getShowInComboName(combo.effectNames, name),
-              });
-              processedNames.add(name);
-            }
-          }
-        });
-
-        // 2. アイテムを追加（エフェクトと重複しないもの）
-        (combo.itemNames || []).forEach((itemData) => {
-          const name = itemData.name;
-          if (name && !processedNames.has(name)) {
-            const item = allItems.find((i) => i.name === name);
-            if (item) {
-              allSelectedSources.push({
-                ...item,
-                sourceType: "item",
-                showInComboName: itemData.showInComboName,
-              });
-              processedNames.add(name);
-            }
-          }
-        });
-
-        // 3. 計算対象のソースをフィルタリング
-        const relevantSources = allSelectedSources.filter((source) => {
-          // マイナータイミングのエフェクトで、コンボ名に表示しない設定の場合、計算から除外
-          if (
-            source.sourceType === "effect" &&
-            source.timing === "マイナー" &&
-            !source.showInComboName
-          ) {
-            return false;
-          }
-          return true;
-        });
-
-        const relevantEffects = relevantSources.filter(
+        const relevantEffects = allSelectedSources.filter(
           (s) => s.sourceType === "effect"
         );
-        const relevantItems = relevantSources.filter(
+        const relevantItems = allSelectedSources.filter(
           (s) => s.sourceType === "item"
         );
+
         const calcResult = (valueKey, sources) => {
           let totalDice = 0;
           let totalFixed = 0;
@@ -358,7 +334,6 @@ new Vue({
 
             let finalValue;
             if (valueKey === "dice") {
-              // 'dice'タブの場合は、常にダイスとして扱う
               const baseDice = Number(source.values.dice.base) || 0;
               const perLevelDice = Number(source.values.dice.perLevel) || 0;
               finalValue = {
@@ -366,7 +341,6 @@ new Vue({
                 fixed: 0,
               };
             } else {
-              // 他のタブは従来通り
               const baseParsed = this.evaluateDiceString(
                 String(source.values[valueKey].base || "0")
               );
@@ -401,39 +375,12 @@ new Vue({
 
         const diceResult = calcResult("dice", relevantEffects);
         const achieveResult = calcResult("achieve", relevantEffects);
-        const atkResult = calcResult("attack", relevantSources);
+        const atkResult = calcResult("attack", allSelectedSources);
         const accuracyResult = calcResult("accuracy", relevantItems);
-        const accuracyBonus = relevantItems.reduce((total, item) => {
-          if (item.accuracy) {
-            const parsed = this.evaluateDiceString(String(item.accuracy));
-            return total + parsed.dice + parsed.fixed;
-          }
-          return total;
-        }, 0);
 
-        const accuracyBreakdown = relevantItems
-          .map((item) => {
-            if (item.accuracy) {
-              const parsed = this.evaluateDiceString(String(item.accuracy));
-              const itemAccuracyBonus = parsed.dice + parsed.fixed;
-              if (itemAccuracyBonus !== 0) {
-                return `【${item.name}】(命中): +${itemAccuracyBonus}D`;
-              }
-            }
-            return null;
-          })
-          .filter(Boolean);
-
-        const weaponAtk = this.evaluateDiceString(combo.atk_weapon || "0");
-        let totalAtkDice = weaponAtk.dice + atkResult.dice;
-        let totalAtkFixed = weaponAtk.fixed + atkResult.fixed;
-        const atkBreakdown = [
-          `武器ATK: ${this.formatDiceString(weaponAtk)}`,
-          atkResult.breakdown,
-        ].filter(Boolean);
         let critTotal = 10;
         const critBreakdown = [];
-        relevantSources.forEach((source) => {
+        allSelectedSources.forEach((source) => {
           if (!source.values?.crit?.base || source.values.crit.base === 0)
             return;
           const effectiveLevel = source.level
@@ -448,284 +395,255 @@ new Vue({
             critBreakdown.push(`${source.name}: ${value}`);
           }
         });
-        const costBreakdown = [];
-        if (combo.cost_manual) {
-          costBreakdown.push(`手動調整: ${combo.cost_manual}`);
-        }
-        let totalCostDice = 0;
-        let totalCostFixed = 0;
-        const manualCost = this.evaluateDiceString(combo.cost_manual || "0");
-        totalCostDice += manualCost.dice;
-        totalCostFixed += manualCost.fixed;
-        if (manualCost.dice > 0 || manualCost.fixed > 0) {
-          costBreakdown.push(`手動調整: ${this.formatDiceString(manualCost)}`);
-        }
-        relevantSources.forEach((source) => {
-          const level =
-            source.sourceType === "effect"
-              ? (Number(source.level) || 0) + comboLevelBonus
-              : source.level;
-          const cost = this.evaluateDiceString(source.cost, level);
-          if (cost.dice > 0 || cost.fixed > 0) {
-            const prefix = source.sourceType === "effect" ? "《" : "【";
-            const suffix = source.sourceType === "effect" ? "》" : "】";
-            costBreakdown.push(
-              `${prefix}${source.name}${suffix}: ${this.formatDiceString(cost)}`
-            );
-            totalCostDice += cost.dice;
-            totalCostFixed += cost.fixed;
-          }
-        });
-        const effectComposition = allSelectedSources
-          .filter((s) => s.sourceType === "effect" && s.showInComboName)
-          .map(
-            (e) =>
-              `《${e.name}》Lv${e.level}${
-                comboLevelBonus > 0 ? `+${comboLevelBonus}` : ""
-              }`
-          )
-          .join("+");
-        const itemComposition = allSelectedSources
-          .filter((s) => s.sourceType === "item" && s.showInComboName)
-          .map((i) => `【${i.name}】`)
-          .join("+");
-        const compositionText = [effectComposition, itemComposition]
-          .filter(Boolean)
-          .join("+");
 
-        const hiddenBuffs = allSelectedSources
-          .filter((s) => !s.showInComboName)
-          .map((s) => s.name);
+        const weaponAtk = this.evaluateDiceString(combo.atk_weapon || "0");
+        const totalAtkDice = weaponAtk.dice + atkResult.dice;
+        const totalAtkFixed = weaponAtk.fixed + atkResult.fixed;
+        const atkBreakdown = [
+          `武器ATK: ${this.formatDiceString(weaponAtk)}`,
+          atkResult.breakdown,
+        ].filter(Boolean);
 
-        const hasHiddenBuffs = hiddenBuffs.length > 0;
-        const hiddenBuffsTooltip = hasHiddenBuffs
-          ? `適用中のバフ: ${hiddenBuffs.join(", ")}`
-          : "";
-        const autoEffectText = allSelectedSources
-          .map((source) => {
-            const level =
-              source.sourceType === "effect" ? source.level : source.level || 1;
-            const levelBonus =
-              source.sourceType === "effect" ? combo.comboLevelBonus : 0;
-            return this.evaluateEffectText(
-              source.effect || source.notes,
-              level,
-              levelBonus,
-              combo.enableAdvancedParsing
-            );
-          })
-          .filter(Boolean)
-          .join("\n");
-        let primarySkill =
-          relevantEffects.find((e) => e.skill)?.skill ||
-          combo.baseAbility.skill;
-        if (
-          !this.dropdownOptions.skill.includes(primarySkill) ||
-          !skillToAbilityMap[primarySkill]
-        ) {
-          primarySkill = combo.baseAbility.skill;
-        }
-        const abilityName = skillToAbilityMap[primarySkill] || "能力値";
-        const totalDiceForFormula = diceResult.dice + accuracyResult.dice;
-        const totalFixedBonus =
-          (combo.baseAbility.value || 0) +
-          achieveResult.fixed +
-          accuracyResult.fixed;
-        let diceFormula = `({${abilityName}}+{侵蝕率D}+${totalDiceForFormula})DX${critTotal}`;
-        if (totalFixedBonus > 0) {
-          diceFormula += `+${totalFixedBonus}`;
-        } else if (totalFixedBonus < 0) {
-          diceFormula += `${totalFixedBonus}`;
-        }
-        const targetOrder = [
-          "自身",
-          "単体",
-          "[LV+1]体",
-          "2体",
-          "3体",
-          "範囲(選択)",
-          "範囲",
-          "シーン(選択)",
-          "シーン",
-          "-",
-          "効果参照",
-        ];
-        let determinedTarget = "-";
-        let hasSelfTarget = false;
-        for (const effect of relevantEffects) {
-          const target = effect.target;
-          if (target === "自身") {
-            hasSelfTarget = true;
-            break;
-          }
-          if (
-            targetOrder.indexOf(target) < targetOrder.indexOf(determinedTarget)
-          ) {
-            determinedTarget = target;
-          }
-        }
-        if (hasSelfTarget) {
-          determinedTarget = "自身";
-        } else if (determinedTarget === "-") {
-          determinedTarget = "単体";
-        }
-        const autoTarget = determinedTarget;
-        const rangeOrder = [
-          "至近",
-          "nメートル",
-          "武器",
-          "視界",
-          "-",
-          "効果参照",
-        ];
-        let determinedRange = "-";
-        let hasWeaponRange = false;
-        for (const effect of relevantEffects) {
-          const range = effect.range;
-          if (range === "武器") {
-            hasWeaponRange = true;
-            continue;
-          }
-          if (rangeOrder.indexOf(range) < rangeOrder.indexOf(determinedRange)) {
-            determinedRange = range;
-          }
-        }
-        if (determinedRange === "-") {
-          determinedRange = "至近";
-        }
-        const autoRange = determinedRange;
-        const timingOrder = [
-          "メジャー",
-          "メジャー／リア",
-          "リアクション",
-          "マイナー",
-          "オート",
-          "セットアップ",
-          "イニシアチブ",
-          "クリンナップ",
-          "常時",
-          "-",
-          "効果参照",
-        ];
-        let determinedTiming = "-";
-        const majorActionTimings = ["メジャー", "メジャー／リア"];
+        const totalDice = diceResult.dice + accuracyResult.dice;
+        const totalAchieve = achieveResult.fixed + accuracyResult.fixed;
 
-        for (const effect of relevantEffects) {
-          const timing = effect.timing;
-          if (timing === "オート" || timing === "常時") continue;
-          if (
-            timingOrder.indexOf(timing) < timingOrder.indexOf(determinedTiming)
-          ) {
-            determinedTiming = timing;
-          }
-        }
-
-        const autoTiming =
-          determinedTiming === "-" ? "メジャー" : determinedTiming;
-
-        const finalTiming =
-          combo.timingMode === "manual" && combo.manualTiming !== ""
-            ? combo.manualTiming
-            : autoTiming;
-
-        const isMajorAction = majorActionTimings.some((t) =>
-          finalTiming.includes(t)
-        );
-
-        const difficultyOrder = ["対決", "効果参照", "自動成功", "-"];
-        let determinedDifficulty = "-";
-
-        // タイミングが一致するエフェクトのみを難易度判定の対象とする
-        const mainTimingEffects = relevantEffects.filter(
-          (e) =>
-            e.timing === finalTiming ||
-            (finalTiming === "メジャー" && e.timing === "メジャー／リア")
-        );
-
-        for (const effect of mainTimingEffects) {
-          const difficulty = effect.difficulty;
-          if (
-            difficultyOrder.indexOf(difficulty) <
-            difficultyOrder.indexOf(determinedDifficulty)
-          ) {
-            determinedDifficulty = difficulty;
-          }
-        }
-
-        if (determinedDifficulty === "-") {
-          if (isMajorAction || finalTiming === "リアクション") {
-            determinedDifficulty = "対決";
-          }
-        }
-
-        const autoDifficulty = determinedDifficulty;
-        const finalTarget =
-          combo.targetMode === "manual" && combo.manualTarget !== ""
-            ? combo.manualTarget
-            : autoTarget;
-        const finalRange =
-          combo.rangeMode === "manual" && combo.manualRange !== ""
-            ? combo.manualRange
-            : autoRange;
-        const finalDifficulty = autoDifficulty;
-
-        const effectDescriptionForPalette =
-          combo.effectDescriptionMode === "manual"
-            ? combo.manualEffectDescription
-            : autoEffectText;
-
-        const chatPalette = {
-          header: [
-            `◆${combo.name}`,
-            compositionText,
-            combo.flavor ? `『${combo.flavor}』` : "",
-            `侵蝕値:${this.formatDiceString({
-              dice: totalCostDice,
-              fixed: totalCostFixed,
-            })}　タイミング:${finalTiming}　技能:${primarySkill}　難易度:${finalDifficulty}　対象:${finalTarget}　射程:${finalRange}　ATK:${this.formatDiceString(
-              { dice: totalAtkDice, fixed: totalAtkFixed }
-            )}　C値:${critTotal}`,
-            effectDescriptionForPalette,
-          ]
-            .filter(Boolean)
-            .join("\n"),
-          diceFormula: diceFormula,
-        };
         return {
           ...combo,
-          totalDice: totalDiceForFormula,
-          diceBreakdown: [diceResult.breakdown, accuracyResult.breakdown]
-            .filter(Boolean)
-            .join("\n"),
-          finalCrit: critTotal,
-          critBreakdown: critBreakdown.join("\n"),
-          totalAchieve: totalFixedBonus,
-          achieveBreakdown: [
-            combo.baseAbility.value ? `技能: ${combo.baseAbility.value}` : null,
-            achieveResult.breakdown,
-            accuracyResult.breakdown,
-          ]
-            .filter(Boolean)
-            .join("\n"),
+          allSelectedSources: allSelectedSources, // ★これを追加
+          baseValues: {
+            dice: totalDice,
+            achieve: totalAchieve,
+            atkDice: totalAtkDice,
+            atkFixed: totalAtkFixed,
+            crit: critTotal,
+          },
+          breakdowns: {
+            dice: [diceResult.breakdown, accuracyResult.breakdown]
+              .filter(Boolean)
+              .join("\n"),
+            achieve: [achieveResult.breakdown, accuracyResult.breakdown]
+              .filter(Boolean)
+              .join("\n"),
+            atk: atkBreakdown.join("\n"),
+            crit: critBreakdown.join("\n"),
+          },
+        };
+      };
+
+      const baseCombos = this.combos.map(calculateBaseCombo);
+
+      return baseCombos.map((comboData, index) => {
+        const currentCombo = this.combos[index];
+
+        let finalDice = comboData.baseValues.dice;
+        let finalAchieve = comboData.baseValues.achieve;
+        let finalAtkDice = comboData.baseValues.atkDice;
+        let finalAtkFixed = comboData.baseValues.atkFixed;
+        let finalCrit = comboData.baseValues.crit;
+
+        let diceBreakdown = [comboData.breakdowns.dice];
+        let achieveBreakdown = [comboData.breakdowns.achieve];
+        let atkBreakdown = [comboData.breakdowns.atk];
+        let critBreakdown = [comboData.breakdowns.crit];
+
+        if (currentCombo.appliedBuffs) {
+          currentCombo.appliedBuffs.forEach((buffName) => {
+            const buffComboData = baseCombos.find((b) => b.name === buffName);
+            if (buffComboData) {
+              finalDice += buffComboData.baseValues.dice;
+              finalAchieve += buffComboData.baseValues.achieve;
+              finalAtkDice += buffComboData.baseValues.atkDice;
+              finalAtkFixed += buffComboData.baseValues.atkFixed;
+              if (buffComboData.baseValues.crit < finalCrit) {
+                finalCrit = buffComboData.baseValues.crit;
+              }
+              diceBreakdown.push(buffComboData.breakdowns.dice);
+              achieveBreakdown.push(buffComboData.breakdowns.achieve);
+              atkBreakdown.push(buffComboData.breakdowns.atk);
+              critBreakdown.push(buffComboData.breakdowns.crit);
+            }
+          });
+        }
+        // ここで最終的な表示用の値を計算
+        // const allSelectedSources = this._getRelevantEffects(currentCombo.effectNames); // ★この行を削除またはコメントアウト
+
+        const allSelectedSources = comboData.allSelectedSources; // ★これを追加
+
+        const getPriorityValue = (prop, defaultValue) => {
+          const priorityOrder = {
+            timing: [
+              "メジャー／リア",
+              "メジャー",
+              "リアクション",
+              "マイナー",
+              "セットアップ",
+              "イニシアチブ",
+              "クリンナップ",
+              "オート",
+              "常時",
+            ],
+            range: ["視界", "武器", "至近"],
+            target: [
+              "自身",
+              "単体",
+              "2体",
+              "3体",
+              "[LV+1]体",
+              "範囲(選択)",
+              "範囲",
+              "シーン(選択)",
+              "シーン",
+            ],
+          };
+          for (const p of priorityOrder[prop] || []) {
+            if (allSelectedSources.some((s) => s[prop] === p)) return p;
+          }
+          const firstValid = allSelectedSources.find(
+            (s) => s[prop] && s[prop] !== "-"
+          );
+          return firstValid ? firstValid[prop] : defaultValue;
+        };
+
+        const timing =
+          currentCombo.timingMode === "auto"
+            ? getPriorityValue("timing", "-")
+            : currentCombo.manualTiming;
+        const range =
+          currentCombo.rangeMode === "auto"
+            ? getPriorityValue("range", "-")
+            : currentCombo.manualRange;
+        const target =
+          currentCombo.targetMode === "auto"
+            ? getPriorityValue("target", "-")
+            : currentCombo.manualTarget;
+
+        const totalCost = allSelectedSources.reduce(
+          (acc, s) => acc + (Number(s.cost) || 0),
+          Number(currentCombo.cost_manual) || 0
+        );
+        const costBreakdown = allSelectedSources
+          .map((s) => `${s.name}: ${s.cost || 0}`)
+          .join("\n");
+
+        const isMajorAction = ["メジャー", "メジャー／リア"].includes(timing);
+
+        const compositionText = allSelectedSources
+          .map((s) => {
+            if (s.sourceType === "effect") {
+              return `《${s.name}》`;
+            } else if (s.sourceType === "item") {
+              return `「${s.name}」`;
+            }
+            return s.name; // フォールバック
+          })
+          .join("、");
+        const autoEffectText = allSelectedSources
+          .map((s) =>
+            this.evaluateEffectText(
+              s.effect || s.notes,
+              s.level,
+              currentCombo.comboLevelBonus,
+              currentCombo.enableAdvancedParsing
+            )
+          )
+          .filter(Boolean)
+          .join("\n");
+
+        // --- チャットパレット生成ロジックを修正 ---
+        const comboLevelBonus = currentCombo.comboLevelBonus || 0;
+        const line1 = `◆${currentCombo.name}`;
+        const line2 = allSelectedSources
+          .map((s) => {
+            const baseLevel = Number(s.level) || 1;
+            const bonusPart = comboLevelBonus > 0 ? `+${comboLevelBonus}` : "";
+            return `《${s.name}》Lv${baseLevel}${bonusPart}`;
+          })
+          .join("+");
+        const line3 = `『${currentCombo.flavor || ""}』`;
+
+        const mainEffect =
+          allSelectedSources.find((s) =>
+            ["メジャー", "リアクション", "メジャー／リア"].includes(s.timing)
+          ) || allSelectedSources[0];
+        const difficulty = mainEffect ? mainEffect.difficulty : "自動";
+        const skill =
+          currentCombo.baseAbility.skill ||
+          (mainEffect ? mainEffect.skill : "-");
+
+        const details = [
+          `侵蝕値:${totalCost}`,
+          `タイミング:${timing}`,
+          `技能:${skill}`,
+          `難易度:${difficulty}`,
+          `対象:${target}`,
+          `射程:${range}`,
+          `ATK:${this.formatDiceString({
+            dice: finalAtkDice,
+            fixed: finalAtkFixed,
+          })}`,
+          `C値:${finalCrit}`,
+        ].join("　");
+
+        const effectDescription =
+          currentCombo.effectDescriptionMode === "manual"
+            ? currentCombo.manualEffectDescription
+            : autoEffectText;
+
+        const header = [line1, line2, line3, details, effectDescription]
+          .filter(Boolean)
+          .join("\n");
+
+        const diceFormula = `${finalDice}DX@${finalCrit}+${finalAchieve} 達成値:${finalAchieve} 攻撃力:${this.formatDiceString(
+          {
+            dice: finalAtkDice,
+            fixed: finalAtkFixed,
+          }
+        )}`;
+
+        const hasHiddenBuffs = allSelectedSources.some((s) => {
+          const effectData = (currentCombo.effectNames || []).find(
+            (e) => e.name === s.name
+          );
+          return effectData && effectData.showInComboName === false;
+        });
+        const hiddenBuffsTooltip = allSelectedSources
+          .filter((s) => {
+            const effectData = (currentCombo.effectNames || []).find(
+              (e) => e.name === s.name
+            );
+            return effectData && effectData.showInComboName === false;
+          })
+          .map((s) => s.name)
+          .join(", ");
+
+        return {
+          ...comboData,
+          totalDice: finalDice,
+          totalAchieve: finalAchieve,
           totalAtk: this.formatDiceString({
-            dice: totalAtkDice,
-            fixed: totalAtkFixed,
+            dice: finalAtkDice,
+            fixed: finalAtkFixed,
           }),
-          atkBreakdown: atkBreakdown.join("\n"),
-          totalCost: this.formatDiceString({
-            dice: totalCostDice,
-            fixed: totalCostFixed,
-          }),
-          costBreakdown: costBreakdown.join("\n"),
+          finalCrit: finalCrit,
+          diceBreakdown: diceBreakdown.filter(Boolean).join("\n"),
+          achieveBreakdown: achieveBreakdown.filter(Boolean).join("\n"),
+          atkBreakdown: atkBreakdown.filter(Boolean).join("\n"),
+          critBreakdown: critBreakdown.filter(Boolean).join("\n"),
+          // 不足していたプロパティを追加
+          timing,
+          range,
+          target,
+          totalCost,
+          costBreakdown,
+          isMajorAction,
           compositionText,
           autoEffectText,
-          chatPalette,
           hasHiddenBuffs,
           hiddenBuffsTooltip,
-          target: finalTarget,
-          range: finalRange,
-          timing: finalTiming,
-          isMajorAction: isMajorAction,
+          chatPalette: {
+            header,
+            diceFormula,
+          },
         };
       });
     },
@@ -763,7 +681,45 @@ new Vue({
       },
       deep: true,
     },
-    combos: { handler: "setDataDirty", deep: true },
+    combos: {
+      handler: function (newVal, oldVal) {
+        this.setDataDirty();
+
+        // 同期処理中であれば、再トリガーを防ぐ
+        if (this.isSyncingComboLevel) return;
+
+        // コンボの追加/削除時は同期処理を行わない
+        if (!oldVal || newVal.length !== oldVal.length) return;
+
+        let changedBonusValue = null;
+
+        // 変更された comboLevelBonus を見つける
+        for (let i = 0; i < newVal.length; i++) {
+          if (newVal[i].comboLevelBonus !== oldVal[i].comboLevelBonus) {
+            changedBonusValue = newVal[i].comboLevelBonus;
+            break;
+          }
+        }
+
+        // 変更が見つかった場合、他の全てのコンボにその値を適用する
+        if (changedBonusValue !== null) {
+          this.isSyncingComboLevel = true; // 同期処理開始
+          this.$nextTick(() => {
+            this.combos.forEach((combo, index) => {
+              if (combo.comboLevelBonus !== changedBonusValue) {
+                this.$set(
+                  this.combos[index],
+                  "comboLevelBonus",
+                  changedBonusValue
+                );
+              }
+            });
+            this.isSyncingComboLevel = false; // 同期処理終了
+          });
+        }
+      },
+      deep: true,
+    },
     characterSheetUrl: {
       handler: function (newVal, oldVal) {
         if (newVal && newVal.includes("#")) {
@@ -878,6 +834,12 @@ new Vue({
       if (!item || item.name === newName) return;
       const oldName = item.name;
       this.$set(item, "name", newName);
+
+      // oldNameが空文字列の場合は、同期処理を行わない
+      if (oldName === "") {
+        return;
+      }
+
       const listsToUpdate = {
         effects: this.effects,
         easyEffects: this.easyEffects,
@@ -1642,29 +1604,41 @@ new Vue({
         return false; // 選択解除は常に許可
       }
 
-      const majorActionTimings = ["メジャー", "メジャー／リア"];
-      const reactionTimings = ["リアクション", "メジャー／リア"];
-
-      const isSourceMajor = majorActionTimings.includes(source.timing);
-      const isSourceReaction = reactionTimings.includes(source.timing);
-
-      const hasMajorInSelection = this.tempSelectedEffects.some((e) =>
-        majorActionTimings.includes(e.timing)
-      );
-      const hasReactionInSelection = this.tempSelectedEffects.some((e) =>
-        reactionTimings.includes(e.timing)
-      );
-
-      // 既にリアクションが選択されている場合、メジャーは選択不可
-      if (hasReactionInSelection && isSourceMajor) {
-        return true;
-      }
-      // 既にメジャーが選択されている場合、リアクションは選択不可
-      if (hasMajorInSelection && isSourceReaction) {
-        return true;
+      const ignoreTimings = ["オート", "常時", "効果参照", "-"];
+      if (ignoreTimings.includes(source.timing)) {
+        return false;
       }
 
-      return false;
+      const coreEffects = this.tempSelectedEffects.filter(
+        (e) => !ignoreTimings.includes(e.timing)
+      );
+
+      if (coreEffects.length === 0) {
+        return false; // 最初の1つは何でも選べる
+      }
+
+      const firstCoreTiming = coreEffects[0].timing;
+
+      // メジャーコンボの場合
+      if (
+        firstCoreTiming === "メジャー" ||
+        firstCoreTiming === "メジャー／リア"
+      ) {
+        const isSourceMajorCompatible =
+          source.timing === "メジャー" || source.timing === "メジャー／リア";
+        return !isSourceMajorCompatible;
+      }
+
+      // リアクションコンボの場合
+      if (firstCoreTiming === "リアクション") {
+        const isSourceReactionCompatible =
+          source.timing === "リアクション" ||
+          source.timing === "メジャー／リア";
+        return !isSourceReactionCompatible;
+      }
+
+      // その他のタイミング(マイナーなど)の場合
+      return source.timing !== firstCoreTiming;
     },
     addEffect() {
       this.effects.push(this.createDefaultEffect());
@@ -1690,7 +1664,8 @@ new Vue({
         effectDescriptionMode: "auto",
         manualEffectDescription: "",
         enableAdvancedParsing: false,
-        baseAbility: { skill: "白兵", value: 0 },
+        baseAbility: { skill: "白兵" },
+        appliedBuffs: [],
         manualTarget: "",
         targetMode: "auto",
         manualRange: "",
@@ -1913,66 +1888,29 @@ new Vue({
       this.tempSelectedEffects = [...this.effects, ...this.easyEffects].filter(
         (e) => selectedEffectNames.has(e.name)
       );
-
       this.tempSelectedItems = this.items.filter((i) =>
         selectedItemNames.has(i.name)
       );
+      this.tempSelectedBuffs = [...(combo.appliedBuffs || [])]; // 適用中のバフをセット
 
       this.isEffectSelectModalOpen = true;
     },
     confirmEffectSelection() {
       if (this.editingComboIndex !== -1) {
         const combo = this.combos[this.editingComboIndex];
-        const majorActionTimings = ["メジャー", "メジャー／リア"];
-        const otherTimings = [
-          "マイナー",
-          "セットアップ",
-          "クリンナップ",
-          "イニシアチブ",
-          "リアクション",
-          "オート",
-          "常時",
-        ];
 
-        const hasMajorAction = this.tempSelectedEffects.some((e) =>
-          majorActionTimings.includes(e.timing)
-        );
-
-        const effectNames = this.tempSelectedEffects.map((effect) => {
-          const existingEffectData = (combo.effectNames || []).find(
-            (e) => e.name === effect.name
-          );
-
-          let showInComboName;
-          if (existingEffectData) {
-            showInComboName = existingEffectData.showInComboName;
-          } else {
-            // 新規追加時のデフォルト値
-            if (majorActionTimings.includes(effect.timing)) {
-              showInComboName = true; // 主軸アクションは常に表示
-            } else if (otherTimings.includes(effect.timing)) {
-              showInComboName = !hasMajorAction; // 他のタイミングは、主軸アクションがなければ表示
-            } else {
-              showInComboName = true; // デフォルト
-            }
-          }
-
-          return {
-            name: effect.name,
-            showInComboName: showInComboName,
-          };
-        });
-        const itemNames = this.tempSelectedItems.map((item) => {
-          const existingItem = (combo.itemNames || []).find(
-            (i) => i.name === item.name
-          );
-          return {
-            name: item.name,
-            showInComboName: existingItem ? existingItem.showInComboName : true,
-          };
-        });
+        // エフェクトとアイテムの選択を更新
+        const effectNames = this.tempSelectedEffects.map((effect) => ({
+          name: effect.name,
+        }));
+        const itemNames = this.tempSelectedItems.map((item) => ({
+          name: item.name,
+        }));
         this.$set(combo, "effectNames", effectNames);
         this.$set(combo, "itemNames", itemNames);
+        this.$set(combo, "appliedBuffs", this.tempSelectedBuffs); // バフの選択を更新
+
+        // 主要な技能を自動設定
         const skillCounts = this.tempSelectedEffects.reduce((acc, effect) => {
           if (effect.skill && effect.skill !== "-") {
             acc[effect.skill] = (acc[effect.skill] || 0) + 1;
@@ -2051,31 +1989,6 @@ new Vue({
         (effect) => effect.name === effectName
       );
     },
-    isShowInComboNameForEffect(effectName) {
-      if (!this.isEffectSelectModalOpen) return false;
-      const combo = this.combos[this.editingComboIndex];
-      const effectData = (combo.effectNames || []).find(
-        (e) => e.name === effectName
-      );
-      return effectData ? effectData.showInComboName : true;
-    },
-    toggleShowInComboNameForEffect(effectToToggle) {
-      if (!this.isEffectSelectModalOpen) return;
-      const combo = this.combos[this.editingComboIndex];
-      const isCurrentlySelected = this.tempSelectedEffects.some(
-        (effect) => effect.name === effectToToggle.name
-      );
-      if (!isCurrentlySelected) return;
-
-      let effectData = (combo.effectNames || []).find(
-        (e) => e.name === effectToToggle.name
-      );
-
-      if (effectData) {
-        effectData.showInComboName = !effectData.showInComboName;
-        this.$forceUpdate();
-      }
-    },
     handleEffectSelectionChange(item, isSelected) {
       if (!item.name) return;
 
@@ -2111,32 +2024,6 @@ new Vue({
     isItemSelected(itemName) {
       if (!this.isEffectSelectModalOpen) return false;
       return this.tempSelectedItems.some((item) => item.name === itemName);
-    },
-    isShowInComboName(itemName) {
-      if (!this.isEffectSelectModalOpen) return false;
-      const combo = this.combos[this.editingComboIndex];
-      const itemData = (combo.itemNames || []).find((i) => i.name === itemName);
-      return itemData ? itemData.showInComboName : true;
-    },
-    toggleShowInComboName(itemToToggle) {
-      if (!this.isEffectSelectModalOpen) return;
-      const combo = this.combos[this.editingComboIndex];
-      const isCurrentlySelected = this.tempSelectedItems.some(
-        (item) => item.name === itemToToggle.name
-      );
-      if (!isCurrentlySelected) return;
-      let itemData = (combo.itemNames || []).find(
-        (i) => i.name === itemToToggle.name
-      );
-      if (!itemData) {
-        itemData = { name: itemToToggle.name, showInComboName: true };
-        if (!combo.itemNames) {
-          this.$set(combo, "itemNames", []);
-        }
-        combo.itemNames.push(itemData);
-      }
-      itemData.showInComboName = !itemData.showInComboName;
-      this.$forceUpdate();
     },
     normalizeImportedString(str) {
       if (typeof str !== "string" || !str) return str;
@@ -2334,6 +2221,9 @@ new Vue({
       if (this.updateOptions.resolve) {
         this.updateOptions.resolve(decision);
       }
+    },
+    availableBuffs(currentIndex) {
+      return this.combos.filter((_, index) => index !== currentIndex);
     },
   },
 });

@@ -400,7 +400,6 @@
             <select v-model="combos[index].baseAbility.skill">
               <option v-for="opt in dropdownOptions.baseSkillSelect" :value="opt">{{ opt }}</option>
             </select>
-            <input type="number" v-model.number="combos[index].baseAbility.value">
           </div>
 
           <div class="stat-item" :title="combo.atkBreakdown">ATK: {{ combo.totalAtk }}</div>
@@ -515,9 +514,6 @@
                   :disabled="isEffectDisabled(effect)"
                   @change="handleEffectSelectionChange(effect, $event.target.checked)">
                 <span>{{ effect.name }} ({{ effect.timing }})</span>
-                <button @click.stop="toggleShowInComboNameForEffect(effect)"
-                  :class="{active: isShowInComboNameForEffect(effect.name)}" :disabled="!isEffectSelected(effect.name)"
-                  class="show-in-combo-btn" title="クリックでコンボ名への表示／非表示を切替">コンボ</button>
               </label>
             </div>
             <div class="option-group">
@@ -527,9 +523,6 @@
                 <input type="checkbox" :value="ee" v-model="tempSelectedEffects" :disabled="isEffectDisabled(ee)"
                   @change="handleEffectSelectionChange(ee, $event.target.checked)">
                 <span>{{ ee.name }} ({{ ee.timing }})</span>
-                <button @click.stop="toggleShowInComboNameForEffect(ee)"
-                  :class="{active: isShowInComboNameForEffect(ee.name)}" :disabled="!isEffectSelected(ee.name)"
-                  class="show-in-combo-btn" title="クリックでコンボ名への表示／非表示を切替">コンボ</button>
               </label>
             </div>
             <div class="option-group">
@@ -539,9 +532,20 @@
                 <input type="checkbox" :value="item" v-model="tempSelectedItems"
                   @change="handleEffectSelectionChange(item, $event.target.checked)">
                 <span>{{ item.name }} ({{ item.type }})</span>
-                <button @click.stop="toggleShowInComboName(item)" :class="{active: isShowInComboName(item.name)}"
-                  :disabled="!isItemSelected(item.name)" class="show-in-combo-btn"
-                  title="クリックでコンボ名への表示／非表示を切替">コンボ</button>
+              </label>
+            </div>
+            <!-- Buff section moved -->
+          </div>
+          <div class="buff-section">
+            <strong @click="isBuffSectionOpen = !isBuffSectionOpen" class="buff-section-header">
+              <span>他のコンボ(バフ/クリエイトアイテム)</span>
+              <i class="fa-solid" :class="isBuffSectionOpen ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+            </strong>
+            <div v-show="isBuffSectionOpen" class="option-group buff-list">
+              <label v-for="combo in availableBuffs(editingComboIndex)"
+                :key="combo.name + editingComboIndex + 'buff-select'" class="item-select-label">
+                <input type="checkbox" :value="combo.name" v-model="tempSelectedBuffs">
+                <span>{{ combo.name }}</span>
               </label>
             </div>
           </div>
