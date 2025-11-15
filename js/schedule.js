@@ -5,6 +5,7 @@
 // --- グローバル設定と共通ヘルパー関数 ---
 const SPREADSHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=783716063&single=true&output=csv";
+const ARCHIVE_CSV_URL = "archive.csv"; // 追加: archive.csvのパス
 const DAYCORD_PROXY_URL =
   "https://corsproxy.io/?" +
   encodeURIComponent(
@@ -173,56 +174,95 @@ function groupAndFormatDatesWithWeekday(fullDateStrings) {
 
 async function getSharedEventData() {
   try {
-    const response = await fetch(SPREADSHEET_URL);
-    if (!response.ok) {
+    const [spreadsheetResponse, archiveResponse] = await Promise.all([
+      fetch(SPREADSHEET_URL),
+      fetch(ARCHIVE_CSV_URL),
+    ]);
+
+    if (!spreadsheetResponse.ok) {
       console.error(
-        `スプレッドシート (${SPREADSHEET_URL}) の読み込みに失敗しました: HTTP status ${response.status}`
+        `スプレッドシート (${SPREADSHEET_URL}) の読み込みに失敗しました: HTTP status ${spreadsheetResponse.status}`
       );
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${spreadsheetResponse.status}`);
     }
-    const csvText = await response.text();
-    const rows = parseCsvToArray(csvText);
+    if (!archiveResponse.ok) {
+      console.warn(
+        `アーカイブCSV (${ARCHIVE_CSV_URL}) の読み込みに失敗しました: HTTP status ${archiveResponse.status}. スキップします。`
+      );
+      // archive.csvの読み込み失敗は致命的ではないので、エラーを投げずに続行
+    }
+
+    const spreadsheetCsvText = await spreadsheetResponse.text();
+    const archiveCsvText = archiveResponse.ok
+      ? await archiveResponse.text()
+      : "";
+
+    const spreadsheetRows = parseCsvToArray(spreadsheetCsvText);
+    const archiveRows = archiveCsvText ? parseCsvToArray(archiveCsvText) : [];
+
     let rawEvents = [];
     const normalize = (str) =>
       typeof str !== "string" || !str
         ? ""
         : str.replace(/　/g, " ").trim().replace(/\s+/g, " ");
-    for (let i = 1; i < rows.length; i++) {
-      const values = rows[i];
-      if (!values || values.length < 4 || !normalize(values[3])) continue;
-      const eventName = normalize(values[3]);
-      const system = normalize(values[2]);
-      const gm = normalize(values[4] || "");
-      const participants = Array.from({ length: 6 }, (_, j) =>
-        normalize(values[5 + j])
-      ).filter(Boolean);
-      const dateStr = (values[1] || "").split("(")[0].trim();
-      const parts = dateStr.split("/");
-      let eventData = {
-        id: `event-${i}`,
-        system,
-        eventName,
-        gm,
-        participants,
-        hasDate: false,
-      };
-      if (parts.length === 3) {
-        const date = new Date(
-          parseInt(parts[0], 10),
-          parseInt(parts[1], 10) - 1,
-          parseInt(parts[2], 10)
-        );
-        if (!isNaN(date.getTime())) {
-          eventData.date = date;
-          eventData.endDate = new Date(date);
-          eventData.hasDate = true;
+
+    const processRows = (rows, isArchive = false) => {
+      const now = new Date();
+      const startOfLastMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        1
+      );
+
+      for (let i = 1; i < rows.length; i++) {
+        const values = rows[i];
+        if (!values || values.length < 4 || !normalize(values[3])) continue;
+
+        const eventName = normalize(values[3]);
+        const system = normalize(values[2]);
+        const gm = normalize(values[4] || "");
+        const participants = Array.from({ length: 6 }, (_, j) =>
+          normalize(values[5 + j])
+        ).filter(Boolean);
+        const dateStr = (values[1] || "").split("(")[0].trim();
+        const parts = dateStr.split("/");
+        let eventData = {
+          id: `event-${isArchive ? "archive-" : ""}${i}`, // IDをユニークにする
+          system,
+          eventName,
+          gm,
+          participants,
+          hasDate: false,
+          isArchive: isArchive, // アーカイブデータであることを示すフラグ
+        };
+
+        if (parts.length === 3) {
+          const date = new Date(
+            parseInt(parts[0], 10),
+            parseInt(parts[1], 10) - 1,
+            parseInt(parts[2], 10)
+          );
+          if (!isNaN(date.getTime())) {
+            // アーカイブデータの場合、先月以降のイベントはスキップ
+            if (isArchive && date.getTime() >= startOfLastMonth.getTime()) {
+              continue;
+            }
+            eventData.date = date;
+            eventData.endDate = new Date(date);
+            eventData.hasDate = true;
+          }
         }
+        rawEvents.push(eventData);
       }
-      rawEvents.push(eventData);
-    }
+    };
+
+    processRows(spreadsheetRows, false);
+    processRows(archiveRows, true);
+
     const datedEvents = rawEvents
       .filter((e) => e.hasDate)
       .sort((a, b) => a.date.getTime() - b.date.getTime());
+
     const mergedEvents = [];
     let currentGroup = null;
     for (const event of datedEvents) {
@@ -232,7 +272,8 @@ async function getSharedEventData() {
         currentGroup.eventName === event.eventName &&
         (currentGroup.gm || "") === (event.gm || "") &&
         areArraysEqual(currentGroup.participants, event.participants) &&
-        isNextDay(currentGroup.endDate, event.date)
+        isNextDay(currentGroup.endDate, event.date) &&
+        currentGroup.isArchive === event.isArchive // アーカイブフラグも考慮
       ) {
         currentGroup.endDate = new Date(event.date);
       } else {
@@ -241,18 +282,21 @@ async function getSharedEventData() {
       }
     }
     if (currentGroup) mergedEvents.push(currentGroup);
+
     const seriesMap = new Map();
     const getSeriesKey = (e) => {
       const pKey = e.participants ? [...e.participants].sort().join(",") : "";
       return `${(e.eventName || "").trim()}|${(e.system || "").trim()}|${(
         e.gm || ""
-      ).trim()}|${pKey}`;
+      ).trim()}|${pKey}|${e.isArchive ? "archive" : "current"}`; // シリーズキーにアーカイブフラグを追加
     };
+
     mergedEvents.forEach((e) => {
       const key = getSeriesKey(e);
       if (!seriesMap.has(key)) seriesMap.set(key, []);
       seriesMap.get(key).push(e);
     });
+
     seriesMap.forEach((blocks) => {
       blocks.sort((a, b) => a.date.getTime() - b.date.getTime());
       const allDates = [];
@@ -270,6 +314,7 @@ async function getSharedEventData() {
         b.seriesEndDate = allDates[allDates.length - 1];
       });
     });
+
     const allEvents = [...mergedEvents, ...rawEvents.filter((e) => !e.hasDate)];
     const eventsByDate = new Map();
     mergedEvents.forEach((e) => {
@@ -359,11 +404,20 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
         e.gm || ""
       ).trim()}|${pKey}`;
     };
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     allEvents.forEach((e) => {
-      if (e.hasDate && !seriesMap.has(getSeriesKey(e))) {
+      if (
+        e.hasDate &&
+        !e.isArchive && // アーカイブされたイベントは除外
+        e.seriesEndDate.getTime() >= today.getTime() && // 終了日が今日以降のイベントのみ
+        !seriesMap.has(getSeriesKey(e))
+      ) {
         seriesMap.set(getSeriesKey(e), e);
       }
     });
+
     const futureSeries = [...seriesMap.values()].sort(
       (a, b) => a.seriesStartDate.getTime() - b.seriesStartDate.getTime()
     );

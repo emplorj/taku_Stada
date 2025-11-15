@@ -27,6 +27,14 @@ document.addEventListener("DOMContentLoaded", async function () {
       title: "ソード・ワールド2.5-miniの卓スタダのキャラたち",
       bgColorClass: "bg-sw-mini",
     },
+    {
+      title: "ダブルクロス The 3rd Edition-miniの卓スタダのキャラたち",
+      bgColorClass: "bg-dx-mini",
+    },
+    {
+      title: "永い後日談のネクロニカ-miniの卓スタダのキャラたち",
+      bgColorClass: "bg-nc-mini",
+    },
   ];
 
   // 各スライドショーに対応するまとめ画像の情報を定義
@@ -45,6 +53,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     5: {
       path: "img/sutada_display/SW_no.png",
       title: "miniSWキャラクターまとめ",
+    },
+    6: {
+      path: "img/sutada_display/DX_no.png",
+      title: "miniDXキャラクターまとめ",
+    },
+    7: {
+      path: "img/sutada_display/NC_no.png",
+      title: "miniNCキャラクターまとめ",
     },
   };
 
@@ -195,7 +211,16 @@ function generateSummaryHtml(imagePath, title) {
 // サーバーサイドAPIがない場合のフォールバック関数
 async function getImagePaths(index) {
   const basePath = "img/sutada_display/";
-  const gameFolders = ["coc/", "sw/", "dx/", "nc/", "mini_coc/", "mini_sw/"];
+  const gameFolders = [
+    "coc/",
+    "sw/",
+    "dx/",
+    "nc/",
+    "mini_coc/",
+    "mini_sw/",
+    "mini_dx/",
+    "mini_nc/",
+  ];
   const allImageData = [
     [
       /* CoC */ "A1_takayuki.png",
@@ -389,6 +414,22 @@ async function getImagePaths(index) {
       "miniC-3.png",
       "miniC-4.png",
       "miniC-5.png",
+    ],
+    [
+      /* miniDX */
+      "miniA-1.png",
+      "miniA-2.png",
+      "miniA-3.png",
+      "miniA-4.png",
+      "miniA-5.png",
+      "miniB-1.png",
+      "miniB-2.png",
+      "miniB-3.png",
+      "miniB-4.png",
+      "miniB-5.png",
+    ],
+    [
+      /* miniNC */
     ],
   ];
 

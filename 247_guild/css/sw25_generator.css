@@ -1764,3 +1764,214 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
     margin-left: 0;
   }
 }
+
+/* --- 敵強化パネル --- */
+.enhancement-io-container {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.enhancement-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.enhancement-controls {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.enhancement-controls .form-item-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 5px;
+}
+
+.enhancement-controls .form-item-inline label {
+  font-weight: bold;
+}
+
+.enhancement-controls h4 {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.enhancement-io-container textarea {
+  flex-grow: 1;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
+    monospace;
+  line-height: 1.6;
+  white-space: pre;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid #444;
+  height: 120px;
+  resize: vertical;
+}
+
+#apply-enemy-enhancement-btn {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .enhancement-io-container {
+    flex-direction: column;
+  }
+  .enhancement-controls {
+    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+.enhancement-io-container.vertical-layout {
+  flex-direction: column;
+  gap: 25px;
+}
+
+.enhancement-io-container.vertical-layout .enhancement-controls {
+  flex-basis: auto;
+  width: 100%;
+}
+
+.treasure-point-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 15px 0;
+}
+
+#treasure-point-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+  text-align: center;
+  min-width: 600px;
+}
+
+#treasure-point-table th,
+#treasure-point-table td {
+  border: 1px solid var(--input-border-color);
+  padding: 6px 4px;
+}
+
+#treasure-point-table th {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: var(--gold-color);
+}
+
+#treasure-point-table td:first-child {
+  text-align: left;
+  font-weight: bold;
+  padding-left: 8px;
+}
+
+#tp-selection-container {
+  width: 100%;
+  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+  padding-top: 15px;
+}
+
+.tp-ability-row {
+  display: grid;
+  grid-template-columns: 1fr 100px auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.output-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.treasure-point-details {
+  margin-top: 20px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.treasure-point-details summary {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--gold-color);
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px 5px 0 0;
+  transition: background-color 0.2s;
+}
+
+.treasure-point-details summary:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.treasure-point-details[open] summary {
+  border-bottom: 1px solid var(--input-border-color);
+}
+
+.treasure-point-table-wrapper {
+  padding: 10px;
+  background-color: transparent;
+}
+
+/* トレジャーポイント入力欄のレイアウト調整 */
+.enhancement-sub-section .form-item-inline.tp-summary-line {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.tp-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tp-input-group input {
+  width: 80px;
+  text-align: center;
+}
+
+.tp-input-group span {
+  font-size: 1.2em;
+  color: var(--text-color);
+}
+
+/* 汎用ツールチップのスタイル */
+.dynamic-tooltip {
+  position: fixed;
+  background-color: rgba(20, 20, 20, 0.95);
+  color: #f0e6d2;
+  border: 1px solid var(--gold-color);
+  border-radius: 6px;
+  padding: 10px 15px;
+  font-size: 0.9em;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  text-align: left;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  width: max-content;
+  max-width: 350px;
+}
+
+.dynamic-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+}

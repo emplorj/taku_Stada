@@ -54,6 +54,10 @@
                 <a href="#" class="sidebar-link" data-target="panel-general-skills"><i
                     class="fa-solid fa-book-open"></i> 一般技能</a>
               </li>
+              <li>
+                <a href="#" class="sidebar-link" data-target="panel-enemy-enhancement"><i class="fa-solid fa-ghost"></i>
+                  敵強化</a>
+              </li>
             </ul>
           </nav>
           <div id="money-sidebar-panel">
@@ -317,6 +321,195 @@
                 <!-- JSが技能行を生成 -->
               </div>
             </div>
+            <!-- 敵強化パネル -->
+            <div id="panel-enemy-enhancement" class="form-panel">
+              <h3><i class="fa-solid fa-ghost"></i> 敵強化</h3>
+              <div class="enhancement-io-container vertical-layout">
+
+                <!-- 入力 -->
+                <div class="enhancement-column">
+                  <h4><i class="fa-solid fa-file-import"></i> 入力JSON</h4>
+                  <textarea id="enemy-json-input" placeholder="ここに敵のJSONデータを貼り付け..."></textarea>
+                </div>
+
+                <!-- UI -->
+                <div class="enhancement-controls">
+                  <h4><i class="fa-solid fa-screwdriver-wrench"></i> 強化設定</h4>
+
+                  <div class="enhancement-section-wrapper">
+                    <!-- 剣のかけら -->
+                    <div class="enhancement-sub-section">
+                      <h5><i class="fa-solid fa-khanda"></i> 剣のかけら</h5>
+                      <p>入力した「剣のかけらの数」だけ、敵のすべての部位の「HP」「MP」と「生命・精神抵抗」が上昇します。</p>
+                      <div class="form-item-inline">
+                        <label for="sword-shards-count">剣のかけらの数:</label>
+                        <input type="number" id="sword-shards-count" value="0" min="0">
+                      </div>
+                    </div>
+
+                    <!-- トレジャーポイント -->
+                    <div class="enhancement-sub-section">
+                      <h5><i class="fa-solid fa-gem"></i> トレジャーポイント</h5>
+                      <div class="form-item-inline tp-summary-line">
+                        <label for="treasure-points-total">消費トレジャーポイント:</label>
+                        <div class="tp-input-group">
+                          <input type="number" id="treasure-points-total" value="0" min="0" readonly>
+                          <span>/</span>
+                          <input type="number" id="treasure-points-max" value="0" min="0">
+                        </div>
+                      </div>
+                      <div id="tp-selection-container" class="dynamic-rows-container"></div>
+                      <button type="button" id="add-tp-ability-btn" class="add-row-btn"><i class="fa fa-plus"></i>
+                        強化項目を追加</button>
+                    </div>
+                  </div>
+
+                  <details class="treasure-point-details">
+                    <summary>トレジャーポイント強化一覧表</summary>
+                    <div class="treasure-point-table-wrapper">
+                      <table id="treasure-point-table">
+                        <caption>トレジャーポイント強化一覧</caption>
+                        <thead>
+                          <tr>
+                            <th>項目</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                            <th>8</th>
+                            <th>9</th>
+                            <th>10</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>弱点値上昇</td>
+                            <td>+1</td>
+                            <td>+2</td>
+                            <td>-</td>
+                            <td>+3</td>
+                            <td>-</td>
+                            <td>+4</td>
+                            <td>-</td>
+                            <td>+5</td>
+                            <td>-</td>
+                            <td>+6</td>
+                          </tr>
+                          <tr>
+                            <td>先制値上昇</td>
+                            <td>+1</td>
+                            <td>+2</td>
+                            <td>+3</td>
+                            <td>-</td>
+                            <td>+4</td>
+                            <td>-</td>
+                            <td>+5</td>
+                            <td>-</td>
+                            <td>+6</td>
+                            <td>+6</td>
+                          </tr>
+                          <tr>
+                            <td>瞬間打撃点</td>
+                            <td>+2</td>
+                            <td>+4</td>
+                            <td>+6</td>
+                            <td>+8</td>
+                            <td>-</td>
+                            <td>+10</td>
+                            <td>-</td>
+                            <td>+12</td>
+                            <td>-</td>
+                            <td>+14</td>
+                          </tr>
+                          <tr>
+                            <td>瞬間防護点</td>
+                            <td>+2</td>
+                            <td>+4</td>
+                            <td>+6</td>
+                            <td>+8</td>
+                            <td>-</td>
+                            <td>+10</td>
+                            <td>-</td>
+                            <td>+12</td>
+                            <td>-</td>
+                            <td>+14</td>
+                          </tr>
+                          <tr>
+                            <td>瞬間達成値</td>
+                            <td>+1</td>
+                            <td>+2</td>
+                            <td>-</td>
+                            <td>+3</td>
+                            <td>-</td>
+                            <td>+4</td>
+                            <td>-</td>
+                            <td>+5</td>
+                            <td>-</td>
+                            <td>+6</td>
+                          </tr>
+                          <tr>
+                            <td>追加攻撃</td>
+                            <td>⑥/1</td>
+                            <td>⑤⑥/1</td>
+                            <td>-</td>
+                            <td>⑤⑥/2</td>
+                            <td>-</td>
+                            <td>④⑤⑥/2</td>
+                            <td>-</td>
+                            <td>④⑤⑥/3</td>
+                            <td>④⑤⑥/3</td>
+                            <td>④⑤⑥/3</td>
+                          </tr>
+                          <tr>
+                            <td>呪いの波動</td>
+                            <td>1点</td>
+                            <td>-</td>
+                            <td>2点</td>
+                            <td>-</td>
+                            <td>3点</td>
+                            <td>-</td>
+                            <td>4点</td>
+                            <td>-</td>
+                            <td>5点</td>
+                            <td>5点</td>
+                          </tr>
+                          <tr>
+                            <td>世界の汚染</td>
+                            <td>-</td>
+                            <td>威力10</td>
+                            <td>-</td>
+                            <td>威力20</td>
+                            <td>-</td>
+                            <td>威力30</td>
+                            <td>-</td>
+                            <td>威力40</td>
+                            <td>-</td>
+                            <td>威力50</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+                </div>
+
+                <!-- 出力 -->
+                <div class="enhancement-column">
+                  <h4><i class="fa-solid fa-file-export"></i> 出力JSON</h4>
+                  <textarea id="enemy-json-output" readonly></textarea>
+                  <div class="output-actions">
+                    <button type="button" id="apply-enemy-enhancement-btn" class="add-row-btn">
+                      <i class="fa-solid fa-hammer"></i> 強化を適用
+                    </button>
+                    <button type="button" id="copy-enemy-json-btn" class="small-button copy-btn">
+                      <i class="fa-solid fa-copy"></i> コピー
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </form>
         </div>
       </div>
@@ -436,6 +629,24 @@
         <button type="button" class="remove-row-btn">
           <i class="fa fa-times"></i>
         </button>
+      </div>
+    </template>
+
+    <template id="template-tp-ability-row">
+      <div class="dynamic-row tp-ability-row">
+        <select class="tp-ability-select">
+          <option value="">能力を選択</option>
+          <option value="weakness">弱点値上昇</option>
+          <option value="initiative">先制値上昇</option>
+          <option value="damage">瞬間打撃点</option>
+          <option value="defense">瞬間防護点</option>
+          <option value="success">瞬間達成値</option>
+          <option value="attack">追加攻撃</option>
+          <option value="curse">呪いの波動</option>
+          <option value="contamination">世界の汚染</option>
+        </select>
+        <input type="number" class="tp-points-input" placeholder="ポイント" min="1" max="10">
+        <button type="button" class="remove-row-btn"><i class="fa fa-times"></i></button>
       </div>
     </template>
 

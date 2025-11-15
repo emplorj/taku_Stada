@@ -65,6 +65,40 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   const skillProgressBar = document.getElementById("general-skill-progress");
   const totalLevelSpan = document.getElementById("general-skill-total-level");
+  const enemyJsonInput = document.getElementById("enemy-json-input");
+  const swordShardsCount = document.getElementById("sword-shards-count");
+  const applyEnemyEnhancementBtn = document.getElementById(
+    "apply-enemy-enhancement-btn"
+  );
+  const enemyJsonOutput = document.getElementById("enemy-json-output");
+  const copyEnemyJsonBtn = document.getElementById("copy-enemy-json-btn");
+  // トレジャーポイント関連
+  const addTpAbilityBtn = document.getElementById("add-tp-ability-btn");
+  const tpSelectionContainer = document.getElementById(
+    "tp-selection-container"
+  );
+  const treasurePointsTotalInput = document.getElementById(
+    "treasure-points-total"
+  );
+
+  const tpAbilityDescriptions = {
+    weakness:
+      "割り振ったポイントに対応した値だけ、その魔物の弱点値が上昇します。知名度は変わりません。",
+    initiative:
+      "割り振ったポイントに対応した値だけ、その魔物の先制値が上昇します。",
+    damage:
+      "打撃点決定の2dを振り、出目を確認した後、割り振ったポイントに対応した値だけ、打撃点を上昇させます。この強化は1体の魔物(部位)に複数を待たせることができ、割り振った回数だけ、1日の間に打撃点上昇の機会を得られます。ただし、10秒(1ラウンド)の間に打撃点を上昇させることができるのは、対象1体ごと1回までです。また、打撃点の上昇分はすべて同じに揃えなければなりません。",
+    defense:
+      "1日に1回だけ、物理ダメージを受けて防護点を適用するとき、割り振ったポイントに対応した値だけ、防護点を上昇させます。合算ダメージが確定した後に、この効果を使うかどうかを選択します。",
+    success:
+      "1日に1回だけ、行為判定の達成値を求めてから、その達成値を割り振ったポイントに対応した値だけ上昇させます。対抗判定などの場合、その結果を覆す目的で使用できます。",
+    attack:
+      "手番終了時に1dを振り、「/」の前にある出目を得ると、近接攻撃を追加で1回行います。この追加は、魔物が「○2回攻撃」や「○連続攻撃」などの攻撃回数や機会を増やす能力を持っていても考慮されず、近接攻撃1回のみです。この効果は手番ごとに1回のみチェックされます。また、「/」の後が追加で攻撃が行われる上限回数を表します。その回数だけ追加の攻撃が発生したら、翌日までこの効果はいっさい現れなくなります。",
+    curse:
+      "この効果は1日に1回だけ使用可能で、使用の宣言後、連続した1分(6ラウンド)の間だけ効果が発生します。効果が発生中は、自身の手番終了時に自動的に1回、「射程:接触」「対象:1体」に「抵抗:必中」で、割り振ったポイントに対応した点数の、呪い属性の確定ダメージを与えます。",
+    contamination:
+      "1日に1回だけ、戦闘行為によって初めて自身のHPにダメージを受けたとき、自動的に「射程:自身」で「対象:全エリア(半径20m)/すべて」に、「抵抗:必中」で、「指定された威力/C値10」(のみ)の、毒属性の魔法ダメージを与えます。このとき、任意のキャラクターを効果から除外することができます。",
+  };
 
   const statNames = ["器用", "敏捷", "筋力", "生命", "知力", "精神"];
   const statClassMap = {
@@ -779,6 +813,9 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (addBtn.id === "add-general-skill-btn") addGeneralSkillRow();
         else if (templateId === "template-personal-data-row")
           addPersonalDataRow();
+        else if (addBtn.id === "add-tp-ability-btn") {
+          addTpAbilityRow();
+        }
         return;
       }
       if (removeBtn) {
@@ -924,6 +961,55 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       applyPriorityToAllRows();
     });
+
+    // 敵強化機能のイベントリスナー
+    if (applyEnemyEnhancementBtn) {
+      applyEnemyEnhancementBtn.addEventListener("click", applyEnemyEnhancement);
+    }
+    if (copyEnemyJsonBtn) {
+      copyEnemyJsonBtn.addEventListener("click", () => {
+        if (enemyJsonOutput.value) {
+          navigator.clipboard
+            .writeText(enemyJsonOutput.value)
+            .then(() => {
+              showToast("コピーしました！");
+            })
+            .catch((err) => {
+              console.error("コピーに失敗しました: ", err);
+              showToast("コピーに失敗しました。");
+            });
+        }
+      });
+    }
+    if (tpSelectionContainer) {
+      tpSelectionContainer.addEventListener(
+        "change",
+        updateTotalTreasurePoints
+      );
+      tpSelectionContainer.addEventListener("input", updateTotalTreasurePoints);
+      tpSelectionContainer.addEventListener("click", (e) => {
+        if (e.target.closest(".remove-row-btn")) {
+          e.target.closest(".dynamic-row").remove();
+          updateTotalTreasurePoints();
+        }
+      });
+
+      // ツールチップイベント
+      tpSelectionContainer.addEventListener("mouseover", (e) => {
+        if (e.target.classList.contains("tp-ability-select")) {
+          const selectedValue = e.target.value;
+          if (tpAbilityDescriptions[selectedValue]) {
+            showDynamicTooltip(e.target, tpAbilityDescriptions[selectedValue]);
+          }
+        }
+      });
+
+      tpSelectionContainer.addEventListener("mouseout", (e) => {
+        if (e.target.classList.contains("tp-ability-select")) {
+          hideDynamicTooltip();
+        }
+      });
+    }
   }
 
   function initialize() {
@@ -1746,6 +1832,195 @@ document.addEventListener("DOMContentLoaded", () => {
       addGeneralSkillRow(selectedSkill, level);
     });
     updateGeneralSkillTotal();
+  }
+
+  // 敵強化機能のロジック
+  function applyEnemyEnhancement() {
+    const inputJson = enemyJsonInput.value;
+    if (!inputJson) {
+      enemyJsonOutput.value = "エラー: JSONデータが入力されていません。";
+      return;
+    }
+
+    try {
+      const enemyData = JSON.parse(inputJson);
+      const shards = parseInt(swordShardsCount.value, 10) || 0;
+      const totalTp = parseInt(treasurePointsTotalInput.value, 10) || 0;
+
+      if (shards <= 0 && totalTp <= 0) {
+        enemyJsonOutput.value = "エラー: 強化する内容がありません。";
+        return;
+      }
+
+      // memo欄を初期化（なければ作成）
+      if (!enemyData.data.memo) enemyData.data.memo = "";
+
+      // 既存の自動生成メモをフィルタリング
+      const memoLines = enemyData.data.memo.split("\n");
+      const filteredLines = memoLines.filter(
+        (line) =>
+          !line.includes("生命抵抗力:") &&
+          !line.includes("精神抵抗力:") &&
+          !line.includes("剣のかけら：") &&
+          !line.startsWith("▼トレジャー強化") &&
+          !line.match(/^\S.*\((\d+)P\)$/) // トレジャー強化の各行
+      );
+      enemyData.data.memo = filteredLines.join("\n").trim();
+
+      // --- 剣のかけら強化 ---
+      if (shards > 0) {
+        const resistanceBonus =
+          shards >= 16
+            ? 4
+            : shards >= 11
+            ? 3
+            : shards >= 6
+            ? 2
+            : shards >= 1
+            ? 1
+            : 0;
+
+        // 強化前の抵抗値を取得
+        const originalLifeResValue = parseInt(
+          enemyData.data.params?.find((p) => p.label === "生命抵抗")?.value ||
+            "0",
+          10
+        );
+        const originalSpiritResValue = parseInt(
+          enemyData.data.params?.find((p) => p.label === "精神抵抗")?.value ||
+            "0",
+          10
+        );
+
+        if (enemyData.data.status) {
+          enemyData.data.status.forEach((s) => {
+            if (s.label.includes("HP")) {
+              s.value = String(parseInt(s.value, 10) + shards * 5);
+              s.max = String(parseInt(s.max, 10) + shards * 5);
+            } else if (s.label.includes("MP")) {
+              s.value = String(parseInt(s.value, 10) + shards);
+              s.max = String(parseInt(s.max, 10) + shards);
+            }
+          });
+        }
+
+        let enhancedLifeResValue = originalLifeResValue;
+        let enhancedSpiritResValue = originalSpiritResValue;
+
+        if (enemyData.data.params) {
+          const lifeResParam = enemyData.data.params.find(
+            (p) => p.label === "生命抵抗"
+          );
+          if (lifeResParam) {
+            enhancedLifeResValue = originalLifeResValue + resistanceBonus;
+            lifeResParam.value = String(enhancedLifeResValue);
+          }
+          const spiritResParam = enemyData.data.params.find(
+            (p) => p.label === "精神抵抗"
+          );
+          if (spiritResParam) {
+            enhancedSpiritResValue = originalSpiritResValue + resistanceBonus;
+            spiritResParam.value = String(enhancedSpiritResValue);
+          }
+        }
+
+        // 新しい強化情報をmemoに追加
+        let shardMemo = "";
+        if (enemyData.data.memo) shardMemo += "\n";
+        shardMemo += `生命抵抗力:${originalLifeResValue}(${enhancedLifeResValue})　精神抵抗力:${originalSpiritResValue}(${enhancedSpiritResValue})\n剣のかけら：${shards}個`;
+        enemyData.data.memo += shardMemo;
+      }
+
+      // --- トレジャーポイント強化 ---
+      if (totalTp > 0) {
+        let tpMemo = "";
+        if (enemyData.data.memo) tpMemo += "\n";
+        tpMemo += `▼トレジャー強化(${totalTp}P)`;
+        document.querySelectorAll(".tp-ability-row").forEach((row) => {
+          const ability = row.querySelector(".tp-ability-select").value;
+          const points = row.querySelector(".tp-points-input").value;
+          if (ability && points) {
+            tpMemo += `\n${
+              row.querySelector(".tp-ability-select").selectedOptions[0].text
+            } (${points}P)`;
+          }
+        });
+        enemyData.data.memo += tpMemo;
+      }
+
+      enemyJsonOutput.value = JSON.stringify(enemyData, null, 2);
+      showToast("強化を適用しました！");
+    } catch (error) {
+      console.error(error);
+      enemyJsonOutput.value = "エラー: 無効なJSON形式です。\n" + error;
+    }
+  }
+
+  // --- トレジャーポイント関連の関数 ---
+  function addTpAbilityRow() {
+    const template = document.getElementById("template-tp-ability-row");
+    if (!template || !tpSelectionContainer) return;
+    const clone = template.content.cloneNode(true);
+    tpSelectionContainer.appendChild(clone);
+  }
+
+  function updateTotalTreasurePoints() {
+    let total = 0;
+    document.querySelectorAll(".tp-ability-row").forEach((row) => {
+      const points =
+        parseInt(row.querySelector(".tp-points-input").value, 10) || 0;
+      total += points;
+    });
+    if (treasurePointsTotalInput) {
+      treasurePointsTotalInput.value = total;
+    }
+  }
+
+  // トースト表示用の関数
+  let toastTimeout;
+  function showToast(message) {
+    const toast = document.getElementById("result-message");
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
+
+  // 汎用ツールチップ表示関数
+  function showDynamicTooltip(targetElement, content) {
+    if (!tooltipElement) {
+      tooltipElement = document.createElement("div");
+      tooltipElement.className = "dynamic-tooltip";
+      document.body.appendChild(tooltipElement);
+    }
+    tooltipElement.innerHTML = content;
+    tooltipElement.classList.add("visible");
+
+    const rect = targetElement.getBoundingClientRect();
+    let x = rect.left;
+    let y = rect.bottom + 5 + window.scrollY;
+
+    const tooltipRect = tooltipElement.getBoundingClientRect();
+    if (x + tooltipRect.width > window.innerWidth) {
+      x = window.innerWidth - tooltipRect.width - 10;
+    }
+    if (y + tooltipRect.height > window.innerHeight) {
+      y = rect.top - tooltipRect.height - 5 + window.scrollY;
+    }
+
+    tooltipElement.style.left = `${x}px`;
+    tooltipElement.style.top = `${y}px`;
+  }
+
+  function hideDynamicTooltip() {
+    if (tooltipElement) {
+      tooltipElement.classList.remove("visible");
+    }
   }
 
   initialize();

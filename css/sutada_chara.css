@@ -91,6 +91,12 @@ body > footer {
 .bg-sw-mini {
   background-color: #ea9999;
 }
+.bg-dx-mini {
+  background-color: #cc4125;
+}
+.bg-nc-mini {
+  background-color: #505050;
+}
 
 /* ナビゲーションボタンを非表示にする */
 .slideshow-wrapper .swiper-button-prev,
