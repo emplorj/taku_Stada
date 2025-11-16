@@ -1790,12 +1790,17 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   border-radius: 8px;
 }
 
-.enhancement-controls .form-item-inline {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  gap: 5px;
+.enhancement-controls .form-item-inline.shard-count-line {
+  display: flex; /* 追加 */
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.enhancement-controls .form-item-inline.shard-count-line input[type="number"] {
+  width: 50px; /* 幅を調整 */
+  flex-shrink: 0; /* 縮まないようにする */
 }
 
 .enhancement-controls .form-item-inline label {
@@ -1974,4 +1979,12 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
 .dynamic-tooltip.visible {
   opacity: 1;
   visibility: visible;
+}
+#treasure-point-table tbody td {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#treasure-point-table tbody td:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }

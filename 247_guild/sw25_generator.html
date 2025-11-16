@@ -341,7 +341,7 @@
                     <div class="enhancement-sub-section">
                       <h5><i class="fa-solid fa-khanda"></i> 剣のかけら</h5>
                       <p>入力した「剣のかけらの数」だけ、敵のすべての部位の「HP」「MP」と「生命・精神抵抗」が上昇します。</p>
-                      <div class="form-item-inline">
+                      <div class="form-item-inline shard-count-line">
                         <label for="sword-shards-count">剣のかけらの数:</label>
                         <input type="number" id="sword-shards-count" value="0" min="0">
                       </div>
@@ -352,11 +352,7 @@
                       <h5><i class="fa-solid fa-gem"></i> トレジャーポイント</h5>
                       <div class="form-item-inline tp-summary-line">
                         <label for="treasure-points-total">消費トレジャーポイント:</label>
-                        <div class="tp-input-group">
-                          <input type="number" id="treasure-points-total" value="0" min="0" readonly>
-                          <span>/</span>
-                          <input type="number" id="treasure-points-max" value="0" min="0">
-                        </div>
+                        <span id="treasure-points-total" class="display-value">0</span>
                       </div>
                       <div id="tp-selection-container" class="dynamic-rows-container"></div>
                       <button type="button" id="add-tp-ability-btn" class="add-row-btn"><i class="fa fa-plus"></i>
@@ -402,13 +398,13 @@
                             <td>先制値上昇</td>
                             <td>+1</td>
                             <td>+2</td>
+                            <td>-</td>
                             <td>+3</td>
                             <td>-</td>
                             <td>+4</td>
                             <td>-</td>
                             <td>+5</td>
                             <td>-</td>
-                            <td>+6</td>
                             <td>+6</td>
                           </tr>
                           <tr>
@@ -457,10 +453,10 @@
                             <td>-</td>
                             <td>⑤⑥/2</td>
                             <td>-</td>
+                            <td>-</td>
                             <td>④⑤⑥/2</td>
                             <td>-</td>
-                            <td>④⑤⑥/3</td>
-                            <td>④⑤⑥/3</td>
+                            <td>-</td>
                             <td>④⑤⑥/3</td>
                           </tr>
                           <tr>
@@ -473,7 +469,7 @@
                             <td>-</td>
                             <td>4点</td>
                             <td>-</td>
-                            <td>5点</td>
+                            <td>-</td>
                             <td>5点</td>
                           </tr>
                           <tr>

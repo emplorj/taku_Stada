@@ -981,34 +981,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
-    if (tpSelectionContainer) {
-      tpSelectionContainer.addEventListener(
-        "change",
-        updateTotalTreasurePoints
-      );
-      tpSelectionContainer.addEventListener("input", updateTotalTreasurePoints);
-      tpSelectionContainer.addEventListener("click", (e) => {
-        if (e.target.closest(".remove-row-btn")) {
-          e.target.closest(".dynamic-row").remove();
-          updateTotalTreasurePoints();
-        }
-      });
-
-      // ツールチップイベント
-      tpSelectionContainer.addEventListener("mouseover", (e) => {
-        if (e.target.classList.contains("tp-ability-select")) {
-          const selectedValue = e.target.value;
-          if (tpAbilityDescriptions[selectedValue]) {
-            showDynamicTooltip(e.target, tpAbilityDescriptions[selectedValue]);
-          }
-        }
-      });
-
-      tpSelectionContainer.addEventListener("mouseout", (e) => {
-        if (e.target.classList.contains("tp-ability-select")) {
-          hideDynamicTooltip();
-        }
-      });
+    const treasurePointTable = document.getElementById("treasure-point-table");
+    console.log("treasurePointTable element:", treasurePointTable); // 追加
+    if (treasurePointTable) {
+      treasurePointTable.addEventListener("click", handleTpTableClick);
     }
   }
 
@@ -1845,7 +1821,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const enemyData = JSON.parse(inputJson);
       const shards = parseInt(swordShardsCount.value, 10) || 0;
-      const totalTp = parseInt(treasurePointsTotalInput.value, 10) || 0;
+      const totalTp = parseInt(treasurePointsTotalInput.textContent, 10) || 0;
 
       if (shards <= 0 && totalTp <= 0) {
         enemyJsonOutput.value = "エラー: 強化する内容がありません。";
@@ -1857,14 +1833,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 既存の自動生成メモをフィルタリング
       const memoLines = enemyData.data.memo.split("\n");
-      const filteredLines = memoLines.filter(
-        (line) =>
-          !line.includes("生命抵抗力:") &&
-          !line.includes("精神抵抗力:") &&
-          !line.includes("剣のかけら：") &&
-          !line.startsWith("▼トレジャー強化") &&
-          !line.match(/^\S.*\((\d+)P\)$/) // トレジャー強化の各行
-      );
+      const filteredLines = memoLines.filter((line) => {
+        const trimmedLine = line.trim();
+        // 剣のかけらによる抵抗力強化の行 (ツールが生成する形式)
+        const isGeneratedShardResistanceLine = /^(生命抵抗力|精神抵抗力):\d+\(\d+\)/.test(trimmedLine);
+        // 剣のかけらの個数を示す行
+        const isShardCountLine = trimmedLine.startsWith("剣のかけら：");
+        // トレジャー強化のヘッダー行
+        const isTreasureHeaderLine = trimmedLine.startsWith("▼トレジャー強化(");
+        // トレジャー強化の各項目行 (例: 瞬間打撃点 (2P))
+        const isTreasureAbilityLine =
+          /^\S.*\((\d+)P\)$/.test(trimmedLine) && !isTreasureHeaderLine; // ヘッダー行と区別
+
+        return !(
+          isGeneratedShardResistanceLine ||
+          isShardCountLine ||
+          isTreasureHeaderLine ||
+          isTreasureAbilityLine
+        );
+      });
       enemyData.data.memo = filteredLines.join("\n").trim();
 
       // --- 剣のかけら強化 ---
@@ -1972,8 +1959,78 @@ document.addEventListener("DOMContentLoaded", () => {
       total += points;
     });
     if (treasurePointsTotalInput) {
-      treasurePointsTotalInput.value = total;
+      treasurePointsTotalInput.textContent = total;
     }
+  }
+
+  function handleTpTableClick(event) {
+    const target = event.target;
+    // クリックされたのが<td>要素で、かつtbody内のtdであることを確認
+    if (target.tagName === "TD" && target.closest("tbody")) {
+      const row = target.closest("tr");
+      const abilityName = row.querySelector("td:first-child").textContent.trim();
+      const cellIndex = target.cellIndex; // 0-indexed
+
+      // theadのth要素からポイント数を取得
+      const headerRow = document.querySelector("#treasure-point-table thead tr");
+      const pointHeader = headerRow.children[cellIndex];
+      const pointText = pointHeader ? pointHeader.textContent.trim() : "";
+
+      // ポイント数が数値でない場合は処理しない (例: "-" のセル)
+      if (!/^\d+$/.test(pointText.replace(/\D/g, ''))) { // 数字のみを抽出し、それが数字であるか確認
+        return;
+      }
+      const points = parseInt(pointText.replace(/\D/g, ''), 10);
+
+      if (abilityName && points > 0) {
+        addOrUpdateTpAbility(abilityName, points);
+      }
+    }
+  }
+
+  function addOrUpdateTpAbility(abilityName, points) {
+    console.log("addOrUpdateTpAbility called with:", abilityName, points); // 追加
+    let existingRow = null;
+    // 既存の行を検索
+    tpSelectionContainer.querySelectorAll(".tp-ability-row").forEach(row => {
+      const select = row.querySelector(".tp-ability-select");
+      if (select) {
+        const optionText = select.selectedOptions[0] ? select.selectedOptions[0].text.trim() : '';
+        console.log("Comparing existing option:", optionText, "with new ability:", abilityName); // 追加
+        if (optionText === abilityName) {
+          existingRow = row;
+        }
+      }
+    });
+
+    if (existingRow) {
+      console.log("Existing row found, updating points."); // 追加
+      // 既存の行があればポイントを更新
+      const pointsInput = existingRow.querySelector(".tp-points-input");
+      pointsInput.value = points;
+    } else {
+      console.log("No existing row found, adding new row."); // 追加
+      // なければ新しい行を追加
+      const template = document.getElementById("template-tp-ability-row");
+      if (!template || !tpSelectionContainer) return;
+      const clone = template.content.cloneNode(true);
+      const newRow = clone.querySelector(".tp-ability-row");
+
+      const select = newRow.querySelector(".tp-ability-select");
+      const pointsInput = newRow.querySelector(".tp-points-input");
+
+      // abilityName に対応する option を選択
+      Array.from(select.options).forEach(option => {
+        console.log("Checking option:", option.textContent.trim(), "for ability:", abilityName); // 追加
+        if (option.textContent.trim() === abilityName) {
+          option.selected = true;
+        }
+      });
+      pointsInput.value = points;
+
+      tpSelectionContainer.appendChild(clone);
+    }
+    updateTotalTreasurePoints();
   }
 
   // トースト表示用の関数
