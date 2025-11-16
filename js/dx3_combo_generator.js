@@ -1618,38 +1618,44 @@ new Vue({
       );
 
       if (coreEffects.length === 0) {
-        return false; // 最初の1つは何でも選べる
+        return false;
       }
 
+      const allProposedTimings = [
+        ...coreEffects.map((e) => e.timing),
+        source.timing,
+      ];
       const mainActionTimings = ["メジャー", "リアクション", "メジャー／リア"];
-      const hasMajor = coreEffects.some((e) => e.timing === "メジャー");
-      const hasReaction = coreEffects.some((e) => e.timing === "リアクション");
 
-      const sourceIsMainAction = mainActionTimings.includes(source.timing);
-      const coreHasMainAction = coreEffects.some((e) =>
-        mainActionTimings.includes(e.timing)
+      const hasMajor = allProposedTimings.some((t) => t === "メジャー");
+      const hasReaction = allProposedTimings.some((t) => t === "リアクション");
+
+      // 純粋なメジャーと純粋なリアクションが混在したらNG
+      if (hasMajor && hasReaction) {
+        return true;
+      }
+
+      const proposedMainActions = allProposedTimings.filter((t) =>
+        mainActionTimings.includes(t)
+      );
+      const proposedOtherActions = allProposedTimings.filter(
+        (t) => !mainActionTimings.includes(t)
       );
 
-      // 1. メジャーとリアクションの混在チェック
-      if (source.timing === "メジャー" && hasReaction) return true;
-      if (source.timing === "リアクション" && hasMajor) return true;
-
-      // 2. メインアクションとそれ以外のタイミングの混在チェック
-      if (coreHasMainAction && !sourceIsMainAction) {
-        // 既にメジャー/リアクションコンボなのに、マイナーなどを追加しようとしている
-        return true;
-      }
-      if (!coreHasMainAction && sourceIsMainAction) {
-        // 既にマイナーコンボなのに、メジャー/リアクションを追加しようとしている
+      // メインアクションとそれ以外のアクションが混在したらNG
+      if (proposedMainActions.length > 0 && proposedOtherActions.length > 0) {
         return true;
       }
 
-      // 3. メインアクション以外のタイミングのコンボの場合、タイミングが一致するかチェック
-      if (!coreHasMainAction && !sourceIsMainAction) {
-        return source.timing !== coreEffects[0].timing;
+      // メインアクション以外のアクションが複数種類混在したらNG
+      if (proposedOtherActions.length > 1) {
+        const firstOtherAction = proposedOtherActions[0];
+        if (proposedOtherActions.some((t) => t !== firstOtherAction)) {
+          return true;
+        }
       }
 
-      return false; // 上記のいずれにも当てはまらなければ有効
+      return false;
     },
     addEffect() {
       this.effects.push(this.createDefaultEffect());
