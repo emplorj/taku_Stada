@@ -129,6 +129,7 @@ new Vue({
         "マイナー",
         "メジャー",
         "メジャー／リア",
+        "メジャー／リアクション",
         "リアクション",
         "セットアップ",
         "イニシアチブ",
@@ -1625,32 +1626,41 @@ new Vue({
         ...coreEffects.map((e) => e.timing),
         source.timing,
       ];
-      const mainActionTimings = ["メジャー", "リアクション", "メジャー／リア"];
 
-      const hasMajor = allProposedTimings.some((t) => t === "メジャー");
-      const hasReaction = allProposedTimings.some((t) => t === "リアクション");
+      const isMajor = (timing) => timing.includes("メジャー");
+      const isReaction = (timing) => timing.includes("リア");
 
-      // 純粋なメジャーと純粋なリアクションが混在したらNG
-      if (hasMajor && hasReaction) {
+      const hasPureMajor = allProposedTimings.some(
+        (t) => isMajor(t) && !isReaction(t)
+      );
+      const hasPureReaction = allProposedTimings.some(
+        (t) => isReaction(t) && !isMajor(t)
+      );
+
+      // 純粋なメジャーと純粋なリアクションは共存できない
+      if (hasPureMajor && hasPureReaction) {
         return true;
       }
 
-      const proposedMainActions = allProposedTimings.filter((t) =>
-        mainActionTimings.includes(t)
+      // メジャー/リアクション系と、それ以外のタイミング(マイナーなど)は共存できない
+      const hasMainAction = allProposedTimings.some(
+        (t) => isMajor(t) || isReaction(t)
       );
-      const proposedOtherActions = allProposedTimings.filter(
-        (t) => !mainActionTimings.includes(t)
+      const hasOtherAction = allProposedTimings.some(
+        (t) => !isMajor(t) && !isReaction(t) && !ignoreTimings.includes(t)
       );
 
-      // メインアクションとそれ以外のアクションが混在したらNG
-      if (proposedMainActions.length > 0 && proposedOtherActions.length > 0) {
+      if (hasMainAction && hasOtherAction) {
         return true;
       }
 
-      // メインアクション以外のアクションが複数種類混在したらNG
-      if (proposedOtherActions.length > 1) {
-        const firstOtherAction = proposedOtherActions[0];
-        if (proposedOtherActions.some((t) => t !== firstOtherAction)) {
+      // マイナーアクションなどが複数種類ある場合は共存できない
+      const otherActions = allProposedTimings.filter(
+        (t) => !isMajor(t) && !isReaction(t) && !ignoreTimings.includes(t)
+      );
+      if (otherActions.length > 1) {
+        const firstOtherAction = otherActions[0];
+        if (otherActions.some((t) => t !== firstOtherAction)) {
           return true;
         }
       }
