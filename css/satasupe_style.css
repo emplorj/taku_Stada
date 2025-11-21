@@ -1131,3 +1131,117 @@ body.menu-open .layout-container {
     width: auto;
   } /* 詳細 */
 }
+
+/* ==========================================================================
+   9. Side Menu (Asian Punk Style)
+   ========================================================================== */
+body.satasupe-body .side-menu {
+  background-color: rgba(26, 24, 21, 0.95); /* Dark gritty background */
+  border: 2px solid #a83f39; /* Red border */
+  border-radius: 2px; /* Sharp corners */
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.8); /* Hard shadow */
+  font-family: "Shippori Mincho", serif;
+  padding: 10px 15px; /* Reduced padding */
+
+  /* Hide Scrollbar */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide Scrollbar for Chrome, Safari and Opera */
+body.satasupe-body .side-menu::-webkit-scrollbar {
+  display: none;
+}
+
+/* Compact Logo */
+body.satasupe-body .side-menu .menu-logo {
+  max-width: 80%;
+  height: auto;
+  display: block;
+  margin: 0 auto 5px;
+}
+
+/* Disable hover effect for logo */
+body.satasupe-body .side-menu .menu-logo-container a {
+  padding: 0;
+  display: block;
+}
+
+body.satasupe-body .side-menu .menu-logo-container a:hover {
+  background-color: transparent;
+  padding-left: 0;
+}
+
+body.satasupe-body .side-menu h2 {
+  color: #a83f39;
+  border-bottom: 2px dashed #555;
+  font-family: "Yuji Syuku", serif;
+  text-shadow: 1px 1px 0 #000;
+  font-size: 1rem; /* Smaller header */
+  margin: 5px 0;
+  padding-bottom: 3px;
+}
+
+body.satasupe-body .side-menu ul {
+  padding-left: 0;
+}
+
+body.satasupe-body .side-menu li {
+  margin-bottom: 0;
+}
+
+/* Category Headers (Submenu Triggers) */
+body.satasupe-body .side-menu .submenu-trigger {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #c0a080;
+  padding: 4px 0 2px;
+  display: block;
+}
+
+/* Links */
+body.satasupe-body .side-menu a {
+  color: #dcd3b9; /* Beige text */
+  font-family: "Shippori Mincho", serif;
+  font-size: 0.8rem; /* Even smaller font size */
+  transition: all 0.2s;
+  padding: 4px 0; /* Increased padding for better hit area */
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  width: 100%; /* Ensure full width clickability */
+}
+
+body.satasupe-body .side-menu a:hover {
+  color: #fff;
+  background-color: #a83f39;
+  text-decoration: none;
+  padding-left: 5px; /* Slight movement */
+}
+
+body.satasupe-body .side-menu .submenu {
+  padding-left: 10px;
+}
+
+body.satasupe-body .side-menu .submenu li {
+  border-bottom: 1px dotted #333;
+  margin-bottom: 0;
+}
+
+/* Hamburger Menu for Satasupe */
+body.satasupe-body .hamburger-menu {
+  background-color: #a83f39;
+  border: 2px solid #fff;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 #000;
+}
+
+body.satasupe-body .hamburger-menu span {
+  background-color: #fff;
+  height: 3px;
+}
+
+/* Mobile Menu Overlay */
+body.satasupe-body .side-menu.is-open {
+  border-right: 4px double #a83f39;
+}

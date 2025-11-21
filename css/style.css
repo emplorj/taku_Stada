@@ -138,14 +138,30 @@ h1 {
   position: fixed; /* 画面に固定 */
   top: 20px; /* 上からの位置 */
   left: 20px; /* 左からの位置 */
-  width: 200px; /* メニューの基本幅 */
-  padding: 10px 20px; /* 内側の余白 */
+  width: 210px; /* メニューの基本幅を少し拡大 */
+  padding: 10px 10px; /* 内側の余白を減らしてコンテンツ幅を確保 */
   background-color: rgba(6, 17, 68, 0.8);
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+}
+
+/* ロゴのホバーエフェクト無効化 & スタイル調整 */
+.side-menu .menu-logo-container a {
+  padding: 0 !important; /* 強制的にパディングをリセット */
+  background-color: transparent !important;
+  display: block;
+  text-align: center;
+}
+.side-menu .menu-logo-container a:hover {
+  background-color: transparent !important;
+  padding-left: 0 !important;
+}
+.menu-logo {
+  max-width: 100%;
+  height: auto;
 }
 
 footer {
@@ -292,10 +308,13 @@ nav.side-menu li {
   font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
     "Meiryo", sans-serif; /* 目次のフォント変更 */
   color: #b0c4de;
-  transition: color 0.3s ease;
+  transition: all 0.2s ease; /* アニメーション対象を全プロパティに */
   display: block; /* クリック範囲を広げる */
   display: flex; /* 1. Flexboxを有効にして、中の要素（アイコンとテキスト）を横並びに */
   align-items: center; /* 2. アイコンとテキストを垂直方向の中央に揃える */
+  padding: 2px 5px; /* 縦のパディングを少し戻す */
+  line-height: 1.2; /* 行間を少し広げる */
+  border-radius: 4px; /* 角丸 */
 }
 .menu-icon {
   height: 1.2em; /* 高さを文字サイズに合わせる (お好みで調整) */
@@ -303,18 +322,27 @@ nav.side-menu li {
   margin-right: 0.5em; /* アイコンとテキストの間に余白を作る */
   object-fit: contain; /* 画像のアスペクト比を保つ */
   fill: currentColor;
+  transform: translateY(1px); /* 通常アイコンの位置調整 */
+}
+
+/* 最後の項目のアイコン位置微調整 */
+.side-menu > ul > li:last-child .menu-icon {
+  transform: translateY(-4px); /* Jinアイコンはさらに上に */
+  border-radius: 50%; /* 丸くする */
 }
 
 .side-menu a:hover,
 .side-menu a.active {
   /* JavaScriptでアクティブなリンクをハイライトする場合の準備 */
   color: #fff;
+  background-color: #3498db; /* ホバー時の背景色（青） */
+  padding-left: 15px; /* 右にスライド */
 }
 
 /* サイドメニューのもくじタイトル */
 .side-menu h2 {
-  margin: 0 0 15px;
-  padding-bottom: 10px;
+  margin: 0 0 10px; /* マージンを少し戻す */
+  padding-bottom: 8px; /* パディングを少し戻す */
   border-bottom: 1px solid #4a5c9a;
   font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
     "Meiryo", sans-serif;
@@ -1455,6 +1483,13 @@ body.no-scroll {
   color: #fff;
   padding-left: 1.7em; /* 矢印のスペースを確保 */
   font-size: 1em; /* ヘッダーのフォントサイズを1emに */
+
+  /* 文字位置と背景色の調整 */
+  padding-top: 6px; /* 文字を下にずらす */
+  padding-bottom: 3px;
+  background-color: #244065; /* ホバー色(#3498db)と区別するための暗めの青 */
+  margin-bottom: 2px;
+  border-radius: 4px;
 }
 
 /* アイコンがないトリガーにも左側のパディングを適用 */
@@ -1462,6 +1497,13 @@ body.no-scroll {
   .has-submenu
   > a.submenu-trigger:not(:has(i)):not(:has(.menu-icon-svg)) {
   padding-left: 1.7em;
+}
+
+/* トリガーのホバー・アクティブ時のスタイル上書き */
+.side-menu .has-submenu > .submenu-trigger:hover,
+.side-menu .has-submenu > .submenu-trigger.active {
+  background-color: #2f5280; /* ホバー時は少し明るく */
+  padding-left: 1.7em; /* スライドさせない */
 }
 
 .side-menu .has-submenu > .submenu-trigger::after {
