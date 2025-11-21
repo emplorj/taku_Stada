@@ -11,9 +11,15 @@ body.satasupe-body {
   padding: 0;
   overflow-x: hidden;
 }
+
 .layout-container {
   display: block;
-  width: 100%;
+  box-sizing: border-box;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+body.menu-open .layout-container {
+  margin-left: 220px;
 }
 .grunge-overlay {
   position: fixed;

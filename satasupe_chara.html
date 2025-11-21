@@ -9,32 +9,121 @@
   <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
   <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- OGP / Twitter Card (Common) -->
+  <meta property="og:site_name" content="卓スタダ" />
+  <meta property="og:image" content="img/卓スタダロゴ.png" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/satasupe_style.css">
   <link
     href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Yuji+Syuku&family=Kosugi+Maru&family=RocknRoll+One&display=swap"
     rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body class="satasupe-body">
 
+  <div class="menu-overlay" id="menu-overlay"></div>
+
+  <!-- ハンバーガーボタンをnavの外に移動 -->
+  <button class="hamburger-menu" id="hamburger-menu" aria-label="メニューを開閉する">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav id="tableOfContents" class="side-menu">
+    <ul>
+      <!--  ロゴ用のコンテナをh2の上に追加 -->
+      <div class="menu-logo-container">
+        <a href="/">
+          <img src="img/卓スタダロゴ.png" alt="卓スタダ ロゴ" class="menu-logo">
+        </a>
+      </div>
+      <h2>もくじ</h2>
+      <li class="has-submenu">
+        <a href="#" class="submenu-trigger">メインページ項目</a>
+        <ul class="submenu">
+          <li><a href="/index.html#ccfolia-tools-section">ココフォリアツール</a></li>
+          <li><a href="/index.html#content-policy-section">地雷チェックシート</a></li>
+          <li><a href="/index.html#color-codes-section">TRPGシステム色分け</a></li>
+          <li><a href="/index.html#yutosheet-template-section">ゆとシートテンプレ</a></li>
+        </ul>
+      </li>
+      <li class="has-submenu">
+        <a href="#" class="submenu-trigger">初めての方へ</a>
+        <ul class="submenu">
+          <li><a href="/beginner.html"><i class="fa-solid fa-book-open menu-icon"></i> 初心者ガイド</a></li>
+          <li><a href="/tier_list.html"><i class="fa-solid fa-star menu-icon"></i> ルールブックオススメTier</a></li>
+          <li><a href="/recruitment.html"><i class="fa-solid fa-bullhorn menu-icon"></i> 募集掲示板</a></li>
+          <li><a href="/schedule.html"><i class="fa-solid fa-calendar-days menu-icon"></i> 予定</a></li>
+          <li><a href="/slides.html"><i class="fa-solid fa-display menu-icon"></i> スライド</a></li>
+        </ul>
+      </li>
+      <!-- CoC -->
+      <li class="has-submenu">
+        <a href="#" class="submenu-trigger">CoC</a>
+        <ul class="submenu">
+          <li><a href="/CoC_Q&A.html"><i class="fa-solid fa-pen-nib menu-icon"></i> シナリオスタダ</a></li>
+          <li><a href="/coc_review.html"><i class="fa-solid fa-comments menu-icon"></i> シナリオレビュー</a></li>
+          <li><a href="/growth_checker.html"><i class="fa-solid fa-square-check menu-icon"></i> 成長チェック/セリフ抽出</a></li>
+        </ul>
+      </li>
+      <!-- DX3rd -->
+      <li class="has-submenu">
+        <a href="#" class="submenu-trigger">DX3rd</a>
+        <ul class="submenu">
+          <li><a href="/dx3_combo_generator.html"><i class="fa-solid fa-burst menu-icon"></i> コンボジェネレーター</a></li>
+        </ul>
+      </li>
+      <!-- SW2.5 -->
+      <li class="has-submenu">
+        <a href="#" class="submenu-trigger">SW2.5</a>
+        <ul class="submenu">
+          <li><a href="247_guild/sw25_generator.html"><i class="fa-solid fa-dice menu-icon"></i> SW2.5 便利ツール</a></li>
+          <li><a href="247_guild/request_form.html"><i class="fa-solid fa-file-signature menu-icon"></i> 依頼書ジェネレーター</a>
+          </li>
+          <li><a href="/card_generator.html"><i class="fa-solid fa-id-card menu-icon"></i> カードジェネレーター</a></li>
+          <li><a href="/247_guild/"><span class="menu-icon-svg" data-svg-path="/img/hachimaki.svg"
+                data-alt="帝国の鉢巻アイコン"></span>帝国の鉢巻</a></li>
+        </ul>
+      </li>
+      <!-- サタスペ -->
+      <li class="has-submenu">
+        <a href="#" class="submenu-trigger">サタスペ</a>
+        <ul class="submenu">
+          <li><a href="/satasupe_chara.html"><i class="fa-solid fa-user-ninja menu-icon"></i> 亜侠作成</a></li>
+        </ul>
+      </li>
+      <!-- その他 -->
+      <li class="has-submenu">
+        <a href="#" class="submenu-trigger">その他</a>
+        <ul class="submenu">
+          <li><a href="/sutada_chara.html"><i class="fa-solid fa-users menu-icon"></i> 卓スタダ参加キャラ紹介</a></li>
+          <li><a href="/q_and_a.html"><i class="fa-solid fa-comments menu-icon"></i> キャラ質問シート</a></li>
+
+          <li><a href="https://docs.google.com/spreadsheets/d/17wStGJ37GjaINrjZMFZgmacYOPeH9F8ZiahhtJd_nxI/"
+              target="_blank" rel="noopener noreferrer"><span class="menu-icon-svg" data-svg-path="/img/spreadsheet.svg"
+                data-alt="スプレッドシートアイコン"></span>スプレッドシート</a></li>
+          <li><a
+              href="https://www.dropbox.com/scl/fo/lnuvslrnsqqyye3ka3dfa/APfMlkTTNNrt9Lgnx5sOOVA?rlkey=t5ltutxf80yqz8p499dae7loj&dl=0"
+              target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-dropbox menu-icon"></i>ログ置き場</a></li>
+
+        </ul>
+      </li>
+      <li>
+        <a href="https://jp.finalfantasyxiv.com/lodestone/character/53872646/" target="_blank"
+          rel="noopener noreferrer">
+          <img src="img/Jin.png" alt="Jin Emplor Icon" class="menu-icon">
+          Jin Emplor
+        </a>
+      </li>
+    </ul>
+  </nav>
+
   <div class="grunge-overlay"></div>
 
-  <header id="global-header">
-    <div class="header-inner">
-      <div class="header-logo">
-        <a href="/">サタスペ亜侠作成</a>
-        <span class="header-sub">SATASUPE ASIAN PUNK RPG</span>
-      </div>
-      <div class="header-nav">
-        <a href="/" class="back-link"><i class="fas fa-undo"></i> トップへ戻る</a>
-      </div>
-    </div>
-  </header>
-
-  <div class="layout-container">
-    <main class="main-content-wrapper">
+  <main class="main-content">
+    <div class="main-content-wrapper">
 
       <div class="alert-box">
         <i class="fas fa-exclamation-triangle"></i>
@@ -331,8 +420,8 @@
         </div>
 
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
   <div id="screenshot-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content paper-box">
       <div class="modal-header">
@@ -380,6 +469,7 @@
   </div>
   <script src="js/satasupe_data.js"></script>
   <script src="js/satasupe_logic.js"></script>
+  <script src="js/common.js"></script>
 </body>
 
 </html>

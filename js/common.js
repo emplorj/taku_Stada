@@ -386,7 +386,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- 初期化の実行 ---
-  loadHeader();
+  // メニュー関連の初期化を loadHeader の外に移動し、全ページで実行されるようにする
+  initializeHamburgerMenu();
+  initializeSubMenu();
+
+  if (document.getElementById("header-placeholder")) {
+    loadHeader();
+  }
   injectFaviconLinks();
   initializeSwiperSlider();
 });
