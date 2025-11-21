@@ -118,7 +118,7 @@ body.satasupe-body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   border-bottom: 1px dashed #555;
   padding-bottom: 10px;
 }
@@ -143,9 +143,33 @@ body.satasupe-body {
   flex-wrap: wrap;
   gap: 15px;
 }
+.action-btn {
+  width: 100%;
+  font-size: 1.2rem;
+  margin-top: 20px;
+}
+
+/* --- 修正箇所 2: リスト更新ボタン周りの間隔 --- */
+.input-row {
+  display: flex;
+  align-items: center;
+  /* 修正: 10px -> 20px */
+  gap: 20px;
+  margin-bottom: 15px;
+}
 .compact-box {
-  flex: 1 1 180px;
-} /* 幅を少し調整して5つ並びやすく */
+  /* 修正: 180pxだと5つ並ぶのに900px+gapが必要で、狭い画面で落ちやすいため少し小さく */
+  flex: 1 1 150px;
+  /* 追加: 中身が増えても幅が勝手に広がりすぎないようにする */
+  min-width: 0;
+}
+
+#pref-result.long-text {
+  font-size: 1rem; /* 通常1.4remから縮小 */
+  line-height: 1.2;
+  white-space: normal; /* 折り返し許可 */
+  word-break: keep-all; /* 単語の途中では切らない */
+}
 .middle-row {
   display: flex;
   flex-wrap: wrap;
@@ -241,7 +265,7 @@ body.satasupe-body {
   background-color: #a83f39;
   color: #fff;
   border: 2px solid #fff;
-  padding: 8px 20px;
+  padding: 5px 20px;
   cursor: pointer;
   font-family: "Yuji Syuku", serif;
   outline: 2px double #a83f39;
@@ -321,9 +345,21 @@ body.satasupe-body {
 /* Status */
 .big-red {
   color: #c00;
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: bold;
-  font-family: "Courier New", monospace;
+  font-family: inherit;
+
+  /* 行の高さによるズレを防ぐ */
+  line-height: 1;
+
+  margin: 0 5px;
+  position: relative;
+
+  /* ★変更: 中央揃えにした上で、数字の重心を微調整 (少し上に上げるなど) */
+  top: -2px;
+
+  /* もしパディングが邪魔しているならリセット */
+  padding: 0;
 }
 .result-row.mini {
   display: flex;
@@ -337,8 +373,21 @@ body.satasupe-body {
   text-align: center;
   background: rgba(255, 255, 255, 0.5);
   border: 1px dashed #8a7b66;
-  padding: 8px;
+  padding: 5px 10px;
   position: relative;
+
+  /* 高さを確保しつつ */
+  min-height: 60px;
+
+  /* ★追加: 親要素(paper-box)の高さに合わせて縦に伸びるようにする */
+  flex-grow: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 .hand-write {
   font-size: 1.4rem;
@@ -438,6 +487,9 @@ body.satasupe-body {
   gap: 10px;
   align-items: flex-start;
 }
+.table-caption {
+  margin: 5px;
+}
 .hobby-tag {
   position: relative;
   display: inline-block;
@@ -506,7 +558,7 @@ body.satasupe-body {
 
 .hobby-table-wrapper {
   border-top: 1px dashed #8a7b66;
-  padding-top: 10px;
+  padding-top: 0px;
 }
 .hobby-table-scroll {
   overflow-x: auto;
@@ -576,14 +628,35 @@ body.satasupe-body {
   color: #fff;
   padding: 20px;
   text-align: center;
-  font-size: 1.2rem;
+
+  /* ★変更: 基本サイズをかなり大きく (5文字以下くらい用) */
+  font-size: 3rem;
+
   font-weight: bold;
   border: 3px solid #a83f39;
   box-shadow: 0 0 8px #a83f39;
-  min-height: 60px;
+  min-height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+/* ★追加: 文字数が少し多い時 (6〜9文字くらい) */
+.result-area.big-result.medium-text {
+  font-size: 2rem;
+}
+
+/* ★追加: 文字数がだいぶ多い時 (10文字以上) */
+.result-area.big-result.long-text {
+  font-size: 1.3rem;
+}
+
+.result-area.big-result::-webkit-scrollbar {
+  display: none;
 }
 
 /* Item List */
@@ -768,17 +841,287 @@ body.satasupe-body {
     gap: 5px;
   }
 }
+/* ヘッダーボタンのグループ化 */
+.header-btn-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
+/* 証明ボタン（少し色を変えるなど） */
+/* 証明ボタン（視認性向上） */
+.sub-roll-btn {
+  background-color: #a83f39; /* メインカラーに合わせる */
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 8px 20px;
+  font-family: "Yuji Syuku", serif;
+  cursor: pointer;
+  outline: 2px double #a83f39;
+  box-shadow: 3px 3px 0 #2b2522;
+  transition: 0.1s;
+  margin-left: 10px;
+}
+.sub-roll-btn:hover {
+  background-color: #c94e47;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #2b2522;
+}
+.sub-roll-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0;
+}
+.sub-roll-btn i {
+  margin-right: 5px;
+}
+
+/* モーダル内の宣誓文 */
+.modal-intro {
+  font-family: "Shippori Mincho", serif;
+  font-size: 0.9rem;
+  color: #444;
+  text-align: center;
+  margin-bottom: 15px;
+  line-height: 1.6;
+  border-bottom: 1px solid #a83f39;
+  padding-bottom: 10px;
+}
+
+/* --- モーダル (スクショ用) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background: #e3dac9;
+  width: 100%;
+  max-width: 400px; /* スマホで見やすい幅 */
+  border: 4px double #a83f39;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  padding: 15px;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #2b2522;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+}
+.modal-header h2 {
+  margin: 0;
+  border: none;
+  font-size: 1.5rem;
+  padding: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #2b2522;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-item {
+  /* ★修正: 全ての項目にパディングを持たせる */
+  padding: 10px;
+
+  /* ★追加: ハイライト時の枠線(2px)分、通常時も透明な枠を取って位置ズレを防ぐ */
+  border: 2px solid transparent;
+
+  /* 区切り線（下線） */
+  border-bottom: 1px dashed #999;
+
+  display: flex;
+  flex-direction: column;
+}
+.summary-item.highlight {
+  background: rgba(168, 63, 57, 0.1);
+
+  border-color: #a83f39;
+  border-style: solid; /* dashedを上書きして実線に */
+
+  border-radius: 4px;
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  color: #555;
+  font-weight: bold;
+}
+
+.summary-value {
+  font-size: 1.2rem;
+  color: #2b2522;
+  text-align: center;
+  font-weight: bold;
+  min-height: 1.5em;
+  display: flex;
+
+  /* ★変更: baseline -> center (高さの異なる文字同士は中央揃えの方が安定します) */
+  align-items: center;
+
+  justify-content: center;
+  flex-wrap: wrap;
+  line-height: 1.2;
+}
+
+.modal-footer {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.7rem;
+  color: #666;
+  letter-spacing: 0.2em;
+}
+
+/* モーダル内の文字サイズ調整 */
+#modal-env,
+#modal-talent,
+#modal-karma {
+  font-size: 1.8rem;
+  margin: 0 5px;
+}
+#modal-otakara {
+  font-size: 1.4rem;
+  white-space: normal;
+  word-break: break-all;
+}
+
+/* ==========================================================================
+   8. Responsive (スマホ対応・修正版)
+   ========================================================================== */
 @media (max-width: 768px) {
+  /* 1. 全体のはみ出し防止 */
+  body,
+  html {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .layout-container {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* コンテンツ幅の調整：余白を減らして領域確保 */
+  .main-content-wrapper {
+    padding: 15px 5px; /* 左右余白を極小に */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 2. レイアウトの縦並び化 */
+  .header-inner,
   .status-row,
-  .middle-row {
-    flex-direction: column;
-  }
-  .header-inner {
-    flex-direction: column;
-    gap: 10px;
-  }
+  .middle-row,
+  .region-select-row,
   .random-chart-container {
+    flex-direction: column;
     grid-template-columns: 1fr;
+    gap: 15px;
   }
+
+  /* ボックスの幅リセット（はみ出し原因の除去） */
+  .compact-box,
+  .col-hobby,
+  .col-otakara,
+  .chart-group,
+  .paper-box {
+    min-width: 0; /* 最小幅制限を解除 */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 3. 趣味表の「合わせて縮小」対応 */
+  .hobby-table-scroll {
+    width: 100%;
+    overflow-x: visible; /* スクロールさせない */
+    display: block;
+  }
+
+  .hobby-grid-layout {
+    /* 固定幅を解除し、親要素(画面幅)に合わせる */
+    min-width: auto;
+    width: 100%;
+    /* 左ヘッダーを少し狭く(20px)、残りを6等分 */
+    grid-template-columns: 20px repeat(6, 1fr);
+    gap: 1px; /* 隙間を詰める */
+  }
+
+  .hobby-cell {
+    /* 文字を小さくして無理やり収める */
+    font-size: 0.6rem;
+    padding: 2px 0;
+    line-height: 1.1;
+
+    /* 折り返しを許可 */
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+
+    /* 高さ中央揃え */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 30px; /* 最低限の高さを確保 */
+  }
+
+  /* ヘッダーセルも小さく */
+  .hobby-cell.header-row,
+  .hobby-cell.header-col {
+    font-size: 0.6rem;
+    padding: 2px 0;
+  }
+
+  /* 4. 支給品リスト（テーブル）の調整 */
+  .item-list-scroll-area {
+    width: 100%;
+    overflow-x: auto; /* こちらは横スクロール維持 */
+  }
+
+  .asian-table {
+    width: 100%;
+    table-layout: fixed; /* 列幅を固定計算 */
+    font-size: 0.75rem;
+  }
+
+  .asian-table th,
+  .asian-table td {
+    padding: 4px 2px;
+    white-space: normal; /* 折り返し許可 */
+    overflow-wrap: break-word;
+  }
+
+  /* 列幅配分 */
+  .asian-table th:nth-child(1) {
+    width: 25px;
+  } /* Lv */
+  .asian-table th:nth-child(2) {
+    width: 70px;
+  } /* 名前 */
+  .asian-table th:nth-child(3) {
+    width: auto;
+  } /* 詳細 */
 }

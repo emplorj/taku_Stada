@@ -141,7 +141,19 @@ function rollPreference() {
   const type = PREF_TYPES[tIdx];
   const age = PREF_AGES[aIdx];
 
-  document.getElementById("pref-result").innerText = type.name + " " + age.name;
+  const resultText = type.name + " " + age.name;
+  const el = document.getElementById("pref-result");
+
+  el.innerText = resultText;
+
+  // ★追加: 9文字以上なら文字を小さくするクラスを付与
+  if (resultText.length >= 9) {
+    el.classList.add("long-text");
+    // 下線を消したい場合は以下のようにstyle操作も可能ですが、
+    // 今回はCSSクラス(long-text)側で制御するのがスマートです
+  } else {
+    el.classList.remove("long-text");
+  }
 
   const tooltip = document.getElementById("pref-tooltip");
   if (tooltip) tooltip.innerHTML = `${type.desc}<br>${age.desc}`;
@@ -176,19 +188,20 @@ const AGIT_TABLE = [
   { area: "十三", security: 10, note: "そこそこ良い" },
   { area: "沙京", security: 7, note: "最低" },
 ];
+
 function rollAgit() {
   const dice = roll1d6();
   const agit = AGIT_TABLE[dice - 1];
 
-  const displayEl = document.getElementById("agit-display");
-  // ★修正: ツールチップ用のHTMLを作成
-  // HTML構造: <div id="agit-display" ...> 地名 <span class="tooltip-text">詳細</span> </div>
-  // この構造を維持するようにinnerHTMLを書き換えます
+  // 1. 地名を表示
+  document.getElementById("agit-display").innerText = agit.area;
 
-  const tooltipContent = `治安${agit.security}: ${agit.note}`;
-  const mainText = agit.area;
-
-  displayEl.innerHTML = `${mainText} <span id="agit-tooltip" class="tooltip-text">${tooltipContent}</span>`;
+  // 2. ツールチップの中身（治安など）を更新
+  const tooltip = document.getElementById("agit-tooltip");
+  if (tooltip) {
+    // 改行したい場合は <br> を使う
+    tooltip.innerHTML = `治安${agit.security} (${agit.note})`;
+  }
 }
 
 // ==========================================================================
@@ -320,188 +333,261 @@ function rollOtakara() {
   }
 
   const idx = Math.floor(Math.random() * pool.length);
-  resultArea.innerText = pool[idx].name;
+  const itemName = pool[idx].name;
+
+  // テキストセット
+  resultArea.innerText = itemName;
+
+  // ★追加: 文字数に応じたクラス切り替え
+  // 一旦クラスをリセット
+  resultArea.classList.remove("medium-text", "long-text");
+
+  // 文字数判定
+  if (itemName.length >= 10) {
+    // 10文字以上なら小さく
+    resultArea.classList.add("long-text");
+  } else if (itemName.length >= 6) {
+    // 6文字以上なら中くらい
+    resultArea.classList.add("medium-text");
+  }
+  // 5文字以下ならデフォルト(3rem)のまま
 }
 
 // ==========================================================================
 // 6. 支給品 (アイテム)
 // ==========================================================================
 const INITIAL_ITEMS = [
+  // 武器
   {
     lv: 1,
+    category: "武器",
     name: "即席武器",
     type: "白兵武器",
-    spec: "命中7・ダメージ〔破壊力〕-1",
-    effect: "格闘、マヒ",
+    hit: "7",
+    damage: "〔破壊力〕-1",
+    range: "格闘",
+    func: "格闘、マヒ",
   },
+  // ★修正: 趣味的武器に条件を追記
   {
     lv: 1,
+    category: "武器",
     name: "趣味的武器",
     type: "白兵武器",
-    spec: "命中8・ダメージ〔破壊力〕",
-    effect: "格闘",
+    hit: "8",
+    damage: "〔破壊力〕",
+    range: "格闘",
+    func: "条件：趣味に「スポーツ」がある場合",
   },
   {
+    lv: 2,
+    category: "武器",
+    name: "トヨトミピストル",
+    type: "拳銃",
+    hit: "8",
+    damage: "4",
+    range: "射撃",
+    func: "射撃、サタスペ",
+  },
+  {
+    lv: 3,
+    category: "武器",
+    name: "S&W M36「チーフスペシャル」",
+    type: "拳銃",
+    hit: "7",
+    damage: "5",
+    range: "射撃",
+    func: "射撃、リボルバー、暗器",
+  },
+  {
+    lv: 3,
+    category: "武器",
+    name: "オオサカキャノン",
+    type: "SG",
+    hit: "6",
+    damage: "0",
+    range: "格闘",
+    func: "格闘、サタスペ、散弾、両手",
+  },
+  {
+    lv: 4,
+    category: "武器",
+    name: "トカレフ",
+    type: "拳銃",
+    hit: "9",
+    damage: "6",
+    range: "射撃",
+    func: "射撃",
+  },
+  {
+    lv: 4,
+    category: "武器",
+    name: "モスバーグM500",
+    type: "SG",
+    hit: "6",
+    damage: "4",
+    range: "格闘",
+    func: "格闘、散弾、両手",
+  },
+  {
+    lv: 5,
+    category: "武器",
+    name: "ベレッタM92F",
+    type: "拳銃",
+    hit: "7",
+    damage: "5",
+    range: "射撃",
+    func: "射撃",
+  },
+  {
+    lv: 5,
+    category: "武器",
+    name: "AKM「カラシニコフ」",
+    type: "AR",
+    hit: "7",
+    damage: "6",
+    range: "射撃",
+    func: "射撃、フル、両手",
+  },
+
+  // 乗物
+  {
+    lv: 2,
+    category: "乗物",
+    name: "自転車",
+    type: "自転車",
+    speed: "2",
+    hull: "0",
+    cargo: "2",
+    func: "肉体・携帯",
+  },
+  {
+    lv: 3,
+    category: "乗物",
+    name: "ヴェスパ",
+    type: "原付",
+    speed: "3",
+    hull: "1",
+    cargo: "2",
+    func: "身軽",
+  },
+  {
+    lv: 4,
+    category: "乗物",
+    name: "スバル360/R2",
+    type: "軽自動車",
+    speed: "4",
+    hull: "3",
+    cargo: "5",
+    func: "身軽",
+  },
+  {
+    lv: 5,
+    category: "乗物",
+    name: "シトロエン2CV",
+    type: "普通自動車",
+    speed: "4",
+    hull: "4",
+    cargo: "6",
+    func: "維持1",
+  },
+
+  // 一般装備 (麻薬含む)
+  {
     lv: 1,
+    category: "一般",
     name: "テレカ",
     type: "通信手段",
-    spec: "補助",
+    usage: "補助",
     effect:
       "あらゆる行動に組み合わせられる。テレカ以外の通信手段の持ち主と会話ができる",
   },
   {
     lv: 1,
+    category: "一般",
     name: "トルエン",
     type: "麻薬",
-    spec: "支援",
+    usage: "支援",
     effect:
       "1D6ターンの間、(肉体点〕のペナルティを無視。その後、セッション終了まで、【散漫】(p.119)の代償を得る",
   },
   {
     lv: 2,
-    name: "トヨトミピストル",
-    type: "拳銃",
-    spec: "命中8・ダメージ4",
-    effect: "射撃、サタスペ",
-  },
-  {
-    lv: 2,
-    name: "自転車",
-    type: "自転車",
-    spec: "ス2・車0・荷2",
-    effect: "肉体・携帯",
-  },
-  {
-    lv: 2,
+    category: "一般",
     name: "携帯電話",
     type: "通信手段",
-    spec: "装備",
+    usage: "装備",
     effect: "テレカ以外の通信手段の持ち主と会話ができる",
   },
   {
     lv: 2,
+    category: "一般",
     name: "救急箱",
     type: "保安器具",
-    spec: "計画",
+    usage: "計画",
     effect: "「わずかな器具しかない(難易度11)」相当で治療の判定が行える",
   },
   {
     lv: 3,
-    name: "S&W M36「チーフスペシャル」",
-    type: "拳銃",
-    spec: "命中7・ダメージ5",
-    effect: "射撃、リボルバー、暗器",
-  },
-  {
-    lv: 3,
-    name: "オオサカキャノン",
-    type: "SG",
-    spec: "命中6・ダメージ0",
-    effect: "格闘、サタスペ、散弾、両手",
-  },
-  {
-    lv: 3,
-    name: "ヴェスパ",
-    type: "原付",
-    spec: "ス3・車1・荷2",
-    effect: "身軽",
-  },
-  {
-    lv: 3,
+    category: "一般",
     name: "クラック",
     type: "麻薬",
-    spec: "支援",
+    usage: "支援",
     effect:
-      "1D6ターンの間、〔性業値)がー2、受けるダメージメージをー1。その後、セッション終了まで、【せっかち】(p.111)の代償を得る",
+      "1D6ターンの間、〔性業値〕が-2、受けるダメージを-1。その後、セッション終了まで、【せっかち】(p.111)の代償を得る",
   },
   {
     lv: 3,
+    category: "一般",
     name: "コデイン",
     type: "麻薬",
-    spec: "支援",
+    usage: "支援",
     effect:
       "1D6ターンの間、〔性業値〕が+2。その後、セッション終了まで、【弱虫】(p.119)の代償を得る",
   },
   {
     lv: 4,
-    name: "トカレフ",
-    type: "拳銃",
-    spec: "命中9・ダメージ6",
-    effect: "射撃",
-  },
-  {
-    lv: 4,
-    name: "モスバーグM500",
-    type: "SG",
-    spec: "命中6・ダメージ4",
-    effect: "格闘、散弾、両手",
-  },
-  {
-    lv: 4,
-    name: "スバル360/R2",
-    type: "軽自動車",
-    spec: "ス4・車3・荷5",
-    effect: "身軽",
-  },
-  {
-    lv: 4,
+    category: "一般",
     name: "コカイン",
     type: "麻薬",
-    spec: "支援",
+    usage: "支援",
     effect:
-      "1D6ターンの間、(性業値)が-4。その後、セッション終了まで、【暴走】(p.117)の代償を得る",
+      "1D6ターンの間、〔性業値〕が-4。その後、セッション終了まで、【暴走】(p.117)の代償を得る",
   },
   {
     lv: 4,
+    category: "一般",
     name: "大麻",
     type: "麻薬",
-    spec: "支援",
+    usage: "支援",
     effect:
       "(精神点)が3点回復。その後、セッション終了まで、【悪夢】(p.103)の代償を得る",
   },
   {
     lv: 5,
-    name: "ベレッタM92F",
-    type: "拳銃",
-    spec: "命中7・ダメージ5",
-    effect: "射撃",
-  },
-  {
-    lv: 5,
-    name: "AKM「カラシニコフ」",
-    type: "AR",
-    spec: "命中7・ダメージ6",
-    effect: "射撃、フル、両手",
-  },
-  {
-    lv: 5,
-    name: "シトロエン2CV",
-    type: "普通自動車",
-    spec: "ス4・車4・荷6",
-    effect: "維持1",
-  },
-  {
-    lv: 5,
+    category: "一般",
     name: "ノートパソコン",
     type: "日用品",
-    spec: "補助",
-    effect: "(教養)のリンク判定に組み合わせる。その難易度から一1",
+    usage: "補助",
+    effect: "(教養)のリンク判定に組み合わせる。その難易度から-1",
   },
   {
     lv: 5,
+    category: "一般",
     name: "シャブ",
     type: "麻薬",
-    spec: "支援",
+    usage: "支援",
     effect:
-      "1D6ターンの間、〔肉体点)と(精神点〕のペナルティを無視。その後、セッション終了まで【虚弱】(p.119)の代僕を得る",
+      "1D6ターンの間、〔肉体点〕と〔精神点〕のペナルティを無視。その後、セッション終了まで【虚弱】(p.119)の代僕を得る",
   },
   {
     lv: 5,
+    category: "一般",
     name: "ヘロイン",
     type: "麻薬",
-    spec: "計画",
+    usage: "計画",
     effect:
-      "〔精神点)が6点回復。その後、セッション終了まで【無気力】(p.119)の代償を得る",
+      "〔精神点〕が6点回復。その後、セッション終了まで【無気力】(p.119)の代償を得る",
   },
 ];
 
@@ -511,21 +597,57 @@ function showAvailableItems() {
   );
   const tbody = document.getElementById("item-list-body");
   tbody.innerHTML = "";
+
   const filteredItems = INITIAL_ITEMS.filter((item) => item.lv <= livingRank);
+
   if (filteredItems.length === 0) {
     tbody.innerHTML =
       "<tr><td colspan='3' style='text-align:center'>取得可能な支給品ナシ</td></tr>";
     return;
   }
+
   filteredItems.forEach((item) => {
     const tr = document.createElement("tr");
+
+    let detailHTML = "";
+    // ★修正: 略語を廃止して正式名称で表示
+    if (item.category === "武器") {
+      // 武器: 命中/ダメージ/射程 + 特殊機能
+      detailHTML = `
+                <div style="font-size:0.9rem;">
+                    <span style="color:#a83f39; font-weight:bold;">命中</span>${item.hit} 
+                    <span style="color:#a83f39; font-weight:bold; margin-left:8px;">ダメ</span>${item.damage} 
+                    <span style="color:#a83f39; font-weight:bold; margin-left:8px;">射程</span>${item.range}
+                </div>
+                <div style="font-size:0.85rem; color:#444; margin-top:2px;">${item.func}</div>
+            `;
+    } else if (item.category === "乗物") {
+      // 乗物: スピード/車体/荷物 + 特殊機能
+      detailHTML = `
+                <div style="font-size:0.9rem;">
+                    <span style="color:#a83f39; font-weight:bold;">スピード</span>${item.speed} 
+                    <span style="color:#a83f39; font-weight:bold; margin-left:8px;">車体</span>${item.hull} 
+                    <span style="color:#a83f39; font-weight:bold; margin-left:8px;">荷物</span>${item.cargo}
+                </div>
+                <div style="font-size:0.85rem; color:#444; margin-top:2px;">${item.func}</div>
+            `;
+    } else {
+      // 一般: 使用 + 効果
+      detailHTML = `
+                <div style="font-size:0.9rem;">
+                    <span style="color:#a83f39; font-weight:bold;">使用:</span> ${item.usage}
+                </div>
+                <div style="font-size:0.85rem; line-height:1.4; margin-top:2px;">${item.effect}</div>
+            `;
+    }
+
     tr.innerHTML = `
-            <td style="font-weight:bold; color:#a83f39">${item.lv}</td>
-            <td style="font-weight:bold; white-space:nowrap;">${item.name}</td>
-            <td>
-                <span class="item-type">${item.type}</span> ${item.spec}<br>
-                <span class="item-effect">${item.effect}</span>
+            <td style="font-weight:bold; color:#a83f39; vertical-align:top;">${item.lv}</td>
+            <td style="vertical-align:top;">
+                <div style="font-weight:bold;">${item.name}</div>
+                <div style="font-size:0.75rem; color:#666;">${item.type}</div>
             </td>
+            <td style="vertical-align:top;">${detailHTML}</td>
         `;
     tbody.appendChild(tr);
   });
@@ -821,34 +943,53 @@ function rollDislikeOnly() {
 }
 
 // --- 外見・特徴 ---
+// 一括
 function rollAppearanceAll() {
   rollAppearanceAndFeature();
 }
 
+// 外見のみ
 function rollAppearanceOnly() {
   const k = rollD66Comb();
   const app = APPEARANCE_TABLE[k] || "凡俗";
   document.getElementById("res-appearance").value = app;
+
+  // データ属性としてキー(11など)を保存しておく（特徴のみを振る時に使うため）
+  document.getElementById("res-appearance").dataset.key = k;
 }
 
+// 特徴のみ
 function rollFeatureOnly() {
-  const row = roll1d6();
-  const col = roll1d6();
-  const feat = FEATURE_TABLE_ROWS[row][col - 1];
+  // 既に外見が決まっていればそのキーを使う。なければランダムに外見キーを決める
+  let k = document.getElementById("res-appearance").dataset.key;
+
+  if (!k || !FEATURE_TABLE_ROWS[k]) {
+    // 外見が決まっていない、またはデータがない場合はランダムな外見キーを生成して使う
+    // (表示上の外見は書き換えない)
+    k = rollD66Comb();
+  }
+
+  const featList = FEATURE_TABLE_ROWS[k];
+  // 1D6を振って決定
+  const dice = roll1d6();
+  const feat = featList ? featList[dice - 1] : "データなし";
+
   document.getElementById("res-feature").value = feat;
 }
 
+// 両方
 function rollAppearanceAndFeature() {
-  const d1 = roll1d6();
-  const d2 = roll1d6();
-  let k = d1 < d2 ? `${d1}${d2}` : `${d2}${d1}`;
+  const k = rollD66Comb(); // D66組み合わせ (例: "11", "12")
 
+  // 1. 外見
   const app = APPEARANCE_TABLE[k] || "凡俗";
   document.getElementById("res-appearance").value = app;
+  document.getElementById("res-appearance").dataset.key = k; // キーを保存
 
-  const row = parseInt(k.charAt(0));
-  const featDice = roll1d6();
-  const feat = FEATURE_TABLE_ROWS[row][featDice - 1];
+  // 2. 特徴 (その外見キーに対応するリストから1D6)
+  const featList = FEATURE_TABLE_ROWS[k];
+  const dice = roll1d6();
+  const feat = featList ? featList[dice - 1] : "データなし";
 
   document.getElementById("res-feature").value = feat;
 }
@@ -878,6 +1019,39 @@ function rollTeamName() {
   document.getElementById(
     "res-teamname"
   ).innerHTML = `<span class="team-part">${wordMain}</span><span class="team-part">${wordSub}</span><span class="team-part">${wordOrg}</span>`;
+}
+// ==========================================================================
+// 8. スクショモード (モーダル制御)
+// ==========================================================================
+
+function openScreenshotModal() {
+  // 1. 各値をメイン画面から取得
+  const env = document.getElementById("env-points-result").innerText;
+  const talent = document.getElementById("talent-points-result").innerText;
+  const karma = document.getElementById("karma-result").innerText;
+  const pref = document.getElementById("pref-result").innerText;
+
+  // アジトはHTMLタグ(ツールチップ)を含んでいる可能性があるためテキストのみ抽出
+  const agitRaw = document.getElementById("agit-display").innerText;
+  // ※ innerTextなら通常は見た目通り取れるが、念のため整形
+  const agit = agitRaw.split("\n")[0]; // ツールチップが改行扱いになる場合への対策
+
+  const otakara = document.getElementById("otakara-result-area").innerText;
+
+  // 2. モーダルにセット
+  document.getElementById("modal-env").innerText = env;
+  document.getElementById("modal-talent").innerText = talent;
+  document.getElementById("modal-karma").innerText = karma;
+  document.getElementById("modal-pref").innerText = pref;
+  document.getElementById("modal-agit").innerText = agit;
+  document.getElementById("modal-otakara").innerText = otakara;
+
+  // 3. 表示
+  document.getElementById("screenshot-modal").style.display = "flex";
+}
+
+function closeScreenshotModal() {
+  document.getElementById("screenshot-modal").style.display = "none";
 }
 
 // ==========================================================================

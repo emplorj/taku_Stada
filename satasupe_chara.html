@@ -44,6 +44,7 @@
       <header class="page-title-area">
         <h1>亜侠作成</h1>
         <button class="stamp-btn main-roll-btn" onclick="rollAll()">基本一括判定</button>
+        <button class="stamp-btn sub-roll-btn" onclick="openScreenshotModal()"><i class="fas fa-camera"></i> 証明</button>
       </header>
 
       <div class="dashboard-grid">
@@ -104,11 +105,13 @@
           <div class="paper-box compact-box">
             <h2><span class="kanji-num">五</span>、アジト</h2>
             <div class="center-result mini tooltip-container">
+              <!-- 地名表示用 -->
               <span id="agit-display" class="hand-write small-text nowrap">---</span>
-              <span class="tooltip-text">快適度:初期10<br>セキュリティ:治安(生活+錠前で対抗)</span>
+              <!-- ツールチップ用 (初期状態は空、IDを付与) -->
+              <span id="agit-tooltip" class="tooltip-text"></span>
             </div>
             <div class="box-footer">
-              <small>快適度:初期10<br>セキュリティ:治安(生活+錠前で対抗)</small>
+              <small>快適度:初期10<br>セキュリティ:治安と、〔生活〕+《錠前》の修正の高い方</small>
               <button class="small-square-btn" onclick="rollAgit()"><i class="fas fa-redo"></i> 再</button>
             </div>
           </div>
@@ -330,7 +333,51 @@
       </div>
     </main>
   </div>
+  <div id="screenshot-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content paper-box">
+      <div class="modal-header">
+        <h2>亜侠登録誓約書</h2>
+        <button class="close-btn" onclick="closeScreenshotModal()">×</button>
+      </div>
 
+      <!-- ★追加: フレーバーテキスト -->
+      <div class="modal-intro">
+        我、以下の因果を背負いし亜侠として、<br>
+        大阪の街に生きることを此処に誓う。
+      </div>
+
+      <div class="modal-body">
+        <div class="summary-item">
+          <span class="summary-label">一、能力経験点</span>
+          <div class="summary-value">
+            環境値:<span id="modal-env" class="big-red">--</span> /
+            天分値:<span id="modal-talent" class="big-red">--</span>
+          </div>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">二、性業値</span>
+          <div class="summary-value">
+            <span id="modal-karma" class="big-red">--</span>
+          </div>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">三、好み</span>
+          <div id="modal-pref" class="summary-value hand-write">---</div>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">五、アジト</span>
+          <div id="modal-agit" class="summary-value hand-write">---</div>
+        </div>
+        <div class="summary-item highlight">
+          <span class="summary-label">七、おたから</span>
+          <div id="modal-otakara" class="summary-value large-text">---</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <small>SATASUPE ASIAN PUNK RPG</small>
+      </div>
+    </div>
+  </div>
   <script src="js/satasupe_data.js"></script>
   <script src="js/satasupe_logic.js"></script>
 </body>
