@@ -1529,7 +1529,7 @@ body.no-scroll {
   margin: 0;
   padding: 0;
   border: none;
-  max-height: 0; /* アコーディオンのためにデフォルトで閉じる */
+  /* max-height: 0; デフォルトで開くため削除 */
   overflow: hidden;
   transition: max-height 0.4s ease-in-out;
   box-sizing: border-box;

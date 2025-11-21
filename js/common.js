@@ -247,23 +247,37 @@ document.addEventListener("DOMContentLoaded", function () {
         this.classList.toggle("active");
         const submenu = this.nextElementSibling;
         if (submenu && submenu.classList.contains("submenu")) {
-          if (submenu.style.maxHeight) {
-            submenu.style.maxHeight = null;
-          } else {
+          if (submenu.style.maxHeight === "0px") {
+            // 閉じている状態から開く
             submenu.style.maxHeight = submenu.scrollHeight + "px";
+            // アニメーション完了後に max-height を解除（中身の変更に対応するため）
+            submenu.addEventListener(
+              "transitionend",
+              () => {
+                if (submenu.style.maxHeight !== "0px") {
+                  submenu.style.maxHeight = null;
+                }
+              },
+              { once: true }
+            );
+          } else {
+            // 開いている状態から閉じる
+            // transitionを効かせるために、一旦現在の高さを設定
+            submenu.style.maxHeight = submenu.scrollHeight + "px";
+            // ブラウザがスタイル適用を認識するためのウェイト
+            requestAnimationFrame(() => {
+              submenu.style.maxHeight = "0px";
+            });
           }
         }
       });
     });
 
-    // 初期ロード時にすべてのサブメニューを展開する
+    // 初期ロード時にすべてのサブメニューの矢印を「開いた状態」にする
     const allSubmenuTriggers = document.querySelectorAll(".submenu-trigger");
     allSubmenuTriggers.forEach((trigger) => {
       trigger.classList.add("active");
-      const submenu = trigger.nextElementSibling;
-      if (submenu && submenu.classList.contains("submenu")) {
-        submenu.style.maxHeight = submenu.scrollHeight + "px";
-      }
+      // CSSでデフォルト開いているため、maxHeightの操作は不要
     });
   }
 
