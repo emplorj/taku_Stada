@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>サタスペ 亜侠作成（アジアンパンク版）</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+  <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/satasupe_style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Yuji+Syuku&family=Kosugi+Maru&family=RocknRoll+One&display=swap"
+    rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="satasupe-body">
+
+  <div class="grunge-overlay"></div>
+
+  <header id="global-header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <a href="/">サタスペ亜侠作成</a>
+        <span class="header-sub">SATASUPE ASIAN PUNK RPG</span>
+      </div>
+      <div class="header-nav">
+        <a href="/" class="back-link"><i class="fas fa-undo"></i> トップへ戻る</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout-container">
+    <main class="main-content-wrapper">
+
+      <div class="alert-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>ここで数値を調整しても、キャラクターシートに直接反映・保存させる機能はありません。結果をコピーして、外部のキャラクターシート等に転記してください。</span>
+      </div>
+
+      <header class="page-title-area">
+        <h1>亜侠作成</h1>
+        <button class="stamp-btn main-roll-btn" onclick="rollAll()">基本一括判定</button>
+      </header>
+
+      <div class="dashboard-grid">
+
+        <!-- 上段：ステータス + アジト -->
+        <div class="status-row">
+          <!-- 1. 環境値 & 天分 -->
+          <div class="paper-box compact-box">
+            <h2><span class="kanji-num">一</span>、能力経験点</h2>
+            <div class="result-row mini">
+              <div class="result-item">
+                <span class="label">環境値へ</span><span id="env-points-result" class="big-red nowrap">--</span>
+              </div>
+              <div class="divider"></div>
+              <div class="result-item">
+                <span class="label">天分値へ</span><span id="talent-points-result" class="big-red nowrap">--</span>
+              </div>
+            </div>
+            <div class="box-footer">
+              <small>13-〔環境値〕を天分へ</small><button class="small-square-btn" onclick="rollEnvAndTalent()"><i
+                  class="fas fa-redo"></i> 再</button>
+            </div>
+          </div>
+          <!-- 2. 性業値 -->
+          <div class="paper-box compact-box">
+            <h2><span class="kanji-num">二</span>、性業値</h2>
+            <div class="center-result mini">
+              <span id="karma-result" class="big-red single-char">--</span>
+            </div>
+            <div class="box-footer">
+              <small>おおまかな性格</small><button class="small-square-btn" onclick="rollKarma()"><i class="fas fa-redo"></i>
+                再</button>
+            </div>
+          </div>
+          <!-- 3. 好み -->
+          <div class="paper-box compact-box">
+            <h2><span class="kanji-num">三</span>、好み</h2>
+            <div class="center-result mini tooltip-container">
+              <span id="pref-result" class="hand-write small-text nowrap">---</span>
+              <span id="pref-tooltip" class="tooltip-text">解説がここに表示されます</span>
+            </div>
+            <div class="box-footer">
+              <small>（マウスホバーで詳細）</small><button class="small-square-btn" onclick="rollPreference()"><i
+                  class="fas fa-redo"></i> 再</button>
+            </div>
+          </div>
+          <!-- 4. 言語 -->
+          <div class="paper-box compact-box">
+            <h2><span class="kanji-num">四</span>、言語（教養）</h2>
+            <div class="input-row centered">
+              <label>教養:</label>
+              <input type="number" id="culture-rank-input" min="0" max="6" value="0" oninput="updateLanguage()"
+                class="asian-input small">
+            </div>
+            <div class="result-area dark-bg mini-text"><span id="language-result">---</span></div>
+          </div>
+          <!-- 5. アジト (移動・コンパクト化) -->
+          <div class="paper-box compact-box">
+            <h2><span class="kanji-num">五</span>、アジト</h2>
+            <div class="center-result mini tooltip-container">
+              <span id="agit-display" class="hand-write small-text nowrap">---</span>
+              <span class="tooltip-text">快適度:初期10<br>セキュリティ:治安(生活+錠前で対抗)</span>
+            </div>
+            <div class="box-footer">
+              <small>快適度:初期10<br>セキュリティ:治安(生活+錠前で対抗)</small>
+              <button class="small-square-btn" onclick="rollAgit()"><i class="fas fa-redo"></i> 再</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 中段：趣味・おたから -->
+        <div class="middle-row">
+          <div class="paper-box col-hobby">
+            <h2><span class="kanji-num">六</span>、趣味</h2>
+            <div class="hobby-control-panel">
+              <div class="input-group">
+                <label>ランダム:</label><input type="number" id="hobby-count" value="1" min="1" max="6"
+                  class="asian-input small"><span>個</span>
+              </div>
+              <button class="stamp-btn" onclick="rollHobby()">趣味を決定</button>
+            </div>
+            <div id="hobby-display" class="hobby-tag-container"><span class="placeholder-text">未決定</span></div>
+            <div class="hobby-table-wrapper">
+              <p class="table-caption">▼ 趣味決定表</p>
+              <div class="hobby-table-scroll">
+                <div id="hobby-table-grid" class="hobby-grid-layout"></div>
+              </div>
+            </div>
+          </div>
+          <div class="paper-box col-otakara">
+            <h2><span class="kanji-num">七</span>、おたから</h2>
+            <div class="otakara-controls-vertical">
+              <div class="control-group">
+                <label>趣味を選択</label>
+                <select id="otakara-hobby-select" class="asian-select full-width">
+                  <option value="">(趣味を選んでください)</option>
+                </select>
+              </div>
+              <div class="control-group">
+                <label>参照ルルブ</label>
+                <select id="otakara-source-select" class="asian-select full-width">
+                  <option value="basic">基本のみ (3種)</option>
+                  <option value="dw">基本+DW (6種)</option>
+                  <option value="dabora">基本+DW+ダボラ (12種)</option>
+                </select>
+              </div>
+              <button class="stamp-btn action-btn" onclick="rollOtakara()">おたからゲット</button>
+            </div>
+            <div id="otakara-result-area" class="result-area neon-border big-result nowrap">---</div>
+          </div>
+        </div>
+
+        <!-- アイテム -->
+        <div class="paper-box full-width">
+          <h2><span class="kanji-num">八</span>、支給品</h2>
+          <div class="input-row">
+            <label>生活Lv：</label>
+            <input type="number" id="living-rank-input" min="1" max="5" value="1" class="asian-input small">
+            <button class="stamp-btn small-btn" onclick="showAvailableItems()">リスト更新</button>
+          </div>
+          <div class="item-list-scroll-area">
+            <table class="asian-table">
+              <thead>
+                <tr>
+                  <th width="40px">Lv</th>
+                  <th width="140px">名前</th>
+                  <th>詳細・効果</th>
+                </tr>
+              </thead>
+              <tbody id="item-list-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 九、各種ランダム決定 -->
+        <div class="paper-box full-width">
+          <h2>
+            <span class="kanji-num">九</span>、各種ランダム決定（任意）
+            <!-- style属性を削除し、クラス btn-header-batch を追加 -->
+            <button class="stamp-btn btn-header-batch" onclick="rollOptionalAll()">完全一括</button>
+          </h2>
+          <div class="random-chart-container">
+
+            <!-- プロフィール -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <h3>プロフィール</h3>
+                <button class="stamp-btn mini-btn" onclick="rollProfileAll()">一括</button>
+              </div>
+              <div class="chart-list">
+                <div class="chart-item-row">
+                  <button class="small-square-btn label-btn" onclick="rollSex()">性別</button>
+                  <input type="text" id="res-sex" class="detail-input" readonly placeholder="---">
+                </div>
+                <div class="chart-item-row">
+                  <button class="small-square-btn label-btn" onclick="rollAge()">年齢</button>
+                  <input type="text" id="res-age" class="detail-input" readonly placeholder="---">
+                </div>
+                <div class="chart-item-row">
+                  <button class="small-square-btn label-btn" onclick="rollHometown()">故郷</button>
+                  <input type="text" id="res-hometown" class="detail-input" readonly placeholder="---">
+                </div>
+              </div>
+            </div>
+
+            <!-- 出自 -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <h3>出自</h3>
+              </div>
+              <div class="chart-item-row mt-10">
+                <button class="small-square-btn label-btn" onclick="rollOrigin()">決定</button>
+                <input type="text" id="res-origin" class="detail-input" readonly placeholder="---">
+              </div>
+              <small style="color:#666; margin-top:5px;">※結果に応じて名前・通り名を自動設定</small>
+            </div>
+
+            <!-- 名前決定 -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <h3>名前決定</h3>
+              </div>
+              <div class="chart-content-col">
+                <div class="region-select-row">
+                  <div class="select-wrapper">
+                    <span class="label-text-mini">苗字</span>
+                    <select id="family-region-select" class="asian-select" onchange="syncNameRegion()">
+                      <option value="jp">日本人</option>
+                      <option value="china">中国人</option>
+                      <option value="korea">東アジア人</option>
+                      <option value="west_asia">西アジア人</option>
+                      <option value="hispanic">ヒスパニック</option>
+                      <option value="euro">欧米人</option>
+                      <option value="africa">アフリカ人</option>
+                      <option value="russia">ロシア人</option>
+                      <option value="special">特殊人名</option>
+                    </select>
+                  </div>
+                  <div class="select-wrapper">
+                    <span class="label-text-mini">名前</span>
+                    <select id="given-region-select" class="asian-select">
+                      <option value="jp">日本人</option>
+                      <option value="china">中国人</option>
+                      <option value="korea">東アジア人</option>
+                      <option value="west_asia">西アジア人</option>
+                      <option value="hispanic">ヒスパニック</option>
+                      <option value="euro">欧米人</option>
+                      <option value="africa">アフリカ人</option>
+                      <option value="russia">ロシア人</option>
+                      <option value="special">特殊人名</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="chart-item-row mt-10">
+                  <button class="small-square-btn label-btn" onclick="rollNameOnly()">決定</button>
+                  <div id="res-name" class="detail-input-div hand-write">---</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 通り名 -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <h3>通り名</h3>
+              </div>
+              <div class="chart-item-row mt-10">
+                <button class="small-square-btn label-btn" onclick="rollNickname()">決定</button>
+                <div id="res-nickname" class="detail-box">---</div>
+              </div>
+            </div>
+
+            <!-- 好嫌 -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <h3>好嫌</h3>
+                <button class="stamp-btn mini-btn" onclick="rollLikesAll()">一括</button>
+              </div>
+              <div class="chart-list">
+                <div class="chart-item-row">
+                  <button class="small-square-btn label-btn" onclick="rollLikeOnly()">好き</button>
+                  <input type="text" id="res-like-text" class="detail-input" readonly placeholder="---">
+                </div>
+                <div class="chart-item-row">
+                  <button class="small-square-btn label-btn" onclick="rollDislikeOnly()">嫌い</button>
+                  <input type="text" id="res-dislike-text" class="detail-input" readonly placeholder="---">
+                </div>
+              </div>
+            </div>
+
+            <!-- 外見・特徴 -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <h3>外見・特徴</h3>
+                <button class="stamp-btn mini-btn" onclick="rollAppearanceAll()">一括</button>
+              </div>
+              <div class="chart-list">
+                <div class="chart-item-row">
+                  <button class="small-square-btn label-btn" onclick="rollAppearanceOnly()">外見</button>
+                  <input type="text" id="res-appearance" class="detail-input" readonly placeholder="---">
+                </div>
+                <div class="chart-item-row">
+                  <button class="small-square-btn label-btn" onclick="rollFeatureOnly()">特徴</button>
+                  <input type="text" id="res-feature" class="detail-input" readonly placeholder="---">
+                </div>
+              </div>
+            </div>
+
+            <!-- チーム名 -->
+            <div class="chart-group full-width-chart">
+              <div class="chart-header">
+                <h3>チーム名</h3>
+              </div>
+              <div class="chart-item-row mt-10">
+                <button class="small-square-btn label-btn" onclick="rollTeamName()">決定</button>
+                <!-- inputからdivに変更してCSSでspaceを調整 -->
+                <div id="res-teamname" class="detail-input-div hand-write large-text">---</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="js/satasupe_data.js"></script>
+  <script src="js/satasupe_logic.js"></script>
+</body>
+
+</html>
