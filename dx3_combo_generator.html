@@ -174,7 +174,7 @@
         <div class="math-pattern-container">
           <div class="math-pattern-box">
             <h5>パターンA： <code>[LV×3]</code></h5>
-            <p>「1レベルごとに3増える」ってこと。<br>一番シンプルなやつ。</p>
+            <p>「Lv1ごとに3増える」ってこと。<br>一番シンプルなやつ。</p>
             <div class="math-values">
               <div>Lv毎加算: <strong>3</strong></div>
               <div>固定値: <strong>0</strong></div>
@@ -192,10 +192,10 @@
 
           <div class="math-pattern-box">
             <h5>パターンC： <code>[LV×2+10]</code></h5>
-            <p>応用編。「Lv毎に2増えて、固定で10足す」。<br>分解すれば簡単。</p>
+            <p>「Lv毎に2増えて、固定で-10」。<br>分解すれば簡単。</p>
             <div class="math-values">
               <div>Lv毎加算: <strong>2</strong></div>
-              <div>固定値: <strong>10</strong></div>
+              <div>固定値: <strong>-10</strong></div>
             </div>
           </div>
         </div>
@@ -282,160 +282,168 @@
         <!-- <p>タグをこの位置に移動 -->
       </div>
 
-      <h2 class="section-title"><i class="fa-solid fa-bolt"></i> エフェクト <span class="xp-display">(使用経験点: {{ effectXp
-          }})</span></h2>
-      <div class="table-wrapper">
-        <table class="dx3-table effects-table">
-          <thead>
-            <tr>
-              <th>名称</th>
-              <th>Lv</th>
-              <th>最大Lv</th>
-              <th>タイミング</th>
-              <th>技能</th>
-              <th>難易度</th>
-              <th>対象</th>
-              <th>射程</th>
-              <th>侵蝕値</th>
-              <th>制限</th>
-              <th>効果</th>
-              <th>備考</th>
-              <th>設定</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(effect, index) in effects">
-              <td><input type="text" :value="effect.name"
-                  @change="updateNameAndSync('effects', index, $event.target.value)"></td>
-              <td class="text-right"><input type="number" :value="effect.level"
-                  @input="updateAndSyncLevel('effects', index, $event.target.value)" min="1" class="text-right"></td>
-              <td class="text-right"><input type="number" v-model.number="effect.maxLevel" min="1" class="text-right">
-              </td>
-              <td><input-with-dropdown v-model="effect.timing" :options="dropdownOptions.timing"></input-with-dropdown>
-              </td>
-              <td><input-with-dropdown v-model="effect.skill" :options="dropdownOptions.skill"></input-with-dropdown>
-              </td>
-              <td><input-with-dropdown v-model="effect.difficulty"
-                  :options="dropdownOptions.difficulty"></input-with-dropdown></td>
-              <td><input-with-dropdown v-model="effect.target" :options="dropdownOptions.target"></input-with-dropdown>
-              </td>
-              <td><input type="text" v-model="effect.range"></td>
-              <td class="text-right"><input type="text" v-model="effect.cost" class="text-right"></td>
-              <td><input-with-dropdown v-model="effect.limit" :options="dropdownOptions.limit"></input-with-dropdown>
-              </td>
-              <td><textarea v-model="effect.effect"></textarea></td>
-              <td><textarea v-model="effect.notes"></textarea></td>
-              <td class="action-cell">
-                <button @click.stop="openEffectPanel($event, effect, 'effect', index)" class="setting-btn" title="詳細設定"
-                  :disabled="isEssentialEffect(effect.name)">係数</button>
-                <button @click="removeEffect(index)" class="delete-btn" title="削除"
-                  :disabled="isEssentialEffect(effect.name)"><i class="fa-solid fa-trash"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <button @click="addEffect" class="add-btn"><i class="fa-solid fa-plus"></i> エフェクトを追加</button>
+      <div class="all-tables-container">
+        <h2 class="section-title"><i class="fa-solid fa-bolt"></i> エフェクト <span class="xp-display">(使用経験点: {{ effectXp
+            }})</span></h2>
+        <div class="table-wrapper">
+          <table class="dx3-table effects-table">
+            <thead>
+              <tr>
+                <th>名称</th>
+                <th>Lv</th>
+                <th>最大Lv</th>
+                <th>タイミング</th>
+                <th>技能</th>
+                <th>難易度</th>
+                <th>対象</th>
+                <th>射程</th>
+                <th>侵蝕値</th>
+                <th>制限</th>
+                <th>効果</th>
+                <th>備考</th>
+                <th>設定</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(effect, index) in effects">
+                <td><input type="text" :value="effect.name"
+                    @change="updateNameAndSync('effects', index, $event.target.value)"></td>
+                <td class="text-right"><input type="number" :value="effect.level"
+                    @input="updateAndSyncLevel('effects', index, $event.target.value)" min="1" class="text-right"></td>
+                <td class="text-right"><input type="number" v-model.number="effect.maxLevel" min="1" class="text-right">
+                </td>
+                <td><input-with-dropdown v-model="effect.timing"
+                    :options="dropdownOptions.timing"></input-with-dropdown>
+                </td>
+                <td><input-with-dropdown v-model="effect.skill" :options="dropdownOptions.skill"></input-with-dropdown>
+                </td>
+                <td><input-with-dropdown v-model="effect.difficulty"
+                    :options="dropdownOptions.difficulty"></input-with-dropdown></td>
+                <td><input-with-dropdown v-model="effect.target"
+                    :options="dropdownOptions.target"></input-with-dropdown>
+                </td>
+                <td><input type="text" v-model="effect.range"></td>
+                <td class="text-right"><input type="text" v-model="effect.cost" class="text-right"></td>
+                <td><input-with-dropdown v-model="effect.limit" :options="dropdownOptions.limit"></input-with-dropdown>
+                </td>
+                <td><textarea v-model="effect.effect"></textarea></td>
+                <td><textarea v-model="effect.notes"></textarea></td>
+                <td class="action-cell">
+                  <button @click.stop="openEffectPanel($event, effect, 'effect', index)" class="setting-btn"
+                    title="詳細設定" :disabled="isEssentialEffect(effect.name)">係数</button>
+                  <button @click="removeEffect(index)" class="delete-btn" title="削除"
+                    :disabled="isEssentialEffect(effect.name)"><i class="fa-solid fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button @click="addEffect" class="add-btn"><i class="fa-solid fa-plus"></i> エフェクトを追加</button>
 
-      <h2 class="section-title"><i class="fa-solid fa-star"></i> イージーエフェクト <span class="xp-display">(使用経験点: {{
-          easyEffectXp }})</span></h2>
-      <div class="table-wrapper">
-        <table class="dx3-table effects-table">
-          <thead>
-            <tr>
-              <th>名称</th>
-              <th>Lv</th>
-              <th>最大Lv</th>
-              <th>タイミング</th>
-              <th>技能</th>
-              <th>難易度</th>
-              <th>対象</th>
-              <th>射程</th>
-              <th>侵蝕値</th>
-              <th>制限</th>
-              <th>効果</th>
-              <th>備考</th>
-              <th>設定</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(ee, index) in easyEffects">
-              <td><input type="text" :value="ee.name"
-                  @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
-              <td class="text-right"><input type="number" :value="ee.level"
-                  @input="updateAndSyncLevel('easyEffects', index, $event.target.value)" min="1" class="text-right">
-              </td>
-              <td class="text-right"><input type="number" v-model.number="ee.maxLevel" min="1" class="text-right"></td>
-              <td><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing"></input-with-dropdown></td>
-              <td><input-with-dropdown v-model="ee.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
-              <td><input-with-dropdown v-model="ee.difficulty"
-                  :options="dropdownOptions.difficulty"></input-with-dropdown></td>
-              <td><input-with-dropdown v-model="ee.target" :options="dropdownOptions.target"></input-with-dropdown></td>
-              <td><input type="text" v-model="ee.range"></td>
-              <td class="text-right"><input type="text" v-model="ee.cost" class="text-right"></td>
-              <td><input-with-dropdown v-model="ee.limit" :options="dropdownOptions.limit"></input-with-dropdown></td>
-              <td><textarea v-model="ee.effect"></textarea></td>
-              <td><textarea v-model="ee.notes"></textarea></td>
-              <td class="action-cell">
-                <button @click.stop="openEffectPanel($event, ee, 'easy', index)" class="setting-btn"
-                  title="詳細設定">係数</button>
-                <button @click="removeEasyEffect(index)" class="delete-btn" title="削除"><i
-                    class="fa-solid fa-trash"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <button @click="addEasyEffect" class="add-btn"><i class="fa-solid fa-plus"></i> イージーエフェクトを追加</button>
+        <h2 class="section-title"><i class="fa-solid fa-star"></i> イージーエフェクト <span class="xp-display">(使用経験点: {{
+            easyEffectXp }})</span></h2>
+        <div class="table-wrapper">
+          <table class="dx3-table effects-table">
+            <thead>
+              <tr>
+                <th>名称</th>
+                <th>Lv</th>
+                <th>最大Lv</th>
+                <th>タイミング</th>
+                <th>技能</th>
+                <th>難易度</th>
+                <th>対象</th>
+                <th>射程</th>
+                <th>侵蝕値</th>
+                <th>制限</th>
+                <th>効果</th>
+                <th>備考</th>
+                <th>設定</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(ee, index) in easyEffects">
+                <td><input type="text" :value="ee.name"
+                    @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
+                <td class="text-right"><input type="number" :value="ee.level"
+                    @input="updateAndSyncLevel('easyEffects', index, $event.target.value)" min="1" class="text-right">
+                </td>
+                <td class="text-right"><input type="number" v-model.number="ee.maxLevel" min="1" class="text-right">
+                </td>
+                <td><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing"></input-with-dropdown>
+                </td>
+                <td><input-with-dropdown v-model="ee.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
+                <td><input-with-dropdown v-model="ee.difficulty"
+                    :options="dropdownOptions.difficulty"></input-with-dropdown></td>
+                <td><input-with-dropdown v-model="ee.target" :options="dropdownOptions.target"></input-with-dropdown>
+                </td>
+                <td><input type="text" v-model="ee.range"></td>
+                <td class="text-right"><input type="text" v-model="ee.cost" class="text-right"></td>
+                <td><input-with-dropdown v-model="ee.limit" :options="dropdownOptions.limit"></input-with-dropdown></td>
+                <td><textarea v-model="ee.effect"></textarea></td>
+                <td><textarea v-model="ee.notes"></textarea></td>
+                <td class="action-cell">
+                  <button @click.stop="openEffectPanel($event, ee, 'easy', index)" class="setting-btn"
+                    title="詳細設定">係数</button>
+                  <button @click="removeEasyEffect(index)" class="delete-btn" title="削除"><i
+                      class="fa-solid fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button @click="addEasyEffect" class="add-btn"><i class="fa-solid fa-plus"></i> イージーエフェクトを追加</button>
 
-      <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> アイテム（別タイミングのバフ） <span
-          class="xp-display">(使用経験点: {{
-          itemXp }})</span></h2>
-      <div class="table-wrapper">
-        <table class="dx3-table items-table">
-          <thead>
-            <tr>
-              <th>名称</th>
-              <th>Lv</th>
-              <th>種別</th>
-              <th>技能</th>
-              <th>命中</th>
-              <th>攻撃力</th>
-              <th>ガード値</th>
-              <th>射程</th>
-              <th title="アイテム自身の効果で使用時に侵蝕値が増える場合に記入します（エフェクトのコストは除く）">侵蝕値</th>
-              <th>経験点</th>
-              <th>備考</th>
-              <th>設定</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in items">
-              <td><input type="text" :value="item.name"
-                  @change="updateNameAndSync('items', index, $event.target.value)"></td>
-              <td class="text-right"><input type="number" :value="item.level"
-                  @input="updateAndSyncLevel('items', index, $event.target.value)" min="1" class="text-right"></td>
-              <td><input type="text" v-model="item.type"></td>
-              <td><input-with-dropdown v-model="item.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
-              <td><input type="text" v-model="item.accuracy" @change="parseAccuracyFormula(item)" class="text-right">
-              </td>
-              <td><input type="text" v-model="item.attack" @change="parseAttackFormula(item)" class="text-right"></td>
-              <td><input type="text" v-model="item.guard" @change="parseGuardFormula(item)" class="text-right"></td>
-              <td><input type="text" v-model="item.range"></td>
-              <td class="text-right"><input type="text" v-model="item.cost" class="text-right"></td>
-              <td class="text-right"><input type="number" v-model.number="item.xp" class="text-right"></td>
-              <td><textarea v-model="item.notes"></textarea></td>
-              <td class="action-cell">
-                <button @click.stop="openEffectPanel($event, item, 'item', index)" class="setting-btn"
-                  title="詳細設定">係数</button>
-                <button @click="removeItem(index)" class="delete-btn" title="削除"><i
-                    class="fa-solid fa-trash"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> アイテム（別タイミングのバフ） <span
+            class="xp-display">(使用経験点: {{
+            itemXp }})</span></h2>
+        <div class="table-wrapper">
+          <table class="dx3-table items-table">
+            <thead>
+              <tr>
+                <th>名称</th>
+                <th>Lv</th>
+                <th>種別</th>
+                <th>技能</th>
+                <th>命中</th>
+                <th>攻撃力</th>
+                <th>ガード値</th>
+                <th>射程</th>
+                <th title="アイテム自身の効果で使用時に侵蝕値が増える場合に記入します（エフェクトのコストは除く）">侵蝕値</th>
+                <th>経験点</th>
+                <th>備考</th>
+                <th>設定</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in items">
+                <td><input type="text" :value="item.name"
+                    @change="updateNameAndSync('items', index, $event.target.value)"></td>
+                <td class="text-right"><input type="number" :value="item.level"
+                    @input="updateAndSyncLevel('items', index, $event.target.value)" min="1" class="text-right"></td>
+                <td><input type="text" v-model="item.type"></td>
+                <td><input-with-dropdown v-model="item.skill" :options="dropdownOptions.skill"></input-with-dropdown>
+                </td>
+                <td><input type="text" v-model="item.accuracy" @change="parseAccuracyFormula(item)" class="text-right">
+                </td>
+                <td><input type="text" v-model="item.attack" @change="parseAttackFormula(item)" class="text-right"></td>
+                <td><input type="text" v-model="item.guard" @change="parseGuardFormula(item)" class="text-right"></td>
+                <td><input type="text" v-model="item.range"></td>
+                <td class="text-right"><input type="text" v-model="item.cost" class="text-right"></td>
+                <td class="text-right"><input type="number" v-model.number="item.xp" class="text-right"></td>
+                <td><textarea v-model="item.notes"></textarea></td>
+                <td class="action-cell">
+                  <button @click.stop="openEffectPanel($event, item, 'item', index)" class="setting-btn"
+                    title="詳細設定">係数</button>
+                  <button @click="removeItem(index)" class="delete-btn" title="削除"><i
+                      class="fa-solid fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button @click.stop="addItem" class="add-btn"><i class="fa-solid fa-plus"></i> アイテムを追加</button>
       </div>
-      <button @click.stop="addItem" class="add-btn"><i class="fa-solid fa-plus"></i> アイテムを追加</button>
 
       <h2 class="section-title"><i class="fa-solid fa-cubes-stacked"></i> コンボデータ</h2>
       <div v-for="(combo, index) in processedCombos" class="combo-block">
