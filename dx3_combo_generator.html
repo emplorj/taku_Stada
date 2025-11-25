@@ -25,6 +25,7 @@
     </header>
 
     <!-- ★★★ ここから使い方ガイドを追加 (最新版) ★★★ -->
+    <!-- 旧テキストバックアップ
     <details class="usage-guide plain-text-block">
       <summary>
         <div class="summary-content">
@@ -126,6 +127,106 @@
           </li>
         </ul>
         <p>じゃ、あとはこのツールで自分だけの最強コンボ、作り込んでくれ。</p>
+      </div>
+    </details>
+    -->
+
+    <details class="usage-guide plain-text-block">
+      <summary>
+        <div class="summary-content">
+          <h2><i class="fa-solid fa-book-open-reader"></i> DX3コンボジェネレーター、120%使いこなしてる？</h2>
+          <p class="subtitle">面倒な計算はツールにお任せ!「係数」の謎もここで解明するよ。</p>
+        </div>
+      </summary>
+      <div class="content-wrapper">
+        <p>
+          ダブルクロスのコンボ計算って、侵蝕率ボーナスやエフェクトレベルの計算が混ざって大変だよね。<br>
+          このツールは、そんな計算を自動化して、すぐにココフォリアに貼り付けられるパレットを作ってくれるよ。<br>
+          一緒に最強のコンボを作ってみよう!
+        </p>
+
+        <h3>STEP 1: キャラクターを連れてこよう</h3>
+        <p>まずは、君のキャラクターデータを読み込むところからスタートだ。</p>
+        <ol>
+          <li>画面上の<strong>「キャラクターシートURL」</strong>に、保管所やゆとシートのURLを貼り付けてね。</li>
+          <li><strong>「<i class="fas fa-cloud-download-alt"></i> 読込/引用」</strong>ボタンをポチッ!</li>
+          <li>確認画面が出るから「OK」を押せば、エフェクトやアイテムがズラッと並ぶはずだよ。</li>
+        </ol>
+
+        <div class="tip-box">
+          <strong><i class="fa-solid fa-lightbulb"></i> ポイント:</strong><br>
+          保存機能を使うと、このツール専用のデータベースに保存できるから、次回からはもっとスムーズに呼び出せるよ。
+        </div>
+
+        <h3>STEP 2: ここが一番大事!「係数」を設定しよう</h3>
+        <p>
+          ここがこのツールの心臓部で、ちょっとだけ頭を使うところ。<br>
+          エフェクトの右側にある<strong>「係数」ボタン</strong>を押してみて。画面が出てくるよね?<br>
+          DX3のエフェクトは「LV × 〇〇」みたいに、レベルによって強さが変わるものが多いんだ。<br>
+          ツールに<strong>「どういう計算式なのか」</strong>を教えてあげる作業、それが係数設定だよ。
+        </p>
+
+        <h4><i class="fa-solid fa-chalkboard-user"></i> カンタン係数講座</h4>
+        <p>
+          難しく考えなくて大丈夫。「スタート地点(固定値)」と「1レベルごとの伸び幅(Lv毎加算)」に分けるだけ!
+        </p>
+
+        <div class="math-pattern-container">
+          <div class="math-pattern-box">
+            <h5>パターンA： <code>[LV×3]</code></h5>
+            <p>「1レベルごとに3増える」ってこと。<br>一番シンプルなやつ。</p>
+            <div class="math-values">
+              <div>Lv毎加算: <strong>3</strong></div>
+              <div>固定値: <strong>0</strong></div>
+            </div>
+          </div>
+
+          <div class="math-pattern-box">
+            <h5>パターンB： <code>[LV+5]</code></h5>
+            <p>ここがつまずきポイント。<br>「LV」単体は「1×LV」のことだ。</p>
+            <div class="math-values">
+              <div>Lv毎加算: <strong>1</strong></div>
+              <div>固定値: <strong>5</strong></div>
+            </div>
+          </div>
+
+          <div class="math-pattern-box">
+            <h5>パターンC： <code>[LV×2+10]</code></h5>
+            <p>応用編。「Lv毎に2増えて、固定で10足す」。<br>分解すれば簡単。</p>
+            <div class="math-values">
+              <div>Lv毎加算: <strong>2</strong></div>
+              <div>固定値: <strong>10</strong></div>
+            </div>
+          </div>
+        </div>
+        <p>
+          これを設定しておくと、コンボのLvが上がったり、タイタスでLvボーナスが入っても、ツールが勝手に正しい数字を計算してくれるんだ。<br>
+          (※「コンセントレイト」と名前のつくエフェクトは、自動でC値の設定が入るからそのままでOKだよ!)
+        </p>
+
+        <h3>STEP 3: コンボを組み立てよう</h3>
+        <p>準備ができたら、いよいよコンボ作成だ!</p>
+        <ol>
+          <li>下の方にある<strong>「<i class="fa-solid fa-plus"></i> コンボを追加」</strong>ボタンを押す。</li>
+          <li><strong>「<i class="fa-solid fa-check-double"></i> 組合せ」</strong>ボタンを押して、使いたいエフェクトや武器にチェックを入れる。<br>
+            <small>※ここに表示される数字は、さっき設定した「係数」を元に計算されているよ。</small>
+          </li>
+          <li><strong>「技能値」</strong>をチェック。基本は自動で選ばれるけど、変えたいときはプルダウンから選んでね。</li>
+        </ol>
+
+        <h3>STEP 4: 仕上げと出力</h3>
+        <p>コンボができたら、実際のセッションで使うテキストを整えよう。</p>
+        <ul>
+          <li><strong>条件設定:</strong> タイミングや射程、対象などは、選んだエフェクトから自動で判断してくれるけど、「手動」に切り替えれば好きに書き換えられるよ。</li>
+          <li><strong>解説文の魔法:</strong> 効果解説の欄に <code>攻撃力+[LV*5]</code> みたいに書くと、計算後の数値に変換されるよ! <code>[ ]</code> で囲むのがコツ。
+          </li>
+          <li><strong>コピーしてGO:</strong> 最後に、右側にある<strong>コピーボタン <i class="fa-solid fa-paste"></i></strong>
+            を押せば、ココフォリア用のパレットが一丁上がり!</li>
+        </ul>
+
+        <div class="final-message">
+          <p>これでもう、複雑な計算に頭を悩ませる必要ナシ!<br>浮いた時間で、最高にかっこいいロールプレイを考えちゃおう!</p>
+        </div>
       </div>
     </details>
     <!-- ★★★ 使い方ガイドここまで ★★★ -->

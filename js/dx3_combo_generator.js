@@ -129,7 +129,6 @@ new Vue({
         "マイナー",
         "メジャー",
         "メジャー／リア",
-        "メジャー／リアクション",
         "リアクション",
         "セットアップ",
         "イニシアチブ",
@@ -281,6 +280,10 @@ new Vue({
         射撃: "感覚",
         RC: "精神",
         交渉: "社会",
+        回避: "肉体",
+        知覚: "感覚",
+        意志: "精神",
+        調達: "社会",
       };
 
       const calculateBaseCombo = (combo) => {
@@ -435,6 +438,7 @@ new Vue({
 
       return baseCombos.map((comboData, index) => {
         const currentCombo = this.combos[index];
+        const comboLevelBonus = currentCombo.comboLevelBonus || 0;
 
         let finalDice = comboData.baseValues.dice;
         let finalAchieve = comboData.baseValues.achieve;
@@ -470,6 +474,16 @@ new Vue({
 
         const allSelectedSources = comboData.allSelectedSources; // ★これを追加
 
+        const normalizeTiming = (t) => {
+          if (!t) return "-";
+          let norm = t.replace(/[\s　]+/g, "");
+          norm = norm.replace("アクション", "").replace("プロセス", "");
+          if (norm.includes("メジャー") && norm.includes("リア")) {
+            return "メジャー／リア";
+          }
+          return norm;
+        };
+
         const getPriorityValue = (prop, defaultValue) => {
           const priorityOrder = {
             timing: [
@@ -497,18 +511,27 @@ new Vue({
             ],
           };
           for (const p of priorityOrder[prop] || []) {
-            if (allSelectedSources.some((s) => s[prop] === p)) return p;
+            if (
+              allSelectedSources.some((s) => {
+                const val = s[prop];
+                return (prop === "timing" ? normalizeTiming(val) : val) === p;
+              })
+            )
+              return p;
           }
           const firstValid = allSelectedSources.find(
             (s) => s[prop] && s[prop] !== "-"
           );
-          return firstValid ? firstValid[prop] : defaultValue;
+          if (!firstValid) return defaultValue;
+
+          const val = firstValid[prop];
+          return prop === "timing" ? normalizeTiming(val) : val;
         };
 
         const timing =
           currentCombo.timingMode === "auto"
             ? getPriorityValue("timing", "-")
-            : currentCombo.manualTiming;
+            : normalizeTiming(currentCombo.manualTiming);
         const range =
           currentCombo.rangeMode === "auto"
             ? getPriorityValue("range", "-")
@@ -534,14 +557,26 @@ new Vue({
 
         const compositionText = allSelectedSources
           .map((s) => {
+            const effectiveLevel =
+              (Number(s.level) || 0) + (comboLevelBonus || 0);
             if (s.sourceType === "effect") {
-              return `《${s.name}》`;
+              return `《${s.name}》Lv${effectiveLevel}`;
             } else if (s.sourceType === "item") {
               return `「${s.name}」`;
             }
             return s.name; // フォールバック
           })
           .join("、");
+
+        // バフの表記を追加
+        let fullCompositionText = compositionText;
+        if (currentCombo.appliedBuffs && currentCombo.appliedBuffs.length > 0) {
+          const buffText = currentCombo.appliedBuffs
+            .map((b) => `[${b}]`)
+            .join("+");
+          fullCompositionText += (fullCompositionText ? "+" : "") + buffText;
+        }
+
         const autoEffectText = allSelectedSources
           .map((s) =>
             this.evaluateEffectText(
@@ -555,7 +590,7 @@ new Vue({
           .join("\n");
 
         // --- チャットパレット生成ロジックを修正 ---
-        const comboLevelBonus = currentCombo.comboLevelBonus || 0;
+
         const line1 = `◆${currentCombo.name}`;
         const line2 = allSelectedSources
           .map((s) => {
@@ -598,12 +633,58 @@ new Vue({
           .filter(Boolean)
           .join("\n");
 
-        const diceFormula = `${finalDice}DX@${finalCrit}+${finalAchieve} 達成値:${finalAchieve} 攻撃力:${this.formatDiceString(
-          {
-            dice: finalAtkDice,
-            fixed: finalAtkFixed,
-          }
-        )}`;
+        // ダイス式の生成 (ステータス名を含める)
+        const attribute = skillToAbilityMap[skill] || "肉体"; // デフォルトは肉体にしておくが、マッピングがない場合はどうするか？
+        // マッピングがない場合（例：運転）は、そのまま技能名を使うか、ユーザーが指定できるようにするのがベストだが、
+        // ここでは一旦マッピングにあるものは能力値、ないものは技能名をそのまま使う形にするか、
+        // あるいはデフォルトで {技能} にするか。
+        // ユーザー要望: ({肉体}+6)DX@7+{白兵}+2
+
+        let dicePart = "";
+        if (skillToAbilityMap[skill]) {
+          dicePart = `({${skillToAbilityMap[skill]}}${
+            finalDice >= 0 ? "+" : ""
+          }${finalDice})DX`;
+        } else {
+          // マッピングできない場合は、技能名自体を使うか、単にDXにする
+          // ユーザーの要望に沿うなら能力値が欲しいが、不明な場合は (10)DX のように数値だけにするのが無難か、
+          // あるいは ({?}+10)DX のようにするか。
+          // ここでは数値のみの挙動（既存）に、能力値がわかる場合のみ付与する形にする。
+          // いや、ユーザーは「ステータスをつける」と言っている。
+          dicePart = `(${finalDice})DX`; // fallback
+        }
+
+        // 達成値部分
+        // {白兵}+2
+        let achievePart = "";
+        if (skill !== "-") {
+          achievePart = `+{${skill}}${
+            finalAchieve >= 0 ? "+" : ""
+          }${finalAchieve}`;
+        } else {
+          achievePart = `${finalAchieve >= 0 ? "+" : ""}${finalAchieve}`;
+        }
+
+        // 最終的なダイス式
+        // ({肉体}+6)DX@7+{白兵}+2
+        let diceFormula = "";
+        if (skillToAbilityMap[skill]) {
+          diceFormula = `({${skillToAbilityMap[skill]}}${
+            finalDice >= 0 ? "+" : ""
+          }${finalDice})DX@${finalCrit}${achievePart}`;
+        } else {
+          // 能力値が不明な場合でも、技能があればそれを使いたいかもしれないが、
+          // DX3の判定は (能力値)DX + (技能) なので、能力値が不明だとダイス数が決まらない。
+          // 既存の挙動（数値のみ）に戻すか、あるいは ({能力値}+X)DX とする。
+          // ここでは、マッピングがある場合のみ適用し、それ以外は元の挙動に近い形にする。
+          diceFormula = `${finalDice}DX@${finalCrit}${achievePart}`;
+        }
+
+        // 攻撃力などの後半部分
+        diceFormula += ` 達成値:${finalAchieve} 攻撃力:${this.formatDiceString({
+          dice: finalAtkDice,
+          fixed: finalAtkFixed,
+        })}`;
 
         const hasHiddenBuffs = allSelectedSources.some((s) => {
           const effectData = (currentCombo.effectNames || []).find(
@@ -641,7 +722,7 @@ new Vue({
           totalCost,
           costBreakdown,
           isMajorAction,
-          compositionText,
+          compositionText: fullCompositionText,
           autoEffectText,
           hasHiddenBuffs,
           hiddenBuffsTooltip,
