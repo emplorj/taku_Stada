@@ -60,10 +60,12 @@ Vue.component("input-with-dropdown", {
     },
   },
   mounted() {
+    window.addEventListener("beforeunload", this.handleBeforeUnload);
     document.addEventListener("click", this.closeDropdown);
     this.$el.addEventListener("click", (e) => e.stopPropagation());
   },
   beforeDestroy() {
+    window.removeEventListener("beforeunload", this.handleBeforeUnload);
     document.removeEventListener("click", this.closeDropdown);
   },
 });
@@ -319,6 +321,28 @@ new Vue({
 
         const allSelectedSources = getSourcesFromCombo(combo);
 
+        // ★★★ 追加: リミット(侵蝕率制限)の計算ロジック ★★★
+        let maxLimitVal = 0;
+        allSelectedSources.forEach((s) => {
+          if (!s.limit) return;
+          // "↓"や"下"を含まず、数字+"%"を含むものを抽出 (例: 80%, 100%)
+          if (
+            s.limit.includes("%") &&
+            !s.limit.includes("↓") &&
+            !s.limit.includes("下")
+          ) {
+            const match = s.limit.match(/(\d+)%/);
+            if (match) {
+              const val = parseInt(match[1], 10);
+              if (!isNaN(val) && val > maxLimitVal) {
+                maxLimitVal = val;
+              }
+            }
+          }
+        });
+        const maxLimit = maxLimitVal > 0 ? `${maxLimitVal}%` : null;
+        // ★★★ 追加終わり ★★★
+
         const relevantEffects = allSelectedSources.filter(
           (s) => s.sourceType === "effect"
         );
@@ -414,6 +438,7 @@ new Vue({
         return {
           ...combo,
           allSelectedSources: allSelectedSources, // ★これを追加
+          maxLimit: maxLimit,
           baseValues: {
             dice: totalDice,
             achieve: totalAchieve,
@@ -862,6 +887,12 @@ new Vue({
     });
   },
   methods: {
+    handleBeforeUnload(e) {
+      if (this.isDataDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    },
     syncAllData(sourceType, sourceList) {
       if (this.isInitializing) return;
 
@@ -1201,9 +1232,16 @@ new Vue({
       }
     },
     async deleteFromDb() {
+      // ▼▼▼ 修正箇所: 未保存時のメッセージ追加 ▼▼▼
+      let warning = "";
+      if (this.isDirty) {
+        warning =
+          "<br><br>⚠️ <strong>注意: 現在の編集内容は保存されていません。</strong>";
+      }
+
       const confirmed = await this.showConfirmation(
         "データの削除",
-        `本当にこのURLのデータを削除しますか？<br>この操作は元に戻せません。<br><br>URL: ${this.characterSheetUrl}`
+        `本当にこのURLのデータを削除しますか？<br>この操作は元に戻せません。<br><br>URL: ${this.characterSheetUrl}${warning}`
       );
       if (
         !this.validateInputs() ||
@@ -1244,19 +1282,23 @@ new Vue({
     },
     async loadFromDb(skipConfirm = false) {
       if (!this.validateInputs()) return;
-
-      // URLのハッシュを確実に除去
       if (this.characterSheetUrl.includes("#")) {
         this.characterSheetUrl = this.characterSheetUrl.split("#")[0];
       }
 
+      // ▼▼▼ 修正箇所: 未保存時のメッセージ分岐 ▼▼▼
+      let confirmMsg =
+        "現在の表示内容は破棄されます。DBからデータを読み込みますか？";
+      if (this.isDirty) {
+        confirmMsg =
+          "⚠️ <strong>編集中のデータは保存されていません！</strong><br>読み込むと変更が失われます。<br>本当に読み込みますか？";
+      }
+
       if (
         !skipConfirm &&
-        !(await this.showConfirmation(
-          "DBからの読み込み",
-          "現在の表示内容は破棄されます。DBからデータを読み込みますか？"
-        ))
+        !(await this.showConfirmation("DBからの読み込み", confirmMsg))
       ) {
+        // ▲▲▲ 修正ここまで ▲▲▲
         this.showStatus("読み込みをキャンセルしました。");
         return;
       }

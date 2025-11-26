@@ -449,6 +449,7 @@
       <div v-for="(combo, index) in processedCombos" class="combo-block">
         <div class="combo-header">
           <input type="text" v-model="combos[index].name" class="combo-name-input">
+          <span v-if="combo.maxLimit" class="limit-chip">{{ combo.maxLimit }}</span>
           <label class="combo-level-select">コンボLv:<select v-model.number="combos[index].comboLevelBonus">
               <option v-for="n in 6" :value="n-1">+{{ n-1 }}</option>
             </select></label>

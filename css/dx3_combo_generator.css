@@ -847,8 +847,7 @@
 .modal-footer button:hover {
   background-color: #2980b9;
 }
-.effect-select-modal .modal-body {
-}
+
 .effect-select-modal .option-group {
   margin-bottom: 10px;
 }
@@ -1226,7 +1225,6 @@
     flex-direction: column;
   }
   .xp-fields-group {
-    flex-wrap: wrap;
     min-width: 0;
   }
   .xp-fields-group label {
@@ -1512,4 +1510,45 @@
   border: 1px dashed #2ecc71;
   border-radius: 8px;
   background-color: rgba(46, 204, 113, 0.1);
+}
+
+/* --- 追加: コンボのリミット(％)表示チップ --- */
+.limit-chip {
+  background-color: #c0392b;
+  color: #fff;
+  font-size: 0.85em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-right: 10px;
+  font-weight: bold;
+  border: 1px solid #e74c3c;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* --- 追加: 650px以下でのレイアウト調整 --- */
+@media (max-width: 650px) {
+  /* 経験点などの入力欄を縦積みにする */
+  .xp-fields-group {
+    gap: 10px;
+  }
+
+  .xp-fields-group label {
+    flex-direction: column; /* 上下に並べる */
+    align-items: stretch; /* 横幅いっぱいに */
+    gap: 5px;
+  }
+
+  .xp-fields-group label input {
+    width: 100%; /* 入力欄を最大幅に */
+    margin-left: 0; /* 既存の左マージンを消す */
+    text-align: left; /* 左寄せ */
+  }
+
+  /* Readonlyの数値（使用経験点など）は右寄せのままが見やすい場合もあるが、
+     入力欄と同じ見た目にするなら left でも可。ここでは見た目統一のため left */
+  .xp-fields-group label input[readonly] {
+    text-align: left;
+  }
 }
