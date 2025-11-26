@@ -60,12 +60,10 @@ Vue.component("input-with-dropdown", {
     },
   },
   mounted() {
-    window.addEventListener("beforeunload", this.handleBeforeUnload);
     document.addEventListener("click", this.closeDropdown);
     this.$el.addEventListener("click", (e) => e.stopPropagation());
   },
   beforeDestroy() {
-    window.removeEventListener("beforeunload", this.handleBeforeUnload);
     document.removeEventListener("click", this.closeDropdown);
   },
 });
@@ -247,6 +245,12 @@ new Vue({
         this.isDirty = false;
       });
     });
+  },
+  mounted() {
+    window.addEventListener("beforeunload", this.handleBeforeUnload);
+  },
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.handleBeforeUnload);
   },
   computed: {
     effectXp() {
@@ -887,12 +891,6 @@ new Vue({
     });
   },
   methods: {
-    handleBeforeUnload(e) {
-      if (this.isDataDirty) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    },
     syncAllData(sourceType, sourceList) {
       if (this.isInitializing) return;
 
@@ -1229,6 +1227,12 @@ new Vue({
         this.showStatus(`保存エラー: ${error.message}`, true);
       } finally {
         this.isBusy = false;
+      }
+    },
+    handleBeforeUnload(e) {
+      if (this.isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
       }
     },
     async deleteFromDb() {
