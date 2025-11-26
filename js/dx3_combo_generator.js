@@ -607,14 +607,21 @@ new Vue({
         }
 
         const autoEffectText = allSelectedSources
-          .map((s) =>
-            this.evaluateEffectText(
-              s.effect || s.notes,
+          .map((s) => {
+            // まずテキストを取得
+            let rawText = s.effect || s.notes;
+
+            // ★簡略化処理を実行
+            let simplified = this.simplifyEffectText(rawText);
+
+            // その後、[LV]などの計算処理を実行
+            return this.evaluateEffectText(
+              simplified,
               s.level,
               currentCombo.comboLevelBonus,
               currentCombo.enableAdvancedParsing
-            )
-          )
+            );
+          })
           .filter(Boolean)
           .join("\n");
 
@@ -1360,6 +1367,9 @@ new Vue({
           } else {
             this.showStatus("DBからデータを読み込みました。");
           }
+          this.$nextTick(() => {
+            this.detectAutoUpdateAvailable();
+          });
         } else if (result.status === "not_found") {
           if (
             await this.showConfirmation(
@@ -1518,6 +1528,9 @@ new Vue({
         }
         this.showStatus(statusMessage);
         this.isDirty = false;
+        this.$nextTick(() => {
+          this.detectAutoUpdateAvailable();
+        });
       } catch (error) {
         console.error("Import Error:", error);
         this.showStatus(`引用エラー: ${error.message}`, true, 6000);
@@ -1902,10 +1915,77 @@ new Vue({
       const result = this.evaluateDiceString(str, level);
       return result.dice * 3.5 + result.fixed;
     },
+    // 自動入力可能な項目があるかチェックし、フラグを立てる
+    detectAutoUpdateAvailable() {
+      const allLists = [...this.effects, ...this.easyEffects, ...this.items];
+      const regex =
+        /([+\-＋－]?)\s*[\[［](.*?)[\]］](?:[×*]?)(\s*(?:DX|ＤＸ|D|Ｄ|個|点))?/gi;
+
+      allLists.forEach((item) => {
+        // コンセントレイトなどは除外
+        if (this.isEssentialEffect(item.name)) return;
+
+        const rawText = (item.effect || "") + "\n" + (item.notes || "");
+        if (!rawText.match(/[\[［].*?[\]］]/)) return; // [ ] がなければスキップ
+
+        let hasUpdate = false;
+        let match;
+        // regexのlastIndexをリセット
+        regex.lastIndex = 0;
+
+        while ((match = regex.exec(rawText)) !== null) {
+          const suffix = (match[3] || "").trim().toUpperCase();
+          const idx = match.index;
+          const precedingText = rawText
+            .substring(Math.max(0, idx - 20), idx)
+            .toUpperCase();
+
+          let targetType = null;
+          // 簡易判定 (openEffectPanelほど厳密でなくて良い、何らかのターゲットが決まればよい)
+          if (/攻撃力|ATK|ＡＴＫ|ダメージ|攻撃の/.test(precedingText))
+            targetType = "attack";
+          else if (/ガード|装甲/.test(precedingText)) targetType = "guard";
+          else if (/命中/.test(precedingText)) targetType = "accuracy";
+          else if (/達成値/.test(precedingText)) targetType = "achieve";
+          else if (
+            /ダイス|DX|ＤＸ/.test(precedingText) ||
+            /DX|ＤＸ/.test(suffix) ||
+            /D|Ｄ/.test(suffix)
+          )
+            targetType = "dice";
+
+          if (targetType) {
+            // 現在の値が0の場合のみ「更新あり」とみなす
+            if (!item.values[targetType]) {
+              // values自体がない場合は初期化されていないので更新候補
+              hasUpdate = true;
+            } else {
+              const v = item.values[targetType];
+              // BaseもPerLevelも0なら、自動入力の余地がある
+              if (
+                (Number(v.base) || 0) === 0 &&
+                (Number(v.perLevel) || 0) === 0
+              ) {
+                hasUpdate = true;
+              }
+            }
+          }
+          if (hasUpdate) break;
+        }
+
+        if (hasUpdate) {
+          this.$set(item, "_hasAutoUpdate", true);
+        }
+      });
+    },
     openEffectPanel(event, source, type, index) {
+      // ★追加: 開いた瞬間に通知フラグを消す (Vueのリアクティブシステムに反映させるため$set/$deleteを使用)
+      if (source._hasAutoUpdate) {
+        this.$delete(source, "_hasAutoUpdate");
+      }
+
       this.editingEffect = JSON.parse(JSON.stringify(source));
 
-      // テキスト解析用の文字列を作成 (効果文 + 備考 + 名前)
       const textToAnalyze = (
         (source.effect || "") +
         "\n" +
@@ -1913,69 +1993,171 @@ new Vue({
         "\n" +
         (source.name || "")
       ).toUpperCase();
+      const rawText = (source.effect || "") + "\n" + (source.notes || "");
+      const autoUpdatedTabs = {};
 
-      // 判定ロジック関数
-      const checkRelevance = (keywords) => {
-        return keywords.some((kw) => textToAnalyze.includes(kw));
+      // 数式解析用関数
+      const parseFormulas = () => {
+        // 例: "+[LV+1]", "-[3-LV]DX", "攻撃力を+[LV*2]D"
+        const regex =
+          /([+\-＋－]?)\s*[\[［](.*?)[\]］](?:[×*]?)(\s*(?:DX|ＤＸ|D|Ｄ|個|点))?/gi;
+        let match;
+
+        while ((match = regex.exec(rawText)) !== null) {
+          const signStr = match[1] || "+";
+          const formulaInner = match[2];
+          const suffix = match[3] || "";
+
+          const idx = match.index;
+          const precedingText = rawText
+            .substring(Math.max(0, idx - 20), idx)
+            .toUpperCase();
+          const suffixUpper = suffix.trim().toUpperCase();
+
+          let targetType = null;
+          let isDiceMode = false;
+
+          // ★修正: 「D」がついている場合でも、文脈(PrecedingText)を最優先する
+          // 「攻撃力を...[LV]Dする」のようなケースに対応
+          if (/攻撃力|ATK|ＡＴＫ|ダメージ|攻撃の/.test(precedingText)) {
+            targetType = "attack";
+            if (/D|Ｄ/.test(suffixUpper)) isDiceMode = true; // 攻撃力だがD計算
+          } else if (/ガード|装甲/.test(precedingText)) {
+            targetType = "guard";
+            if (/D|Ｄ/.test(suffixUpper)) isDiceMode = true;
+          } else if (/命中/.test(precedingText)) {
+            targetType = "accuracy";
+            if (/D|Ｄ/.test(suffixUpper)) isDiceMode = true;
+          } else if (/達成値/.test(precedingText)) {
+            targetType = "achieve";
+          } else if (/ダイス/.test(precedingText)) {
+            targetType = "dice";
+          }
+
+          // 文脈で決まらなかった場合、接尾辞で判断
+          if (!targetType) {
+            if (/DX|ＤＸ/.test(suffixUpper)) {
+              targetType = "dice";
+            } else if (/D|Ｄ/.test(suffixUpper)) {
+              targetType = "dice";
+            }
+          }
+
+          if (targetType) {
+            let f = formulaInner
+              .replace(/[＋]/g, "+")
+              .replace(/[－]/g, "-")
+              .replace(/[×]/g, "*")
+              .replace(/[÷]/g, "/");
+            try {
+              const evalAt = (lv) =>
+                new Function("return " + f.replace(/LV/gi, lv))();
+              const val0 = evalAt(0);
+              const val100 = evalAt(100);
+
+              if (!isNaN(val0) && !isNaN(val100)) {
+                let slope = (val100 - val0) / 100;
+                let intercept = val0;
+                const signMult = signStr === "-" || signStr === "－" ? -1 : 1;
+
+                const finalPerLevel = slope * signMult;
+                const finalBase = intercept * signMult;
+
+                if (!this.editingEffect.values[targetType]) {
+                  this.$set(
+                    this.editingEffect.values,
+                    targetType,
+                    this.createDefaultValues()[targetType]
+                  );
+                }
+                const current = this.editingEffect.values[targetType];
+
+                // 値が未設定(0)の場合のみ自動入力
+                if (current.base === 0 && current.perLevel === 0) {
+                  this.$set(current, "base", finalBase);
+                  this.$set(current, "perLevel", finalPerLevel);
+
+                  // ★追加: 「D」フラグが立っていれば、入力モードをダイスに切り替える
+                  if (isDiceMode) {
+                    if (finalBase !== 0)
+                      this.$set(current, "isDiceInput", true);
+                    if (finalPerLevel !== 0)
+                      this.$set(current, "isPerLevelDiceInput", true);
+                  }
+
+                  autoUpdatedTabs[targetType] = true;
+                }
+              }
+            } catch (e) {
+              console.warn("Auto-parse failed:", formulaInner);
+            }
+          }
+        }
       };
 
+      parseFormulas();
+
+      const checkRelevance = (keywords) =>
+        keywords.some((kw) => textToAnalyze.includes(kw));
+
       if (type === "item") {
-        // アイテム用のタブ定義と判定
         this.modalTabs = [
           {
             key: "accuracy",
             label: "命中",
             isRelevant: checkRelevance(["命中"]),
+            isAutoDetected: autoUpdatedTabs["accuracy"],
           },
           {
             key: "attack",
             label: "攻撃力",
             isRelevant: checkRelevance(["攻撃力", "ATK", "ダメージ", "攻撃の"]),
+            isAutoDetected: autoUpdatedTabs["attack"],
           },
           {
             key: "guard",
             label: "ガード値",
             isRelevant: checkRelevance(["ガード", "装甲"]),
+            isAutoDetected: autoUpdatedTabs["guard"],
           },
           {
             key: "crit",
             label: "C値",
             isRelevant: checkRelevance(["クリティカル", "C値", "Ｃ値", "@"]),
+            isAutoDetected: false,
           },
         ];
-        // デフォルト: 命中
         this.activeModalTab = "accuracy";
       } else {
-        // エフェクト用のタブ定義と判定
         this.modalTabs = [
           {
             key: "dice",
             label: "ダイス",
             isRelevant: checkRelevance(["ダイス", "DX", "ＤＸ", "個"]),
+            isAutoDetected: autoUpdatedTabs["dice"],
           },
           {
             key: "achieve",
             label: "達成値",
             isRelevant: checkRelevance(["達成値"]),
+            isAutoDetected: autoUpdatedTabs["achieve"],
           },
           {
             key: "attack",
             label: "ATK",
             isRelevant: checkRelevance(["攻撃力", "ATK", "ダメージ", "攻撃の"]),
+            isAutoDetected: autoUpdatedTabs["attack"],
           },
           {
             key: "crit",
             label: "C値",
             isRelevant: checkRelevance(["クリティカル", "C値", "Ｃ値", "@"]),
+            isAutoDetected: false,
           },
         ];
-        // デフォルト: ダイス
         this.activeModalTab = "dice";
       }
 
-      // --- 自動選択ロジック ---
-      // 優先順位: C値 > 攻撃力 > 達成値 > ダイス > ガード > 命中
-      // (攻撃的な数値を優先して開くように設定)
       const priorityOrder = [
         "crit",
         "attack",
@@ -1984,17 +2166,18 @@ new Vue({
         "guard",
         "accuracy",
       ];
-
-      // 関連性がある(isRelevant=true)タブの中で、最も優先度が高いものを選択
-      for (const key of priorityOrder) {
-        const found = this.modalTabs.find((t) => t.key === key && t.isRelevant);
-        if (found) {
-          this.activeModalTab = found.key;
-          break;
+      let found = this.modalTabs.find((t) => t.isAutoDetected);
+      if (!found) {
+        for (const key of priorityOrder) {
+          const rel = this.modalTabs.find((t) => t.key === key && t.isRelevant);
+          if (rel) {
+            found = rel;
+            break;
+          }
         }
       }
+      if (found) this.activeModalTab = found.key;
 
-      // --- 既存の初期値設定ロジック (変更なし) ---
       this.modalTabs.forEach((tab) => {
         if (tab.key !== "crit") {
           const tabKey = tab.key;
@@ -2006,8 +2189,7 @@ new Vue({
               isPerLevelDiceInput: false,
             });
           }
-
-          // base value
+          // 数値orD表記変換 (isDiceInputフラグ等は上でセットしたものを優先したいので、D文字が含まれる場合のみ上書きするガードを入れる)
           const baseValueStr = String(
             this.editingEffect.values[tabKey].base || "0"
           );
@@ -2015,12 +2197,11 @@ new Vue({
             this.editingEffect.values[tabKey].isDiceInput = true;
             this.editingEffect.values[tabKey].base =
               parseInt(baseValueStr, 10) || 0;
-          } else {
-            this.editingEffect.values[tabKey].isDiceInput = false;
+          } else if (!this.editingEffect.values[tabKey].isDiceInput) {
+            // 自動判定でDiceフラグが立っていない場合のみ数値変換
             this.editingEffect.values[tabKey].base = Number(baseValueStr) || 0;
           }
 
-          // perLevel value
           const perLevelValueStr = String(
             this.editingEffect.values[tabKey].perLevel || "0"
           );
@@ -2028,8 +2209,7 @@ new Vue({
             this.editingEffect.values[tabKey].isPerLevelDiceInput = true;
             this.editingEffect.values[tabKey].perLevel =
               parseInt(perLevelValueStr, 10) || 0;
-          } else {
-            this.editingEffect.values[tabKey].isPerLevelDiceInput = false;
+          } else if (!this.editingEffect.values[tabKey].isPerLevelDiceInput) {
             this.editingEffect.values[tabKey].perLevel =
               Number(perLevelValueStr) || 0;
           }
@@ -2360,6 +2540,45 @@ new Vue({
       };
       const reg = new RegExp("(" + Object.keys(kanaMap).join("|") + ")", "g");
       return str.replace(reg, (match) => kanaMap[match]).replace(/\//g, "／");
+    },
+    simplifyEffectText(text) {
+      if (!text) return "";
+      let t = text;
+
+      // 1. 「このエフェクトを組み合わせた～」系
+      t = t.replace(
+        /このエフェクトを組み合わせた(?:判定|攻撃|射撃攻撃|白兵攻撃)(?:の|で|において|に対する|に対して|、)*/g,
+        ""
+      );
+      t = t.replace(/このエフェクトを組み合わせた/g, "");
+
+      // 2. 「あなたがガード/ドッジを行なう際に～」系
+      t = t.replace(
+        /あなたが(?:ガード|ドッジ)を行なう際に宣言する。(?:この(?:ガード|ドッジ)の間、)?/g,
+        ""
+      );
+
+      // 3. 「あなたの～」系 (文脈によるが、パラメータ増加系は削っても通じる)
+      // 例: "あなたの攻撃力を..." -> "攻撃力を..."
+      t = t.replace(
+        /あなたの((?:攻撃力|判定|ダイス|達成値|ガード値|HP))/g,
+        "$1"
+      );
+      t = t.replace(/あなたが行なう/g, "");
+
+      // 4. 非重要フレーズ
+      t = t.replace(/このエフェクトの効果は、/g, "");
+
+      // 5. 常時エフェクトの「レベルアップしない」などの注釈削除
+      t = t.replace(
+        /このエフェクトは侵触率でレベルアップしない、このエフェクトを取得した場合、侵触率基本値を\+\d+する。/g,
+        ""
+      );
+
+      // 6. 文頭の不要な読点やスペース削除
+      t = t.replace(/^[、\s]+/, "");
+
+      return t.trim();
     },
     evaluateEffectText(text, level, comboLevelBonus, enableAdvancedParsing) {
       if (!enableAdvancedParsing || !text) {

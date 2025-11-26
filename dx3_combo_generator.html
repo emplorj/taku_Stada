@@ -330,7 +330,8 @@
                 <td><textarea v-model="effect.notes"></textarea></td>
                 <td class="action-cell">
                   <button @click.stop="openEffectPanel($event, effect, 'effect', index)" class="setting-btn"
-                    title="詳細設定" :disabled="isEssentialEffect(effect.name)">係数</button>
+                    :class="{ 'has-auto-update': effect._hasAutoUpdate }" title="詳細設定"
+                    :disabled="isEssentialEffect(effect.name)">係数</button>
                   <button @click="removeEffect(index)" class="delete-btn" title="削除"
                     :disabled="isEssentialEffect(effect.name)"><i class="fa-solid fa-trash"></i></button>
                 </td>
@@ -384,7 +385,7 @@
                 <td><textarea v-model="ee.notes"></textarea></td>
                 <td class="action-cell">
                   <button @click.stop="openEffectPanel($event, ee, 'easy', index)" class="setting-btn"
-                    title="詳細設定">係数</button>
+                    :class="{ 'has-auto-update': ee._hasAutoUpdate }" title="詳細設定">係数</button>
                   <button @click="removeEasyEffect(index)" class="delete-btn" title="削除"><i
                       class="fa-solid fa-trash"></i></button>
                 </td>
@@ -434,7 +435,7 @@
                 <td><textarea v-model="item.notes"></textarea></td>
                 <td class="action-cell">
                   <button @click.stop="openEffectPanel($event, item, 'item', index)" class="setting-btn"
-                    title="詳細設定">係数</button>
+                    :class="{ 'has-auto-update': item._hasAutoUpdate }" title="詳細設定">係数</button>
                   <button @click="removeItem(index)" class="delete-btn" title="削除"><i
                       class="fa-solid fa-trash"></i></button>
                 </td>
@@ -569,9 +570,11 @@
         </div>
         <div class="panel-body">
           <div class="modal-tabs">
-            <button v-for="tab in modalTabs" :key="tab.key"
-              :class="{ active: activeModalTab === tab.key, dimmed: !tab.isRelevant }"
-              @click="activeModalTab = tab.key">
+            <button v-for="tab in modalTabs" :key="tab.key" :class="{ 
+    active: activeModalTab === tab.key, 
+    dimmed: !tab.isRelevant,
+    'auto-detected': tab.isAutoDetected 
+  }" @click="activeModalTab = tab.key">
               {{ tab.label }}
             </button>
           </div>

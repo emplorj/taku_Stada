@@ -1541,6 +1541,79 @@
 .modal-tabs button.active.dimmed {
   opacity: 1; /* 選択されたらハッキリ表示 */
 }
+/* --- 追加: 自動入力されたタブのハイライト --- */
+.modal-tabs button.auto-detected {
+  color: #ffeb3b; /* 黄色文字 */
+  text-shadow: 0 0 8px rgba(255, 235, 59, 0.6);
+  border-bottom-color: #ffeb3b;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-tabs button.auto-detected::after {
+  content: "Auto";
+  position: absolute;
+  top: 0;
+  right: 2px;
+  font-size: 0.6em;
+  background-color: #ffeb3b;
+  color: #333;
+  padding: 1px 3px;
+  border-radius: 0 0 0 4px;
+  font-weight: bold;
+}
+
+@keyframes flash-highlight {
+  0% {
+    background-color: rgba(255, 235, 59, 0.4);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.modal-tabs button.auto-detected {
+  animation: flash-highlight 1.5s ease-out;
+}
+/* --- 追加: 係数ボタンの自動入力通知（未読時） --- */
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+    border-color: #ffc107;
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 193, 7, 0);
+    border-color: #ffeb3b;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    border-color: #ffc107;
+  }
+}
+
+.setting-btn.has-auto-update {
+  animation: glow-pulse 2s infinite;
+  color: #ffeb3b;
+  border: 1px solid #ffc107;
+  position: relative;
+}
+
+.setting-btn.has-auto-update::after {
+  content: "!";
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #e74c3c;
+  color: white;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
 /* --- 追加: 650px以下でのレイアウト調整 --- */
 @media (max-width: 650px) {
   /* 経験点などの入力欄を縦積みにする */
