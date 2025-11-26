@@ -508,8 +508,19 @@
           </div>
           <div class="stat-item base-ability-input">
             <span>技能値:</span>
-            <select v-model="combos[index].baseAbility.skill">
+            <!-- ▼▼▼ 変更: @changeを追加 ▼▼▼ -->
+            <select v-model="combos[index].baseAbility.skill" @change="updateComboAbility(index)">
               <option v-for="opt in dropdownOptions.baseSkillSelect" :value="opt">{{ opt }}</option>
+            </select>
+          </div>
+          <div class="stat-item base-ability-input">
+            <span>能力値:</span>
+            <select v-model="combos[index].baseAbility.statOverride">
+              <!-- ▼▼▼ 変更: 「自動」のoptionを削除 ▼▼▼ -->
+              <option value="肉体">肉体</option>
+              <option value="感覚">感覚</option>
+              <option value="精神">精神</option>
+              <option value="社会">社会</option>
             </select>
           </div>
 

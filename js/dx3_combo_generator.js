@@ -98,6 +98,20 @@ new Vue({
     tempSelectedEffects: [],
     tempSelectedItems: [],
     tempSelectedBuffs: [],
+    skillToAbilityMap: {
+      白兵: "肉体",
+      回避: "肉体",
+      運転: "肉体",
+      射撃: "感覚",
+      知覚: "感覚",
+      芸術: "感覚",
+      RC: "精神",
+      意志: "精神",
+      知識: "精神",
+      交渉: "社会",
+      情報: "社会",
+      調達: "社会",
+    },
     dropdownOptions: {
       difficulty: ["-", "自動成功", "対決", "効果参照"],
       skill: [
@@ -123,6 +137,7 @@ new Vue({
         "情報",
         "効果参照",
       ],
+
       baseSkillSelect: ["-", "白兵", "射撃", "RC", "交渉"],
       timing: [
         "オート",
@@ -281,16 +296,6 @@ new Vue({
     processedCombos() {
       const allEffects = [...this.effects, ...this.easyEffects];
       const allItems = this.items;
-      const skillToAbilityMap = {
-        白兵: "肉体",
-        射撃: "感覚",
-        RC: "精神",
-        交渉: "社会",
-        回避: "肉体",
-        知覚: "感覚",
-        意志: "精神",
-        調達: "社会",
-      };
 
       const calculateBaseCombo = (combo) => {
         const comboLevelBonus = combo.comboLevelBonus || 0;
@@ -646,6 +651,14 @@ new Vue({
           currentCombo.baseAbility.skill ||
           (mainEffect ? mainEffect.skill : "-");
 
+        // ▼▼▼ 変更: 能力値の決定ロジック (手動指定 > 技能からのマップ) ▼▼▼
+        // 手動で指定されていればそれを、なければ技能から自動判別、それもなければデフォルト(肉体)
+        const attributeName =
+          currentCombo.baseAbility.statOverride ||
+          this.skillToAbilityMap[skill] ||
+          "肉体";
+
+        // 詳細情報（ヘッダー用）には計算結果を残す
         const details = [
           `侵蝕値:${totalCost}`,
           `タイミング:${timing}`,
@@ -653,10 +666,11 @@ new Vue({
           `難易度:${difficulty}`,
           `対象:${target}`,
           `射程:${range}`,
-          `ATK:${this.formatDiceString({
+          `攻撃力:${this.formatDiceString({
             dice: finalAtkDice,
             fixed: finalAtkFixed,
           })}`,
+          `達成値:${finalAchieve}`, // 念のためここにも記載
           `C値:${finalCrit}`,
         ].join("　");
 
@@ -669,58 +683,29 @@ new Vue({
           .filter(Boolean)
           .join("\n");
 
-        // ダイス式の生成 (ステータス名を含める)
-        const attribute = skillToAbilityMap[skill] || "肉体"; // デフォルトは肉体にしておくが、マッピングがない場合はどうするか？
-        // マッピングがない場合（例：運転）は、そのまま技能名を使うか、ユーザーが指定できるようにするのがベストだが、
-        // ここでは一旦マッピングにあるものは能力値、ないものは技能名をそのまま使う形にするか、
-        // あるいはデフォルトで {技能} にするか。
-        // ユーザー要望: ({肉体}+6)DX@7+{白兵}+2
+        // --- ダイス式の生成 ---
+        // 要望: ({能力}+X)DX@C+{技能}+Y ◆コンボ名
 
-        let dicePart = "";
-        if (skillToAbilityMap[skill]) {
-          dicePart = `({${skillToAbilityMap[skill]}}${
-            finalDice >= 0 ? "+" : ""
-          }${finalDice})DX`;
-        } else {
-          // マッピングできない場合は、技能名自体を使うか、単にDXにする
-          // ユーザーの要望に沿うなら能力値が欲しいが、不明な場合は (10)DX のように数値だけにするのが無難か、
-          // あるいは ({?}+10)DX のようにするか。
-          // ここでは数値のみの挙動（既存）に、能力値がわかる場合のみ付与する形にする。
-          // いや、ユーザーは「ステータスをつける」と言っている。
-          dicePart = `(${finalDice})DX`; // fallback
-        }
+        // 1. (能力値+ダイスボーナス)DX
+        let diceFormula = `({${attributeName}}${
+          finalDice >= 0 ? "+" : ""
+        }${finalDice})DX`;
 
-        // 達成値部分
-        // {白兵}+2
-        let achievePart = "";
+        // 2. @C値
+        diceFormula += `@${finalCrit}`;
+
+        // 3. +{技能}
         if (skill !== "-") {
-          achievePart = `+{${skill}}${
-            finalAchieve >= 0 ? "+" : ""
-          }${finalAchieve}`;
-        } else {
-          achievePart = `${finalAchieve >= 0 ? "+" : ""}${finalAchieve}`;
+          diceFormula += `+{${skill}}`;
         }
 
-        // 最終的なダイス式
-        // ({肉体}+6)DX@7+{白兵}+2
-        let diceFormula = "";
-        if (skillToAbilityMap[skill]) {
-          diceFormula = `({${skillToAbilityMap[skill]}}${
-            finalDice >= 0 ? "+" : ""
-          }${finalDice})DX@${finalCrit}${achievePart}`;
-        } else {
-          // 能力値が不明な場合でも、技能があればそれを使いたいかもしれないが、
-          // DX3の判定は (能力値)DX + (技能) なので、能力値が不明だとダイス数が決まらない。
-          // 既存の挙動（数値のみ）に戻すか、あるいは ({能力値}+X)DX とする。
-          // ここでは、マッピングがある場合のみ適用し、それ以外は元の挙動に近い形にする。
-          diceFormula = `${finalDice}DX@${finalCrit}${achievePart}`;
+        // 4. +達成値ボーナス
+        if (finalAchieve !== 0) {
+          diceFormula += `${finalAchieve >= 0 ? "+" : ""}${finalAchieve}`;
         }
 
-        // 攻撃力などの後半部分
-        diceFormula += ` 達成値:${finalAchieve} 攻撃力:${this.formatDiceString({
-          dice: finalAtkDice,
-          fixed: finalAtkFixed,
-        })}`;
+        // 5. ◆コンボ名 (攻撃力などは含めない)
+        diceFormula += ` ◆${currentCombo.name}`;
 
         const hasHiddenBuffs = allSelectedSources.some((s) => {
           const effectData = (currentCombo.effectNames || []).find(
@@ -898,6 +883,13 @@ new Vue({
     });
   },
   methods: {
+    updateComboAbility(index) {
+      const combo = this.combos[index];
+      const skill = combo.baseAbility.skill;
+      // マップから能力値を引く（なければ肉体をデフォルトに）
+      const ability = this.skillToAbilityMap[skill] || "肉体";
+      this.$set(combo.baseAbility, "statOverride", ability);
+    },
     syncAllData(sourceType, sourceList) {
       if (this.isInitializing) return;
 
@@ -1351,6 +1343,15 @@ new Vue({
             ...this.createDefaultCombo(),
             ...c,
           }));
+
+          // ▼▼▼ 追加: 読み込みデータに能力値設定がない場合、技能から補完する ▼▼▼
+          this.combos.forEach((combo) => {
+            if (!combo.baseAbility.statOverride) {
+              const skill = combo.baseAbility.skill || "白兵";
+              combo.baseAbility.statOverride =
+                this.skillToAbilityMap[skill] || "肉体";
+            }
+          });
           if (this.combos.length === 0) {
             this.addCombo();
           }
@@ -1831,7 +1832,7 @@ new Vue({
         effectDescriptionMode: "auto",
         manualEffectDescription: "",
         enableAdvancedParsing: false,
-        baseAbility: { skill: "白兵" },
+        baseAbility: { skill: "白兵", statOverride: "肉体" },
         appliedBuffs: [],
         manualTarget: "",
         targetMode: "auto",
