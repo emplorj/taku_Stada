@@ -1904,23 +1904,97 @@ new Vue({
     },
     openEffectPanel(event, source, type, index) {
       this.editingEffect = JSON.parse(JSON.stringify(source));
+
+      // テキスト解析用の文字列を作成 (効果文 + 備考 + 名前)
+      const textToAnalyze = (
+        (source.effect || "") +
+        "\n" +
+        (source.notes || "") +
+        "\n" +
+        (source.name || "")
+      ).toUpperCase();
+
+      // 判定ロジック関数
+      const checkRelevance = (keywords) => {
+        return keywords.some((kw) => textToAnalyze.includes(kw));
+      };
+
       if (type === "item") {
+        // アイテム用のタブ定義と判定
         this.modalTabs = [
-          { key: "accuracy", label: "命中" },
-          { key: "attack", label: "攻撃力" },
-          { key: "guard", label: "ガード値" },
-          { key: "crit", label: "C値" },
+          {
+            key: "accuracy",
+            label: "命中",
+            isRelevant: checkRelevance(["命中"]),
+          },
+          {
+            key: "attack",
+            label: "攻撃力",
+            isRelevant: checkRelevance(["攻撃力", "ATK", "ダメージ", "攻撃の"]),
+          },
+          {
+            key: "guard",
+            label: "ガード値",
+            isRelevant: checkRelevance(["ガード", "装甲"]),
+          },
+          {
+            key: "crit",
+            label: "C値",
+            isRelevant: checkRelevance(["クリティカル", "C値", "Ｃ値", "@"]),
+          },
         ];
+        // デフォルト: 命中
         this.activeModalTab = "accuracy";
       } else {
+        // エフェクト用のタブ定義と判定
         this.modalTabs = [
-          { key: "dice", label: "ダイス" },
-          { key: "achieve", label: "達成値" },
-          { key: "attack", label: "ATK" },
-          { key: "crit", label: "C値" },
+          {
+            key: "dice",
+            label: "ダイス",
+            isRelevant: checkRelevance(["ダイス", "DX", "ＤＸ", "個"]),
+          },
+          {
+            key: "achieve",
+            label: "達成値",
+            isRelevant: checkRelevance(["達成値"]),
+          },
+          {
+            key: "attack",
+            label: "ATK",
+            isRelevant: checkRelevance(["攻撃力", "ATK", "ダメージ", "攻撃の"]),
+          },
+          {
+            key: "crit",
+            label: "C値",
+            isRelevant: checkRelevance(["クリティカル", "C値", "Ｃ値", "@"]),
+          },
         ];
+        // デフォルト: ダイス
         this.activeModalTab = "dice";
       }
+
+      // --- 自動選択ロジック ---
+      // 優先順位: C値 > 攻撃力 > 達成値 > ダイス > ガード > 命中
+      // (攻撃的な数値を優先して開くように設定)
+      const priorityOrder = [
+        "crit",
+        "attack",
+        "achieve",
+        "dice",
+        "guard",
+        "accuracy",
+      ];
+
+      // 関連性がある(isRelevant=true)タブの中で、最も優先度が高いものを選択
+      for (const key of priorityOrder) {
+        const found = this.modalTabs.find((t) => t.key === key && t.isRelevant);
+        if (found) {
+          this.activeModalTab = found.key;
+          break;
+        }
+      }
+
+      // --- 既存の初期値設定ロジック (変更なし) ---
       this.modalTabs.forEach((tab) => {
         if (tab.key !== "crit") {
           const tabKey = tab.key;
@@ -2013,10 +2087,13 @@ new Vue({
         } else if (this.editingEffectType === "item") {
           this.$set(this.items, this.editingEffectIndex, this.editingEffect);
         }
+
+        // ▼▼▼ 修正: syncAllData は editingEffect が null になる前に呼ぶ ▼▼▼
+        this.syncAllData(this.editingEffectType, [this.editingEffect]);
       }
       this.isPanelOpen = false;
       this.editingEffect = null;
-      this.syncAllData(this.editingEffectType, [this.editingEffect]);
+      // 元々ここにあった syncAllData の呼び出しを削除
     },
     openEffectSelectModal(comboIndex) {
       this.editingComboIndex = comboIndex;

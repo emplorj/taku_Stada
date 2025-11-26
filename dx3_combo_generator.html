@@ -568,8 +568,12 @@
           <h3>{{ editingEffect.name || '新規' }} 詳細設定</h3><button @click="closeEffectPanel" class="close-btn">×</button>
         </div>
         <div class="panel-body">
-          <div class="modal-tabs"><button v-for="tab in modalTabs" :key="tab.key"
-              :class="{ active: activeModalTab === tab.key }" @click="activeModalTab = tab.key">{{ tab.label }}</button>
+          <div class="modal-tabs">
+            <button v-for="tab in modalTabs" :key="tab.key"
+              :class="{ active: activeModalTab === tab.key, dimmed: !tab.isRelevant }"
+              @click="activeModalTab = tab.key">
+              {{ tab.label }}
+            </button>
           </div>
           <div class="modal-tab-content">
             <div v-show="activeModalTab !== 'crit'" class="panel-grid">

@@ -1526,7 +1526,21 @@
   align-items: center;
   white-space: nowrap;
 }
+/* --- 追加: 推奨されないタブを薄く表示する --- */
+.modal-tabs button.dimmed {
+  opacity: 0.4;
+  background-color: transparent;
+  border-bottom-color: transparent;
+}
 
+.modal-tabs button.dimmed:hover {
+  opacity: 0.8; /* ホバー時は少し見えるように */
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.modal-tabs button.active.dimmed {
+  opacity: 1; /* 選択されたらハッキリ表示 */
+}
 /* --- 追加: 650px以下でのレイアウト調整 --- */
 @media (max-width: 650px) {
   /* 経験点などの入力欄を縦積みにする */
