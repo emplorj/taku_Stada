@@ -761,10 +761,6 @@ new Vue({
       );
       return activeTab ? activeTab.label : "";
     },
-    // コンボレベルの配列を返す（変更検知用）
-    comboLevelBonusArray() {
-      return this.combos.map((c) => c.comboLevelBonus);
-    },
   },
   watch: {
     characterName: { handler: "setDataDirty", deep: true },
@@ -794,37 +790,43 @@ new Vue({
       deep: true,
     },
     combos: {
-      handler: "setDataDirty",
-      deep: true,
-    },
-    comboLevelBonusArray(newArray, oldArray) {
-      // 同期処理中は何もしない
-      if (this.isSyncingComboLevel) return;
+      handler: function (newVal, oldVal) {
+        this.setDataDirty();
 
-      // 初期化中やコンボ数が変わった場合は何もしない
-      if (!oldArray || newArray.length !== oldArray.length) return;
+        // 同期処理中であれば、再トリガーを防ぐ
+        if (this.isSyncingComboLevel) return;
 
-      // 変更された値を探す
-      let changedValue = null;
-      for (let i = 0; i < newArray.length; i++) {
-        if (newArray[i] !== oldArray[i]) {
-          changedValue = newArray[i];
-          break;
+        // コンボの追加/削除時は同期処理を行わない
+        if (!oldVal || newVal.length !== oldVal.length) return;
+
+        let changedBonusValue = null;
+
+        // 変更された comboLevelBonus を見つける
+        for (let i = 0; i < newVal.length; i++) {
+          if (newVal[i].comboLevelBonus !== oldVal[i].comboLevelBonus) {
+            changedBonusValue = newVal[i].comboLevelBonus;
+            break;
+          }
         }
-      }
 
-      // 変更があれば、全てのコンボを同じ値に同期
-      if (changedValue !== null) {
-        this.isSyncingComboLevel = true;
-        this.$nextTick(() => {
-          this.combos.forEach((combo, i) => {
-            if (combo.comboLevelBonus !== changedValue) {
-              this.$set(this.combos[i], "comboLevelBonus", changedValue);
-            }
+        // 変更が見つかった場合、他の全てのコンボにその値を適用する
+        if (changedBonusValue !== null) {
+          this.isSyncingComboLevel = true; // 同期処理開始
+          this.$nextTick(() => {
+            this.combos.forEach((combo, index) => {
+              if (combo.comboLevelBonus !== changedBonusValue) {
+                this.$set(
+                  this.combos[index],
+                  "comboLevelBonus",
+                  changedBonusValue
+                );
+              }
+            });
+            this.isSyncingComboLevel = false; // 同期処理終了
           });
-          this.isSyncingComboLevel = false;
-        });
-      }
+        }
+      },
+      deep: true,
     },
     characterSheetUrl: {
       handler: function (newVal, oldVal) {
@@ -1844,6 +1846,13 @@ new Vue({
     },
     addCombo() {
       this.combos.push(this.createDefaultCombo());
+    },
+    copyCombo(index) {
+      const originalCombo = this.combos[index];
+      const copiedCombo = JSON.parse(JSON.stringify(originalCombo));
+      copiedCombo.name = `${originalCombo.name}(コピー)`;
+      this.combos.splice(index + 1, 0, copiedCombo);
+      this.setDataDirty();
     },
     removeCombo(index) {
       this.combos.splice(index, 1);

@@ -458,6 +458,7 @@
               class="fa-solid fa-arrow-up"></i></button>
           <button @click="moveComboDown(index)" class="move-btn" :disabled="index === processedCombos.length - 1"
             title="下へ移動"><i class="fa-solid fa-arrow-down"></i></button>
+          <button @click="copyCombo(index)" class="copy-btn" title="複製"><i class="fa-solid fa-copy"></i></button>
           <button @click="removeCombo(index)" class="delete-btn"><i class="fa-solid fa-trash"></i></button>
         </div>
         <div class="combo-stats-bar">

@@ -349,7 +349,8 @@
 .add-btn,
 .delete-btn,
 .setting-btn,
-.move-btn {
+.move-btn,
+.copy-btn {
   color: white;
   border: none;
   border-radius: 5px;
@@ -378,6 +379,12 @@
 }
 .move-btn:hover {
   background-color: #7b2a9e;
+}
+.copy-btn {
+  background-color: #1abc9c;
+}
+.copy-btn:hover {
+  background-color: #16a085;
 }
 
 .delete-btn:disabled,
@@ -425,19 +432,54 @@
   align-items: center;
   gap: 10px;
   padding-bottom: 10px;
-  margin-bottom: 10px;
   border-bottom: 1px dashed #4a5c9a;
+  flex-wrap: wrap; /* スマホ対応用 */
 }
+
+/* 各要素の表示順序(order)を明示的に指定して並び替える */
 .combo-name-input {
   background-color: #0d1a50;
   border: 1px solid #4a5c9a;
   color: #eee;
   font-family: "Corporate-Logo-Bold", sans-serif;
-  font-size: 1.1em;
+  font-size: 1.2em;
   flex-grow: 1;
-  padding: 5px;
+  padding: 6px 5px 0px 5px; /* 上を8px、下を2pxにして文字を視覚的に下げる */
   border-radius: 4px;
   transition: all 0.2s;
+  order: 1; /* 前回の修正で追加済み */
+}
+
+/* リミットチップ */
+.limit-chip {
+  order: 2;
+  margin-right: auto; /* 右側に余白を作って後続要素を右寄せにする */
+}
+
+/* コンボLv選択 */
+.combo-level-select {
+  order: 3;
+  margin-right: 10px;
+}
+
+/* ボタン群 (上、コピー、下、削除) */
+/* move-btn(上) */
+.combo-header .move-btn:nth-of-type(1) {
+  order: 4;
+}
+/* move-btn(下) - HTMLの構造上、2つ目のmove-btn */
+.combo-header .move-btn:nth-of-type(2) {
+  order: 5;
+}
+
+/* コピーボタン */
+.combo-header .copy-btn {
+  order: 6;
+}
+
+/* 削除ボタン */
+.combo-header .delete-btn {
+  order: 7;
 }
 .combo-name-input:focus,
 .combo-name-input:hover {
@@ -1160,7 +1202,9 @@
   color: #3498db;
 }
 
+/* ▼▼▼ 変更: 1400px以下でのレイアウト（2行表示） ▼▼▼ */
 @media (max-width: 1400px) {
+  /* --- 共通のレスポンシブ設定 --- */
   .top-info-wrapper {
     flex-direction: column;
     grid-template-columns: none;
@@ -1168,31 +1212,96 @@
   .combo-details-grid {
     grid-template-columns: 1fr;
   }
-  .combo-stats-bar {
-    flex-wrap: wrap;
-    border: none; /* ボーダーを削除 */
-    border-radius: 0; /* 角丸を削除 */
-    background-color: transparent; /* 背景色を透明に */
-    display: grid; /* グリッドレイアウトに変更 */
-    /* 3列のグリッドを定義 */
-    grid-template-areas:
-      "dice crit achieve"
-      "target target target"
-      "range range range"
-      "timing timing timing"
-      "skill skill attack"
-      "cost cost cost";
-    grid-template-columns: 1fr 1fr 1fr;
+  .character-info-grid {
+    flex-direction: column;
   }
-  .stat-item {
-    border: 1px solid #555; /* 各アイテムにボーダーを設定 */
-    background-color: #3c3c3c; /* 背景色を再設定 */
-    padding: 8px;
-    flex-basis: auto; /* flex-basisをリセット */
-    min-width: 0; /* min-widthをリセット */
+  .xp-fields-group {
+    min-width: 0;
+  }
+  .xp-fields-group label {
+    flex-basis: calc(50% - 8px);
+    flex-grow: 1;
+  }
+  .db-sync-block {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .combo-textarea-wrapper .header-controls {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
   }
 
-  /* グリッドエリアに各項目を配置 */
+  /* --- ヘッダー設定 (1400px用: 1行に収める) --- */
+  .combo-header {
+    flex-wrap: nowrap; /* 折り返し禁止 */
+    gap: 5px;
+  }
+  .combo-name-input {
+    flex-basis: auto;
+    flex-grow: 1;
+    width: auto;
+    margin-bottom: 0;
+    order: 1;
+  }
+  .limit-chip {
+    order: 2;
+    margin-right: 5px;
+    flex-shrink: 0;
+  }
+  .combo-level-select {
+    order: 3;
+    margin-right: 0;
+    flex-shrink: 0;
+  }
+  /* ボタン類の順序 */
+  .combo-header .delete-btn {
+    order: 3;
+  }
+  .combo-header .move-btn:nth-of-type(1) {
+    order: 4;
+  }
+  .combo-header .move-btn:nth-of-type(2) {
+    order: 5;
+  }
+  .combo-header .copy-btn {
+    order: 6;
+  }
+  .combo-header .delete-btn {
+    order: 7;
+  }
+  .combo-header button {
+    flex-shrink: 0;
+  }
+
+  /* --- ステータスバー設定 (1400px用: 5列×2行) --- */
+  .combo-stats-bar {
+    flex-wrap: wrap;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    display: grid;
+    /* 5列グリッド */
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    /* 2行レイアウト */
+    grid-template-areas:
+      "dice crit achieve skill ability"
+      "target range timing attack cost";
+  }
+
+  .stat-item {
+    border: 1px solid #555;
+    background-color: #3c3c3c;
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9em;
+    flex-basis: auto;
+    min-width: 0;
+  }
+
+  /* グリッドエリア割当 */
   .stat-item:nth-child(1) {
     grid-area: dice;
   }
@@ -1215,111 +1324,159 @@
     grid-area: skill;
   }
   .stat-item:nth-child(8) {
-    grid-area: attack;
+    grid-area: ability;
   }
   .stat-item:nth-child(9) {
+    grid-area: attack;
+  }
+  .stat-item:nth-child(10) {
     grid-area: cost;
   }
 
-  .character-info-grid {
+  /* ドロップダウン項目の縦積み */
+  .stat-item.target-setting,
+  .stat-item.range-setting,
+  .stat-item.timing-setting {
     flex-direction: column;
+    gap: 2px;
   }
-  .xp-fields-group {
-    min-width: 0;
-  }
-  .xp-fields-group label {
-    flex-basis: calc(50% - 8px);
-    flex-grow: 1;
+  .stat-item .mode-toggle button {
+    padding: 1px 4px;
+    font-size: 0.7em;
   }
 
-  .db-sync-block {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  /* ▼▼▼ 追加: 使い方ガイドの高さ問題を修正 ▼▼▼ */
+  /* 使い方ガイドの調整 */
   .usage-guide summary .summary-content {
-    align-items: center; /* 垂直方向の中央揃えに変更 */
-    flex-wrap: wrap; /* 折り返しを許可 */
-  }
-
-  /* ▼▼▼ 追加: コンボヘッダーのはみ出しを修正 ▼▼▼ */
-  .combo-header {
-    flex-wrap: wrap; /* 折り返しを許可 */
-  }
-  .combo-name-input {
-    flex-basis: 100%; /* 名前入力欄は常に全幅 */
-    order: 1; /* 表示順を1番目に */
-  }
-  .combo-level-select {
-    order: 2; /* 表示順を2番目に */
-    flex-grow: 1; /* 残りのスペースを埋める */
-    margin-right: 0;
-  }
-  .combo-header .delete-btn {
-    order: 3; /* 表示順を3番目に */
-  }
-  .combo-header .move-btn {
-    order: 4;
-  }
-
-  /* ▼▼▼ 追加: 解説スイッチのレイアウトを修正 ▼▼▼ */
-  .combo-textarea-wrapper .header-controls {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 5px;
+    align-items: center;
+    flex-wrap: wrap;
   }
   .usage-guide summary {
-    align-items: flex-start; /* 矢印とテキストを上端揃えに */
+    align-items: flex-start;
     padding: 15px 10px;
   }
-
   .usage-guide summary::before {
-    margin-top: 2px; /* 矢印の縦位置を微調整 */
-    transform: none; /* 既存のtransformをリセット */
+    margin-top: 2px;
+    transform: none;
   }
-
   .usage-guide summary .summary-content {
-    flex-direction: column; /* タイトルとサブタイトルを縦積みに変更 */
-    align-items: flex-start; /* 左揃えにする */
-    gap: 5px; /* タイトルとサブタイトルの間の隙間 */
-  }
-
-  .usage-guide summary .summary-content h2 {
-    font-size: 1.3em; /* タイトルの文字サイズを調整 */
-  }
-
-  .usage-guide summary .summary-content .subtitle {
-    font-size: 0.9em; /* サブタイトルの文字サイズを調整 */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
   }
   .usage-guide .content-wrapper,
   .usage-guide p,
-  .usage-guide li,
-  .usage-guide h3,
-  .usage-guide h4,
-  .usage-guide ol,
-  .usage-guide ul {
-    padding-left: 5px; /* スマホ表示では左の余白を15pxに統一 */
-    padding-right: 5px; /* スマホ表示では右の余白を15pxに統一 */
+  .usage-guide li {
+    padding-left: 5px;
+    padding-right: 5px;
   }
-
-  /* リストのマーカー（・や数字）のための余白を少し追加 */
   .usage-guide ol,
   .usage-guide ul {
     padding-left: 25px;
   }
-
   .confirmation-modal .modal-body p {
     white-space: pre-wrap;
     color: #eee;
     line-height: 1.6;
   }
-
   .confirmation-modal .modal-footer {
     justify-content: flex-end;
   }
 }
 
+/* ▼▼▼ 追加: 1000px以下でのレイアウト（今まで通り: 名前改行＆3列表示） ▼▼▼ */
+/* ▼▼▼ 変更: 1000px以下のレイアウト（3列/3列/4列グリッド ＆ ヘッダー右寄せ） ▼▼▼ */
+@media (max-width: 1000px) {
+  /* --- ヘッダー設定 --- */
+  .combo-header {
+    flex-wrap: wrap;
+    justify-content: flex-end; /* 右寄せにして間隔を詰める */
+    gap: 8px; /* 適度な間隔 */
+  }
+
+  .combo-name-input {
+    flex-basis: 100%; /* 名前は常に1行占有 */
+    margin-bottom: 5px;
+    order: 1;
+  }
+
+  .limit-chip {
+    order: 2;
+    margin-right: auto; /* リミットチップだけは左端に残す（バランス重視） */
+    /* もしチップも右に寄せたい場合は margin-right: 0; にしてください */
+  }
+
+  .combo-level-select {
+    order: 3;
+    flex-grow: 0; /* 勝手に伸びないようにする */
+    margin-right: 0; /* 右側の余白を削除してボタンとくっつける */
+  }
+
+  /* ボタン類の余白リセット */
+  .combo-header .move-btn,
+  .combo-header .copy-btn,
+  .combo-header .delete-btn {
+    margin-left: 0;
+  }
+
+  /* --- ステータスバー設定 (12分割グリッド) --- */
+  /* 
+     1行目: ダイス, C値, 達成値 (各4グリッド = 3等分)
+     2行目: 対象, 射程, タイミング (各4グリッド = 3等分)
+     3行目: 技能, 能力, 侵蝕, ATK (各3グリッド = 4等分)
+  */
+  .combo-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-areas:
+      "dice dice dice dice crit crit crit crit achieve achieve achieve achieve"
+      "target target target target range range range range timing timing timing timing"
+      "skill skill skill ability ability ability cost cost cost attack attack attack";
+  }
+
+  /* アイテムごとのグリッドエリア割り当て */
+  .stat-item:nth-child(1) {
+    grid-area: dice;
+  }
+  .stat-item:nth-child(2) {
+    grid-area: crit;
+  }
+  .stat-item:nth-child(3) {
+    grid-area: achieve;
+  }
+  .stat-item:nth-child(4) {
+    grid-area: target;
+  }
+  .stat-item:nth-child(5) {
+    grid-area: range;
+  }
+  .stat-item:nth-child(6) {
+    grid-area: timing;
+  }
+  .stat-item:nth-child(7) {
+    grid-area: skill;
+  }
+  .stat-item:nth-child(8) {
+    grid-area: ability;
+  }
+
+  /* HTMLの順番(9:ATK, 10:Cost)とは逆に、表示上はCost→ATKの順にする */
+  .stat-item:nth-child(9) {
+    grid-area: attack;
+  } /* ATK */
+  .stat-item:nth-child(10) {
+    grid-area: cost;
+  } /* 侵蝕値 */
+
+  /* 縦積み補正 */
+  .stat-item.target-setting,
+  .stat-item.range-setting,
+  .stat-item.timing-setting {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+/* ▲▲▲ 変更ここまで ▲▲▲ */
+/* ▲▲▲ 変更ここまで ▲▲▲ */
 .buff-section {
   border-top: 1px solid #4a5c9a;
   background-color: #2c2c2c;
