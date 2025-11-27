@@ -511,6 +511,9 @@ new Vue({
         const normalizeTiming = (t) => {
           if (!t) return "-";
           let norm = t.replace(/[\s　]+/g, "");
+          // "リアクション" が "リ" になってしまうのを防ぐ
+          if (norm === "リアクション") return "リアクション";
+
           norm = norm.replace("アクション", "").replace("プロセス", "");
           if (norm.includes("メジャー") && norm.includes("リア")) {
             return "メジャー／リア";
@@ -686,13 +689,11 @@ new Vue({
         // --- ダイス式の生成 ---
         // 要望: ({能力}+X)DX@C+{技能}+Y ◆コンボ名
 
-        // 1. (能力値+ダイスボーナス)DX
-        let diceFormula = `({${attributeName}}${
+        // 1. (能力値+侵蝕率D+ダイスボーナス)DX(C値)
+        // ユーザー要望: ({精神}+{侵蝕率D}+0)DX7 の形式
+        let diceFormula = `({${attributeName}}+{侵蝕率D}${
           finalDice >= 0 ? "+" : ""
-        }${finalDice})DX`;
-
-        // 2. @C値
-        diceFormula += `@${finalCrit}`;
+        }${finalDice})DX${finalCrit}`;
 
         // 3. +{技能}
         if (skill !== "-") {
@@ -1113,7 +1114,8 @@ new Vue({
           const isConcentrate =
             name.includes("コンセントレイト") ||
             name.includes("ｺﾝｾﾝﾄﾚｲﾄ") ||
-            name.includes("コンセ");
+            name.includes("コンセ") ||
+            name.includes("リフレックス");
           if (isConcentrate) {
             effect.values.crit.base = 10;
             effect.values.crit.perLevel = 1;
@@ -2674,7 +2676,9 @@ new Vue({
       }
     },
     availableBuffs(currentIndex) {
-      return this.combos.filter((_, index) => index !== currentIndex);
+      // processedCombosが存在しない場合は空配列を返す（初期化時など）
+      if (!this.processedCombos) return [];
+      return this.processedCombos.filter((_, index) => index !== currentIndex);
     },
   },
 });

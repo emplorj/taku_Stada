@@ -673,7 +673,7 @@
               <label v-for="combo in availableBuffs(editingComboIndex)"
                 :key="combo.name + editingComboIndex + 'buff-select'" class="item-select-label">
                 <input type="checkbox" :value="combo.name" v-model="tempSelectedBuffs">
-                <span>{{ combo.name }}</span>
+                <span>{{ combo.name }} <span class="text-muted text-small">[{{ combo.timing }}]</span></span>
               </label>
             </div>
           </div>

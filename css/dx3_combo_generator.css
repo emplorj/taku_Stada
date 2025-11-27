@@ -1639,3 +1639,10 @@
     text-align: left;
   }
 }
+
+.text-muted {
+  color: #999;
+}
+.text-small {
+  font-size: 0.85em;
+}
