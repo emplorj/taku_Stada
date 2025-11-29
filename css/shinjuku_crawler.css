@@ -1,39 +1,68 @@
 @charset "UTF-8";
 
-/* =========================================
-   シンジュクロウラー専用スタイル (コンパクト版)
-   ========================================= */
+/* ==========================================================================
+   シンジュクロウラー専用スタイル
+   ========================================================================== */
 
 :root {
   --crawl-bg-dark: #121212;
   --crawl-bg-panel: #1e1e1e;
   --crawl-border: #444;
   --crawl-text: #eee;
-  --crawl-accent: #d500f9;
+  --crawl-accent: #e93092;
   --crawl-safe-bg: rgba(50, 255, 50, 0.05);
   --crawl-penalty-bg-color: rgba(255, 0, 0, 0.15);
-  --cell-size: 40px; /* パズルのマスサイズは操作性のため維持 */
+  --cell-size: 40px; /* パズルのマスサイズ */
   --label-width: 50px;
 }
 
-/* --- ヘッダー周り (コンパクト化) --- */
+/* ==========================================================================
+   ヘッダーエリア (固定表示)
+   ========================================================================== */
 .crawler-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   border-bottom: 2px solid var(--crawl-accent);
-  padding-bottom: 5px; /* 削減 */
-  margin-bottom: 10px; /* 削減 */
+
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+
   flex-wrap: wrap;
   gap: 10px;
+
+  /* 追従設定 (fixed) */
+  position: fixed;
+  top: 0;
+  /* 左メニュー幅(260px) + 余白 */
+  left: 260px;
+  right: 20px;
+  width: auto;
+  z-index: 1000;
+
+  background-color: rgba(18, 18, 18, 0.98);
+  padding-top: 15px;
+  margin-top: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+
+/* ヘッダーの高さ分、コンテンツを下げる */
+#shinjuku-sheet {
+  padding-top: 80px;
+}
+
+.crawler-logo-area {
+  padding-left: 10px;
 }
 
 .crawler-logo-area h1 {
   font-family: "Corporate-Logo-Bold", sans-serif;
-  font-size: 1.8rem; /* 少し小さく */
+  font-size: 1.8rem;
   color: #fff;
   margin: 0;
   line-height: 1;
+  border-bottom: none;
+  padding: 0;
 }
 
 .crawler-logo-area .sub {
@@ -41,6 +70,7 @@
   font-weight: normal;
   margin-left: 8px;
 }
+
 .catch-copy {
   font-size: 0.8rem;
   color: var(--crawl-accent);
@@ -48,6 +78,7 @@
   font-weight: bold;
 }
 
+/* ステータスボックス */
 .header-status {
   display: flex;
   gap: 8px;
@@ -58,32 +89,43 @@
   border: 1px solid var(--crawl-border);
   display: flex;
   flex-direction: column;
-  width: 60px; /* 幅削減 */
+  width: 60px;
   text-align: center;
 }
+
+.status-box.wide {
+  width: 100px;
+}
+
 .status-box label {
   font-size: 0.75rem;
   background-color: #555;
   color: #fff;
   padding: 1px 0;
+  white-space: nowrap;
+  overflow: hidden;
 }
+
 .status-box input {
   background: transparent;
   border: none;
   color: #fff;
-  font-size: 1.5rem; /* 文字サイズ調整 */
+  font-size: 1.5rem;
   text-align: center;
   font-weight: bold;
-  height: 40px; /* 高さ削減 */
+  height: 30px;
   width: 100%;
 }
 
-/* --- レイアウト構成 (隙間を詰める) --- */
+/* ==========================================================================
+   レイアウト構成 (メインエリア)
+   ========================================================================== */
 .sheet-layout {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-} /* gap削減 */
+}
+
 .left-column {
   flex: 1 1 50%;
   display: flex;
@@ -91,6 +133,7 @@
   gap: 10px;
   min-width: 0;
 }
+
 .right-column {
   flex: 1 1 50%;
   min-width: 0;
@@ -102,7 +145,7 @@
 .section-panel {
   background-color: var(--crawl-bg-panel);
   border: 1px solid var(--crawl-border);
-  padding: 10px; /* パディング削減 */
+  padding: 10px;
   position: relative;
 }
 
@@ -110,7 +153,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px; /* マージン削減 */
+  margin-bottom: 5px;
   border-bottom: 1px solid var(--crawl-border);
   padding-bottom: 4px;
 }
@@ -123,13 +166,17 @@
   padding-left: 8px;
 }
 
-/* --- 入力欄 (スリム化) --- */
+/* ==========================================================================
+   入力フォーム・テーブル (共通)
+   ========================================================================== */
+
+/* 入力行 (ラベル + 入力欄) */
 .input-row {
   display: flex;
   align-items: center;
   border-bottom: 1px solid #333;
-  margin-bottom: 2px; /* マージン削減 */
-  height: 28px; /* 高さ削減 (32px -> 28px) */
+  margin-bottom: 2px;
+  height: 28px;
 }
 
 .input-row label,
@@ -144,45 +191,54 @@
   box-sizing: border-box;
 }
 
-.input-row input {
+.input-row input,
+.input-area textarea {
   flex-grow: 1;
-  background: rgba(255, 255, 255, 0.05);
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #444;
   color: #fff;
-  padding: 0 5px;
+  padding: 2px 6px;
   height: 100%;
   min-width: 0;
   font-size: 0.9rem;
+  border-radius: 3px;
+  transition: border-color 0.2s, background-color 0.2s;
 }
 
+.input-row input:focus,
+.input-area textarea:focus {
+  border-color: var(--crawl-accent);
+  background-color: rgba(255, 255, 255, 0.15);
+  outline: none;
+}
+
+/* メモエリア (複数行) */
 .input-area {
   display: flex;
   align-items: flex-start;
   margin-top: 5px;
 }
+
 .input-area label {
   margin-top: 4px;
   height: auto;
   align-items: flex-start;
 }
+
 .input-area textarea {
-  flex-grow: 1;
-  background: rgba(255, 255, 255, 0.05);
-  border: none;
-  color: #fff;
   padding: 4px;
-  min-width: 0;
   resize: vertical;
-  height: 50px; /* デフォルト高さを小さく */
+  height: 50px;
 }
 
-/* --- テーブルスタイル (スリム化) --- */
+/* テーブル基本スタイル */
 .crawler-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
   table-layout: fixed;
 }
+
 .crawler-table th {
   background-color: #2a2a2a;
   border: 1px solid #444;
@@ -193,24 +249,66 @@
   text-align: center;
   vertical-align: middle;
 }
+
 .crawler-table td {
   border: 1px solid #444;
   padding: 0;
-  height: 28px; /* 高さ削減 */
-  vertical-align: middle;
+  min-height: 28px;
+  vertical-align: middle; /* 基本は中央 */
 }
-.crawler-table input[type="text"] {
+
+/* テキストエリアを含むセルは上揃え */
+.crawler-table td:has(textarea) {
+  vertical-align: top;
+}
+
+/* テーブル内 入力欄 (input) */
+.crawler-table input {
   width: 100%;
   height: 100%;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
   color: #fff;
   padding: 0 5px;
   box-sizing: border-box;
   vertical-align: middle;
   font-size: 0.9rem;
+  font-family: inherit;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
+/* テーブル内 テキストエリア (textarea) */
+.crawler-table textarea {
+  width: 100%;
+  min-height: 28px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #fff;
+  padding: 5px;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: none; /* 自動調整のため手動リサイズ不可 */
+  line-height: 1.4;
+  overflow: hidden;
+  display: block;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.crawler-table input:hover,
+.crawler-table textarea:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: #444;
+}
+
+.crawler-table input:focus,
+.crawler-table textarea:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--crawl-accent);
+  outline: none;
+}
+
+/* 装備部位などの固定ラベル */
 .fixed-label {
   background-color: #222;
   text-align: center;
@@ -219,83 +317,12 @@
   white-space: nowrap;
   padding: 0 2px;
   font-size: 0.8rem;
+  vertical-align: middle !important;
 }
 
-/* サイズ入力欄 */
-.size-input-group {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  font-family: inherit; /* フォントを親に合わせる */
-}
-
-.size-input-group input {
-  width: 35px;
-  height: 100%;
-  border: none;
-  background: transparent;
-  color: #fff;
-  text-align: center;
-  font-weight: bold;
-  padding: 0;
-  /* ★修正: フォントサイズと行高さを明示して揃える */
-  font-size: 1rem !important;
-  line-height: 1;
-  font-family: inherit;
-}
-
-/* スピナー制御 */
-.size-input-group input::-webkit-inner-spin-button,
-.size-input-group input::-webkit-outer-spin-button {
-  -webkit-appearance: auto;
-  margin: 0;
-  opacity: 0;
-  transition: opacity 0.2s;
-  cursor: pointer;
-}
-.size-input-group:hover input::-webkit-inner-spin-button,
-.size-input-group input:focus::-webkit-inner-spin-button,
-.size-input-group:hover input::-webkit-outer-spin-button,
-.size-input-group input:focus::-webkit-outer-spin-button {
-  opacity: 1;
-}
-
-.size-input-group span {
-  color: #888;
-  /* ★修正: フォントサイズをinputと合わせる */
-  font-size: 0.9rem;
-  padding: 0 2px;
-  line-height: 1;
-  margin-top: 2px; /* 微調整: xの位置を真ん中に */
-}
-
-.delete-cell {
-  text-align: center;
-  background-color: #252525;
-}
-.delete-row-btn {
-  background: transparent;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  font-size: 0.8rem;
-  width: 100%;
-  height: 100%;
-  transition: color 0.2s;
-}
-.delete-row-btn:hover {
-  color: #ff5555;
-  background-color: rgba(255, 85, 85, 0.1);
-}
-.crawler-btn.share {
-  background-color: #f39c12;
-} /* オレンジ */
-.crawler-btn.share:hover {
-  background-color: #d35400;
-}
-/* --- パズルエリア (コンパクト化) --- */
+/* ==========================================================================
+   カバンパズル エリア
+   ========================================================================== */
 .puzzle-container-wrapper {
   width: 100%;
   box-sizing: border-box;
@@ -303,22 +330,52 @@
   overflow-y: hidden;
   background-color: #111;
   border: 1px solid #333;
-  padding: 5px; /* パディング削減 */
+  padding: 10px;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  /* 高さ: 6マス(240px) + 余白少し */
-  min-height: 250px;
+  align-items: flex-end; /* 下揃え(上に伸ばすため) */
+  min-height: 300px;
 }
 
 .puzzle-area {
   position: relative;
   width: calc(var(--cell-size) * 6);
   height: calc(var(--cell-size) * 6);
-  transition: height 0.3s ease;
-  margin-top: 5px; /* 上部余白を削減 */
+  transition: margin-top 0.3s ease;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 0;
+}
+
+.grid-background {
+  position: absolute;
+  top: -240px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-image: linear-gradient(to right, #333 1px, transparent 1px),
+    linear-gradient(to bottom, #333 1px, transparent 1px);
+  background-size: var(--cell-size) var(--cell-size);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.safe-zone-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--crawl-safe-bg);
+  border: 2px solid var(--crawl-accent);
+  box-sizing: border-box;
+  color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ペナルティエリア */
@@ -352,37 +409,13 @@
   border-radius: 4px;
 }
 
-.safe-zone-label {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--crawl-safe-bg);
-  border: 2px solid var(--crawl-accent);
-  box-sizing: border-box;
-  color: rgba(255, 255, 255, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#penalty-display {
+  color: #ff5555;
   font-weight: bold;
-  pointer-events: none;
-  z-index: 0;
+  font-size: 0.9rem;
 }
 
-.grid-background {
-  position: absolute;
-  top: -240px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-image: linear-gradient(to right, #333 1px, transparent 1px),
-    linear-gradient(to bottom, #333 1px, transparent 1px);
-  background-size: var(--cell-size) var(--cell-size);
-  z-index: 0;
-  pointer-events: none;
-}
-
+/* パズルピース */
 .puzzle-item {
   position: absolute;
   background-color: #3498db;
@@ -410,6 +443,7 @@
   z-index: 100;
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.7);
 }
+
 .rotate-icon {
   position: absolute;
   top: 1px;
@@ -426,11 +460,6 @@
   pointer-events: none;
 }
 
-#penalty-display {
-  color: #ff5555;
-  font-weight: bold;
-  font-size: 0.9rem;
-}
 .puzzle-help,
 .small-help {
   font-size: 0.75rem;
@@ -438,85 +467,183 @@
   margin-top: 3px;
 }
 
-/* ボタン類 (スリム化) */
-.sync-btn {
-  background-color: var(--crawl-accent);
-  color: #fff;
+/* ==========================================================================
+   所持品リスト・サイズ入力
+   ========================================================================== */
+.size-input-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  font-family: inherit;
+}
+
+.size-input-group input {
+  width: 35px;
+  height: 100%;
   border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  text-align: right;
+  font-weight: bold;
+  padding: 0;
+  font-size: 1rem !important;
+  line-height: 1;
+  font-family: inherit;
+}
+
+/* スピナー */
+.size-input-group input::-webkit-inner-spin-button,
+.size-input-group input::-webkit-outer-spin-button {
+  -webkit-appearance: auto;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+.size-input-group:hover input::-webkit-inner-spin-button,
+.size-input-group input:focus::-webkit-inner-spin-button {
+  opacity: 1;
+}
+
+.size-input-group span {
+  color: #888;
+  font-size: 0.9rem;
+  padding: 0 2px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.delete-cell {
+  text-align: center;
+  background-color: #252525;
+}
+.delete-row-btn {
+  background: transparent;
+  border: none;
+  color: #666;
   cursor: pointer;
   font-size: 0.8rem;
-}
-.sync-btn:hover {
-  background-color: #a000c0;
-}
-.add-row-btn {
   width: 100%;
-  margin-top: 5px;
-  padding: 4px;
-  background: #333;
-  color: #ccc;
-  border: 1px dashed #555;
+  height: 100%;
+  transition: color 0.2s;
+}
+.delete-row-btn:hover {
+  color: #ff5555;
+  background-color: rgba(255, 85, 85, 0.1);
+}
+.crawler-btn.ccfolia:hover {
+  background-color: #34495e !important;
+}
+/* ==========================================================================
+   下部エリア (名声技能・履歴)
+   ========================================================================== */
+.bottom-details {
+  margin-top: 15px;
+  background-color: var(--crawl-bg-panel);
+  border: 1px solid var(--crawl-border);
+  padding: 10px;
+}
+
+.bottom-details summary {
   cursor: pointer;
+  outline: none;
+  list-style: none;
+}
+.bottom-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.bottom-details summary h3 {
+  display: inline-block;
+  border-left: none;
+  padding-left: 0;
+  margin: 0;
+  width: 100%;
+}
+.bottom-details summary h3::before {
+  content: "▶";
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 0.8em;
+  transition: transform 0.2s;
+  color: var(--crawl-accent);
+}
+.bottom-details[open] summary h3::before {
+  transform: rotate(90deg);
+}
+
+.bottom-content-wrapper {
+  margin-top: 15px;
+  padding: 0 10px;
+  border-top: 1px dashed #444;
+  padding-top: 15px;
+}
+
+.two-column-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.bottom-col-left {
+  flex: 1 1 40%;
+  min-width: 0;
+}
+.bottom-col-right {
+  flex: 1 1 60%;
+  min-width: 0;
+}
+
+/* 履歴テーブル */
+.history-section h4 {
+  color: #bbb;
+  font-size: 0.9rem;
+  margin: 5px 0;
+  border-bottom: 1px solid #333;
+}
+.history-section h5 {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: #bbb;
+  margin: 10px 0 5px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  margin-bottom: 10px;
+}
+.history-table {
+  min-width: 400px;
+}
+.history-table th {
+  font-size: 0.8rem;
+  background-color: #222;
+}
+
+.history-table input,
+.history-table textarea {
+  border: 1px solid #444;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
   font-size: 0.85rem;
 }
-
-.crawler-controls {
-  margin-top: 15px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+.history-table input[type="date"] {
+  letter-spacing: -1px;
 }
-.crawler-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
+
+.calc-info {
+  font-size: 0.8rem;
+  color: #888;
+}
+.calc-info span {
   color: #fff;
   font-weight: bold;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
 }
 
-/* 読込: 青 */
-.crawler-btn.load-server {
-  background-color: #3498db;
-}
-.crawler-btn.load-server:hover {
-  background-color: #2980b9;
-}
-
-/* 保存: 緑 */
-.crawler-btn.save-server {
-  background-color: #2ecc71;
-}
-.crawler-btn.save-server:hover {
-  background-color: #27ae60;
-}
-
-/* 共有: オレンジ */
-.crawler-btn.share {
-  background-color: #f39c12;
-}
-.crawler-btn.share:hover {
-  background-color: #d35400;
-}
-
-/* リセット: 赤 */
-.crawler-btn.reset {
-  background-color: #e74c3c;
-}
-.crawler-btn.reset:hover {
-  background-color: #c0392b;
-}
-
-/* フッターの余白も調整 */
-footer {
-  margin-top: 15px !important;
-  padding-top: 10px !important;
-}
-/* コントロールエリア調整 (1行化 & コンパクト化) */
+/* ==========================================================================
+   コントロールパネル
+   ========================================================================== */
 .crawler-controls-area {
   margin-top: 10px;
   background-color: #1a1a1a;
@@ -526,7 +653,7 @@ footer {
   text-align: center;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start; /* ★修正: 左揃え */
   align-items: center;
   gap: 15px;
 }
@@ -536,19 +663,25 @@ footer {
   display: flex;
   align-items: center;
   gap: 5px;
+  flex-grow: 1; /* ★追加: 残りの幅を埋めるように伸ばす */
+  max-width: 600px; /* 広げすぎないように制限 */
 }
+
 .save-key-group label {
   color: #bbb;
   font-size: 0.9rem;
   margin-right: 5px;
+  white-space: nowrap; /* ラベルは折り返さない */
 }
+
 .save-key-group input {
-  width: 160px;
-  text-align: center;
+  width: 100%; /* ★修正: 親要素いっぱいまで広げる */
+  text-align: left; /* 左寄せ */
   font-weight: bold;
+  padding: 5px 10px;
 }
 .save-key-group .small-help {
-  display: none; /* 1行化のため非表示 */
+  display: none;
 }
 
 .crawler-controls {
@@ -567,14 +700,6 @@ footer {
   font-weight: 100;
 }
 
-.crawler-btn.save-server {
-  background-color: #3498db;
-}
-.crawler-btn.load-server {
-  background-color: #27ae60;
-}
-
-/* 非公開チェックボックス */
 .privacy-check {
   width: auto;
   margin-bottom: 0;
@@ -594,29 +719,119 @@ footer {
   height: 16px;
 }
 
-/* キャラクター一覧 */
+/* ==========================================================================
+   ボタン類
+   ========================================================================== */
+.crawler-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.crawler-btn.load-server {
+  background-color: #3498db;
+}
+.crawler-btn.load-server:hover {
+  background-color: #2980b9;
+} /* 青 */
+
+.crawler-btn.save-server {
+  background-color: #2ecc71;
+}
+.crawler-btn.save-server:hover {
+  background-color: #27ae60;
+} /* 緑 */
+
+.crawler-btn.share {
+  background-color: #f39c12;
+}
+.crawler-btn.share:hover {
+  background-color: #d35400;
+} /* オレンジ */
+
+.crawler-btn.reset {
+  background-color: #e74c3c;
+}
+.crawler-btn.reset:hover {
+  background-color: #c0392b;
+} /* 赤 */
+
+.sync-btn {
+  background-color: var(--crawl-accent);
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.sync-btn:hover {
+  background-color: #a000c0;
+}
+
+.add-row-btn {
+  width: 100%;
+  margin-top: 5px;
+  padding: 4px;
+  background: #333;
+  color: #ccc;
+  border: 1px dashed #555;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.add-row-btn.small {
+  font-size: 0.75rem;
+  padding: 2px 5px;
+  width: auto;
+  display: inline-block;
+}
+
+/* 更新ボタン */
+#btn-refresh-list {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+#btn-refresh-list:hover {
+  background-color: #2980b9;
+}
+#btn-refresh-list i {
+  color: #fff;
+  margin-right: 5px;
+}
+
+/* ==========================================================================
+   キャラクター一覧
+   ========================================================================== */
 .character-list-section {
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px dashed #444;
 }
-
 .list-controls {
   text-align: right;
   margin-bottom: 10px;
 }
-
 .list-container {
   overflow-x: auto;
 }
-
 .list-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
   background-color: #1a1a1a;
 }
-
 .list-table th {
   background-color: #333;
   padding: 8px;
@@ -624,17 +839,14 @@ footer {
   color: #ddd;
   white-space: nowrap;
 }
-
 .list-table td {
   padding: 8px;
   border: 1px solid #555;
   color: #eee;
 }
-
 .list-table tr:hover {
   background-color: #2a2a2a;
 }
-
 .list-table a {
   color: #87cefa;
   text-decoration: none;
@@ -642,6 +854,40 @@ footer {
 .list-table a:hover {
   text-decoration: underline;
 }
+
+/* フッター調整 */
+footer {
+  margin-top: 15px !important;
+  padding-top: 10px !important;
+}
+
+/* ==========================================================================
+   レスポンシブ設定
+   ========================================================================== */
+@media (max-width: 1080px) {
+  .crawler-header {
+    left: 0;
+    right: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .crawler-logo-area {
+    padding-left: 50px;
+  }
+  #shinjuku-sheet {
+    padding-top: 40px;
+  }
+  .two-column-layout {
+    flex-direction: column;
+  }
+  .bottom-col-left,
+  .bottom-col-right {
+    width: 100%;
+  }
+}
+
 @media (max-width: 800px) {
   .sheet-layout {
     flex-direction: column;
@@ -651,14 +897,4 @@ footer {
     width: 100%;
     min-width: auto;
   }
-}
-
-/* キャラクター一覧の折りたたみ */
-details.character-list-section summary {
-  cursor: pointer;
-  list-style: none; /* 標準 */
-  outline: none;
-}
-details.character-list-section summary::-webkit-details-marker {
-  display: none; /* WebKit系 */
 }

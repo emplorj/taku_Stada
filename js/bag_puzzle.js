@@ -14,19 +14,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let items = []; // {id, x, y, w, h, name, rawW, rawH}
 
+  // --- テキストエリア自動高さ調整 (★追加) ---
+  function autoResizeTextarea(el) {
+    if (!el) return;
+    el.style.height = "auto"; // 一旦リセット
+    el.style.height = el.scrollHeight + "px"; // 内容に合わせて設定
+  }
+
   // --- 所持品リストの行生成 ---
   function createItemRow(index, data = {}) {
     const tr = document.createElement("tr");
-    // IDを一意にするため、dataにある場合はそれを使用、なければ新規生成
     const rowId =
       data.rowId ||
       `item-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
     tr.dataset.id = rowId;
 
-    // サイズデータの処理
     let w = 1,
       h = 1;
     if (data.size) {
+      // 古いデータ互換
       const parts = data.size.split("x");
       if (parts.length === 2) {
         w = parts[0];
@@ -41,18 +47,32 @@ document.addEventListener("DOMContentLoaded", () => {
             <td><input type="text" name="item_name" value="${
               data.name || ""
             }" class="sync-trigger"></td>
+            <td><input type="number" name="item_price" value="${
+              data.price || ""
+            }" placeholder="0"></td>
             <td>
                 <div class="size-input-group">
                     <input type="number" name="item_w" value="${w}" min="1">
-                    <span>x</span>
+                    <span>×</span>
                     <input type="number" name="item_h" value="${h}" min="1">
                 </div>
             </td>
-            <td><input type="text" name="item_note" value="${
+            <td><input type="number" name="item_count" value="${
+              data.count || ""
+            }" placeholder="-"></td>
+            <td><textarea name="item_note" rows="1">${
               data.note || ""
-            }"></td>
+            }</textarea></td>
             <td class="delete-cell"></td>
         `;
+
+    // ★追加: テキストエリアの自動調整設定
+    const ta = tr.querySelector('textarea[name="item_note"]');
+    if (ta) {
+      ta.addEventListener("input", () => autoResizeTextarea(ta));
+      // 初期表示時にもリサイズ
+      setTimeout(() => autoResizeTextarea(ta), 0);
+    }
 
     // 削除ボタン生成
     const delBtn = document.createElement("button");
@@ -319,13 +339,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- ペナルティ表示更新 ---
   function updatePenalty() {
     let penaltyCount = 0;
-    let minGridY = 0; // 最も上にあるアイテムのY座標
+    let minGridY = 0; // 最も上にあるアイテムのY座標（表示調整用）
 
     items.forEach((item) => {
       if (item.y < minGridY) minGridY = item.y;
-      // y < 0 の領域にあるセル数をカウント
+
+      // アイテムが占める全マスをチェック
       for (let py = 0; py < item.h; py++) {
-        if (item.y + py < 0) penaltyCount++;
+        const currentY = item.y + py;
+        // y < 0 (セーフゾーンより上) にある行のマス数をカウント
+        if (currentY < 0) {
+          // 横幅ぶんペナルティを加算
+          penaltyCount += item.w;
+        }
       }
     });
 
@@ -358,10 +384,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- 保存用: アイテム情報 + 備考(Note) をJSON化 ---
   function savePositionsToHidden() {
     const data = items.map((i) => {
-      // リストの行から note を取得
       const row = itemListBody.querySelector(`tr[data-id="${i.id}"]`);
+
+      // リストから最新の値を取得
       const note = row
-        ? row.querySelector(`input[name="item_note"]`).value
+        ? row.querySelector(`textarea[name="item_note"]`).value
+        : "";
+      const price = row
+        ? row.querySelector(`input[name="item_price"]`).value
+        : "";
+      const count = row
+        ? row.querySelector(`input[name="item_count"]`).value
         : "";
 
       return {
@@ -374,6 +407,8 @@ document.addEventListener("DOMContentLoaded", () => {
         rawH: i.rawH,
         name: i.name,
         note: note,
+        price: price, // 追加
+        count: count, // 追加
       };
     });
     hiddenInput.value = JSON.stringify(data);
@@ -412,6 +447,13 @@ document.addEventListener("DOMContentLoaded", () => {
       // restore時はHTML側が既にvalueセットされている場合があるが、
       // ここでDOM再構築しているので hiddenInput も更新しておく
       hiddenInput.value = jsonString;
+
+      // ★追加: 復元後にテキストエリアの高さを調整
+      setTimeout(() => {
+        document
+          .querySelectorAll("textarea")
+          .forEach((ta) => autoResizeTextarea(ta));
+      }, 10);
     } catch (e) {
       console.error("Restore Error", e);
     }
