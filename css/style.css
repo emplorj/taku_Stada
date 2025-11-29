@@ -672,7 +672,8 @@ nav.side-menu li {
   z-index: 1;
   overflow: visible;
   border-radius: 8px 0 0 8px;
-  width: 100%;
+  width: calc(100% + 20px);
+  margin-right: -20px;
   box-sizing: border-box;
   /* box-shadow: 2px 2px 5px rgba(0,0,0,0.3); */ /* ← この行を削除またはコメントアウト */
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
@@ -692,16 +693,16 @@ nav.side-menu li {
 }
 
 /* .start-title の右側を拡張する疑似要素 */
-.start-title::after {
+/* .start-title::after {
   content: "";
   position: absolute;
   top: 0;
-  left: 100%; /* .start-title の右端から開始 */
-  width: 100vw; /* ビューポート幅全体に伸ばすことで、画面右端まで届くようにする */
+  left: 100%;
+  width: 100vw;
   height: 100%;
-  background-color: inherit; /* .start-title の背景色を継承 */
+  background-color: inherit;
   z-index: -1;
-}
+} */
 
 /* ==========================================================================
    9. メディアクエリ (レスポンシブ対応)

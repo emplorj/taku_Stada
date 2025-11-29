@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>シンジュクロウラー 探索者シート | 卓スタダ</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/shinjuku_crawler.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+  <!-- 共通ヘッダー読み込み用 -->
+  <div id="header-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="main-content">
+    <header class="main-header crawler-header">
+      <div class="crawler-logo-area">
+        <p class="catch-copy">わくわくバイトはダイミー！</p>
+        <h1>シンジュクロウラー <span class="sub">探索者シート</span></h1>
+      </div>
+      <div class="header-status">
+        <div class="status-box">
+          <label>体力</label>
+          <input type="number" name="stamina" min="1" max="6" value="1">
+        </div>
+        <div class="status-box">
+          <label>やる気</label>
+          <input type="number" name="spirit" min="1" max="6" value="1">
+        </div>
+      </div>
+    </header>
+
+    <form id="shinjuku-sheet">
+
+      <div class="sheet-layout">
+        <!-- 左カラム：基本情報、カバンパズル -->
+        <div class="left-column">
+
+          <div class="section-panel basic-info">
+            <div class="input-row"><label>PL名</label><input type="text" name="player_name"></div>
+            <div class="input-row"><label>PC名</label><input type="text" name="pc_name"></div>
+            <div class="input-row"><label>背景</label><input type="text" name="background"></div>
+            <div class="input-row"><label>タグ</label><input type="text" name="tags"></div>
+            <div class="input-row"><label>動機</label><input type="text" name="motivation"></div>
+            <div class="input-area">
+              <label>メモ</label>
+              <textarea name="memo" rows="3"></textarea>
+            </div>
+          </div>
+
+          <!-- パズル式カバン -->
+          <div class="section-panel bag-section">
+            <div class="panel-header">
+              <h3>カバン</h3>
+              <div id="penalty-display">ペナルティ: 0</div>
+            </div>
+
+            <div class="puzzle-container-wrapper">
+              <!-- パズルエリア -->
+              <div id="puzzle-area" class="puzzle-area">
+                <!-- ペナルティエリアの背景（初期は透明） -->
+                <div class="penalty-background" id="penalty-background">
+                  <span>⚠️ OVERFLOW ⚠️</span>
+                </div>
+                <!-- グリッド線 -->
+                <div class="grid-background" id="grid-background"></div>
+                <!-- アイテム配置レイヤー -->
+                <div id="item-layer"></div>
+                <!-- 安全地帯ラベル -->
+                <div class="safe-zone-label">SAFE ZONE (6x6)</div>
+              </div>
+            </div>
+            <div class="puzzle-help">
+              <p><i class="fa-solid fa-arrow-pointer"></i> ドラッグで移動</p>
+              <p><i class="fa-solid fa-rotate"></i> <b>ダブルクリックで回転</b></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右カラム：装備・所持品リスト -->
+        <div class="right-column">
+
+          <!-- 装備欄の修正: 列幅の比率を変更 -->
+          <div class="section-panel equipment">
+            <h3>装備 <span style="font-size:0.8em; font-weight:normal;">(カバンとは別枠)</span></h3>
+            <table class="crawler-table">
+              <!-- 列幅の定義 -->
+              <colgroup>
+                <col style="width: 15%;"> <!-- 部位 -->
+                <col> <!-- 名前 (自動) -->
+                <col style="width: 15%;"> <!-- Dmg/耐久 -->
+                <col style="width: 15%;"> <!-- サイズ -->
+                <col style="width: 25%;"> <!-- 備考 -->
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>部位</th>
+                  <th>名前</th>
+                  <th style="font-size:0.8rem;">Dmg/耐久</th>
+                  <th>サイズ</th>
+                  <th>備考</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- 右手 -->
+                <tr>
+                  <td class="fixed-label">右手</td>
+                  <td><input type="text" name="equip_r_name"></td>
+                  <td><input type="text" name="equip_r_stat" placeholder="Dmg"></td>
+                  <td><input type="text" name="equip_r_size"></td>
+                  <td><input type="text" name="equip_r_note"></td>
+                </tr>
+                <!-- 左手 -->
+                <tr>
+                  <td class="fixed-label">左手</td>
+                  <td><input type="text" name="equip_l_name"></td>
+                  <td><input type="text" name="equip_l_stat" placeholder="Dmg"></td>
+                  <td><input type="text" name="equip_l_size"></td>
+                  <td><input type="text" name="equip_l_note"></td>
+                </tr>
+                <!-- 胴 -->
+                <tr>
+                  <td class="fixed-label">胴</td>
+                  <td><input type="text" name="equip_b_name"></td>
+                  <td><input type="text" name="equip_b_stat" placeholder="耐久"></td>
+                  <td><input type="text" name="equip_b_size"></td>
+                  <td><input type="text" name="equip_b_note"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 所持品リスト -->
+          <div class="section-panel item-section">
+            <div class="panel-header">
+              <h3>所持品リスト</h3>
+              <button type="button" id="btn-sync-puzzle" class="sync-btn"><i class="fa-solid fa-arrows-rotate"></i>
+                カバンに反映</button>
+            </div>
+            <p class="small-help">サイズを入力して「反映」でアイテムが出現します。</p>
+
+            <table class="crawler-table item-table" id="item-list">
+              <colgroup>
+                <!-- 列幅の調整 -->
+                <col style="width: 40%;"> <!-- 名前 -->
+                <col style="width: 25%;"> <!-- サイズ -->
+                <col style="width: 25%;"> <!-- 備考 -->
+                <col style="width: 10%;"> <!-- 削除 -->
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>名前</th>
+                  <th>サイズ (横x縦)</th>
+                  <th>効果・備考</th>
+                  <th><i class="fa-solid fa-trash"></i></th> <!-- 削除アイコン -->
+                </tr>
+              </thead>
+              <tbody>
+                <!-- JSで生成 -->
+              </tbody>
+            </table>
+            <button type="button" id="add-item-row" class="add-row-btn"><i class="fa-solid fa-plus"></i> 行を追加</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- コントロール -->
+      <div class="crawler-controls-area">
+        <!-- ID入力エリア -->
+        <div class="save-key-group">
+          <label>キャラクターID</label>
+          <input type="text" id="character-id" placeholder="英数字推奨 (例: my_pc_01)"
+            style="background:#222; color:#fff; border:1px solid #555; padding:5px;">
+          <p class="small-help">※IDが被ると上書きされます。ユニークなIDにしてください。</p>
+        </div>
+
+        <div class="crawler-controls">
+          <input type="hidden" name="puzzle_positions" id="puzzle_positions">
+
+          <!-- 公開設定チェックボックス -->
+          <div class="privacy-check">
+            <label>
+              <input type="checkbox" id="is-private">
+              <span>一覧リストに表示しない</span>
+            </label>
+          </div>
+
+          <button type="button" id="btn-save-server" class="crawler-btn save-server">
+            <i class="fa-solid fa-cloud-arrow-up"></i> サーバーに保存
+          </button>
+
+          <button type="button" id="btn-load-server" class="crawler-btn load-server">
+            <i class="fa-solid fa-cloud-arrow-down"></i> IDから読込
+          </button>
+
+          <span class="separator">|</span>
+
+          <button type="button" id="btn-share" class="crawler-btn share">
+            <i class="fa-solid fa-share-nodes"></i> 共有URL
+          </button>
+
+          <span class="separator">|</span>
+
+          <button type="button" id="btn-reset" class="crawler-btn reset">リセット</button>
+        </div>
+      </div>
+
+      <!-- キャラクター一覧セクション -->
+      <div class="character-list-section">
+        <h2 class="start-title system-color-border"><i class="fa-solid fa-list"></i> みんなのキャラクター</h2>
+        <div class="list-controls">
+          <button type="button" id="btn-refresh-list" class="crawler-btn load"><i class="fa-solid fa-rotate"></i>
+            更新</button>
+        </div>
+        <div class="list-container">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>PC名</th>
+                <th>PL名</th>
+                <th>更新日時</th>
+                <th>参照</th>
+              </tr>
+            </thead>
+            <tbody id="character-list-body">
+              <tr>
+                <td colspan="4" style="text-align:center;">読み込み中...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </form>
+
+    <footer>
+      <p>© 2025 卓スタダ.</p>
+    </footer>
+  </div>
+
+  <button onclick="topFunction()" id="backToTopBtn">▲</button>
+  <script src="js/common.js"></script>
+  <!-- パズル処理用スクリプト -->
+  <script src="js/bag_puzzle.js"></script>
+
+  <script>
+    // ★GASのURL (変更なし)
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
+
+    // フォーム要素の取得
+    const form = document.getElementById('shinjuku-sheet');
+    const idInput = document.getElementById('character-id');
+
+    // --- 初期化処理 (PL名復元 & URLパラメータチェック) ---
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. PL名の復元 (ローカルストレージ)
+      const savedPlName = localStorage.getItem('shinjuku_pl_name');
+      if (savedPlName) {
+        const plInput = document.querySelector('input[name="player_name"]');
+        if (plInput) plInput.value = savedPlName;
+      }
+
+      // 2. URLパラメータ (?id=xxx) があれば自動ロード
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryId = urlParams.get('id');
+      if (queryId) {
+        idInput.value = queryId;
+        loadFromServer(queryId, true); // true = 初回自動ロードフラグ
+      }
+      fetchCharacterList();
+    });
+
+    // --- フォームデータ取得 ---
+    function getFormDataAsJson() {
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+      data['__item_rows'] = document.querySelector('#item-list tbody').rows.length;
+      return data;
+    }
+
+    // --- データ反映 ---
+    function applyDataToSheet(data) {
+      // 行数を復元
+      if (data['__item_rows']) {
+        const currentRows = document.querySelector('#item-list tbody').rows.length;
+        const neededRows = parseInt(data['__item_rows']);
+        for (let i = currentRows; i < neededRows; i++) {
+          document.getElementById('add-item-row').click();
+        }
+      }
+      // フォーム値を復元
+      Object.keys(data).forEach(key => {
+        if (key !== '__item_rows' && key !== 'puzzle_positions') {
+          const el = form.elements[key];
+          if (el) el.value = data[key];
+        }
+      });
+      // パズル復元
+      if (window.restorePuzzle && data['puzzle_positions']) {
+        window.restorePuzzle(data['puzzle_positions']);
+      }
+    }
+
+    // --- サーバー保存処理 ---
+    // --- サーバー保存 (POST) ---
+    document.getElementById('btn-save-server').addEventListener('click', async () => {
+      const charId = idInput.value.trim();
+      const isPrivate = document.getElementById('is-private').checked; // チェック状態取得
+
+      if (!charId) {
+        alert('保存するための「キャラクターID」を入力してください。');
+        return;
+      }
+
+      const data = getFormDataAsJson();
+      const payload = {
+        tool: "shinjuku",
+        action: "save",
+        id: charId,
+        data: data,
+        isPrivate: isPrivate // フラグ送信
+      };
+
+      const btn = document.getElementById('btn-save-server');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 送信中...';
+      btn.disabled = true;
+
+      try {
+        await fetch(GAS_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(payload)
+        });
+        alert(`保存しました！\nID: ${charId}\n\n${isPrivate ? '※一覧には表示されません' : '※一覧に表示されます'}`);
+
+        // 保存後に一覧を更新
+        setTimeout(fetchCharacterList, 2000); // GASの反映待ち
+
+      } catch (e) {
+        console.error(e);
+        alert('送信に失敗しました: ' + e);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+
+    // --- 一覧取得機能 ---
+    document.getElementById('btn-refresh-list').addEventListener('click', fetchCharacterList);
+
+    async function fetchCharacterList() {
+      const tbody = document.getElementById('character-list-body');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> 読み込み中...</td></tr>';
+
+      try {
+        const url = `${GAS_API_URL}?tool=shinjuku&action=list`;
+        const response = await fetch(url);
+        const json = await response.json();
+
+        if (json.status === 'success') {
+          const list = json.data;
+          if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">登録されたキャラクターはありません</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = '';
+          list.forEach(char => {
+            const tr = document.createElement('tr');
+            // 自分のページへのリンクを生成
+            const link = `?id=${encodeURIComponent(char.id)}`;
+
+            tr.innerHTML = `
+                        <td><strong>${escapeHtml(char.pc_name)}</strong></td>
+                        <td>${escapeHtml(char.player_name)}</td>
+                        <td style="font-size:0.8em; color:#aaa;">${char.updated}</td>
+                        <td style="text-align:center;">
+                            <a href="${link}" class="crawler-btn load" style="padding:2px 8px; font-size:0.8em;">見る</a>
+                        </td>
+                    `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">エラー: ${json.message}</td></tr>`;
+        }
+      } catch (e) {
+        console.error(e);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">一覧の取得に失敗しました</td></tr>';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, function (match) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[match];
+      });
+    }
+
+    // --- サーバー読込処理 (共通関数) ---
+    async function loadFromServer(charId, isAutoLoad = false) {
+      if (!charId) return;
+
+      // ボタン表示制御 (手動クリック時のみ)
+      const btn = document.getElementById('btn-load-server');
+      let originalText = "";
+      if (!isAutoLoad) {
+        originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 通信中...';
+        btn.disabled = true;
+      }
+
+      try {
+        const url = `${GAS_API_URL}?tool=shinjuku&action=load&id=${encodeURIComponent(charId)}`;
+        const response = await fetch(url);
+        const json = await response.json();
+
+        if (json.status === 'success') {
+          // 自動ロード時は確認なし、手動時は確認あり
+          if (isAutoLoad || confirm('現在の入力を上書きして読み込みますか？')) {
+            applyDataToSheet(json.data);
+            if (!isAutoLoad) alert('読み込み完了！');
+          }
+        } else {
+          // 自動ロード時はデータがなくても静かにする（新規作成の可能性があるため）
+          if (!isAutoLoad) alert('エラー: ' + json.message);
+        }
+
+      } catch (e) {
+        console.error(e);
+        if (!isAutoLoad) alert('読み込みに失敗しました: ' + e);
+      } finally {
+        if (!isAutoLoad) {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      }
+    }
+
+    // --- 読込ボタンクリック ---
+    document.getElementById('btn-load-server').addEventListener('click', () => {
+      const charId = idInput.value.trim();
+      if (!charId) {
+        alert('読み込む「キャラクターID」を入力してください。');
+        return;
+      }
+      loadFromServer(charId, false);
+    });
+
+    // --- 共有URLコピー ---
+    document.getElementById('btn-share').addEventListener('click', () => {
+      const charId = idInput.value.trim();
+      if (!charId) {
+        alert('まずは「キャラクターID」を入力して保存してください。');
+        return;
+      }
+
+      // 現在のURL（クエリパラメータ除く） + ID
+      const url = `${location.protocol}//${location.host}${location.pathname}?id=${encodeURIComponent(charId)}`;
+
+      navigator.clipboard.writeText(url).then(() => {
+        alert('共有用URLをクリップボードにコピーしました！\n\n' + url);
+      }).catch(err => {
+        alert('コピーに失敗しました。\n以下のURLをコピーしてください:\n' + url);
+      });
+    });
+
+    // --- リセット ---
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      if (confirm('入力内容を全てリセットしますか？\n(サーバーのデータは消えません)')) {
+        form.reset();
+        // PL名だけは戻す（親切設計）
+        const savedPlName = localStorage.getItem('shinjuku_pl_name');
+        if (savedPlName) {
+          document.querySelector('input[name="player_name"]').value = savedPlName;
+        }
+
+        if (window.restorePuzzle) window.restorePuzzle('[]');
+
+        // ID欄もクリアしたい場合は以下を有効化
+        // idInput.value = "";
+        // URLパラメータを消す（見た目だけ）
+        window.history.replaceState(null, null, window.location.pathname);
+      }
+    });
+  </script>
+</body>
+
+</html>
