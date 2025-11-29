@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -344,8 +344,10 @@
       </div>
 
       <!-- キャラクター一覧セクション -->
-      <div class="character-list-section">
-        <h2 class="start-title system-color-border"><i class="fa-solid fa-list"></i> みんなのキャラクター</h2>
+      <details class="character-list-section">
+        <summary>
+          <h2 class="start-title system-color-border">みんなのキャラクター</h2>
+        </summary>
         <div class="list-controls">
           <button type="button" id="btn-refresh-list" class="crawler-btn load"><i class="fa-solid fa-rotate"></i>
             更新</button>
@@ -367,7 +369,7 @@
             </tbody>
           </table>
         </div>
-      </div>
+      </details>
 
     </form>
 
@@ -714,7 +716,62 @@
       calculateTotal();
     });
 
-    // 一覧取得等は省略（既存のまま）
+    // --- 一覧取得機能 ---
+    document.getElementById('btn-refresh-list').addEventListener('click', fetchCharacterList);
+
+    async function fetchCharacterList() {
+      const tbody = document.getElementById('character-list-body');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> 読み込み中...</td></tr>';
+
+      try {
+        const url = `${GAS_API_URL}?tool=shinjuku&action=list`;
+        const response = await fetch(url);
+        const json = await response.json();
+
+        if (json.status === 'success') {
+          const list = json.data;
+          if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">登録されたキャラクターはありません</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = '';
+          list.forEach(char => {
+            const tr = document.createElement('tr');
+            // 自分のページへのリンクを構成
+            const link = `?id=${encodeURIComponent(char.id)}`;
+
+            tr.innerHTML = `
+                        <td><strong>${escapeHtml(char.pc_name)}</strong></td>
+                        <td>${escapeHtml(char.player_name)}</td>
+                        <td style="font-size:0.8em; color:#aaa;">${char.updated}</td>
+                        <td style="text-align:center;">
+                            <a href="${link}" class="crawler-btn load" style="padding:2px 8px; font-size:0.8em;">見る</a>
+                        </td>
+                    `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">エラー: ${json.message}</td></tr>`;
+        }
+      } catch (e) {
+        console.error(e);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">一覧の取得に失敗しました</td></tr>';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, function (match) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[match];
+      });
+    }
   </script>
 </body>
 
