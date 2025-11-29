@@ -516,41 +516,54 @@ footer {
   margin-top: 15px !important;
   padding-top: 10px !important;
 }
-/* コントロールエリア調整 */
+/* コントロールエリア調整 (1行化 & コンパクト化) */
 .crawler-controls-area {
-  margin-top: 20px;
+  margin-top: 10px;
   background-color: #1a1a1a;
-  padding: 15px;
+  padding: 10px 15px;
   border-radius: 8px;
   border: 1px solid #333;
   text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
 }
 
 .save-key-group {
-  margin-bottom: 15px;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .save-key-group label {
   color: #bbb;
   font-size: 0.9rem;
-  margin-right: 10px;
+  margin-right: 5px;
 }
 .save-key-group input {
-  width: 200px;
+  width: 160px;
   text-align: center;
   font-weight: bold;
+}
+.save-key-group .small-help {
+  display: none; /* 1行化のため非表示 */
 }
 
 .crawler-controls {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
   flex-wrap: wrap;
+  margin-top: 0;
 }
 
 .separator {
   color: #555;
-  font-size: 1.5rem;
-  margin: 0 5px;
+  font-size: 1.2rem;
+  margin: 0 2px;
   font-weight: 100;
 }
 
@@ -559,12 +572,13 @@ footer {
 }
 .crawler-btn.load-server {
   background-color: #27ae60;
-} /* 緑 */
+}
 
 /* 非公開チェックボックス */
 .privacy-check {
-  width: 100%;
-  margin-bottom: 10px;
+  width: auto;
+  margin-bottom: 0;
+  margin-right: 5px;
 }
 .privacy-check label {
   cursor: pointer;
@@ -582,8 +596,8 @@ footer {
 
 /* キャラクター一覧 */
 .character-list-section {
-  margin-top: 40px;
-  padding-top: 20px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px dashed #444;
 }
 
@@ -637,4 +651,14 @@ footer {
     width: 100%;
     min-width: auto;
   }
+}
+
+/* キャラクター一覧の折りたたみ */
+details.character-list-section summary {
+  cursor: pointer;
+  list-style: none; /* 標準 */
+  outline: none;
+}
+details.character-list-section summary::-webkit-details-marker {
+  display: none; /* WebKit系 */
 }
