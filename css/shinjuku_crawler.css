@@ -852,7 +852,49 @@
 .list-table a:hover {
   text-decoration: underline;
 }
+/* 初期値入力エリア */
+.calc-info-inputs {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
 
+.init-group {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #bbb;
+}
+
+.init-group label {
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+.init-group input {
+  width: 54px;
+  text-align: right;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 3px;
+  font-size: 0.85rem;
+}
+
+.init-group input:focus {
+  border-color: var(--crawl-accent);
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* スマホ対応: 狭い場合は折り返す */
+@media (max-width: 600px) {
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
 /* フッター調整 */
 footer {
   margin-top: 15px !important;
@@ -874,9 +916,6 @@ footer {
   .crawler-logo-area {
     padding-left: 50px;
   }
-  #shinjuku-sheet {
-    padding-top: 40px;
-  }
   .two-column-layout {
     flex-direction: column;
   }
@@ -887,6 +926,9 @@ footer {
 }
 
 @media (max-width: 800px) {
+  #shinjuku-sheet {
+    padding-top: 180px;
+  }
   .sheet-layout {
     flex-direction: column;
   }
@@ -894,6 +936,36 @@ footer {
   .right-column {
     width: 100%;
     min-width: auto;
+  }
+
+  /* --- ★修正: スマホ向けスクロール調整 --- */
+
+  /* スクロールコンテナ */
+  .table-scroll {
+    width: 100%;
+    overflow-x: auto; /* 横スクロールを許可 */
+    -webkit-overflow-scrolling: touch; /* なめらかスクロール */
+    margin-bottom: 5px;
+  }
+
+  /* テーブル本体: 画面より広く設定してスクロールを誘発させる */
+  .crawler-table {
+    width: 100%;
+    min-width: 600px; /* ★重要: これで強制的に幅を広げる */
+    table-layout: fixed; /* 列幅の比率を維持 */
+    font-size: 0.8rem;
+  }
+
+  /* 各セルの余白調整 */
+  .crawler-table th,
+  .crawler-table td {
+    padding: 2px;
+  }
+
+  /* サイズ入力欄の文字サイズ調整 */
+  .size-input-group input {
+    font-size: 0.8rem !important;
+    width: 25px;
   }
 }
 

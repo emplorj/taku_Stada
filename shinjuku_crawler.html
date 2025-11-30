@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -26,12 +26,12 @@
         <!-- 所持金 (幅広) -->
         <div class="status-box wide">
           <label>所持金 (裏円)</label>
-          <input type="number" name="money" value="0" placeholder="0">
+          <input type="number" name="money" value="0" placeholder="0" readonly tabindex="-1">
         </div>
         <!-- 名声点 -->
         <div class="status-box wide">
           <label>名声点</label>
-          <input type="number" name="fame_points" value="0">
+          <input type="number" name="fame_points" value="0" readonly tabindex="-1">
         </div>
         <!-- 体力 -->
         <div class="status-box">
@@ -51,7 +51,7 @@
       <div class="sheet-layout">
         <!-- 左カラム：基本情報、カバンパズル -->
         <div class="left-column">
-          <!-- (基本情報とカバンエリアは変更なし) -->
+
           <div class="section-panel basic-info">
             <div class="input-row"><label>PL名</label><input type="text" name="player_name"></div>
             <div class="input-row"><label>PC名</label><input type="text" name="pc_name"></div>
@@ -65,7 +65,6 @@
           </div>
 
           <div class="section-panel bag-section">
-            <!-- (カバンの中身は変更なし) -->
             <div class="panel-header">
               <h3>カバン</h3>
               <div id="penalty-display">ペナルティ: 0</div>
@@ -86,79 +85,81 @@
           </div>
         </div>
 
-        <!-- 右カラム：装備・名声技能・所持品リスト -->
+        <!-- 右カラム：装備・所持品リスト -->
         <div class="right-column">
 
           <!-- 装備欄 -->
           <div class="section-panel equipment">
             <h3>装備 <span style="font-size:0.8em; font-weight:normal;">(カバンとは別枠)</span></h3>
-            <table class="crawler-table">
-              <colgroup>
-                <col style="width: 5%;"> <!-- 部位 -->
-                <col style="width: 22%;"> <!-- 名前 -->
-                <col style="width: 10%;"> <!-- Dmg/耐久 -->
-                <col style="width: 8%;"> <!-- 価格 -->
-                <col style="width: 15%;"> <!-- サイズ -->
-                <col style="width: 40%;"> <!-- 備考 -->
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>部位</th>
-                  <th>名前</th>
-                  <th style="font-size:0.8rem;">ダメ/耐久</th>
-                  <th>価格</th>
-                  <th>サイズ（メモ用）</th>
-                  <th>備考</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- 右手 -->
-                <tr>
-                  <td class="fixed-label">右手</td>
-                  <td><input type="text" name="equip_r_name"></td>
-                  <td><input type="text" name="equip_r_stat" placeholder="ダメージ"></td>
-                  <td><input type="number" name="equip_r_price" placeholder="0"></td>
-                  <td>
-                    <div class="size-input-group">
-                      <input type="number" name="equip_r_w" value="1" min="1">
-                      <span>×</span>
-                      <input type="number" name="equip_r_h" value="1" min="1">
-                    </div>
-                  </td>
-                  <td><textarea name="equip_r_note" rows="1"></textarea></td>
-                </tr>
-                <!-- 左手 -->
-                <tr>
-                  <td class="fixed-label">左手</td>
-                  <td><input type="text" name="equip_l_name"></td>
-                  <td><input type="text" name="equip_l_stat" placeholder="ダメージ"></td>
-                  <td><input type="number" name="equip_l_price" placeholder="0"></td>
-                  <td>
-                    <div class="size-input-group">
-                      <input type="number" name="equip_l_w" value="1" min="1">
-                      <span>×</span>
-                      <input type="number" name="equip_l_h" value="1" min="1">
-                    </div>
-                  </td>
-                  <td><textarea name="equip_l_note" rows="1"></textarea></td>
-                </tr>
-                <!-- 胴 -->
-                <tr>
-                  <td class="fixed-label">胴</td>
-                  <td><input type="text" name="equip_b_name"></td>
-                  <td><input type="text" name="equip_b_stat" placeholder="耐久"></td>
-                  <td><input type="number" name="equip_b_price" placeholder="0"></td>
-                  <td>
-                    <div class="size-input-group">
-                      <input type="number" name="equip_b_w" value="1" min="1">
-                      <span>×</span>
-                      <input type="number" name="equip_b_h" value="1" min="1">
-                    </div>
-                  </td>
-                  <td><textarea name="equip_b_note" rows="1"></textarea></td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-scroll">
+              <table class="crawler-table">
+                <colgroup>
+                  <col style="width: 5%;"> <!-- 部位 -->
+                  <col style="width: 22%;"> <!-- 名前 -->
+                  <col style="width: 10%;"> <!-- Dmg/耐久 -->
+                  <col style="width: 8%;"> <!-- 価格 -->
+                  <col style="width: 15%;"> <!-- サイズ -->
+                  <col style="width: 40%;"> <!-- 備考 -->
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>部位</th>
+                    <th>名前</th>
+                    <th style="font-size:0.8rem;">ダメ/耐久</th>
+                    <th>価格</th>
+                    <th>サイズ（メモ用）</th>
+                    <th>備考</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 右手 -->
+                  <tr>
+                    <td class="fixed-label">右手</td>
+                    <td><input type="text" name="equip_r_name"></td>
+                    <td><input type="text" name="equip_r_stat" placeholder="ダメージ"></td>
+                    <td><input type="number" name="equip_r_price" placeholder="0"></td>
+                    <td>
+                      <div class="size-input-group">
+                        <input type="number" name="equip_r_w" value="1" min="1">
+                        <span>×</span>
+                        <input type="number" name="equip_r_h" value="1" min="1">
+                      </div>
+                    </td>
+                    <td><textarea name="equip_r_note" rows="1"></textarea></td>
+                  </tr>
+                  <!-- 左手 -->
+                  <tr>
+                    <td class="fixed-label">左手</td>
+                    <td><input type="text" name="equip_l_name"></td>
+                    <td><input type="text" name="equip_l_stat" placeholder="ダメージ"></td>
+                    <td><input type="number" name="equip_l_price" placeholder="0"></td>
+                    <td>
+                      <div class="size-input-group">
+                        <input type="number" name="equip_l_w" value="1" min="1">
+                        <span>×</span>
+                        <input type="number" name="equip_l_h" value="1" min="1">
+                      </div>
+                    </td>
+                    <td><textarea name="equip_l_note" rows="1"></textarea></td>
+                  </tr>
+                  <!-- 胴 -->
+                  <tr>
+                    <td class="fixed-label">胴</td>
+                    <td><input type="text" name="equip_b_name"></td>
+                    <td><input type="text" name="equip_b_stat" placeholder="耐久"></td>
+                    <td><input type="number" name="equip_b_price" placeholder="0"></td>
+                    <td>
+                      <div class="size-input-group">
+                        <input type="number" name="equip_b_w" value="1" min="1">
+                        <span>×</span>
+                        <input type="number" name="equip_b_h" value="1" min="1">
+                      </div>
+                    </td>
+                    <td><textarea name="equip_b_note" rows="1"></textarea></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <!-- 所持品リスト -->
@@ -170,31 +171,34 @@
             </div>
             <p class="small-help">サイズ（横 × 縦）を入力して「反映」でアイテムが出現します。</p>
 
-            <table class="crawler-table item-table" id="item-list">
-              <colgroup>
-                <col style="width: 37%;"> <!-- 名前 -->
-                <col style="width: 8%;"> <!-- 価格 -->
-                <col style="width: 15%;"> <!-- サイズ -->
-                <col style="width: 10%;"> <!-- 残回数 -->
-                <col style="width: 25%;"> <!-- 備考 -->
-                <col style="width: 5%;"> <!-- 削除 -->
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>名前</th>
-                  <th>価格</th>
-                  <th>サイズ</th>
-                  <th style="font-size:0.8rem;">残回数</th>
-                  <th>効果・備考</th>
-                  <th><i class="fa-solid fa-trash"></i></th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-            <button type="button" id="add-item-row" class="add-row-btn"><i class="fa-solid fa-plus"></i> 行を追加</button>
+            <div class="table-scroll">
+              <table class="crawler-table item-table" id="item-list">
+                <colgroup>
+                  <col style="width: 37%;"> <!-- 名前 -->
+                  <col style="width: 8%;"> <!-- 価格 -->
+                  <col style="width: 15%;"> <!-- サイズ -->
+                  <col style="width: 10%;"> <!-- 残回数 -->
+                  <col style="width: 25%;"> <!-- 備考 -->
+                  <col style="width: 5%;"> <!-- 削除 -->
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>名前</th>
+                    <th>価格</th>
+                    <th>サイズ</th>
+                    <th style="font-size:0.8rem;">残回数</th>
+                    <th>効果・備考</th>
+                    <th><i class="fa-solid fa-trash"></i></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <button type="button" id="add-item-row" class="add-row-btn"><i class="fa-solid fa-plus"></i> 行を追加</button>
+            </div>
           </div>
         </div>
-      </div>
+      </div> <!-- /sheet-layout -->
+
       <!-- アフタープレイ・履歴エリア (折りたたみ) -->
       <details class="section-panel bottom-details">
         <summary>
@@ -202,7 +206,6 @@
               style="font-size:0.8rem; font-weight:normal;">(クリックで開閉)</span></h3>
         </summary>
 
-        <!-- ★修正: 左右2カラムにするためのクラス "two-column-layout" を追加 -->
         <div class="bottom-content-wrapper two-column-layout">
 
           <!-- 左側: 名声技能 -->
@@ -218,7 +221,6 @@
               <div class="table-scroll">
                 <table class="crawler-table" id="fame-skills-table">
                   <colgroup>
-                    <!-- ★修正: 削除列を消して幅を調整 -->
                     <col style="width: 35%;"> <!-- 名前 -->
                     <col style="width: 65%;"> <!-- 効果 -->
                   </colgroup>
@@ -226,12 +228,11 @@
                     <tr>
                       <th>技能名</th>
                       <th>効果</th>
-                      <!-- ★削除: <th><i class="fa-solid fa-trash"></i></th> -->
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
-                <!-- 手動追加ボタンは既に削除済み -->
+                <!-- 手動追加ボタンは自動管理のため削除 -->
               </div>
             </div>
           </div>
@@ -241,9 +242,17 @@
             <div class="history-section">
               <div class="panel-header">
                 <h4 style="margin:0; color:#d500f9;">収支・セッション履歴</h4>
-                <div class="calc-info">
-                  合計報酬: <span id="total-rewards">0</span> 裏円 /
-                  名声: <span id="total-fame">0</span>
+
+                <!-- 初期値入力エリア -->
+                <div class="calc-info-inputs">
+                  <div class="init-group">
+                    <label>初期裏円</label>
+                    <input type="number" name="init_money" value="0" placeholder="0">
+                  </div>
+                  <div class="init-group">
+                    <label>初期名声</label>
+                    <input type="number" name="init_fame" value="0" placeholder="0">
+                  </div>
                 </div>
               </div>
 
@@ -251,12 +260,11 @@
               <h5 style="color:#bbb; margin:10px 0 5px;">セッション履歴<small>（プラスで収入、マイナスで支出）</small></h5>
               <div class="table-scroll">
                 <table class="crawler-table history-table" id="session-history">
-                  <!-- ★修正: 列幅を調整 (日付・金額を狭く) -->
                   <colgroup>
-                    <col style="width: 20%;"> <!-- 日付: 狭く -->
-                    <col style="width: 25%;"> <!-- タイトル: 広く -->
-                    <col style="width: 10%;"> <!-- 裏円: 狭く -->
-                    <col style="width: 10%;"> <!-- 名声: 狭く -->
+                    <col style="width: 20%;"> <!-- 日付 -->
+                    <col style="width: 25%;"> <!-- タイトル -->
+                    <col style="width: 10%;"> <!-- 裏円 -->
+                    <col style="width: 10%;"> <!-- 名声 -->
                     <col style="width: 30%;"> <!-- 備考 -->
                     <col style="width: 5%;"> <!-- 削除 -->
                   </colgroup>
@@ -279,11 +287,10 @@
               <h5 style="color:#bbb; margin:15px 0 5px;">購入・支出履歴</h5>
               <div class="table-scroll">
                 <table class="crawler-table history-table" id="purchase-history">
-                  <!-- ★修正: 列幅を調整 -->
                   <colgroup>
                     <col style="width: 45%;"> <!-- 項目名 -->
-                    <col style="width: 10%;"> <!-- 金額: 狭く -->
-                    <col style="width: 40%;"> <!-- 備考: 広く -->
+                    <col style="width: 10%;"> <!-- 金額 -->
+                    <col style="width: 40%;"> <!-- 備考 -->
                     <col style="width: 5%;"> <!-- 削除 -->
                   </colgroup>
                   <thead>
@@ -387,41 +394,38 @@
     // ★GASのウェブアプリURL
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
 
-    // フォーム要素
-    const form = document.getElementById('shinjuku-sheet');
-    const idInput = document.getElementById('character-id');
+    // 変数を宣言（中身は初期化時に取得）
+    let form, idInput;
+    let sessionBody, purchaseBody, fameBody;
+    let moneyInput, fameInput, totalRewardsSpan, totalFameSpan, fameCountSpan, fameMaxSpan;
+    let initMoneyInput, initFameInput;
 
-    // 各テーブルのtbody取得
-    const sessionBody = document.querySelector('#session-history tbody');
-    const purchaseBody = document.querySelector('#purchase-history tbody');
-    const fameBody = document.querySelector('#fame-skills-table tbody'); // ここが重要
-
-    // 計算用要素
-    const moneyInput = document.querySelector('input[name="money"]');
-    const fameInput = document.querySelector('input[name="fame_points"]');
-    const totalRewardsSpan = document.getElementById('total-rewards');
-    const totalFameSpan = document.getElementById('total-fame');
-    const fameCountSpan = document.getElementById('fame-count');
-    const fameMaxSpan = document.getElementById('fame-max');
-
-    // テキストエリア自動高さ調整
+    // --- テキストエリア自動高さ調整 ---
     function autoResizeTextarea(el) {
       if (!el) return;
+      // 要素が見えていない(高さ0)の場合は処理しない(開いたときにやる)
+      if (el.offsetParent === null) return;
+
       el.style.height = 'auto';
-      el.style.height = (el.scrollHeight) + 'px';
+      const newHeight = el.scrollHeight;
+      if (newHeight > 0) {
+        el.style.height = newHeight + 'px';
+      }
     }
 
     function setupTextareaAutoResize(scope) {
+      if (!scope) return;
       const targets = scope.querySelectorAll ? scope.querySelectorAll('textarea') : [scope];
       targets.forEach(ta => {
         ta.addEventListener('input', () => autoResizeTextarea(ta));
-        setTimeout(() => autoResizeTextarea(ta), 0);
+        // 少し遅らせて実行（描画待ち）
+        setTimeout(() => autoResizeTextarea(ta), 10);
       });
     }
 
     // --- 行操作関数 ---
-
     function addSessionRow(data = {}) {
+      if (!sessionBody) return;
       const tr = document.createElement('tr');
       tr.innerHTML = `
             <td><input type="date" name="sess_date" value="${data.date || ''}"></td>
@@ -438,6 +442,7 @@
     }
 
     function addPurchaseRow(data = {}) {
+      if (!purchaseBody) return;
       const tr = document.createElement('tr');
       tr.innerHTML = `
             <td><textarea name="pur_item" rows="1">${data.item || ''}</textarea></td>
@@ -451,8 +456,8 @@
       setupTextareaAutoResize(tr);
     }
 
-    // 名声技能 行追加 (自動調整用)
     function addFameRow(data = {}) {
+      if (!fameBody) return;
       const tr = document.createElement('tr');
       tr.innerHTML = `
             <td><input type="text" name="fame_name" value="${data.name || ''}" placeholder="技能名"></td>
@@ -462,16 +467,15 @@
       setupTextareaAutoResize(tr);
     }
 
-    // イベントリスナー
-    document.getElementById('add-session-row').addEventListener('click', () => addSessionRow());
-    document.getElementById('add-purchase-row').addEventListener('click', () => addPurchaseRow());
-
-    // --- 自動計算 (Core Logic) ---
+    // --- 自動計算 ---
     function calculateTotal() {
-      let totalMoney = 0;
-      let totalFame = 0;
+      if (!sessionBody || !purchaseBody || !fameBody) return;
 
-      // 履歴から集計
+      // 初期値
+      let totalMoney = parseInt(initMoneyInput ? initMoneyInput.value : 0) || 0;
+      let totalFame = parseInt(initFameInput ? initFameInput.value : 0) || 0;
+
+      // セッション履歴
       sessionBody.querySelectorAll('tr').forEach(tr => {
         const m = parseInt(tr.querySelector('input[name="sess_money"]').value) || 0;
         const f = parseInt(tr.querySelector('input[name="sess_fame"]').value) || 0;
@@ -479,57 +483,45 @@
         totalFame += f;
       });
 
+      // 購入履歴
       purchaseBody.querySelectorAll('tr').forEach(tr => {
         const c = parseInt(tr.querySelector('input[name="pur_cost"]').value) || 0;
         totalMoney += c;
       });
 
-      // ヘッダー反映
-      moneyInput.value = totalMoney;
-      fameInput.value = totalFame;
+      // 反映
+      if (moneyInput) moneyInput.value = totalMoney;
+      if (fameInput) fameInput.value = totalFame;
       if (totalRewardsSpan) totalRewardsSpan.textContent = totalMoney;
       if (totalFameSpan) totalFameSpan.textContent = totalFame;
 
-      // ★名声技能枠の計算
+      // 名声技能枠計算
       let maxSkills = 0;
-      if (totalFame >= 1500) {
-        maxSkills = 4 + Math.floor((totalFame - 1500) / 500);
-      } else if (totalFame >= 1000) {
-        maxSkills = 3;
-      } else if (totalFame >= 700) {
-        maxSkills = 2;
-      } else if (totalFame >= 200) {
-        maxSkills = 1;
-      } else {
-        maxSkills = 0;
-      }
+      if (totalFame >= 1500) maxSkills = 4 + Math.floor((totalFame - 1500) / 500);
+      else if (totalFame >= 1000) maxSkills = 3;
+      else if (totalFame >= 700) maxSkills = 2;
+      else if (totalFame >= 200) maxSkills = 1;
 
       if (fameMaxSpan) fameMaxSpan.textContent = maxSkills;
 
-      // 枠の増減処理
-      const currentRows = Array.from(fameBody.querySelectorAll('tr'));
-      const currentCount = currentRows.length;
-
+      const currentCount = fameBody.querySelectorAll('tr').length;
       if (fameCountSpan) fameCountSpan.textContent = currentCount;
 
+      // 枠調整
       if (currentCount < maxSkills) {
-        // 足りない分を追加
         const diff = maxSkills - currentCount;
         for (let i = 0; i < diff; i++) addFameRow();
       } else if (currentCount > maxSkills) {
-        // 多い分を削除（ただし空行のみ）
-        // 後ろからチェック
-        for (let i = currentCount - 1; i >= maxSkills; i--) {
-          const row = currentRows[i];
-          const name = row.querySelector('input[name="fame_name"]').value;
-          const effect = row.querySelector('textarea[name="fame_effect"]').value;
-          if (!name && !effect) {
-            row.remove();
-          }
+        const rows = Array.from(fameBody.querySelectorAll('tr'));
+        for (let i = rows.length - 1; i >= maxSkills; i--) {
+          const row = rows[i];
+          const name = row.querySelector('input[name="fame_name"]').value.trim();
+          const effect = row.querySelector('textarea[name="fame_effect"]').value.trim();
+          if (!name && !effect) row.remove();
         }
       }
 
-      // 更新後の数を再表示
+      // 赤字判定
       if (fameCountSpan) {
         const finalCount = fameBody.querySelectorAll('tr').length;
         fameCountSpan.textContent = finalCount;
@@ -537,41 +529,84 @@
       }
     }
 
-    // --- 初期化 ---
+    // --- ヘルパー: tbody取得 (なければ作る) ---
+    function getTbodySafe(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return null;
+      let tbody = table.querySelector('tbody');
+      if (!tbody) {
+        tbody = document.createElement('tbody');
+        table.appendChild(tbody);
+      }
+      return tbody;
+    }
+
+    // --- 初期化処理 ---
     window.addEventListener('DOMContentLoaded', () => {
+      form = document.getElementById('shinjuku-sheet');
+      idInput = document.getElementById('character-id');
+
+      // 安全にtbodyを取得
+      sessionBody = getTbodySafe('session-history');
+      purchaseBody = getTbodySafe('purchase-history');
+      fameBody = getTbodySafe('fame-skills-table');
+
+      moneyInput = document.querySelector('input[name="money"]');
+      fameInput = document.querySelector('input[name="fame_points"]');
+      totalRewardsSpan = document.getElementById('total-rewards');
+      totalFameSpan = document.getElementById('total-fame');
+      fameCountSpan = document.getElementById('fame-count');
+      fameMaxSpan = document.getElementById('fame-max');
+      initMoneyInput = document.querySelector('input[name="init_money"]');
+      initFameInput = document.querySelector('input[name="init_fame"]');
+
+      // ボタンイベント設定
+      const btnAddSession = document.getElementById('add-session-row');
+      if (btnAddSession) btnAddSession.addEventListener('click', () => addSessionRow());
+
+      const btnAddPurchase = document.getElementById('add-purchase-row');
+      if (btnAddPurchase) btnAddPurchase.addEventListener('click', () => addPurchaseRow());
+
+      // 初期値変更イベント
+      if (initMoneyInput) initMoneyInput.addEventListener('input', calculateTotal);
+      if (initFameInput) initFameInput.addEventListener('input', calculateTotal);
+
+      // PL名復元
       const savedPlName = localStorage.getItem('shinjuku_pl_name');
-      if (savedPlName) {
-        const plInput = document.querySelector('input[name="player_name"]');
+      if (savedPlName && form) {
+        const plInput = form.querySelector('input[name="player_name"]');
         if (plInput) plInput.value = savedPlName;
       }
+
+      // 初期行の追加
+      if (sessionBody && sessionBody.rows.length === 0) addSessionRow();
+      if (purchaseBody && purchaseBody.rows.length === 0) addPurchaseRow();
+
+      // 初回計算
+      calculateTotal();
+      setupTextareaAutoResize(document.body);
+
+      // 折りたたみ(details)を開いた時にテキストエリアの高さを再調整
+      document.querySelectorAll('details').forEach(details => {
+        details.addEventListener('toggle', () => {
+          if (details.open) {
+            setTimeout(() => setupTextareaAutoResize(details), 10);
+          }
+        });
+      });
 
       // URLパラメータ処理
       const urlParams = new URLSearchParams(window.location.search);
       const queryId = urlParams.get('id');
-      if (queryId) {
+      if (queryId && idInput) {
         idInput.value = queryId;
         loadFromServer(queryId, true);
       }
 
       if (typeof fetchCharacterList === 'function') fetchCharacterList();
-
-      // 初期行追加
-      if (sessionBody.rows.length === 0) addSessionRow();
-      if (purchaseBody.rows.length === 0) addPurchaseRow();
-
-      // 名声技能は初期0行でもOK（計算で増えるため）。
-      // ただし、名声0でも手動で書きたい場合があるなら1行入れても良いが、
-      // ルール的には「名声200で1つ」なので、初期は0行が正しい。
-      // もし強制的に1行欲しいなら下記を有効化
-      // if (fameBody.rows.length === 0) addFameRow();
-
-      setupTextareaAutoResize(document.body);
-
-      // ★重要: 初回計算を実行して枠を調整
-      calculateTotal();
     });
 
-    // --- データ取得/反映 ---
+    // --- データ取得 ---
     function getFormDataAsJson() {
       const formData = new FormData(form);
       const data = {};
@@ -580,63 +615,89 @@
           data[key] = value;
         }
       });
-      data['__item_rows'] = document.querySelector('#item-list tbody').rows.length;
+      const tbodyList = document.querySelector('#item-list tbody');
+      data['__item_rows'] = tbodyList ? tbodyList.rows.length : 0;
 
       data['session_history'] = [];
-      sessionBody.querySelectorAll('tr').forEach(tr => {
-        data['session_history'].push({
-          date: tr.querySelector('input[name="sess_date"]').value,
-          title: tr.querySelector('textarea[name="sess_title"]').value,
-          money: tr.querySelector('input[name="sess_money"]').value,
-          fame: tr.querySelector('input[name="sess_fame"]').value,
-          memo: tr.querySelector('textarea[name="sess_memo"]').value
+      if (sessionBody) {
+        sessionBody.querySelectorAll('tr').forEach(tr => {
+          data['session_history'].push({
+            date: tr.querySelector('input[name="sess_date"]').value,
+            title: tr.querySelector('textarea[name="sess_title"]').value,
+            money: tr.querySelector('input[name="sess_money"]').value,
+            fame: tr.querySelector('input[name="sess_fame"]').value,
+            memo: tr.querySelector('textarea[name="sess_memo"]').value
+          });
         });
-      });
+      }
 
       data['purchase_history'] = [];
-      purchaseBody.querySelectorAll('tr').forEach(tr => {
-        data['purchase_history'].push({
-          item: tr.querySelector('textarea[name="pur_item"]').value,
-          cost: tr.querySelector('input[name="pur_cost"]').value,
-          memo: tr.querySelector('textarea[name="pur_memo"]').value
+      if (purchaseBody) {
+        purchaseBody.querySelectorAll('tr').forEach(tr => {
+          data['purchase_history'].push({
+            item: tr.querySelector('textarea[name="pur_item"]').value,
+            cost: tr.querySelector('input[name="pur_cost"]').value,
+            memo: tr.querySelector('textarea[name="pur_memo"]').value
+          });
         });
-      });
+      }
 
       data['fame_skills_list'] = [];
-      fameBody.querySelectorAll('tr').forEach(tr => {
-        data['fame_skills_list'].push({
-          name: tr.querySelector('input[name="fame_name"]').value,
-          effect: tr.querySelector('textarea[name="fame_effect"]').value
+      if (fameBody) {
+        fameBody.querySelectorAll('tr').forEach(tr => {
+          data['fame_skills_list'].push({
+            name: tr.querySelector('input[name="fame_name"]').value,
+            effect: tr.querySelector('textarea[name="fame_effect"]').value
+          });
         });
-      });
+      }
       return data;
     }
 
+    // --- データ反映 ---
     function applyDataToSheet(data) {
+      // 所持品リスト復元
       if (data['__item_rows']) {
-        const current = document.querySelector('#item-list tbody').rows.length;
-        const needed = parseInt(data['__item_rows']);
-        for (let i = current; i < needed; i++) document.getElementById('add-item-row').click();
+        const tbodyList = document.querySelector('#item-list tbody');
+        if (tbodyList) {
+          const current = tbodyList.rows.length;
+          const needed = parseInt(data['__item_rows']);
+          for (let i = current; i < needed; i++) {
+            document.getElementById('add-item-row').click();
+          }
+        }
       }
 
       // 履歴復元
-      sessionBody.innerHTML = '';
-      if (data['session_history']) data['session_history'].forEach(row => addSessionRow(row));
-      else addSessionRow();
+      if (sessionBody) {
+        sessionBody.innerHTML = '';
+        if (data['session_history'] && data['session_history'].length > 0) {
+          data['session_history'].forEach(row => addSessionRow(row));
+        } else {
+          addSessionRow();
+        }
+      }
 
-      purchaseBody.innerHTML = '';
-      if (data['purchase_history']) data['purchase_history'].forEach(row => addPurchaseRow(row));
-      else addPurchaseRow();
+      if (purchaseBody) {
+        purchaseBody.innerHTML = '';
+        if (data['purchase_history'] && data['purchase_history'].length > 0) {
+          data['purchase_history'].forEach(row => addPurchaseRow(row));
+        } else {
+          addPurchaseRow();
+        }
+      }
 
       // 名声技能復元
-      fameBody.innerHTML = '';
-      if (data['fame_skills_list']) {
-        data['fame_skills_list'].forEach(row => addFameRow(row));
-      } else if (data['fame_skills']) {
-        addFameRow({ name: '旧データ', effect: data['fame_skills'] });
+      if (fameBody) {
+        fameBody.innerHTML = '';
+        if (data['fame_skills_list'] && data['fame_skills_list'].length > 0) {
+          data['fame_skills_list'].forEach(row => addFameRow(row));
+        } else if (data['fame_skills']) {
+          addFameRow({ name: '旧データ', effect: data['fame_skills'] });
+        }
       }
-      // ★ポイント: 復元直後は枠数が合わない可能性があるが、直後のcalculateTotalで調整される
 
+      // フォーム値復元
       Object.keys(data).forEach(key => {
         if (!['__item_rows', 'puzzle_positions', 'session_history', 'purchase_history', 'fame_skills_list'].includes(key)) {
           const el = form.elements[key];
@@ -646,19 +707,17 @@
 
       if (window.restorePuzzle && data['puzzle_positions']) window.restorePuzzle(data['puzzle_positions']);
 
-      // ★計算と枠調整
       calculateTotal();
       setTimeout(() => setupTextareaAutoResize(document.body), 50);
     }
 
-    // --- サーバー通信 ---
+    // --- ボタン処理 ---
     document.getElementById('btn-save-server').addEventListener('click', async () => {
       const charId = idInput.value.trim();
       const isPrivate = document.getElementById('is-private').checked;
       if (!charId) { alert('IDを入力してください'); return; }
 
       localStorage.setItem('shinjuku_pl_name', document.querySelector('input[name="player_name"]').value);
-
       const btn = document.getElementById('btn-save-server');
       btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>...';
 
@@ -674,9 +733,62 @@
       finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> サーバーに保存'; }
     });
 
+    // ココフォリア出力 (フォールバック付き)
+    document.getElementById("btn-copy-ccfolia").addEventListener("click", () => {
+      const pcName = document.querySelector('input[name="pc_name"]').value.trim();
+      if (!pcName) { alert("PC名を入力してください"); return; }
+
+      const formData = getFormDataAsJson();
+      const penaltyDisplay = document.getElementById('penalty-display');
+      const penalty = penaltyDisplay ? (penaltyDisplay.textContent.match(/-?\d+/) || [0])[0] : 0;
+      const penaltyAbs = Math.abs(parseInt(penalty));
+      const stamina = formData.stamina || 0;
+      const spirit = formData.spirit || 0;
+
+      const equipBStat = document.querySelector('input[name="equip_b_stat"]').value;
+      let armorDurability = 0;
+      if (equipBStat && /\d+/.test(equipBStat)) armorDurability = parseInt(equipBStat.match(/\d+/)[0]);
+
+      const statusList = [
+        { label: "体力", value: stamina, max: 6 },
+        { label: "やる気", value: spirit, max: 6 },
+        { label: "ペナルティ", value: penaltyAbs, max: 36 }
+      ];
+      if (armorDurability > 0) statusList.push({ label: "防具", value: armorDurability, max: armorDurability });
+
+      const ccfoliaData = {
+        kind: "character",
+        data: {
+          name: pcName, memo: formData.memo || "", initiative: 0, externalUrl: "",
+          status: statusList, commands: generateChatPalette(formData, penalty)
+        },
+      };
+
+      const jsonString = JSON.stringify(ccfoliaData);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsonString)
+          .then(() => alert("ココフォリア駒データをコピーしました！\n盤面で貼り付けてください。"))
+          .catch(err => fallbackCopyTextToClipboard(jsonString));
+      } else {
+        fallbackCopyTextToClipboard(jsonString);
+      }
+    });
+
+    function fallbackCopyTextToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.focus(); textArea.select();
+      try {
+        const s = document.execCommand('copy');
+        alert(s ? "ココフォリア駒データをコピーしました！(互換)" : "コピー失敗");
+      } catch (e) { alert("コピー失敗"); }
+      document.body.removeChild(textArea);
+    }
+
     async function loadFromServer(charId, isAuto) {
-      // (省略: 既存のload処理と同じ)
-      // ここは変更なしでOKですが、必要なら全文記述します
       if (!charId) return;
       const btn = document.getElementById('btn-load-server');
       let orgText = "";
@@ -710,9 +822,9 @@
       if (!confirm('リセットしますか？')) return;
       form.reset();
       if (window.restorePuzzle) window.restorePuzzle('[]');
-      sessionBody.innerHTML = ''; addSessionRow();
-      purchaseBody.innerHTML = ''; addPurchaseRow();
-      fameBody.innerHTML = ''; // 名声はクリア
+      if (sessionBody) { sessionBody.innerHTML = ''; addSessionRow(); }
+      if (purchaseBody) { purchaseBody.innerHTML = ''; addPurchaseRow(); }
+      if (fameBody) { fameBody.innerHTML = ''; }
       calculateTotal();
     });
 
@@ -721,7 +833,8 @@
 
     async function fetchCharacterList() {
       const tbody = document.getElementById('character-list-body');
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> 読み込み中...</td></tr>';
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">読み込み中...</td></tr>';
 
       try {
         const url = `${GAS_API_URL}?tool=shinjuku&action=list`;
@@ -731,46 +844,61 @@
         if (json.status === 'success') {
           const list = json.data;
           if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">登録されたキャラクターはありません</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">データなし</td></tr>';
             return;
           }
-
           tbody.innerHTML = '';
-          list.forEach(char => {
+          list.forEach(c => {
             const tr = document.createElement('tr');
-            // 自分のページへのリンクを構成
-            const link = `?id=${encodeURIComponent(char.id)}`;
-
-            tr.innerHTML = `
-                        <td><strong>${escapeHtml(char.pc_name)}</strong></td>
-                        <td>${escapeHtml(char.player_name)}</td>
-                        <td style="font-size:0.8em; color:#aaa;">${char.updated}</td>
-                        <td style="text-align:center;">
-                            <a href="${link}" class="crawler-btn load" style="padding:2px 8px; font-size:0.8em;">見る</a>
-                        </td>
-                    `;
+            const link = `?id=${encodeURIComponent(c.id)}`;
+            tr.innerHTML = `<td><b>${escapeHtml(c.pc_name)}</b></td><td>${escapeHtml(c.player_name)}</td><td>${c.updated}</td><td style="text-align:center;"><a href="${link}" class="crawler-btn load" style="padding:2px 8px;font-size:0.8em">見る</a></td>`;
             tbody.appendChild(tr);
           });
         } else {
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">エラー: ${json.message}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:red;">${json.message}</td></tr>`;
         }
       } catch (e) {
         console.error(e);
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">一覧の取得に失敗しました</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">エラー</td></tr>';
       }
+    }
+
+    function generateChatPalette(data, penalty) {
+      const spirit = data.spirit || 0;
+      const equipR = {
+        name: document.querySelector('input[name="equip_r_name"]').value,
+        stat: document.querySelector('input[name="equip_r_stat"]').value
+      };
+      const equipL = {
+        name: document.querySelector('input[name="equip_l_name"]').value,
+        stat: document.querySelector('input[name="equip_l_stat"]').value
+      };
+
+      const palette = [];
+      palette.push(`//-- 判定 --`);
+      palette.push(`1d6 先制判定 (1-3:先手 / 4-6:後手)`);
+      palette.push(`choice[敵より前,敵より後] 行動順`);
+      palette.push(`D6<=${spirit} やる気判定`);
+      palette.push(``);
+
+      palette.push(`//-- 攻撃 --`);
+      if (equipR.name && equipR.stat) palette.push(`${equipR.stat} ダメージ／${equipR.name}`);
+      if (equipL.name && equipL.stat) palette.push(`${equipL.stat} ダメージ／${equipL.name}`);
+
+      palette.push(`D20<=11-{ペナルティ} 攻撃判定`);
+      palette.push(`2D20L1<=11-{ペナルティ} 有利・攻撃判定`);
+      palette.push(`2D20H1<=11-{ペナルティ} 不利・攻撃判定`);
+      palette.push(``);
+
+      palette.push(`//-- 汎用判定 --`);
+      palette.push(`D20<={成功値}-{ペナルティ} 判定`);
+
+      return palette.join('\n');
     }
 
     function escapeHtml(str) {
       if (!str) return '';
-      return str.replace(/[&<>"']/g, function (match) {
-        return {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        }[match];
-      });
+      return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
   </script>
 </body>
