@@ -211,8 +211,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // --- ハンバーガーメニューの制御 ---
-  function initializeHamburgerMenu() {
+  // ==========================================================================
+  // 3. メニュー初期化（グローバル関数）
+  // ==========================================================================
+  function initializeMenu() {
+    // --- ハンバーガーメニューの制御 ---
     const hamburger = document.getElementById("hamburger-menu");
     const sideMenu = document.getElementById("tableOfContents");
     const overlay = document.getElementById("menu-overlay");
@@ -231,54 +234,67 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.classList.toggle("is-open", isOpen);
         document.body.classList.toggle("no-scroll", isOpen);
       };
-      hamburger.addEventListener("click", () =>
-        toggleMenu(!sideMenu.classList.contains("is-open"))
-      );
-      overlay.addEventListener("click", () => toggleMenu(false));
-    }
-  }
+      // 既存のイベントリスナーを削除してから追加（二重登録防止）
+      hamburger.replaceWith(hamburger.cloneNode(true));
+      document
+        .getElementById("hamburger-menu")
+        .addEventListener("click", () =>
+          toggleMenu(!sideMenu.classList.contains("is-open"))
+        );
 
-  // --- サブメニューの制御 ---
-  function initializeSubMenu() {
+      overlay.replaceWith(overlay.cloneNode(true));
+      document
+        .getElementById("menu-overlay")
+        .addEventListener("click", () => toggleMenu(false));
+    }
+
+    // --- サブメニューの制御 ---
     const submenuTriggers = document.querySelectorAll(".submenu-trigger");
     submenuTriggers.forEach((trigger) => {
-      trigger.addEventListener("click", function (e) {
+      // 既存のイベントリスナーを削除してから追加
+      const newTrigger = trigger.cloneNode(true);
+      trigger.parentNode.replaceChild(newTrigger, trigger);
+
+      newTrigger.addEventListener("click", function (e) {
         e.preventDefault();
         this.classList.toggle("active");
         const submenu = this.nextElementSibling;
         if (submenu && submenu.classList.contains("submenu")) {
-          if (submenu.style.maxHeight === "0px") {
+          if (submenu.style.maxHeight && submenu.style.maxHeight !== "0px") {
+            // 開いている状態から閉じる
+            submenu.style.maxHeight = submenu.scrollHeight + "px";
+            requestAnimationFrame(() => {
+              submenu.style.maxHeight = "0px";
+            });
+          } else {
             // 閉じている状態から開く
             submenu.style.maxHeight = submenu.scrollHeight + "px";
-            // アニメーション完了後に max-height を解除（中身の変更に対応するため）
             submenu.addEventListener(
               "transitionend",
               () => {
                 if (submenu.style.maxHeight !== "0px") {
-                  submenu.style.maxHeight = null;
+                  submenu.style.maxHeight = "none";
                 }
               },
               { once: true }
             );
-          } else {
-            // 開いている状態から閉じる
-            // transitionを効かせるために、一旦現在の高さを設定
-            submenu.style.maxHeight = submenu.scrollHeight + "px";
-            // ブラウザがスタイル適用を認識するためのウェイト
-            requestAnimationFrame(() => {
-              submenu.style.maxHeight = "0px";
-            });
           }
         }
       });
     });
 
-    // 初期ロード時にすべてのサブメニューの矢印を「開いた状態」にする
-    const allSubmenuTriggers = document.querySelectorAll(".submenu-trigger");
-    allSubmenuTriggers.forEach((trigger) => {
-      trigger.classList.add("active");
-      // CSSでデフォルト開いているため、maxHeightの操作は不要
+    // 初期状態でサブメニューを開く
+    const allSubmenus = document.querySelectorAll(".submenu");
+    allSubmenus.forEach((submenu) => {
+      submenu.style.maxHeight = "none";
+      submenu.previousElementSibling.classList.add("active");
     });
+
+    // --- SVGアイコンの挿入 ---
+    injectSvgIcons();
+
+    // カスタムイベントを発火させて、common.jsが読み込まれたことを通知
+    document.dispatchEvent(new Event("commonJsLoaded"));
   }
 
   const backToTopBtn = document.getElementById("backToTopBtn");
@@ -400,13 +416,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- 初期化の実行 ---
-  // メニュー関連の初期化を loadHeader の外に移動し、全ページで実行されるようにする
-  initializeHamburgerMenu();
-  initializeSubMenu();
-
+  // header-placeholderがある場合は、従来通りloadHeaderを呼び出す
   if (document.getElementById("header-placeholder")) {
     loadHeader();
   }
+  // それ以外のページ（satasupe_chara.htmlなど）では、
+  // 個別のscriptタグから initializeMenu() が呼ばれるのを待つ。
+
   injectFaviconLinks();
   initializeSwiperSlider();
 });
