@@ -177,7 +177,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const svgPath = placeholder.dataset.svgPath;
       if (svgPath) {
         try {
-          const response = await fetch(`${basePath}${svgPath}`);
+          // svgPathが/で始まらない場合は/を追加
+          const fullPath = svgPath.startsWith("/")
+            ? `${basePath}${svgPath}`
+            : `${basePath}/${svgPath}`;
+          const response = await fetch(fullPath);
           if (response.ok) {
             const svgText = await response.text();
             placeholder.innerHTML = svgText;
