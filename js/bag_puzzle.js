@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let items = []; // {id, x, y, w, h, name, rawW, rawH}
 
-  // --- テキストエリア自動高さ調整 (★追加) ---
+  // --- テキストエリア自動高さ調整 ---
   function autoResizeTextarea(el) {
     if (!el) return;
     el.style.height = "auto"; // 一旦リセット
@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let w = 1,
       h = 1;
     if (data.size) {
-      // 古いデータ互換
       const parts = data.size.split("x");
       if (parts.length === 2) {
         w = parts[0];
@@ -49,7 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }" class="sync-trigger"></td>
             <td><input type="number" name="item_price" value="${
               data.price || ""
-            }" placeholder="0"></td>
+            }" placeholder="0" class="calc-trigger"></td>
+            <td style="text-align:center;"><input type="checkbox" name="item_free" class="calc-trigger" ${
+              data.isFree ? "checked" : ""
+            }></td>
             <td>
                 <div class="size-input-group">
                     <input type="number" name="item_w" value="${w}" min="1">
@@ -66,11 +68,17 @@ document.addEventListener("DOMContentLoaded", () => {
             <td class="delete-cell"></td>
         `;
 
-    // ★追加: テキストエリアの自動調整設定
+    // ★修正: calc-triggerへのイベント付与を関数内に移動
+    tr.querySelectorAll(".calc-trigger").forEach((el) => {
+      el.addEventListener("input", () => {
+        if (window.calculateTotal) window.calculateTotal();
+      });
+    });
+
+    // テキストエリアの自動調整設定
     const ta = tr.querySelector('textarea[name="item_note"]');
     if (ta) {
       ta.addEventListener("input", () => autoResizeTextarea(ta));
-      // 初期表示時にもリサイズ
       setTimeout(() => autoResizeTextarea(ta), 0);
     }
 
@@ -83,21 +91,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 削除イベント
     delBtn.addEventListener("click", () => {
-      // 1. パズル上のアイテムを削除
       const puzzleEl = document.getElementById(rowId + "-puzzle");
       if (puzzleEl) {
         puzzleEl.remove();
       }
-
-      // 2. データ配列から削除
       items = items.filter((i) => i.id !== rowId);
-
-      // 3. 行を削除
       tr.remove();
-
-      // 4. ペナルティ再計算・保存
       updatePenalty();
       savePositionsToHidden();
+      if (window.calculateTotal) window.calculateTotal(); // 削除時も再計算
     });
 
     tr.querySelector(".delete-cell").appendChild(delBtn);
@@ -105,27 +107,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return tr;
   }
 
-  // 初回10行生成 (初期ロード時)
+  // 初回10行生成
   for (let i = 0; i < 10; i++) {
     itemListBody.appendChild(createItemRow(i));
   }
 
   // 行追加ボタン
   addRowBtn.addEventListener("click", () => {
-    // インデックスはダミー、IDは createItemRow 内で生成
     itemListBody.appendChild(createItemRow(0));
   });
 
-  // --- パズル同期 (リスト -> パズル) ---
+  // --- パズル同期 ---
   syncBtn.addEventListener("click", syncPuzzleFromList);
 
   function syncPuzzleFromList() {
     const rows = itemListBody.querySelectorAll("tr");
     const existingItems = new Map(items.map((i) => [i.id, i]));
-
-    // ※ここでは全クリアせず、リストにあるものを「正」として更新・追加する
-    // リストから消えたID（名前が空になった等）のクリーニングも行う
-
     const activeIds = new Set();
 
     rows.forEach((row) => {
@@ -135,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const hInput = row.querySelector(`input[name="item_h"]`);
 
       const name = nameInput.value;
-      if (!name) return; // 名前がない行は無視（パズルには出さない）
+      if (!name) return;
 
       activeIds.add(id);
 
@@ -147,15 +144,12 @@ document.addEventListener("DOMContentLoaded", () => {
       let itemData = existingItems.get(id);
 
       if (itemData) {
-        // 既存アイテム: サイズ変更があれば反映
-        // 回転状態を維持するかリセットするかは仕様次第だが、ここでは「入力値」を優先してリセットする
         if (itemData.rawW !== w || itemData.rawH !== h) {
           itemData.w = w;
           itemData.h = h;
           itemData.rawW = w;
           itemData.rawH = h;
 
-          // DOMサイズ更新
           const el = document.getElementById(id + "-puzzle");
           if (el) {
             el.style.width = w * CELL_SIZE + "px";
@@ -163,13 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
         itemData.name = name;
-
-        // DOM名前更新
         const el = document.getElementById(id + "-puzzle");
         if (el) el.querySelector("span").textContent = name;
       } else {
-        // 新規アイテム: 空き場所を探して配置
-        // 既存アイテムリスト(items)全体を見て空きを探す
         const pos = findEmptyPosition(w, h, items);
         itemData = {
           id: id,
@@ -186,7 +176,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // リストに名前がなくなった、または削除されたアイテムをパズルから消す
     items = items.filter((i) => {
       if (!activeIds.has(i.id)) {
         const el = document.getElementById(i.id + "-puzzle");
@@ -200,15 +189,11 @@ document.addEventListener("DOMContentLoaded", () => {
     savePositionsToHidden();
   }
 
-  // 空きスペース探索 (左上優先)
+  // 空きスペース探索
   function findEmptyPosition(w, h, currentItems) {
-    // y=0～5, x=0～5 の範囲で探す (セーフゾーン内)
     for (let y = 0; y < SAFE_ROWS; y++) {
       for (let x = 0; x < GRID_COLS; x++) {
-        // はみ出しチェック
         if (x + w > GRID_COLS || y + h > SAFE_ROWS) continue;
-
-        // 衝突チェック
         let collision = false;
         for (const other of currentItems) {
           if (isOverlap(x, y, w, h, other.x, other.y, other.w, other.h)) {
@@ -216,13 +201,9 @@ document.addEventListener("DOMContentLoaded", () => {
             break;
           }
         }
-
-        if (!collision) {
-          return { x, y };
-        }
+        if (!collision) return { x, y };
       }
     }
-    // 空きがない場合は (0,0) に重ねる
     return { x: 0, y: 0 };
   }
 
@@ -249,7 +230,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateElementPosition(el, itemData.x, itemData.y);
     setupDrag(el, itemData);
 
-    // ダブルクリックで回転
     el.addEventListener("dblclick", (e) => {
       e.preventDefault();
       const temp = itemData.w;
@@ -317,12 +297,8 @@ document.addEventListener("DOMContentLoaded", () => {
       let gridX = Math.round(currentLeft / CELL_SIZE);
       let gridY = Math.round(currentTop / CELL_SIZE);
 
-      // 境界線チェック
-      // 横: 0 ~ 5
       if (gridX < 0) gridX = 0;
       if (gridX + itemData.w > GRID_COLS) gridX = GRID_COLS - itemData.w;
-
-      // 縦: 上は制限なし(ペナルティ)、下は SAFE_ROWS まで
       if (gridY + itemData.h > SAFE_ROWS) {
         gridY = SAFE_ROWS - itemData.h;
       }
@@ -339,17 +315,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- ペナルティ表示更新 ---
   function updatePenalty() {
     let penaltyCount = 0;
-    let minGridY = 0; // 最も上にあるアイテムのY座標（表示調整用）
+    let minGridY = 0;
 
     items.forEach((item) => {
       if (item.y < minGridY) minGridY = item.y;
-
-      // アイテムが占める全マスをチェック
+      // はみ出たマス数で計算
       for (let py = 0; py < item.h; py++) {
         const currentY = item.y + py;
-        // y < 0 (セーフゾーンより上) にある行のマス数をカウント
         if (currentY < 0) {
-          // 横幅ぶんペナルティを加算
           penaltyCount += item.w;
         }
       }
@@ -358,22 +331,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (penaltyCount > 0) {
       penaltyDisplay.textContent = `ペナルティ: -${penaltyCount}`;
       penaltyDisplay.style.color = "#ff5555";
-
       puzzleArea.classList.add("show-penalty");
 
-      // ペナルティエリアの高さを計算
       const overflowHeight = Math.abs(minGridY) * CELL_SIZE;
-
-      // 背景位置とサイズ
       penaltyBg.style.top = minGridY * CELL_SIZE + "px";
       penaltyBg.style.height = overflowHeight + "px";
-
-      // 全体を下にずらす
       puzzleArea.style.marginTop = overflowHeight + 30 + "px";
     } else {
       penaltyDisplay.textContent = `ペナルティ: 0`;
       penaltyDisplay.style.color = "#eee";
-
       puzzleArea.classList.remove("show-penalty");
       puzzleArea.style.marginTop = "20px";
       penaltyBg.style.top = "0px";
@@ -381,12 +347,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 保存用: アイテム情報 + 備考(Note) をJSON化 ---
+  // --- 保存用 ---
   function savePositionsToHidden() {
     const data = items.map((i) => {
       const row = itemListBody.querySelector(`tr[data-id="${i.id}"]`);
-
-      // リストから最新の値を取得
       const note = row
         ? row.querySelector(`textarea[name="item_note"]`).value
         : "";
@@ -396,6 +360,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const count = row
         ? row.querySelector(`input[name="item_count"]`).value
         : "";
+      const isFree = row
+        ? row.querySelector(`input[name="item_free"]`).checked
+        : false;
 
       return {
         id: i.id,
@@ -407,48 +374,44 @@ document.addEventListener("DOMContentLoaded", () => {
         rawH: i.rawH,
         name: i.name,
         note: note,
-        price: price, // 追加
-        count: count, // 追加
+        price: price,
+        isFree: isFree,
+        count: count,
       };
     });
     hiddenInput.value = JSON.stringify(data);
   }
 
-  // --- ロード用: JSONから完全復元 ---
+  // --- ロード用 ---
   window.restorePuzzle = function (jsonString) {
     if (!jsonString) return;
     try {
       const savedItems = JSON.parse(jsonString);
-
-      // リストとパズルをリセット
       itemListBody.innerHTML = "";
       itemLayer.innerHTML = "";
       items = [];
 
       savedItems.forEach((item) => {
-        // リスト行を生成
         const tr = createItemRow(0, {
-          // indexはダミー
           rowId: item.id,
           name: item.name,
-          w: item.rawW, // 回転前サイズ
+          w: item.rawW,
           h: item.rawH,
           note: item.note,
+          price: item.price,
+          isFree: item.isFree,
+          count: item.count,
         });
         itemListBody.appendChild(tr);
 
-        // パズル要素を生成
-        const itemData = { ...item }; // コピー
+        const itemData = { ...item };
         items.push(itemData);
         createPuzzleElement(itemData);
       });
 
       updatePenalty();
-      // restore時はHTML側が既にvalueセットされている場合があるが、
-      // ここでDOM再構築しているので hiddenInput も更新しておく
       hiddenInput.value = jsonString;
 
-      // ★追加: 復元後にテキストエリアの高さを調整
       setTimeout(() => {
         document
           .querySelectorAll("textarea")

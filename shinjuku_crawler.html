@@ -94,12 +94,16 @@
             <div class="table-scroll">
               <table class="crawler-table">
                 <colgroup>
-                  <col style="width: 5%;"> <!-- 部位 -->
-                  <col style="width: 22%;"> <!-- 名前 -->
-                  <col style="width: 10%;"> <!-- Dmg/耐久 -->
+                  <!-- 左側合計: 35% -->
+                  <col style="width: 6%;"> <!-- 部位 -->
+                  <col style="width: 18%;"> <!-- 名前: 20% -> 18% -->
+                  <col style="width: 11%;"> <!-- Dmg/耐久 -->
+
+                  <!-- 右側共通: 65% -->
                   <col style="width: 8%;"> <!-- 価格 -->
+                  <col style="width: 7%;"> <!-- 無料: 5% -> 7% -->
                   <col style="width: 15%;"> <!-- サイズ -->
-                  <col style="width: 40%;"> <!-- 備考 -->
+                  <col style="width: 35%;"> <!-- 備考 -->
                 </colgroup>
                 <thead>
                   <tr>
@@ -107,6 +111,7 @@
                     <th>名前</th>
                     <th style="font-size:0.8rem;">ダメ/耐久</th>
                     <th>価格</th>
+                    <th style="font-size:0.7rem;">無料</th>
                     <th>サイズ（メモ用）</th>
                     <th>備考</th>
                   </tr>
@@ -117,7 +122,8 @@
                     <td class="fixed-label">右手</td>
                     <td><input type="text" name="equip_r_name"></td>
                     <td><input type="text" name="equip_r_stat" placeholder="ダメージ"></td>
-                    <td><input type="number" name="equip_r_price" placeholder="0"></td>
+                    <td><input type="number" name="equip_r_price" placeholder="0" class="calc-trigger"></td>
+                    <td style="text-align:center;"><input type="checkbox" name="equip_r_free" class="calc-trigger"></td>
                     <td>
                       <div class="size-input-group">
                         <input type="number" name="equip_r_w" value="1" min="1">
@@ -132,7 +138,8 @@
                     <td class="fixed-label">左手</td>
                     <td><input type="text" name="equip_l_name"></td>
                     <td><input type="text" name="equip_l_stat" placeholder="ダメージ"></td>
-                    <td><input type="number" name="equip_l_price" placeholder="0"></td>
+                    <td><input type="number" name="equip_l_price" placeholder="0" class="calc-trigger"></td>
+                    <td style="text-align:center;"><input type="checkbox" name="equip_l_free" class="calc-trigger"></td>
                     <td>
                       <div class="size-input-group">
                         <input type="number" name="equip_l_w" value="1" min="1">
@@ -147,7 +154,8 @@
                     <td class="fixed-label">胴</td>
                     <td><input type="text" name="equip_b_name"></td>
                     <td><input type="text" name="equip_b_stat" placeholder="耐久"></td>
-                    <td><input type="number" name="equip_b_price" placeholder="0"></td>
+                    <td><input type="number" name="equip_b_price" placeholder="0" class="calc-trigger"></td>
+                    <td style="text-align:center;"><input type="checkbox" name="equip_b_free" class="calc-trigger"></td>
                     <td>
                       <div class="size-input-group">
                         <input type="number" name="equip_b_w" value="1" min="1">
@@ -169,22 +177,27 @@
               <button type="button" id="btn-sync-puzzle" class="sync-btn"><i class="fa-solid fa-arrows-rotate"></i>
                 カバンに反映</button>
             </div>
-            <p class="small-help">サイズ（横 × 縦）を入力して「反映」でアイテムが出現します。</p>
+            <p class="small-help">サイズを入力して「反映」でアイテムが出現します。</p>
 
             <div class="table-scroll">
               <table class="crawler-table item-table" id="item-list">
                 <colgroup>
-                  <col style="width: 37%;"> <!-- 名前 -->
+                  <!-- 左側合計: 35% -->
+                  <col style="width: 35%;"> <!-- 名前: 37% -> 35% -->
+
+                  <!-- 右側共通: 65% -->
                   <col style="width: 8%;"> <!-- 価格 -->
+                  <col style="width: 7%;"> <!-- 無料: 5% -> 7% -->
                   <col style="width: 15%;"> <!-- サイズ -->
-                  <col style="width: 10%;"> <!-- 残回数 -->
-                  <col style="width: 25%;"> <!-- 備考 -->
+                  <col style="width: 8%;"> <!-- 残回数 -->
+                  <col style="width: 22%;"> <!-- 備考 -->
                   <col style="width: 5%;"> <!-- 削除 -->
                 </colgroup>
                 <thead>
                   <tr>
                     <th>名前</th>
                     <th>価格</th>
+                    <th style="font-size:0.7rem;">無料</th>
                     <th>サイズ</th>
                     <th style="font-size:0.8rem;">残回数</th>
                     <th>効果・備考</th>
@@ -193,8 +206,8 @@
                 </thead>
                 <tbody></tbody>
               </table>
-              <button type="button" id="add-item-row" class="add-row-btn"><i class="fa-solid fa-plus"></i> 行を追加</button>
             </div>
+            <button type="button" id="add-item-row" class="add-row-btn"><i class="fa-solid fa-plus"></i> 行を追加</button>
           </div>
         </div>
       </div> <!-- /sheet-layout -->
@@ -475,7 +488,7 @@
       let totalMoney = parseInt(initMoneyInput ? initMoneyInput.value : 0) || 0;
       let totalFame = parseInt(initFameInput ? initFameInput.value : 0) || 0;
 
-      // セッション履歴
+      // 1. セッション履歴 (報酬)
       sessionBody.querySelectorAll('tr').forEach(tr => {
         const m = parseInt(tr.querySelector('input[name="sess_money"]').value) || 0;
         const f = parseInt(tr.querySelector('input[name="sess_fame"]').value) || 0;
@@ -483,10 +496,42 @@
         totalFame += f;
       });
 
-      // 購入履歴
+      // 2. その他収支 (購入・売却など)
       purchaseBody.querySelectorAll('tr').forEach(tr => {
         const c = parseInt(tr.querySelector('input[name="pur_cost"]').value) || 0;
         totalMoney += c;
+      });
+
+      // 3. ★追加: 装備品の購入費 (無料チェックがない場合のみ引く)
+      const calcEquipCost = (priceInput, freeCheck) => {
+        if (freeCheck && freeCheck.checked) return 0;
+        return parseInt(priceInput.value) || 0;
+      };
+
+      // 右手
+      totalMoney -= calcEquipCost(
+        document.querySelector('input[name="equip_r_price"]'),
+        document.querySelector('input[name="equip_r_free"]')
+      );
+      // 左手
+      totalMoney -= calcEquipCost(
+        document.querySelector('input[name="equip_l_price"]'),
+        document.querySelector('input[name="equip_l_free"]')
+      );
+      // 胴
+      totalMoney -= calcEquipCost(
+        document.querySelector('input[name="equip_b_price"]'),
+        document.querySelector('input[name="equip_b_free"]')
+      );
+
+      // 4. ★追加: 所持品リストの購入費
+      const itemListRows = document.querySelectorAll('#item-list tbody tr');
+      itemListRows.forEach(tr => {
+        const priceInput = tr.querySelector('input[name="item_price"]');
+        const freeCheck = tr.querySelector('input[name="item_free"]');
+        if (priceInput && freeCheck && !freeCheck.checked) {
+          totalMoney -= (parseInt(priceInput.value) || 0);
+        }
       });
 
       // 反映
@@ -602,6 +647,9 @@
         idInput.value = queryId;
         loadFromServer(queryId, true);
       }
+      // ★追加: 装備欄の入力変更時に再計算
+      const equipInputs = document.querySelectorAll('.equipment input');
+      equipInputs.forEach(el => el.addEventListener('input', calculateTotal));
 
       if (typeof fetchCharacterList === 'function') fetchCharacterList();
     });
@@ -728,6 +776,11 @@
           body: JSON.stringify({ tool: "shinjuku", action: "save", id: charId, data: getFormDataAsJson(), isPrivate })
         });
         alert('保存しました');
+
+        // ★追加: URLパラメータを更新してリロードなしでURL変更
+        const newUrl = `${window.location.pathname}?id=${encodeURIComponent(charId)}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+
         setTimeout(fetchCharacterList, 2000);
       } catch (e) { alert('保存失敗: ' + e); }
       finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> サーバーに保存'; }
@@ -797,14 +850,18 @@
         const res = await fetch(`${GAS_API_URL}?tool=shinjuku&action=load&id=${encodeURIComponent(charId)}`);
         const json = await res.json();
         if (json.status === 'success') {
-          if (isAuto || confirm('読み込みますか？')) applyDataToSheet(json.data);
+          if (isAuto || confirm('読み込みますか？')) {
+            applyDataToSheet(json.data);
+            // ★追加: 読み込み成功時にURLを更新する
+            const newUrl = `${window.location.pathname}?id=${encodeURIComponent(charId)}`;
+            window.history.pushState({ path: newUrl }, '', newUrl);
+          }
         } else {
           if (!isAuto) alert(json.message);
         }
       } catch (e) { if (!isAuto) alert(e); }
       finally { if (!isAuto) { btn.innerHTML = orgText; btn.disabled = false; } }
     }
-
     document.getElementById('btn-load-server').addEventListener('click', () => {
       const id = idInput.value.trim();
       if (!id) { alert('IDを入力してください'); return; }

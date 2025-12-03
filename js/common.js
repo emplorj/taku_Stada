@@ -46,7 +46,6 @@ const TRPG_SYSTEM_COLORS = {
   };
   s.parentNode.insertBefore(tk, s);
 })(document);
-// common.js (完全版)
 
 // ==========================================================================
 // 1. グローバルスコープの関数と定数
@@ -73,14 +72,10 @@ function copyCodeToClipboard(elementId) {
 
 /**
  * CSV文字列を解析し、行の配列として返します。
- * - ダブルクォート内のカンマや改行は無視します。
- * - 連続するダブルクォート ("") は単一のダブルクォートとして扱います。
- * @param {string} csvText 解析するCSV文字列。
- * @returns {string[][]} 各行が文字列の配列である2次元配列。
  */
 function parseCsvToArray(csvText) {
   const results = Papa.parse(csvText, {
-    header: false, // ヘッダーは手動で処理
+    header: false,
     skipEmptyLines: true,
   });
   return results.data;
@@ -154,8 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // DOMの準備が整うのを待ってから初期化処理を実行
         setTimeout(() => {
-          // header.html内のリンクと画像パスはHTML文字列置換で修正済みなので、ここでは追加のDOM操作は不要
-          // ただし、OGP画像はhead要素にあるため、別途処理が必要
           const ogImageMeta = document.querySelector(
             'meta[property="og:image"]'
           );
@@ -163,10 +156,11 @@ document.addEventListener("DOMContentLoaded", function () {
             ogImageMeta.content = basePath + ogImageMeta.content;
           }
 
+          // ★修正: 定義された関数を呼び出す
           initializeHamburgerMenu();
           initializeSubMenu();
-          injectSvgIcons(); // SVGアイコンを挿入する関数を呼び出す
-          window.dispatchEvent(new Event("header-loaded")); // カスタムイベントを発火
+          injectSvgIcons();
+          window.dispatchEvent(new Event("header-loaded"));
         }, 0);
       } else {
         console.error("Failed to fetch header.html:", response.statusText);
@@ -183,16 +177,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const svgPath = placeholder.dataset.svgPath;
       if (svgPath) {
         try {
-          // basePath を考慮してSVGファイルをフェッチ
           const response = await fetch(`${basePath}${svgPath}`);
           if (response.ok) {
             const svgText = await response.text();
             placeholder.innerHTML = svgText;
-            // SVG要素にクラスを追加してCSSでスタイルを適用できるようにする
             const svgElement = placeholder.querySelector("svg");
             if (svgElement) {
               svgElement.classList.add("menu-icon");
-              // cls-2 の fill を強制的に白に設定
               const cls2Elements = svgElement.querySelectorAll(".cls-2");
               cls2Elements.forEach((el) => {
                 el.style.fill = "#ffffff";
@@ -200,7 +191,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           } else {
             console.error("Failed to fetch SVG:", svgPath, response.statusText);
-            // エラー時は代替テキストやアイコンを表示
             placeholder.innerHTML = `<i class="fa-solid fa-file"></i>`;
           }
         } catch (error) {
@@ -212,10 +202,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==========================================================================
-  // 3. メニュー初期化（グローバル関数）
+  // 3. メニュー初期化（関数分割）
   // ==========================================================================
-  function initializeMenu() {
-    // --- ハンバーガーメニューの制御 ---
+
+  // ★追加: ハンバーガーメニューの初期化関数
+  function initializeHamburgerMenu() {
     const hamburger = document.getElementById("hamburger-menu");
     const sideMenu = document.getElementById("tableOfContents");
     const overlay = document.getElementById("menu-overlay");
@@ -234,24 +225,24 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.classList.toggle("is-open", isOpen);
         document.body.classList.toggle("no-scroll", isOpen);
       };
-      // 既存のイベントリスナーを削除してから追加（二重登録防止）
-      hamburger.replaceWith(hamburger.cloneNode(true));
-      document
-        .getElementById("hamburger-menu")
-        .addEventListener("click", () =>
-          toggleMenu(!sideMenu.classList.contains("is-open"))
-        );
 
-      overlay.replaceWith(overlay.cloneNode(true));
-      document
-        .getElementById("menu-overlay")
-        .addEventListener("click", () => toggleMenu(false));
+      // 既存のリスナーを削除して再登録（クローン置換）
+      const newHamburger = hamburger.cloneNode(true);
+      hamburger.parentNode.replaceChild(newHamburger, hamburger);
+      newHamburger.addEventListener("click", () =>
+        toggleMenu(!sideMenu.classList.contains("is-open"))
+      );
+
+      const newOverlay = overlay.cloneNode(true);
+      overlay.parentNode.replaceChild(newOverlay, overlay);
+      newOverlay.addEventListener("click", () => toggleMenu(false));
     }
+  }
 
-    // --- サブメニューの制御 ---
+  // ★追加: サブメニューの初期化関数
+  function initializeSubMenu() {
     const submenuTriggers = document.querySelectorAll(".submenu-trigger");
     submenuTriggers.forEach((trigger) => {
-      // 既存のイベントリスナーを削除してから追加
       const newTrigger = trigger.cloneNode(true);
       trigger.parentNode.replaceChild(newTrigger, trigger);
 
@@ -261,13 +252,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const submenu = this.nextElementSibling;
         if (submenu && submenu.classList.contains("submenu")) {
           if (submenu.style.maxHeight && submenu.style.maxHeight !== "0px") {
-            // 開いている状態から閉じる
             submenu.style.maxHeight = submenu.scrollHeight + "px";
             requestAnimationFrame(() => {
               submenu.style.maxHeight = "0px";
             });
           } else {
-            // 閉じている状態から開く
             submenu.style.maxHeight = submenu.scrollHeight + "px";
             submenu.addEventListener(
               "transitionend",
@@ -287,14 +276,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const allSubmenus = document.querySelectorAll(".submenu");
     allSubmenus.forEach((submenu) => {
       submenu.style.maxHeight = "none";
-      submenu.previousElementSibling.classList.add("active");
+      if (submenu.previousElementSibling) {
+        submenu.previousElementSibling.classList.add("active");
+      }
     });
-
-    // --- SVGアイコンの挿入 ---
-    injectSvgIcons();
-
-    // カスタムイベントを発火させて、common.jsが読み込まれたことを通知
-    document.dispatchEvent(new Event("commonJsLoaded"));
   }
 
   const backToTopBtn = document.getElementById("backToTopBtn");
@@ -334,12 +319,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isMobile) {
           if (isInitialized) return;
 
-          // Save original state if not already saved
           if (!container.dataset.originalHtml) {
             container.dataset.originalHtml = list.innerHTML;
           }
 
-          // Duplicate items to ensure seamless loop
           const originalItemsHTML = container.dataset.originalHtml;
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = originalItemsHTML;
@@ -347,16 +330,14 @@ document.addEventListener("DOMContentLoaded", function () {
             (node) => node.nodeType === 1
           );
 
-          list.innerHTML = ""; // Clear the list
+          list.innerHTML = "";
 
-          // Duplicate 4 times for a total of 12 items (3 * 4)
           for (let i = 0; i < 4; i++) {
             originalNodes.forEach((item) => {
               list.appendChild(item.cloneNode(true));
             });
           }
 
-          // Prepare Swiper structure
           list.classList.add("swiper");
           const items = Array.from(list.children);
           const wrapper = document.createElement("div");
@@ -380,7 +361,6 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           swiperInstances.set(container, swiper);
         } else {
-          // Destroy swiper and restore original HTML
           if (!isInitialized) return;
 
           const swiper = swiperInstances.get(container);
@@ -416,28 +396,25 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- 初期化の実行 ---
-  // header-placeholderがある場合は、従来通りloadHeaderを呼び出す
   if (document.getElementById("header-placeholder")) {
     loadHeader();
   }
-  // それ以外のページ（satasupe_chara.htmlなど）では、
-  // 個別のscriptタグから initializeMenu() が呼ばれるのを待つ。
 
   injectFaviconLinks();
   initializeSwiperSlider();
 });
 
 async function renderManualCard(tool, placeholderElement) {
-  let iconHtml = `<i class="${tool.icon || "fa-solid fa-link"}"></i>`; // デフォルトアイコン
+  let iconHtml = `<i class="${tool.icon || "fa-solid fa-link"}"></i>`;
 
   if (tool.icon && tool.icon.endsWith(".svg")) {
     try {
       const response = await fetch(tool.icon);
       const svgText = await response.text();
-      iconHtml = svgText; // SVGの内容を直接挿入
+      iconHtml = svgText;
     } catch (error) {
       console.error("SVGの読み込みエラー:", tool.icon, error);
-      iconHtml = `<i class="fa-solid fa-link"></i>`; // エラー時はデフォルトアイコン
+      iconHtml = `<i class="fa-solid fa-link"></i>`;
     }
   } else if (tool.icon && tool.icon.endsWith(".png")) {
     iconHtml = `<img src="${tool.icon}" alt="icon" class="menu-icon">`;
@@ -467,7 +444,7 @@ async function renderManualCard(tool, placeholderElement) {
         </a>
     `;
   placeholderElement.innerHTML = cardHtml;
-  placeholderElement.className = ""; // remove .ogp-card
+  placeholderElement.className = "";
 }
 
 async function fetchOgpData(url, placeholderElement) {
@@ -539,7 +516,6 @@ async function fetchOgpData(url, placeholderElement) {
   }
 }
 
-// (パーティクルアニメーションのコードは変更なし)
 const canvas = document.getElementById("particleCanvas");
 if (canvas) {
   const ctx = canvas.getContext("2d");
