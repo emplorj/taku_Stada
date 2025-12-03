@@ -25,7 +25,7 @@
 <body class="satasupe-body">
 
   <!-- header.htmlを読み込むためのコンテナ -->
-  <div id="header-container"></div>
+  <div id="header-placeholder"></div>
 
   <div class="grunge-overlay"></div>
 
@@ -376,25 +376,7 @@
   </div>
   <script src="js/satasupe_data.js"></script>
   <script src="js/satasupe_logic.js"></script>
-  <script>
-    // header.htmlを読み込んで挿入する
-    document.addEventListener('DOMContentLoaded', function () {
-      fetch('header.html')
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('header-container').innerHTML = data;
 
-          // header.htmlが読み込まれた後に、common.js内のメニュー初期化処理を実行する
-          // common.jsが先に読み込まれても、DOMの準備ができてから実行されるようにする
-          if (typeof initializeMenu === 'function') {
-            initializeMenu();
-          } else {
-            // common.jsの読み込みが遅延した場合に備える
-            document.addEventListener('commonJsLoaded', initializeMenu);
-          }
-        });
-    });
-  </script>
   <script src="js/common.js"></script>
 </body>
 
