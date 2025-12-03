@@ -658,11 +658,28 @@
     function getFormDataAsJson() {
       const formData = new FormData(form);
       const data = {};
+
+      // フォーム内データの取得
       formData.forEach((value, key) => {
         if (!key.startsWith('sess_') && !key.startsWith('pur_') && !key.startsWith('fame_')) {
           data[key] = value;
         }
       });
+
+      // ★追加: ヘッダー内のステータス（フォーム外）を手動取得
+      // これらのinputは <header> 内にあるため form に含まれていない
+      const staminaInput = document.querySelector('input[name="stamina"]');
+      const spiritInput = document.querySelector('input[name="spirit"]');
+      const moneyInput = document.querySelector('input[name="money"]'); // 計算結果だが保存しておくと安心
+      const fameInput = document.querySelector('input[name="fame_points"]');
+
+      if (staminaInput) data['stamina'] = staminaInput.value;
+      if (spiritInput) data['spirit'] = spiritInput.value;
+      if (moneyInput) data['money'] = moneyInput.value;
+      if (fameInput) data['fame_points'] = fameInput.value;
+
+
+      // パズル用: 所持品リストの行数
       const tbodyList = document.querySelector('#item-list tbody');
       data['__item_rows'] = tbodyList ? tbodyList.rows.length : 0;
 
@@ -748,8 +765,17 @@
       // フォーム値復元
       Object.keys(data).forEach(key => {
         if (!['__item_rows', 'puzzle_positions', 'session_history', 'purchase_history', 'fame_skills_list'].includes(key)) {
+          // フォーム内の要素を探す
           const el = form.elements[key];
-          if (el) el.value = data[key];
+          if (el) {
+            el.value = data[key];
+          } else {
+            // フォーム外（ヘッダーなど）にある要素を探してセット
+            const headerEl = document.querySelector(`input[name="${key}"]`);
+            if (headerEl) {
+              headerEl.value = data[key];
+            }
+          }
         }
       });
 
