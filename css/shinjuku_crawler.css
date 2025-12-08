@@ -128,7 +128,7 @@
 }
 
 .left-column {
-  flex: 1 1 50%;
+  flex: 0 1 700px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -195,8 +195,10 @@
   margin-bottom: 0;
 }
 
-.input-row-double .input-row.narrow {
-  flex: 0.6;
+/* 横並びフィールド内のinputは短く（2-3文字想定） */
+.input-row-double .input-row input {
+  max-width: 72px;
+  flex-shrink: 1;
 }
 
 .input-row label,
