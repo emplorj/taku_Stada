@@ -182,6 +182,18 @@
   height: 28px;
 }
 
+/* 横並び入力行（2つのフィールドを1行に配置） */
+.input-row-double {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.input-row-double .input-row {
+  flex: 1;
+  margin-bottom: 0;
+}
+
 .input-row label,
 .input-area label {
   width: var(--label-width);
@@ -783,9 +795,29 @@
 
 .crawler-btn.save-server {
   background-color: #2ecc71;
+  position: relative;
+  overflow: hidden;
 }
 .crawler-btn.save-server:hover {
   background-color: #27ae60;
+}
+
+/* 保存中アニメーション */
+.crawler-btn.save-server.loading {
+  background: linear-gradient(90deg, #3498db 0%, #2ecc71 50%, #3498db 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  pointer-events: none;
+  box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .crawler-btn.share {

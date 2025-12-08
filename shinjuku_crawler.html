@@ -8,10 +8,19 @@
   <title>シンジュクロウラー 探索者シート | 卓スタダ</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/shinjuku_crawler.css">
+  <link rel="stylesheet" href="css/loading_overlay.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
+  <!-- ローディングオーバーレイ -->
+  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div class="loading-text">読み込み中...</div>
+    </div>
+  </div>
+
   <!-- 共通ヘッダー読み込み用 -->
   <div id="header-placeholder"></div>
   <canvas id="particleCanvas"></canvas>
@@ -56,6 +65,10 @@
             <div class="input-row"><label>PL名</label><input type="text" name="player_name"></div>
             <div class="input-row"><label>PC名</label><input type="text" name="pc_name"></div>
             <div class="input-row"><label>フリガナ</label><input type="text" name="pc_kana"></div>
+            <div class="input-row-double">
+              <div class="input-row"><label>年齢</label><input type="text" name="age"></div>
+              <div class="input-row"><label>性別</label><input type="text" name="gender"></div>
+            </div>
             <div class="input-row"><label>背景</label><input type="text" name="background"></div>
             <div class="input-row"><label>タグ</label><input type="text" name="tags"></div>
             <div class="input-row"><label>動機</label><input type="text" name="motivation"></div>
@@ -346,12 +359,10 @@
           </div>
 
           <button type="button" id="btn-save-server" class="crawler-btn save-server">
-            <i class="fa-solid fa-cloud-arrow-up"></i> サーバーに保存
+            <i class="fa-solid fa-cloud-arrow-up"></i> 保存
           </button>
 
-          <button type="button" id="btn-load-server" class="crawler-btn load-server">
-            <i class="fa-solid fa-cloud-arrow-down"></i> IDから読込
-          </button>
+
 
 
           <button type="button" id="btn-share" class="crawler-btn share">
@@ -652,8 +663,23 @@
       const equipInputs = document.querySelectorAll('.equipment input');
       equipInputs.forEach(el => el.addEventListener('input', calculateTotal));
 
+      // 初期表示時にタブタイトルを更新
+      updatePageTitle();
+
       if (typeof fetchCharacterList === 'function') fetchCharacterList();
     });
+
+    // タブタイトル更新関数
+    function updatePageTitle() {
+      const pcName = document.querySelector('input[name="pc_name"]')?.value.trim();
+      const baseTitle = 'シンジュクロウラー 探索者シート | 卓スタダ';
+
+      if (pcName) {
+        document.title = `${pcName} - ${baseTitle}`;
+      } else {
+        document.title = baseTitle;
+      }
+    }
 
     // --- データ取得 ---
     function getFormDataAsJson() {
@@ -783,6 +809,7 @@
       if (window.restorePuzzle && data['puzzle_positions']) window.restorePuzzle(data['puzzle_positions']);
 
       calculateTotal();
+      updatePageTitle(); // タブタイトルを更新
       setTimeout(() => setupTextareaAutoResize(document.body), 50);
     }
 
@@ -794,7 +821,9 @@
 
       localStorage.setItem('shinjuku_pl_name', document.querySelector('input[name="player_name"]').value);
       const btn = document.getElementById('btn-save-server');
-      btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>...';
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 保存中...';
 
       try {
         await fetch(GAS_API_URL, {
@@ -808,9 +837,16 @@
         const newUrl = `${window.location.pathname}?id=${encodeURIComponent(charId)}`;
         window.history.pushState({ path: newUrl }, '', newUrl);
 
+        // 保存成功時にタブタイトルを更新
+        updatePageTitle();
+
         setTimeout(fetchCharacterList, 2000);
       } catch (e) { alert('保存失敗: ' + e); }
-      finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> サーバーに保存'; }
+      finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> 保存';
+      }
     });
 
     // ココフォリア出力 (フォールバック付き)
@@ -824,6 +860,7 @@
       const penaltyAbs = Math.abs(parseInt(penalty));
       const stamina = formData.stamina || 0;
       const spirit = formData.spirit || 0;
+      const money = formData.money || 0;
 
       const equipBStat = document.querySelector('input[name="equip_b_stat"]').value;
       let armorDurability = 0;
@@ -832,15 +869,72 @@
       const statusList = [
         { label: "体力", value: stamina, max: 6 },
         { label: "やる気", value: spirit, max: 6 },
-        { label: "ペナルティ", value: penaltyAbs, max: 36 }
+        { label: "所持金", value: money },
+        { label: "ペナルティ", value: penaltyAbs }
       ];
       if (armorDurability > 0) statusList.push({ label: "防具", value: armorDurability, max: armorDurability });
+
+      // 装備情報を取得
+      const equipR = {
+        name: document.querySelector('input[name="equip_r_name"]').value.trim(),
+        stat: document.querySelector('input[name="equip_r_stat"]').value.trim(),
+        note: document.querySelector('textarea[name="equip_r_note"]').value.trim()
+      };
+      const equipL = {
+        name: document.querySelector('input[name="equip_l_name"]').value.trim(),
+        stat: document.querySelector('input[name="equip_l_stat"]').value.trim(),
+        note: document.querySelector('textarea[name="equip_l_note"]').value.trim()
+      };
+      const equipB = {
+        name: document.querySelector('input[name="equip_b_name"]').value.trim(),
+        stat: document.querySelector('input[name="equip_b_stat"]').value.trim(),
+        note: document.querySelector('textarea[name="equip_b_note"]').value.trim()
+      };
+
+      // memoに装備情報を追加
+      let memoText = formData.memo || "";
+      const equipmentLines = [];
+
+      if (equipR.name) {
+        let rLine = `右手: ${equipR.name}`;
+        if (equipR.stat) rLine += ` (${equipR.stat})`;
+        if (equipR.note) rLine += ` - ${equipR.note}`;
+        equipmentLines.push(rLine);
+      }
+      if (equipL.name) {
+        let lLine = `左手: ${equipL.name}`;
+        if (equipL.stat) lLine += ` (${equipL.stat})`;
+        if (equipL.note) lLine += ` - ${equipL.note}`;
+        equipmentLines.push(lLine);
+      }
+      if (equipB.name) {
+        let bLine = `胴: ${equipB.name}`;
+        if (equipB.stat) bLine += ` (${equipB.stat})`;
+        if (equipB.note) bLine += ` - ${equipB.note}`;
+        equipmentLines.push(bLine);
+      }
+
+      if (equipmentLines.length > 0) {
+        if (memoText) memoText += "\n\n";
+        memoText += "【装備】\n" + equipmentLines.join("\n");
+      }
+
+      // externalUrlを現在のURLに設定
+      const charId = idInput.value.trim();
+      let externalUrl = "";
+      if (charId) {
+        externalUrl = `${location.protocol}//${location.host}${location.pathname}?id=${encodeURIComponent(charId)}`;
+      }
 
       const ccfoliaData = {
         kind: "character",
         data: {
-          name: pcName, memo: formData.memo || "", initiative: 0, externalUrl: "",
-          status: statusList, commands: generateChatPalette(formData, penalty)
+          name: pcName,
+          memo: memoText,
+          initiative: 0,
+          externalUrl: externalUrl,
+          status: statusList,
+          commands: generateChatPalette(formData, penalty)
         },
       };
 
@@ -870,9 +964,11 @@
 
     async function loadFromServer(charId, isAuto) {
       if (!charId) return;
-      const btn = document.getElementById('btn-load-server');
-      let orgText = "";
-      if (!isAuto) { orgText = btn.innerHTML; btn.innerHTML = '...'; btn.disabled = true; }
+
+      // ローディングオーバーレイを表示
+      const loadingOverlay = document.getElementById('loading-overlay');
+      if (loadingOverlay) loadingOverlay.style.display = 'flex';
+
       try {
         const res = await fetch(`${GAS_API_URL}?tool=shinjuku&action=load&id=${encodeURIComponent(charId)}`);
         const json = await res.json();
@@ -886,14 +982,14 @@
         } else {
           if (!isAuto) alert(json.message);
         }
-      } catch (e) { if (!isAuto) alert(e); }
-      finally { if (!isAuto) { btn.innerHTML = orgText; btn.disabled = false; } }
+      } catch (e) {
+        if (!isAuto) alert(e);
+      } finally {
+        // ローディングオーバーレイを非表示
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+      }
     }
-    document.getElementById('btn-load-server').addEventListener('click', () => {
-      const id = idInput.value.trim();
-      if (!id) { alert('IDを入力してください'); return; }
-      loadFromServer(id, false);
-    });
+
 
     document.getElementById('btn-share').addEventListener('click', () => {
       const id = idInput.value.trim();
