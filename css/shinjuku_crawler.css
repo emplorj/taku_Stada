@@ -178,20 +178,25 @@
   display: flex;
   align-items: center;
   border-bottom: 1px solid #333;
-  margin-bottom: 2px;
-  height: 28px;
+  margin-bottom: 1px;
+  height: 26px;
 }
 
 /* 横並び入力行（2つのフィールドを1行に配置） */
 .input-row-double {
   display: flex;
   gap: 10px;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
+  align-items: flex-end;
 }
 
 .input-row-double .input-row {
   flex: 1;
   margin-bottom: 0;
+}
+
+.input-row-double .input-row.narrow {
+  flex: 0.6;
 }
 
 .input-row label,
@@ -221,11 +226,7 @@
   font-family: inherit;
 }
 
-.input-row input {
-  height: 100%;
-}
-
-.input-row input:focus,
+/ .input-row input:focus,
 .input-area textarea:focus {
   border-color: var(--crawl-accent);
   background-color: rgba(255, 255, 255, 0.15);
