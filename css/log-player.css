@@ -377,7 +377,7 @@
 /* --- コントロールパネル --- */
 .control-panel {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto 1fr; /* 左(空き) : 中央(再生) : 右(便利機能) */
   align-items: center;
   gap: 10px;
   background: rgba(0, 0, 0, 0.3);
@@ -385,6 +385,7 @@
   border-radius: 8px;
 }
 
+/* 再生系ボタングループ (中央配置) */
 .playback-group {
   grid-column: 2;
   display: flex;
@@ -393,6 +394,16 @@
   gap: 10px;
 }
 
+/* 右側の便利機能グループ (新規追加: コピーとログ一覧) */
+.right-group {
+  grid-column: 3;
+  justify-self: end; /* 右寄せ */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 自動再生グループ */
 .auto-play-wrapper {
   display: flex;
   align-items: stretch;

@@ -52,18 +52,12 @@
       <!-- フィルタリングコントロール -->
       <div class="filter-controls">
         <details>
-          <summary><i class="fa-solid fa-filter"></i> 表示タブ切替 / データ送信</summary>
+          <summary><i class="fa-solid fa-filter"></i> 表示タブ切替</summary>
           <div class="filter-content">
             <div id="tab-filters-container" class="checkbox-group">
               <!-- JSでタブ一覧を生成 -->
             </div>
-            <hr>
-            <!-- スプレッドシート連携用ボタン -->
-            <div class="export-controls">
-              <button id="btn-send-gas" class="control-btn small-btn" style="background-color: #27ae60;">
-                <i class="fa-solid fa-database"></i> データをDBへ送信
-              </button>
-            </div>
+            <!-- DB送信ボタンは削除しました -->
           </div>
         </details>
       </div>
@@ -95,8 +89,10 @@
 
       <!-- コントロールパネル -->
       <div class="control-panel">
+        <!-- 左側：空き (Grid調整用) -->
+        <div></div>
 
-        <!-- 再生コントロール群 -->
+        <!-- 中央：再生コントロール群 -->
         <div class="playback-group">
           <button id="btn-first" class="control-btn" title="最初に戻る"><i class="fa-solid fa-backward-step"></i> 最初</button>
           <button id="btn-prev" class="control-btn" title="1つ戻る"><i class="fa-solid fa-backward"></i> 前へ</button>
@@ -115,8 +111,12 @@
           <button id="btn-last" class="control-btn" title="最後へ">最後 <i class="fa-solid fa-forward-step"></i></button>
         </div>
 
-        <!-- 右端 -->
-        <button id="btn-history" class="control-btn history-btn"><i class="fa-solid fa-list"></i> ログ一覧</button>
+        <!-- 右側：便利機能 -->
+        <div class="right-group">
+          <button id="btn-copy-current" class="control-btn" title="表示中のテキストをコピー"><i
+              class="fa-regular fa-copy"></i></button>
+          <button id="btn-history" class="control-btn"><i class="fa-solid fa-list"></i> ログ一覧</button>
+        </div>
       </div>
     </div>
 
@@ -131,7 +131,6 @@
             <button id="btn-close-modal" class="close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark"></i></button>
           </div>
         </div>
-        <!-- 全選択/解除ボタンは削除 -->
         <div class="history-list" id="history-list">
           <!-- JSでリスト生成 -->
         </div>

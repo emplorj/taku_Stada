@@ -4,17 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const SYSTEM_NAME = "system";
 
   // --- DOM要素 ---
-  // ファイル読み込み関連
   const fileInput = document.getElementById("log-file-input");
   const fileNameDisplay = document.getElementById("file-name-display");
   const uploadArea = document.getElementById("upload-area");
   const uploadSection = document.querySelector(".upload-section");
+  const playerArea = document.getElementById("player-area");
+  const screenFrame = document.querySelector(".screen-frame");
+
   const logTextInput = document.getElementById("log-text-input");
   const btnParseText = document.getElementById("btn-parse-text");
 
-  // プレイヤー表示関連
-  const playerArea = document.getElementById("player-area");
-  const screenFrame = document.querySelector(".screen-frame");
   const charNameEl = document.getElementById("char-name");
   const bgCharNameEl = document.getElementById("bg-char-name");
   const messageTextEl = document.getElementById("message-text");
@@ -28,9 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentLineDisplay = document.getElementById("current-line-display");
   const totalLineDisplay = document.getElementById("total-line-display");
   const autoSpeedSelect = document.getElementById("auto-speed-select");
-  const btnSendGas = document.getElementById("btn-send-gas");
 
-  // コントロールボタン
+  // ボタン
   const btnFirst = document.getElementById("btn-first");
   const btnPrev = document.getElementById("btn-prev");
   const btnAuto = document.getElementById("btn-auto");
@@ -38,13 +36,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnLast = document.getElementById("btn-last");
   const btnHistory = document.getElementById("btn-history");
 
-  // モーダル関連
+  // ★追加: 表示中のテキストをコピーするボタン
+  const btnCopyCurrent = document.getElementById("btn-copy-current");
+
+  // モーダル
   const historyModal = document.getElementById("history-modal");
   const btnCloseModal = document.getElementById("btn-close-modal");
   const historyListEl = document.getElementById("history-list");
   const btnCopySelection = document.getElementById("btn-copy-selection");
-
-  // ※削除したボタン（全選択・全解除）の取得コードは削除しました
 
   // --- 状態変数 ---
   let fullLogData = [];
@@ -57,13 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let autoPlayInterval = null;
   let isAutoPlaying = false;
 
-  // ==========================================
-  // 1. ファイル読み込み処理
-  // ==========================================
-
+  // --- 1. ファイル読み込み ---
   if (uploadSection) {
     uploadSection.addEventListener("click", (e) => {
-      // ラベルやinput自体をクリックした場合は重複しないようにする
       if (e.target !== fileInput && e.target.tagName !== "LABEL") {
         fileInput.click();
       }
@@ -92,10 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.readAsText(file);
   });
 
-  // ==========================================
-  // 2. テキスト貼り付け読み込み処理
-  // ==========================================
-
+  // --- 2. テキスト貼り付け ---
   if (btnParseText) {
     btnParseText.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -118,11 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ==========================================
-  // 3. ログ解析ロジック (HTML / Text)
-  // ==========================================
-
-  // HTMLログ解析
+  // --- パーサー ---
   function parseCcfoliaLog(html) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
@@ -154,7 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
             name = remain.substring(0, colonIndex).trim();
             text = remain.substring(colonIndex + 1).trim();
           } else {
-            // systemなどの場合
             if (remain.startsWith("system")) {
               name = "system";
               text = remain.substring(6).trim();
@@ -170,7 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return parsedLogs;
   }
 
-  // テキストログ解析
   function parseRawTextLog(rawText) {
     const parsedLogs = [];
     const lines = rawText.split(/\r?\n/);
@@ -185,7 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const tab = matchWithTab[1];
         const name = matchWithTab[2];
         const text = matchWithTab[3];
-        // ナレーター名はグレー固定
         const color = NARRATOR_NAMES.includes(name)
           ? "#888888"
           : stringToColor(name);
@@ -218,30 +203,25 @@ document.addEventListener("DOMContentLoaded", () => {
     return parsedLogs;
   }
 
-  // 解析共通処理
   function processLogItem(targetArray, tab, name, text, color) {
     let type = "speech";
-
-    // systemの場合、本文から [名前] を抽出して名前に昇格させる
     if (name === SYSTEM_NAME) {
       type = "system";
       const match = text.match(/^\s*\[\s*(.+?)\s*\]\s*(.*)/s);
       if (match) {
-        name = match[1]; // 名前を上書き
-        text = match[2].trim(); // 本文を更新
+        name = match[1];
+        text = match[2].trim();
       }
     } else if (NARRATOR_NAMES.includes(name)) {
       type = "narrator";
     } else if (!hasBrackets(text)) {
       type = "desc";
     }
-
     if (text || type === "system") {
       targetArray.push({ tab, name, text, color, type });
     }
   }
 
-  // 色生成
   function stringToColor(str) {
     if (!str) return "#ffffff";
     let hash = 0;
@@ -252,10 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return `hsl(${h}, 70%, 60%)`;
   }
 
-  // ==========================================
-  // 4. プレイヤー初期化・フィルタリング
-  // ==========================================
-
+  // --- プレイヤー初期化 ---
   function initPlayer() {
     uploadArea.style.display = "none";
     playerArea.style.display = "block";
@@ -306,10 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
     displayLine(currentFilteredIndex);
   }
 
-  // ==========================================
-  // 5. 表示ロジック (メイン)
-  // ==========================================
-
+  // --- 表示ロジック ---
   function displayLine(fIndex) {
     if (filteredLogIndices.length === 0) return;
     if (fIndex < 0) fIndex = 0;
@@ -320,28 +294,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const realIndex = filteredLogIndices[fIndex];
     const data = fullLogData[realIndex];
 
-    // シークバー同期
     seekBar.value = fIndex;
     currentLineDisplay.textContent = fIndex + 1;
     logTabLabelEl.textContent = data.tab;
 
-    // クラス初期化
     dialogueBox.className = "dialogue-box";
 
-    // 名前と背景文字
     charNameEl.textContent = data.name;
-    charNameEl.style.display = "block"; // 基本表示
+    charNameEl.style.display = "block";
 
     bgCharNameEl.textContent = data.name;
     bgCharNameEl.style.color = data.color;
     bgCharNameEl.style.opacity = "0.2";
 
-    // --- モード分岐とスタイル適用 ---
     if (data.type === "system") {
       dialogueBox.classList.add("system-mode");
       applyNameStyle(data.color);
 
-      // ダイス結果の色分け
       messageTextEl.style.color = "";
       if (data.text.includes("成功")) {
         messageTextEl.style.color = "rgb(33, 150, 243)";
@@ -365,12 +334,10 @@ document.addEventListener("DOMContentLoaded", () => {
         dialogueBox.classList.add("speech-mode");
         applyNameStyle(data.color);
       } else {
-        // desc (地の文)
         dialogueBox.classList.add("desc-mode");
         applyNameStyle(data.color);
       }
 
-      // 通常発言でもダイス結果が含まれていれば色付け (＞がある場合のみ判定)
       if (data.text.includes("＞")) {
         if (data.text.includes("成功")) {
           messageTextEl.style.color = "rgb(33, 150, 243)";
@@ -418,16 +385,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function finishTyping() {
-    if (typeInterval) clearInterval(typeInterval);
-    isTyping = false;
-    if (filteredLogIndices.length > 0) {
-      const realIndex = filteredLogIndices[currentFilteredIndex];
-      messageTextEl.textContent = fullLogData[realIndex].text;
-    }
-    nextIndicator.classList.add("visible");
-  }
-
   function hasBrackets(text) {
     return /[「『]/.test(text);
   }
@@ -443,10 +400,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return false;
   }
 
-  // ==========================================
-  // 6. コントロール・イベントリスナー
-  // ==========================================
+  function finishTyping() {
+    if (typeInterval) clearInterval(typeInterval);
+    isTyping = false;
+    if (filteredLogIndices.length > 0) {
+      const realIndex = filteredLogIndices[currentFilteredIndex];
+      messageTextEl.textContent = fullLogData[realIndex].text;
+    }
+    nextIndicator.classList.add("visible");
+  }
 
+  // --- ナビゲーション ---
   function nextLine() {
     if (isTyping) {
       finishTyping();
@@ -477,6 +441,11 @@ document.addEventListener("DOMContentLoaded", () => {
     displayLine(filteredLogIndices.length - 1);
   }
 
+  seekBar.addEventListener("input", (e) => {
+    if (isAutoPlaying) toggleAutoPlay();
+    displayLine(parseInt(e.target.value));
+  });
+
   function toggleAutoPlay() {
     isAutoPlaying = !isAutoPlaying;
     if (isAutoPlaying) {
@@ -506,32 +475,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }, interval);
   }
 
-  // イベント登録
-  if (screenFrame) screenFrame.addEventListener("click", nextLine);
-  if (btnFirst) btnFirst.addEventListener("click", firstLine);
-  if (btnPrev) btnPrev.addEventListener("click", prevLine);
-  if (btnAuto) btnAuto.addEventListener("click", toggleAutoPlay);
-  if (btnNext) btnNext.addEventListener("click", nextLine);
-  if (btnLast) btnLast.addEventListener("click", lastLine);
+  // --- イベントリスナー ---
+  screenFrame.addEventListener("click", nextLine);
 
-  if (seekBar) {
-    seekBar.addEventListener("input", (e) => {
-      if (isAutoPlaying) toggleAutoPlay();
-      displayLine(parseInt(e.target.value));
-    });
-  }
+  if (document.getElementById("btn-first"))
+    document.getElementById("btn-first").addEventListener("click", firstLine);
+  if (document.getElementById("btn-last"))
+    document.getElementById("btn-last").addEventListener("click", lastLine);
 
-  if (autoSpeedSelect) {
-    autoSpeedSelect.addEventListener("click", (e) => e.stopPropagation());
-    autoSpeedSelect.addEventListener("change", () => {
-      if (isAutoPlaying) {
-        if (autoPlayInterval) clearTimeout(autoPlayInterval);
-        runAutoPlay();
-      }
-    });
-  }
+  btnPrev.addEventListener("click", prevLine);
+  btnAuto.addEventListener("click", toggleAutoPlay);
+  btnNext.addEventListener("click", nextLine);
 
-  // キーボード操作
+  // 速度変更イベント
+  autoSpeedSelect.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+  autoSpeedSelect.addEventListener("change", () => {
+    if (isAutoPlaying) {
+      if (autoPlayInterval) clearTimeout(autoPlayInterval);
+      runAutoPlay();
+    }
+  });
+
   document.addEventListener("keydown", (e) => {
     if (playerArea.style.display !== "none") {
       if (e.key === "ArrowRight") {
@@ -586,6 +552,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const nameSpan = document.createElement("span");
       nameSpan.className = "history-name";
       nameSpan.textContent = data.name;
+
       nameSpan.style.backgroundColor = data.color;
       if (data.color.startsWith("hsl")) {
         nameSpan.style.color = "#000";
@@ -621,48 +588,42 @@ document.addEventListener("DOMContentLoaded", () => {
     if (target) target.classList.add("active");
   }
 
-  // コピー機能
-  if (btnCopySelection) {
-    btnCopySelection.addEventListener("click", () => {
-      const checkboxes = document.querySelectorAll(".history-checkbox:checked");
-      if (checkboxes.length === 0) {
-        alert("選択されていません");
-        return;
-      }
-      // 実Indexでソート
-      const sorted = Array.from(checkboxes).sort(
-        (a, b) => parseInt(a.value) - parseInt(b.value)
-      );
-      let copyText = "";
-      sorted.forEach((cb) => {
-        const data = fullLogData[parseInt(cb.value)];
-        copyText += `${data.tab} ${data.name} : ${data.text}\n\n`;
-      });
-      navigator.clipboard.writeText(copyText).then(() => {
-        const originalText = btnCopySelection.innerHTML;
-        btnCopySelection.innerHTML = '<i class="fa-solid fa-check"></i> 完了';
-        setTimeout(() => (btnCopySelection.innerHTML = originalText), 1500);
-      });
-    });
-  }
-
-  // GAS送信
-  if (btnSendGas) {
-    btnSendGas.addEventListener("click", () => {
-      prepareDataForExport();
-    });
-  }
-
-  function prepareDataForExport() {
-    if (filteredLogIndices.length === 0) {
-      alert("送信するデータがありません。");
+  btnCopySelection.addEventListener("click", () => {
+    const checkboxes = document.querySelectorAll(".history-checkbox:checked");
+    if (checkboxes.length === 0) {
+      alert("選択されていません");
       return;
     }
-    const exportData = filteredLogIndices.map((realIndex) => {
-      return fullLogData[realIndex];
+    const sorted = Array.from(checkboxes).sort(
+      (a, b) => parseInt(a.value) - parseInt(b.value)
+    );
+    let copyText = "";
+    sorted.forEach((cb) => {
+      const data = fullLogData[parseInt(cb.value)];
+      copyText += `${data.tab} ${data.name} : ${data.text}\n\n`;
     });
-    const jsonData = JSON.stringify(exportData, null, 2);
-    console.log("Export Data Ready:", jsonData);
-    alert("コンソールに送信用のJSONデータを出力しました。");
+    navigator.clipboard.writeText(copyText).then(() => {
+      const originalText = btnCopySelection.innerHTML;
+      btnCopySelection.innerHTML = '<i class="fa-solid fa-check"></i> 完了';
+      setTimeout(() => (btnCopySelection.innerHTML = originalText), 1500);
+    });
+  });
+
+  // ★追加: 現在のテキストをコピー
+  if (btnCopyCurrent) {
+    btnCopyCurrent.addEventListener("click", () => {
+      if (filteredLogIndices.length === 0) return;
+
+      const data = fullLogData[filteredLogIndices[currentFilteredIndex]];
+
+      // ★修正: 本文だけでなく、ココフォリアのログ形式 ([タブ] 名前 : 本文) でコピーする
+      const textToCopy = `[${data.tab}] ${data.name} : ${data.text}`;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalHTML = btnCopyCurrent.innerHTML;
+        btnCopyCurrent.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => (btnCopyCurrent.innerHTML = originalHTML), 1000);
+      });
+    });
   }
 });
