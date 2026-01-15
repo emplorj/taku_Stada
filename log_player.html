@@ -58,6 +58,7 @@
               <!-- JSでタブ一覧を生成 -->
             </div>
             <hr>
+            <!-- スプレッドシート連携用ボタン -->
             <div class="export-controls">
               <button id="btn-send-gas" class="control-btn small-btn" style="background-color: #27ae60;">
                 <i class="fa-solid fa-database"></i> データをDBへ送信
@@ -95,7 +96,7 @@
       <!-- コントロールパネル -->
       <div class="control-panel">
 
-        <!-- 再生コントロール群 (中央配置) -->
+        <!-- 再生コントロール群 -->
         <div class="playback-group">
           <button id="btn-first" class="control-btn" title="最初に戻る"><i class="fa-solid fa-backward-step"></i> 最初</button>
           <button id="btn-prev" class="control-btn" title="1つ戻る"><i class="fa-solid fa-backward"></i> 前へ</button>
@@ -130,10 +131,7 @@
             <button id="btn-close-modal" class="close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark"></i></button>
           </div>
         </div>
-        <div class="history-controls">
-          <button id="btn-select-all" class="small-btn">全選択</button>
-          <button id="btn-deselect-all" class="small-btn">全解除</button>
-        </div>
+        <!-- 全選択/解除ボタンは削除 -->
         <div class="history-list" id="history-list">
           <!-- JSでリスト生成 -->
         </div>

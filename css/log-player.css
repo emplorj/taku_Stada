@@ -123,7 +123,7 @@
     url("../img/default_bg.jpg");
   background-size: cover;
   background-position: center;
-  cursor: pointer; /* ★画面全体をクリック可能に見せる */
+  cursor: pointer;
 }
 
 /* 背景演出用の巨大文字 */
@@ -173,9 +173,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 10;
-  pointer-events: none; /* クリックを透過させてscreen-frameで拾う */
+  pointer-events: none;
 }
-/* 名前やテキストは選択したい場合があるかもしれないので pointer-events を戻す */
 .dialogue-box > * {
   pointer-events: auto;
 }
@@ -255,7 +254,7 @@
   overflow: visible;
 }
 
-/* 吹き出しのしっぽ (直角三角形・サイズ特大・線調整) */
+/* 吹き出しのしっぽ (直角三角形) */
 .dialogue-box.speech-mode::before,
 .dialogue-box.speech-mode::after {
   content: "";
@@ -270,7 +269,7 @@
 
 /* 外枠 (ボーダー色) */
 .dialogue-box.speech-mode::before {
-  /* 右側が垂直な直角三角形 */
+  /* 右側が垂直 */
   border-width: 0 0 60px 60px;
   border-color: transparent transparent #87cefa transparent;
   margin-left: 0;
@@ -279,15 +278,15 @@
 /* 内側 (背景色) */
 .dialogue-box.speech-mode::after {
   /* 
-     サイズを大きくして斜辺の枠線を細く見せる
-     外枠60pxに対し、内側57px (差分3px)
+     ★サイズとマージンの調整 (右側に線を出す)
+     外枠: 60px
+     内側: 54px (6px減らす)
+     左マージン: 3px
+     右の余白: 60 - (3+54) = 3px -> 右側に3pxの線が出る
   */
-  border-width: 0 0 57px 57px;
+  border-width: 0 0 54px 54px;
   border-color: transparent transparent #061144 transparent;
 
-  /* 
-     右側の垂直線を出すために、差分(3px)分だけ右にずらす
-  */
   margin-left: 3px;
   margin-bottom: -3px;
 }
@@ -375,7 +374,7 @@
   text-align: center;
 }
 
-/* コントロールパネル */
+/* --- コントロールパネル --- */
 .control-panel {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -407,7 +406,6 @@
   box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
 }
 
-/* 共通ボタン */
 .control-btn {
   background-color: #0d1a50;
   color: #fff;
@@ -533,7 +531,6 @@
   gap: 15px;
 }
 
-/* 閉じるボタン */
 .close-btn {
   background: none;
   border: none;
@@ -558,8 +555,7 @@
   background-color: transparent !important;
 }
 
-/* コピーボタン */
-.modal-header .copy-button {
+.copy-button {
   position: static;
   background-color: #3498db;
   color: white;
@@ -578,7 +574,7 @@
   bottom: auto;
   left: auto;
 }
-.modal-header .copy-button:hover {
+.copy-button:hover {
   background-color: #2980b9;
 }
 
