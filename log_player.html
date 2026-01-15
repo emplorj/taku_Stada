@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログプレイヤー | 卓スタダ</title>
+  <!-- 既存のCSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <!-- ログプレイヤー専用CSS -->
+  <link rel="stylesheet" href="css/log-player.css">
+</head>
+
+<body>
+  <div id="header-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="main-content">
+    <header class="main-header">
+      <h1>ログプレイヤー</h1>
+      <p class="subtitle">あの日の記憶を再生する</p>
+    </header>
+
+    <!-- STEP 1: ファイル読み込みエリア -->
+    <div id="upload-area" class="plain-text-block intro-block center">
+      <div class="upload-section">
+        <i class="fa-solid fa-file-import fa-3x" style="color: #87cefa; margin-bottom: 10px;"></i>
+        <p>ココフォリアから出力した <strong>HTML形式のログ</strong> を読み込んでください。</p>
+        <label for="log-file-input" class="custom-file-upload">
+          <i class="fa-solid fa-folder-open"></i> ファイルを選択
+        </label>
+        <input type="file" id="log-file-input" accept=".html,.htm" class="file-input" style="display:none;">
+        <p id="file-name-display" style="font-size: 0.9em; margin-top: 10px; height: 1.2em; color: #87cefa;"></p>
+      </div>
+
+      <div class="upload-separator">または</div>
+
+      <div class="paste-section">
+        <p>ログテキストを直接貼り付け</p>
+        <textarea id="log-text-input" placeholder="[main] プレイヤー : 発言内容..."></textarea>
+        <button id="btn-parse-text" class="control-btn main-btn" style="margin-top: 10px;">
+          <i class="fa-solid fa-play"></i> テキストを読み込む
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: プレイヤーエリア (初期は非表示) -->
+    <div id="player-area" class="player-container" style="display: none;">
+
+      <!-- フィルタリングコントロール -->
+      <div class="filter-controls">
+        <details>
+          <summary><i class="fa-solid fa-filter"></i> 表示タブ切替 / データ送信</summary>
+          <div class="filter-content">
+            <div id="tab-filters-container" class="checkbox-group">
+              <!-- JSでタブ一覧を生成 -->
+            </div>
+            <hr>
+            <div class="export-controls">
+              <button id="btn-send-gas" class="control-btn small-btn" style="background-color: #27ae60;">
+                <i class="fa-solid fa-database"></i> データをDBへ送信
+              </button>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- 画面表示部 -->
+      <div class="screen-frame">
+        <div class="screen-bg"></div>
+        <!-- 背景演出用の巨大文字 -->
+        <div id="bg-char-name"></div>
+
+        <div id="log-tab-label" class="log-tab-label">Main</div>
+
+        <!-- ダイアログボックス -->
+        <div class="dialogue-box" id="dialogue-box">
+          <div class="char-name-wrapper">
+            <div class="char-name-plate" id="char-name" style="display: none;">No Name</div>
+          </div>
+          <div class="message-text" id="message-text"></div>
+          <div class="next-indicator"><i class="fa-solid fa-caret-down"></i></div>
+        </div>
+      </div>
+
+      <!-- シークバー -->
+      <div class="seek-bar-container">
+        <span id="current-line-display">1</span>
+        <input type="range" id="seek-bar" min="0" value="0" step="1">
+        <span id="total-line-display">100</span>
+      </div>
+
+      <!-- コントロールパネル -->
+      <div class="control-panel">
+
+        <!-- 再生コントロール群 (中央配置) -->
+        <div class="playback-group">
+          <button id="btn-first" class="control-btn" title="最初に戻る"><i class="fa-solid fa-backward-step"></i> 最初</button>
+          <button id="btn-prev" class="control-btn" title="1つ戻る"><i class="fa-solid fa-backward"></i> 前へ</button>
+
+          <div class="auto-play-wrapper">
+            <button id="btn-auto" class="control-btn auto-btn"><i class="fa-solid fa-play"></i> 自動</button>
+            <select id="auto-speed-select" class="speed-select">
+              <option value="3000">遅(3s)</option>
+              <option value="2000" selected>普(2s)</option>
+              <option value="1000">速(1s)</option>
+              <option value="100">爆(0.1s)</option>
+            </select>
+          </div>
+
+          <button id="btn-next" class="control-btn" title="次へ">次へ <i class="fa-solid fa-forward"></i></button>
+          <button id="btn-last" class="control-btn" title="最後へ">最後 <i class="fa-solid fa-forward-step"></i></button>
+        </div>
+
+        <!-- 右端 -->
+        <button id="btn-history" class="control-btn history-btn"><i class="fa-solid fa-list"></i> ログ一覧</button>
+      </div>
+    </div>
+
+    <!-- ログ一覧・共有モーダル -->
+    <div id="history-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-content plain-text-block">
+        <div class="modal-header">
+          <h3>ログ一覧・共有</h3>
+          <!-- 右側のボタングループ -->
+          <div class="header-actions">
+            <button id="btn-copy-selection" class="copy-button"><i class="fa-regular fa-copy"></i> コピー</button>
+            <button id="btn-close-modal" class="close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+        <div class="history-controls">
+          <button id="btn-select-all" class="small-btn">全選択</button>
+          <button id="btn-deselect-all" class="small-btn">全解除</button>
+        </div>
+        <div class="history-list" id="history-list">
+          <!-- JSでリスト生成 -->
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2025 卓スタダ.</p>
+    </footer>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/log-player.js"></script>
+</body>
+
+</html>
