@@ -1,3 +1,8 @@
+/* スクロールバーによるレイアウトシフト防止 */
+body {
+  overflow-y: scroll;
+}
+
 /* プレイヤー全体のコンテナ */
 .player-container {
   max-width: 900px;

@@ -56,6 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let autoPlayInterval = null;
   let isAutoPlaying = false;
 
+  // ★追加: ログの読み込みモード ("html" or "text")
+  let logLoadMode = null;
+
   // --- 1. ファイル読み込み ---
   if (uploadSection) {
     uploadSection.addEventListener("click", (e) => {
@@ -75,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         fullLogData = parseCcfoliaLog(htmlContent);
         if (fullLogData.length > 0) {
+          logLoadMode = "html"; // HTMLモードを記録
           initPlayer();
         } else {
           alert("ログの読み込みに失敗しました。\n発言が見つかりませんでした。");
@@ -99,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         fullLogData = parseRawTextLog(text);
         if (fullLogData.length > 0) {
+          logLoadMode = "text"; // テキストモードを記録
           initPlayer();
         } else {
           alert("ログの解析に失敗しました。形式を確認してください。");
@@ -242,6 +247,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderTabFilters(tabs);
     updateFilteredLogs();
+
+    // ★追加: シーン共有ボタンの表示制御
+    if (btnShareScene) {
+      if (logLoadMode === "text") {
+        btnShareScene.style.display = "inline-flex";
+      } else {
+        btnShareScene.style.display = "none";
+      }
+    }
   }
 
   function renderTabFilters(tabs) {
@@ -625,5 +639,183 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => (btnCopyCurrent.innerHTML = originalHTML), 1000);
       });
     });
+  }
+
+  // ===== シーン共有機能 =====
+  const GAS_API_URL =
+    "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
+
+  const btnShareScene = document.getElementById("btn-share-scene");
+  const shareModal = document.getElementById("share-modal");
+  const btnCloseShareModal = document.getElementById("btn-close-share-modal");
+  const shareTitleInput = document.getElementById("share-title");
+  const shareRangeInfo = document.getElementById("share-range-info");
+  const btnGenerateShareUrl = document.getElementById("btn-generate-share-url");
+  const shareResult = document.getElementById("share-result");
+  const shareUrlDisplay = document.getElementById("share-url-display");
+
+  // シーン共有ボタンクリック
+  if (btnShareScene) {
+    btnShareScene.addEventListener("click", () => {
+      // HTMLモードの場合は共有不可
+      if (logLoadMode === "html") {
+        alert(
+          "HTMLファイルからのログは共有できません。\nテキスト貼り付けモードをご利用ください。"
+        );
+        return;
+      }
+
+      // 全ログを共有
+      if (fullLogData.length === 0) {
+        alert("共有するログがありません");
+        return;
+      }
+
+      // 選択範囲の情報を表示
+      shareRangeInfo.textContent = `全ログ: ${fullLogData.length}行`;
+      shareTitleInput.value = "";
+      shareResult.style.display = "none";
+
+      // 共有ダイアログを表示
+      shareModal.style.display = "flex";
+    });
+  }
+
+  // 共有ダイアログを閉じる
+  if (btnCloseShareModal) {
+    btnCloseShareModal.addEventListener("click", () => {
+      shareModal.style.display = "none";
+    });
+  }
+
+  // 共有URL生成
+  if (btnGenerateShareUrl) {
+    btnGenerateShareUrl.addEventListener("click", async () => {
+      // 全ログを取得
+      if (fullLogData.length === 0) {
+        alert("共有するログがありません");
+        return;
+      }
+
+      // 全ログを配列に変換
+      const selectedLines = fullLogData.map((data) => {
+        return `[${data.tab}] ${data.name} : ${data.text}`;
+      });
+
+      // ランダムID生成 (6文字の英数字)
+      const sceneId = generateRandomId(6);
+      const title = shareTitleInput.value.trim() || "（タイトル未設定）";
+
+      // 現在のURL (クエリパラメータを除く)
+      const currentBaseUrl = window.location.origin + window.location.pathname;
+
+      // GASに保存
+      const payload = {
+        tool: "logScene",
+        action: "save",
+        id: sceneId,
+        baseUrl: currentBaseUrl, // ★追加: 現在のURLを送信
+        data: {
+          lines: selectedLines,
+          startLine: 0,
+          title: title,
+        },
+      };
+
+      try {
+        btnGenerateShareUrl.disabled = true;
+        btnGenerateShareUrl.innerHTML =
+          '<i class="fa-solid fa-spinner fa-spin"></i> 生成中...';
+
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          // headers: { "Content-Type": "application/json" }, // ★CORSエラー回避のため削除 (text/plainとして送る)
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+          const shareUrl = result.url;
+          shareUrlDisplay.value = shareUrl;
+          shareResult.style.display = "block";
+
+          // クリップボードにコピー
+          await navigator.clipboard.writeText(shareUrl);
+        } else {
+          alert(`エラー: ${result.message}`);
+        }
+      } catch (error) {
+        console.error("共有URL生成エラー:", error);
+        alert("共有URLの生成に失敗しました");
+      } finally {
+        btnGenerateShareUrl.disabled = false;
+        btnGenerateShareUrl.innerHTML =
+          '<i class="fa-solid fa-link"></i> 共有URLを生成してコピー';
+      }
+    });
+  }
+
+  // ランダムID生成関数
+  function generateRandomId(length) {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  // ===== URLパラメータ検知と自動読み込み =====
+  const urlParams = new URLSearchParams(window.location.search);
+  const sceneId = urlParams.get("scene");
+
+  if (sceneId) {
+    // シーンIDが指定されている場合、GASから読み込み
+    loadSceneFromGAS(sceneId);
+  }
+
+  async function loadSceneFromGAS(sceneId) {
+    try {
+      const requestUrl = `${GAS_API_URL}?tool=logScene&id=${encodeURIComponent(
+        sceneId
+      )}`;
+      console.log("Fetching scene:", requestUrl);
+
+      const response = await fetch(requestUrl);
+      const result = await response.json();
+      console.log("Scene fetch result:", result);
+
+      if (result.status === "success") {
+        const sceneData = result.data;
+        const logText = sceneData.lines.join("\n");
+
+        // ログテキストを解析
+        fullLogData = parseRawTextLog(logText);
+
+        if (fullLogData.length > 0) {
+          logLoadMode = "text"; // テキストモードとして扱う
+          initPlayer();
+          // タイトルがあれば表示
+          if (sceneData.title && sceneData.title !== "（タイトル未設定）") {
+            console.log(`シーン読み込み完了: ${sceneData.title}`);
+            // alert(`シーン「${sceneData.title}」を読み込みました`);
+          }
+        } else {
+          alert("シーンデータの解析に失敗しました(ログ件数0)");
+        }
+      } else if (result.status === "not_found") {
+        alert(
+          `指定されたシーンが見つかりませんでした。\nID: ${sceneId}\nGAS Msg: ${result.message}`
+        );
+      } else {
+        alert(`エラー: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("シーン読み込みエラー:", error);
+      alert(
+        "シーンの読み込みに失敗しました。\nコンソールログを確認してください。"
+      );
+    }
   }
 });

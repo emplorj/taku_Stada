@@ -116,6 +116,7 @@
           <button id="btn-copy-current" class="control-btn" title="表示中のテキストをコピー"><i
               class="fa-regular fa-copy"></i></button>
           <button id="btn-history" class="control-btn"><i class="fa-solid fa-list"></i> ログ一覧</button>
+          <button id="btn-share-scene" class="control-btn"><i class="fa-solid fa-share-nodes"></i> シーン共有</button>
         </div>
       </div>
     </div>
@@ -136,6 +137,38 @@
         </div>
       </div>
     </div>
+
+    <!-- シーン共有ダイアログ -->
+    <div id="share-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-content plain-text-block" style="max-width: 500px; height: auto;">
+        <div class="modal-header">
+          <h3>シーン共有</h3>
+          <button id="btn-close-share-modal" class="close-btn" aria-label="閉じる"><i
+              class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="padding: 20px;">
+          <label for="share-title" style="display: block; margin-bottom: 5px; color: #87cefa; font-weight: bold;">タイトル
+            (任意):</label>
+          <input type="text" id="share-title" placeholder="例: SANチェックシーン"
+            style="width: 100%; padding: 8px; background: #0d1a50; border: 1px solid #3498db; border-radius: 4px; color: #fff; margin-bottom: 15px;">
+
+          <p id="share-range-info" style="color: #aaa; margin-bottom: 20px;">選択範囲: 0行</p>
+
+          <button id="btn-generate-share-url" class="control-btn main-btn"
+            style="width: 100%; padding: 12px; font-size: 1em;">
+            <i class="fa-solid fa-link"></i> 共有URLを生成してコピー
+          </button>
+
+          <div id="share-result"
+            style="margin-top: 15px; padding: 10px; background: rgba(52, 152, 219, 0.2); border-radius: 4px; display: none;">
+            <p style="color: #87cefa; margin-bottom: 5px; font-weight: bold;">✅ URLをコピーしました!</p>
+            <input type="text" id="share-url-display" readonly
+              style="width: 100%; padding: 8px; background: #061144; border: 1px solid #3498db; border-radius: 4px; color: #87cefa; font-size: 0.9em;">
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <footer>
       <p>© 2025 卓スタダ.</p>
