@@ -275,6 +275,14 @@ function handleLogSceneRequest(payload) {
       id: sceneId,
       url: linkUrl,
     };
+  } else if (action === "delete") {
+    if (row > 0) {
+      sheet.deleteRow(row);
+      return { status: "success", message: "シーンを削除しました。" };
+    } else {
+      // 既に見つからない場合も成功とみなすかエラーにするか。ここではエラーを返す。
+      return { status: "not_found", message: "削除対象が見つかりません。" };
+    }
   } else {
     return { status: "error", message: `無効なアクション: ${action}` };
   }

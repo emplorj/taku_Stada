@@ -39,7 +39,7 @@
 
       <div class="paste-section">
         <p>ログテキストを直接貼り付け</p>
-        <textarea id="log-text-input" placeholder="[main] プレイヤー : 発言内容..."></textarea>
+        <textarea id="log-text-input" placeholder="[main] Jin : 「ここに内容を書いてほしいんだぜ……」"></textarea>
         <button id="btn-parse-text" class="control-btn main-btn" style="margin-top: 10px;">
           <i class="fa-solid fa-play"></i> テキストを読み込む
         </button>
@@ -154,9 +154,14 @@
 
           <p id="share-range-info" style="color: #aaa; margin-bottom: 20px;">選択範囲: 0行</p>
 
+          <button id="btn-delete-scene" class="control-btn main-btn"
+            style="width: 100%; padding: 12px; font-size: 1em; margin-bottom: 10px; background-color: #d32f2f; display: none;">
+            <i class="fa-solid fa-trash"></i> このシーンを削除
+          </button>
+
           <button id="btn-generate-share-url" class="control-btn main-btn"
             style="width: 100%; padding: 12px; font-size: 1em;">
-            <i class="fa-solid fa-link"></i> 共有URLを生成してコピー
+            <i class="fa-solid fa-link"></i> 新規URLを発行してコピー
           </button>
 
           <div id="share-result"
