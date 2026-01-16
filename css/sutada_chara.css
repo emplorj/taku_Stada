@@ -74,28 +74,28 @@ body > footer {
 }
 
 .bg-coc {
-  background-color: #93c47d;
+  background-color: var(--color-coc, #93c47d);
 }
 .bg-sw {
-  background-color: #ea9999;
+  background-color: var(--color-sw, #ea9999);
 }
 .bg-dx {
-  background-color: #cc4125;
+  background-color: var(--color-dx3, #cc4125);
 }
 .bg-nc {
-  background-color: #505050;
+  background-color: var(--color-nechronica, #505050);
 }
 .bg-coc-mini {
-  background-color: #93c47d;
+  background-color: var(--color-coc, #93c47d);
 }
 .bg-sw-mini {
-  background-color: #ea9999;
+  background-color: var(--color-sw, #ea9999);
 }
 .bg-dx-mini {
-  background-color: #cc4125;
+  background-color: var(--color-dx3, #cc4125);
 }
 .bg-nc-mini {
-  background-color: #505050;
+  background-color: var(--color-nechronica, #505050);
 }
 
 /* ナビゲーションボタンを非表示にする */

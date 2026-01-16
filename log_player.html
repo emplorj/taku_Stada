@@ -39,7 +39,7 @@
 
       <div class="paste-section">
         <p>ログテキストを直接貼り付け</p>
-        <textarea id="log-text-input" placeholder="[main] Jin : 「ここに内容を書いてほしいんだぜ……」"></textarea>
+        <textarea id="log-text-input" placeholder="[main] プレイヤー : 発言内容..."></textarea>
         <button id="btn-parse-text" class="control-btn main-btn" style="margin-top: 10px;">
           <i class="fa-solid fa-play"></i> テキストを読み込む
         </button>
@@ -57,7 +57,6 @@
             <div id="tab-filters-container" class="checkbox-group">
               <!-- JSでタブ一覧を生成 -->
             </div>
-            <!-- DB送信ボタンは削除しました -->
           </div>
         </details>
       </div>
@@ -69,6 +68,9 @@
         <div id="bg-char-name"></div>
 
         <div id="log-tab-label" class="log-tab-label">Main</div>
+
+        <!-- ★追加: システム名表示タグ -->
+        <div id="system-tag" class="system-tag" style="display: none;">System</div>
 
         <!-- ダイアログボックス -->
         <div class="dialogue-box" id="dialogue-box">
@@ -89,11 +91,13 @@
 
       <!-- コントロールパネル -->
       <div class="control-panel">
-        <!-- 左側：空き (Grid調整用) -->
-        <div></div>
 
-        <!-- 中央：再生コントロール群 -->
+        <!-- 再生コントロール群 -->
         <div class="playback-group">
+          <!-- ★移動: トップに戻るボタン -->
+          <button id="btn-reset" class="control-btn" title="閉じてトップに戻る" style="margin-right: 15px;"><i
+              class="fa-solid fa-xmark"></i> 閉じる</button>
+
           <button id="btn-first" class="control-btn" title="最初に戻る"><i class="fa-solid fa-backward-step"></i> 最初</button>
           <button id="btn-prev" class="control-btn" title="1つ戻る"><i class="fa-solid fa-backward"></i> 前へ</button>
 
@@ -111,12 +115,14 @@
           <button id="btn-last" class="control-btn" title="最後へ">最後 <i class="fa-solid fa-forward-step"></i></button>
         </div>
 
-        <!-- 右側：便利機能 -->
+        <!-- 右端 -->
         <div class="right-group">
           <button id="btn-copy-current" class="control-btn" title="表示中のテキストをコピー"><i
               class="fa-regular fa-copy"></i></button>
-          <button id="btn-history" class="control-btn"><i class="fa-solid fa-list"></i> ログ一覧</button>
-          <button id="btn-share-scene" class="control-btn"><i class="fa-solid fa-share-nodes"></i> シーン共有</button>
+          <button id="btn-history" class="control-btn history-btn"><i class="fa-solid fa-list"></i> ログ一覧</button>
+          <!-- シーン共有ボタン(JSで表示制御) -->
+          <button id="btn-share-scene" class="control-btn" style="display: none;"><i
+              class="fa-solid fa-share-nodes"></i> シーン共有</button>
         </div>
       </div>
     </div>
@@ -131,6 +137,10 @@
             <button id="btn-copy-selection" class="copy-button"><i class="fa-regular fa-copy"></i> コピー</button>
             <button id="btn-close-modal" class="close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark"></i></button>
           </div>
+        </div>
+        <div class="history-controls">
+          <button id="btn-select-all" class="small-btn">全選択</button>
+          <button id="btn-deselect-all" class="small-btn">全解除</button>
         </div>
         <div class="history-list" id="history-list">
           <!-- JSでリスト生成 -->
@@ -173,7 +183,6 @@
         </div>
       </div>
     </div>
-
 
     <footer>
       <p>© 2025 卓スタダ.</p>

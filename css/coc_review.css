@@ -27,9 +27,9 @@ main.main-content {
 
 /* --- Root Variables --- */
 :root {
-  --coc-primary: #93c47d;
-  --coc-secret: #6aa84f;
-  --coc-danger: #cc4125;
+  --coc-primary: var(--color-coc, #93c47d);
+  --coc-secret: var(--color-coc-secret, #6aa84f);
+  --coc-danger: var(--color-dx3, #cc4125); /* DX3の赤を危険色として流用 */
   --coc-gold: #ffd700;
   --coc-dark-bg: rgba(15, 25, 15, 0.7);
   --coc-dark-item-bg: rgba(10, 30, 15, 0.9);
@@ -392,13 +392,13 @@ input[type="checkbox"].switch:checked::after {
   }
 }
 .stat-item.days-short {
-  border-color: #93c47d;
+  border-color: var(--color-coc, #93c47d);
 }
 .stat-item.days-medium {
   border-color: #ffd966;
 }
 .stat-item.days-long {
-  border-color: #ea9999;
+  border-color: var(--color-sw, #ea9999);
 }
 
 /* Experience Details */

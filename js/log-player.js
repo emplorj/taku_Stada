@@ -3,13 +3,98 @@ document.addEventListener("DOMContentLoaded", () => {
   const NARRATOR_NAMES = ["GM", "KP", "NC", "DD", "NM"];
   const SYSTEM_NAME = "system";
 
+  // --- ★定数: システム定義 ---
+  // 色は common.js の TRPG_SYSTEM_COLORS から取得
+  const SYSTEM_CONFIG = {
+    CoC: {
+      name: "クトゥルフ神話TRPG",
+      color: TRPG_SYSTEM_COLORS.CoC,
+      keywords: [
+        "1d100",
+        "1D100",
+        "CCB",
+        "SAN",
+        "決定的成功",
+        "スペシャル",
+        "イクストリーム",
+      ],
+    },
+    "SW2.5": {
+      name: "ソード・ワールド2.5",
+      color: TRPG_SYSTEM_COLORS["SW2.5"],
+      keywords: ["2d6", "2D6", "k10", "k20", "k30", "威力", "行使", "防護点"],
+    },
+    DX3rd: {
+      name: "ダブルクロス3rd",
+      color: TRPG_SYSTEM_COLORS.DX3, // "DX3" キーを使用
+      keywords: [
+        "10d10",
+        "10D10",
+        "侵蝕率",
+        "ロイス",
+        "タイタス",
+        "リザレクト",
+      ],
+    },
+    Nechronica: {
+      name: "永い後日談のネクロニカ",
+      color: TRPG_SYSTEM_COLORS["ネクロニカ"],
+      keywords: [
+        "NC",
+        "パーツ",
+        "未練",
+        "ネクロマンサー",
+        "最大行動値",
+        "対話判定",
+      ],
+    },
+    Satasupe: {
+      name: "サタスペ",
+      color: TRPG_SYSTEM_COLORS["サタスペ"],
+      keywords: [
+        "サタスペ",
+        "肉体点",
+        "精神点",
+        "性業値",
+        "ファンブル表",
+        "アクシデント表",
+      ],
+    },
+    Mamono: {
+      name: "マモノスクランブル",
+      color: TRPG_SYSTEM_COLORS["マモブル"],
+      keywords: ["マモノ", "コイン", "特性", "あやかし"],
+    },
+    Stellar: {
+      name: "銀剣のステラナイツ",
+      color: TRPG_SYSTEM_COLORS["ステラナイツ"],
+      keywords: [
+        "ステラ",
+        "ブーケ",
+        "チャージ",
+        "シチュエーション",
+        "アタック判定",
+      ],
+    },
+    Shinobigami: {
+      name: "シノビガミ",
+      color: TRPG_SYSTEM_COLORS["シノビガミ"],
+      keywords: ["接近戦", "射撃戦", "忍法", "プロット", "生命力", "奥義"],
+    },
+    AR2E: {
+      name: "アリアンロッドRPG 2E",
+      color: TRPG_SYSTEM_COLORS.AR2E,
+      keywords: ["フェイト", "スクウェア", "エンゲージ", "3d6"],
+    },
+  };
+
   // --- DOM要素 ---
   const fileInput = document.getElementById("log-file-input");
   const fileNameDisplay = document.getElementById("file-name-display");
   const uploadArea = document.getElementById("upload-area");
   const uploadSection = document.querySelector(".upload-section");
   const playerArea = document.getElementById("player-area");
-  const screenFrame = document.querySelector(".screen-frame");
+  const screenFrame = document.querySelector(".screen-frame"); // クリック用＆背景変更用
 
   const logTextInput = document.getElementById("log-text-input");
   const btnParseText = document.getElementById("btn-parse-text");
@@ -18,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bgCharNameEl = document.getElementById("bg-char-name");
   const messageTextEl = document.getElementById("message-text");
   const logTabLabelEl = document.getElementById("log-tab-label");
+  const systemTagEl = document.getElementById("system-tag"); // ★追加
   const nextIndicator = document.querySelector(".next-indicator");
   const dialogueBox = document.getElementById("dialogue-box");
 
@@ -35,8 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnNext = document.getElementById("btn-next");
   const btnLast = document.getElementById("btn-last");
   const btnHistory = document.getElementById("btn-history");
-
-  // ★追加: 表示中のテキストをコピーするボタン
   const btnCopyCurrent = document.getElementById("btn-copy-current");
 
   // モーダル
@@ -44,6 +128,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCloseModal = document.getElementById("btn-close-modal");
   const historyListEl = document.getElementById("history-list");
   const btnCopySelection = document.getElementById("btn-copy-selection");
+
+  // シェア機能
+  const btnShareScene = document.getElementById("btn-share-scene");
+  const shareModal = document.getElementById("share-modal");
+  const btnCloseShareModal = document.getElementById("btn-close-share-modal");
+  const shareTitleInput = document.getElementById("share-title");
+  const shareRangeInfo = document.getElementById("share-range-info");
+  const btnGenerateShareUrl = document.getElementById("btn-generate-share-url");
+  const btnDeleteScene = document.getElementById("btn-delete-scene");
+  const shareResult = document.getElementById("share-result");
+  const shareUrlDisplay = document.getElementById("share-url-display");
 
   // --- 状態変数 ---
   let fullLogData = [];
@@ -56,9 +151,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let autoPlayInterval = null;
   let isAutoPlaying = false;
 
-  // ★追加: ログの読み込みモード ("html" or "text")
   let logLoadMode = null;
-  let currentSceneId = null; // ★追加: 読み込んでいるシーンID
+  let currentSceneId = null;
 
   // --- 1. ファイル読み込み ---
   if (uploadSection) {
@@ -79,7 +173,12 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         fullLogData = parseCcfoliaLog(htmlContent);
         if (fullLogData.length > 0) {
-          logLoadMode = "html"; // HTMLモードを記録
+          logLoadMode = "html";
+
+          // ★システム判定と反映
+          const detected = detectSystem(fullLogData);
+          applySystemTheme(detected);
+
           initPlayer();
         } else {
           alert("ログの読み込みに失敗しました。\n発言が見つかりませんでした。");
@@ -104,7 +203,12 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         fullLogData = parseRawTextLog(text);
         if (fullLogData.length > 0) {
-          logLoadMode = "text"; // テキストモードを記録
+          logLoadMode = "text";
+
+          // ★システム判定と反映
+          const detected = detectSystem(fullLogData);
+          applySystemTheme(detected);
+
           initPlayer();
         } else {
           alert("ログの解析に失敗しました。形式を確認してください。");
@@ -114,6 +218,92 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("解析エラーが発生しました。");
       }
     });
+  }
+
+  // --- ★システム判定ロジック ---
+  function detectSystem(logs) {
+    const scores = {};
+    // スコア初期化
+    for (const key in SYSTEM_CONFIG) {
+      scores[key] = 0;
+    }
+
+    // パフォーマンスのため最初の1000行をチェック
+    const sampleLogs = logs.slice(0, 1000);
+
+    sampleLogs.forEach((log) => {
+      const t = log.text;
+      for (const [sysKey, config] of Object.entries(SYSTEM_CONFIG)) {
+        config.keywords.forEach((keyword) => {
+          if (t.includes(keyword)) {
+            scores[sysKey]++;
+          }
+        });
+      }
+    });
+
+    // 最大スコアのシステムを探す
+    let maxScore = 0;
+    let detected = null;
+
+    for (const [sysKey, score] of Object.entries(scores)) {
+      if (score > maxScore) {
+        maxScore = score;
+        detected = sysKey;
+      }
+    }
+
+    // ネクロニカの"NC"は他の文章でも出る可能性があるので、ある程度スコアがないとSW2.5の"2d6"等に負ける
+    // 競合調整（例：SW2.5とAR2Eは共に2d6を使うが、SWは威力表、ARはフェイトなど固有語で差別化）
+
+    return detected; // 見つからなければ null
+  }
+
+  // --- ★システムテーマ反映 ---
+  function applySystemTheme(systemKey) {
+    let config = SYSTEM_CONFIG[systemKey];
+
+    // 未知のシステムの場合のデフォルト処理
+    if (!config) {
+      if (systemTagEl) systemTagEl.style.display = "none";
+
+      // デフォルトの背景に戻す
+      if (screenFrame) {
+        screenFrame.style.backgroundColor = "#111";
+        screenFrame.style.backgroundImage = `
+                linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+                url('img/default_bg.jpg')
+            `;
+        screenFrame.style.backgroundSize = "cover";
+        screenFrame.style.backgroundPosition = "center";
+      }
+      return;
+    }
+
+    // タグ表示
+    if (systemTagEl) {
+      systemTagEl.textContent = config.name;
+      systemTagEl.style.backgroundColor = config.color;
+      systemTagEl.style.display = "block";
+    }
+
+    // 背景変更 (リッチなグラデーション)
+    if (screenFrame) {
+      const c = config.color;
+
+      // ★修正: グラデーションの透明度を調整して背景画像が見えるようにする
+      // rgba(0,0,0,0.9) だと濃すぎるため -> rgba(0,0,0,0.6) に変更
+      // システムカラーも少し透過させる (${c}88)
+
+      screenFrame.style.backgroundColor = "#111"; // 画像がない場合のベース色
+      screenFrame.style.backgroundImage = `
+            linear-gradient(135deg, rgba(0,0,0,0.6) 0%, ${c}66 100%),
+            url('img/default_bg.jpg')
+        `;
+      screenFrame.style.backgroundSize = "cover";
+      screenFrame.style.backgroundPosition = "center";
+      screenFrame.style.backgroundBlendMode = "normal";
+    }
   }
 
   // --- パーサー ---
@@ -249,7 +439,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTabFilters(tabs);
     updateFilteredLogs();
 
-    // ★追加: シーン共有ボタンの表示制御
     if (btnShareScene) {
       if (logLoadMode === "text") {
         btnShareScene.style.display = "inline-flex";
@@ -325,7 +514,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (data.type === "system") {
       dialogueBox.classList.add("system-mode");
       applyNameStyle(data.color);
-
       messageTextEl.style.color = "";
       if (data.text.includes("成功")) {
         messageTextEl.style.color = "rgb(33, 150, 243)";
@@ -493,16 +681,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- イベントリスナー ---
   screenFrame.addEventListener("click", nextLine);
 
-  if (document.getElementById("btn-first"))
-    document.getElementById("btn-first").addEventListener("click", firstLine);
-  if (document.getElementById("btn-last"))
-    document.getElementById("btn-last").addEventListener("click", lastLine);
+  if (btnFirst) btnFirst.addEventListener("click", firstLine);
+  if (btnLast) btnLast.addEventListener("click", lastLine);
 
   btnPrev.addEventListener("click", prevLine);
   btnAuto.addEventListener("click", toggleAutoPlay);
   btnNext.addEventListener("click", nextLine);
 
-  // 速度変更イベント
+  // リセット（トップに戻る）
+  const btnReset = document.getElementById("btn-reset");
+  if (btnReset) {
+    btnReset.addEventListener("click", () => {
+      if (confirm("現在のログを閉じてトップに戻りますか？")) {
+        location.reload();
+      }
+    });
+  }
+
   autoSpeedSelect.addEventListener("click", (e) => {
     e.stopPropagation();
   });
@@ -556,14 +751,12 @@ document.addEventListener("DOMContentLoaded", () => {
       itemDiv.className = "history-item";
       itemDiv.dataset.realIndex = realIndex;
 
-      // チェックボックス
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.className = "history-checkbox";
       checkbox.value = realIndex;
       checkbox.addEventListener("click", (e) => e.stopPropagation());
 
-      // 名前
       const nameSpan = document.createElement("span");
       nameSpan.className = "history-name";
       nameSpan.textContent = data.name;
@@ -575,7 +768,6 @@ document.addEventListener("DOMContentLoaded", () => {
         nameSpan.style.color = isLightColor(data.color) ? "#000" : "#fff";
       }
 
-      // テキスト
       const textSpan = document.createElement("span");
       textSpan.className = "history-text";
       textSpan.textContent = data.text;
@@ -624,16 +816,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ★追加: 現在のテキストをコピー
   if (btnCopyCurrent) {
     btnCopyCurrent.addEventListener("click", () => {
       if (filteredLogIndices.length === 0) return;
-
       const data = fullLogData[filteredLogIndices[currentFilteredIndex]];
-
-      // ★修正: 本文だけでなく、ココフォリアのログ形式 ([タブ] 名前 : 本文) でコピーする
       const textToCopy = `[${data.tab}] ${data.name} : ${data.text}`;
-
       navigator.clipboard.writeText(textToCopy).then(() => {
         const originalHTML = btnCopyCurrent.innerHTML;
         btnCopyCurrent.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -642,71 +829,48 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== シーン共有機能 =====
+  // --- GAS共有機能 ---
+  // (中略: 既存のGAS共有機能の実装)
   const GAS_API_URL =
     "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
 
-  const btnShareScene = document.getElementById("btn-share-scene");
-  const shareModal = document.getElementById("share-modal");
-  const btnCloseShareModal = document.getElementById("btn-close-share-modal");
-  const shareTitleInput = document.getElementById("share-title");
-  const shareRangeInfo = document.getElementById("share-range-info");
-  const btnGenerateShareUrl = document.getElementById("btn-generate-share-url");
-  const btnDeleteScene = document.getElementById("btn-delete-scene"); // ★変更
-  const shareResult = document.getElementById("share-result");
-  const shareUrlDisplay = document.getElementById("share-url-display");
-
-  // シーン共有ボタンクリック
   if (btnShareScene) {
     btnShareScene.addEventListener("click", () => {
-      // HTMLモードの場合は共有不可
       if (logLoadMode === "html") {
         alert(
           "HTMLファイルからのログは共有できません。\nテキスト貼り付けモードをご利用ください。"
         );
         return;
       }
-
-      // 全ログを共有
       if (fullLogData.length === 0) {
         alert("共有するログがありません");
         return;
       }
-
-      // 選択範囲の情報を表示
       shareRangeInfo.textContent = `全ログ: ${fullLogData.length}行`;
       shareTitleInput.value = "";
       shareResult.style.display = "none";
-
-      // 削除ボタンの表示制御
       if (currentSceneId && btnDeleteScene) {
         btnDeleteScene.style.display = "block";
       } else if (btnDeleteScene) {
         btnDeleteScene.style.display = "none";
       }
-
-      // 共有ダイアログを表示
       shareModal.style.display = "flex";
     });
   }
 
-  // 共有ダイアログを閉じる
   if (btnCloseShareModal) {
     btnCloseShareModal.addEventListener("click", () => {
       shareModal.style.display = "none";
     });
   }
 
-  // 共有URL生成 (新規)
   if (btnGenerateShareUrl) {
     btnGenerateShareUrl.addEventListener("click", async () => {
-      // ランダムID生成
       const sceneId = generateRandomId(6);
       await saveSceneToGAS(sceneId, btnGenerateShareUrl);
     });
   }
 
-  // 削除機能
   if (btnDeleteScene) {
     btnDeleteScene.addEventListener("click", async () => {
       if (!currentSceneId) return;
@@ -717,29 +881,25 @@ document.addEventListener("DOMContentLoaded", () => {
       ) {
         return;
       }
-
       const payload = {
         tool: "logScene",
         action: "delete",
         id: currentSceneId,
       };
-
       try {
         btnDeleteScene.disabled = true;
         const originalText = btnDeleteScene.innerHTML;
         btnDeleteScene.innerHTML =
           '<i class="fa-solid fa-spinner fa-spin"></i> 削除中...';
-
         const response = await fetch(GAS_API_URL, {
           method: "POST",
           body: JSON.stringify(payload),
         });
         const result = await response.json();
-
         if (result.status === "success" || result.status === "not_found") {
           alert("シーンを削除しました。");
-          currentSceneId = null; // IDをクリア
-          shareModal.style.display = "none"; // モーダルを閉じる
+          currentSceneId = null;
+          shareModal.style.display = "none";
         } else {
           alert(`削除失敗: ${result.message}`);
         }
@@ -753,19 +913,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // GAS保存の共通関数
   async function saveSceneToGAS(sceneId, btnElement) {
-    // 全ログを取得
     if (fullLogData.length === 0) {
       alert("共有するログがありません");
       return;
     }
-
-    // 全ログを配列に変換
     const selectedLines = fullLogData.map((data) => {
       return `[${data.tab}] ${data.name} : ${data.text}`;
     });
-
     const title = shareTitleInput.value.trim() || "（タイトル未設定）";
     const currentBaseUrl = window.location.origin + window.location.pathname;
 
@@ -782,14 +937,14 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      const originalText = btnElement.innerHTML;
       btnElement.disabled = true;
       btnElement.innerHTML =
         '<i class="fa-solid fa-spinner fa-spin"></i> 処理中...';
 
+      // JSONPやno-corsではなく、通常のPOSTで送信
+      // (GAS側でCORSヘッダーを設定している前提)
       const response = await fetch(GAS_API_URL, {
         method: "POST",
-        // headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -799,7 +954,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const shareUrl = result.url;
         shareUrlDisplay.value = shareUrl;
         shareResult.style.display = "block";
-
         try {
           await navigator.clipboard.writeText(shareUrl);
         } catch (clipError) {
@@ -809,8 +963,6 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
         shareUrlDisplay.select();
-
-        // currentSceneIdを更新
         currentSceneId = sceneId;
         if (btnDeleteScene) btnDeleteScene.style.display = "block";
       } else {
@@ -822,7 +974,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } finally {
       if (btnElement) {
         btnElement.disabled = false;
-        // ボタンのテキストを戻す
         if (btnElement.id === "btn-generate-share-url") {
           btnElement.innerHTML =
             '<i class="fa-solid fa-link"></i> 新規URLを発行してコピー';
@@ -831,7 +982,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ランダムID生成関数
   function generateRandomId(length) {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -841,22 +991,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return result;
   }
 
-  // ===== URLパラメータ検知と自動読み込み =====
+  // URLパラメータからの読み込み
   const urlParams = new URLSearchParams(window.location.search);
-  const sceneId = urlParams.get("scene");
+  const paramSceneId = urlParams.get("scene");
 
-  if (sceneId) {
-    // シーンIDが指定されている場合、GASから読み込み
-    loadSceneFromGAS(sceneId);
+  if (paramSceneId) {
+    loadSceneFromGAS(paramSceneId);
   }
 
-  async function loadSceneFromGAS(sceneId) {
+  async function loadSceneFromGAS(sid) {
     try {
       const requestUrl = `${GAS_API_URL}?tool=logScene&id=${encodeURIComponent(
-        sceneId
+        sid
       )}`;
       console.log("Fetching scene:", requestUrl);
-
       const response = await fetch(requestUrl);
       const result = await response.json();
       console.log("Scene fetch result:", result);
@@ -864,34 +1012,30 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.status === "success") {
         const sceneData = result.data;
         const logText = sceneData.lines.join("\n");
-
-        // ログテキストを解析
         fullLogData = parseRawTextLog(logText);
-
         if (fullLogData.length > 0) {
-          logLoadMode = "text"; // テキストモードとして扱う
-          currentSceneId = sceneId; // ★追加: シーンIDを保存
+          logLoadMode = "text";
+          currentSceneId = sid;
+
+          // システム判定
+          const detected = detectSystem(fullLogData);
+          applySystemTheme(detected);
+
           initPlayer();
-          // タイトルがあれば表示
           if (sceneData.title && sceneData.title !== "（タイトル未設定）") {
             console.log(`シーン読み込み完了: ${sceneData.title}`);
-            // alert(`シーン「${sceneData.title}」を読み込みました`);
           }
         } else {
           alert("シーンデータの解析に失敗しました(ログ件数0)");
         }
       } else if (result.status === "not_found") {
-        alert(
-          `指定されたシーンが見つかりませんでした。\nID: ${sceneId}\n${result.message}`
-        );
+        alert(`指定されたシーンが見つかりませんでした。\nID: ${sid}`);
       } else {
         alert(`エラー: ${result.message}`);
       }
     } catch (error) {
       console.error("シーン読み込みエラー:", error);
-      alert(
-        "シーンの読み込みに失敗しました。\nコンソールログを確認してください。"
-      );
+      alert("シーンの読み込みに失敗しました。");
     }
   }
 });

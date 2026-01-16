@@ -78,7 +78,7 @@
 .file-name-display {
   margin-top: 15px;
   font-size: 0.9em;
-  color: #93c47d;
+  color: var(--color-coc, #93c47d);
 }
 
 .options-container {
@@ -250,7 +250,7 @@
   gap: 15px;
 }
 .copy-all-button {
-  background-color: #6aa84f;
+  background-color: var(--color-coc-secret, #6aa84f);
   color: white;
   border: none;
   padding: 10px 15px;
@@ -363,10 +363,10 @@
   white-space: pre-wrap; /* 改行を保持し、必要に応じて折り返す */
 }
 .log-text strong {
-  color: #ea9999;
+  color: var(--color-sw, #ea9999);
 }
 .initial-success-badge {
-  background-color: #cc4125;
+  background-color: var(--color-dx3, #cc4125);
   color: white;
   padding: 3px 8px;
   border-radius: 10px;
