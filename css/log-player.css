@@ -109,21 +109,356 @@
 }
 
 /* 画面フレーム */
+/* アニメーション定義 */
+@keyframes grid-scroll-layer1 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(80px, 80px); /* 右下へ */
+  }
+}
+@keyframes grid-scroll-layer2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-120px, -120px); /* 左上へ */
+  }
+}
+
+/* 画面フレーム */
 .screen-frame {
   width: 100%;
   aspect-ratio: 16 / 9;
-  background-color: #111;
+  background-color: #050510; /* 完全に黒より少し青みを */
   position: relative;
-  border: 4px solid #34495e;
+  border: 4px solid var(--system-color, #34495e); /* システムカラー */
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-    url("../img/default_bg.jpg");
+  cursor: pointer;
+  transition: border-color 0.5s;
+}
+
+/* 層1: 明るいマス目 (右下へ) - サイズ80px */
+.screen-frame::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  right: -80px;
+  bottom: -80px;
+  background-image: linear-gradient(
+      var(--system-color, #4a5c9a) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, var(--system-color, #4a5c9a) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.5; /* 少し明るくしてハッキリさせる */
+  animation: grid-scroll-layer1 4s linear infinite;
+  z-index: 1;
+}
+
+/* 層2: 暗いマス目 (左上へ、遅い) - サイズ120px */
+.screen-frame::after {
+  content: "";
+  position: absolute;
+  top: -120px;
+  left: -120px;
+  right: -120px;
+  bottom: -120px;
+  background-image: linear-gradient(
+      var(--system-color, #2a3c7d) 2px,
+      transparent 2px
+    ),
+    linear-gradient(90deg, var(--system-color, #2a3c7d) 2px, transparent 2px);
+  background-size: 120px 120px;
+  opacity: 0.1; /* さらに暗く(薄く) */
+  animation: grid-scroll-layer2 10s linear infinite; /* 遅く */
+  z-index: 2;
+}
+
+/* --- システムごとのテーマカラー調整 & 背景画像設定 --- */
+/* 背景画像がある場合は cover で表示 */
+[class*="theme-"] {
   background-size: cover;
   background-position: center;
-  cursor: pointer;
+}
+
+/* CoC: 緑系 */
+.screen-frame.theme-coc {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/CoC.png");
+}
+
+/* SW2.5: ピンク・赤系 */
+.screen-frame.theme-sw2-5 {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/SW.png");
+}
+
+/* DX3: 真っ赤 */
+.screen-frame.theme-dx3 {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/DX3.png");
+}
+
+/* ネクロニカ: グレー */
+.screen-frame.theme-nechronica {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/ネクロニカ.png");
+}
+
+/* サタスペ: オレンジ */
+.screen-frame.theme-satasupe {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/サタスペ.png");
+}
+
+/* マモノスクランブル: 黄色 */
+.screen-frame.theme-mamono {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/マモブル.png");
+}
+
+/* 銀剣のステラナイツ: 青 */
+.screen-frame.theme-stellar {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/銀剣.png");
+}
+
+/* シノビガミ: 紫 */
+.screen-frame.theme-shinobigami {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/シノビガミ.png");
+}
+
+/* アリアンロッド2E */
+.screen-frame.theme-ar2e {
+  border-color: var(--system-color);
+  background-image: url("../img/logBG/AR2E.png");
+}
+
+/* システムごとの個別クラスは不要になったので削除し、
+   汎用クラスのみ残す（システムカラー変数が渡ってくるため） */
+
+/* --- 立ち絵表示用 --- */
+.char-standing-picture {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 5; /* グリッドの上、ダイアログの下 */
+  overflow: hidden;
+}
+
+.char-standing-picture img {
+  position: absolute;
+  bottom: 0;
+  max-width: 100%;
+  max-height: 94%; /* 少し大きく表示 */
+  object-fit: contain;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s ease;
+  opacity: 0;
+  transform: translateY(100px); /* 最初は下から登場 */
+  filter: brightness(0.8);
+}
+
+/* スロット配置 (5枠化) */
+.char-standing-picture img.slot-0 {
+  left: 10%;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+.char-standing-picture img.slot-1 {
+  left: 30%;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+.char-standing-picture img.slot-2 {
+  left: 50%;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+.char-standing-picture img.slot-3 {
+  left: 70%;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+.char-standing-picture img.slot-4 {
+  left: 90%;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.char-standing-picture img.active.slot-0 {
+  left: 10%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(1) contrast(1.05);
+  z-index: 10;
+  opacity: 1;
+}
+.char-standing-picture img.active.slot-1 {
+  left: 30%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(1) contrast(1.05);
+  z-index: 10;
+  opacity: 1;
+}
+.char-standing-picture img.active.slot-2 {
+  left: 50%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(1) contrast(1.05);
+  z-index: 10;
+  opacity: 1;
+}
+.char-standing-picture img.active.slot-3 {
+  left: 70%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(1) contrast(1.05);
+  z-index: 10;
+  opacity: 1;
+}
+.char-standing-picture img.active.slot-4 {
+  left: 90%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(1) contrast(1.05);
+  z-index: 10;
+  opacity: 1;
+}
+
+.char-standing-picture img.dimmed.slot-0 {
+  left: 10%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(0.4) grayscale(0.2);
+  z-index: 5;
+  opacity: 0.7;
+}
+.char-standing-picture img.dimmed.slot-1 {
+  left: 30%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(0.4) grayscale(0.2);
+  z-index: 5;
+  opacity: 0.7;
+}
+.char-standing-picture img.dimmed.slot-2 {
+  left: 50%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(0.4) grayscale(0.2);
+  z-index: 5;
+  opacity: 0.7;
+}
+.char-standing-picture img.dimmed.slot-3 {
+  left: 70%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(0.4) grayscale(0.2);
+  z-index: 5;
+  opacity: 0.7;
+}
+.char-standing-picture img.dimmed.slot-4 {
+  left: 90%;
+  transform: translateX(-50%) translateY(0) scale(1);
+  filter: brightness(0.4) grayscale(0.2);
+  z-index: 5;
+  opacity: 0.7;
+}
+
+/* 退場アニメーション (沈み込み＋フェード) */
+.char-standing-picture img.exiting {
+  opacity: 0;
+  transform: translateX(-50%) translateY(30px) !important; /* 少しだけ下に沈む */
+  filter: brightness(0.2);
+  z-index: 0;
+}
+
+/* --- 吹き出しのしっぽ角度調整 (右固定始点) --- */
+.dialogue-box.speech-mode::before,
+.dialogue-box.speech-mode::after {
+  left: auto !important;
+  right: 60px;
+  transform-origin: bottom right;
+}
+
+/* Slot 0 (最左: 84deg) - キャラを指すように大きく左へ伸ばす */
+.dialogue-box.speech-mode.tail-slot-0::before {
+  border-width: 0 0 95px 300px;
+  transform: skewX(82deg);
+}
+.dialogue-box.speech-mode.tail-slot-0::after {
+  border-width: 0 0 88px 240px;
+  transform: skewX(82deg);
+  margin-left: 18px;
+  margin-bottom: -4px;
+}
+
+/* Slot 1 (左: 80deg) - 左へ寄せ(right: 75px)、縁をハッキリ出すため260pxに拡張 */
+
+.dialogue-box.speech-mode.tail-slot-1::before {
+  border-width: 0 0 80px 280px;
+  transform: skewX(80deg);
+}
+.dialogue-box.speech-mode.tail-slot-1::after {
+  border-width: 0 0 75px 260px;
+  transform: skewX(80deg);
+  margin-left: 14px;
+  margin-bottom: -4px;
+}
+
+/* Slot 2 (中央: 72deg) - Slot1との差別化のため72degへ */
+.dialogue-box.speech-mode.tail-slot-2::before {
+  border-width: 0 0 90px 150px;
+  transform: skewX(75deg);
+}
+.dialogue-box.speech-mode.tail-slot-2::after {
+  border-width: 0 0 85px 130px;
+  transform: skewX(75deg);
+  margin-left: 6px;
+  margin-bottom: -4px;
+}
+
+/* Slot 3 (右: 55deg) */
+.dialogue-box.speech-mode.tail-slot-3::before {
+  border-width: 0 0 80px 120px;
+  transform: skewX(60deg);
+}
+.dialogue-box.speech-mode.tail-slot-3::after {
+  border-width: 0 0 75px 110px;
+  transform: skewX(60deg);
+  margin-left: 5px;
+  margin-bottom: -4px;
+}
+
+/* Slot 4 (最右: 0deg) - 縁線をさらに右へ (right: 42px) */
+.dialogue-box.speech-mode.tail-slot-4::before {
+  right: 45px;
+  border-width: 0 0 80px 95px;
+  transform: skewX(0deg);
+}
+.dialogue-box.speech-mode.tail-slot-4::after {
+  right: 50px;
+  border-width: 0 0 75px 89px;
+  transform: skewX(0deg);
+  margin-left: 3px;
+  margin-bottom: -3px;
+}
+
+/* 画面外 (off-screen) - 画面右端を指す */
+.dialogue-box.speech-mode.tail-off-screen::before {
+  right: 30px;
+  border-width: 0 0 80px 150px;
+  transform: skewX(-40deg);
+}
+.dialogue-box.speech-mode.tail-off-screen::after {
+  right: 39px;
+  border-width: 0 0 75px 135px;
+  transform: skewX(-40deg);
+  margin-left: 14px;
+  margin-bottom: -4px;
 }
 
 /* 背景演出用の巨大文字 */
@@ -196,6 +531,37 @@
   pointer-events: auto;
 }
 
+/* ダイス演出用 */
+.dice-container {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  color: #ffeb3b;
+  font-size: 1.5em;
+  display: none;
+  z-index: 30;
+  text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+}
+.dice-container.visible {
+  display: block;
+  animation: dice-spin 0.6s ease-out;
+}
+
+@keyframes dice-spin {
+  0% {
+    transform: rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+  }
+}
+
 /* キャラクター名プレート (共通) */
 .char-name-wrapper {
   position: absolute;
@@ -211,6 +577,8 @@
   font-family: "Corporate-Logo-Bold", sans-serif;
   font-size: 1em;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  /* 引用符などが回転して表示されるのを防ぐため、プロポーショナル設定をリセット */
+  font-feature-settings: normal;
 }
 
 /* メッセージ本文 (共通) */
@@ -247,7 +615,14 @@
   display: none !important;
 }
 
-/* --- 2. 地の文モード (カギカッコなし) --- */
+/* --- 2. 地の文モード (カギカッコなし) / 3. セリフモード (共通スタイル) --- */
+.dialogue-box.desc-mode .char-name-plate,
+.dialogue-box.speech-mode .char-name-plate {
+  border: 2px solid #fff;
+  border-radius: 12px;
+}
+
+/* --- 2. 地の文モード固有 --- */
 .dialogue-box.desc-mode {
   bottom: 20px;
   height: 35%;
@@ -255,9 +630,6 @@
   border: 2px solid #5a7090;
   border-radius: 4px;
   padding: 35px 25px 20px 25px;
-}
-.dialogue-box.desc-mode .char-name-plate {
-  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* --- 3. セリフモード (カギカッコあり) --- */
@@ -308,11 +680,7 @@
   margin-bottom: -3px;
 }
 
-.dialogue-box.speech-mode .char-name-plate {
-  border: 2px solid #fff;
-  border-radius: 12px;
-}
-
+/* セリフモードでの名前プレートの上書き不要（統一済みのため削除） */
 /* --- 4. システムメッセージ --- */
 .dialogue-box.system-mode {
   bottom: 20px;
@@ -372,6 +740,7 @@
   outline: none;
   cursor: pointer;
   -webkit-appearance: none;
+  appearance: none;
 }
 #seek-bar::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -418,6 +787,68 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* 音量調整 */
+.volume-control {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 38px;
+  background: rgba(13, 26, 80, 0.6);
+  border: 1px solid #3498db;
+  border-radius: 5px;
+  color: #87cefa;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: -5px; /* 少し寄せる */
+}
+.volume-control:hover {
+  background: #1a2c6d;
+}
+
+.volume-slider-wrapper {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0d1a50;
+  border: 1px solid #3498db;
+  border-radius: 4px;
+  padding: 15px 5px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  z-index: 100;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.volume-control:hover .volume-slider-wrapper {
+  display: flex;
+}
+
+.volume-control input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 4px;
+  background: #4a5c9a;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  transform: rotate(-90deg);
+  margin: 40px -38px; /* 縦向き配置の調整 */
+}
+.volume-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #3498db;
+  cursor: pointer;
 }
 
 /* 自動再生グループ */

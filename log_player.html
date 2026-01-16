@@ -72,11 +72,15 @@
         <!-- ★追加: システム名表示タグ -->
         <div id="system-tag" class="system-tag" style="display: none;">System</div>
 
+        <!-- 立ち絵表示用コンテナ -->
+        <div id="char-standing-picture" class="char-standing-picture"></div>
+
         <!-- ダイアログボックス -->
         <div class="dialogue-box" id="dialogue-box">
           <div class="char-name-wrapper">
             <div class="char-name-plate" id="char-name" style="display: none;">No Name</div>
           </div>
+          <div id="dice-container" class="dice-container"><i class="fa-solid fa-dice"></i></div>
           <div class="message-text" id="message-text"></div>
           <div class="next-indicator"><i class="fa-solid fa-caret-down"></i></div>
         </div>
@@ -95,9 +99,15 @@
         <!-- 再生コントロール群 -->
         <div class="playback-group">
           <!-- ★移動: トップに戻るボタン -->
-          <button id="btn-reset" class="control-btn" title="閉じてトップに戻る" style="margin-right: 15px;"><i
+          <button id="btn-reset" class="control-btn" title="閉じてトップに戻る" style="margin-right: 0px;"><i
               class="fa-solid fa-xmark"></i> 閉じる</button>
 
+          <div class="volume-control" title="音量調整">
+            <i class="fa-solid fa-volume-high"></i>
+            <div class="volume-slider-wrapper">
+              <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+          </div>
           <button id="btn-first" class="control-btn" title="最初に戻る"><i class="fa-solid fa-backward-step"></i> 最初</button>
           <button id="btn-prev" class="control-btn" title="1つ戻る"><i class="fa-solid fa-backward"></i> 前へ</button>
 
@@ -189,6 +199,7 @@
     </footer>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="js/common.js"></script>
   <script src="js/log-player.js"></script>
 </body>

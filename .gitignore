@@ -1,0 +1,12 @@
+# Data files
+*.csv
+*.xlsx
+*.gsheet
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE and internal files
+.gemini/
+.env

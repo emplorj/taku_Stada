@@ -2,6 +2,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- 定数: ナレーター扱いする名前 ---
   const NARRATOR_NAMES = ["GM", "KP", "NC", "DD", "NM"];
   const SYSTEM_NAME = "system";
+  const CHARACTER_CSV_URL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv";
+
+  // キャラクターデータ管理用
+  let characterMap = new Map(); // PC名 -> Data
+  let registeredMap = new Map(); // 登録名 -> [Data, Data, ...]
 
   // --- ★定数: システム定義 ---
   // 色は common.js の TRPG_SYSTEM_COLORS から取得
@@ -88,6 +94,40 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   };
 
+  // --- 画像プリロード (表示遅延対策) ---
+  function preloadBackgroundImages() {
+    // CSSで使用している背景画像のパスリスト
+    const imagesToPreload = [
+      "img/logBG/CoC.png",
+      "img/logBG/SW.png",
+      "img/logBG/DX3.png",
+      "img/logBG/ネクロニカ.png",
+      "img/logBG/サタスペ.png",
+      "img/logBG/マモブル.png",
+      "img/logBG/銀剣.png",
+      "img/logBG/シノビガミ.png",
+      "img/logBG/AR2E.png",
+      "img/logBG/default.png", // パスを修正
+    ];
+
+    imagesToPreload.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+    console.log("Background images preloading started (low priority).");
+  }
+
+  // ページ全体の読み込みが完了してから、かつブラウザがアイドル状態の時にプリロードを開始
+  window.addEventListener("load", () => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => preloadBackgroundImages(), {
+        timeout: 2000,
+      });
+    } else {
+      setTimeout(preloadBackgroundImages, 1000);
+    }
+  });
+
   // --- DOM要素 ---
   const fileInput = document.getElementById("log-file-input");
   const fileNameDisplay = document.getElementById("file-name-display");
@@ -106,6 +146,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const systemTagEl = document.getElementById("system-tag"); // ★追加
   const nextIndicator = document.querySelector(".next-indicator");
   const dialogueBox = document.getElementById("dialogue-box");
+  const standingPictureEl = document.getElementById("char-standing-picture");
+  const diceContainer = document.getElementById("dice-container");
+  const diceAudio = new Audio("audio/nc42340.mp3");
+  diceAudio.volume = 0.5; // デフォルト音量を50%に
 
   // フィルタリング・シークバー
   const tabFiltersContainer = document.getElementById("tab-filters-container");
@@ -113,6 +157,276 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentLineDisplay = document.getElementById("current-line-display");
   const totalLineDisplay = document.getElementById("total-line-display");
   const autoSpeedSelect = document.getElementById("auto-speed-select");
+  const volumeSlider = document.getElementById("volume-slider");
+
+  let currentStandingImageUrl = "";
+
+  // --- キャラクターデータの取得とパース ---
+  async function loadCharacterData() {
+    try {
+      const response = await fetch(
+        `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`
+      );
+      if (!response.ok) throw new Error("CSVの取得に失敗しました");
+      const csvText = await response.text();
+
+      // ヘッダー行を動的に特定する
+      const parseResults = Papa.parse(csvText, { skipEmptyLines: true });
+      const allRows = parseResults.data;
+
+      let headerRowIndex = -1;
+      let headerRow;
+      for (let i = 0; i < allRows.length; i++) {
+        if (allRows[i].includes("PC名")) {
+          headerRowIndex = i;
+          headerRow = allRows[i];
+          break;
+        }
+      }
+
+      if (headerRowIndex === -1) {
+        console.error("CSVに 'PC名' ヘッダーが見つかりません。");
+        return;
+      }
+
+      const getIndex = (name) => headerRow.indexOf(name);
+      const dataRows = allRows.slice(headerRowIndex + 1);
+
+      dataRows.forEach((row) => {
+        const pcName = row[getIndex("PC名")]
+          ? row[getIndex("PC名")].trim()
+          : "";
+        const regName = row[getIndex("登録名(呼称名)")]
+          ? row[getIndex("登録名(呼称名)")].trim()
+          : "";
+        const imgUrl = row[getIndex("立ち絵URL")]
+          ? row[getIndex("立ち絵URL")].trim()
+          : "";
+        const tableName = row[getIndex("卓名")]
+          ? row[getIndex("卓名")].trim()
+          : "";
+
+        if (!pcName && !regName) return;
+
+        const data = { pcName, regName, imgUrl, tableName };
+
+        if (pcName) characterMap.set(pcName, data);
+        if (regName) {
+          if (!registeredMap.has(regName)) registeredMap.set(regName, []);
+          registeredMap.get(regName).push(data);
+        }
+      });
+      console.log(
+        `Character data loaded: ${characterMap.size} PCs, ${registeredMap.size} registered names.`
+      );
+    } catch (err) {
+      console.error("Failed to load character data:", err);
+    }
+  }
+
+  // 起動時に読み込み
+  loadCharacterData();
+
+  // 名前を検索用に正規化する (カッコ内や引用符を除去)
+  function normalizeName(name) {
+    if (!name) return "";
+    return name
+      .replace(/[（\(][^（\(\)）]*[）\)]/g, "") // カッコ内を除去
+      .replace(/[”"“'「」『』【】]/g, "") // 検索の邪魔になる記号を除去
+      .trim();
+  }
+
+  // --- ローカル立ち絵設定 (CSVにないキャラ用) ---
+  const LOCAL_CHARACTER_IMAGES = [
+    {
+      names: ["ジン", "Jin", "”ジン”"],
+      images: [
+        "img/Jin/幕間.png",
+        "img/Jin/新生.png",
+        "img/Jin/暁月.png",
+        "img/Jin/漆黒.png",
+        "img/Jin/紅蓮.png",
+        "img/Jin/裸.png",
+      ],
+    },
+    {
+      names: ["霧谷 雄吾", "霧谷雄吾", "霧谷"],
+      images: ["img/logIllust/霧谷雄吾.png"],
+    },
+    {
+      names: ["春日 恭二", "春日恭二", "春日"],
+      images: ["img/logIllust/春日恭二.png"],
+    },
+  ];
+
+  // キャラクターデータを検索する
+  function findCharacter(rawName) {
+    const name = normalizeName(rawName);
+    if (!name) return null;
+
+    // 1. PC名で検索
+    if (characterMap.has(name)) {
+      return characterMap.get(name);
+    }
+
+    // 2. 登録名で検索
+    if (registeredMap.has(name)) {
+      const candidates = registeredMap.get(name);
+      if (candidates.length === 1) return candidates[0];
+
+      // 同名がいる場合は卓名で絞り込み (現在適用されているテーマ名と比較)
+      const currentSystem = currentSystemTheme || "";
+      const matched = candidates.find((c) => {
+        // CSVの卓名が現在のテーマ名を含む、あるいはその逆
+        if (!c.tableName || !currentSystem) return false;
+        return (
+          c.tableName.includes(currentSystem) ||
+          currentSystem.includes(c.tableName)
+        );
+      });
+      return matched || candidates[0]; // 見つからなければ先頭
+    }
+
+    // 3. ローカル設定から検索 (CSVになかった場合)
+    for (const config of LOCAL_CHARACTER_IMAGES) {
+      if (config.names.some((n) => normalizeName(n) === name)) {
+        const idx = Math.floor(Math.random() * config.images.length);
+        return {
+          pcName: rawName,
+          regName: rawName,
+          imgUrl: config.images[idx],
+          tableName: "Local",
+        };
+      }
+    }
+
+    return null;
+  }
+
+  // 立ち絵を更新する
+  // 立ち絵を更新する
+  function updateStandingPicture(charName, currentIndex) {
+    const charData = findCharacter(charName);
+    const normalizedName = normalizeName(charName);
+    const newUrl = charData ? charData.imgUrl : "";
+
+    const allImgs = Array.from(
+      standingPictureEl.querySelectorAll("img:not(.exiting)")
+    );
+
+    // 1. 全員のクラスからアクティブを剥がして暗転させる
+    allImgs.forEach((img) => {
+      img.classList.remove("active");
+      img.classList.add("dimmed");
+    });
+
+    // しっぽクラスをリセット
+    dialogueBox.classList.remove(
+      "tail-slot-0",
+      "tail-slot-1",
+      "tail-slot-2",
+      "tail-slot-3",
+      "tail-slot-4"
+    );
+
+    // 2. 自動退場チェック (currentIndex - lastLine > 30)
+    allImgs.forEach((img) => {
+      const name = img.dataset.charName;
+      const lastLine = characterLastLine.get(name) || 0;
+      if (currentIndex - lastLine > HIDE_THRESHOLD && name !== normalizedName) {
+        img.classList.remove("active", "dimmed");
+        img.classList.add("exiting");
+        setTimeout(() => img.remove(), 650);
+        // スロットを解放
+        const sIdx = characterSlots.indexOf(name);
+        if (sIdx !== -1) characterSlots[sIdx] = null;
+      }
+    });
+
+    // 3. キャラ画像がない（システム・ナレーター等）場合は終了
+    if (!newUrl) {
+      currentStandingImageUrl = "";
+      return;
+    }
+
+    // 4. スロット割り当て
+    let existingImg = allImgs.find(
+      (img) => img.dataset.charName === normalizedName
+    );
+    let slotIdx = characterSlots.indexOf(normalizedName);
+
+    if (slotIdx === -1) {
+      // 画面にいない場合、空きスロットを探す
+      slotIdx = characterSlots.indexOf(null);
+      if (slotIdx === -1) {
+        // 空きがなければ、最も古い（lastLineが最小の）キャラを追い出す
+        let oldestName = null;
+        let minLine = Infinity;
+        characterSlots.forEach((name) => {
+          if (name) {
+            const l = characterLastLine.get(name) || 0;
+            if (l < minLine) {
+              minLine = l;
+              oldestName = name;
+            }
+          }
+        });
+
+        if (oldestName) {
+          const oldestImg = allImgs.find(
+            (img) => img.dataset.charName === oldestName
+          );
+          if (oldestImg) {
+            oldestImg.classList.remove("active", "dimmed");
+            oldestImg.classList.add("exiting");
+            setTimeout(() => oldestImg.remove(), 650);
+          }
+          slotIdx = characterSlots.indexOf(oldestName);
+          characterSlots[slotIdx] = null;
+        }
+      }
+      characterSlots[slotIdx] = normalizedName;
+    }
+
+    // 5. 表示更新
+    characterLastLine.set(normalizedName, currentIndex);
+    const slotClass = `slot-${slotIdx}`;
+
+    // しっぽをスロットに合わせて設定（デフォルトのoff-screenを上書き）
+    const tailClass = `tail-slot-${slotIdx}`;
+    dialogueBox.classList.remove("tail-off-screen");
+    dialogueBox.classList.add(tailClass);
+
+    if (existingImg) {
+      existingImg.classList.remove(
+        "dimmed",
+        "exiting",
+        "slot-left",
+        "slot-center",
+        "slot-right",
+        "slot-0",
+        "slot-1",
+        "slot-2",
+        "slot-3",
+        "slot-4"
+      );
+      existingImg.classList.add("active", slotClass);
+      // 同じ名前でURLが違う（色違いなど）場合、画像を差し替える
+      if (existingImg.src !== newUrl) {
+        existingImg.src = newUrl;
+      }
+    } else {
+      const newImg = document.createElement("img");
+      newImg.src = newUrl;
+      newImg.dataset.charName = normalizedName;
+      newImg.classList.add(slotClass);
+      standingPictureEl.appendChild(newImg);
+      newImg.offsetHeight;
+      newImg.classList.add("active");
+    }
+
+    currentStandingImageUrl = newUrl;
+  }
 
   // ボタン
   const btnFirst = document.getElementById("btn-first");
@@ -146,6 +460,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeTabs = new Set();
 
   let currentFilteredIndex = 0;
+  let currentSystemTheme = ""; // ★追加
+  let characterSlots = [null, null, null, null, null]; // 5スロット化
+  let characterLastLine = new Map(); // Name -> FilteredIndex
+  const HIDE_THRESHOLD = 30; // 30行発言がなければ非表示
+
   let isTyping = false;
   let typeInterval = null;
   let autoPlayInterval = null;
@@ -261,48 +580,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- ★システムテーマ反映 ---
   function applySystemTheme(systemKey) {
+    currentSystemTheme = systemKey; // ★現在のシステム名を更新
     let config = SYSTEM_CONFIG[systemKey];
 
-    // 未知のシステムの場合のデフォルト処理
-    if (!config) {
-      if (systemTagEl) systemTagEl.style.display = "none";
-
-      // デフォルトの背景に戻す
-      if (screenFrame) {
-        screenFrame.style.backgroundColor = "#111";
-        screenFrame.style.backgroundImage = `
-                linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-                url('img/default_bg.jpg')
-            `;
-        screenFrame.style.backgroundSize = "cover";
-        screenFrame.style.backgroundPosition = "center";
-      }
-      return;
-    }
-
-    // タグ表示
+    // タグの表示制御
     if (systemTagEl) {
-      systemTagEl.textContent = config.name;
-      systemTagEl.style.backgroundColor = config.color;
-      systemTagEl.style.display = "block";
+      if (config) {
+        systemTagEl.textContent = config.name;
+        systemTagEl.style.backgroundColor = config.color;
+        systemTagEl.style.display = "block";
+      } else {
+        systemTagEl.style.display = "none";
+      }
     }
 
-    // 背景変更 (リッチなグラデーション)
+    // 背景変更 (CSSクラス制御)
     if (screenFrame) {
-      const c = config.color;
+      // 1. 既存のテーマクラスやインラインスタイルをリセット
+      const classesToRemove = [];
+      screenFrame.classList.forEach((cls) => {
+        if (cls.startsWith("theme-")) classesToRemove.push(cls);
+      });
+      classesToRemove.forEach((cls) => screenFrame.classList.remove(cls));
 
-      // ★修正: グラデーションの透明度を調整して背景画像が見えるようにする
-      // rgba(0,0,0,0.9) だと濃すぎるため -> rgba(0,0,0,0.6) に変更
-      // システムカラーも少し透過させる (${c}88)
+      screenFrame.style.backgroundImage = "";
+      screenFrame.style.backgroundColor = "";
+      screenFrame.style.borderColor = "";
+      screenFrame.style.removeProperty("--system-color");
 
-      screenFrame.style.backgroundColor = "#111"; // 画像がない場合のベース色
-      screenFrame.style.backgroundImage = `
-            linear-gradient(135deg, rgba(0,0,0,0.6) 0%, ${c}66 100%),
-            url('img/default_bg.jpg')
-        `;
-      screenFrame.style.backgroundSize = "cover";
-      screenFrame.style.backgroundPosition = "center";
-      screenFrame.style.backgroundBlendMode = "normal";
+      // 2. 新しいテーマを適用
+      if (config) {
+        // キーをCSSクラス名に適した形式に変換 (SW2.5 -> theme-sw2-5)
+        const themeClass =
+          "theme-" + systemKey.toLowerCase().replace(/[^a-z0-9]/g, "-");
+        screenFrame.classList.add(themeClass);
+
+        // システムカラーをカスタムプロパティとして渡す（CSSでの色づけ用）
+        screenFrame.style.setProperty("--system-color", config.color);
+      } else {
+        screenFrame.classList.add("theme-default");
+      }
     }
   }
 
@@ -342,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
               name = "system";
               text = remain.substring(6).trim();
             } else {
-              name = "???";
+              name = "";
               text = remain;
             }
           }
@@ -389,7 +706,7 @@ document.addEventListener("DOMContentLoaded", () => {
           processLogItem(parsedLogs, tab, name, text, color);
         } else {
           const tab = "Main";
-          const name = "???";
+          const name = "";
           const text = line;
           const color = "#aaaaaa";
           processLogItem(parsedLogs, tab, name, text, color);
@@ -435,6 +752,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tabs = new Set(fullLogData.map((d) => d.tab));
     activeTabs = new Set(tabs);
+
+    // 立ち絵状態をリセット
+    characterSlots = [null, null, null, null, null];
+    characterLastLine.clear();
+    if (standingPictureEl) standingPictureEl.innerHTML = "";
+    dialogueBox.classList.remove(
+      "tail-slot-0",
+      "tail-slot-1",
+      "tail-slot-2",
+      "tail-slot-3",
+      "tail-slot-4",
+      "tail-off-screen"
+    );
 
     renderTabFilters(tabs);
     updateFilteredLogs();
@@ -489,71 +819,97 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- 表示ロジック ---
   function displayLine(fIndex) {
-    if (filteredLogIndices.length === 0) return;
-    if (fIndex < 0) fIndex = 0;
-    if (fIndex >= filteredLogIndices.length)
-      fIndex = filteredLogIndices.length - 1;
+    try {
+      if (!filteredLogIndices || filteredLogIndices.length === 0) return;
+      if (fIndex < 0) fIndex = 0;
+      if (fIndex >= filteredLogIndices.length)
+        fIndex = filteredLogIndices.length - 1;
 
-    currentFilteredIndex = fIndex;
-    const realIndex = filteredLogIndices[fIndex];
-    const data = fullLogData[realIndex];
+      currentFilteredIndex = fIndex;
+      const realIndex = filteredLogIndices[fIndex];
+      const data = fullLogData[realIndex];
 
-    seekBar.value = fIndex;
-    currentLineDisplay.textContent = fIndex + 1;
-    logTabLabelEl.textContent = data.tab;
+      if (!data) return;
 
-    dialogueBox.className = "dialogue-box";
+      seekBar.value = fIndex;
+      currentLineDisplay.textContent = fIndex + 1;
+      logTabLabelEl.textContent = data.tab;
 
-    charNameEl.textContent = data.name;
-    charNameEl.style.display = "block";
+      dialogueBox.className = "dialogue-box";
 
-    bgCharNameEl.textContent = data.name;
-    bgCharNameEl.style.color = data.color;
-    bgCharNameEl.style.opacity = "0.2";
+      const showName = data.name && data.name.trim() !== "";
+      const displayName = (data.name || "").replace(/[“”]/g, '"');
+      charNameEl.textContent = displayName;
+      charNameEl.style.display = showName ? "block" : "none";
 
-    if (data.type === "system") {
-      dialogueBox.classList.add("system-mode");
-      applyNameStyle(data.color);
-      messageTextEl.style.color = "";
-      if (data.text.includes("成功")) {
-        messageTextEl.style.color = "rgb(33, 150, 243)";
-        messageTextEl.style.textShadow = "0 0 2px rgba(33, 150, 243, 0.5)";
-      } else if (data.text.includes("失敗")) {
-        messageTextEl.style.color = "rgb(220, 0, 78)";
-        messageTextEl.style.textShadow = "0 0 2px rgba(220, 0, 78, 0.5)";
-      } else {
-        messageTextEl.style.color = "#0f0";
-        messageTextEl.style.textShadow = "0 0 2px #0f0";
-      }
-    } else {
-      messageTextEl.style.color = "";
-      messageTextEl.style.textShadow = "";
+      bgCharNameEl.textContent = showName ? displayName : "";
+      bgCharNameEl.style.color = data.color || "#ffffff";
+      bgCharNameEl.style.opacity = "0.6";
 
-      if (data.type === "narrator") {
-        dialogueBox.classList.add("gm-mode");
-        charNameEl.style.backgroundColor = "transparent";
-        charNameEl.style.color = "";
-      } else if (data.type === "speech") {
-        dialogueBox.classList.add("speech-mode");
+      // ダイス演出リセット
+      if (diceContainer) diceContainer.classList.remove("visible");
+
+      // 名前が空欄でもボックスは表示し、ネームプレートのみ隠す（既存の charNameEl.style.display が担当）
+      dialogueBox.style.display = "flex";
+
+      if (data.type === "system") {
+        dialogueBox.classList.add("system-mode");
         applyNameStyle(data.color);
-      } else {
-        dialogueBox.classList.add("desc-mode");
-        applyNameStyle(data.color);
-      }
-
-      if (data.text.includes("＞")) {
+        messageTextEl.style.color = "";
         if (data.text.includes("成功")) {
           messageTextEl.style.color = "rgb(33, 150, 243)";
           messageTextEl.style.textShadow = "0 0 2px rgba(33, 150, 243, 0.5)";
         } else if (data.text.includes("失敗")) {
           messageTextEl.style.color = "rgb(220, 0, 78)";
           messageTextEl.style.textShadow = "0 0 2px rgba(220, 0, 78, 0.5)";
+        } else {
+          messageTextEl.style.color = "#0f0";
+          messageTextEl.style.textShadow = "0 0 2px #0f0";
+        }
+      } else {
+        messageTextEl.style.color = "";
+        messageTextEl.style.textShadow = "";
+
+        if (data.type === "narrator") {
+          dialogueBox.classList.add("gm-mode");
+          charNameEl.style.backgroundColor = "transparent";
+          charNameEl.style.color = "";
+        } else if (data.type === "speech") {
+          dialogueBox.classList.add("speech-mode", "tail-off-screen");
+          applyNameStyle(data.color);
+        } else {
+          dialogueBox.classList.add("desc-mode");
+          applyNameStyle(data.color);
+        }
+
+        // ダイス演出 (＞記号検知)
+        if (data.text.includes("＞") || data.text.includes(">")) {
+          if (data.text.includes("成功")) {
+            messageTextEl.style.color = "rgb(33, 150, 243)";
+            messageTextEl.style.textShadow = "0 0 2px rgba(33, 150, 243, 0.5)";
+          } else if (data.text.includes("失敗")) {
+            messageTextEl.style.color = "rgb(220, 0, 78)";
+            messageTextEl.style.textShadow = "0 0 2px rgba(220, 0, 78, 0.5)";
+          }
+
+          if (diceContainer) {
+            diceContainer.classList.remove("visible");
+            void diceContainer.offsetWidth; // reflow
+            diceContainer.classList.add("visible");
+          }
+          if (diceAudio) {
+            diceAudio.currentTime = 0;
+            diceAudio.play().catch((e) => console.log("Audio play deferred"));
+          }
         }
       }
-    }
 
-    displayText(data.text);
-    highlightHistory(realIndex);
+      displayText(data.text);
+      highlightHistory(realIndex);
+      updateStandingPicture(data.name || "", fIndex);
+    } catch (err) {
+      console.error("Critical error in displayLine:", err);
+    }
   }
 
   function applyNameStyle(color) {
@@ -580,10 +936,15 @@ document.addEventListener("DOMContentLoaded", () => {
       finishTyping();
     } else {
       typeInterval = setInterval(() => {
-        messageTextEl.textContent += fullText.charAt(charIndex);
-        charIndex++;
-        messageTextEl.scrollTop = messageTextEl.scrollHeight;
-        if (charIndex >= fullText.length) finishTyping();
+        try {
+          messageTextEl.textContent += fullText.charAt(charIndex);
+          charIndex++;
+          messageTextEl.scrollTop = messageTextEl.scrollHeight;
+          if (charIndex >= fullText.length) finishTyping();
+        } catch (e) {
+          console.error("Typing interval error:", e);
+          finishTyping();
+        }
       }, typeSpeed);
     }
   }
@@ -648,6 +1009,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isAutoPlaying) toggleAutoPlay();
     displayLine(parseInt(e.target.value));
   });
+
+  if (volumeSlider) {
+    volumeSlider.addEventListener("input", (e) => {
+      if (diceAudio) {
+        diceAudio.volume = parseFloat(e.target.value);
+      }
+    });
+  }
 
   function toggleAutoPlay() {
     isAutoPlaying = !isAutoPlaying;
@@ -759,7 +1128,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const nameSpan = document.createElement("span");
       nameSpan.className = "history-name";
-      nameSpan.textContent = data.name;
+      nameSpan.textContent = (data.name || "").replace(/[“”]/g, '"');
 
       nameSpan.style.backgroundColor = data.color;
       if (data.color.startsWith("hsl")) {
@@ -1038,4 +1407,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("シーンの読み込みに失敗しました。");
     }
   }
+  window.addEventListener("error", (e) => {
+    console.error("Global captured error:", e.error);
+  });
 });
