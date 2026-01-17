@@ -24,25 +24,48 @@
     </header>
 
     <!-- STEP 1: ファイル読み込みエリア -->
-    <div id="upload-area" class="plain-text-block intro-block center">
-      <div class="upload-section">
-        <i class="fa-solid fa-file-import fa-3x" style="color: #87cefa; margin-bottom: 10px;"></i>
-        <p>ココフォリアから出力した <strong>HTML形式のログ</strong> を読み込んでください。</p>
-        <label for="log-file-input" class="custom-file-upload">
-          <i class="fa-solid fa-folder-open"></i> ファイルを選択
-        </label>
-        <input type="file" id="log-file-input" accept=".html,.htm" class="file-input" style="display:none;">
-        <p id="file-name-display" style="font-size: 0.9em; margin-top: 10px; height: 1.2em; color: #87cefa;"></p>
-      </div>
+    <div class="player-container">
+      <div id="upload-area" class="plain-text-block intro-block center">
+        <div class="upload-section">
+          <i class="fa-solid fa-file-import fa-3x" style="color: #87cefa; margin-bottom: 10px;"></i>
+          <p>ココフォリアから出力した <strong>HTML形式のログ</strong> を読み込んでください。</p>
+          <label for="log-file-input" class="custom-file-upload">
+            <i class="fa-solid fa-folder-open"></i> ファイルを選択
+          </label>
+          <input type="file" id="log-file-input" accept=".html,.htm" class="file-input" style="display:none;">
+          <p id="file-name-display" style="font-size: 0.9em; margin-top: 10px; height: 1.2em; color: #87cefa;"></p>
+        </div>
 
-      <div class="upload-separator">または</div>
+        <div class="upload-separator">または</div>
 
-      <div class="paste-section">
-        <p>ログテキストを直接貼り付け</p>
-        <textarea id="log-text-input" placeholder="[main] プレイヤー : 発言内容..."></textarea>
-        <button id="btn-parse-text" class="control-btn main-btn" style="margin-top: 10px;">
-          <i class="fa-solid fa-play"></i> テキストを読み込む
-        </button>
+        <div class="paste-section">
+          <p>ログテキストを直接貼り付け</p>
+          <textarea id="log-text-input" placeholder="[main] プレイヤー : 発言内容..."></textarea>
+          <button id="btn-parse-text" class="control-btn main-btn" style="margin-top: 10px;">
+            <i class="fa-solid fa-play"></i> テキストを読み込む
+          </button>
+        </div>
+
+        <!-- 簡易説明書 -->
+        <div class="usage-guide">
+          <div class="guide-item">
+            <i class="fa-solid fa-circle-play"></i>
+            <p>HTMLファイルを読み込むか、ログからテキストを貼り付けてスタート</p>
+          </div>
+          <div class="guide-item">
+            <i class="fa-solid fa-keyboard"></i>
+            <p>画面クリックや矢印キーで読み進めることができます</p>
+          </div>
+          <div class="guide-item">
+            <i class="fa-solid fa-share-nodes"></i>
+            <p>テキストを貼り付けて読み込んだ場合、シーンの保存や共有が可能です</p>
+          </div>
+          <div class="guide-extra">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>「ログ一覧」から過去の発言を振り返ったりコピーしたりできます。<br>
+              　NPC等のキャラの立ち絵の追加要望はエンJまでお願いいたします。</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -80,7 +103,12 @@
           <div class="char-name-wrapper">
             <div class="char-name-plate" id="char-name" style="display: none;">No Name</div>
           </div>
-          <div id="dice-container" class="dice-container"><i class="fa-solid fa-dice"></i></div>
+          <div id="dice-container" class="dice-container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512">
+              <path fill="currentColor"
+                d="M440.88 129.37L288.16 40.62a64.14 64.14 0 0 0-64.33 0L71.12 129.37a4 4 0 0 0 0 6.9L254 243.85a4 4 0 0 0 4.06 0L440.9 136.27a4 4 0 0 0-.02-6.9M256 152c-13.25 0-24-7.16-24-16s10.75-16 24-16s24 7.16 24 16s-10.75 16-24 16m-18 118.81L54 163.48a4 4 0 0 0-6 3.46v173.92a48 48 0 0 0 23.84 41.39L234 479.48a4 4 0 0 0 6-3.46V274.27a4 4 0 0 0-2-3.46M96 368c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m96-32c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m266-172.49L274 271.56a4 4 0 0 0-2 3.45V476a4 4 0 0 0 6 3.46l162.15-97.23A48 48 0 0 0 464 340.86V167a4 4 0 0 0-6-3.49M320 424c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m0-88c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m96 32c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m0-88c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24" />
+            </svg>
+          </div>
           <div class="message-text" id="message-text"></div>
           <div class="next-indicator"><i class="fa-solid fa-caret-down"></i></div>
         </div>
@@ -114,10 +142,13 @@
           <div class="auto-play-wrapper">
             <button id="btn-auto" class="control-btn auto-btn"><i class="fa-solid fa-play"></i> 自動</button>
             <select id="auto-speed-select" class="speed-select">
-              <option value="3000">遅(3s)</option>
-              <option value="2000" selected>普(2s)</option>
-              <option value="1000">速(1s)</option>
-              <option value="100">爆(0.1s)</option>
+              <option value="3000">3.0s</option>
+              <option value="2500">2.5s</option>
+              <option value="2000" selected>2.0s</option>
+              <option value="1500">1.5s</option>
+              <option value="1000">1.0s</option>
+              <option value="500">0.5s</option>
+              <option value="100">0.1s</option>
             </select>
           </div>
 

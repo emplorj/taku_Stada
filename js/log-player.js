@@ -30,29 +30,24 @@ document.addEventListener("DOMContentLoaded", () => {
       color: TRPG_SYSTEM_COLORS["SW2.5"],
       keywords: ["2d6", "2D6", "k10", "k20", "k30", "威力", "行使", "防護点"],
     },
-    DX3rd: {
+    DX3: {
       name: "ダブルクロス3rd",
-      color: TRPG_SYSTEM_COLORS.DX3, // "DX3" キーを使用
+      color: TRPG_SYSTEM_COLORS.DX3,
       keywords: [
         "10d10",
         "10D10",
         "侵蝕率",
+        "侵食率",
         "ロイス",
         "タイタス",
         "リザレクト",
+        "バックトラック",
       ],
     },
     Nechronica: {
       name: "永い後日談のネクロニカ",
       color: TRPG_SYSTEM_COLORS["ネクロニカ"],
-      keywords: [
-        "NC",
-        "パーツ",
-        "未練",
-        "ネクロマンサー",
-        "最大行動値",
-        "対話判定",
-      ],
+      keywords: ["パーツ", "未練", "ネクロマンサー", "最大行動値", "対話判定"],
     },
     Satasupe: {
       name: "サタスペ",
@@ -205,15 +200,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const tableName = row[getIndex("卓名")]
           ? row[getIndex("卓名")].trim()
           : "";
-
         if (!pcName && !regName) return;
 
         const data = { pcName, regName, imgUrl, tableName };
 
-        if (pcName) characterMap.set(pcName, data);
-        if (regName) {
-          if (!registeredMap.has(regName)) registeredMap.set(regName, []);
-          registeredMap.get(regName).push(data);
+        // 検索用キーは正規化したものを使用
+        const pcKey = normalizeName(pcName);
+        const regKey = normalizeName(regName);
+
+        if (pcKey) characterMap.set(pcKey, data);
+        if (regKey) {
+          if (!registeredMap.has(regKey)) registeredMap.set(regKey, []);
+          registeredMap.get(regKey).push(data);
         }
       });
       console.log(
@@ -231,9 +229,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function normalizeName(name) {
     if (!name) return "";
     return name
-      .replace(/[（\(][^（\(\)）]*[）\)]/g, "") // カッコ内を除去
-      .replace(/[”"“'「」『』【】]/g, "") // 検索の邪魔になる記号を除去
-      .trim();
+      .replace(/[（\(][^（\(\)]*[）\)]/g, "") // カッコ内を除去
+      .replace(/[”\"“\'「」『』【】]/g, "") // 検索の邪魔になる記号を除去
+      .replace(/[\s　]/g, "") // 全角・半角スペースを除去
+      .trim()
+      .toLowerCase(); // ★小文字に統一
   }
 
   // --- ローカル立ち絵設定 (CSVにないキャラ用) ---
@@ -260,31 +260,55 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // キャラクターデータを検索する
-  function findCharacter(rawName) {
+  // ★修正: 第2引数に systemHint を追加
+  function findCharacter(rawName, systemHint = "") {
     const name = normalizeName(rawName);
     if (!name) return null;
 
-    // 1. PC名で検索
-    if (characterMap.has(name)) {
-      return characterMap.get(name);
-    }
-
-    // 2. 登録名で検索
+    // 1. 登録名で検索 (メインのロジック)
     if (registeredMap.has(name)) {
       const candidates = registeredMap.get(name);
-      if (candidates.length === 1) return candidates[0];
+      if (candidates.length === 1) {
+        return candidates[0]; // 候補が1つならそれを返す
+      }
 
-      // 同名がいる場合は卓名で絞り込み (現在適用されているテーマ名と比較)
-      const currentSystem = currentSystemTheme || "";
-      const matched = candidates.find((c) => {
-        // CSVの卓名が現在のテーマ名を含む、あるいはその逆
-        if (!c.tableName || !currentSystem) return false;
-        return (
-          c.tableName.includes(currentSystem) ||
-          currentSystem.includes(c.tableName)
-        );
-      });
-      return matched || candidates[0]; // 見つからなければ先頭
+      // 候補が複数ある場合は、卓名とシステムヒントで絞り込む
+      if (systemHint) {
+        const systemConfigForHint = SYSTEM_CONFIG[systemHint];
+        const systemKeyLower = systemHint.toLowerCase();
+
+        const matchedCandidate = candidates.find((c) => {
+          if (!c.tableName) return false;
+
+          const tableNamePrefix = c.tableName.split("-")[0].trim();
+
+          // 1. 卓名プレフィックスを小文字化して、システムのキー(ASCII)と比較
+          if (tableNamePrefix.toLowerCase() === systemKeyLower) {
+            return true;
+          }
+
+          // 2. 卓名プレフィックスを、システムの日本語名と直接比較
+          if (
+            systemConfigForHint &&
+            tableNamePrefix === systemConfigForHint.name
+          ) {
+            return true;
+          }
+
+          return false;
+        });
+
+        // 一致する候補があればそれを返し、なければ先頭の候補を返す
+        return matchedCandidate || candidates[0];
+      }
+
+      // systemHintがない場合は、単純に先頭候補を返す
+      return candidates[0];
+    }
+
+    // 2. PC名で検索 (登録名で見つからなかった場合のフォールバック)
+    if (characterMap.has(name)) {
+      return characterMap.get(name);
     }
 
     // 3. ローカル設定から検索 (CSVになかった場合)
@@ -306,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 立ち絵を更新する
   // 立ち絵を更新する
   function updateStandingPicture(charName, currentIndex) {
-    const charData = findCharacter(charName);
+    const charData = findCharacter(charName, currentSystemTheme);
     const normalizedName = normalizeName(charName);
     const newUrl = charData ? charData.imgUrl : "";
 
@@ -426,6 +450,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentStandingImageUrl = newUrl;
+  }
+
+  // 全立ち絵を一掃する
+  function clearAllStandingPictures() {
+    const allImgs = Array.from(
+      standingPictureEl.querySelectorAll("img:not(.exiting)")
+    );
+    allImgs.forEach((img) => {
+      img.classList.remove("active", "dimmed");
+      img.classList.add("exiting");
+      setTimeout(() => img.remove(), 650);
+    });
+    // スロットと履歴を完全にリセット
+    characterSlots.fill(null);
+    characterLastLine.clear();
   }
 
   // ボタン
@@ -833,6 +872,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       seekBar.value = fIndex;
       currentLineDisplay.textContent = fIndex + 1;
+
+      // ★新機能: シーン切り替え検知で立ち絵一掃
+      // パターン: 行頭か■の直後に「シーン」があり、その後にスペース、数字、または特定の記号が続く場合
+      const scenePattern =
+        /(?:^|■)(?:シーン|Scene)(?:[\s　0-9０-９:：・『]|$)/i;
+      if (scenePattern.test(data.text)) {
+        clearAllStandingPictures();
+      }
+
       logTabLabelEl.textContent = data.tab;
 
       dialogueBox.className = "dialogue-box";
@@ -954,11 +1002,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function isLightColor(colorStr) {
+    if (!colorStr) return false;
+    let r, g, b;
+
     if (colorStr.startsWith("#")) {
       const hex = colorStr.substring(1);
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
+      r = parseInt(hex.substr(0, 2), 16);
+      g = parseInt(hex.substr(2, 2), 16);
+      b = parseInt(hex.substr(4, 2), 16);
+    } else if (colorStr.startsWith("rgb")) {
+      const match = colorStr.match(/\d+/g);
+      if (match && match.length >= 3) {
+        r = parseInt(match[0]);
+        g = parseInt(match[1]);
+        b = parseInt(match[2]);
+      }
+    }
+
+    if (r !== undefined && g !== undefined && b !== undefined) {
+      // YIQ輝度計算
       return (r * 299 + g * 587 + b * 114) / 1000 > 180;
     }
     return false;

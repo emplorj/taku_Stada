@@ -12,10 +12,11 @@
   background-color: rgba(6, 17, 68, 0.4);
   position: relative;
   overflow: hidden;
-  padding: 30px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
+  position: relative;
 }
 
 /* 上半分：ファイル選択エリア */
@@ -241,8 +242,10 @@
   background-image: url("../img/logBG/AR2E.png");
 }
 
-/* システムごとの個別クラスは不要になったので削除し、
-   汎用クラスのみ残す（システムカラー変数が渡ってくるため） */
+/* デフォルト（不明なシステム） */
+.screen-frame.theme-default {
+  background-image: url("../img/logBG/default.png");
+}
 
 /* --- 立ち絵表示用 --- */
 .char-standing-picture {
@@ -536,15 +539,23 @@
   position: absolute;
   top: 15px;
   right: 20px;
-  color: #ffeb3b;
+  color: var(--system-color, #ffeb3b);
   font-size: 1.5em;
+  width: 1.5em;
+  height: 1.5em;
   display: none;
   z-index: 30;
-  text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  /* SVGを中心で回転させるための設定 */
+  align-items: center;
+  justify-content: center;
 }
 .dice-container.visible {
-  display: block;
+  display: flex;
+}
+.dice-container svg {
   animation: dice-spin 0.6s ease-out;
+  transform-origin: center center;
 }
 
 @keyframes dice-spin {
@@ -596,7 +607,8 @@
 /* --- 1. GM・ナレーションモード --- */
 .dialogue-box.gm-mode {
   bottom: 30%;
-  height: 30%;
+  min-height: 30%;
+  max-height: 60%;
   background: rgba(0, 0, 0, 0.85);
   border: 1px solid #aaa;
   border-left: 5px solid #aaa;
@@ -684,15 +696,15 @@
 /* --- 4. システムメッセージ --- */
 .dialogue-box.system-mode {
   bottom: 20px;
-  height: 25%;
+  height: 35%;
   background: rgba(0, 20, 0, 0.9);
   border: 1px solid #0f0;
   font-family: monospace;
-  padding: 20px;
+  padding: 35px 25px 20px 25px;
 }
 .dialogue-box.system-mode .message-text {
   color: #0f0;
-  font-size: 0.9em;
+  font-size: 1.1em;
   line-height: 1.4;
   text-shadow: 0 0 2px #0f0;
 }
@@ -765,9 +777,9 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr; /* 左(空き) : 中央(再生) : 右(便利機能) */
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   background: rgba(0, 0, 0, 0.3);
-  padding: 15px 20px;
+  padding: 5px 10px;
   border-radius: 8px;
 }
 
@@ -777,7 +789,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 /* 右側の便利機能グループ (新規追加: コピーとログ一覧) */
@@ -786,7 +798,7 @@
   justify-self: end; /* 右寄せ */
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 /* 音量調整 */
@@ -797,10 +809,11 @@
   align-items: center;
   justify-content: center;
   width: 40px;
-  height: 38px;
+  height: 30px;
   background: rgba(13, 26, 80, 0.6);
   border: 1px solid #3498db;
   border-radius: 5px;
+  box-sizing: border-box;
   color: #87cefa;
   cursor: pointer;
   transition: all 0.2s;
@@ -859,6 +872,8 @@
   border-radius: 5px;
   background-color: #0d1a50;
   overflow: hidden;
+  height: 30px;
+  box-sizing: border-box;
   transition: all 0.2s;
 }
 .auto-play-wrapper:hover {
@@ -869,17 +884,19 @@
   background-color: #0d1a50;
   color: #fff;
   border: 1px solid #3498db;
-  padding: 8px 16px;
+  padding: 0 10px;
+  height: 30px;
   border-radius: 5px;
+  box-sizing: border-box;
   cursor: pointer;
   transition: all 0.2s;
   font-weight: bold;
-  font-size: 0.9em;
+  font-size: 0.85em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-width: 60px;
+  gap: 4px;
+  min-width: 50px;
   white-space: nowrap;
   line-height: 1;
 }
@@ -900,7 +917,7 @@
 }
 
 #btn-next {
-  padding: 8px 20px;
+  padding: 0 12px;
 }
 
 .auto-btn {
@@ -908,7 +925,8 @@
   border-radius: 0;
   background-color: transparent;
   color: #fff;
-  padding: 8px 12px;
+  padding: 0 12px;
+  height: 100%;
   margin: 0;
 }
 .auto-btn:hover {
@@ -932,7 +950,7 @@
   appearance: none;
   -webkit-appearance: none;
   text-align: center;
-  width: 50px;
+  width: 72px;
 }
 .speed-select:hover {
   background-color: #2c3e50;
@@ -942,7 +960,7 @@
   grid-column: 3;
   justify-self: end;
   margin-left: 0;
-  padding: 8px 20px;
+  padding: 0 12px;
 }
 
 /* --- モーダル --- */
@@ -1093,4 +1111,59 @@
   text-align: right;
   display: flex;
   justify-content: flex-end;
+}
+/* --- 簡易説明書 (Main Screen) --- */
+.usage-guide {
+  margin-top: 10px;
+  padding: 20px;
+  border-top: 1px solid #4a5c9a;
+  text-align: left;
+  background-color: rgba(6, 17, 68, 0.6);
+  border-radius: 8px;
+}
+.guide-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+.guide-item i {
+  font-size: 1.4em;
+  color: #87cefa;
+  margin-right: 18px;
+  width: 30px;
+  text-align: center;
+  filter: drop-shadow(0 0 5px rgba(135, 206, 250, 0.4));
+}
+.guide-item p {
+  margin: 0;
+  font-size: 0.95em;
+  color: #ccd;
+  line-height: 1.4;
+}
+.guide-extra {
+  margin-top: 15px;
+  font-size: 0.85em;
+  color: #99a;
+  padding: 10px 15px;
+  background: rgba(52, 152, 219, 0.1);
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
+  display: flex;
+  align-items: flex-start;
+}
+.guide-extra i {
+  margin-right: 10px;
+  margin-top: 3px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
