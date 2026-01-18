@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadCharacterData() {
     try {
       const response = await fetch(
-        `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`
+        `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`,
       );
       if (!response.ok) throw new Error("CSVの取得に失敗しました");
       const csvText = await response.text();
@@ -215,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
       console.log(
-        `Character data loaded: ${characterMap.size} PCs, ${registeredMap.size} registered names.`
+        `Character data loaded: ${characterMap.size} PCs, ${registeredMap.size} registered names.`,
       );
     } catch (err) {
       console.error("Failed to load character data:", err);
@@ -335,7 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const newUrl = charData ? charData.imgUrl : "";
 
     const allImgs = Array.from(
-      standingPictureEl.querySelectorAll("img:not(.exiting)")
+      standingPictureEl.querySelectorAll("img:not(.exiting)"),
     );
 
     // 1. 全員のクラスからアクティブを剥がして暗転させる
@@ -350,7 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "tail-slot-1",
       "tail-slot-2",
       "tail-slot-3",
-      "tail-slot-4"
+      "tail-slot-4",
     );
 
     // 2. 自動退場チェック (currentIndex - lastLine > 30)
@@ -375,7 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 4. スロット割り当て
     let existingImg = allImgs.find(
-      (img) => img.dataset.charName === normalizedName
+      (img) => img.dataset.charName === normalizedName,
     );
     let slotIdx = characterSlots.indexOf(normalizedName);
 
@@ -398,7 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (oldestName) {
           const oldestImg = allImgs.find(
-            (img) => img.dataset.charName === oldestName
+            (img) => img.dataset.charName === oldestName,
           );
           if (oldestImg) {
             oldestImg.classList.remove("active", "dimmed");
@@ -432,7 +432,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "slot-1",
         "slot-2",
         "slot-3",
-        "slot-4"
+        "slot-4",
       );
       existingImg.classList.add("active", slotClass);
       // 同じ名前でURLが違う（色違いなど）場合、画像を差し替える
@@ -455,7 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 全立ち絵を一掃する
   function clearAllStandingPictures() {
     const allImgs = Array.from(
-      standingPictureEl.querySelectorAll("img:not(.exiting)")
+      standingPictureEl.querySelectorAll("img:not(.exiting)"),
     );
     allImgs.forEach((img) => {
       img.classList.remove("active", "dimmed");
@@ -576,6 +576,62 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("解析エラーが発生しました。");
       }
     });
+  }
+
+  // --- 3. ドラッグ＆ドロップ ---
+  if (uploadArea) {
+    uploadArea.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadSection.classList.add("drag-over");
+    });
+
+    uploadArea.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadSection.classList.remove("drag-over");
+    });
+
+    uploadArea.addEventListener("drop", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadSection.classList.remove("drag-over");
+      handleFileDrop(e);
+    });
+  }
+
+  function handleFileDrop(e) {
+    const files = e.dataTransfer.files;
+    if (files.length !== 1) {
+      alert("ファイルを1つだけドロップしてください。");
+      return;
+    }
+    const file = files[0];
+    if (!file.name.match(/\.(html|htm)$/i)) {
+      alert("HTML形式のログファイルのみ対応しています。");
+      return;
+    }
+
+    fileNameDisplay.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const htmlContent = event.target.result;
+      try {
+        fullLogData = parseCcfoliaLog(htmlContent);
+        if (fullLogData.length > 0) {
+          logLoadMode = "html";
+          const detected = detectSystem(fullLogData);
+          applySystemTheme(detected);
+          initPlayer();
+        } else {
+          alert("ログの読み込みに失敗しました。\n発言が見つかりませんでした。");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("解析中にエラーが発生しました。");
+      }
+    };
+    reader.readAsText(file);
   }
 
   // --- ★システム判定ロジック ---
@@ -802,7 +858,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "tail-slot-2",
       "tail-slot-3",
       "tail-slot-4",
-      "tail-off-screen"
+      "tail-off-screen",
     );
 
     renderTabFilters(tabs);
@@ -1169,7 +1225,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnCloseModal.addEventListener(
     "click",
-    () => (historyModal.style.display = "none")
+    () => (historyModal.style.display = "none"),
   );
 
   function generateHistoryList() {
@@ -1221,7 +1277,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const items = historyListEl.querySelectorAll(".history-item");
     items.forEach((item) => item.classList.remove("active"));
     const target = historyListEl.querySelector(
-      `.history-item[data-real-index="${realIndex}"]`
+      `.history-item[data-real-index="${realIndex}"]`,
     );
     if (target) target.classList.add("active");
   }
@@ -1233,7 +1289,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     const sorted = Array.from(checkboxes).sort(
-      (a, b) => parseInt(a.value) - parseInt(b.value)
+      (a, b) => parseInt(a.value) - parseInt(b.value),
     );
     let copyText = "";
     sorted.forEach((cb) => {
@@ -1269,7 +1325,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnShareScene.addEventListener("click", () => {
       if (logLoadMode === "html") {
         alert(
-          "HTMLファイルからのログは共有できません。\nテキスト貼り付けモードをご利用ください。"
+          "HTMLファイルからのログは共有できません。\nテキスト貼り付けモードをご利用ください。",
         );
         return;
       }
@@ -1307,7 +1363,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!currentSceneId) return;
       if (
         !confirm(
-          "本当にこのシーンを削除しますか？\n（共有URLも無効になります）"
+          "本当にこのシーンを削除しますか？\n（共有URLも無効になります）",
         )
       ) {
         return;
@@ -1390,7 +1446,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (clipError) {
           console.warn(
             "クリップボードへの自動コピーに失敗しました:",
-            clipError
+            clipError,
           );
         }
         shareUrlDisplay.select();
@@ -1433,7 +1489,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadSceneFromGAS(sid) {
     try {
       const requestUrl = `${GAS_API_URL}?tool=logScene&id=${encodeURIComponent(
-        sid
+        sid,
       )}`;
       console.log("Fetching scene:", requestUrl);
       const response = await fetch(requestUrl);

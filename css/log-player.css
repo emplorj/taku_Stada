@@ -37,6 +37,12 @@
   transform: scale(0.99);
   background-color: rgba(6, 17, 68, 0.8);
 }
+.upload-section.drag-over {
+  background-color: rgba(20, 40, 100, 0.8);
+  border-color: #fff;
+  box-shadow: 0 0 25px rgba(135, 206, 250, 0.4);
+  transform: scale(1.02);
+}
 
 /* セパレーター */
 .upload-separator {
@@ -151,10 +157,8 @@
   left: -80px;
   right: -80px;
   bottom: -80px;
-  background-image: linear-gradient(
-      var(--system-color, #4a5c9a) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(var(--system-color, #4a5c9a) 1px, transparent 1px),
     linear-gradient(90deg, var(--system-color, #4a5c9a) 1px, transparent 1px);
   background-size: 80px 80px;
   opacity: 0.5; /* 少し明るくしてハッキリさせる */
@@ -170,10 +174,8 @@
   left: -120px;
   right: -120px;
   bottom: -120px;
-  background-image: linear-gradient(
-      var(--system-color, #2a3c7d) 2px,
-      transparent 2px
-    ),
+  background-image:
+    linear-gradient(var(--system-color, #2a3c7d) 2px, transparent 2px),
     linear-gradient(90deg, var(--system-color, #2a3c7d) 2px, transparent 2px);
   background-size: 120px 120px;
   opacity: 0.1; /* さらに暗く(薄く) */
@@ -269,9 +271,11 @@
   max-width: 100%;
   max-height: 94%; /* 少し大きく表示 */
   object-fit: contain;
-  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
     transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    left 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s ease;
+    left 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.6s ease;
   opacity: 0;
   transform: translateY(100px); /* 最初は下から登場 */
   filter: brightness(0.8);
@@ -1067,7 +1071,9 @@
   padding: 8px;
   border-bottom: 1px solid #1a2c6d;
   border-left: 6px solid transparent;
-  transition: background-color 0.1s, border-left-color 0.1s;
+  transition:
+    background-color 0.1s,
+    border-left-color 0.1s;
 }
 .history-item:hover {
   background: #1a2c6d;
