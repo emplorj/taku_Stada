@@ -7,8 +7,48 @@ document.addEventListener("DOMContentLoaded", () => {
       return response.json();
     })
     .then((data) => {
+      const rankingData = data.ranking; // JSONからランキングデータを取得
+
+      // 同じ名前のプレイヤーがいる場合、最も良い成績のみを残す
+      const bestRecords = {};
+      rankingData.forEach((player) => {
+        const existingPlayer = bestRecords[player.name];
+        if (!existingPlayer) {
+          bestRecords[player.name] = player;
+        } else {
+          // 比較ロジック
+          const isNewPlayerBetter = (() => {
+            // 1. ステータス比較 (成功を優先)
+            if (player.status === "成功" && existingPlayer.status !== "成功") {
+              return true;
+            }
+            if (player.status !== "成功" && existingPlayer.status === "成功") {
+              return false;
+            }
+            // 2. ターン数比較 (少ない方を優先)
+            if (player.turns < existingPlayer.turns) {
+              return true;
+            }
+            if (player.turns > existingPlayer.turns) {
+              return false;
+            }
+            // 3. 討伐本数比較 (多い方を優先)
+            if (player.kills > existingPlayer.kills) {
+              return true;
+            }
+            return false;
+          })();
+
+          if (isNewPlayerBetter) {
+            bestRecords[player.name] = player;
+          }
+        }
+      });
+
+      const filteredRankingData = Object.values(bestRecords);
+
       // 成功したものを優先し、その中でターン数で昇順にソート
-      data.sort((a, b) => {
+      filteredRankingData.sort((a, b) => {
         // 失敗したものを優先
         if (a.status === "失敗" && b.status !== "失敗") return 1;
         if (a.status !== "失敗" && b.status === "失敗") return -1;
@@ -27,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let currentRank = 1;
         let prevTurns = null; // 最初の比較のためにnull
 
-        data.forEach((player, index) => {
+        filteredRankingData.forEach((player, index) => {
           const row = document.createElement("tr");
           let turnsDisplay = player.turns;
           let rowClass = "";
@@ -40,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
           } else {
             if (index > 0 && player.turns === prevTurns) {
               // 同一ターン数の場合は前のプレイヤーと同じ順位
-              rankDisplay = data[index - 1].calculatedRank;
+              rankDisplay = filteredRankingData[index - 1].calculatedRank;
             } else {
               rankDisplay = currentRank;
             }

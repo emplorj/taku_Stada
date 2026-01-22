@@ -1,72 +1,142 @@
-[
-  {
-    "id": 1,
-    "name": "アーデルハイト・フォン・アーレンス",
-    "turns": 23,
-    "kills": 5,
-    "status": "成功"
-  },
-  {
-    "id": 2,
-    "name": "スヴェトラーナ・ドチュニコヴァ",
-    "turns": 2,
-    "kills": 9,
-    "status": "成功"
-  },
-  {
-    "id": 3,
-    "name": "エフィアルティア",
-    "turns": 2,
-    "kills": 9,
-    "status": "成功"
-  },
-  {
-    "id": 4,
-    "name": "イヌニク",
-    "turns": 6,
-    "kills": 9,
-    "status": "成功"
-  },
-  {
-    "id": 5,
-    "name": "ミカ・ニシナ",
-    "turns": 4,
-    "kills": 9,
-    "status": "成功"
-  },
-  {
-    "id": 6,
-    "name": "ジーニス・ゲオルロッテ",
-    "turns": 11,
-    "kills": 9,
-    "status": "成功"
-  },
-  {
-    "id": 7,
-    "name": "ロイ・マグナス",
-    "turns": 7,
-    "kills": 9,
-    "status": "成功"
-  },
-  {
-    "id": 8,
-    "name": "ガマネー・コチョバキン",
-    "turns": 5,
-    "kills": 9,
-    "status": "成功"
-  },
-  {
-    "id": 8,
-    "name": "ヤミカ・リースト",
-    "turns": 2,
-    "kills": 9,
-    "status": "成功"
-  },
-  {
-    "id": 8,
-    "name": "バイトさん",
-    "turns": 6,
-    "kills": 0,
-    "status": "成功"
-  }
-]
+{
+  "ranking": [
+    {
+      "id": 1,
+      "name": "アーデルハイト・フォン・アーレンス",
+      "turns": 23,
+      "kills": 5,
+      "status": "成功"
+    },
+    {
+      "id": 2,
+      "name": "スヴェトラーナ・ドチュニコヴァ",
+      "turns": 2,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 3,
+      "name": "エフィアルティア",
+      "turns": 2,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 4,
+      "name": "イヌニク",
+      "turns": 6,
+      "kills": 9,
+      "status": "失敗"
+    },
+    {
+      "id": 5,
+      "name": "ミカ・ニシナ",
+      "turns": 4,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 6,
+      "name": "ジーニス・ゲオルロッテ",
+      "turns": 11,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 7,
+      "name": "ロイ・マグナス",
+      "turns": 7,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 8,
+      "name": "ガマネー・コチョバキン",
+      "turns": 5,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 9,
+      "name": "イヌニク",
+      "turns": 6,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 10,
+      "name": "ヤミカ・リースト",
+      "turns": 2,
+      "kills": 7,
+      "status": "失敗"
+    },
+    {
+      "id": 11,
+      "name": "バイトさん",
+      "turns": 6,
+      "kills": 0,
+      "status": "成功"
+    },
+    {
+      "id": 12,
+      "name": "ヤミカ・リースト",
+      "turns": 2,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 13,
+      "name": "ボリク=イシェズヌヴシェム",
+      "turns": 1,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 14,
+      "name": "トラウドル・アーレンス",
+      "turns": 99,
+      "kills": 2,
+      "status": "失敗"
+    },
+    {
+      "id": 15,
+      "name": "ファティマ・ンジャイ",
+      "turns": 99,
+      "kills": 2,
+      "status": "失敗"
+    },
+    {
+      "id": 16,
+      "name": "ファルネール・エールライト",
+      "turns": 7,
+      "kills": 9,
+      "status": "成功"
+    },
+    {
+      "id": 17,
+      "name": "フラウン・ヴァン・ダイナルコー",
+      "turns": 2,
+      "kills": 9,
+      "status": "失敗"
+    }
+  ],
+  "imagePaths": [
+    "img/hydra/1.png",
+    "img/hydra/2.png",
+    "img/hydra/3.png",
+    "img/hydra/4.png",
+    "img/hydra/5.png",
+    "img/hydra/6.png",
+    "img/hydra/7.png",
+    "img/hydra/8.png",
+    "img/hydra/9.png",
+    "img/hydra/10.png",
+    "img/hydra/11.png",
+    "img/hydra/12.png",
+    "img/hydra/13.png",
+    "img/hydra/14.png",
+    "img/hydra/15.png",
+    "img/hydra/16.png",
+    "img/hydra/17.png"
+  ]
+}

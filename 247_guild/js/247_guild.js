@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (typeof basePath !== "undefined") {
     // CSSリンクの修正
     const cssLinks = document.querySelectorAll(
-      'link[rel="stylesheet"][href^="../"]'
+      'link[rel="stylesheet"][href^="../"]',
     );
     cssLinks.forEach((link) => {
       const originalHref = link.getAttribute("href");
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // リンクの修正 (a[href^="../"] または a[href^="."])
     const links = document.querySelectorAll(
-      'a[href^="../"], a[href^="./"], a[href$="index.html"]'
+      'a[href^="../"], a[href^="./"], a[href$="index.html"]',
     ); // index.htmlで終わるリンクも対象に
     links.forEach((link) => {
       const originalHref = link.getAttribute("href");
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // クリック可能な全てのコンテナ (地図と見取り図) にイベントリスナーを設定
     const clickableContainers = document.querySelectorAll(
-      ".map-container-clickable"
+      ".map-container-clickable",
     );
     clickableContainers.forEach((container) => {
       container.addEventListener("click", (event) => {
@@ -211,71 +211,118 @@ document.addEventListener("DOMContentLoaded", function () {
   /* ===================================================
      ヒドラスライドショー初期化
      =================================================== */
-  // ヒドラ討伐ソロ！の画像パスリスト
-  const hydraImagePaths = [
-    "img/hydra/1.png",
-    "img/hydra/2.png",
-    "img/hydra/3.png",
-    "img/hydra/4.png",
-    "img/hydra/5.png",
-    "img/hydra/6.png",
-    "img/hydra/7.png",
-    "img/hydra/8.png",
-    "img/hydra/9.png",
-    "img/hydra/10.png",
-    "img/hydra/11.png",
-    "img/hydra/12.png",
-  ];
+  // ヒドラ討伐ソロ！の画像パスリストとランキングデータをJSONから取得
+  fetch("data/hydra_ranking.json")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      const hydraImagePaths = data.imagePaths; // JSONから画像パスを取得
+      const hydraRanking = data.ranking; // JSONからランキングデータを取得
 
-  // Swiper スライドを動的に生成
-  const swiperWrapper = document.querySelector(".hydra-swiper .swiper-wrapper");
-  if (swiperWrapper) {
-    hydraImagePaths.forEach((path) => {
-      const slide = document.createElement("div");
-      slide.classList.add("swiper-slide");
-      const img = document.createElement("img");
-      img.src = path;
-      img.alt = path.split("/").pop().split(".")[0]; // ファイル名からaltテキストを生成
-      img.loading = "lazy";
-      slide.appendChild(img);
-      swiperWrapper.appendChild(slide);
-    });
-  }
+      // ランキングデータをIDでグループ化するマップを作成
+      const hydraRankingMap = hydraRanking.reduce((acc, player) => {
+        if (!acc[player.id]) {
+          acc[player.id] = [];
+        }
+        acc[player.id].push(player);
+        return acc;
+      }, {});
 
-  // Swiperライブラリが読み込まれていれば、スライドショーを初期化
-  if (typeof Swiper !== "undefined") {
-    const hydraSwiper = new Swiper(".hydra-swiper", {
-      loop: true,
-      centeredSlides: true,
-      autoplay: {
-        delay: 2000,
-        disableOnInteraction: false,
-        pauseOnMouseEnter: true,
-      },
-      pagination: {
-        el: ".swiper-pagination",
-        clickable: true,
-      },
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
-      breakpoints: {
-        640: {
-          slidesPerView: 1,
-          spaceBetween: 20,
-        },
-        768: {
-          slidesPerView: 2,
-          spaceBetween: 15,
-        },
-        1024: {
-          slidesPerView: 4,
-          spaceBetween: 10,
-        },
-      },
-    });
-  }
+      // Swiper スライドを動的に生成
+      const swiperWrapper = document.querySelector(
+        ".hydra-swiper .swiper-wrapper",
+      );
+      if (swiperWrapper && hydraImagePaths) {
+        hydraImagePaths.forEach((path) => {
+          const slide = document.createElement("div");
+          slide.classList.add("swiper-slide");
+
+          const img = document.createElement("img");
+          img.src = path;
+          const imageId = parseInt(path.split("/").pop().split(".")[0]); // ファイル名からIDを抽出
+          img.alt = `ヒドラ討伐ソロ！挑戦者ID: ${imageId}`;
+          img.loading = "lazy";
+          slide.appendChild(img);
+
+          // 画像IDをデータ属性として追加
+          slide.dataset.hydraId = imageId;
+
+          // ホバーイベントリスナーを追加
+          slide.addEventListener("mouseenter", (event) => {
+            const id = parseInt(event.currentTarget.dataset.hydraId);
+            const players = hydraRankingMap[id];
+
+            if (players && players.length > 0) {
+              let tooltip = document.createElement("div");
+              tooltip.classList.add("hydra-tooltip");
+
+              players.forEach((player) => {
+                const playerInfo = document.createElement("p");
+                playerInfo.innerHTML = `
+                  <strong>${player.name}</strong><br>
+                  ターン数: ${player.turns === 99 ? "失敗" : player.turns}<br>
+                  討伐本数: ${player.kills}<br>
+                  ステータス: ${player.status}
+                `;
+                tooltip.appendChild(playerInfo);
+              });
+
+              // ツールチップをスライドの上に配置
+              event.currentTarget.appendChild(tooltip);
+            }
+          });
+
+          slide.addEventListener("mouseleave", (event) => {
+            const tooltip = event.currentTarget.querySelector(".hydra-tooltip");
+            if (tooltip) {
+              tooltip.remove();
+            }
+          });
+
+          swiperWrapper.appendChild(slide);
+        });
+      }
+
+      // Swiperライブラリが読み込まれていれば、スライドショーを初期化
+      if (typeof Swiper !== "undefined") {
+        const hydraSwiper = new Swiper(".hydra-swiper", {
+          loop: true,
+          centeredSlides: true,
+          autoplay: {
+            delay: 2000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          },
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+          },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+          breakpoints: {
+            640: {
+              slidesPerView: 1,
+              spaceBetween: 20,
+            },
+            768: {
+              slidesPerView: 2,
+              spaceBetween: 15,
+            },
+            1024: {
+              slidesPerView: 4,
+              spaceBetween: 10,
+            },
+          },
+        });
+      }
+    })
+    .catch((error) => console.error("Error loading hydra data:", error));
 });
 
 // --- 名前の長さに応じてフォントサイズを調整する機能 ---
@@ -290,7 +337,7 @@ function adjustStaffCardFontSizes() {
         // windowオブジェクト経由でグローバル関数を呼び出す
         if (typeof window.getCharacterNameClass === "function") {
           nameElement.className = window.getCharacterNameClass(
-            nameElement.textContent.trim()
+            nameElement.textContent.trim(),
           );
         }
       }
@@ -314,7 +361,7 @@ memberCards.forEach((card) => {
         "█縲繝繧繝輔ぃ繧ｮ繧ｹ繝√繧ク繝ュ繝ォ繝｡繧｢繧ｨ繧ｪ繧ｶ繧ｷ繧ｹ繧ｾ繧ｿ繝√ヂ繝・繝ヱ繝セ繝";
       setInterval(() => {
         const glitchChar = glitchChars.charAt(
-          Math.floor(Math.random() * glitchChars.length)
+          Math.floor(Math.random() * glitchChars.length),
         );
         levelElement.textContent = `Lv${glitchChar}`;
       }, 150);

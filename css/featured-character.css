@@ -19,7 +19,11 @@
   padding: 1.5rem;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s, opacity 0.4s, width 0.4s,
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s,
+    opacity 0.4s,
+    width 0.4s,
     border-color 0.3s;
   position: relative;
   margin: 0; /* 追加: 他のスタイルが影響しているか確認 */
@@ -69,7 +73,7 @@
 
 .character-meta {
   font-size: 0.95rem;
-  color: #555;
+  color: #111;
   margin-top: 0; /* 間隔を詰める */
   margin-bottom: 0.5rem;
   display: flex;
@@ -116,18 +120,13 @@
   white-space: pre-wrap; /* セリフごとの改行を有効にする */
 }
 
-.member-desc {
-  /* white-space: pre-wrap; */ /* 説明文の改行を有効にする */
-}
-
 /* ★★★ レイアウトの要 ★★★ */
 .pl-name {
   font-size: 0.9em;
-  color: #888;
+  color: #404040;
   text-align: right;
   padding-top: 8px;
-  border-top: 1px solid #eee;
-  /* ↓↓↓ この一行がPL名をカードの下部に固定します ↓↓↓ */
+  border-top: 1px solid #909090;
   margin-top: auto;
   width: 100%; /* 幅を100%に設定してtext-alignを有効にする */
 }

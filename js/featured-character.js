@@ -122,8 +122,30 @@ function createMainPageCharacterCard(character) {
       }</p>`
     : `<p class="character-job">${character.job || "ジョブ不明"}</p>`;
 
+  // 立ち絵背景（存在する場合）
+  let tachieBgHtml = "";
+  if (character.tachieUrl) {
+    tachieBgHtml = `<div class="character-tachie-bg" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('${character.tachieUrl}');
+        background-size: auto 150%;
+        background-position: 10% 0%;
+        background-repeat: no-repeat;
+        opacity: 0.25;
+        pointer-events: none;
+        z-index: 0;
+        border-radius: 8px;
+        "></div>`;
+  }
+
   // カードのHTMLを組み立て
+  // コンテンツ要素（h3以降）には position: relative; z-index: 1; を付与して背景の上に表示させる
   card.innerHTML = `
+        ${tachieBgHtml}
         ${appearanceCountHtml}
         ${adventurerLevelHtml}
         ${
@@ -131,8 +153,8 @@ function createMainPageCharacterCard(character) {
             ? ""
             : `<div class="character-system-tag" style="background-color: ${systemColor};">${character.tableName}</div>`
         }
-        <h3 class="${nameClass}">${character.pcName}</h3>
-        <div class="character-meta">
+        <h3 class="${nameClass}" style="position: relative; z-index: 1;">${character.pcName}</h3>
+        <div class="character-meta" style="position: relative; z-index: 1;">
             <span class="meta-item">
                 <i class="fa-solid ${genderIcon}"></i>
                 <span>${character.gender}</span>
@@ -146,9 +168,11 @@ function createMainPageCharacterCard(character) {
                 <span>${heightText}</span>
             </span>
         </div>
-        ${jobOrRaceHtml}
-        <p class="character-quote member-desc">${quoteHtml}</p>
-        <p class="pl-name">PL: ${character.pl}</p>
+        <div style="position: relative; z-index: 1; width: 100%; display: flex; justify-content: center;">
+             ${jobOrRaceHtml}
+        </div>
+        <p class="character-quote member-desc" style="position: relative; z-index: 1;">${quoteHtml}</p>
+        <p class="pl-name" style="position: relative; z-index: 1;">PL: ${character.pl}</p>
     `;
   return card;
 }
@@ -170,7 +194,7 @@ function parseCsvWithDynamicHeader(csvText, headerIdentifier) {
 
   if (headerRowIndex === -1) {
     throw new Error(
-      `CSVにヘッダー行（'${headerIdentifier}'を含む行）が見つかりません。`
+      `CSVにヘッダー行（'${headerIdentifier}'を含む行）が見つかりません。`,
     );
   }
 
@@ -212,7 +236,7 @@ async function loadAndDisplayTopPageCharacters(containerSelector) {
 
   try {
     const response = await fetch(
-      `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`
+      `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`,
     );
     if (!response.ok)
       throw new Error(`CSVの取得に失敗: ${response.statusText}`);
@@ -255,6 +279,9 @@ async function loadAndDisplayTopPageCharacters(containerSelector) {
             : "システム不明",
           race: "",
           birth: "", // トップページでは不要
+          tachieUrl: row[getIndex("立ち絵URL")]
+            ? row[getIndex("立ち絵URL")].trim()
+            : "",
         };
       })
       .filter(Boolean);
@@ -269,7 +296,7 @@ async function loadAndDisplayTopPageCharacters(containerSelector) {
 
     container.innerHTML = "";
     selected.forEach((char) =>
-      container.appendChild(createMainPageCharacterCard(char))
+      container.appendChild(createMainPageCharacterCard(char)),
     );
   } catch (error) {
     console.error("トップページキャラクター機能でエラー:", error);
@@ -321,6 +348,9 @@ async function loadAndDisplayGuildCharacters(containerSelector) {
             ? String(row[getCharIndex("身長")]).trim()
             : "",
           gender: genderDisplay,
+          tachieUrl: row[getCharIndex("立ち絵URL")]
+            ? row[getCharIndex("立ち絵URL")].trim()
+            : "",
         });
       }
     });
@@ -339,6 +369,7 @@ async function loadAndDisplayGuildCharacters(containerSelector) {
           age: "",
           height: "",
           gender: "性別不明",
+          tachieUrl: "",
         };
 
         return {
@@ -358,6 +389,7 @@ async function loadAndDisplayGuildCharacters(containerSelector) {
           age: details.age,
           height: details.height,
           gender: details.gender,
+          tachieUrl: details.tachieUrl,
           job: "",
           quote: "",
         };
@@ -374,7 +406,7 @@ async function loadAndDisplayGuildCharacters(containerSelector) {
 
     container.innerHTML = "";
     selected.forEach((char) =>
-      container.appendChild(createMainPageCharacterCard(char))
+      container.appendChild(createMainPageCharacterCard(char)),
     );
   } catch (error) {
     console.error("ギルドページキャラクター機能でエラー:", error);
