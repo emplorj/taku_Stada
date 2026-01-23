@@ -1,4 +1,4 @@
-new Vue({
+window.GrowthCheckerConfig = {
   el: "#log-tool-app",
   data: {
     activeTool: "growth", // 'growth' or 'dialogue'
@@ -285,7 +285,7 @@ new Vue({
       this.selectedTabs = [...this.tabNames];
       if (this.isCoCLog) {
         this.detectedVersion = this.logContent.includes(
-          "ボーナス・ペナルティダイス"
+          "ボーナス・ペナルティダイス",
         )
           ? "coc7"
           : "coc6";
@@ -396,7 +396,7 @@ new Vue({
           log.skillName,
           log.skillValue,
           charName,
-          log.diceRoll
+          log.diceRoll,
         );
         grouped[charName].logs.push({
           skill: log.skillName,
@@ -441,7 +441,7 @@ new Vue({
       const summary = {};
       for (const charName in this.mergedResults) {
         const skills = this.mergedResults[charName].logs.map(
-          (log) => log.skill
+          (log) => log.skill,
         );
         const uniqueSkills = [...new Set(skills)];
         if (uniqueSkills.length > 0)
@@ -487,8 +487,8 @@ new Vue({
       for (const charName in stats) {
         stats[charName].maxCount = Math.max(
           ...stats[charName].successCounts.map(
-            (val, i) => val + stats[charName].failureCounts[i]
-          )
+            (val, i) => val + stats[charName].failureCounts[i],
+          ),
         );
       }
       return stats;
@@ -524,8 +524,8 @@ new Vue({
       for (const charName in mergedStats) {
         mergedStats[charName].maxCount = Math.max(
           ...mergedStats[charName].successCounts.map(
-            (val, i) => val + mergedStats[charName].failureCounts[i]
-          )
+            (val, i) => val + mergedStats[charName].failureCounts[i],
+          ),
         );
       }
       return mergedStats;
@@ -579,15 +579,13 @@ new Vue({
 
       const results = Object.keys(grouped).map((key) => {
         const charColor = grouped[key].color || "#eee";
-        const isNpcColor =
-          charColor === "rgb(136, 136, 136)" ||
-          charColor.toLowerCase() === "#888888" ||
-          charColor.toLowerCase() === "#888";
+        const hasStandingPicture =
+          window.getStandingPictureUrl && !!window.getStandingPictureUrl(key);
         return {
           character: key,
           dialogues: grouped[key].dialogues,
           color: charColor,
-          isOpen: !isNpcColor,
+          isOpen: hasStandingPicture,
         };
       });
 
@@ -686,7 +684,7 @@ new Vue({
       }
       const data = {
         labels: stats.successCounts.map(
-          (_, i) => `${i * 10 + 1}～${(i + 1) * 10}`
+          (_, i) => `${i * 10 + 1}～${(i + 1) * 10}`,
         ),
         datasets: [
           {
@@ -770,7 +768,7 @@ new Vue({
       const versionOptions = this.options[this.detectedVersion];
       if (!versionOptions) return;
       Object.keys(versionOptions).forEach(
-        (key) => (versionOptions[key] = false)
+        (key) => (versionOptions[key] = false),
       );
       if (presetName === "critFumbleInitial") {
         versionOptions.critical = true;
@@ -808,7 +806,7 @@ new Vue({
         return skillMatch[1].replace(/判定/g, "").trim();
       }
       skillMatch = diceRoll.match(
-        /CCB?\s*<=\s*[\d\(\)\+\-\*\/×]+\s+(.+?)\s*\(/
+        /CCB?\s*<=\s*[\d\(\)\+\-\*\/×]+\s+(.+?)\s*\(/,
       );
       if (skillMatch && skillMatch[1]) {
         return skillMatch[1].trim();
@@ -928,11 +926,11 @@ new Vue({
       const resultType = this.getRollResultType(diceRoll);
       const skillFormatted = diceRoll.replace(
         /(【.+?】)/,
-        "<strong>$1</strong>"
+        "<strong>$1</strong>",
       );
       const coloredResult = skillFormatted.replace(
         /＞\s*([^＞]*)$/,
-        `＞ <span class="result-status result-${resultType}">$1</span>`
+        `＞ <span class="result-status result-${resultType}">$1</span>`,
       );
       return coloredResult;
     },
@@ -971,7 +969,7 @@ new Vue({
     },
     toggleSelectCharacter(charName, isChecked) {
       const charData = this.dialogueResults.find(
-        (c) => c.character === charName
+        (c) => c.character === charName,
       );
       if (charData) {
         charData.dialogues.forEach((d) => {
@@ -980,7 +978,7 @@ new Vue({
           this.$set(
             this.characterDialogueSelection[originalCharName],
             d.id,
-            isChecked
+            isChecked,
           );
         });
       }
@@ -1006,7 +1004,7 @@ new Vue({
       }
 
       const selectedCharacters = new Set(
-        allSelectedDialogues.map((d) => d.character)
+        allSelectedDialogues.map((d) => d.character),
       );
       const isSingleCharacter = selectedCharacters.size === 1;
 
@@ -1072,11 +1070,11 @@ new Vue({
       // 漢字部分が一致するかどうか (例: 如月 太郎 と 如月)
       const kanji1 = name1.replace(
         /[\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Latin}\p{sc=Common}\s]/gu,
-        ""
+        "",
       );
       const kanji2 = name2.replace(
         /[\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Latin}\p{sc=Common}\s]/gu,
-        ""
+        "",
       );
       if (
         kanji1 &&
@@ -1092,4 +1090,10 @@ new Vue({
       return false;
     },
   },
-});
+};
+
+// 既存ページ(growth_checker.html)での自動初期化
+const appEl = document.getElementById("log-tool-app");
+if (appEl && !appEl.hasAttribute("data-manual-init")) {
+  new Vue(window.GrowthCheckerConfig);
+}

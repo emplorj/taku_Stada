@@ -5,12 +5,17 @@
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ログプレイヤー | 卓スタダ</title>
+  <title>ログツール | 卓スタダ</title>
   <!-- 既存のCSS -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <!-- ログプレイヤー専用CSS -->
   <link rel="stylesheet" href="css/log-player.css">
+
+  <!-- Vue.js, Chart.js for integrated features -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 
 <body>
@@ -19,220 +24,547 @@
 
   <div class="main-content">
     <header class="main-header">
-      <h1>ログプレイヤー</h1>
-      <p class="subtitle">あの日の記憶を再生する</p>
+      <h1>ログツール</h1>
+      <!-- <p class="subtitle">ログの再生・分析・共有</p> -->
     </header>
+    <div class="log-viewer-wrapper">
 
-    <!-- STEP 1: ファイル読み込みエリア -->
-    <div class="player-container">
-      <div id="upload-area" class="plain-text-block intro-block center">
-        <div class="upload-section">
-          <i class="fa-solid fa-file-import fa-3x" style="color: #87cefa; margin-bottom: 10px;"></i>
-          <p>ココフォリアから出力した <strong>HTML形式のログ</strong> を読み込んでください。</p>
-          <label for="log-file-input" class="custom-file-upload">
-            <i class="fa-solid fa-folder-open"></i> ファイルを選択
-          </label>
-          <input type="file" id="log-file-input" accept=".html,.htm" class="file-input" style="display:none;">
-          <p id="file-name-display" style="font-size: 0.9em; margin-top: 10px; height: 1.2em; color: #87cefa;"></p>
-        </div>
 
-        <div class="upload-separator">または</div>
 
-        <div class="paste-section">
-          <p>ログテキストを直接貼り付け</p>
-          <textarea id="log-text-input" placeholder="[main] Jin : 「ここに、ログの一部分を貼り付けてほしいんですよん」"></textarea>
-          <button id="btn-parse-text" class="control-btn main-btn" style="margin-top: 10px;">
-            <i class="fa-solid fa-play"></i> テキストを読み込む
-          </button>
-        </div>
-
-        <!-- 簡易説明書 -->
-        <div class="usage-guide">
-          <div class="guide-item">
-            <i class="fa-solid fa-circle-play"></i>
-            <p>HTMLファイルを読み込むか、ログからテキストを貼り付けてスタート</p>
-          </div>
-          <div class="guide-item">
-            <i class="fa-solid fa-keyboard"></i>
-            <p>画面クリックや矢印キーで読み進めることができます</p>
-          </div>
-          <div class="guide-item">
-            <i class="fa-solid fa-share-nodes"></i>
-            <p>テキストを貼り付けて読み込んだ場合、シーンの保存や共有が可能です</p>
-          </div>
-          <div class="guide-extra">
-            <i class="fa-solid fa-circle-info"></i>
-            <span>「ログ一覧」から過去の発言を振り返ったりコピーしたりできます。<br>
-              　NPC等のキャラの立ち絵の追加要望はエンJまでお願いいたします。</span>
-          </div>
-        </div>
+      <!-- STEP 2: タブナビゲーション -->
+      <div id="tab-navigation" class="tab-navigation">
+        <button class="tab-btn active" onclick="switchTab('player')">
+          <i class="fa-solid fa-play-circle"></i> ログプレイヤー
+        </button>
+        <button class="tab-btn disabled" onclick="switchTab('growth')" id="growth-tab-btn"
+          title="クトゥルフ神話TRPGのログでのみアクティブになります">
+          <i class="fa-solid fa-square-check"></i> 成長チェック
+        </button>
+        <button class="tab-btn" onclick="switchTab('dialogue')">
+          <i class="fa-solid fa-comments"></i> セリフ抽出
+        </button>
+        <button class="tab-btn" onclick="switchTab('raw')">
+          <i class="fa-solid fa-list"></i> ログ一覧
+        </button>
+        <button id="btn-reset" class="tab-btn reset-btn" title="閉じてトップに戻る" style="display: none;">
+          <i class="fa-solid fa-xmark"></i> 閉じる
+        </button>
       </div>
-    </div>
 
-    <!-- STEP 2: プレイヤーエリア (初期は非表示) -->
-    <div id="player-area" class="player-container" style="display: none;">
+      <!-- STEP 3: タブコンテンツエリア -->
+      <!-- プレイヤータブ -->
+      <div id="player-tab-content" class="tab-content active">
+        <div class="player-container">
+          <div id="upload-area" class="plain-text-block intro-block center">
+            <div class="upload-section">
+              <i class="fa-solid fa-file-import fa-3x" style="color: #87cefa; margin-bottom: 10px;"></i>
+              <p>ココフォリアから出力した <strong>HTML形式のログ</strong> を読み込んでください。</p>
+              <label for="log-file-input" class="custom-file-upload">
+                <i class="fa-solid fa-folder-open"></i> ファイルを選択
+              </label>
+              <input type="file" id="log-file-input" accept=".html,.htm" class="file-input" style="display:none;">
+            </div>
 
-      <!-- フィルタリングコントロール -->
-      <div class="filter-controls">
-        <details>
-          <summary><i class="fa-solid fa-filter"></i> 表示タブ切替</summary>
-          <div class="filter-content">
-            <div id="tab-filters-container" class="checkbox-group">
-              <!-- JSでタブ一覧を生成 -->
+            <div class="upload-separator">または</div>
+
+            <div class="paste-section">
+              <p>ログテキストを直接貼り付け</p>
+              <textarea id="log-text-input" placeholder="[main] Jin : 「ここに、ログの一部分を貼り付けてほしいんですよん」"></textarea>
+              <button id="btn-parse-text" class="control-btn main-btn" style="margin-top: 10px;">
+                <i class="fa-solid fa-play"></i> テキストを読み込む
+              </button>
+            </div>
+
+            <!-- 簡易説明書 -->
+            <div class="usage-guide">
+              <div class="guide-item">
+                <i class="fa-solid fa-circle-play"></i>
+                <p>HTMLファイルを読み込むか、ログからテキストを貼り付けてスタート</p>
+              </div>
+              <div class="guide-item">
+                <i class="fa-solid fa-keyboard"></i>
+                <p>画面クリックや矢印キーで読み進めることができます</p>
+              </div>
+              <div class="guide-item">
+                <i class="fa-solid fa-share-nodes"></i>
+                <p>テキストを貼り付けて読み込んだ場合、シーンの保存や共有が可能です</p>
+              </div>
+              <div class="guide-extra">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>「ログ一覧」から過去の発言を振り返ったりコピーしたりできます。<br>
+                  　NPC等のキャラの立ち絵の追加要望はエンJまでお願いいたします。</span>
+              </div>
             </div>
           </div>
-        </details>
-      </div>
-
-      <!-- 画面表示部 -->
-      <div class="screen-frame">
-        <div class="screen-bg"></div>
-        <!-- 背景演出用の巨大文字 -->
-        <div id="bg-char-name"></div>
-
-        <div id="log-tab-label" class="log-tab-label">Main</div>
-
-        <!-- ★追加: システム名表示タグ -->
-        <div id="system-tag" class="system-tag" style="display: none;">System</div>
-
-        <!-- 立ち絵表示用コンテナ -->
-        <div id="char-standing-picture" class="char-standing-picture"></div>
-
-        <!-- ダイアログボックス -->
-        <div class="dialogue-box" id="dialogue-box">
-          <div class="char-name-wrapper">
-            <div class="char-name-plate" id="char-name" style="display: none;">No Name</div>
-          </div>
-          <div id="dice-container" class="dice-container">
-            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512">
-              <path fill="currentColor"
-                d="M440.88 129.37L288.16 40.62a64.14 64.14 0 0 0-64.33 0L71.12 129.37a4 4 0 0 0 0 6.9L254 243.85a4 4 0 0 0 4.06 0L440.9 136.27a4 4 0 0 0-.02-6.9M256 152c-13.25 0-24-7.16-24-16s10.75-16 24-16s24 7.16 24 16s-10.75 16-24 16m-18 118.81L54 163.48a4 4 0 0 0-6 3.46v173.92a48 48 0 0 0 23.84 41.39L234 479.48a4 4 0 0 0 6-3.46V274.27a4 4 0 0 0-2-3.46M96 368c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m96-32c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m266-172.49L274 271.56a4 4 0 0 0-2 3.45V476a4 4 0 0 0 6 3.46l162.15-97.23A48 48 0 0 0 464 340.86V167a4 4 0 0 0-6-3.49M320 424c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m0-88c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m96 32c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m0-88c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24" />
-            </svg>
-          </div>
-          <div class="message-text" id="message-text"></div>
-          <div class="next-indicator"><i class="fa-solid fa-caret-down"></i></div>
         </div>
-      </div>
+        <div id="player-area" class="player-container" style="display: none;">
 
-      <!-- シークバー -->
-      <div class="seek-bar-container">
-        <span id="current-line-display">1</span>
-        <input type="range" id="seek-bar" min="0" value="0" step="1">
-        <span id="total-line-display">100</span>
-      </div>
+          <!-- フィルタリングコントロール -->
+          <div class="filter-controls">
+            <details>
+              <summary><i class="fa-solid fa-filter"></i> 表示タブ切替</summary>
+              <div class="filter-content">
+                <div id="tab-filters-container" class="checkbox-group">
+                  <!-- JSでタブ一覧を生成 -->
+                </div>
+              </div>
+            </details>
+          </div>
 
-      <!-- コントロールパネル -->
-      <div class="control-panel">
+          <!-- 画面表示部 -->
+          <div class="screen-frame">
+            <div class="screen-bg"></div>
+            <!-- 背景演出用の巨大文字 -->
+            <div id="bg-char-name"></div>
 
-        <!-- 再生コントロール群 -->
-        <div class="playback-group">
-          <!-- ★移動: トップに戻るボタン -->
-          <button id="btn-reset" class="control-btn" title="閉じてトップに戻る" style="margin-right: 0px;"><i
-              class="fa-solid fa-xmark"></i> 閉じる</button>
+            <div id="log-tab-label" class="log-tab-label">Main</div>
 
-          <div class="volume-control" title="音量調整">
-            <i class="fa-solid fa-volume-high"></i>
-            <div class="volume-slider-wrapper">
-              <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+            <!-- ★追加: システム名表示タグ -->
+            <div id="system-tag" class="system-tag" style="display: none;">System</div>
+
+            <!-- 立ち絵表示用コンテナ -->
+            <div id="char-standing-picture" class="char-standing-picture"></div>
+
+            <!-- ダイアログボックス -->
+            <div class="dialogue-box" id="dialogue-box">
+              <div class="char-name-wrapper">
+                <div class="char-name-plate" id="char-name" style="display: none;">No Name</div>
+              </div>
+              <div id="dice-container" class="dice-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512">
+                  <path fill="currentColor"
+                    d="M440.88 129.37L288.16 40.62a64.14 64.14 0 0 0-64.33 0L71.12 129.37a4 4 0 0 0 0 6.9L254 243.85a4 4 0 0 0 4.06 0L440.9 136.27a4 4 0 0 0-.02-6.9M256 152c-13.25 0-24-7.16-24-16s10.75-16 24-16s24 7.16 24 16s-10.75 16-24 16m-18 118.81L54 163.48a4 4 0 0 0-6 3.46v173.92a48 48 0 0 0 23.84 41.39L234 479.48a4 4 0 0 0 6-3.46V274.27a4 4 0 0 0-2-3.46M96 368c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m96-32c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m266-172.49L274 271.56a4 4 0 0 0-2 3.45V476a4 4 0 0 0 6 3.46l162.15-97.23A48 48 0 0 0 464 340.86V167a4 4 0 0 0-6-3.49M320 424c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m0-88c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m96 32c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m0-88c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24" />
+                </svg>
+              </div>
+              <div class="message-text" id="message-text"></div>
+              <div class="next-indicator"><i class="fa-solid fa-caret-down"></i></div>
             </div>
           </div>
-          <button id="btn-first" class="control-btn" title="最初に戻る"><i class="fa-solid fa-backward-step"></i> 最初</button>
-          <button id="btn-prev" class="control-btn" title="1つ戻る"><i class="fa-solid fa-backward"></i> 前へ</button>
 
-          <div class="auto-play-wrapper">
-            <button id="btn-auto" class="control-btn auto-btn"><i class="fa-solid fa-play"></i> 自動</button>
-            <select id="auto-speed-select" class="speed-select">
-              <option value="3000">3.0s</option>
-              <option value="2500">2.5s</option>
-              <option value="2000" selected>2.0s</option>
-              <option value="1500">1.5s</option>
-              <option value="1000">1.0s</option>
-              <option value="500">0.5s</option>
-              <option value="100">0.1s</option>
-            </select>
+          <!-- シークバー -->
+          <div class="seek-bar-container">
+            <span id="current-line-display">1</span>
+            <input type="range" id="seek-bar" min="0" value="0" step="1">
+            <span id="total-line-display">100</span>
           </div>
 
-          <button id="btn-next" class="control-btn" title="次へ">次へ <i class="fa-solid fa-forward"></i></button>
-          <button id="btn-last" class="control-btn" title="最後へ">最後 <i class="fa-solid fa-forward-step"></i></button>
-        </div>
+          <!-- コントロールパネル -->
+          <div class="control-panel">
 
-        <!-- 右端 -->
-        <div class="right-group">
-          <button id="btn-copy-current" class="control-btn" title="表示中のテキストをコピー"><i
-              class="fa-regular fa-copy"></i></button>
-          <button id="btn-history" class="control-btn history-btn"><i class="fa-solid fa-list"></i> ログ一覧</button>
-          <!-- シーン共有ボタン(JSで表示制御) -->
-          <button id="btn-share-scene" class="control-btn" style="display: none;"><i
-              class="fa-solid fa-share-nodes"></i> シーン共有</button>
-        </div>
-      </div>
-    </div>
+            <!-- 再生コントロール群 -->
+            <div class="playback-group">
+              <div class="volume-control" title="音量調整">
+                <i class="fa-solid fa-volume-high"></i>
+                <div class="volume-slider-wrapper">
+                  <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+                </div>
+              </div>
+              <button id="btn-first" class="control-btn" title="最初に戻る"><i class="fa-solid fa-backward-step"></i>
+                最初</button>
+              <button id="btn-prev" class="control-btn" title="1つ戻る"><i class="fa-solid fa-backward"></i> 前へ</button>
 
-    <!-- ログ一覧・共有モーダル -->
-    <div id="history-modal" class="modal-overlay" style="display: none;">
-      <div class="modal-content plain-text-block">
-        <div class="modal-header">
-          <h3>ログ一覧・共有</h3>
-          <!-- 右側のボタングループ -->
-          <div class="header-actions">
-            <button id="btn-copy-selection" class="copy-button"><i class="fa-regular fa-copy"></i> コピー</button>
-            <button id="btn-close-modal" class="close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark"></i></button>
+              <div class="auto-play-wrapper">
+                <button id="btn-auto" class="control-btn auto-btn"><i class="fa-solid fa-play"></i> 自動</button>
+                <select id="auto-speed-select" class="speed-select">
+                  <option value="3000">3.0s</option>
+                  <option value="2500">2.5s</option>
+                  <option value="2000" selected>2.0s</option>
+                  <option value="1500">1.5s</option>
+                  <option value="1000">1.0s</option>
+                  <option value="500">0.5s</option>
+                  <option value="100">0.1s</option>
+                </select>
+              </div>
+
+              <button id="btn-next" class="control-btn" title="次へ">次へ <i class="fa-solid fa-forward"></i></button>
+              <button id="btn-last" class="control-btn" title="最後へ">最後 <i class="fa-solid fa-forward-step"></i></button>
+            </div>
+
+            <!-- 右端 -->
+            <div class="right-group">
+              <button id="btn-copy-current" class="control-btn" title="表示中のテキストをコピー"><i
+                  class="fa-regular fa-copy"></i></button>
+              <button id="btn-history" class="control-btn history-btn"><i class="fa-solid fa-list"></i> ログ一覧</button>
+              <!-- シーン共有ボタン(JSで表示制御) -->
+              <button id="btn-share-scene" class="control-btn" style="display: none;"><i
+                  class="fa-solid fa-share-nodes"></i> シーン共有</button>
+            </div>
           </div>
         </div>
-        <div class="history-controls">
-          <button id="btn-select-all" class="small-btn">全選択</button>
-          <button id="btn-deselect-all" class="small-btn">全解除</button>
+
+        <!-- ログ一覧・共有モーダル -->
+        <div id="history-modal" class="modal-overlay" style="display: none;">
+          <div class="modal-content plain-text-block">
+            <div class="modal-header">
+              <h3>ログ一覧・共有</h3>
+              <!-- 右側のボタングループ -->
+              <div class="header-actions">
+                <button id="btn-copy-selection" class="copy-button"><i class="fa-regular fa-copy"></i> コピー</button>
+                <button id="btn-close-modal" class="close-btn" aria-label="閉じる"><i
+                    class="fa-solid fa-xmark"></i></button>
+              </div>
+            </div>
+            <div class="history-controls">
+              <button id="btn-select-all" class="small-btn">全選択</button>
+              <button id="btn-deselect-all" class="small-btn">全解除</button>
+            </div>
+            <div class="history-list" id="history-list">
+              <!-- JSでリスト生成 -->
+            </div>
+          </div>
         </div>
-        <div class="history-list" id="history-list">
-          <!-- JSでリスト生成 -->
-        </div>
-      </div>
-    </div>
 
-    <!-- シーン共有ダイアログ -->
-    <div id="share-modal" class="modal-overlay" style="display: none;">
-      <div class="modal-content plain-text-block" style="max-width: 500px; height: auto;">
-        <div class="modal-header">
-          <h3>シーン共有</h3>
-          <button id="btn-close-share-modal" class="close-btn" aria-label="閉じる"><i
-              class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div style="padding: 20px;">
-          <label for="share-title" style="display: block; margin-bottom: 5px; color: #87cefa; font-weight: bold;">タイトル
-            (任意):</label>
-          <input type="text" id="share-title" placeholder="例: SANチェックシーン"
-            style="width: 100%; padding: 8px; background: #0d1a50; border: 1px solid #3498db; border-radius: 4px; color: #fff; margin-bottom: 15px;">
+        <!-- シーン共有ダイアログ -->
+        <div id="share-modal" class="modal-overlay" style="display: none;">
+          <div class="modal-content plain-text-block" style="max-width: 500px; height: auto;">
+            <div class="modal-header">
+              <h3>シーン共有</h3>
+              <button id="btn-close-share-modal" class="close-btn" aria-label="閉じる"><i
+                  class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="padding: 20px;">
+              <label for="share-title"
+                style="display: block; margin-bottom: 5px; color: #87cefa; font-weight: bold;">タイトル
+                (任意):</label>
+              <input type="text" id="share-title" placeholder="例: SANチェックシーン"
+                style="width: 100%; padding: 8px; background: #0d1a50; border: 1px solid #3498db; border-radius: 4px; color: #fff; margin-bottom: 15px;">
 
-          <p id="share-range-info" style="color: #aaa; margin-bottom: 20px;">選択範囲: 0行</p>
+              <p id="share-range-info" style="color: #aaa; margin-bottom: 20px;">選択範囲: 0行</p>
 
-          <button id="btn-delete-scene" class="control-btn main-btn"
-            style="width: 100%; padding: 12px; font-size: 1em; margin-bottom: 10px; background-color: #d32f2f; display: none;">
-            <i class="fa-solid fa-trash"></i> このシーンを削除
-          </button>
+              <button id="btn-delete-scene" class="control-btn main-btn"
+                style="width: 100%; padding: 12px; font-size: 1em; margin-bottom: 10px; background-color: #d32f2f; display: none;">
+                <i class="fa-solid fa-trash"></i> このシーンを削除
+              </button>
 
-          <button id="btn-generate-share-url" class="control-btn main-btn"
-            style="width: 100%; padding: 12px; font-size: 1em;">
-            <i class="fa-solid fa-link"></i> 新規URLを発行してコピー
-          </button>
+              <button id="btn-generate-share-url" class="control-btn main-btn"
+                style="width: 100%; padding: 12px; font-size: 1em;">
+                <i class="fa-solid fa-link"></i> 新規URLを発行してコピー
+              </button>
 
-          <div id="share-result"
-            style="margin-top: 15px; padding: 10px; background: rgba(52, 152, 219, 0.2); border-radius: 4px; display: none;">
-            <p style="color: #87cefa; margin-bottom: 5px; font-weight: bold;">✅ URLをコピーしました!</p>
-            <input type="text" id="share-url-display" readonly
-              style="width: 100%; padding: 8px; background: #061144; border: 1px solid #3498db; border-radius: 4px; color: #87cefa; font-size: 0.9em;">
+              <div id="share-result"
+                style="margin-top: 15px; padding: 10px; background: rgba(52, 152, 219, 0.2); border-radius: 4px; display: none;">
+                <p style="color: #87cefa; margin-bottom: 5px; font-weight: bold;">✅ URLをコピーしました!</p>
+                <input type="text" id="share-url-display" readonly
+                  style="width: 100%; padding: 8px; background: #061144; border: 1px solid #3498db; border-radius: 4px; color: #87cefa; font-size: 0.9em;">
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      <!-- プレイヤータブ終了 -->
 
-    <footer>
-      <p>© 2025 卓スタダ.</p>
-    </footer>
-  </div>
+      <!-- 成長チェック・セリフ抽出・ログ一覧タブ (Vue.js) -->
+      <div id="analysis-tabs" class="tab-content" style="display: none;">
+        <div id="log-tool-app" class="plain-text-block" v-cloak data-manual-init="true">
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/log-player.js"></script>
+
+
+          <!-- 成長チェックタブ -->
+          <div v-show="currentAnalysisTab === 'growth'" class="analysis-tab-content">
+            <details v-if="detectedVersion" class="options-container" open>
+              <summary class="options-header">
+                <span><i class="fa-solid fa-gears"></i> 抽出オプション <span class="detected-version-badge">{{
+                    detectedVersion
+                    === 'coc6' ? '6版' : '7版' }}として検出</span></span>
+                <div class="preset-buttons">
+                  <button @click="setPreset('critFumbleInitial')">クリファン初期値</button>
+                  <button @click="setPreset('official')">公式準拠</button>
+                </div>
+              </summary>
+
+              <div v-if="detectedVersion === 'coc6'" class="options-grid">
+                <label><input type="checkbox" v-model="options.coc6.critical"> クリティカル</label>
+                <label><input type="checkbox" v-model="options.coc6.fumble"> ファンブル</label>
+                <label><input type="checkbox" v-model="options.coc6.special"> スペシャル</label>
+                <label><input type="checkbox" v-model="options.coc6.success"> 通常成功</label>
+                <label><input type="checkbox" v-model="options.coc6.failure"> 失敗</label>
+                <label class="checkbox-with-input">
+                  <input type="checkbox" v-model="options.coc6.luckyNumber">
+                  出目指定:
+                  <input type="number" v-model.number="luckyNumber" min="1" max="100" class="lucky-number-input">
+                </label>
+              </div>
+              <div v-if="detectedVersion === 'coc7'" class="options-grid">
+                <label><input type="checkbox" v-model="options.coc7.critical"> クリティカル</label>
+                <label><input type="checkbox" v-model="options.coc7.fumble"> ファンブル</label>
+                <label><input type="checkbox" v-model="options.coc7.extreme"> イクストリーム成功</label>
+                <label><input type="checkbox" v-model="options.coc7.hard"> ハード成功</label>
+                <label><input type="checkbox" v-model="options.coc7.regular"> レギュラー成功</label>
+                <label><input type="checkbox" v-model="options.coc7.failure"> 失敗</label>
+              </div>
+
+              <div v-if="tabNames.length > 1" class="tab-options">
+                <div class="tab-options-header">
+                  <h4><i class="fa-solid fa-folder-tree"></i> タブ選択</h4>
+                  <div class="tab-selection-buttons">
+                    <button @click="selectMainTab">メインのみ</button>
+                    <button @click="selectAllTabs">全表示</button>
+                  </div>
+                </div>
+                <div class="options-grid">
+                  <label v-for="tab in tabNames" :key="tab">
+                    <input type="checkbox" :value="tab" v-model="selectedTabs"> {{ tab }}
+                  </label>
+                </div>
+              </div>
+
+              <div class="toggle-options">
+                <label class="switch-label"><input type="checkbox" v-model="includeAbilityRolls"
+                    class="switch-checkbox">
+                  〈アイデア〉やCONなどの能力値ロールを抽出する</label>
+                <label class="switch-label"><input type="checkbox" v-model="useTwoColumnLayout" class="switch-checkbox">
+                  抽出結果を2カラムで表示する（スクショ用）</label>
+              </div>
+            </details>
+
+            <div class="results-container" v-if="hasResults">
+              <div class="results-header">
+                <h2 class="start-title">抽出結果</h2>
+                <button class="copy-all-button" v-if="hasResults" @click="copyAllSummaries($event)">
+                  <i class="fa-solid fa-layer-group"></i> まとめをすべてコピー
+                </button>
+              </div>
+
+              <div class="settings-container">
+                <details class="settings-block" v-if="diceRollingCharacters.length > 0" open>
+                  <summary>
+                    <h4><i class="fa-solid fa-user-gear"></i> 探索者の設定</h4>
+                  </summary>
+                  <div class="character-settings-grid">
+                    <div v-for="charName in diceRollingCharacters" :key="charName" class="character-settings-item">
+                      <span class="char-name-label">{{ charName }}</span>
+                      <label class="evasion-label">
+                        <input type="checkbox" v-model="evasionOverrides[charName]"> 回避初期値
+                      </label>
+                      <select v-model="mergeTargets[charName]">
+                        <option :value="charName">（まとめない）</option>
+                        <option value="__HIDE__">→ 非表示にする</option>
+                        <option v-for="targetName in diceRollingCharacters" :key="targetName" :value="targetName"
+                          v-if="targetName !== charName">
+                          → {{ targetName }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </details>
+              </div>
+
+              <div class="results-grid" :class="{ 'two-column-layout': useTwoColumnLayout }">
+                <div v-for="(result, characterName) in mergedResults" :key="characterName"
+                  class="character-result-block">
+                  <div class="character-header">
+                    <h3 :style="{ color: result.color }">{{ characterName }}</h3>
+                    <button class="copy-summary-button" @click="copyToClipboard(summaryResults[characterName], $event)"
+                      @mouseover="showTooltip(characterName, $event)" @mouseleave="hideTooltip"
+                      v-if="summaryResults[characterName]">
+                      <i class="fa-solid fa-paste"></i> まとめをコピー
+                    </button>
+                  </div>
+                  <ul>
+                    <li v-for="(log, index) in result.logs" :key="index"
+                      :class="{ 'is-initial-success': log.isInitialSuccess }">
+                      <span class="log-tab-badge">[{{ log.tab }}]</span>
+                      <span class="log-text" v-html="log.formattedText"></span>
+                      <span v-if="log.isInitialSuccess" class="initial-success-badge">初期値成功</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="dice-chart-container" v-if="hasDiceStats && selectedChartCharacter">
+                <div class="chart-header">
+                  <h2 class="start-title">出目グラフ</h2>
+                  <select v-model="selectedChartCharacter" class="chart-character-selector">
+                    <option v-for="charName in visibleCharacterNames" :key="charName" :value="charName">
+                      {{ charName }}
+                    </option>
+                  </select>
+                </div>
+                <div class="bar-chart">
+                  <canvas id="diceChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div v-else-if="logContent" class="no-results">
+              <p>指定された条件に一致するログは見つかりませんでした。</p>
+            </div>
+          </div>
+
+          <!-- セリフ抽出タブ -->
+          <div v-show="currentAnalysisTab === 'dialogue'" class="analysis-tab-content">
+            <details class="options-container" open>
+              <summary class="options-header"><span><i class="fa-solid fa-gears"></i> 抽出オプション</span></summary>
+              <div class="toggle-options">
+                <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.excludeDiceRolls"
+                    class="switch-checkbox"> ダイスロールを除外する</label>
+                <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.onlyQuoted"
+                    class="switch-checkbox"> 「」『』で囲まれたセリフのみ抽出</label>
+                <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.applyLineBreaks"
+                    class="switch-checkbox"> コピーする際にセリフ内改行を適用する</label>
+              </div>
+
+              <div v-if="tabNames.length > 1" class="tab-options">
+                <div class="tab-options-header">
+                  <h4><i class="fa-solid fa-folder-tree"></i> タブ選択</h4>
+                  <div class="tab-selection-buttons">
+                    <button @click="selectMainTab">メインのみ</button>
+                    <button @click="selectAllTabs">全表示</button>
+                  </div>
+                </div>
+                <div class="options-grid">
+                  <label v-for="tab in tabNames" :key="tab">
+                    <input type="checkbox" :value="tab" v-model="selectedTabs"> {{ tab }}
+                  </label>
+                </div>
+              </div>
+            </details>
+
+            <div class="results-container" v-if="dialogueResults.length > 0">
+              <div class="results-header">
+                <h2 class="start-title">抽出結果</h2>
+                <button class="copy-all-button" @click="copySelectedDialogues($event)">
+                  <i class="fa-solid fa-clipboard-check"></i> チェックしたセリフをコピー
+                </button>
+              </div>
+
+              <div class="settings-container">
+                <details class="settings-block" v-if="characterNames.length > 0" open>
+                  <summary>
+                    <h4><i class="fa-solid fa-user-gear"></i> 探索者の設定</h4>
+                  </summary>
+                  <div class="character-settings-grid">
+                    <div v-for="charName in characterNames" :key="charName" class="character-settings-item">
+                      <span class="char-name-label clickable" @click="scrollToDialogue(charName)">{{ charName
+                        }}</span>
+                      <span class="evasion-label-placeholder"></span>
+                      <select v-model="mergeTargets[charName]">
+                        <option :value="charName">（まとめない）</option>
+                        <option value="__HIDE__">→ 非表示にする</option>
+                        <option v-for="targetName in characterNames" :key="targetName" :value="targetName"
+                          v-if="targetName !== charName">
+                          → {{ targetName }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </details>
+              </div>
+
+              <details v-for="charData in dialogueResults" :key="charData.character" class="character-result-block"
+                :open="charData.isOpen" @toggle="charData.isOpen = $event.target.open"
+                :id="'dialogue-' + charData.character">
+                <summary class="character-header">
+                  <h3 :style="{ color: charData.color }">
+                    <input type="checkbox" @change="toggleSelectCharacter(charData.character, $event.target.checked)">
+                    {{ charData.character }}
+                  </h3>
+                </summary>
+                <ul>
+                  <li v-for="(dialogue, index) in charData.dialogues" :key="index">
+                    <input type="checkbox" v-model="dialogue.selected" class="dialogue-checkbox">
+                    <span class="log-tab-badge">[{{ dialogue.tab }}]</span>
+                    <span class="log-text">{{ dialogue.message }}</span>
+                    <button class="jump-to-log-button" @click="jumpToLog(dialogue.id)" title="ログプレイヤーで開く"
+                      :style="charData.color ? { color: charData.color } : {}">
+                      <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </button>
+                    <button class="copy-icon-button" @click="copyToClipboard(dialogue.message, $event)"
+                      :style="charData.color ? { color: charData.color } : {}" title="このセリフをコピー">
+                      <i class="fa-solid fa-paste"></i>
+                    </button>
+                  </li>
+                </ul>
+              </details>
+
+            </div>
+            <div v-else class="no-results">
+              <p>指定された条件に一致するログは見つかりませんでした。</p>
+            </div>
+          </div>
+
+          <!-- ログ一覧タブ -->
+          <div v-show="currentAnalysisTab === 'raw'" class="analysis-tab-content">
+            <details class="options-container" open>
+              <summary class="options-header"><span><i class="fa-solid fa-gears"></i> 抽出オプション</span></summary>
+              <div class="toggle-options">
+                <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.excludeDiceRolls"
+                    class="switch-checkbox"> ダイスロールを除外する</label>
+                <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.onlyQuoted"
+                    class="switch-checkbox"> 「」『』で囲まれたセリフのみ抽出</label>
+                <label class="switch-label"><input type="checkbox" v-model="dialogueOptions.applyLineBreaks"
+                    class="switch-checkbox"> コピーする際にセリフ内改行を適用する</label>
+              </div>
+              <div v-if="tabNames.length > 1" class="tab-options">
+                <div class="tab-options-header">
+                  <h4><i class="fa-solid fa-folder-tree"></i> タブ選択</h4>
+                  <div class="tab-selection-buttons">
+                    <button @click="selectMainTab">メインのみ</button>
+                    <button @click="selectAllTabs">全表示</button>
+                  </div>
+                </div>
+                <div class="options-grid">
+                  <label v-for="tab in tabNames" :key="tab">
+                    <input type="checkbox" :value="tab" v-model="selectedTabs"> {{ tab }}
+                  </label>
+                </div>
+              </div>
+            </details>
+
+            <div class="results-container">
+              <div class="results-header">
+                <h2 class="start-title">ログ全文 <span style="font-size: 0.7em; color: #bdc3c7;">({{
+                    filteredRawLogs.length
+                    }}行)</span></h2>
+                <button class="copy-all-button" @click="copySelectedRawLogs($event)">
+                  <i class="fa-solid fa-clipboard-check"></i> チェックしたログをコピー
+                </button>
+              </div>
+              <div class="raw-log-display-discord">
+                <div v-for="log in visibleRawLogs" :key="log.originalIndex" class="discord-log-line"
+                  @click="jumpToLog(log.originalIndex)">
+                  <div class="log-main-content">
+                    <input type="checkbox" v-model="log.selected" class="dialogue-checkbox">
+                    <span class="log-tab-badge">[{{ log.tab }}]</span>
+                    <div>
+                      <span class="discord-log-character" :style="{ color: log.color }">{{ log.character }}: </span>
+                      <span class="discord-log-message" v-html="log.messageHtml"></span>
+                    </div>
+                  </div>
+                  <button class="jump-to-log-button" @click.stop="jumpToLog(log.originalIndex)" title="ログプレイヤーで開く"
+                    :style="log.color ? { color: log.color } : {}">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </button>
+                  <button class="copy-icon-button" @click="copyToClipboard(log.message, $event)"
+                    :style="log.color ? { color: log.color } : {}" title="このセリフをコピー">
+                    <i class="fa-solid fa-paste"></i>
+                  </button>
+                </div>
+                <div v-if="hasMoreLogs" style="text-align: center; padding: 20px;">
+                  <button @click="loadMoreLogs" class="copy-all-button">
+                    <i class="fa-solid fa-angles-down"></i> さらに {{ Math.min(logsPerPage, filteredRawLogs.length -
+                    displayedLogsCount) }} 行読み込む
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-tooltip" v-if="tooltip.visible"
+              :style="{ top: tooltip.y + 'px', left: tooltip.x + 'px' }">
+              <pre>{{ tooltip.content }}</pre>
+            </div>
+          </div>
+
+        </div>
+        <footer>
+          <p>© 2025 卓スタダ.</p>
+        </footer>
+      </div>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+      <script src="js/common.js"></script>
+      <script src="js/growth_checker.js"></script>
+      <script src="js/log-player.js"></script>
 </body>
 
 </html>

@@ -15,31 +15,31 @@ document.addEventListener("DOMContentLoaded", () => {
     CoC: {
       name: "クトゥルフ神話TRPG",
       color: TRPG_SYSTEM_COLORS.CoC,
-      keywords: [
-        "1d100",
-        "1D100",
-        "CCB",
-        "SAN",
-        "決定的成功",
-        "スペシャル",
-        "イクストリーム",
-      ],
+      keywords: ["CCB", "SAN", "クトゥルフ"],
     },
     "SW2.5": {
       name: "ソード・ワールド2.5",
       color: TRPG_SYSTEM_COLORS["SW2.5"],
-      keywords: ["2d6", "2D6", "k10", "k20", "k30", "威力", "行使", "防護点"],
+      keywords: [
+        "ソード・ワールド",
+        "ソードワールド",
+        "k10",
+        "k20",
+        "k30",
+        "魔物知識",
+        "防護点",
+      ],
     },
     DX3: {
       name: "ダブルクロス3rd",
       color: TRPG_SYSTEM_COLORS.DX3,
       keywords: [
-        "10d10",
-        "10D10",
+        "UGN",
+        "FH",
+        "DX7",
         "侵蝕率",
         "侵食率",
         "ロイス",
-        "タイタス",
         "リザレクト",
         "バックトラック",
       ],
@@ -47,7 +47,14 @@ document.addEventListener("DOMContentLoaded", () => {
     Nechronica: {
       name: "永い後日談のネクロニカ",
       color: TRPG_SYSTEM_COLORS["ネクロニカ"],
-      keywords: ["パーツ", "未練", "ネクロマンサー", "最大行動値", "対話判定"],
+      keywords: [
+        "ネクロニカ",
+        "パーツ",
+        "未練",
+        "ネクロマンサー",
+        "最大行動値",
+        "対話判定",
+      ],
     },
     Satasupe: {
       name: "サタスペ",
@@ -64,13 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
     Mamono: {
       name: "マモノスクランブル",
       color: TRPG_SYSTEM_COLORS["マモブル"],
-      keywords: ["マモノ", "コイン", "特性", "あやかし"],
+      keywords: ["マモノスクランブル", "マモノ", "コイン", "特性"],
     },
     Stellar: {
       name: "銀剣のステラナイツ",
       color: TRPG_SYSTEM_COLORS["ステラナイツ"],
       keywords: [
-        "ステラ",
+        "銀剣のステラナイツ",
         "ブーケ",
         "チャージ",
         "シチュエーション",
@@ -80,12 +87,20 @@ document.addEventListener("DOMContentLoaded", () => {
     Shinobigami: {
       name: "シノビガミ",
       color: TRPG_SYSTEM_COLORS["シノビガミ"],
-      keywords: ["接近戦", "射撃戦", "忍法", "プロット", "生命力", "奥義"],
+      keywords: [
+        "シノビガミ",
+        "接近戦",
+        "射撃戦",
+        "忍法",
+        "プロット",
+        "生命力",
+        "奥義",
+      ],
     },
     AR2E: {
       name: "アリアンロッドRPG 2E",
       color: TRPG_SYSTEM_COLORS.AR2E,
-      keywords: ["フェイト", "スクウェア", "エンゲージ", "3d6"],
+      keywords: ["アリアンロッド", "エリンディル", "フェイト", "エンゲージ"],
     },
   };
 
@@ -125,7 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- DOM要素 ---
   const fileInput = document.getElementById("log-file-input");
-  const fileNameDisplay = document.getElementById("file-name-display");
   const uploadArea = document.getElementById("upload-area");
   const uploadSection = document.querySelector(".upload-section");
   const playerArea = document.getElementById("player-area");
@@ -327,9 +341,28 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
+  window.getStandingPictureUrl = function (rawName) {
+    const data = findCharacter(rawName, currentSystemTheme);
+    return data && data.imgUrl ? data.imgUrl : "";
+  };
+
   // 立ち絵を更新する
   // 立ち絵を更新する
   function updateStandingPicture(charName, currentIndex) {
+    maxCharacterSlots = getMaxCharacterSlots();
+    if (characterSlots.length !== maxCharacterSlots) {
+      characterSlots = new Array(maxCharacterSlots).fill(null);
+      characterLastLine.clear();
+      if (standingPictureEl) standingPictureEl.innerHTML = "";
+      dialogueBox.classList.remove(
+        "tail-slot-0",
+        "tail-slot-1",
+        "tail-slot-2",
+        "tail-slot-3",
+        "tail-slot-4",
+        "tail-off-screen",
+      );
+    }
     const charData = findCharacter(charName, currentSystemTheme);
     const normalizedName = normalizeName(charName);
     const newUrl = charData ? charData.imgUrl : "";
@@ -475,6 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnLast = document.getElementById("btn-last");
   const btnHistory = document.getElementById("btn-history");
   const btnCopyCurrent = document.getElementById("btn-copy-current");
+  const btnReset = document.getElementById("btn-reset");
 
   // モーダル
   const historyModal = document.getElementById("history-modal");
@@ -495,12 +529,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- 状態変数 ---
   let fullLogData = [];
+  window.fullLogData = fullLogData; // グローバルスコープに公開
   let filteredLogIndices = [];
   let activeTabs = new Set();
 
   let currentFilteredIndex = 0;
   let currentSystemTheme = ""; // ★追加
-  let characterSlots = [null, null, null, null, null]; // 5スロット化
+  function getMaxCharacterSlots() {
+    const width = window.innerWidth || 0;
+    const height = window.innerHeight || 0;
+    const isLandscape = window.matchMedia
+      ? window.matchMedia("(orientation: landscape)").matches
+      : false;
+
+    if ((isLandscape && height <= 430) || width <= 360) return 2;
+    if (width <= 430) return 3;
+    return 5;
+  }
+
+  let maxCharacterSlots = getMaxCharacterSlots();
+  let characterSlots = new Array(maxCharacterSlots).fill(null);
   let characterLastLine = new Map(); // Name -> FilteredIndex
   const HIDE_THRESHOLD = 30; // 30行発言がなければ非表示
 
@@ -511,6 +559,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let logLoadMode = null;
   let currentSceneId = null;
+
+  window.addEventListener("resize", () => {
+    const newMax = getMaxCharacterSlots();
+    if (newMax !== maxCharacterSlots) {
+      maxCharacterSlots = newMax;
+      characterSlots = new Array(maxCharacterSlots).fill(null);
+      characterLastLine.clear();
+      if (standingPictureEl) standingPictureEl.innerHTML = "";
+      if (dialogueBox) {
+        dialogueBox.classList.remove(
+          "tail-slot-0",
+          "tail-slot-1",
+          "tail-slot-2",
+          "tail-slot-3",
+          "tail-slot-4",
+          "tail-off-screen",
+        );
+      }
+      if (window.fullLogData && window.fullLogData.length > 0) {
+        displayLine(currentFilteredIndex);
+      }
+    }
+  });
+
+  // --- Vueアプリ連携用 ---
+  function updateVueApp(logs, rawContent, isHtml) {
+    if (window.logToolApp) {
+      // ログデータ形式の変換 (LogPlayer -> GrowthChecker)
+      const convertedLogs = logs.map((log, index) => ({
+        originalIndex: index,
+        tab: log.tab,
+        character: log.name,
+        message: log.text,
+        // HTML形式ならそのまま、テキストなら改行を<br>に
+        messageHtml: isHtml
+          ? log.html || log.text.replace(/\n/g, "<br>")
+          : log.text.replace(/\n/g, "<br>"),
+        color: log.color,
+      }));
+
+      window.logToolApp.setExternalLogs(convertedLogs, rawContent, isHtml);
+    }
+  }
 
   // --- 1. ファイル読み込み ---
   if (uploadSection) {
@@ -524,18 +615,24 @@ document.addEventListener("DOMContentLoaded", () => {
   fileInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    fileNameDisplay.textContent = file.name;
     const reader = new FileReader();
     reader.onload = (event) => {
       const htmlContent = event.target.result;
       try {
-        fullLogData = parseCcfoliaLog(htmlContent);
+        fullLogData = window.fullLogData = parseCcfoliaLog(htmlContent);
         if (fullLogData.length > 0) {
           logLoadMode = "html";
 
           // ★システム判定と反映
           const detected = detectSystem(fullLogData);
           applySystemTheme(detected);
+
+          if (window.logToolApp) {
+            window.logToolApp.isCoCLog = detected === "CoC";
+          }
+
+          // ★Vueアプリにデータを渡す
+          updateVueApp(fullLogData, htmlContent, true);
 
           initPlayer();
         } else {
@@ -559,13 +656,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       try {
-        fullLogData = parseRawTextLog(text);
+        fullLogData = window.fullLogData = parseRawTextLog(text);
         if (fullLogData.length > 0) {
           logLoadMode = "text";
 
           // ★システム判定と反映
           const detected = detectSystem(fullLogData);
           applySystemTheme(detected);
+
+          if (window.logToolApp) {
+            window.logToolApp.isCoCLog = detected === "CoC";
+          }
+
+          // ★Vueアプリにデータを渡す
+          updateVueApp(fullLogData, text, false);
 
           initPlayer();
         } else {
@@ -612,16 +716,23 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    fileNameDisplay.textContent = file.name;
     const reader = new FileReader();
     reader.onload = (event) => {
       const htmlContent = event.target.result;
       try {
-        fullLogData = parseCcfoliaLog(htmlContent);
+        fullLogData = window.fullLogData = parseCcfoliaLog(htmlContent);
         if (fullLogData.length > 0) {
           logLoadMode = "html";
+
           const detected = detectSystem(fullLogData);
           applySystemTheme(detected);
+
+          if (window.logToolApp) {
+            window.logToolApp.isCoCLog = detected === "CoC";
+          }
+
+          // ★Vueアプリにデータを渡す
+          updateVueApp(fullLogData, htmlContent, true);
           initPlayer();
         } else {
           alert("ログの読み込みに失敗しました。\n発言が見つかりませんでした。");
@@ -677,6 +788,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function applySystemTheme(systemKey) {
     currentSystemTheme = systemKey; // ★現在のシステム名を更新
     let config = SYSTEM_CONFIG[systemKey];
+
+    if (config) {
+      document.documentElement.style.setProperty(
+        "--system-accent",
+        config.color,
+      );
+    } else {
+      document.documentElement.style.setProperty("--system-accent", "#87cefa");
+    }
 
     // タグの表示制御
     if (systemTagEl) {
@@ -842,14 +962,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- プレイヤー初期化 ---
   function initPlayer() {
+    // 現在アクティブなタブを検出
+    const activeTabBtn = document.querySelector(".tab-btn.active");
+    let currentTab = "player"; // デフォルト
+    if (activeTabBtn) {
+      const onclickAttr = activeTabBtn.getAttribute("onclick");
+      const match = onclickAttr && onclickAttr.match(/switchTab\('([^']+)'\)/);
+      if (match) {
+        currentTab = match[1];
+      }
+    }
+
+    if (fullLogData.length === 0) return;
+    currentIndex = 0;
+    isPlaying = false;
+    currentWaitTime = 0;
     uploadArea.style.display = "none";
+    document.getElementById("tab-navigation").style.display = "flex";
     playerArea.style.display = "block";
+    if (btnReset) btnReset.style.display = "inline-flex";
 
     const tabs = new Set(fullLogData.map((d) => d.tab));
     activeTabs = new Set(tabs);
 
     // 立ち絵状態をリセット
-    characterSlots = [null, null, null, null, null];
+    maxCharacterSlots = getMaxCharacterSlots();
+    characterSlots = new Array(maxCharacterSlots).fill(null);
     characterLastLine.clear();
     if (standingPictureEl) standingPictureEl.innerHTML = "";
     dialogueBox.classList.remove(
@@ -863,6 +1001,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderTabFilters(tabs);
     updateFilteredLogs();
+
+    // 検出したタブに切り替え（ログ読み込み後も選択中のタブを維持）
+    if (window.switchTab) window.switchTab(currentTab);
 
     if (btnShareScene) {
       if (logLoadMode === "text") {
@@ -900,6 +1041,8 @@ document.addEventListener("DOMContentLoaded", () => {
         filteredLogIndices.push(index);
       }
     });
+
+    window.filteredLogIndices = filteredLogIndices;
 
     totalLineDisplay.textContent = filteredLogIndices.length;
     seekBar.max = Math.max(0, filteredLogIndices.length - 1);
@@ -1176,11 +1319,67 @@ document.addEventListener("DOMContentLoaded", () => {
   btnNext.addEventListener("click", nextLine);
 
   // リセット（トップに戻る）
-  const btnReset = document.getElementById("btn-reset");
   if (btnReset) {
     btnReset.addEventListener("click", () => {
       if (confirm("現在のログを閉じてトップに戻りますか？")) {
-        location.reload();
+        // 再読み込みせずに初期状態へ戻す
+        if (isAutoPlaying) toggleAutoPlay();
+        if (typeInterval) clearInterval(typeInterval);
+        if (autoPlayInterval) clearTimeout(autoPlayInterval);
+        isTyping = false;
+
+        fullLogData = window.fullLogData = [];
+        filteredLogIndices = [];
+        activeTabs = new Set();
+        currentFilteredIndex = 0;
+        currentSystemTheme = "";
+        logLoadMode = null;
+        currentSceneId = null;
+
+        if (fileInput) fileInput.value = "";
+        if (logTextInput) logTextInput.value = "";
+
+        if (uploadArea) uploadArea.style.display = "block";
+        if (playerArea) playerArea.style.display = "none";
+        const tabNavigation = document.getElementById("tab-navigation");
+        if (tabNavigation) tabNavigation.style.display = "flex";
+
+        if (tabFiltersContainer) tabFiltersContainer.innerHTML = "";
+        if (historyListEl) historyListEl.innerHTML = "";
+        if (messageTextEl) messageTextEl.textContent = "";
+        if (logTabLabelEl) logTabLabelEl.textContent = "Main";
+        if (bgCharNameEl) bgCharNameEl.textContent = "";
+        if (charNameEl) {
+          charNameEl.textContent = "";
+          charNameEl.style.display = "none";
+        }
+        if (systemTagEl) systemTagEl.style.display = "none";
+
+        clearAllStandingPictures();
+
+        if (window.logToolApp) {
+          window.logToolApp.logContent = "";
+          window.logToolApp.parsedLogs = [];
+          window.logToolApp.filteredRawLogs = [];
+          window.logToolApp.dialogueResults = [];
+          window.logToolApp.hasResults = false;
+        }
+
+        const growthTabBtn = document.querySelector(
+          "button[onclick=\"switchTab('growth')\"]",
+        );
+        if (growthTabBtn) {
+          growthTabBtn.classList.add("disabled");
+          growthTabBtn.title =
+            "クトゥルフ神話TRPGのログでのみアクティブになります";
+        }
+
+        document.documentElement.style.setProperty(
+          "--system-accent",
+          "#87cefa",
+        );
+        if (btnReset) btnReset.style.display = "none";
+        if (window.switchTab) window.switchTab("player");
       }
     });
   }
@@ -1499,7 +1698,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.status === "success") {
         const sceneData = result.data;
         const logText = sceneData.lines.join("\n");
-        fullLogData = parseRawTextLog(logText);
+        fullLogData = window.fullLogData = parseRawTextLog(logText);
         if (fullLogData.length > 0) {
           logLoadMode = "text";
           currentSceneId = sid;
@@ -1507,6 +1706,13 @@ document.addEventListener("DOMContentLoaded", () => {
           // システム判定
           const detected = detectSystem(fullLogData);
           applySystemTheme(detected);
+
+          if (window.logToolApp) {
+            window.logToolApp.isCoCLog = detected === "CoC";
+          }
+
+          // ★Vueアプリにデータを渡す
+          updateVueApp(fullLogData, logText, false);
 
           initPlayer();
           if (sceneData.title && sceneData.title !== "（タイトル未設定）") {
@@ -1525,6 +1731,198 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("シーンの読み込みに失敗しました。");
     }
   }
+  /* =========================
+     Vue.js App Integration
+     ========================= */
+
+  // タブ切り替え関数
+  // タブ切り替え関数
+  function switchTab(tabId) {
+    if (tabId === "growth") {
+      const growthTabBtn = document.getElementById("growth-tab-btn");
+      const isCoCLog = window.logToolApp ? window.logToolApp.isCoCLog : false;
+      if (
+        (growthTabBtn && growthTabBtn.classList.contains("disabled")) ||
+        !isCoCLog
+      ) {
+        return;
+      }
+    }
+    // すべてのタブコンテンツを非表示
+    const contents = document.querySelectorAll(".tab-content");
+    for (let i = 0; i < contents.length; i++) {
+      contents[i].style.display = "none";
+      contents[i].classList.remove("active");
+    }
+
+    // すべてのタブボタンを非アクティブ
+    const btns = document.querySelectorAll(".tab-btn");
+    for (let i = 0; i < btns.length; i++) {
+      btns[i].classList.remove("active");
+    }
+
+    // ログデータ有無チェック
+    const hasLogs = window.fullLogData && window.fullLogData.length > 0;
+
+    // 表示するコンテンツを決定
+    let contentToShow = null;
+    const playerContent = document.getElementById("player-tab-content");
+    const analysisTabs = document.getElementById("analysis-tabs");
+
+    if (tabId === "player" || !hasLogs) {
+      // プレイヤー選択時 または ログ未ロード時は常にプレイヤーコンテンツ（アップロード画面）を表示
+      contentToShow = playerContent;
+    } else {
+      // ログがあり、かつ分析タブ選択時は分析用コンテンツを表示
+      contentToShow = analysisTabs;
+
+      // Vue側のタブ状態も更新
+      if (window.logToolApp) {
+        window.logToolApp.currentAnalysisTab = tabId;
+      }
+    }
+
+    // コンテンツを表示
+    if (contentToShow) {
+      contentToShow.style.display = "block";
+      contentToShow.classList.add("active");
+    }
+
+    // ボタンのアクティブ化 (クリックされたタブをハイライト)
+    const activeBtn = document.querySelector(
+      `button[onclick="switchTab('${tabId}')"]`,
+    );
+    if (activeBtn) {
+      activeBtn.classList.add("active");
+    }
+
+    // プレイヤー以外に移動したときは再生停止
+    if (tabId !== "player") {
+      if (typeof isPlaying !== "undefined" && isPlaying) {
+        if (typeof togglePlay === "function") togglePlay();
+      }
+    }
+  }
+
+  // グローバルに公開
+  window.switchTab = switchTab;
+
+  // Vueアプリ統合
+  if (typeof window.GrowthCheckerConfig !== "undefined") {
+    const config = Object.assign({}, window.GrowthCheckerConfig);
+    config.el = "#log-tool-app";
+
+    // データ初期値の上書き
+    config.data = Object.assign({}, config.data, {
+      currentAnalysisTab: "growth",
+      displayedLogsCount: 100,
+      logsPerPage: 200,
+    });
+
+    // computed の追加
+    config.computed = Object.assign({}, config.computed, {
+      visibleRawLogs: function () {
+        if (!this.filteredRawLogs) return [];
+        return this.filteredRawLogs.slice(0, this.displayedLogsCount);
+      },
+      hasMoreLogs: function () {
+        if (!this.filteredRawLogs) return false;
+        return this.filteredRawLogs.length > this.displayedLogsCount;
+      },
+    });
+
+    // methods の追加
+    config.methods = Object.assign({}, config.methods, {
+      setExternalLogs: function (logs, rawContent, isHtml) {
+        this.logContent = rawContent;
+        this.parsedLogs = logs;
+
+        // タブ更新
+        const tabs = new Set(["メイン", "情報", "雑談"]);
+        this.parsedLogs.forEach((log) => tabs.add(log.tab));
+        this.tabNames = [
+          "メイン",
+          "情報",
+          "雑談",
+          ...[...tabs].filter((t) => !["メイン", "情報", "雑談"].includes(t)),
+        ];
+        this.selectedTabs = [...this.tabNames];
+
+        // CoCログ判定
+        const isCoC =
+          typeof this.isCoCLog === "boolean"
+            ? this.isCoCLog
+            : /CCB|ボーナス・ペナルティダイス/i.test(rawContent) ||
+              logs.some((l) => /CCB?/.test(l.message));
+        this.isCoCLog = isCoC;
+
+        // 成長チェックタブボタンの有効/無効制御
+        const growthTabBtn = document.querySelector(
+          "button[onclick=\"switchTab('growth')\"]",
+        );
+        if (growthTabBtn) {
+          if (isCoC) {
+            growthTabBtn.classList.remove("disabled");
+            growthTabBtn.title = "";
+          } else {
+            growthTabBtn.classList.add("disabled");
+            growthTabBtn.title =
+              "クトゥルフ神話TRPGのログでのみアクティブになります";
+          }
+        }
+
+        if (isCoC) {
+          this.detectedVersion = rawContent.includes(
+            "ボーナス・ペナルティダイス",
+          )
+            ? "coc7"
+            : "coc6";
+          if (this.setPreset) this.setPreset("official");
+        } else {
+          this.detectedVersion = null;
+        }
+
+        this.$nextTick(() => {
+          if (
+            this.visibleCharacterNames &&
+            this.visibleCharacterNames.length > 0
+          ) {
+            this.selectedChartCharacter = this.visibleCharacterNames.includes(
+              "★みんな",
+            )
+              ? "★みんな"
+              : this.visibleCharacterNames[0];
+            if (this.updateChart) this.updateChart(this.selectedChartCharacter);
+          } else {
+            this.selectedChartCharacter = null;
+          }
+        });
+        this.displayedLogsCount = 100; // 初期表示数リセット
+      },
+      jumpToLog: function (originalIndex) {
+        // originalIndex を filteredLogIndices のインデックスに変換
+        const fIndex = window.filteredLogIndices
+          ? window.filteredLogIndices.indexOf(originalIndex)
+          : -1;
+        if (fIndex !== -1) {
+          displayLine(fIndex);
+          // プレイヤータブに切り替え
+          window.switchTab("player");
+          const historyModal = document.getElementById("history-modal");
+          if (historyModal) historyModal.style.display = "none";
+        }
+      },
+      loadMoreLogs: function () {
+        this.displayedLogsCount += this.logsPerPage;
+      },
+    });
+
+    window.logToolApp = new Vue(config);
+  }
+
+  // 初期タブ設定
+  if (window.switchTab) switchTab("player");
+
   window.addEventListener("error", (e) => {
     console.error("Global captured error:", e.error);
   });
