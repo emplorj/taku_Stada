@@ -7,9 +7,9 @@ const SPREADSHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=783716063&single=true&output=csv";
 const ARCHIVE_CSV_URL = "archive.csv"; // 追加: archive.csvのパス
 const DAYCORD_PROXY_URL =
-  "https://corsproxy.io/?" +
+  "https://api.allorigins.win/raw?url=" +
   encodeURIComponent(
-    "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw"
+    "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw",
   );
 const PRESETS_JSON_URL = "presets.json";
 
@@ -45,7 +45,7 @@ function getSunday(d) {
 function formatDate(d) {
   return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(
     2,
-    "0"
+    "0",
   )}/${String(d.getDate()).padStart(2, "0")}`;
 }
 function formatPeriod(start, end) {
@@ -181,13 +181,13 @@ async function getSharedEventData() {
 
     if (!spreadsheetResponse.ok) {
       console.error(
-        `スプレッドシート (${SPREADSHEET_URL}) の読み込みに失敗しました: HTTP status ${spreadsheetResponse.status}`
+        `スプレッドシート (${SPREADSHEET_URL}) の読み込みに失敗しました: HTTP status ${spreadsheetResponse.status}`,
       );
       throw new Error(`HTTP error! status: ${spreadsheetResponse.status}`);
     }
     if (!archiveResponse.ok) {
       console.warn(
-        `アーカイブCSV (${ARCHIVE_CSV_URL}) の読み込みに失敗しました: HTTP status ${archiveResponse.status}. スキップします。`
+        `アーカイブCSV (${ARCHIVE_CSV_URL}) の読み込みに失敗しました: HTTP status ${archiveResponse.status}. スキップします。`,
       );
       // archive.csvの読み込み失敗は致命的ではないので、エラーを投げずに続行
     }
@@ -211,7 +211,7 @@ async function getSharedEventData() {
       const startOfLastMonth = new Date(
         now.getFullYear(),
         now.getMonth() - 1,
-        1
+        1,
       );
 
       for (let i = 1; i < rows.length; i++) {
@@ -222,7 +222,7 @@ async function getSharedEventData() {
         const system = normalize(values[2]);
         const gm = normalize(values[4] || "");
         const participants = Array.from({ length: 6 }, (_, j) =>
-          normalize(values[5 + j])
+          normalize(values[5 + j]),
         ).filter(Boolean);
         const dateStr = (values[1] || "").split("(")[0].trim();
         const parts = dateStr.split("/");
@@ -240,7 +240,7 @@ async function getSharedEventData() {
           const date = new Date(
             parseInt(parts[0], 10),
             parseInt(parts[1], 10) - 1,
-            parseInt(parts[2], 10)
+            parseInt(parts[2], 10),
           );
           if (!isNaN(date.getTime())) {
             // アーカイブデータの場合、先月以降のイベントはスキップ
@@ -419,7 +419,7 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
     });
 
     const futureSeries = [...seriesMap.values()].sort(
-      (a, b) => a.seriesStartDate.getTime() - b.seriesStartDate.getTime()
+      (a, b) => a.seriesStartDate.getTime() - b.seriesStartDate.getTime(),
     );
     const fmt = new Intl.DateTimeFormat("ja-JP", {
       year: "numeric",
@@ -435,7 +435,7 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
       r.innerHTML = `<td><span class="schedule-system-tag" style="background-color:${bgColor}; color:${textColor};">${
         s.system
       }</span>『${s.eventName}』</td><td>${fmt.format(
-        s.seriesStartDate
+        s.seriesStartDate,
       )}</td><td>${fmt.format(s.seriesEndDate)}</td><td>${
         s.gm || "N/A"
       }</td><td>${s.participants.join(", ") || "N/A"}</td>`;
@@ -459,7 +459,7 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
     endDate.setDate(state.currentStartDate.getDate() + 27);
     if (dom.display)
       dom.display.textContent = `${formatDate(
-        state.currentStartDate
+        state.currentStartDate,
       )} - ${formatDate(endDate)}`;
     let tempDate = new Date(state.currentStartDate);
     const today = new Date();
@@ -474,7 +474,7 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
       c.cell.classList.toggle("today", tempDate.getTime() === today.getTime());
       c.cell.classList.toggle(
         "past-date",
-        tempDate.getTime() < today.getTime()
+        tempDate.getTime() < today.getTime(),
       );
       c.cont.innerHTML = "";
       const eventsOnDay = eventsByDate.get(formatDate(tempDate)) || [];
@@ -484,7 +484,7 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
         div.dataset.eventId = event.id;
         const bgColor = COLORS[event.system] || COLORS["default"];
         div.style.cssText = `background-color:${bgColor};color:${getContrastColor(
-          bgColor
+          bgColor,
         )};border-left-color:${bgColor};`;
         div.textContent = `${event.system}『${event.eventName}』`;
         c.cont.appendChild(div);
@@ -542,12 +542,12 @@ function initializeCalendar({ allEvents, eventsByDate, COLORS }) {
         }<br><strong>PL:</strong> ${event.participants.join(", ")}`;
         content += `<div class="event-duration-info">期間: ${formatPeriod(
           event.seriesStartDate,
-          event.seriesEndDate
+          event.seriesEndDate,
         )}</div>`;
         if (event.seriesDates.length > 1) {
           const cellDate = target.closest(".calendar-cell").dataset.cellDate;
           const dayIndex = event.seriesDates.findIndex(
-            (d) => formatDate(d) === cellDate
+            (d) => formatDate(d) === cellDate,
           );
           if (dayIndex !== -1)
             content += `<div class="event-day-info">Day ${dayIndex + 1}</div>`;
@@ -586,7 +586,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     addBtn: document.getElementById("add-participant-btn"),
     clearBtn: document.getElementById("clear-participants-btn"),
     tableCont: document.querySelector(
-      "#daycord-table-container .table-wrapper"
+      "#daycord-table-container .table-wrapper",
     ),
     resYoyu: document.getElementById("results-yoyu"),
     resDakyo: document.getElementById("results-dakyo"),
@@ -603,7 +603,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     selectionModeToggle: document.getElementById("selection-mode-toggle"),
     toggleConflictBtn: document.getElementById("toggle-conflict-display-btn"),
     hiddenParticipantsContainer: document.getElementById(
-      "hidden-participants-container"
+      "hidden-participants-container",
     ),
     hiddenParticipantsList: document.getElementById("hidden-participants-list"),
     loadingIndicator: document.getElementById("loading-indicator"),
@@ -709,7 +709,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     }
 
     const fetchedPresetNames = Object.keys(participantPresets).sort((a, b) =>
-      a.localeCompare(b, "ja")
+      a.localeCompare(b, "ja"),
     );
     fetchedPresetNames.forEach((presetName) => {
       const option = document.createElement("option");
@@ -719,7 +719,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     });
 
     const userPresetNames = Object.keys(userPresets).sort((a, b) =>
-      a.localeCompare(b, "ja")
+      a.localeCompare(b, "ja"),
     );
     userPresetNames.forEach((presetName) => {
       const option = document.createElement("option");
@@ -735,7 +735,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     const relevantEvents = allEvents.filter(
       (e) =>
         !e.hasDate ||
-        (e.seriesEndDate && e.seriesEndDate.getTime() >= today.getTime())
+        (e.seriesEndDate && e.seriesEndDate.getTime() >= today.getTime()),
     );
     const map = new Map();
     relevantEvents.forEach((e) => {
@@ -801,11 +801,13 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         const dateStr = day.date.split("(")[0];
         const parts = dateStr.split("/");
         const key = `${parts[0]}/${String(parts[1]).padStart(2, "0")}/${String(
-          parts[2]
+          parts[2],
         ).padStart(2, "0")}`;
         const eventsOnDay = eventsByDate.get(key) || [];
         const participantEvent = eventsOnDay.find((e) =>
-          [e.gm, ...e.participants].map((p) => getDayCodeName(p)).includes(name)
+          [e.gm, ...e.participants]
+            .map((p) => getDayCodeName(p))
+            .includes(name),
         );
         if (participantEvent) {
           statusesForDay.push("✕");
@@ -852,8 +854,8 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       th.innerHTML = `
         <label class="date-header-label">
           <input type="checkbox" class="date-checkbox" data-date="${dateStr}" ${
-        selectedDates.includes(dateStr) ? "checked" : ""
-      }>
+            selectedDates.includes(dateStr) ? "checked" : ""
+          }>
           <span class="date-text">${formatShortDate(d.date)}</span>
         </label>
       `;
@@ -916,7 +918,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       cell.dataset.dateCol = dateStr;
       const parts = dateStr.split("/");
       const key = `${parts[0]}/${String(parts[1]).padStart(2, "0")}/${String(
-        parts[2]
+        parts[2],
       ).padStart(2, "0")}`;
       const eventsOnDay = eventsByDate.get(key) || [];
       if (eventsOnDay.length > 0) cell.classList.add("has-event");
@@ -929,7 +931,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         }』<br><strong>GM:</strong> ${e.gm || "未定"}`;
         if (e.participants && e.participants.length > 0) {
           tooltipContent += `<br><strong>PL:</strong> ${e.participants.join(
-            ", "
+            ", ",
           )}`;
         }
         const encodedTooltip = tooltipContent.replace(/"/g, '"');
@@ -977,7 +979,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
           const parts = dateStr.split("/");
           const key = `${parts[0]}/${String(parts[1]).padStart(
             2,
-            "0"
+            "0",
           )}/${String(parts[2]).padStart(2, "0")}`;
           if ((eventsByDate.get(key) || []).length > 0) {
             cell.classList.add("has-event");
@@ -991,13 +993,13 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
           const parts = dateStr.split("/");
           const key = `${parts[0]}/${String(parts[1]).padStart(
             2,
-            "0"
+            "0",
           )}/${String(parts[2]).padStart(2, "0")}`;
           const eventsOnDay = eventsByDate.get(key) || [];
           const participantEvent = eventsOnDay.find((e) =>
             [e.gm, ...e.participants]
               .map((p) => getDayCodeName(p))
-              .includes(name)
+              .includes(name),
           );
           if (eventsOnDay.length > 0) {
             cell.classList.add("has-event");
@@ -1016,7 +1018,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
                   "✕": "batsu",
                   "□": "shikaku",
                   "－": "hyphen",
-                }[c])
+                })[c],
             )}`;
 
           if (participantEvent) {
@@ -1024,7 +1026,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
             let tooltipContent = `<b>元のステータス: ${originalStatus}</b><hr>${participantEvent.system}『${participantEvent.eventName}』<br><strong>GM:</strong> ${participantEvent.gm}`;
             if (participantEvent.participants.length > 0)
               tooltipContent += `<br><strong>PL:</strong> ${participantEvent.participants.join(
-                ", "
+                ", ",
               )}`;
             cell.dataset.tooltipContent = tooltipContent.replace(/"/g, '"');
 
@@ -1035,7 +1037,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
               const system = participantEvent.system;
               const bgColor = COLORS[system] || COLORS["default"];
               span.style.cssText = `background-color:${bgColor}; color:${getContrastColor(
-                bgColor
+                bgColor,
               )};`;
               span.textContent = system;
               if (system.length > 4) {
@@ -1057,7 +1059,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       checkbox.addEventListener("change", (e) => {
         const date = e.target.dataset.date;
         const headerCell = dom.tableCont.querySelector(
-          `th[data-date-col="${date}"]`
+          `th[data-date-col="${date}"]`,
         );
         if (!headerCell) return;
 
@@ -1076,7 +1078,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
 
     selectedDates.forEach((date) => {
       const headerCell = dom.tableCont.querySelector(
-        `th[data-date-col="${date}"]`
+        `th[data-date-col="${date}"]`,
       );
       if (headerCell) {
         headerCell.classList.add("selected-date-cell");
@@ -1208,12 +1210,14 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const dateStr = day.date.split("(")[0],
         parts = dateStr.split("/");
       const key = `${parts[0]}/${String(parts[1]).padStart(2, "0")}/${String(
-        parts[2]
+        parts[2],
       ).padStart(2, "0")}`;
       const eventsOnDay = eventsByDate.get(key) || [];
       const relevantAvailability = selectedNames.map((name) => {
         const participantEvent = eventsOnDay.find((e) =>
-          [e.gm, ...e.participants].map((p) => getDayCodeName(p)).includes(name)
+          [e.gm, ...e.participants]
+            .map((p) => getDayCodeName(p))
+            .includes(name),
         );
         if (participantEvent) return "✕";
         const nameIndex = daycordNames.indexOf(name);
@@ -1259,7 +1263,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
           .then((res) => {
             if (!res.ok) {
               console.warn(
-                `プリセットファイル (${PRESETS_JSON_URL}) の読み込みに失敗しました: HTTP status ${res.status}`
+                `プリセットファイル (${PRESETS_JSON_URL}) の読み込みに失敗しました: HTTP status ${res.status}`,
               );
               return {};
             }
@@ -1268,7 +1272,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
           .catch((err) => {
             console.error(
               `プリセットファイル (${PRESETS_JSON_URL}) のパースに失敗しました:`,
-              err
+              err,
             );
             return {};
           }),
@@ -1282,7 +1286,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const table = doc.querySelector("table.schedule_table");
       if (!table) {
         console.error(
-          "デイコードのテーブルが見つかりません。HTML構造が変更された可能性があります。"
+          "デイコードのテーブルが見つかりません。HTML構造が変更された可能性があります。",
         );
         throw new Error("デイコードのテーブルが見つかりません。");
       }
@@ -1304,7 +1308,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
               .trim()
               .replace(/◯/g, "〇")
               .replace(/×/g, "✕")
-              .replace(/▢/g, "□") || "－"
+              .replace(/▢/g, "□") || "－",
         ),
       }));
 
@@ -1317,13 +1321,13 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         const scheduleDate = new Date(
           parseInt(year),
           parseInt(month) - 1,
-          parseInt(dayOfMonth)
+          parseInt(dayOfMonth),
         );
         return scheduleDate.getTime() >= today.getTime();
       });
 
       const sortedNamesForDropdown = [...daycordNames].sort((a, b) =>
-        a.localeCompare(b, "ja")
+        a.localeCompare(b, "ja"),
       );
       const nameFragment = document.createDocumentFragment();
       sortedNamesForDropdown.forEach((name) => {
@@ -1412,10 +1416,10 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         const event = scenarioData.find((d) => d.eventName === eventName);
         if (event) {
           const participantsOnSheet = [event.gm, ...event.participants].filter(
-            Boolean
+            Boolean,
           );
           const newParticipants = participantsOnSheet.map((name) =>
-            getDayCodeName(name)
+            getDayCodeName(name),
           );
           selectedNames = [...new Set([...selectedNames, ...newParticipants])];
         }
@@ -1439,7 +1443,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       let newParticipants = [];
       if (presetName === "--all-active--") {
         newParticipants = daycordNames.filter((name, index) =>
-          schedule.some((day) => day.availability[index] !== "－")
+          schedule.some((day) => day.availability[index] !== "－"),
         );
       } else if (presetName === "--all-participants--") {
         newParticipants = [...daycordNames];
@@ -1447,7 +1451,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         const presetParticipants =
           participantPresets[presetName] || userPresets[presetName] || [];
         newParticipants = presetParticipants.map((name) =>
-          getDayCodeName(name)
+          getDayCodeName(name),
         );
       }
 
@@ -1552,7 +1556,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const name = e.dataTransfer.getData("text/plain");
       const fromIndex = selectedNames.indexOf(name);
       const toIndex = Array.from(placeholder.parentNode.children).indexOf(
-        placeholder
+        placeholder,
       );
       if (fromIndex !== -1) {
         selectedNames.splice(fromIndex, 1);
@@ -1560,7 +1564,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         selectedNames.splice(
           adjustedToIndex - (summarySymbols.length + 1),
           0,
-          name
+          name,
         );
         updateDisplay();
       }
