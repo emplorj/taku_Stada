@@ -137,11 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- キャラクターデータの取得とパース ---
   async function loadCharacterData() {
     try {
-      const response = await fetch(
-        `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`,
-      );
-      if (!response.ok) throw new Error("CSVの取得に失敗しました");
-      const csvText = await response.text();
+      const csvText = await fetchCsvTextWithFallbacks(CHARACTER_CSV_URL);
 
       // ヘッダー行を動的に特定する
       const parseResults = Papa.parse(csvText, { skipEmptyLines: true });
@@ -198,6 +194,29 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Failed to load character data:", err);
     }
+  }
+
+  async function fetchCsvTextWithFallbacks(csvUrl) {
+    const candidates = [
+      `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`,
+      `https://cors.isomorphic-git.org/${csvUrl}`,
+      csvUrl,
+    ];
+    let lastError;
+    for (const url of candidates) {
+      try {
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(
+            `CSVの取得に失敗: ${response.status} ${response.statusText}`,
+          );
+        }
+        return await response.text();
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError || new Error("CSVの取得に失敗しました");
   }
 
   // 起動時に読み込み
