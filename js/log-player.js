@@ -197,8 +197,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function fetchCsvTextWithFallbacks(csvUrl) {
+    const jinaUrl = `https://r.jina.ai/http://${csvUrl.replace(
+      /^https?:\/\//,
+      "",
+    )}`;
     const candidates = [
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(csvUrl)}`,
+      jinaUrl,
       `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`,
       `https://cors.isomorphic-git.org/${csvUrl}`,
       csvUrl,

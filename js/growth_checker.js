@@ -563,10 +563,11 @@ window.GrowthCheckerConfig = {
         if (this.mergeTargets[targetName] === "__HIDE__") return;
 
         if (!grouped[targetName]) {
-          grouped[targetName] = { dialogues: [], color: null };
+          grouped[targetName] = { dialogues: [], colorCounts: {} };
         }
-        if (!grouped[targetName].color && log.color) {
-          grouped[targetName].color = log.color;
+        if (log.color) {
+          grouped[targetName].colorCounts[log.color] =
+            (grouped[targetName].colorCounts[log.color] || 0) + 1;
         }
         grouped[targetName].dialogues.push({
           id: index,
@@ -578,14 +579,22 @@ window.GrowthCheckerConfig = {
       });
 
       const results = Object.keys(grouped).map((key) => {
-        const charColor = grouped[key].color || "#eee";
+        const colorCounts = grouped[key].colorCounts || {};
+        const mostUsedColor = Object.keys(colorCounts).reduce(
+          (acc, color) =>
+            colorCounts[color] > (colorCounts[acc] || 0) ? color : acc,
+          "",
+        );
+        const charColor = mostUsedColor || "#eee";
         const hasStandingPicture =
           window.getStandingPictureUrl && !!window.getStandingPictureUrl(key);
+        const shouldOpen =
+          key !== "ジン" && key.toLowerCase() !== "jin" && hasStandingPicture;
         return {
           character: key,
           dialogues: grouped[key].dialogues,
           color: charColor,
-          isOpen: hasStandingPicture,
+          isOpen: shouldOpen,
         };
       });
 
