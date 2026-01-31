@@ -198,6 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchCsvTextWithFallbacks(csvUrl) {
     const candidates = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(csvUrl)}`,
       `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`,
       `https://cors.isomorphic-git.org/${csvUrl}`,
       csvUrl,
