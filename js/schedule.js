@@ -6,11 +6,14 @@
 const SPREADSHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=783716063&single=true&output=csv";
 const ARCHIVE_CSV_URL = "archive.csv"; // 追加: archive.csvのパス
-const DAYCORD_PROXY_URL =
-  "https://api.allorigins.win/raw?url=" +
-  encodeURIComponent(
-    "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw",
-  );
+const DAYCORD_SOURCE_URL =
+  "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw";
+const DAYCORD_FALLBACK_URLS = [
+  `https://api.allorigins.win/raw?url=${encodeURIComponent(DAYCORD_SOURCE_URL)}`,
+  `https://corsproxy.io/?${encodeURIComponent(DAYCORD_SOURCE_URL)}`,
+  `https://cors.isomorphic-git.org/${DAYCORD_SOURCE_URL}`,
+  DAYCORD_SOURCE_URL,
+];
 const PRESETS_JSON_URL = "presets.json";
 
 const NAME_ALIASES = {
@@ -26,6 +29,31 @@ function parseCsvToArray(csvText) {
     skipEmptyLines: true,
   });
   return results.data;
+}
+async function fetchTextWithFallbacks(urls) {
+  let lastError;
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(
+          `データ取得に失敗: ${response.status} ${response.statusText}`,
+        );
+      }
+      return await response.text();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("データ取得に失敗しました。");
+}
+async function fetchCsvTextWithFallbacks(csvUrl) {
+  const candidates = [
+    `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`,
+    `https://cors.isomorphic-git.org/${csvUrl}`,
+    csvUrl,
+  ];
+  return fetchTextWithFallbacks(candidates);
 }
 function isNextDay(d1, d2) {
   const n = new Date(d1);
@@ -174,28 +202,25 @@ function groupAndFormatDatesWithWeekday(fullDateStrings) {
 
 async function getSharedEventData() {
   try {
-    const [spreadsheetResponse, archiveResponse] = await Promise.all([
-      fetch(SPREADSHEET_URL),
-      fetch(ARCHIVE_CSV_URL),
-    ]);
-
-    if (!spreadsheetResponse.ok) {
-      console.error(
-        `スプレッドシート (${SPREADSHEET_URL}) の読み込みに失敗しました: HTTP status ${spreadsheetResponse.status}`,
-      );
-      throw new Error(`HTTP error! status: ${spreadsheetResponse.status}`);
-    }
-    if (!archiveResponse.ok) {
+    const spreadsheetCsvText = await fetchCsvTextWithFallbacks(SPREADSHEET_URL);
+    let archiveCsvText = "";
+    try {
+      const archiveResponse = await fetch(ARCHIVE_CSV_URL, {
+        cache: "no-store",
+      });
+      if (!archiveResponse.ok) {
+        console.warn(
+          `アーカイブCSV (${ARCHIVE_CSV_URL}) の読み込みに失敗しました: HTTP status ${archiveResponse.status}. スキップします。`,
+        );
+      } else {
+        archiveCsvText = await archiveResponse.text();
+      }
+    } catch (archiveError) {
       console.warn(
-        `アーカイブCSV (${ARCHIVE_CSV_URL}) の読み込みに失敗しました: HTTP status ${archiveResponse.status}. スキップします。`,
+        `アーカイブCSV (${ARCHIVE_CSV_URL}) の読み込みに失敗しました。スキップします。`,
+        archiveError,
       );
-      // archive.csvの読み込み失敗は致命的ではないので、エラーを投げずに続行
     }
-
-    const spreadsheetCsvText = await spreadsheetResponse.text();
-    const archiveCsvText = archiveResponse.ok
-      ? await archiveResponse.text()
-      : "";
 
     const spreadsheetRows = parseCsvToArray(spreadsheetCsvText);
     const archiveRows = archiveCsvText ? parseCsvToArray(archiveCsvText) : [];
@@ -1257,8 +1282,8 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       if (dom.presetSel) dom.presetSel.disabled = true;
       if (dom.copySelectedDatesBtn) dom.copySelectedDatesBtn.disabled = true;
 
-      const [daycordResponse, presetResponse] = await Promise.all([
-        fetch(DAYCORD_PROXY_URL),
+      const [daycordHtmlText, presetResponse] = await Promise.all([
+        fetchTextWithFallbacks(DAYCORD_FALLBACK_URLS),
         fetch(PRESETS_JSON_URL)
           .then((res) => {
             if (!res.ok) {
@@ -1281,8 +1306,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       loadUserPresets();
       updatePresetDropdown();
 
-      const htmlText = await daycordResponse.text();
-      const doc = new DOMParser().parseFromString(htmlText, "text/html");
+      const doc = new DOMParser().parseFromString(daycordHtmlText, "text/html");
       const table = doc.querySelector("table.schedule_table");
       if (!table) {
         console.error(
