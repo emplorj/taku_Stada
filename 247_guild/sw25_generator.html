@@ -142,11 +142,18 @@
                       </button>
                     </div>
                   </div>
+                  <div class="growth-summary-output-wrapper">
+                    <textarea id="growth-summary-output" rows="1" readonly placeholder="合算結果(クリックで選択)"></textarea>
+                    <button type="button" id="export-growth-lines-btn" class="small-button">
+                      <i class="fa-solid fa-file-arrow-down"></i> 成長結果TXT(改行)
+                    </button>
+                  </div>
                 </div>
 
                 <!-- カラム3: 成長結果リスト -->
                 <div class="panel-column">
                   <h3>成長結果</h3>
+                  <div class="growth-export-actions"></div>
                   <div class="growth-results-wrapper">
                     <div class="growth-results-header">
                       <span>No.</span>

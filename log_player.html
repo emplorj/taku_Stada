@@ -67,6 +67,41 @@
 
             <div class="upload-separator">または</div>
 
+            <div class="archive-section">
+              <p>シナリオアーカイブから選択</p>
+              <div class="archive-controls">
+                <button id="btn-open-archive-modal" class="control-btn" type="button">
+                  <i class="fa-solid fa-magnifying-glass"></i> 検索
+                </button>
+              </div>
+              <div id="archive-status" class="archive-status"></div>
+            </div>
+
+            <div id="archive-modal" class="modal-overlay" style="display: none;">
+              <div class="modal-content plain-text-block archive-modal">
+                <div class="modal-header">
+                  <h3>アーカイブ検索</h3>
+                  <button id="btn-close-archive-modal" class="close-btn">×</button>
+                </div>
+                <div class="archive-modal-body">
+                  <div class="archive-filter-row">
+                    <label>検索</label>
+                    <div class="archive-search-container">
+                      <select id="archive-search-field">
+                        <option value="all" selected>ごちゃ混ぜ検索</option>
+                        <option value="name">シナリオ名</option>
+                        <option value="gm">GM</option>
+                        <option value="pl">PL</option>
+                        <option value="pc">PC</option>
+                      </select>
+                      <input type="text" id="archive-search-input" placeholder="シナリオ名 / GM / PL / PC で検索">
+                    </div>
+                  </div>
+                  <div class="archive-list" id="archive-modal-list"></div>
+                </div>
+              </div>
+            </div>
+
             <div class="paste-section">
               <p>ログテキストを直接貼り付け</p>
               <textarea id="log-text-input" placeholder="[main] Jin : 「ここに、ログの一部分を貼り付けてほしいんですよん」"></textarea>
@@ -564,7 +599,7 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
       <script src="js/common.js"></script>
       <script src="js/growth_checker.js"></script>
-      <script src="js/log-player.js"></script>
+      <script src="js/log-player.js?v=20260202"></script>
 </body>
 
 </html>

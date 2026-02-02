@@ -235,7 +235,12 @@ async function loadAndDisplayTopPageCharacters(containerSelector) {
     '<p style="text-align: center; width: 100%;">キャラクター情報を読み込んでいます...</p>';
 
   try {
-    const csvText = await fetchCsvTextWithFallbacks(CHARACTER_CSV_URL);
+    const response = await fetch(
+      `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`,
+    );
+    if (!response.ok)
+      throw new Error(`CSVの取得に失敗: ${response.statusText}`);
+    const csvText = await response.text();
 
     const { getIndex, dataRows } = parseCsvWithDynamicHeader(csvText, "PC名");
 
@@ -308,10 +313,17 @@ async function loadAndDisplayGuildCharacters(containerSelector) {
     '<p style="text-align: center; width: 100%;">キャラクター情報を読み込んでいます...</p>';
 
   try {
-    const [charNameCsvText, swInfoCsvText] = await Promise.all([
-      fetchCsvTextWithFallbacks(CHARACTER_CSV_URL),
-      fetchCsvTextWithFallbacks(SWINFO_CSV_URL),
+    const [charNameResponse, swInfoResponse] = await Promise.all([
+      fetch(`https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`),
+      fetch(`https://corsproxy.io/?${encodeURIComponent(SWINFO_CSV_URL)}`),
     ]);
+
+    if (!charNameResponse.ok || !swInfoResponse.ok) {
+      throw new Error("CSVファイルの片方または両方の取得に失敗しました。");
+    }
+
+    const charNameCsvText = await charNameResponse.text();
+    const swInfoCsvText = await swInfoResponse.text();
 
     const charDetailsMap = new Map();
     const { getIndex: getCharIndex, dataRows: charDataRows } =
@@ -401,30 +413,4 @@ async function loadAndDisplayGuildCharacters(containerSelector) {
     container.innerHTML =
       "<p>情報の読み込みに失敗しました。管理者にご確認ください。</p>";
   }
-}
-
-// CSV取得のフォールバック付きヘルパー
-async function fetchCsvTextWithFallbacks(csvUrl) {
-  const candidates = [
-    `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`,
-    `https://cors.isomorphic-git.org/${csvUrl}`,
-    csvUrl,
-  ];
-
-  let lastError;
-  for (const url of candidates) {
-    try {
-      const response = await fetch(url, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(
-          `CSVの取得に失敗: ${response.status} ${response.statusText}`,
-        );
-      }
-      return await response.text();
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError || new Error("CSVの取得に失敗しました。");
 }

@@ -54,31 +54,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const growthCountInput = document.getElementById("growthCount");
   const rollGrowthBtn = document.getElementById("roll-growth-btn");
   const growthResultsContainer = document.getElementById(
-    "growth-results-container"
+    "growth-results-container",
   );
   const statsGridContainer = document.getElementById("stats-grid-container");
   const usePriorityCheck = document.getElementById("use-priority-check");
   const resetPriorityBtn = document.getElementById("reset-priority-btn");
   const addGeneralSkillBtn = document.getElementById("add-general-skill-btn");
   const generalSkillsContainer = document.getElementById(
-    "general-skills-container"
+    "general-skills-container",
   );
   const skillProgressBar = document.getElementById("general-skill-progress");
   const totalLevelSpan = document.getElementById("general-skill-total-level");
   const enemyJsonInput = document.getElementById("enemy-json-input");
   const swordShardsCount = document.getElementById("sword-shards-count");
   const applyEnemyEnhancementBtn = document.getElementById(
-    "apply-enemy-enhancement-btn"
+    "apply-enemy-enhancement-btn",
   );
   const enemyJsonOutput = document.getElementById("enemy-json-output");
   const copyEnemyJsonBtn = document.getElementById("copy-enemy-json-btn");
   // トレジャーポイント関連
   const addTpAbilityBtn = document.getElementById("add-tp-ability-btn");
   const tpSelectionContainer = document.getElementById(
-    "tp-selection-container"
+    "tp-selection-container",
   );
   const treasurePointsTotalInput = document.getElementById(
-    "treasure-points-total"
+    "treasure-points-total",
   );
 
   const tpAbilityDescriptions = {
@@ -116,6 +116,14 @@ document.addEventListener("DOMContentLoaded", () => {
     4: "生命",
     5: "知力",
     6: "精神",
+  };
+  const statNumberMap = {
+    器用: 1,
+    敏捷: 2,
+    筋力: 3,
+    生命: 4,
+    知力: 5,
+    精神: 6,
   };
   let growthRowCounter = 0;
   let userCashbookContent = "";
@@ -295,13 +303,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .querySelectorAll(".weapon-row, .armour-row, .item-row")
       .forEach((row) => {
         const priceInput = row.querySelector(
-          ".weapon-price, .armour-price, .item-total-price"
+          ".weapon-price, .armour-price, .item-total-price",
         );
         const nameSelect = row.querySelector(
-          ".weapon-name-select, .armour-name-select, .item-name-select"
+          ".weapon-name-select, .armour-name-select, .item-name-select",
         );
         const nameFree = row.querySelector(
-          ".weapon-name-free, .armour-name-free, .item-name-free"
+          ".weapon-name-free, .armour-name-free, .item-name-free",
         );
 
         let name = nameFree ? nameFree.value.trim() : "";
@@ -322,15 +330,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const unitPrice =
               parseFloat(
                 row.querySelector(
-                  ".item-unit-price, .weapon-price, .armour-price"
-                )?.value
+                  ".item-unit-price, .weapon-price, .armour-price",
+                )?.value,
               ) || price;
             const quantity =
               parseInt(row.querySelector(".item-quantity")?.value, 10) || 1;
 
             if (quantity > 1 && row.classList.contains("item-row")) {
               autoEntries.push(
-                `: ${prefix}${nameText}|::-` + unitPrice + "*" + quantity
+                `: ${prefix}${nameText}|::-` + unitPrice + "*" + quantity,
               );
             } else {
               autoEntries.push(`: ${prefix}${nameText}|::-` + price);
@@ -362,9 +370,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const finalTotalCost = autoTotalCost + userTotalCost;
-    document.getElementById(
-      "money-sidebar-items-total"
-    ).textContent = `-${finalTotalCost}`;
+    document.getElementById("money-sidebar-items-total").textContent =
+      `-${finalTotalCost}`;
     updateRemainingMoney();
   }
 
@@ -480,7 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!items || items.length === 0) return;
 
     const allItemRows = Array.from(
-      document.querySelectorAll("#items-container .item-row")
+      document.querySelectorAll("#items-container .item-row"),
     );
     const emptySlots = allItemRows.filter((row) => {
       const nameSelect = row.querySelector(".item-name-select");
@@ -634,7 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addButton.className = "small-button action-btn";
       addButton.textContent = "追加";
       addButton.addEventListener("click", () =>
-        handleRecommendedItemAdd(itemData.name)
+        handleRecommendedItemAdd(itemData.name),
       );
       itemCell.appendChild(addButton);
     }
@@ -657,7 +664,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const allItemRows = Array.from(
-      document.querySelectorAll("#items-container .item-row")
+      document.querySelectorAll("#items-container .item-row"),
     );
     const emptySlot = allItemRows.find((row) => {
       const nameInput = row.querySelector(".item-name-free");
@@ -685,9 +692,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const itemSetsBtn = document.getElementById("toggle-item-sets-btn");
     const itemSetsPanel = document.getElementById("item-sets-panel");
     const recommendedBtn = document.getElementById(
-      "toggle-recommended-items-btn"
+      "toggle-recommended-items-btn",
     );
     const recommendedPanel = document.getElementById("recommended-items-panel");
+    const exportGrowthLinesBtn = document.getElementById(
+      "export-growth-lines-btn",
+    );
+    const growthSummaryOutput = document.getElementById(
+      "growth-summary-output",
+    );
 
     const togglePopup = (button, panel) => {
       if (panel.classList.contains("visible")) {
@@ -741,6 +754,19 @@ document.addEventListener("DOMContentLoaded", () => {
       recommendedBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         togglePopup(recommendedBtn, recommendedPanel);
+      });
+    }
+
+    if (exportGrowthLinesBtn) {
+      exportGrowthLinesBtn.addEventListener("click", () => {
+        exportGrowthResults("lines");
+      });
+    }
+
+    if (growthSummaryOutput) {
+      growthSummaryOutput.addEventListener("click", () => {
+        if (!growthSummaryOutput.value.trim()) return;
+        growthSummaryOutput.select();
       });
     }
 
@@ -835,15 +861,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = copyBtn.id;
         if (id === "copy-personal-data-btn")
           navigator.clipboard.writeText(
-            document.getElementById("personal-data-output").value
+            document.getElementById("personal-data-output").value,
           );
         if (id === "copy-items-list-btn")
           navigator.clipboard.writeText(
-            document.getElementById("items-output").value
+            document.getElementById("items-output").value,
           );
         if (id === "copy-cashbook-btn")
           navigator.clipboard.writeText(
-            document.getElementById("cashbook").value
+            document.getElementById("cashbook").value,
           );
       }
 
@@ -867,7 +893,7 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("input", (e) => {
       if (
         e.target.matches(
-          ".item-magic-check, .item-name-free, .item-unit-price, .item-quantity, .item-effect, .item-points, .weapon-price, .armour-price, .weapon-name-free, .armour-name-free"
+          ".item-magic-check, .item-name-free, .item-unit-price, .item-quantity, .item-effect, .item-points, .weapon-price, .armour-price, .weapon-name-free, .armour-name-free",
         )
       ) {
         updateAllItems();
@@ -884,9 +910,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (e.target.classList.contains("general-skill-level-slider")) {
         const row = e.target.closest(".general-skill-row");
         const level = e.target.value;
-        row.querySelector(
-          ".general-skill-level-display"
-        ).textContent = `Lv ${level}`;
+        row.querySelector(".general-skill-level-display").textContent =
+          `Lv ${level}`;
         row.querySelector(".level-guide-text").textContent =
           SkillLevelGuides[level];
         updateGeneralSkillTotal();
@@ -926,7 +951,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sidebarLinks.forEach((l) => l.classList.remove("active"));
         link.classList.add("active");
         formPanels.forEach((panel) =>
-          panel.classList.toggle("active", panel.id === targetId)
+          panel.classList.toggle("active", panel.id === targetId),
         );
       });
     });
@@ -1002,6 +1027,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
     regulationSelect.dispatchEvent(new Event("change"));
     updateAllStatTotals();
+    updateGrowthExportButtons();
   }
 
   function populateRegulations() {
@@ -1345,7 +1371,7 @@ document.addEventListener("DOMContentLoaded", () => {
       row.classList.toggle(
         "is-crystal",
         nameForCalc.toLowerCase().includes("魔晶石") ||
-          nameForCalc.toLowerCase().includes("マナチャージクリスタル")
+          nameForCalc.toLowerCase().includes("マナチャージクリスタル"),
       );
 
       if (row.classList.contains("is-crystal") && points > 0) {
@@ -1399,12 +1425,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const regulationMoney =
       parseInt(
         document.getElementById("money-sidebar-regulation").textContent,
-        10
+        10,
       ) || 0;
     const itemsTotal =
       parseInt(
         document.getElementById("money-sidebar-items-total").textContent,
-        10
+        10,
       ) || 0;
     const other =
       parseInt(document.getElementById("money-sidebar-other").value, 10) || 0;
@@ -1557,9 +1583,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("money-sidebar-regulation").textContent = reg.money;
     const itemContainer = document.getElementById("items-container");
     const existingShardRow = Array.from(
-      itemContainer.querySelectorAll(".item-row")
+      itemContainer.querySelectorAll(".item-row"),
     ).find((row) =>
-      row.querySelector(".item-name-free").value.includes("アビスシャード")
+      row.querySelector(".item-name-free").value.includes("アビスシャード"),
     );
     if (existingShardRow) {
       if (reg.abyssShard > 0)
@@ -1607,11 +1633,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const count = parseInt(growthCountInput.value, 10) || 0;
     if (count === 0) {
       calculateGrowthSummary();
+      updateGrowthExportButtons();
       return;
     }
     for (let i = 0; i < count; i++)
       displayGrowthResult(rollSingleGrowth(), rollSingleGrowth());
     applyPriorityToAllRows();
+    updateGrowthExportButtons();
   }
 
   function displayGrowthResult(stat1, stat2) {
@@ -1630,11 +1658,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (stat1 === stat2) {
       btn1.classList.add(
         "selected",
-        statClassMap[stat1]
+        statClassMap[stat1],
       ); /* statClassMap[stat1]を追加 */
       btn2.classList.add(
         "selected",
-        statClassMap[stat2]
+        statClassMap[stat2],
       ); /* statClassMap[stat2]を追加 */
       btn1.disabled = true;
       btn2.disabled = true;
@@ -1653,6 +1681,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (otherButton) otherButton.classList.add("unselected");
     updateGrowthRow(row);
     calculateGrowthSummary();
+    updateGrowthExportButtons();
   }
 
   function applyPriorityToAllRows() {
@@ -1693,7 +1722,7 @@ document.addEventListener("DOMContentLoaded", () => {
         statNames.forEach((name) => {
           if (statClassMap[btn.textContent])
             btn.classList.remove(statClassMap[btn.textContent]);
-        })
+        }),
       );
     }
 
@@ -1727,6 +1756,92 @@ document.addEventListener("DOMContentLoaded", () => {
       if (countSpan) countSpan.textContent = counts[statName];
     });
     updateAllStatTotals();
+    updateGrowthExportButtons();
+  }
+
+  function updateGrowthExportButtons() {
+    const exportGrowthLinesBtn = document.getElementById(
+      "export-growth-lines-btn",
+    );
+    const growthSummaryOutput = document.getElementById(
+      "growth-summary-output",
+    );
+    const hasRows =
+      growthResultsContainer &&
+      growthResultsContainer.querySelectorAll(".growth-row").length > 0;
+    if (exportGrowthLinesBtn) exportGrowthLinesBtn.disabled = !hasRows;
+    if (growthSummaryOutput) growthSummaryOutput.disabled = !hasRows;
+    if (growthSummaryOutput) {
+      growthSummaryOutput.value = hasRows ? getGrowthSummaryText() : "";
+    }
+  }
+
+  function getGrowthResultsLines() {
+    const lines = [];
+    growthResultsContainer
+      .querySelectorAll(".growth-row")
+      .forEach((row, idx) => {
+        const [btn1, btn2] = row.querySelectorAll(".stat-candidate");
+        const confirmed =
+          row.querySelector(".stat-confirmed")?.textContent || "";
+        if (!btn1 || !btn2) return;
+        const confirmedText =
+          confirmed && confirmed !== "―" ? confirmed : "未確定";
+        const stat1Number = statNumberMap[btn1.textContent] || "?";
+        const stat2Number = statNumberMap[btn2.textContent] || "?";
+        lines.push(
+          `[${stat1Number},${stat2Number}]->(${btn1.textContent} or ${btn2.textContent})->${confirmedText}`,
+        );
+      });
+    return lines;
+  }
+
+  function getGrowthSummaryText() {
+    const parts = statNames
+      .map((statName) => {
+        const countSpan = document.getElementById(`summary-count-${statName}`);
+        const count = countSpan ? parseInt(countSpan.textContent, 10) || 0 : 0;
+        return count > 0 ? `${statName}${count}` : "";
+      })
+      .filter(Boolean);
+    return parts.length > 0 ? parts.join("") : "(成長なし)";
+  }
+
+  function exportGrowthResults(format) {
+    const count = parseInt(growthCountInput.value, 10) || 0;
+    if (count === 0) {
+      showToast("成長結果がありません。");
+      return;
+    }
+
+    let content = "";
+    if (format === "summary") {
+      content = getGrowthSummaryText();
+    } else {
+      content = getGrowthResultsLines().join("\n");
+    }
+
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}${String(
+      now.getMonth() + 1,
+    ).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}_${String(
+      now.getHours(),
+    ).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}`;
+    const filename =
+      format === "summary"
+        ? `sw25_growth_summary_${timestamp}.txt`
+        : `sw25_growth_lines_${timestamp}.txt`;
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast("成長結果TXTを保存しました！");
   }
 
   function updateAllStatTotals() {
@@ -1734,28 +1849,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const initial =
         parseInt(
           statsGridContainer.querySelector(
-            `.initial-stat-input[data-stat="${name}"]`
+            `.initial-stat-input[data-stat="${name}"]`,
           ).value,
-          10
+          10,
         ) || 0;
       const bracelet =
         parseInt(
           statsGridContainer.querySelector(`.bracelet-btn[data-stat="${name}"]`)
             .dataset.value,
-          10
+          10,
         ) || 0;
       const growth =
         parseInt(
           document.getElementById(`summary-count-${name}`).textContent,
-          10
+          10,
         ) || 0;
       const total = initial + bracelet + growth;
       const bonus = Math.floor(total / 6);
       statsGridContainer.querySelector(
-        `.stat-total[data-stat="${name}"]`
+        `.stat-total[data-stat="${name}"]`,
       ).textContent = total;
       statsGridContainer.querySelector(
-        `.stat-bonus[data-stat="${name}"]`
+        `.stat-bonus[data-stat="${name}"]`,
       ).textContent = bonus;
     });
   }
@@ -1836,7 +1951,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const filteredLines = memoLines.filter((line) => {
         const trimmedLine = line.trim();
         // 剣のかけらによる抵抗力強化の行 (ツールが生成する形式)
-        const isGeneratedShardResistanceLine = /^(生命抵抗力|精神抵抗力):\d+\(\d+\)/.test(trimmedLine);
+        const isGeneratedShardResistanceLine =
+          /^(生命抵抗力|精神抵抗力):\d+\(\d+\)/.test(trimmedLine);
         // 剣のかけらの個数を示す行
         const isShardCountLine = trimmedLine.startsWith("剣のかけら：");
         // トレジャー強化のヘッダー行
@@ -1860,23 +1976,23 @@ document.addEventListener("DOMContentLoaded", () => {
           shards >= 16
             ? 4
             : shards >= 11
-            ? 3
-            : shards >= 6
-            ? 2
-            : shards >= 1
-            ? 1
-            : 0;
+              ? 3
+              : shards >= 6
+                ? 2
+                : shards >= 1
+                  ? 1
+                  : 0;
 
         // 強化前の抵抗値を取得
         const originalLifeResValue = parseInt(
           enemyData.data.params?.find((p) => p.label === "生命抵抗")?.value ||
             "0",
-          10
+          10,
         );
         const originalSpiritResValue = parseInt(
           enemyData.data.params?.find((p) => p.label === "精神抵抗")?.value ||
             "0",
-          10
+          10,
         );
 
         if (enemyData.data.status) {
@@ -1896,14 +2012,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (enemyData.data.params) {
           const lifeResParam = enemyData.data.params.find(
-            (p) => p.label === "生命抵抗"
+            (p) => p.label === "生命抵抗",
           );
           if (lifeResParam) {
             enhancedLifeResValue = originalLifeResValue + resistanceBonus;
             lifeResParam.value = String(enhancedLifeResValue);
           }
           const spiritResParam = enemyData.data.params.find(
-            (p) => p.label === "精神抵抗"
+            (p) => p.label === "精神抵抗",
           );
           if (spiritResParam) {
             enhancedSpiritResValue = originalSpiritResValue + resistanceBonus;
@@ -1968,19 +2084,24 @@ document.addEventListener("DOMContentLoaded", () => {
     // クリックされたのが<td>要素で、かつtbody内のtdであることを確認
     if (target.tagName === "TD" && target.closest("tbody")) {
       const row = target.closest("tr");
-      const abilityName = row.querySelector("td:first-child").textContent.trim();
+      const abilityName = row
+        .querySelector("td:first-child")
+        .textContent.trim();
       const cellIndex = target.cellIndex; // 0-indexed
 
       // theadのth要素からポイント数を取得
-      const headerRow = document.querySelector("#treasure-point-table thead tr");
+      const headerRow = document.querySelector(
+        "#treasure-point-table thead tr",
+      );
       const pointHeader = headerRow.children[cellIndex];
       const pointText = pointHeader ? pointHeader.textContent.trim() : "";
 
       // ポイント数が数値でない場合は処理しない (例: "-" のセル)
-      if (!/^\d+$/.test(pointText.replace(/\D/g, ''))) { // 数字のみを抽出し、それが数字であるか確認
+      if (!/^\d+$/.test(pointText.replace(/\D/g, ""))) {
+        // 数字のみを抽出し、それが数字であるか確認
         return;
       }
-      const points = parseInt(pointText.replace(/\D/g, ''), 10);
+      const points = parseInt(pointText.replace(/\D/g, ""), 10);
 
       if (abilityName && points > 0) {
         addOrUpdateTpAbility(abilityName, points);
@@ -1992,11 +2113,18 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("addOrUpdateTpAbility called with:", abilityName, points); // 追加
     let existingRow = null;
     // 既存の行を検索
-    tpSelectionContainer.querySelectorAll(".tp-ability-row").forEach(row => {
+    tpSelectionContainer.querySelectorAll(".tp-ability-row").forEach((row) => {
       const select = row.querySelector(".tp-ability-select");
       if (select) {
-        const optionText = select.selectedOptions[0] ? select.selectedOptions[0].text.trim() : '';
-        console.log("Comparing existing option:", optionText, "with new ability:", abilityName); // 追加
+        const optionText = select.selectedOptions[0]
+          ? select.selectedOptions[0].text.trim()
+          : "";
+        console.log(
+          "Comparing existing option:",
+          optionText,
+          "with new ability:",
+          abilityName,
+        ); // 追加
         if (optionText === abilityName) {
           existingRow = row;
         }
@@ -2020,8 +2148,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const pointsInput = newRow.querySelector(".tp-points-input");
 
       // abilityName に対応する option を選択
-      Array.from(select.options).forEach(option => {
-        console.log("Checking option:", option.textContent.trim(), "for ability:", abilityName); // 追加
+      Array.from(select.options).forEach((option) => {
+        console.log(
+          "Checking option:",
+          option.textContent.trim(),
+          "for ability:",
+          abilityName,
+        ); // 追加
         if (option.textContent.trim() === abilityName) {
           option.selected = true;
         }

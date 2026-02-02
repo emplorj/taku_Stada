@@ -82,7 +82,10 @@
   color: var(--text-color);
   text-decoration: none;
   border-radius: 6px;
-  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.1s;
   font-weight: bold;
   border: 1px solid transparent;
 }
@@ -207,7 +210,9 @@ textarea {
   padding: 10px;
   font-size: 1em;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 select {
   -webkit-appearance: none;
@@ -308,7 +313,10 @@ hr.section-divider {
   opacity: 0;
   transform: translateY(20px);
   visibility: hidden;
-  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    visibility 0.3s;
 }
 .toast-notification.show {
   opacity: 1;
@@ -473,6 +481,23 @@ hr.section-divider {
   font-size: 0.8em;
   color: #ccc;
 }
+
+.growth-summary-output-wrapper {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#growth-summary-output {
+  width: 100%;
+  min-height: 28px;
+  height: 28px;
+  padding: 4px 6px;
+  font-size: 0.85em;
+  line-height: 1.2;
+  resize: none;
+}
 .small-button {
   background-color: #6c757d;
   color: white;
@@ -482,7 +507,9 @@ hr.section-divider {
   font-size: 0.85em;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
 }
 .small-button:hover {
   background-color: #5a6268;
@@ -597,8 +624,8 @@ hr.section-divider {
   margin-right: 5px;
 }
 #personal-data-output {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
-    monospace;
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   line-height: 1.6;
   white-space: pre;
   background-color: rgba(0, 0, 0, 0.4);
@@ -1012,7 +1039,9 @@ hr.section-divider {
   font-size: 1.2em;
   color: #666;
   text-shadow: none;
-  transition: color 0.2s, text-shadow 0.2s;
+  transition:
+    color 0.2s,
+    text-shadow 0.2s;
 }
 .magic-item-toggle-label input[type="checkbox"]:checked + i {
   color: var(--gold-color);
@@ -1037,8 +1066,8 @@ hr.section-divider {
 }
 #items-output,
 #cashbook {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
-    monospace;
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   line-height: 1.6;
   white-space: pre;
   background-color: rgba(0, 0, 0, 0.4);
@@ -1262,7 +1291,9 @@ optgroup {
   transform: translate(-50%, -50%);
   border: 2px solid #38b6ff;
   box-shadow: 0 0 8px rgba(56, 182, 255, 0.5);
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
 }
 .cost-label,
 .cost-value,
@@ -1382,7 +1413,10 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   visibility: hidden;
   opacity: 0;
   transform: scale(0.95);
-  transition: opacity 0.15s ease-out, transform 0.15s ease-out, visibility 0.15s;
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out,
+    visibility 0.15s;
   pointer-events: none;
 }
 .item-sets-panel-container {
@@ -1503,7 +1537,9 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   font-size: 0.9em;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
   min-width: 40px;
   text-align: center;
 }
@@ -1718,7 +1754,9 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   font-size: 1.1em;
   cursor: help;
   margin-left: 8px;
-  transition: color 0.2s, text-shadow 0.2s;
+  transition:
+    color 0.2s,
+    text-shadow 0.2s;
 }
 .item-set-tooltip-trigger:hover {
   color: var(#ccc);
@@ -1739,7 +1777,9 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s, visibility 0.2s;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
   width: max-content;
   max-width: 300px;
 }
@@ -1815,8 +1855,8 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
 
 .enhancement-io-container textarea {
   flex-grow: 1;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
-    monospace;
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   line-height: 1.6;
   white-space: pre;
   background-color: rgba(0, 0, 0, 0.4);
@@ -1971,7 +2011,9 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s, visibility 0.2s;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
   width: max-content;
   max-width: 350px;
 }

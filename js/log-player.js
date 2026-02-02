@@ -112,6 +112,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const logTextInput = document.getElementById("log-text-input");
   const btnParseText = document.getElementById("btn-parse-text");
 
+  const archiveSelect = document.getElementById("archive-select");
+  const btnLoadArchive = document.getElementById("btn-load-archive");
+  const archiveStatus = document.getElementById("archive-status");
+  const archiveModal = document.getElementById("archive-modal");
+  const btnOpenArchiveModal = document.getElementById("btn-open-archive-modal");
+  const btnCloseArchiveModal = document.getElementById(
+    "btn-close-archive-modal",
+  );
+  const archiveSearchInput = document.getElementById("archive-search-input");
+  const archiveSearchField = document.getElementById("archive-search-field");
+  const archiveModalList = document.getElementById("archive-modal-list");
+
+  const GAS_WEB_APP_URL =
+    "https://script.google.com/macros/s/AKfycbyZQ3dTGIuIFdrggw0reZqEq1JqyQ8MZHnihGovv_SOkPaRj7EmZ7qgjqpn4VlVuLRv3w/exec";
+
   const charNameEl = document.getElementById("char-name");
   const bgCharNameEl = document.getElementById("bg-char-name");
   const messageTextEl = document.getElementById("message-text");
@@ -133,6 +148,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const volumeSlider = document.getElementById("volume-slider");
 
   let currentStandingImageUrl = "";
+  let archiveItems = [];
+  let archiveSelectedFolderUrl = "";
+  let archiveListLoaded = false;
+  let archiveListLoading = false;
+  let assetsReadyPromise = null;
 
   // --- キャラクターデータの取得とパース ---
   async function loadCharacterData() {
@@ -226,6 +246,366 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 起動時に読み込み
   loadCharacterData();
+
+  function setArchiveStatus(message, isError = false) {
+    if (!archiveStatus) return;
+    archiveStatus.textContent = message || "";
+    archiveStatus.classList.toggle("is-error", isError);
+  }
+
+  async function loadScenarioArchiveList() {
+    if (!archiveSelect) {
+      if (archiveStatus) {
+        archiveStatus.textContent =
+          "検索ボタンからアーカイブを選択してください。";
+      }
+    }
+    if (archiveListLoading) return;
+    archiveListLoading = true;
+    setArchiveStatus("アーカイブを読み込み中...", false);
+    if (archiveSelect) {
+      archiveSelect.innerHTML =
+        '<option value="">-- アーカイブを読み込み中 --</option>';
+    }
+    if (btnLoadArchive) btnLoadArchive.disabled = true;
+
+    try {
+      const response = await fetch(`${GAS_WEB_APP_URL}?action=listArchive`, {
+        cache: "no-store",
+      });
+      if (!response.ok) {
+        throw new Error(`一覧取得に失敗: ${response.status}`);
+      }
+      const result = await response.json();
+      if (!result || result.status !== "success") {
+        throw new Error(result?.message || "一覧取得に失敗しました");
+      }
+      const items = Array.isArray(result.data) ? result.data : [];
+      archiveItems = items;
+      archiveListLoaded = true;
+      if (items.length === 0) {
+        if (archiveSelect) {
+          archiveSelect.innerHTML =
+            '<option value="">-- アーカイブが見つかりません --</option>';
+        }
+        setArchiveStatus("アーカイブが空でした。", true);
+        return;
+      }
+
+      if (archiveSelect) {
+        archiveSelect.innerHTML =
+          '<option value="">-- 選択してください --</option>';
+      }
+
+      updateArchiveFilterOptions();
+      renderArchiveModalList();
+
+      setArchiveStatus("", false);
+    } catch (error) {
+      console.error("Archive list load failed:", error);
+      archiveSelect.innerHTML =
+        '<option value="">-- アーカイブ取得に失敗 --</option>';
+      setArchiveStatus("アーカイブ取得に失敗しました。", true);
+    } finally {
+      archiveListLoading = false;
+    }
+  }
+
+  function waitForAssetsReady() {
+    if (assetsReadyPromise) return assetsReadyPromise;
+    assetsReadyPromise = new Promise((resolve) => {
+      const finish = () => resolve();
+      if (document.readyState === "complete") {
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(finish).catch(finish);
+        } else {
+          finish();
+        }
+      } else {
+        window.addEventListener(
+          "load",
+          () => {
+            if (document.fonts && document.fonts.ready) {
+              document.fonts.ready.then(finish).catch(finish);
+            } else {
+              finish();
+            }
+          },
+          { once: true },
+        );
+      }
+    });
+    return assetsReadyPromise;
+  }
+
+  async function ensureArchiveListLoaded() {
+    if (archiveListLoaded || archiveListLoading) return;
+    await waitForAssetsReady();
+    await loadScenarioArchiveList();
+  }
+
+  if (archiveSelect && btnLoadArchive) {
+    archiveSelect.addEventListener("change", () => {
+      btnLoadArchive.disabled = !archiveSelect.value;
+      archiveSelectedFolderUrl = archiveSelect.value || "";
+    });
+
+    btnLoadArchive.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const folderUrl = archiveSelect.value;
+      if (!folderUrl) {
+        setArchiveStatus("アーカイブを選択してください。", true);
+        return;
+      }
+      await loadArchiveLogFromFolder(folderUrl);
+    });
+  } else if (btnLoadArchive) {
+    btnLoadArchive.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if (!archiveSelectedFolderUrl) {
+        setArchiveStatus("モーダルからアーカイブを選択してください。", true);
+        return;
+      }
+      await loadArchiveLogFromFolder(archiveSelectedFolderUrl);
+    });
+  }
+
+  if (btnOpenArchiveModal && archiveModal) {
+    btnOpenArchiveModal.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openArchiveModal();
+    });
+  }
+
+  if (btnCloseArchiveModal && archiveModal) {
+    btnCloseArchiveModal.addEventListener("click", () => {
+      closeArchiveModal();
+    });
+  }
+
+  if (archiveSearchInput) {
+    archiveSearchInput.addEventListener("input", () => {
+      renderArchiveModalList();
+    });
+  }
+
+  if (archiveSearchField) {
+    archiveSearchField.addEventListener("change", () => {
+      renderArchiveModalList();
+    });
+  }
+
+  async function openArchiveModal() {
+    if (!archiveModal) return;
+    archiveModal.style.display = "flex";
+    if (archiveModalList) {
+      archiveModalList.innerHTML =
+        '<div class="archive-item">アーカイブを読み込み中...</div>';
+    }
+    setArchiveStatus("アーカイブを読み込み中...", false);
+    await ensureArchiveListLoaded();
+    renderArchiveModalList();
+  }
+
+  function closeArchiveModal() {
+    if (!archiveModal) return;
+    archiveModal.style.display = "none";
+  }
+
+  function updateArchiveFilterOptions() {}
+
+  function renderArchiveModalList() {
+    if (!archiveModalList) return;
+    const keyword = (archiveSearchInput?.value || "").trim().toLowerCase();
+    const searchField = archiveSearchField?.value || "all";
+
+    const filtered = archiveItems.filter((item) => {
+      if (keyword) {
+        const haystack =
+          searchField === "all"
+            ? [item.name, item.gm, item.pl, item.pc]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+            : (item[searchField] || "").toString().toLowerCase();
+        if (!haystack.includes(keyword)) return false;
+      }
+      return true;
+    });
+
+    archiveModalList.innerHTML = "";
+    if (filtered.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "archive-item";
+      empty.textContent = "該当するシナリオがありません。";
+      archiveModalList.appendChild(empty);
+      return;
+    }
+
+    filtered.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = `archive-item${item.isVoice ? " disabled" : ""}`;
+
+      const info = document.createElement("div");
+      info.className = "archive-item-info";
+
+      const title = document.createElement("div");
+      title.className = "archive-item-name";
+      const numberText = formatScenarioNumber(item.number);
+      const nameText = item.name || "(名称未設定)";
+      title.innerHTML = numberText
+        ? `<span class="archive-item-number">${numberText}</span>${nameText}`
+        : nameText;
+      info.appendChild(title);
+
+      const badges = document.createElement("div");
+      badges.className = "archive-item-badges";
+      const systemBadge = item.system
+        ? {
+            text: item.system,
+            className: "archive-badge",
+            style: item.systemColor
+              ? {
+                  backgroundColor: item.systemColor,
+                  borderColor: item.systemColor,
+                }
+              : null,
+          }
+        : null;
+      [
+        systemBadge,
+        item.date ? { text: item.date, className: "archive-badge date" } : null,
+        item.gm ? { text: `GM:${item.gm}`, className: "archive-badge" } : null,
+      ]
+        .filter(Boolean)
+        .forEach((badge) => {
+          const span = document.createElement("span");
+          span.className = badge.className;
+          span.textContent = badge.text;
+          if (badge.style) {
+            Object.assign(span.style, badge.style);
+          }
+          badges.appendChild(span);
+        });
+      info.appendChild(badges);
+
+      const detail = document.createElement("div");
+      detail.className = "archive-item-meta";
+      detail.textContent = [
+        item.pl ? `PL:${item.pl}` : "",
+        item.pc ? `PC:${item.pc}` : "",
+      ]
+        .filter(Boolean)
+        .join(" / ");
+      if (detail.textContent) info.appendChild(detail);
+
+      const btn = document.createElement("button");
+      btn.className = "control-btn";
+      btn.textContent = "選択";
+      btn.disabled = item.isVoice || !item.folderUrl;
+      btn.addEventListener("click", () => {
+        if (item.isVoice) return;
+        archiveSelectedFolderUrl = item.folderUrl;
+        setArchiveStatus(`選択: ${item.name}`, false);
+        closeArchiveModal();
+        loadArchiveLogFromFolder(archiveSelectedFolderUrl);
+      });
+
+      row.appendChild(info);
+      row.appendChild(btn);
+      archiveModalList.appendChild(row);
+    });
+  }
+
+  function splitNames(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    return String(value)
+      .split(/[、,\/\n]/)
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+
+  function matchesAny(fieldValue, selected) {
+    if (!selected.length) return true;
+    const values = splitNames(fieldValue);
+    return selected.some((v) => values.includes(v));
+  }
+
+  function formatScenarioNumber(value) {
+    if (!value) return "";
+    const text = String(value).trim();
+    if (text.startsWith("#")) {
+      return `#${text.replace(/^#+/, "")}`;
+    }
+    return `#${text}`;
+  }
+
+  async function loadArchiveLogFromFolder(folderUrl) {
+    try {
+      setArchiveStatus("ログを取得中...", false);
+      if (btnLoadArchive) btnLoadArchive.disabled = true;
+      const resolveResponse = await fetch(
+        `${GAS_WEB_APP_URL}?action=resolveLogHtml&url=${encodeURIComponent(
+          folderUrl,
+        )}`,
+        { cache: "no-store" },
+      );
+      if (!resolveResponse.ok) {
+        throw new Error(`HTML解決に失敗: ${resolveResponse.status}`);
+      }
+      const resolveResult = await resolveResponse.json();
+      if (!resolveResult || resolveResult.status !== "success") {
+        throw new Error(resolveResult?.message || "HTML解決に失敗しました");
+      }
+
+      let htmlText = "";
+      try {
+        const htmlResponse = await fetch(resolveResult.directUrl, {
+          cache: "no-store",
+        });
+        if (!htmlResponse.ok) {
+          throw new Error(`HTML取得に失敗: ${htmlResponse.status}`);
+        }
+        htmlText = await htmlResponse.text();
+      } catch (fetchError) {
+        const proxyResponse = await fetch(
+          `${GAS_WEB_APP_URL}?action=fetchLogHtml&url=${encodeURIComponent(
+            resolveResult.directUrl,
+          )}`,
+          { cache: "no-store" },
+        );
+        if (!proxyResponse.ok) {
+          throw new Error(`HTML取得に失敗: ${proxyResponse.status}`);
+        }
+        htmlText = await proxyResponse.text();
+      }
+      const htmlContent = htmlText;
+
+      fullLogData = window.fullLogData = parseCcfoliaLog(htmlContent);
+      if (fullLogData.length > 0) {
+        logLoadMode = "html";
+        const detected = detectSystem(fullLogData);
+        applySystemTheme(detected);
+        if (window.logToolApp) {
+          window.logToolApp.isCoCLog = detected === "CoC";
+        }
+        updateVueApp(fullLogData, htmlContent, true);
+        initPlayer();
+        setArchiveStatus("ログを読み込みました。", false);
+      } else {
+        setArchiveStatus("ログの読み込みに失敗しました。", true);
+      }
+    } catch (error) {
+      console.error("Archive log load failed:", error);
+      setArchiveStatus(
+        error?.message || "アーカイブの読み込みに失敗しました。",
+        true,
+      );
+    } finally {
+      if (btnLoadArchive) btnLoadArchive.disabled = false;
+    }
+  }
 
   // 名前を検索用に正規化する (カッコ内や引用符を除去)
   function normalizeName(name) {
