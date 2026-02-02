@@ -247,11 +247,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // 起動時に読み込み
   loadCharacterData();
 
-  function setArchiveStatus(message, isError = false) {
-    if (!archiveStatus) return;
-    archiveStatus.textContent = message || "";
-    archiveStatus.classList.toggle("is-error", isError);
-  }
+  function setArchiveStatus() {}
+
+  function toggleArchiveLoadingOverlay(isVisible) {}
 
   async function loadScenarioArchiveList() {
     if (!archiveSelect) {
@@ -262,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (archiveListLoading) return;
     archiveListLoading = true;
-    setArchiveStatus("アーカイブを読み込み中...", false);
+    toggleArchiveLoadingOverlay(true);
     if (archiveSelect) {
       archiveSelect.innerHTML =
         '<option value="">-- アーカイブを読み込み中 --</option>';
@@ -308,6 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setArchiveStatus("アーカイブ取得に失敗しました。", true);
     } finally {
       archiveListLoading = false;
+      toggleArchiveLoadingOverlay(false);
     }
   }
 
@@ -400,9 +399,8 @@ document.addEventListener("DOMContentLoaded", () => {
     archiveModal.style.display = "flex";
     if (archiveModalList) {
       archiveModalList.innerHTML =
-        '<div class="archive-item">アーカイブを読み込み中...</div>';
+        '<div class="archive-loading-inline"><div class="archive-loading-spinner" aria-hidden="true"></div><div>アーカイブを読み込み中...</div></div>';
     }
-    setArchiveStatus("アーカイブを読み込み中...", false);
     await ensureArchiveListLoaded();
     renderArchiveModalList();
   }
