@@ -54,7 +54,9 @@
   padding: 10px;
   font-size: 1em;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 .controls-panel input:focus,
 .controls-panel textarea:focus {
@@ -78,9 +80,13 @@
   background: linear-gradient(145deg, #a15a2e, #8b4513);
   border: 2px solid var(--gold-color);
   border-radius: 10px;
-  text-shadow: 0 0 5px var(--gold-glow), 1px 1px 2px rgba(0, 0, 0, 0.7);
-  box-shadow: 0 0 12px rgba(200, 164, 100, 0.6),
-    inset 0 0 6px rgba(200, 164, 100, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow:
+    0 0 5px var(--gold-glow),
+    1px 1px 2px rgba(0, 0, 0, 0.7);
+  box-shadow:
+    0 0 12px rgba(200, 164, 100, 0.6),
+    inset 0 0 6px rgba(200, 164, 100, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
   position: relative;
@@ -104,13 +110,19 @@
 .controls-panel .add-new-button:hover {
   transform: translateY(-3px) scale(1.02);
   border-color: #f1d699;
-  box-shadow: 0 0 22px rgba(200, 164, 100, 0.9),
-    inset 0 0 10px rgba(200, 164, 100, 0.6), 0 8px 15px rgba(0, 0, 0, 0.4);
-  text-shadow: 0 0 8px var(--gold-glow), 1px 1px 2px rgba(0, 0, 0, 0.7);
+  box-shadow:
+    0 0 22px rgba(200, 164, 100, 0.9),
+    inset 0 0 10px rgba(200, 164, 100, 0.6),
+    0 8px 15px rgba(0, 0, 0, 0.4);
+  text-shadow:
+    0 0 8px var(--gold-glow),
+    1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 .controls-panel .add-new-button:active {
   transform: translateY(1px) scale(0.99);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 0 12px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 0 12px rgba(0, 0, 0, 0.4);
 }
 .preview-panel {
   flex-shrink: 0;
@@ -132,8 +144,10 @@
   flex-direction: column;
   padding: 60px 80px;
   box-sizing: border-box;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: "palt" 1;
+  text-rendering: auto;
+  font-feature-settings: normal;
+  font-kerning: none;
+  letter-spacing: -0.01em;
 }
 .wf-active .request-form-paper {
   font-family: "vdl-pengentle", sans-serif;
@@ -148,8 +162,8 @@
   font-size: 72px;
   text-align: center;
   white-space: nowrap;
-  font-kerning: normal;
-  letter-spacing: 0.01em;
+  font-kerning: none;
+  letter-spacing: -0.01em;
 }
 .title-container {
   width: 100%;
@@ -170,8 +184,8 @@
 }
 .section-title {
   font-size: 42px;
-  font-kerning: normal;
-  letter-spacing: 0.01em;
+  font-kerning: none;
+  letter-spacing: -0.01em;
 }
 .level-text {
   font-size: 32px;
@@ -180,8 +194,8 @@
   align-items: center;
   min-height: 40px;
   white-space: nowrap;
-  font-kerning: normal;
-  letter-spacing: 0.01em;
+  font-kerning: none;
+  letter-spacing: -0.01em;
 }
 .content-title,
 .reward-text,
@@ -207,8 +221,8 @@
   max-height: 325px;
   overflow-y: hidden;
   flex-shrink: 0;
-  font-kerning: normal;
-  letter-spacing: 0.01em;
+  font-kerning: none;
+  letter-spacing: -0.01em;
 }
 .content-text::-webkit-scrollbar {
   display: none;
@@ -384,7 +398,9 @@
 #pin-direction-group {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+  transition:
+    max-height 0.4s ease-out,
+    opacity 0.4s ease-out;
   opacity: 0;
   display: flex;
   align-items: center;
@@ -398,14 +414,22 @@
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 12px rgba(200, 164, 100, 0.6),
-      inset 0 0 6px rgba(200, 164, 100, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
-    text-shadow: 0 0 5px var(--gold-glow), 1px 1px 2px rgba(0, 0, 0, 0.7);
+    box-shadow:
+      0 0 12px rgba(200, 164, 100, 0.6),
+      inset 0 0 6px rgba(200, 164, 100, 0.4),
+      0 4px 8px rgba(0, 0, 0, 0.3);
+    text-shadow:
+      0 0 5px var(--gold-glow),
+      1px 1px 2px rgba(0, 0, 0, 0.7);
   }
   50% {
-    box-shadow: 0 0 18px rgba(200, 164, 100, 0.8),
-      inset 0 0 8px rgba(200, 164, 100, 0.6), 0 6px 12px rgba(0, 0, 0, 0.3);
-    text-shadow: 0 0 7px var(--gold-glow), 1px 1px 2px rgba(0, 0, 0, 0.7);
+    box-shadow:
+      0 0 18px rgba(200, 164, 100, 0.8),
+      inset 0 0 8px rgba(200, 164, 100, 0.6),
+      0 6px 12px rgba(0, 0, 0, 0.3);
+    text-shadow:
+      0 0 7px var(--gold-glow),
+      1px 1px 2px rgba(0, 0, 0, 0.7);
   }
 }
 @keyframes rotate-glow {
