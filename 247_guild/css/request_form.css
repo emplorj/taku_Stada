@@ -267,6 +267,23 @@
   transform: translateY(-0.1em);
 }
 
+.jp-bracket {
+  display: inline-block;
+  letter-spacing: 0.2em;
+}
+.request-form-paper .jp-bracket {
+  letter-spacing: 0;
+}
+.request-form-paper.output-format .jp-bracket {
+  letter-spacing: 0.2em;
+}
+.jp-bracket-left {
+  margin-right: 0.08em;
+}
+.jp-bracket-right {
+  margin-left: 0.08em;
+}
+
 /* --- ここからUI要素のスタイルを復元・統合 --- */
 
 /* ファイル選択UI */
