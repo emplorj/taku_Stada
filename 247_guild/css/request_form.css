@@ -144,10 +144,8 @@
   flex-direction: column;
   padding: 60px 80px;
   box-sizing: border-box;
-  text-rendering: auto;
-  font-feature-settings: normal;
-  font-kerning: none;
-  letter-spacing: -0.01em;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "palt" 1;
 }
 .wf-active .request-form-paper {
   font-family: "vdl-pengentle", sans-serif;
@@ -162,8 +160,8 @@
   font-size: 72px;
   text-align: center;
   white-space: nowrap;
-  font-kerning: none;
-  letter-spacing: -0.01em;
+  font-kerning: normal;
+  letter-spacing: 0.01em;
 }
 .title-container {
   width: 100%;
@@ -184,8 +182,8 @@
 }
 .section-title {
   font-size: 42px;
-  font-kerning: none;
-  letter-spacing: -0.01em;
+  font-kerning: normal;
+  letter-spacing: 0.01em;
 }
 .level-text {
   font-size: 32px;
@@ -194,8 +192,8 @@
   align-items: center;
   min-height: 40px;
   white-space: nowrap;
-  font-kerning: none;
-  letter-spacing: -0.01em;
+  font-kerning: normal;
+  letter-spacing: 0.01em;
 }
 .content-title,
 .reward-text,
@@ -221,8 +219,8 @@
   max-height: 325px;
   overflow-y: hidden;
   flex-shrink: 0;
-  font-kerning: none;
-  letter-spacing: -0.01em;
+  font-kerning: normal;
+  letter-spacing: 0.01em;
 }
 .content-text::-webkit-scrollbar {
   display: none;
