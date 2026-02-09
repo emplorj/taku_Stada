@@ -9,8 +9,10 @@ const ARCHIVE_CSV_URL = "archive.csv"; // 追加: archive.csvのパス
 const DAYCORD_TARGET_URL =
   "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw";
 const DAYCORD_PROXY_BUILDERS = [
-  (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url) => `https://r.jina.ai/http://${url.replace(/^https?:\/\//, "")}`,
+  (url) =>
+    `https://r.jina.ai/http://r.jina.ai/http://${url.replace(/^https?:\/\//, "")}`,
 ];
 const PRESETS_JSON_URL = "presets.json";
 

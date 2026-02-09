@@ -7,6 +7,10 @@ const CHARACTER_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1980715564&single=true&output=csv";
 const SWINFO_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=1134936986&single=true&output=csv";
+const CHARACTER_CSV_PROXY_BUILDERS = [
+  (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+];
 
 // システム名からCSS変数を取得する関数
 function getSystemColor(tableName) {
@@ -235,9 +239,7 @@ async function loadAndDisplayTopPageCharacters(containerSelector) {
     '<p style="text-align: center; width: 100%;">キャラクター情報を読み込んでいます...</p>';
 
   try {
-    const response = await fetch(
-      `https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`,
-    );
+    const response = await fetchCsvWithFallback(CHARACTER_CSV_URL);
     if (!response.ok)
       throw new Error(`CSVの取得に失敗: ${response.statusText}`);
     const csvText = await response.text();
@@ -314,8 +316,8 @@ async function loadAndDisplayGuildCharacters(containerSelector) {
 
   try {
     const [charNameResponse, swInfoResponse] = await Promise.all([
-      fetch(`https://corsproxy.io/?${encodeURIComponent(CHARACTER_CSV_URL)}`),
-      fetch(`https://corsproxy.io/?${encodeURIComponent(SWINFO_CSV_URL)}`),
+      fetchCsvWithFallback(CHARACTER_CSV_URL),
+      fetchCsvWithFallback(SWINFO_CSV_URL),
     ]);
 
     if (!charNameResponse.ok || !swInfoResponse.ok) {
@@ -413,4 +415,24 @@ async function loadAndDisplayGuildCharacters(containerSelector) {
     container.innerHTML =
       "<p>情報の読み込みに失敗しました。管理者にご確認ください。</p>";
   }
+}
+
+async function fetchCsvWithFallback(url) {
+  const candidates = CHARACTER_CSV_PROXY_BUILDERS.map((build) => build(url));
+  candidates.push(url);
+  let lastError = null;
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate);
+      if (!response.ok) {
+        console.warn(`CSV取得失敗: ${candidate} (HTTP ${response.status})`);
+        continue;
+      }
+      return response;
+    } catch (error) {
+      lastError = error;
+      console.warn(`CSV取得失敗: ${candidate}`, error);
+    }
+  }
+  throw lastError || new Error("CSV取得に失敗しました");
 }
