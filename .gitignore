@@ -3,6 +3,9 @@
 *.xlsx
 *.gsheet
 
+# Allow archive CSV for schedule page
+!archive.csv
+
 # OS files
 Thumbs.db
 .DS_Store
