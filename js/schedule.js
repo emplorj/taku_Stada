@@ -1431,33 +1431,86 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const htmlText = await daycordResponse.text();
       const doc = new DOMParser().parseFromString(htmlText, "text/html");
       const table = doc.querySelector("table.schedule_table");
-      if (!table) {
-        console.error(
-          "デイコードのテーブルが見つかりません。HTML構造が変更された可能性があります。",
-        );
-        throw new Error("デイコードのテーブルが見つかりません。");
-      }
-
-      const headerRow = table.querySelector("tr#namerow"),
-        bodyRows = table.querySelectorAll('tbody tr[id^="row_"]');
-      const headerCells = Array.from(headerRow.querySelectorAll("th"));
       const symbols = ["◎", "〇", "◯", "△", "✕", "□", "－", "×", "▢"];
-      daycordNames = headerCells
-        .map((th) => th.textContent.trim())
-        .filter((name) => name && !symbols.includes(name));
+      const normalizeStatus = (value) =>
+        (value || "")
+          .trim()
+          .replace(/◯/g, "〇")
+          .replace(/×/g, "✕")
+          .replace(/▢/g, "□") || "－";
 
-      let rawSchedule = Array.from(bodyRows).map((row) => ({
-        date:
-          row.querySelector("th.datetitle")?.textContent.trim() || "日付不明",
-        availability: Array.from(row.querySelectorAll("td span.statustag")).map(
-          (span) =>
-            span.textContent
-              .trim()
-              .replace(/◯/g, "〇")
-              .replace(/×/g, "✕")
-              .replace(/▢/g, "□") || "－",
-        ),
-      }));
+      const parseMarkdownSchedule = (markdownText) => {
+        const lines = markdownText
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter((line) => line.startsWith("|") && line.includes("|"));
+        const headerLine = lines.find(
+          (line) =>
+            line.includes("◎") && line.includes("◯") && line.includes("△"),
+        );
+        if (!headerLine) return null;
+
+        const splitRow = (line) =>
+          line
+            .replace(/^\|/, "")
+            .replace(/\|$/, "")
+            .split("|")
+            .map((cell) => cell.trim());
+        const extractName = (cell) =>
+          cell.replace(/\[(.+?)\]\([^)]*\)/, "$1").trim();
+
+        const headerCells = splitRow(headerLine);
+        const participantStartIndex = headerCells.findIndex(
+          (cell) => cell && !symbols.includes(cell),
+        );
+        if (participantStartIndex === -1) return null;
+
+        const names = headerCells
+          .slice(participantStartIndex)
+          .map(extractName)
+          .filter(Boolean);
+
+        const scheduleRows = lines.filter((line) =>
+          /^\|\s*\d{4}\/\d{2}\/\d{2}/.test(line),
+        );
+        const rawSchedule = scheduleRows.map((line) => {
+          const cells = splitRow(line);
+          const date = cells[0] || "日付不明";
+          const availability = cells
+            .slice(participantStartIndex, participantStartIndex + names.length)
+            .map(normalizeStatus);
+          return { date, availability };
+        });
+        return { daycordNames: names, rawSchedule };
+      };
+
+      let rawSchedule = [];
+      if (table) {
+        const headerRow = table.querySelector("tr#namerow"),
+          bodyRows = table.querySelectorAll('tbody tr[id^="row_"]');
+        const headerCells = Array.from(headerRow.querySelectorAll("th"));
+        daycordNames = headerCells
+          .map((th) => th.textContent.trim())
+          .filter((name) => name && !symbols.includes(name));
+
+        rawSchedule = Array.from(bodyRows).map((row) => ({
+          date:
+            row.querySelector("th.datetitle")?.textContent.trim() || "日付不明",
+          availability: Array.from(
+            row.querySelectorAll("td span.statustag"),
+          ).map((span) => normalizeStatus(span.textContent)),
+        }));
+      } else {
+        const parsed = parseMarkdownSchedule(htmlText);
+        if (!parsed) {
+          console.error(
+            "デイコードのテーブルが見つかりません。HTML構造が変更された可能性があります。",
+          );
+          throw new Error("デイコードのテーブルが見つかりません。");
+        }
+        daycordNames = parsed.daycordNames;
+        rawSchedule = parsed.rawSchedule;
+      }
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
