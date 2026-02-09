@@ -6,12 +6,16 @@
 const SPREADSHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhgIEZ9Z_LX8WIuXqb-95vBhYp5-lorvN7EByIaX9krIk1pHUC-253fRW3kFcLeB2nF4MIuvSnOT_H/pub?gid=783716063&single=true&output=csv";
 const ARCHIVE_CSV_URL = "archive.csv"; // 追加: archive.csvのパス
-const DAYCORD_PROXY_URL =
-  "https://api.allorigins.win/raw?url=" +
-  encodeURIComponent(
-    "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw",
-  );
+const DAYCORD_TARGET_URL =
+  "https://character-sheets.appspot.com/schedule/list?key=ahVzfmNoYXJhY3Rlci1zaGVldHMtbXByHAsSEkRpc2NvcmRTZXNzaW9uRGF0YRimu5y4BQw";
+const DAYCORD_PROXY_BUILDERS = [
+  (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+];
 const PRESETS_JSON_URL = "presets.json";
+
+const SHARED_EVENT_CACHE_KEY = "sharedEventDataCache_v2";
+const SHARED_EVENT_CACHE_TTL_MS = 1 * 60 * 1000; // 1分
 
 const NAME_ALIASES = {
   vara: "☭",
@@ -26,6 +30,102 @@ function parseCsvToArray(csvText) {
     skipEmptyLines: true,
   });
   return results.data;
+}
+function hashString(value) {
+  let hash = 5381;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 33) ^ value.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(16);
+}
+function serializeEvent(event) {
+  const toIso = (d) => (d instanceof Date ? d.toISOString() : null);
+  return {
+    ...event,
+    date: toIso(event.date),
+    endDate: toIso(event.endDate),
+    seriesStartDate: toIso(event.seriesStartDate),
+    seriesEndDate: toIso(event.seriesEndDate),
+    seriesDates: Array.isArray(event.seriesDates)
+      ? event.seriesDates.map(toIso)
+      : [],
+  };
+}
+function deserializeEvent(event) {
+  const toDate = (v) => (v ? new Date(v) : null);
+  return {
+    ...event,
+    date: toDate(event.date),
+    endDate: toDate(event.endDate),
+    seriesStartDate: toDate(event.seriesStartDate),
+    seriesEndDate: toDate(event.seriesEndDate),
+    seriesDates: Array.isArray(event.seriesDates)
+      ? event.seriesDates.map(toDate).filter(Boolean)
+      : [],
+  };
+}
+function loadCachedSharedEventData() {
+  try {
+    const raw = localStorage.getItem(SHARED_EVENT_CACHE_KEY);
+    if (!raw) return null;
+    const payload = JSON.parse(raw);
+    if (!payload || payload.version !== 2) return null;
+    const cachedAt = payload.cachedAt || 0;
+    if (Date.now() - cachedAt > SHARED_EVENT_CACHE_TTL_MS) return null;
+    const allEvents = (payload.allEvents || []).map(deserializeEvent);
+    const eventsByDate = new Map(
+      (payload.eventsByDate || []).map(([date, events]) => [
+        date,
+        (events || []).map(deserializeEvent),
+      ]),
+    );
+    return {
+      allEvents,
+      eventsByDate,
+      cachedAt,
+      sourceHash: payload.sourceHash || "",
+    };
+  } catch (error) {
+    console.warn("キャッシュの読み込みに失敗しました:", error);
+    return null;
+  }
+}
+function saveCachedSharedEventData({ allEvents, eventsByDate, sourceHash }) {
+  try {
+    const payload = {
+      version: 2,
+      cachedAt: Date.now(),
+      sourceHash: sourceHash || "",
+      allEvents: allEvents.map(serializeEvent),
+      eventsByDate: Array.from(eventsByDate.entries()).map(([date, events]) => [
+        date,
+        events.map(serializeEvent),
+      ]),
+    };
+    localStorage.setItem(SHARED_EVENT_CACHE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("キャッシュの保存に失敗しました:", error);
+  }
+}
+async function refreshSharedEventDataInBackground(currentHash) {
+  try {
+    const freshData = await fetchSharedEventDataFromNetwork();
+    saveCachedSharedEventData(freshData);
+    if (freshData.sourceHash && freshData.sourceHash !== currentHash) {
+      const lastReloadHash = sessionStorage.getItem(
+        "sharedEventDataReloadHash",
+      );
+      if (lastReloadHash !== freshData.sourceHash) {
+        sessionStorage.setItem(
+          "sharedEventDataReloadHash",
+          freshData.sourceHash,
+        );
+        location.reload();
+      }
+    }
+  } catch (error) {
+    console.warn("バックグラウンド更新に失敗しました:", error);
+  }
 }
 function isNextDay(d1, d2) {
   const n = new Date(d1);
@@ -112,6 +212,35 @@ function loadSystemColors() {
   }
   return colors;
 }
+function clearSharedEventCache() {
+  try {
+    localStorage.removeItem(SHARED_EVENT_CACHE_KEY);
+    sessionStorage.removeItem("sharedEventDataReloadHash");
+  } catch (error) {
+    console.warn("キャッシュ削除に失敗しました:", error);
+  }
+}
+async function fetchDaycordWithFallback() {
+  const candidates = DAYCORD_PROXY_BUILDERS.map((build) =>
+    build(DAYCORD_TARGET_URL),
+  );
+  candidates.push(DAYCORD_TARGET_URL);
+  let lastError = null;
+  for (const url of candidates) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.warn(`デイコード取得失敗: ${url} (HTTP ${response.status})`);
+        continue;
+      }
+      return response;
+    } catch (error) {
+      lastError = error;
+      console.warn(`デイコード取得失敗: ${url}`, error);
+    }
+  }
+  throw lastError || new Error("デイコード取得に失敗しました");
+}
 
 // 新しいヘルパー関数：日付をグループ化し、曜日を追加してフォーマット
 function groupAndFormatDatesWithWeekday(fullDateStrings) {
@@ -172,11 +301,11 @@ function groupAndFormatDatesWithWeekday(fullDateStrings) {
   return formattedGroups.join("、");
 }
 
-async function getSharedEventData() {
+async function fetchSharedEventDataFromNetwork() {
   try {
     const [spreadsheetResponse, archiveResponse] = await Promise.all([
-      fetch(SPREADSHEET_URL),
-      fetch(ARCHIVE_CSV_URL),
+      fetch(SPREADSHEET_URL, { cache: "no-store" }),
+      fetch(ARCHIVE_CSV_URL, { cache: "no-store" }),
     ]);
 
     if (!spreadsheetResponse.ok) {
@@ -196,6 +325,7 @@ async function getSharedEventData() {
     const archiveCsvText = archiveResponse.ok
       ? await archiveResponse.text()
       : "";
+    const sourceHash = hashString(`${spreadsheetCsvText}::${archiveCsvText}`);
 
     const spreadsheetRows = parseCsvToArray(spreadsheetCsvText);
     const archiveRows = archiveCsvText ? parseCsvToArray(archiveCsvText) : [];
@@ -326,11 +456,26 @@ async function getSharedEventData() {
         d.setDate(d.getDate() + 1);
       }
     });
-    return { allEvents, eventsByDate };
+    return { allEvents, eventsByDate, sourceHash };
   } catch (error) {
     console.error("Error fetching or parsing shared event data:", error);
-    return { allEvents: [], eventsByDate: new Map() };
+    return { allEvents: [], eventsByDate: new Map(), sourceHash: "" };
   }
+}
+async function getSharedEventData({ useCache = true } = {}) {
+  if (useCache) {
+    const cached = loadCachedSharedEventData();
+    if (cached) {
+      refreshSharedEventDataInBackground(cached.sourceHash);
+      return {
+        allEvents: cached.allEvents,
+        eventsByDate: cached.eventsByDate,
+      };
+    }
+  }
+  const fresh = await fetchSharedEventDataFromNetwork();
+  saveCachedSharedEventData(fresh);
+  return fresh;
 }
 const TooltipManager = {
   element: null,
@@ -1258,7 +1403,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       if (dom.copySelectedDatesBtn) dom.copySelectedDatesBtn.disabled = true;
 
       const [daycordResponse, presetResponse] = await Promise.all([
-        fetch(DAYCORD_PROXY_URL),
+        fetchDaycordWithFallback(),
         fetch(PRESETS_JSON_URL)
           .then((res) => {
             if (!res.ok) {
@@ -1607,6 +1752,16 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
 // --- メイン実行 ---
 document.addEventListener("DOMContentLoaded", async () => {
   const loadingIndicator = document.getElementById("loading-indicator");
+  const refreshBtn = document.getElementById("refresh-events-btn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", async () => {
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = "更新中...";
+      clearSharedEventCache();
+      await refreshSharedEventDataInBackground();
+      location.reload();
+    });
+  }
   if (loadingIndicator) loadingIndicator.style.display = "block";
 
   try {
