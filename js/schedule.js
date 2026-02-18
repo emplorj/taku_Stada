@@ -1432,22 +1432,33 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const doc = new DOMParser().parseFromString(htmlText, "text/html");
       const table = doc.querySelector("table.schedule_table");
       const symbols = ["◎", "〇", "◯", "△", "✕", "□", "－", "×", "▢"];
-      const normalizeStatus = (value) =>
-        (value || "")
+      const allowedStatuses = new Set(["◎", "〇", "△", "✕", "□", "－"]);
+      const normalizeStatus = (value) => {
+        const normalized = (value || "")
           .trim()
           .replace(/◯/g, "〇")
           .replace(/×/g, "✕")
-          .replace(/▢/g, "□") || "－";
+          .replace(/▢/g, "□");
+        return allowedStatuses.has(normalized) ? normalized : "－";
+      };
 
       const parseMarkdownSchedule = (markdownText) => {
         const lines = markdownText
           .split(/\r?\n/)
           .map((line) => line.trim())
           .filter((line) => line.startsWith("|") && line.includes("|"));
-        const headerLine = lines.find(
-          (line) =>
-            line.includes("◎") && line.includes("◯") && line.includes("△"),
-        );
+        const headerLine =
+          lines.find(
+            (line) =>
+              /^\|\s*(日付|日程)/.test(line) &&
+              line.includes("◎") &&
+              (line.includes("◯") || line.includes("〇")) &&
+              line.includes("△"),
+          ) ||
+          lines.find(
+            (line) =>
+              line.includes("◎") && line.includes("◯") && line.includes("△"),
+          );
         if (!headerLine) return null;
 
         const splitRow = (line) =>
@@ -1458,17 +1469,58 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
             .map((cell) => cell.trim());
         const extractName = (cell) =>
           cell.replace(/\[(.+?)\]\([^)]*\)/, "$1").trim();
+        const isInvalidParticipantName = (name) => {
+          if (!name) return true;
+          const normalized = name.trim();
+          if (!normalized) return true;
+          if (symbols.includes(normalized)) return true;
+          if (
+            normalized === "日付" ||
+            normalized === "日程" ||
+            normalized === "日程確定" ||
+            normalized === "フィルター" ||
+            normalized === "確定" ||
+            normalized === "決定"
+          )
+            return true;
+          if (/^\[\s*[xX ]\s*\]$/.test(normalized)) return true;
+          if (/^[-–—]\s*\[[xX ]\]$/.test(normalized)) return true;
+          if (/^[◎〇◯△✕×□▢－]\s*-\s*\[[xX ]\]$/.test(normalized)) return true;
+          if (/[\[\]]/.test(normalized) && /[xX]/.test(normalized)) return true;
+          return false;
+        };
 
         const headerCells = splitRow(headerLine);
-        const participantStartIndex = headerCells.findIndex(
-          (cell) => cell && !symbols.includes(cell),
-        );
-        if (participantStartIndex === -1) return null;
-
-        const names = headerCells
-          .slice(participantStartIndex)
-          .map(extractName)
+        const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/;
+        const linkParticipantColumns = headerCells
+          .map((cell, index) => {
+            const match = cell.match(linkPattern);
+            if (!match) return null;
+            const name = match[1]?.trim();
+            const url = match[2] || "";
+            if (!/input\?key=/.test(url)) return null;
+            if (isInvalidParticipantName(name)) return null;
+            return { index, name };
+          })
           .filter(Boolean);
+        const fallbackParticipantColumns = headerCells
+          .map((cell, index) => ({
+            index,
+            name: extractName(cell),
+          }))
+          .filter(
+            ({ name }) =>
+              name &&
+              !symbols.includes(name) &&
+              !isInvalidParticipantName(name),
+          );
+        const participantColumns =
+          linkParticipantColumns.length > 0
+            ? linkParticipantColumns
+            : fallbackParticipantColumns;
+        if (participantColumns.length === 0) return null;
+
+        const names = participantColumns.map(({ name }) => name);
 
         const scheduleRows = lines.filter((line) =>
           /^\|\s*\d{4}\/\d{2}\/\d{2}/.test(line),
@@ -1476,9 +1528,18 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         const rawSchedule = scheduleRows.map((line) => {
           const cells = splitRow(line);
           const date = cells[0] || "日付不明";
-          const availability = cells
-            .slice(participantStartIndex, participantStartIndex + names.length)
-            .map(normalizeStatus);
+          let participantCells = cells.slice(-participantColumns.length);
+          if (participantCells.length < participantColumns.length) {
+            participantCells = participantCells.concat(
+              Array.from(
+                { length: participantColumns.length - participantCells.length },
+                () => "－",
+              ),
+            );
+          }
+          const availability = participantCells.map((cell) =>
+            normalizeStatus(cell || "－"),
+          );
           return { date, availability };
         });
         return { daycordNames: names, rawSchedule };
@@ -1488,18 +1549,31 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       if (table) {
         const headerRow = table.querySelector("tr#namerow"),
           bodyRows = table.querySelectorAll('tbody tr[id^="row_"]');
-        const headerCells = Array.from(headerRow.querySelectorAll("th"));
-        daycordNames = headerCells
-          .map((th) => th.textContent.trim())
+        const nameLinks = Array.from(
+          headerRow.querySelectorAll("th a.namelink"),
+        );
+        daycordNames = nameLinks
+          .map((link) => link.textContent.trim())
           .filter((name) => name && !symbols.includes(name));
 
-        rawSchedule = Array.from(bodyRows).map((row) => ({
-          date:
-            row.querySelector("th.datetitle")?.textContent.trim() || "日付不明",
-          availability: Array.from(
+        rawSchedule = Array.from(bodyRows).map((row) => {
+          const date =
+            row.querySelector("th.datetitle")?.textContent.trim() || "日付不明";
+          const availability = Array.from(
             row.querySelectorAll("td span.statustag"),
-          ).map((span) => normalizeStatus(span.textContent)),
-        }));
+          ).map((span) => normalizeStatus(span.textContent));
+          if (availability.length > daycordNames.length) {
+            availability.length = daycordNames.length;
+          } else if (availability.length < daycordNames.length) {
+            availability.push(
+              ...Array.from(
+                { length: daycordNames.length - availability.length },
+                () => "－",
+              ),
+            );
+          }
+          return { date, availability };
+        });
       } else {
         const parsed = parseMarkdownSchedule(htmlText);
         if (!parsed) {
