@@ -334,6 +334,20 @@
       const previewPanel =
         container.closest(".preview-panel") || UI.previewPanel;
       const originalTransform = previewPanel.style.transform;
+      const originalContainerTransform = container.style.transform;
+      const selectedType = (
+        cardData["タイプ"] ||
+        cardData.type ||
+        ""
+      ).toUpperCase();
+      const isHorizontalType = selectedType === "HF";
+      const forceVerticalOutput =
+        isHorizontalType && UI.verticalOutputCheckbox?.checked;
+
+      if (forceVerticalOutput) {
+        container.style.transformOrigin = "top left";
+        container.style.transform = "rotate(90deg) translateY(-100%)";
+      }
       previewPanel.style.transform = "none";
 
       try {
@@ -374,6 +388,7 @@
           "画像生成に失敗しました。コンソールで詳細を確認してください。",
         );
       } finally {
+        container.style.transform = originalContainerTransform;
         previewPanel.style.transform = originalTransform;
         btn.textContent = originalButtonText;
         btn.disabled = false;

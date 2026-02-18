@@ -12,6 +12,7 @@
   } = window.CG_UTILS;
   const RENDERER = window.CG_RENDERER;
   const IMAGE = window.CG_IMAGE;
+  const { layoutText } = window.CG_TEXT_LAYOUT;
 
   const TEXT_CANVAS = window.CG_TEXT_CANVAS;
 
@@ -595,9 +596,13 @@
 
       let imageUrl = data["画像URL"] || data.image || "";
       if (!imageUrl || imageUrl === "DEFAULT") {
-        const isFullFrame = (data["タイプ"] || data.type || "")
-          .toUpperCase()
-          .includes("FF");
+        const normalizedType = (
+          data["タイプ"] ||
+          data.type ||
+          ""
+        ).toUpperCase();
+        const isFullFrame =
+          normalizedType.includes("FF") || normalizedType === "HF";
         UI.cardImage.src = isFullFrame
           ? "Card_asset/now_painting_FF.png"
           : "Card_asset/now_painting.png";
@@ -1043,10 +1048,10 @@
 
       generatorContent.style.cssText +=
         "display: block !important; position: absolute !important; left: -9999px !important;";
-      UI.previewWrapper.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 480px !important; height: 720px !important; overflow: visible !important; z-index: -1 !important;`;
-      UI.previewPanel.style.cssText = `width: 480px !important; height: 720px !important; transform: none !important; transform-origin: 0 0 !important;`;
-      UI.cardContainer.style.width = "480px";
-      UI.cardContainer.style.height = "720px";
+      UI.previewWrapper.style.cssText =
+        "position: absolute !important; top: 0 !important; left: 0 !important; overflow: visible !important; z-index: -1 !important;";
+      UI.previewPanel.style.cssText =
+        "transform: none !important; transform-origin: 0 0 !important;";
 
       for (const cardId of S.selectedCardIds) {
         count++;
@@ -1137,7 +1142,22 @@
       // ★★★ この関数はcg-db.jsにあります ★★★
       const color = cardData["色"] || "青";
       const type = (cardData["タイプ"] || "").toUpperCase();
-      const isFullFrame = type === "FF" || type === "FFCF";
+      const isHorizontal = type === "HF";
+      const isFullFrame = type === "FF" || type === "FFCF" || isHorizontal;
+      const useTextStroke = isFullFrame;
+      const cardWidth = isHorizontal ? 720 : 480;
+      const cardHeight = isHorizontal ? 480 : 720;
+
+      if (elements.container) {
+        elements.container.style.width = `${cardWidth}px`;
+        elements.container.style.height = `${cardHeight}px`;
+      }
+      const dbPreviewPanel = document.getElementById("db-preview-panel");
+      if (dbPreviewPanel) {
+        dbPreviewPanel.style.width = `${cardWidth}px`;
+        dbPreviewPanel.style.height = `${cardHeight}px`;
+      }
+
       elements.template.src = `Card_asset/テンプレ/${color}カード${
         isFullFrame ? "FF" : ""
       }.png`;
@@ -1148,7 +1168,32 @@
           : "Card_asset/now_painting.png";
       }
       elements.cardImage.src = imageUrl;
-      elements.imageContainer.style.height = isFullFrame ? "720px" : "480px";
+      elements.imageContainer.style.width = `${cardWidth}px`;
+      elements.imageContainer.style.height = isFullFrame
+        ? `${cardHeight}px`
+        : "480px";
+
+      const dbOverlayImageContainer = document.getElementById(
+        "db-overlay-image-container",
+      );
+      if (dbOverlayImageContainer) {
+        dbOverlayImageContainer.style.width = `${cardWidth}px`;
+        dbOverlayImageContainer.style.height = `${cardHeight}px`;
+      }
+
+      elements.nameContainer.style.top = isHorizontal ? "24px" : "46px";
+      elements.nameContainer.style.width = isHorizontal ? "632px" : "392px";
+      elements.nameContainer.style.height = "56px";
+      elements.textBox.style.left = "44px";
+      elements.textBox.style.top = isHorizontal ? "286px" : "520px";
+      elements.textBox.style.width = isHorizontal ? "632px" : "392px";
+      elements.textBox.style.height = isHorizontal ? "170px" : "177.5px";
+
+      if (elements.textCanvas) {
+        elements.textCanvas.width = isHorizontal ? 632 : 392;
+        elements.textCanvas.height = isHorizontal ? 170 : 178;
+      }
+
       let overlayImageUrl =
         cardData["オーバーレイ画像URL"] || cardData["上絵画像URL"];
       if (overlayImageUrl) {
@@ -1172,7 +1217,7 @@
           : `url('Card_asset/タイトル.png')`;
       elements.textBox.classList.toggle(
         "textbox-styled",
-        type === "FF" || type === "FFCF",
+        type === "FF" || type === "FFCF" || type === "HF",
       );
 
       const effectText = replacePunctuation(cardData["効果説明"] || "");
@@ -1180,14 +1225,14 @@
       const speakerText = replacePunctuation(cardData["話者"] || "");
 
       if (elements.textCanvas && TEXT_CANVAS) {
-        const totalHeight = 177.5;
+        const totalHeight = isHorizontal ? 170 : 177.5;
         const effectLineHeight = 24;
         const flavorLineHeight = 18;
         const speakerLineHeight = 20;
-        const effectPadding = 16;
-        const flavorPadding = 28;
-        const speakerPadding = 21;
-        const canvasWidth = 392;
+        const effectPadding = isHorizontal ? 18 : 16;
+        const flavorPadding = isHorizontal ? 30 : 28;
+        const speakerPadding = isHorizontal ? 30 : 21;
+        const canvasWidth = isHorizontal ? 632 : 392;
 
         const speakerHeight = speakerText ? 25 : 0;
         const ctx = elements.textCanvas.getContext("2d");
@@ -1244,6 +1289,8 @@
             style: {
               font: "400 20px nitalago-ruika, sans-serif",
               color: "#000",
+              strokeColor: useTextStroke ? "#fff" : null,
+              strokeWidth: useTextStroke ? 3 : 0,
             },
             layout: {
               lineHeight: effectLineHeight,
@@ -1269,6 +1316,8 @@
               font: "600 16px 'Klee One'",
               color: "#000",
               vAlign: "bottom",
+              strokeColor: useTextStroke ? "#fff" : null,
+              strokeWidth: useTextStroke ? 2.5 : 0,
             },
             layout: {
               lineHeight: flavorLineHeight,
@@ -1295,6 +1344,8 @@
               color: "#000",
               align: "right",
               vAlign: "bottom",
+              strokeColor: useTextStroke ? "#fff" : null,
+              strokeWidth: useTextStroke ? 2.5 : 0,
             },
             layout: {
               lineHeight: speakerLineHeight,
@@ -1325,10 +1376,18 @@
         };
         renderText();
         if (document.fonts?.load) {
-          Promise.all([
+          Promise.allSettled([
             document.fonts.load("400 20px nitalago-ruika"),
             document.fonts.load("600 16px 'Klee One'"),
-          ]).then(renderText);
+            document.fonts.load("400 28px 'RocknRoll One'"),
+          ]).then(() => {
+            // フォントロード後にカード名レイアウトとCanvas文字を再描画
+            RENDERER.updateCardNameForElement(
+              cardData["カード名"] || "",
+              elements.nameContent,
+            );
+            renderText();
+          });
         }
       }
     },

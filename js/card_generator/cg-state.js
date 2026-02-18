@@ -84,6 +84,7 @@
       CF: { name: "タイトル枠なし" },
       FF: { name: "フルフレーム" },
       FFCF: { name: "フルフレーム(タイトル枠なし)" },
+      HF: { name: "横長" },
     },
 
     colorNameToIdMap: {

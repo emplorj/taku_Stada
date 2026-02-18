@@ -203,8 +203,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resetImage: () => {
       DB.clearEditingState();
+      const selectedType = (UI.cardTypeSelect.value || "").toUpperCase();
       const isFullFrame =
-        UI.cardTypeSelect.value === "FF" || UI.cardTypeSelect.value === "FFCF";
+        selectedType === "FF" ||
+        selectedType === "FFCF" ||
+        selectedType === "HF";
       const src = isFullFrame
         ? "Card_asset/now_painting_FF.png"
         : "Card_asset/now_painting.png";

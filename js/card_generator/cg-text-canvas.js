@@ -5,8 +5,9 @@
 
   const { layoutText } = window.CG_TEXT_LAYOUT;
 
-  const drawTokens = (ctx, line, x, y, opts) => {
+  const drawTokens = (ctx, line, x, y, opts, style) => {
     let cursor = x;
+    const hasStroke = !!style?.strokeColor && (style?.strokeWidth || 0) > 0;
     for (const token of line.tokens) {
       const tracking =
         token.type === "alpha"
@@ -16,6 +17,9 @@
             : 0;
       const chars = Array.from(token.text);
       for (const ch of chars) {
+        if (hasStroke) {
+          ctx.strokeText(ch, cursor, y);
+        }
         ctx.fillText(ch, cursor, y);
         const w = ctx.measureText(ch).width;
         cursor += w + tracking;
@@ -37,6 +41,13 @@
     ctx.fillStyle = style.color;
     ctx.textBaseline = "top";
     ctx.textAlign = style.align || "left";
+    if (style.strokeColor && (style.strokeWidth || 0) > 0) {
+      ctx.strokeStyle = style.strokeColor;
+      ctx.lineWidth = style.strokeWidth;
+      ctx.lineJoin = style.lineJoin || "round";
+      ctx.lineCap = style.lineCap || "round";
+      ctx.miterLimit = style.miterLimit || 2;
+    }
 
     const layout = layoutText(text, ctx, {
       maxWidth: rect.width,
@@ -65,7 +76,7 @@
           : ctx.textAlign === "center"
             ? rect.x + (rect.width - lineWidth) / 2
             : rect.x;
-      drawTokens(ctx, line, startX, y, layoutOptions);
+      drawTokens(ctx, line, startX, y, layoutOptions, style);
       y += layout.lineHeight;
       if (y > rect.y + rect.height) break;
     }

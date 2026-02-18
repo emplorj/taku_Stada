@@ -131,14 +131,62 @@
       const selectedColorId = UI.cardColorSelect.value;
       const selectedType = (UI.cardTypeSelect.value || "").toUpperCase();
       const colorDetails = S.cardColorData[selectedColorId];
-      const isFullFrame = selectedType === "FF" || selectedType === "FFCF";
+      const isHorizontal = selectedType === "HF";
+      const isFullFrame =
+        selectedType === "FF" || selectedType === "FFCF" || isHorizontal;
+      const useTextStroke = isFullFrame;
+      const cardWidth = isHorizontal ? 720 : 480;
+      const cardHeight = isHorizontal ? 480 : 720;
+
+      UI.previewWrapper.style.width = `${cardWidth}px`;
+      UI.previewWrapper.style.maxWidth = `${cardWidth}px`;
+      UI.previewWrapper.style.flexBasis = `${cardWidth}px`;
+      UI.previewPanel.style.width = `${cardWidth}px`;
+      UI.previewPanel.style.height = `${cardHeight}px`;
+      UI.previewArea.style.width = `${cardWidth}px`;
+      UI.previewArea.style.height = `${cardHeight}px`;
+      UI.cardContainer.style.width = `${cardWidth}px`;
+      UI.cardContainer.style.height = `${cardHeight}px`;
+
+      UI.imageContainer.style.width = `${cardWidth}px`;
+      UI.imageContainer.style.height = isFullFrame
+        ? `${cardHeight}px`
+        : "480px";
+      UI.overlayImageContainer.style.width = `${cardWidth}px`;
+      UI.overlayImageContainer.style.height = `${cardHeight}px`;
+
+      if (isHorizontal) {
+        UI.cardNameContainer.style.top = "24px";
+        UI.cardNameContainer.style.width = "632px";
+        UI.cardNameContainer.style.height = "56px";
+        UI.textBoxContainer.style.left = "44px";
+        UI.textBoxContainer.style.top = "286px";
+        UI.textBoxContainer.style.width = "632px";
+        UI.textBoxContainer.style.height = "170px";
+      } else {
+        UI.cardNameContainer.style.top = "46px";
+        UI.cardNameContainer.style.width = "392px";
+        UI.cardNameContainer.style.height = "56px";
+        UI.textBoxContainer.style.left = "44px";
+        UI.textBoxContainer.style.top = "520px";
+        UI.textBoxContainer.style.width = "392px";
+        UI.textBoxContainer.style.height = "177.5px";
+      }
+
+      if (UI.textCanvas) {
+        const textCanvasWidth = isHorizontal ? 632 : 392;
+        const textCanvasHeight = isHorizontal ? 170 : 178;
+        UI.textCanvas.width = textCanvasWidth;
+        UI.textCanvas.height = textCanvasHeight;
+      }
+
       UI.cardNameContent.classList.toggle(
         "title-styled",
         selectedType === "CF" || selectedType === "FFCF",
       );
       UI.textBoxContainer.classList.toggle(
         "textbox-styled",
-        selectedType === "FF" || selectedType === "FFCF",
+        selectedType === "FF" || selectedType === "FFCF" || isHorizontal,
       );
       UI.cardNameContainer.style.backgroundImage =
         selectedType === "CF" || selectedType === "FFCF"
@@ -147,7 +195,6 @@
       UI.cardTemplateImage.src = `Card_asset/テンプレ/${selectedColorId}カード${
         isFullFrame ? "FF" : ""
       }.png`;
-      UI.imageContainer.style.height = isFullFrame ? "720px" : "480px";
       const isDefaultImage = UI.cardImage.src.includes("now_painting");
       if (isDefaultImage) {
         const newSrc = isFullFrame
@@ -175,14 +222,14 @@
       );
 
       if (UI.textCanvas && TEXT_CANVAS) {
-        const totalHeight = 177.5;
+        const totalHeight = isHorizontal ? 170 : 177.5;
         const effectLineHeight = 24;
         const flavorLineHeight = 18;
         const speakerLineHeight = 20;
-        const effectPadding = 16;
-        const flavorPadding = 28;
-        const speakerPadding = 21;
-        const canvasWidth = 392;
+        const effectPadding = isHorizontal ? 18 : 16;
+        const flavorPadding = isHorizontal ? 30 : 28;
+        const speakerPadding = isHorizontal ? 30 : 21;
+        const canvasWidth = isHorizontal ? 632 : 392;
 
         const speakerHeight = speakerText ? 25 : 0;
         const ctx = UI.textCanvas.getContext("2d");
@@ -239,6 +286,8 @@
             style: {
               font: "400 20px nitalago-ruika, sans-serif",
               color: "#000",
+              strokeColor: useTextStroke ? "#fff" : null,
+              strokeWidth: useTextStroke ? 3 : 0,
             },
             layout: {
               lineHeight: effectLineHeight,
@@ -264,6 +313,8 @@
               font: "600 16px 'Klee One'",
               color: "#000",
               vAlign: "bottom",
+              strokeColor: useTextStroke ? "#fff" : null,
+              strokeWidth: useTextStroke ? 2.5 : 0,
             },
             layout: {
               lineHeight: flavorLineHeight,
@@ -290,6 +341,8 @@
               color: "#000",
               align: "right",
               vAlign: "bottom",
+              strokeColor: useTextStroke ? "#fff" : null,
+              strokeWidth: useTextStroke ? 2.5 : 0,
             },
             layout: {
               lineHeight: speakerLineHeight,
@@ -320,21 +373,39 @@
         };
         renderText();
         if (document.fonts?.load) {
-          Promise.all([
+          Promise.allSettled([
             document.fonts.load("400 20px nitalago-ruika"),
             document.fonts.load("600 16px 'Klee One'"),
-          ]).then(renderText);
+            document.fonts.load("400 28px 'RocknRoll One'"),
+          ]).then(() => {
+            // フォント到着後にカード名スケーリングとCanvas文字を再描画
+            RENDERER.updateCardName(UI.cardNameInput.value);
+            renderText();
+          });
         }
       }
       RENDERER.updateRarityDisplay();
       RENDERER.updateThemeColor(colorDetails);
       RENDERER.updateThemeColor(colorDetails);
-      requestAnimationFrame(window.CG_IMAGE.setupImageForDrag);
+
+      const layoutKey = `${selectedType}|${UI.cardImage.src}|${cardWidth}x${
+        isFullFrame ? cardHeight : 480
+      }`;
+      const shouldResetImageLayout = RENDERER._lastImageLayoutKey !== layoutKey;
+      RENDERER._lastImageLayoutKey = layoutKey;
+
+      requestAnimationFrame(() => {
+        if (shouldResetImageLayout) {
+          window.CG_IMAGE.setupImageForDrag();
+        } else {
+          window.CG_IMAGE.updateImageTransform?.();
+        }
+      });
     },
 
     scalePreview: () => {
       if (!UI.previewWrapper || !UI.previewPanel) return;
-      const baseWidth = 480;
+      const baseWidth = UI.cardContainer?.offsetWidth || 480;
       const containerWidth = UI.previewWrapper.offsetWidth;
       const scale = containerWidth < baseWidth ? containerWidth / baseWidth : 1;
       UI.previewPanel.style.transform =
