@@ -13,6 +13,8 @@
   const RENDERER = window.CG_RENDERER;
   const IMAGE = window.CG_IMAGE;
 
+  const TEXT_CANVAS = window.CG_TEXT_CANVAS;
+
   const DB = {
     // GAS経由で画像をアップロード
     uploadImageViaGAS: (file) => {
@@ -129,7 +131,7 @@
               escapeHtml(cardData.name) || "(無題)"
             }」を新規登録しました。`;
         showCustomAlert(
-          message + "\n\n（数秒後にデータベースタブで確認できます）"
+          message + "\n\n（数秒後にデータベースタブで確認できます）",
         );
 
         UI.dbModalOverlay.classList.remove("is-visible");
@@ -156,7 +158,7 @@
       try {
         await DB.saveCardToDatabase({ action: "delete", ID: cardId });
         showCustomAlert(
-          `ID: ${cardId} の削除リクエストを送信しました。\n2秒後にリストを更新します。`
+          `ID: ${cardId} の削除リクエストを送信しました。\n2秒後にリストを更新します。`,
         );
         setTimeout(DB.fetchAllCards, 2000);
       } catch (error) {
@@ -188,7 +190,7 @@
 
       if (!S.activeColorFilters.has("all") && S.activeColorFilters.size > 0) {
         filteredCards = filteredCards.filter((card) =>
-          S.activeColorFilters.has(card["色"])
+          S.activeColorFilters.has(card["色"]),
         );
       }
 
@@ -262,7 +264,7 @@
         cardElement.style.setProperty("--card-dark-color", colorDetails.hover);
         cardElement.style.setProperty(
           "--card-text-color",
-          colorDetails.textColor
+          colorDetails.textColor,
         );
 
         let imageUrl = card["画像URL"];
@@ -276,8 +278,8 @@
                       card["ID"]
                     }" ${isChecked}></div>
                     <div class="db-card-image"><img src="${imageUrl}" alt="${escapeHtml(
-          card["カード名"]
-        )}" loading="lazy" crossorigin="anonymous" onerror="this.onerror=null;this.src='Card_asset/image_load_error.png';"></div>
+                      card["カード名"],
+                    )}" loading="lazy" crossorigin="anonymous" onerror="this.onerror=null;this.src='Card_asset/image_load_error.png';"></div>
                     <div class="db-card-info">
                         <h3 class="db-card-name" style="color: ${
                           colorDetails.textColor
@@ -296,7 +298,7 @@
                         <button class="secondary-button save-btn">保存</button>
                         <button class="secondary-button edit-btn">編集</button>
                         <button class="secondary-button delete-btn" data-name="${escapeHtml(
-                          card["カード名"] || ""
+                          card["カード名"] || "",
                         )}">削除</button>
                     </div>`;
         fragment.appendChild(cardElement);
@@ -317,22 +319,22 @@
           isAll
             ? "#444" // 「全て」の背景色をグレーに変更
             : id === "虹" // idが「虹」の場合
-            ? details.color // 虹のグラデーションを適用
-            : details.color.startsWith("linear") // それ以外のlinear-gradientの場合
-            ? "#888" // 現状維持のグレー
-            : details.color // 通常の色
+              ? details.color // 虹のグラデーションを適用
+              : details.color.startsWith("linear") // それ以外のlinear-gradientの場合
+                ? "#888" // 現状維持のグレー
+                : details.color, // 通常の色
         );
         btn.style.setProperty(
           "--filter-btn-hover-text-color",
-          details.textColor
+          details.textColor,
         );
         return btn;
       };
       fragment.appendChild(
-        createButton("all", { name: "全て", textColor: "#ffffff" }, true)
+        createButton("all", { name: "全て", textColor: "#ffffff" }, true),
       );
       Object.entries(S.cardColorData).forEach(([id, details]) =>
-        fragment.appendChild(createButton(id, details))
+        fragment.appendChild(createButton(id, details)),
       );
       UI.dbColorFilterContainer.innerHTML = "";
       UI.dbColorFilterContainer.appendChild(fragment);
@@ -404,7 +406,7 @@
         console.error("カードデータの読み込みエラー:", error);
         if (isEditing)
           showCustomAlert(
-            `カード情報の読み込みに失敗しました。\n${error.message}`
+            `カード情報の読み込みに失敗しました。\n${error.message}`,
           );
         DB.clearEditingState();
         if (typeof dataOrId !== "string") throw error; // Re-throw for batch processing
@@ -474,7 +476,7 @@
         } else if (button.classList.contains("delete-btn")) {
           const cardName = button.dataset.name || "このカード";
           showCustomConfirm(
-            `【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除しますか？`
+            `【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除しますか？`,
           ).then((confirmed) => {
             if (confirmed) DB.deleteCard(cardId);
           });
@@ -509,7 +511,7 @@
         .forEach((btn) => {
           btn.classList.toggle(
             "active",
-            S.activeColorFilters.has(btn.dataset.color)
+            S.activeColorFilters.has(btn.dataset.color),
           );
         });
       DB.applyDbFiltersAndSort();
@@ -545,11 +547,11 @@
           const cardName =
             document.getElementById("db-info-name").textContent || "このカード";
           showCustomConfirm(
-            `【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除しますか？`
+            `【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除しますか？`,
           ).then((confirmed) => {
             if (confirmed)
               DB.deleteCard(cardId).then(() =>
-                document.getElementById("db-back-to-list-btn").click()
+                document.getElementById("db-back-to-list-btn").click(),
               );
           });
         }
@@ -679,7 +681,7 @@
         if (currentCategory.items.length > 0)
           S.teikeiCategories.push(currentCategory);
         const otherCategoryIndex = S.teikeiCategories.findIndex(
-          (cat) => cat.name === "その他"
+          (cat) => cat.name === "その他",
         );
         if (
           otherCategoryIndex !== -1 &&
@@ -688,7 +690,7 @@
         ) {
           const otherCategory = S.teikeiCategories.splice(
             otherCategoryIndex,
-            1
+            1,
           )[0];
           S.teikeiCategories.push(otherCategory);
         }
@@ -749,7 +751,7 @@
           const contentDiv = document.createElement("div");
           contentDiv.className = "teikei-accordion-content";
           category.items.forEach((item) =>
-            contentDiv.appendChild(renderItem(item))
+            contentDiv.appendChild(renderItem(item)),
           );
           details.appendChild(contentDiv);
           UI.teikeiListContainer.appendChild(details);
@@ -773,7 +775,7 @@
           tabContent.className = "teikei-tab-content";
           tabContent.id = tabId;
           category.items.forEach((item) =>
-            tabContent.appendChild(renderItem(item))
+            tabContent.appendChild(renderItem(item)),
           );
           tabContentWrapper.appendChild(tabContent);
           if (index === 0) {
@@ -835,7 +837,7 @@
     },
     toggleCardSelection: (cardId) => {
       const checkbox = document.querySelector(
-        `.card-checkbox[data-id="${cardId}"]`
+        `.card-checkbox[data-id="${cardId}"]`,
       );
       if (checkbox.checked) {
         S.selectedCardIds.add(cardId);
@@ -898,22 +900,7 @@
         // ジェネレーターにデータをロード
         await DB.loadCardDataIntoGenerator(cardData, false);
 
-        // 一時的にletter-spacingを変更
-        const charKernElements =
-          UI.cardContainer.querySelectorAll(".char-kern");
-        const alphaKernElements =
-          UI.cardContainer.querySelectorAll(".alpha-kern");
-        let originalCharKernSpacings = [];
-        let originalAlphaKernSpacings = [];
-
-        charKernElements.forEach((el, i) => {
-          originalCharKernSpacings[i] = el.style.letterSpacing;
-          el.style.setProperty("letter-spacing", "0.1em", "important");
-        });
-        alphaKernElements.forEach((el, i) => {
-          originalAlphaKernSpacings[i] = el.style.letterSpacing;
-          el.style.setProperty("letter-spacing", "0.1em", "important");
-        });
+        // Canvas描画のため、文字間隔の一時調整は不要
 
         // 読み込みと描画を確実に待つ
         await Promise.race([
@@ -924,12 +911,12 @@
           new Promise((_, reject) =>
             setTimeout(
               () => reject(new Error("画像読み込みタイムアウト")),
-              10000
-            )
+              10000,
+            ),
           ),
         ]);
         await new Promise((r) =>
-          requestAnimationFrame(() => setTimeout(r, 100))
+          requestAnimationFrame(() => setTimeout(r, 100)),
         );
 
         // 完全に描画されたジェネレーターを画像化
@@ -939,21 +926,7 @@
           button: button,
         });
 
-        // letter-spacingを元に戻す
-        charKernElements.forEach((el, i) => {
-          el.style.setProperty(
-            "letter-spacing",
-            originalCharKernSpacings[i],
-            "important"
-          );
-        });
-        alphaKernElements.forEach((el, i) => {
-          el.style.setProperty(
-            "letter-spacing",
-            originalAlphaKernSpacings[i],
-            "important"
-          );
-        });
+        // Canvas描画のため、文字間隔の復元は不要
       } catch (error) {
         console.error(`カード(ID: ${cardId})のダウンロード失敗:`, error);
         showCustomAlert("カード画像の生成に失敗しました: " + error.message);
@@ -982,7 +955,7 @@
         textColor: "#bdc3c7",
       };
       infoWrapper.style.backgroundColor = colorDetails.color.startsWith(
-        "linear"
+        "linear",
       )
         ? colorDetails.hover
         : colorDetails.color;
@@ -1040,10 +1013,8 @@
         imageContainer: document.getElementById("db-image-container"),
         nameContent: document.getElementById("db-card-name-content"),
         nameContainer: document.getElementById("db-card-name-container"),
-        effect: document.getElementById("db-effect-display"),
-        flavor: document.getElementById("db-flavor-display"),
-        speaker: document.getElementById("db-flavor-speaker-display"),
         textBox: document.getElementById("db-text-box-container"),
+        textCanvas: document.getElementById("db-text-canvas"),
         background: document.getElementById("db-background-image"),
         sparkle: document.getElementById("db-sparkle-overlay-image"),
         overlayImage: document.getElementById("db-overlay-image"),
@@ -1090,7 +1061,7 @@
 
           await Promise.all([IMAGE.waitForCardImages(), document.fonts.ready]);
           await new Promise((resolve) =>
-            requestAnimationFrame(() => setTimeout(resolve, 50))
+            requestAnimationFrame(() => setTimeout(resolve, 50)),
           );
 
           const fileName = `${(
@@ -1099,22 +1070,7 @@
           let imageBlob;
           const isSparkle = cardData["キラ"]?.toLowerCase() === "true";
 
-          // 一時的にletter-spacingを変更
-          const charKernElements =
-            UI.cardContainer.querySelectorAll(".char-kern");
-          const alphaKernElements =
-            UI.cardContainer.querySelectorAll(".alpha-kern");
-          let originalCharKernSpacings = [];
-          let originalAlphaKernSpacings = [];
-
-          charKernElements.forEach((el, i) => {
-            originalCharKernSpacings[i] = el.style.letterSpacing;
-            el.style.setProperty("letter-spacing", "0.1em", "important");
-          });
-          alphaKernElements.forEach((el, i) => {
-            originalAlphaKernSpacings[i] = el.style.letterSpacing;
-            el.style.setProperty("letter-spacing", "0.1em", "important");
-          });
+          // Canvas描画のため、文字間隔の一時調整は不要
 
           if (isSparkle) {
             UI.sparkleCheckbox.checked = true;
@@ -1130,7 +1086,7 @@
               scale: scale,
             });
             imageBlob = await new Promise((resolve) =>
-              canvas.toBlob(resolve, "image/png")
+              canvas.toBlob(resolve, "image/png"),
             );
           }
 
@@ -1140,23 +1096,17 @@
             throw new Error("生成された画像データが空です。");
           }
 
-          // letter-spacingを元に戻す
-          charKernElements.forEach(
-            (el) => (el.style.letterSpacing = originalCharKernSpacing)
-          );
-          alphaKernElements.forEach(
-            (el) => (el.style.letterSpacing = originalAlphaKernSpacing)
-          );
+          // Canvas描画のため、文字間隔の復元は不要
         } catch (err) {
           const cardData = S.allCardsData.find((c) => c["ID"] === cardId);
           const cardIdentifier = cardData ? cardData["カード名"] : cardId;
           console.error(
             `カード[${cardIdentifier}]の画像生成に失敗しました:`,
-            err
+            err,
           );
           zip.file(
             `ERROR_${cardIdentifier}.txt`,
-            `このカードの生成に失敗しました。\nエラー: ${err.message}`
+            `このカードの生成に失敗しました。\nエラー: ${err.message}`,
           );
         }
       }
@@ -1210,11 +1160,11 @@
       }
       RENDERER.updateCardNameForElement(
         cardData["カード名"] || "",
-        elements.nameContent
+        elements.nameContent,
       );
       elements.nameContent.classList.toggle(
         "title-styled",
-        type === "CF" || type === "FFCF"
+        type === "CF" || type === "FFCF",
       );
       elements.nameContainer.style.backgroundImage =
         type === "CF" || type === "FFCF"
@@ -1222,30 +1172,165 @@
           : `url('Card_asset/タイトル.png')`;
       elements.textBox.classList.toggle(
         "textbox-styled",
-        type === "FF" || type === "FFCF"
+        type === "FF" || type === "FFCF",
       );
 
-      // ★★★ 修正箇所 ★★★
-      elements.effect.innerHTML = replacePunctuation(
-        window.CG_UTILS.addSpacingToChars(cardData["効果説明"] || "")
-      );
-
+      const effectText = replacePunctuation(cardData["効果説明"] || "");
       const flavorText = replacePunctuation(cardData["フレーバー"] || "");
       const speakerText = replacePunctuation(cardData["話者"] || "");
-      elements.flavor.style.display = flavorText ? "block" : "none";
-      elements.speaker.style.display = speakerText ? "block" : "none";
-      let flavorEl = elements.flavor.querySelector(".inner-text");
-      if (!flavorEl) {
-        elements.flavor.innerHTML = '<div class="inner-text"></div>';
-        flavorEl = elements.flavor.querySelector(".inner-text");
+
+      if (elements.textCanvas && TEXT_CANVAS) {
+        const totalHeight = 177.5;
+        const effectLineHeight = 24;
+        const flavorLineHeight = 18;
+        const speakerLineHeight = 20;
+        const effectPadding = 16;
+        const flavorPadding = 28;
+        const speakerPadding = 21;
+        const canvasWidth = 392;
+
+        const speakerHeight = speakerText ? 25 : 0;
+        const ctx = elements.textCanvas.getContext("2d");
+        ctx.font = "600 16px 'Klee One'";
+        const flavorWidth = canvasWidth - flavorPadding * 2;
+        const flavorLayout = flavorText
+          ? layoutText(flavorText, ctx, {
+              maxWidth: flavorWidth,
+              maxLines: 0,
+              lineHeight: flavorLineHeight,
+              jpTracking: S.textSettings.flavor.jpTracking,
+              alphaTracking: S.textSettings.flavor.alphaTracking,
+              kinsoku: S.textSettings.flavor.kinsoku,
+              ellipsis: S.textSettings.flavor.ellipsis,
+              avoidAlphaHead: true,
+              combineAlphaTailToNext: false,
+            })
+          : { lines: [] };
+        const rawFlavorHeight = flavorLayout.lines.length * flavorLineHeight;
+        const maxFlavorHeight = Math.max(0, totalHeight - speakerHeight);
+        const flavorHeight = Math.min(rawFlavorHeight, maxFlavorHeight);
+        const effectHeight = Math.max(
+          effectLineHeight,
+          totalHeight - speakerHeight - flavorHeight,
+        );
+        const flavorLineCount = flavorLayout.lines.length;
+        const baseMaxLines = 5;
+        const effectMaxLinesBase = Math.min(
+          baseMaxLines + (!flavorText ? 1 : 0) + (!speakerText ? 1 : 0),
+          Math.ceil(effectHeight / effectLineHeight),
+        );
+        const effectMaxLines =
+          flavorLineCount <= 2
+            ? effectMaxLinesBase
+            : flavorLineCount === 3
+              ? Math.min(4, effectMaxLinesBase)
+              : flavorLineCount <= 5
+                ? Math.min(3, effectMaxLinesBase)
+                : flavorLineCount === 6
+                  ? Math.min(2, effectMaxLinesBase)
+                  : 1;
+        const flavorMaxLines = flavorLineHeight
+          ? Math.floor(flavorHeight / flavorLineHeight)
+          : 0;
+
+        const settings = {
+          effect: {
+            rect: {
+              x: effectPadding,
+              y: 0,
+              width: canvasWidth - effectPadding * 2,
+              height: effectHeight,
+            },
+            style: {
+              font: "400 20px nitalago-ruika, sans-serif",
+              color: "#000",
+            },
+            layout: {
+              lineHeight: effectLineHeight,
+              jpTracking: S.textSettings.effect.jpTracking,
+              alphaTracking: S.textSettings.effect.alphaTracking,
+              maxLines: effectMaxLines,
+              kinsoku: S.textSettings.effect.kinsoku,
+              ellipsis: true,
+              avoidAlphaHead: true,
+              combineAlphaTailToNext: false,
+              punctAdvanceScale: 1,
+              punctTailAdvanceScale: 1,
+            },
+          },
+          flavor: {
+            rect: {
+              x: flavorPadding - 2,
+              y: totalHeight - speakerHeight - flavorHeight + 2,
+              width: flavorWidth,
+              height: flavorHeight,
+            },
+            style: {
+              font: "600 16px 'Klee One'",
+              color: "#000",
+              vAlign: "bottom",
+            },
+            layout: {
+              lineHeight: flavorLineHeight,
+              jpTracking: S.textSettings.flavor.jpTracking,
+              alphaTracking: S.textSettings.flavor.alphaTracking,
+              maxLines: flavorMaxLines,
+              kinsoku: S.textSettings.flavor.kinsoku,
+              ellipsis: S.textSettings.flavor.ellipsis,
+              avoidAlphaHead: true,
+              combineAlphaTailToNext: false,
+              punctAdvanceScale: 1,
+              punctTailAdvanceScale: 1,
+            },
+          },
+          speaker: {
+            rect: {
+              x: speakerPadding + 10,
+              y: totalHeight - speakerHeight,
+              width: canvasWidth - speakerPadding * 2,
+              height: speakerHeight,
+            },
+            style: {
+              font: "600 16px 'Klee One'",
+              color: "#000",
+              align: "right",
+              vAlign: "bottom",
+            },
+            layout: {
+              lineHeight: speakerLineHeight,
+              jpTracking: S.textSettings.speaker.jpTracking,
+              alphaTracking: S.textSettings.speaker.alphaTracking,
+              maxLines: speakerText ? 1 : 0,
+              kinsoku: S.textSettings.speaker.kinsoku,
+              ellipsis: S.textSettings.speaker.ellipsis,
+              avoidAlphaHead: true,
+              punctAdvanceScale: 1,
+              punctTailAdvanceScale: 1,
+            },
+            prefix: "─── ",
+          },
+        };
+
+        const renderText = () => {
+          TEXT_CANVAS.renderTextLayer(
+            elements.textCanvas,
+            {
+              effect: effectText,
+              flavor: flavorText,
+              speaker: speakerText,
+            },
+            settings,
+            1,
+          );
+        };
+        renderText();
+        if (document.fonts?.load) {
+          Promise.all([
+            document.fonts.load("400 20px nitalago-ruika"),
+            document.fonts.load("600 16px 'Klee One'"),
+          ]).then(renderText);
+        }
       }
-      flavorEl.innerHTML = flavorText.replace(/\n/g, "<br>");
-      elements.speaker.innerText = speakerText ? `─── ${speakerText}` : "";
-      RENDERER.adjustTextBoxLayout(
-        elements.effect,
-        elements.flavor,
-        elements.speaker
-      );
     },
   };
 

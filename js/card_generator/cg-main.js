@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!S || !UI || !RENDERER || !IMAGE || !DB || !BATCH) {
     console.error(
-      "Card Generatorのモジュールが不足しています。ファイルの読み込み順を確認してください。"
+      "Card Generatorのモジュールが不足しています。ファイルの読み込み順を確認してください。",
     );
     return;
   }
@@ -73,22 +73,22 @@ document.addEventListener("DOMContentLoaded", () => {
       UI.resetImageBtn.addEventListener("click", MAIN.resetImage);
       UI.overlayImageUpload.addEventListener(
         "change",
-        handleOverlayImageUpload
+        handleOverlayImageUpload,
       );
       UI.resetOverlayImageBtn.addEventListener("click", MAIN.resetOverlayImage);
       UI.resetImagePositionBtn.addEventListener(
         "click",
-        () => UI.cardImage.src && setupImageForDrag()
+        () => UI.cardImage.src && setupImageForDrag(),
       );
       UI.resetOverlayPositionBtn.addEventListener(
         "click",
-        () => UI.overlayImage.src && setupOverlayImageForDrag()
+        () => UI.overlayImage.src && setupOverlayImageForDrag(),
       );
 
       UI.editModeRadios.forEach((radio) =>
         radio.addEventListener("change", (e) => {
           S.activeManipulationTarget = e.target.value;
-        })
+        }),
       );
 
       UI.previewArea.addEventListener("mousedown", startDrag);
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       UI.rarityImageUpload.addEventListener(
         "change",
-        IMAGE.handleRarityImageUpload
+        IMAGE.handleRarityImageUpload,
       );
 
       const handleDownload = (isTemplate) => {
@@ -126,13 +126,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       UI.downloadBtn.addEventListener("click", () => handleDownload(false));
       UI.downloadTemplateBtn.addEventListener("click", () =>
-        handleDownload(true)
+        handleDownload(true),
       );
       UI.sparkleCheckbox.addEventListener("change", IMAGE.updateSparkleEffect);
 
       UI.openDbModalBtn.addEventListener("click", DB.openDatabaseModal);
       UI.modalCloseBtn.addEventListener("click", () =>
-        UI.dbModalOverlay.classList.remove("is-visible")
+        UI.dbModalOverlay.classList.remove("is-visible"),
       );
       UI.dbModalOverlay.addEventListener("click", (e) => {
         if (e.target === UI.dbModalOverlay)
@@ -144,11 +144,11 @@ document.addEventListener("DOMContentLoaded", () => {
       UI.registrantInput.addEventListener("input", () =>
         localStorage.setItem(
           "cardGeneratorRegistrant",
-          UI.registrantInput.value
-        )
+          UI.registrantInput.value,
+        ),
       );
       UI.artistInput.addEventListener("input", () =>
-        localStorage.setItem("cardGeneratorArtist", UI.artistInput.value)
+        localStorage.setItem("cardGeneratorArtist", UI.artistInput.value),
       );
 
       UI.tabDatabase.addEventListener("change", () => {
@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       UI.dbColorFilterContainer.addEventListener(
         "click",
-        DB.handleColorFilterClick
+        DB.handleColorFilterClick,
       );
       UI.dbSearchInput.addEventListener("input", applyDbFiltersAndSort);
       UI.dbSearchField.addEventListener("change", applyDbFiltersAndSort);
@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       UI.openTeikeiModalBtn.addEventListener("click", DB.openTeikeiModal);
       UI.teikeiModalCloseBtn.addEventListener("click", () =>
-        UI.teikeiModalOverlay.classList.remove("is-visible")
+        UI.teikeiModalOverlay.classList.remove("is-visible"),
       );
       UI.teikeiModalOverlay.addEventListener("click", (e) => {
         if (e.target === UI.teikeiModalOverlay)
@@ -176,12 +176,14 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       UI.teikeiListContainer.addEventListener(
         "click",
-        DB.handleTeikeiListClick
+        DB.handleTeikeiListClick,
       );
 
       UI.batchFileUpload.addEventListener("change", handleBatchFileUpload);
       UI.imageFolderUpload.addEventListener("change", handleImageFolderUpload);
       UI.batchDownloadBtn.addEventListener("click", processBatchDownload);
+
+      // テキスト設定UIを撤去したため、設定変更ハンドラは不要
 
       window.addEventListener("resize", scalePreview);
       window.addEventListener("resize", MAIN.handleBatchSectionCollapse);
@@ -190,11 +192,11 @@ document.addEventListener("DOMContentLoaded", () => {
     populateSelects: () => {
       Object.entries(S.cardColorData).forEach(([id, details]) =>
         UI.cardColorSelect.add(
-          new Option(`${details.name}：${details.description}`, id)
-        )
+          new Option(`${details.name}：${details.description}`, id),
+        ),
       );
       Object.entries(S.cardTypes).forEach(([key, details]) =>
-        UI.cardTypeSelect.add(new Option(details.name, key))
+        UI.cardTypeSelect.add(new Option(details.name, key)),
       );
       UI.cardColorSelect.value = "青";
     },

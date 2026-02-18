@@ -33,7 +33,7 @@
     checkDefaultImageTransparency: (src) => {
       IMAGE.checkImageTransparency(src).then((hasTransparency) => {
         const backgroundGroup = document.getElementById(
-          "background-select-group"
+          "background-select-group",
         );
         backgroundGroup.style.display = hasTransparency ? "block" : "none";
         UI.backgroundSelect.value = hasTransparency
@@ -57,7 +57,7 @@
           IMAGE.setupImageForDrag();
           IMAGE.checkImageTransparency(imageUrl).then((hasTransparency) => {
             const backgroundGroup = document.getElementById(
-              "background-select-group"
+              "background-select-group",
             );
             backgroundGroup.style.display = hasTransparency ? "block" : "none";
             UI.backgroundSelect.value = hasTransparency
@@ -337,44 +337,17 @@
       previewPanel.style.transform = "none";
 
       try {
-        const effectEl = container.querySelector(
-          "#effect-display, #db-effect-display"
-        );
-        const flavorEl = container.querySelector(
-          "#flavor-display, #db-flavor-display"
-        );
-        const speakerEl = container.querySelector(
-          "#flavor-speaker-display, #db-flavor-speaker-display"
-        );
-
-        if (effectEl && flavorEl && speakerEl) {
-          RENDERER.forceAdjustTextBoxLayout(effectEl, flavorEl, speakerEl);
-        }
+        // Canvas描画に切替済みのため、DOMテキストの再調整は不要
 
         await Promise.all([
           IMAGE.waitForCardImages(container),
           document.fonts.ready,
           new Promise((resolve) =>
-            requestAnimationFrame(() => setTimeout(resolve, 50))
+            requestAnimationFrame(() => setTimeout(resolve, 50)),
           ),
         ]);
 
-        // 一時的にletter-spacingを変更
-        const charKernElements = container.querySelectorAll(".char-kern");
-        const alphaKernElements = container.querySelectorAll(".alpha-kern");
-        const originalCharKernSpacings = Array.from(charKernElements).map(
-          (el) => el.style.letterSpacing
-        );
-        const originalAlphaKernSpacings = Array.from(alphaKernElements).map(
-          (el) => el.style.letterSpacing
-        );
-
-        charKernElements.forEach((el) =>
-          el.style.setProperty("letter-spacing", "0.2em", "important")
-        );
-        alphaKernElements.forEach((el) =>
-          el.style.setProperty("letter-spacing", "0.2em", "important")
-        );
+        // Canvas描画のため、文字間隔の一時調整は不要
 
         const canvas = await html2canvas(container, {
           backgroundColor: null,
@@ -382,27 +355,13 @@
           scale: UI.highResCheckbox.checked && !useSparkle ? 2 : 1,
         });
 
-        // letter-spacingを元に戻す
-        charKernElements.forEach((el, i) => {
-          el.style.setProperty(
-            "letter-spacing",
-            originalCharKernSpacings[i],
-            "important"
-          );
-        });
-        alphaKernElements.forEach((el, i) => {
-          el.style.setProperty(
-            "letter-spacing",
-            originalAlphaKernSpacings[i],
-            "important"
-          );
-        });
+        // Canvas描画のため、文字間隔の復元は不要
 
         const fileName = isTemplate
           ? `${cardData["色"]}_${cardData["タイプ"] || "Standard"}_template.png`
           : `${(cardData["カード名"] || "custom_card").replace(
               /[()`/\\?%*:|"<>]/g,
-              ""
+              "",
             )}.png`;
 
         const link = document.createElement("a");
@@ -412,7 +371,7 @@
       } catch (err) {
         console.error("画像生成失敗:", err);
         showCustomAlert(
-          "画像生成に失敗しました。コンソールで詳細を確認してください。"
+          "画像生成に失敗しました。コンソールで詳細を確認してください。",
         );
       } finally {
         previewPanel.style.transform = originalTransform;
@@ -423,7 +382,7 @@
 
     createSparkleApngBlob: async (container) => {
       const sparkleOverlay = container.querySelector(
-        "#sparkle-overlay-image, #db-sparkle-overlay-image"
+        "#sparkle-overlay-image, #db-sparkle-overlay-image",
       );
       const wasSparkleVisible =
         sparkleOverlay && sparkleOverlay.style.display !== "none";
@@ -437,18 +396,12 @@
       try {
         // レイアウトを再計算してDOMの更新を待つ
         RENDERER.updatePreview();
-        RENDERER.forceAdjustTextBoxLayout(
-          container.querySelector("#effect-display, #db-effect-display"),
-          container.querySelector("#flavor-display, #db-flavor-display"),
-          container.querySelector(
-            "#flavor-speaker-display, #db-flavor-speaker-display"
-          )
-        );
+        // Canvas描画のため、DOMテキストの再調整は不要
         await Promise.all([
           IMAGE.waitForCardImages(container),
           document.fonts.ready,
           new Promise((resolve) =>
-            requestAnimationFrame(() => requestAnimationFrame(resolve))
+            requestAnimationFrame(() => requestAnimationFrame(resolve)),
           ),
         ]);
         await new Promise((r) => setTimeout(r, 100)); // 念のための待機
@@ -474,7 +427,7 @@
         const apng = UPNG.decode(buf);
         const rgbaFrames = UPNG.toRGBA8(apng);
         const delays = (apng.frames || []).map((f) =>
-          Math.max(10, f.delay | 0)
+          Math.max(10, f.delay | 0),
         );
 
         const work = document.createElement("canvas");
@@ -498,7 +451,7 @@
           const imgData = new ImageData(
             new Uint8ClampedArray(rgbaFrames[i]),
             fw,
-            fh
+            fh,
           );
           fctx.putImageData(imgData, 0, 0);
           ctx.save();
@@ -532,7 +485,7 @@
         const a = document.createElement("a");
         a.download = `${(cardData["カード名"] || "custom_card").replace(
           /[()`/\\?%*:|"<>]/g,
-          ""
+          "",
         )}.png`;
         a.href = URL.createObjectURL(blob);
         a.click();

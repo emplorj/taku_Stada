@@ -15,7 +15,7 @@
             ">": "&gt;",
             '"': "&quot;",
             "'": "&#39;",
-          }[c])
+          })[c],
       );
     },
 
@@ -25,30 +25,7 @@
       return text.replace(/、/g, "､").replace(/。/g, "｡");
     },
 
-    // 数字や括弧の文字間を調整するためのspanを追加する
-    addSpacingToChars: (text) => {
-      if (!text) return "";
-      return text.replace(
-        /([a-zA-Z]+)|([0-9]+)|(-)|([()（）])|([「」])/g, // 正規表現に全角括弧も追加
-        (match, alphaChars, numChars, hyphenChar, parenChar, quoteChars) => {
-          if (alphaChars)
-            return `<span class="alpha-kern">${alphaChars}</span>`;
-          if (numChars) return `<span class="char-kern">${numChars}</span>`;
-          if (hyphenChar) return `<span class="char-kern">${hyphenChar}</span>`;
-          if (parenChar) {
-            // ★★★ 修正箇所：全角の開き括弧も判定するようにする ★★★
-            if (parenChar === "(" || parenChar === "（") {
-              return `<span class="paren-open-fix">${parenChar}</span>`;
-            } else {
-              // ')' または '）' の場合
-              return `<span class="paren-close-fix">${parenChar}</span>`;
-            }
-          }
-          if (quoteChars) return `<span class="quote-fix">${quoteChars}</span>`;
-          return match;
-        }
-      );
-    },
+    // DOMテキスト用の字詰めはCanvas化により不要
     // カスタムアラートを表示する
     showCustomAlert: (message) => {
       const alertModal = document.createElement("div");

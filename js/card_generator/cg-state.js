@@ -139,6 +139,33 @@
         overlayState: { ...this.overlayImageState },
       };
     },
+
+    textSettings: {
+      effect: {
+        lineHeight: 24,
+        jpTracking: 0,
+        alphaTracking: 0,
+        maxLines: 7,
+        kinsoku: "normal",
+        ellipsis: true,
+      },
+      flavor: {
+        lineHeight: 20,
+        jpTracking: 0,
+        alphaTracking: 0,
+        maxLines: 2,
+        kinsoku: "normal",
+        ellipsis: true,
+      },
+      speaker: {
+        lineHeight: 20,
+        jpTracking: 0,
+        alphaTracking: 0,
+        maxLines: 1,
+        kinsoku: "normal",
+        ellipsis: true,
+      },
+    },
   };
 
   window.CG_STATE = CG_STATE;

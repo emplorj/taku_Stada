@@ -190,15 +190,7 @@
                     <div id="card-name-content"></div>
                   </div>
                   <div id="text-box-container">
-                    <div id="effect-display" class="card-text"></div>
-                    <div id="flavor-display" class="card-text"></div>
-                    <div id="fla
-                    vor-speaker-display" class="card-text"></div>
-                  </div>
-                  <div id="text-box-container">
-                    <div id="effect-display" class="card-text"></div>
-                    <div id="flavor-display" class="card-text"></div>
-                    <div id="flavor-speaker-display" class="card-text"></div>
+                    <canvas id="text-canvas" width="392" height="178"></canvas>
                   </div>
 
                   <!-- ↓↓↓ このブロックを追加 ↓↓↓ -->
@@ -323,9 +315,7 @@
                   <div id="db-card-name-content"></div>
                 </div>
                 <div id="db-text-box-container">
-                  <div id="db-effect-display" class="card-text"></div>
-                  <div id="db-flavor-display" class="card-text"></div>
-                  <div id="db-flavor-speaker-display" class="card-text"></div>
+                  <canvas id="db-text-canvas" width="392" height="178"></canvas>
                 </div>
               </div>
             </div>
@@ -473,6 +463,8 @@
 
   <!-- 分割したJSファイルを読み込み -->
   <script src="js/card_generator/cg-utils.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-text-layout.js?v=2.0.0"></script>
+  <script src="js/card_generator/cg-text-canvas.js?v=2.0.0"></script>
   <script src="js/card_generator/cg-state.js?v=2.0.0"></script>
   <script src="js/card_generator/cg-ui.js?v=2.0.0"></script>
   <script src="js/card_generator/cg-renderer.js?v=2.0.0"></script>
