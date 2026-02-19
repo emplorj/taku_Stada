@@ -23,6 +23,7 @@
     highResCheckbox: get("high-res-checkbox"),
     downloadTemplateBtn: get("download-template-btn"),
     sparkleCheckbox: get("sparkle-checkbox"),
+    verticalOutputContainer: get("vertical-output-container"),
     verticalOutputCheckbox: get("vertical-output-checkbox"),
     overlayImageUpload: get("overlay-image-upload"),
     overlayImageFileName: get("overlay-image-file-name"),

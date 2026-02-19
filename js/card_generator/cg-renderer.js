@@ -132,6 +132,13 @@
       const selectedType = (UI.cardTypeSelect.value || "").toUpperCase();
       const colorDetails = S.cardColorData[selectedColorId];
       const isHorizontal = selectedType === "HF";
+
+      if (UI.verticalOutputContainer) {
+        UI.verticalOutputContainer.style.display = isHorizontal
+          ? "flex"
+          : "none";
+      }
+
       const isFullFrame =
         selectedType === "FF" || selectedType === "FFCF" || isHorizontal;
       const useTextStroke = isFullFrame;
