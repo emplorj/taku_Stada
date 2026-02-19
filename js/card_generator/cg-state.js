@@ -144,7 +144,7 @@
     textSettings: {
       effect: {
         lineHeight: 24,
-        jpTracking: 0,
+        jpTracking: -1.2,
         alphaTracking: 0,
         maxLines: 7,
         kinsoku: "normal",
@@ -152,16 +152,16 @@
       },
       flavor: {
         lineHeight: 20,
-        jpTracking: 0,
-        alphaTracking: 0,
+        jpTracking: -1.5,
+        alphaTracking: -0.15,
         maxLines: 2,
         kinsoku: "normal",
         ellipsis: true,
       },
       speaker: {
         lineHeight: 20,
-        jpTracking: 0,
-        alphaTracking: 0,
+        jpTracking: -1.5,
+        alphaTracking: -0.1,
         maxLines: 1,
         kinsoku: "normal",
         ellipsis: true,
