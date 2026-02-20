@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja" class="koma-maker-page">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>ココフォリア用のコマ・出すヤツ</title>
+  <link rel="icon" href="img/ash.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/ash.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/koma_generator.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body class="koma-maker-page">
+  <div id="header-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="main-content">
+    <h1>ココフォリア用のコマ・出すヤツ</h1>
+    <div class="koma-layout">
+      <div class="koma-main">
+        <div class="intro-block">
+          <p class="whiter"><b>対応：</b>ダブルクロス3rd、ソード・ワールド2.5、サタスペ、ネクロニカ (キャラ保管庫)</p>
+
+          <form id="sheetForm">
+            <p class="form-hint">PL名（ブラウザ保存されるよ）</p>
+            <input type="text" name="plName" id="plName" size="55" placeholder="例: エンJ"><br>
+            <p class="form-hint">キャラシURL(https://charasheet.vampire-blood.net/等)に対応しているよ</p>
+            <input type="url" name="sheet" id="sheetUrl" size="55"
+              placeholder="https://charasheet.vampire-blood.net/..." required><br>
+            <p class="whiter">画像URL（つけないなら空欄でもいいよ）<br>
+              <input type="url" name="img" id="imgUrl" size="55"
+                placeholder="https://storage.ccfolia-cdn.net/users/...">
+            </p>
+            <label><input type="checkbox" value="true" name="nomemo" id="noMemo"><span>駒のメモなし</span></label>
+            <label><input type="checkbox" value="true" name="nochp" id="noChp"><span>チャットパレットなし</span></label><br>
+            <input type="submit" class="hoha" id="submitButton" value="生成開始">
+          </form>
+
+          <p class="message-row">
+            <span id="messageArea">ククク、貴様のURLを入力するがいい…</span>
+          </p>
+          <textarea id="output" disabled>ここに情報が出力される。よく見ておくんだな</textarea><br>
+          <button id="copyButton" class="hoha">コピー</button>
+        </div>
+
+        <div id="effectSection" class="intro-block" style="display: none;">
+          <p class="effect-note">ククク…貴様の習得しているエフェクト名とレベルを表記しておいた。これをコンボジェネレーターにでも、「値のみを貼り付け」するがいい…<br>
+            おっと。貼り付けた後には、その範囲を「横方向に結合」することを忘れるなよ？</p>
+          <div class="elv">
+            <table border="1">
+              <thead>
+                <tr>
+                  <th>エフェクト名</th>
+                </tr>
+              </thead>
+              <tbody id="effectNameTableBody"></tbody>
+            </table>
+            <table border="1">
+              <thead>
+                <tr>
+                  <th>ELv</th>
+                </tr>
+              </thead>
+              <tbody id="effectLevelTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <aside class="koma-side">
+        <div class="adachi">
+          <a class="twitter-timeline" data-width="960" data-height="160" data-theme="dark"
+            href="https://twitter.com/adachirei0?ref_src=twsrc%5Etfw">Tweets by adachirei0</a>
+          <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+      </aside>
+    </div>
+
+    <div class="below-meta">
+      <h3 class="madeby-title">Made by エンJ</h3>
+    </div>
+
+    <footer>
+      <p>© 2026 卓スタダ.</p>
+    </footer>
+  </div>
+
+  <div id="loading" class="loading-overlay">
+    <img id="loadingImage" src="img/ash.png" alt="Loading...">
+    <p>処理中だ、<br>ククク…待つがいい…</p>
+    <div id="progressBarContainer" class="progress-bar-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+  </div>
+
+  <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
+
+  <script src="js/common.js"></script>
+  <script src="js/koma-maker-page.js"></script>
+</body>
+
+</html>

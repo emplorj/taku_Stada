@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/koma-maker",
+      "destination": "/koma-maker.html"
+    }
+  ]
+}

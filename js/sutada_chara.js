@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (summaryInfo) {
         const summaryHtml = generateSummaryHtml(
           summaryInfo.path,
-          summaryInfo.title
+          summaryInfo.title,
         );
         slideshowsContainer.innerHTML += summaryHtml;
       }
@@ -180,7 +180,7 @@ function generateSlideshowHtml(config, imagePaths, index) {
         <div class="swiper-slide">
             <img src="${path}" alt="Character Image" loading="lazy" onclick="openModal(this.src)">
         </div>
-    `
+    `,
     )
     .join("");
 
@@ -361,7 +361,8 @@ async function getImagePaths(index) {
       "8-4.png",
     ],
     [
-      /* miniCoC */ "miniA-1.png",
+      /* miniCoC */
+      "miniA-1.png",
       "miniA-2.png",
       "miniA-3.png",
       "miniA-4.png",
@@ -414,6 +415,11 @@ async function getImagePaths(index) {
       "miniC-3.png",
       "miniC-4.png",
       "miniC-5.png",
+      "miniD-1.png",
+      "miniD-2.png",
+      "miniD-3.png",
+      "miniD-4.png",
+      "miniD-5.png",
     ],
     [
       /* miniDX */
@@ -427,6 +433,11 @@ async function getImagePaths(index) {
       "miniB-3.png",
       "miniB-4.png",
       "miniB-5.png",
+      "miniC-1.png",
+      "miniC-2.png",
+      "miniC-3.png",
+      "miniC-4.png",
+      "miniC-5.png",
     ],
     [
       /* miniNC */

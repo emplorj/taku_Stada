@@ -76,11 +76,8 @@ body {
   color: #eee;
   background-color: #061144;
   /* Background styles remain */
-  background-image: radial-gradient(
-      circle at 10% 20%,
-      #1a2c6d 0%,
-      rgba(6, 17, 68, 0) 50%
-    ),
+  background-image:
+    radial-gradient(circle at 10% 20%, #1a2c6d 0%, rgba(6, 17, 68, 0) 50%),
     radial-gradient(circle at 90% 80%, #3498db 0%, rgba(6, 17, 68, 0) 50%);
   background-size: 200% 200%;
   position: relative;
@@ -104,8 +101,8 @@ a {
 }
 
 h1 {
-  font-family: "vdl-logojrblack", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
-    sans-serif;
+  font-family:
+    "vdl-logojrblack", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
   text-align: center;
   border-bottom: 2px solid #3498db;
   padding-bottom: 10px;
@@ -122,7 +119,9 @@ h1 {
   /* 左側メニューの幅(約240px) + 余白(20px) = 260px のマージンを確保 */
   margin-left: 260px;
   min-width: 320px;
-  transition: margin-left 0.3s ease-in-out, transform 0.3s ease-in-out;
+  transition:
+    margin-left 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
   padding: 20px 20px 0 20px;
   box-sizing: border-box;
   flex-grow: 1; /* Allow main-content to grow and take available space */
@@ -220,8 +219,9 @@ footer {
 }
 
 .question-summary-block summary h2 {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   margin: 0;
   color: #f0f0f0; /* 見出し色を明るく */
   font-size: 1.5em;
@@ -305,8 +305,9 @@ nav.side-menu li {
 
 .side-menu a {
   text-decoration: none;
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif; /* 目次のフォント変更 */
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif; /* 目次のフォント変更 */
   color: #b0c4de;
   transition: all 0.2s ease; /* アニメーション対象を全プロパティに */
   display: block; /* クリック範囲を広げる */
@@ -314,7 +315,6 @@ nav.side-menu li {
   align-items: center; /* 2. アイコンとテキストを垂直方向の中央に揃える */
   padding: 2px 5px; /* 縦のパディングを少し戻す */
   line-height: 1.2; /* 行間を少し広げる */
-  border-radius: 4px; /* 角丸 */
 }
 .menu-icon {
   height: 1.2em; /* 高さを文字サイズに合わせる (お好みで調整) */
@@ -322,12 +322,10 @@ nav.side-menu li {
   margin-right: 0.5em; /* アイコンとテキストの間に余白を作る */
   object-fit: contain; /* 画像のアスペクト比を保つ */
   fill: currentColor;
-  transform: translateY(1px); /* 通常アイコンの位置調整 */
 }
 
 /* 最後の項目のアイコン位置微調整 */
 .side-menu > ul > li:last-child .menu-icon {
-  transform: translateY(-4px); /* Jinアイコンはさらに上に */
   border-radius: 50%; /* 丸くする */
 }
 
@@ -344,8 +342,9 @@ nav.side-menu li {
   margin: 0 0 10px; /* マージンを少し戻す */
   padding-bottom: 8px; /* パディングを少し戻す */
   border-bottom: 1px solid #4a5c9a;
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   font-size: 1.2em;
   color: #fff;
 }
@@ -383,7 +382,9 @@ nav.side-menu li {
   position: relative;
   opacity: 0; /* 初期状態: 透明 */
   transform: translateX(-30px); /* 初期状態: 左に少し隠す */
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* アニメーションの設定 */
+  transition:
+    opacity 0.8s ease-out,
+    transform 0.8s ease-out; /* アニメーションの設定 */
   z-index: 5; /* 吹き出しをアイコンより奥に */
 }
 
@@ -429,22 +430,25 @@ nav.side-menu li {
 /* 吹き出し内のスタイル調整 */
 .speech-bubble h2,
 .speech-bubble h3 {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   color: #2c3e50;
   margin-top: 0; /* 吹き出し内の見出しの余白を調整 */
   margin-bottom: 15px;
 }
 .speech-bubble h2 {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   font-size: 1.6em;
   padding-bottom: 5px;
   border-bottom: 1px dashed #ccc;
 }
 .speech-bubble h3 {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   font-size: 1.3em;
   color: #3498db;
   margin-top: 20px;
@@ -491,8 +495,9 @@ nav.side-menu li {
 }
 
 .author-profile h2 {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   margin-top: 0;
   color: #f0f0f0;
   border-bottom: none;
@@ -528,7 +533,9 @@ nav.side-menu li {
   overflow: hidden; /* 角丸に合わせた画像表示 */
   width: 250px; /* カードの固定幅 */
   text-align: center;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
 }
 
 .works-card:hover {
@@ -555,8 +562,9 @@ nav.side-menu li {
 }
 
 .works-title {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   font-size: 1.1em;
   font-weight: bold;
   margin-top: 0;
@@ -596,7 +604,9 @@ nav.side-menu li {
   font-size: 1.8em; /* Increase font size */
   line-height: 1; /* テキストの行の高さを1に設定 */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
   opacity: 0;
   transform: scale(0.8);
 }
@@ -1033,7 +1043,9 @@ body.no-scroll {
 .calendar-nav button:hover {
   background-color: #5a6268;
   transform: scale(1.05); /* 少し大きくする */
-  transition: background-color 0.2s, transform 0.2s;
+  transition:
+    background-color 0.2s,
+    transform 0.2s;
 }
 
 /* トップへ戻るボタンのホバーエフェクト */
@@ -1239,8 +1251,9 @@ body.no-scroll {
    ========================================================================== */
 
 .tool-author-header {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   color: #3498db;
   margin-top: 40px;
   margin-bottom: 15px;
@@ -1290,8 +1303,9 @@ body.no-scroll {
 }
 
 .tool-card-title {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   font-size: 1.2em;
   font-weight: bold;
   color: #ffffff;
@@ -1390,7 +1404,6 @@ body.no-scroll {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 15px;
   border-bottom: 1px solid #4a5c9a;
 }
 
@@ -1410,7 +1423,9 @@ body.no-scroll {
   overflow: hidden;
   text-decoration: none;
   color: #e0e0e0;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
   margin-bottom: 15px;
 }
 
@@ -1629,7 +1644,9 @@ body.no-scroll {
   margin-bottom: 16px;
   text-decoration: none;
   color: #24292e;
-  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition:
+    background-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
 }
 
 .rich-link-card:hover {
@@ -1719,8 +1736,9 @@ body.no-scroll {
 }
 
 .system-card h4 {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic",
-    "Meiryo", sans-serif;
+  font-family:
+    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    sans-serif;
   font-size: 1.3em;
   margin-top: 0;
   margin-bottom: 15px;
@@ -1796,7 +1814,9 @@ body.no-scroll {
   cursor: pointer;
   font-size: 1em;
   font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   margin-top: 10px; /* 上の要素との間隔 */
   margin-bottom: 20px; /* 下の要素との間隔 */
   display: inline-block; /* 必要に応じて幅を調整できるように */
@@ -1903,7 +1923,9 @@ input[type="checkbox"].switch:checked::after {
   padding: 1.5rem 2rem;
   margin-bottom: 3rem;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    inset 0 0 10px rgba(0, 0, 0, 0.4);
 }
 .special-announcement h3 {
   font-family: "Cinzel", serif;

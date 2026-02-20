@@ -93,6 +93,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- Faviconを動的に挿入する ---
   function injectFaviconLinks() {
     const head = document.head;
+    const isKomaMakerPage =
+      document.documentElement.classList.contains("koma-maker-page");
+
+    // koma-maker は HTML で先に favicon 指定済み。
+    // ここで動的差し替えすると初期表示で地球アイコンが一瞬見えるため除外。
+    if (isKomaMakerPage) return;
+
     const favicons = [
       { rel: "icon", href: `${basePath}/img/favicon/favicon.ico` },
       {
@@ -113,6 +120,10 @@ document.addEventListener("DOMContentLoaded", function () {
         href: `${basePath}/img/favicon/apple-touch-icon.png`,
       },
     ];
+
+    head
+      .querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]')
+      .forEach((el) => el.remove());
 
     favicons.forEach((faviconInfo) => {
       const link = document.createElement("link");
@@ -141,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return `${attr}="${basePath}"`;
               }
               return `${attr}="${basePath}${path}"`;
-            }
+            },
           );
         }
 
@@ -150,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // DOMの準備が整うのを待ってから初期化処理を実行
         setTimeout(() => {
           const ogImageMeta = document.querySelector(
-            'meta[property="og:image"]'
+            'meta[property="og:image"]',
           );
           if (ogImageMeta && ogImageMeta.content.startsWith("/")) {
             ogImageMeta.content = basePath + ogImageMeta.content;
@@ -234,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const newHamburger = hamburger.cloneNode(true);
       hamburger.parentNode.replaceChild(newHamburger, hamburger);
       newHamburger.addEventListener("click", () =>
-        toggleMenu(!sideMenu.classList.contains("is-open"))
+        toggleMenu(!sideMenu.classList.contains("is-open")),
       );
 
       const newOverlay = overlay.cloneNode(true);
@@ -269,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   submenu.style.maxHeight = "none";
                 }
               },
-              { once: true }
+              { once: true },
             );
           }
         }
@@ -331,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = originalItemsHTML;
           const originalNodes = Array.from(tempDiv.childNodes).filter(
-            (node) => node.nodeType === 1
+            (node) => node.nodeType === 1,
           );
 
           list.innerHTML = "";
@@ -455,7 +466,7 @@ async function fetchOgpData(url, placeholderElement) {
   const defaultImage = "img/icon.png";
   try {
     const response = await fetch(
-      `https://corsproxy.io/?${encodeURIComponent(url)}`
+      `https://corsproxy.io/?${encodeURIComponent(url)}`,
     );
     let html = await response.text();
 
@@ -528,35 +539,35 @@ if (canvas) {
     particleSize = 1.5,
     particleColor = "rgba(255, 255, 255, 0.4)";
   function resizeCanvas() {
-    (canvas.width = window.innerWidth),
+    ((canvas.width = window.innerWidth),
       (canvas.height = window.innerHeight),
-      initParticles();
+      initParticles());
   }
   class Particle {
     constructor() {
-      (this.x = Math.random() * canvas.width),
+      ((this.x = Math.random() * canvas.width),
         (this.y = Math.random() * canvas.height),
         (this.size =
           Math.random() * (2 * particleSize - particleSize / 2) +
           particleSize / 2),
         (this.speedX = 0.4 * Math.random() - 0.2),
-        (this.speedY = 0.4 * Math.random() - 0.2);
+        (this.speedY = 0.4 * Math.random() - 0.2));
     }
     update() {
-      (this.x += this.speedX),
+      ((this.x += this.speedX),
         (this.y += this.speedY),
         this.x > canvas.width + this.size
           ? (this.x = -this.size)
           : this.x < -this.size && (this.x = canvas.width + this.size),
         this.y > canvas.height + this.size
           ? (this.y = -this.size)
-          : this.y < -this.size && (this.y = canvas.height + this.size);
+          : this.y < -this.size && (this.y = canvas.height + this.size));
     }
     draw() {
-      (ctx.fillStyle = particleColor),
+      ((ctx.fillStyle = particleColor),
         ctx.beginPath(),
         ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI),
-        ctx.fill();
+        ctx.fill());
     }
   }
   function initParticles() {
@@ -564,13 +575,13 @@ if (canvas) {
     for (let i = 0; i < particleCount; i++) particles.push(new Particle());
   }
   function animateParticles() {
-    requestAnimationFrame(animateParticles),
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    (requestAnimationFrame(animateParticles),
+      ctx.clearRect(0, 0, canvas.width, canvas.height));
     for (let i = 0; i < particles.length; i++)
-      particles[i].update(), particles[i].draw();
+      (particles[i].update(), particles[i].draw());
   }
-  window.addEventListener("load", () => {
-    resizeCanvas(), animateParticles();
+  (window.addEventListener("load", () => {
+    (resizeCanvas(), animateParticles());
   }),
-    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("resize", resizeCanvas));
 }
