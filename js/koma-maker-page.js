@@ -47,18 +47,28 @@ function guessVercelApiBaseFromPath() {
 function getApiCandidates() {
   const configuredBase = normalizeBaseUrl(getConfiguredApiBase());
   const guessedBase = normalizeBaseUrl(guessVercelApiBaseFromPath());
-  const defaultBases = window.location.hostname.endsWith("github.io")
+  const isGitHubPages = window.location.hostname.endsWith("github.io");
+  const defaultBases = isGitHubPages
     ? DEFAULT_VERCEL_API_BASES.map(normalizeBaseUrl)
     : [];
 
-  const candidates = [
+  const externalCandidates = [
     configuredBase ? `${configuredBase}/api/koma-maker` : null,
     guessedBase ? `${guessedBase}/api/koma-maker` : null,
     ...defaultBases.map((b) => `${b}/api/koma-maker`),
-    new URL("/api/koma-maker", window.location.origin).toString(),
-    new URL("../api/koma-maker", window.location.href).toString(),
-    new URL("./api/koma-maker", window.location.href).toString(),
   ].filter(Boolean);
+
+  // GitHub Pages には同一オリジンの /api が存在しないため、
+  // 405/404 ノイズを避けるために相対候補は出さない。
+  const sameOriginCandidates = isGitHubPages
+    ? []
+    : [
+        new URL("/api/koma-maker", window.location.origin).toString(),
+        new URL("../api/koma-maker", window.location.href).toString(),
+        new URL("./api/koma-maker", window.location.href).toString(),
+      ];
+
+  const candidates = [...externalCandidates, ...sameOriginCandidates];
   return [...new Set(candidates)];
 }
 
