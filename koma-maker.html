@@ -22,11 +22,13 @@
     <div class="koma-layout">
       <div class="koma-main">
         <div class="intro-block">
-          <p class="whiter"><b>対応：</b>ダブルクロス3rd、ソード・ワールド2.5、サタスペ、ネクロニカ (キャラ保管庫)</p>
+          <p class="whiter"><b>対応：</b>ダブルクロス3rd、ソード・ワールド2.5、ネクロニカ (キャラクター保管所)、サタスペ（appspot）</p>
 
           <form id="sheetForm">
-            <p class="form-hint">PL名（ブラウザ保存されるよ）</p>
-            <input type="text" name="plName" id="plName" size="55" placeholder="例: エンJ"><br>
+            <p class="form-row">
+              <span class="form-label">PL名（ブラウザで記憶）</span>
+              <input type="text" name="plName" id="plName" size="55" placeholder="例: エンJ">
+            </p>
             <p class="form-hint">キャラシURL(https://charasheet.vampire-blood.net/等)に対応しているよ</p>
             <input type="url" name="sheet" id="sheetUrl" size="55"
               placeholder="https://charasheet.vampire-blood.net/..." required><br>
@@ -46,28 +48,6 @@
           <button id="copyButton" class="hoha">コピー</button>
         </div>
 
-        <div id="effectSection" class="intro-block" style="display: none;">
-          <p class="effect-note">ククク…貴様の習得しているエフェクト名とレベルを表記しておいた。これをコンボジェネレーターにでも、「値のみを貼り付け」するがいい…<br>
-            おっと。貼り付けた後には、その範囲を「横方向に結合」することを忘れるなよ？</p>
-          <div class="elv">
-            <table border="1">
-              <thead>
-                <tr>
-                  <th>エフェクト名</th>
-                </tr>
-              </thead>
-              <tbody id="effectNameTableBody"></tbody>
-            </table>
-            <table border="1">
-              <thead>
-                <tr>
-                  <th>ELv</th>
-                </tr>
-              </thead>
-              <tbody id="effectLevelTableBody"></tbody>
-            </table>
-          </div>
-        </div>
       </div>
 
       <aside class="koma-side">

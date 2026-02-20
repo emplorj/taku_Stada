@@ -179,6 +179,7 @@ body {
 }
 
 #sheetForm input[type="url"],
+#sheetForm input[type="text"],
 #sheetForm textarea {
   width: 90%;
   max-width: 640px;
@@ -193,6 +194,7 @@ body {
 }
 
 #sheetForm input[type="url"]:focus,
+#sheetForm input[type="text"]:focus,
 #sheetForm textarea:focus {
   outline: 2px solid rgba(255, 255, 255, 0.55);
   outline-offset: 1px;
@@ -336,6 +338,20 @@ body.koma-maker-page {
   margin: 4px 0 6px;
 }
 
+.koma-maker-page .form-row {
+  margin: 4px 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.koma-maker-page .form-label {
+  color: #fff;
+  min-width: 52px;
+  text-align: right;
+}
+
 .koma-maker-page .message-row {
   margin: 2px 0 4px;
 }
@@ -353,20 +369,22 @@ body.koma-maker-page {
 
 .koma-maker-page .koma-main #sheetUrl,
 .koma-maker-page .koma-main #imgUrl,
+.koma-maker-page .koma-main #plName,
 .koma-maker-page .koma-main #output {
   max-width: 100% !important;
   box-sizing: border-box;
 }
 
-.koma-maker-page #effectSection {
-  margin-top: 8px;
-  margin-bottom: 8px;
+.koma-maker-page .koma-main #sheetUrl,
+.koma-maker-page .koma-main #imgUrl,
+.koma-maker-page .koma-main #plName {
+  min-height: 36px;
+  padding: 6px 10px;
+  line-height: 1.2;
 }
 
-.koma-maker-page .effect-note {
-  color: #fff;
-  margin: 2px 0 6px;
-  line-height: 1.35;
+.koma-maker-page .koma-main #plName {
+  width: min(360px, 100%);
 }
 
 .koma-maker-page .madeby-title {

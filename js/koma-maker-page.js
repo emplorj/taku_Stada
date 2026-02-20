@@ -3,9 +3,6 @@ const submitButton = document.getElementById("submitButton");
 const copyButton = document.getElementById("copyButton");
 const messageArea = document.getElementById("messageArea");
 const outputArea = document.getElementById("output");
-const effectSection = document.getElementById("effectSection");
-const effectNameTableBody = document.getElementById("effectNameTableBody");
-const effectLevelTableBody = document.getElementById("effectLevelTableBody");
 const loadingOverlay = document.getElementById("loading");
 const progressBarContainer = document.getElementById("progressBarContainer");
 const progressBar = document.getElementById("progressBar");
@@ -206,9 +203,6 @@ sheetForm.addEventListener("submit", function (event) {
 
   messageArea.textContent = "処理を開始する…";
   outputArea.value = "";
-  effectSection.style.display = "none";
-  effectNameTableBody.innerHTML = "";
-  effectLevelTableBody.innerHTML = "";
 
   const formData = {
     sheet: document.getElementById("sheetUrl").value,
@@ -225,39 +219,6 @@ function updatePage(result) {
   messageArea.textContent = result.message || "メッセージの受信に失敗した。";
   outputArea.value = result.out || "出力の受信に失敗した。";
 
-  if (
-    result.eff &&
-    Array.isArray(result.eff) &&
-    result.eff[0] &&
-    result.eff[0][0] !== 1 &&
-    result.eff[0].length > 0
-  ) {
-    const effectNames = result.eff[0];
-    const effectLevels = result.eff[1];
-    effectNameTableBody.innerHTML = "";
-    effectLevelTableBody.innerHTML = "";
-
-    for (let i = 0; i < effectNames.length; i++) {
-      const nameRow = effectNameTableBody.insertRow();
-      const nameCell = nameRow.insertCell();
-      nameCell.innerHTML = effectNames[i]
-        ? effectNames[i].toString().replace(/\n/g, "<br>")
-        : "(データなし)";
-
-      const levelRow = effectLevelTableBody.insertRow();
-      const levelCell = levelRow.insertCell();
-      levelCell.innerHTML =
-        effectLevels &&
-        effectLevels[i] !== undefined &&
-        effectLevels[i] !== null
-          ? effectLevels[i].toString().replace(/\n/g, "<br>")
-          : "-";
-    }
-    effectSection.style.display = "block";
-  } else {
-    effectSection.style.display = "none";
-  }
-
   finalizeUiUpdate();
 }
 
@@ -270,7 +231,6 @@ function showError(error) {
         : "不明なエラーが発生した。";
   messageArea.textContent = "エラーが発生した！: " + errorMessage;
   outputArea.value = "エラー発生";
-  effectSection.style.display = "none";
   finalizeUiUpdate();
 }
 

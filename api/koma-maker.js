@@ -1804,7 +1804,7 @@ async function processSheetData(formData) {
 
   return {
     message,
-    out: JSON.stringify(outObj, null, 2),
+    out: JSON.stringify(outObj),
     eff,
   };
 }
