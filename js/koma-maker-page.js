@@ -210,9 +210,25 @@ sheetForm.addEventListener("submit", function (event) {
     plName: plNameInput ? plNameInput.value : "",
     nomemo: document.getElementById("noMemo").checked.toString(),
     nochp: document.getElementById("noChp").checked.toString(),
+    useComboPalette: "false",
   };
 
-  submitSheetData(formData).then(updatePage).catch(showError);
+  submitSheetData(formData)
+    .then(async (result) => {
+      if (result && result.comboFound) {
+        const yes = window.confirm(
+          "コンボデータが見つかりました！コンボデータを反映させますか？",
+        );
+        if (yes) {
+          formData.useComboPalette = "true";
+          const resultWithCombo = await submitSheetData(formData);
+          updatePage(resultWithCombo);
+          return;
+        }
+      }
+      updatePage(result);
+    })
+    .catch(showError);
 });
 
 function updatePage(result) {

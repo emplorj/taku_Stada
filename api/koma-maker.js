@@ -1067,34 +1067,439 @@ function createComboPaletteFromData(comboData) {
     交渉: "社会",
   };
 
+  const normalizeSkillName = (v) => {
+    const s = String(v || "")
+      .replace(/[〈〉【】]/g, "")
+      .replace(/\s+/g, "")
+      .trim();
+    if (!s || s === "-" || s === "シンドローム") return "-";
+    if (s.includes("白兵")) return "白兵";
+    if (s.includes("射撃")) return "射撃";
+    if (s.includes("RC")) return "RC";
+    if (s.includes("交渉")) return "交渉";
+    return s;
+  };
+
+  const pickLevel = (src) => {
+    const lv = Number(src && src.level);
+    return Number.isFinite(lv) && lv > 0 ? lv : 1;
+  };
+
+  const pickDiceFormula = (src, fallbackSkill = "白兵") => {
+    const normalizedSkill = normalizeSkillName(fallbackSkill);
+    const skill = normalizedSkill === "-" ? "白兵" : normalizedSkill;
+    const ability = skillToAbilityMap[skill] || "肉体";
+    const raw = String(
+      (src &&
+        (src.diceFormulaTextarea ||
+          src.diceFormulaTextArea ||
+          src.dice_formula_textarea ||
+          src.diceFormula ||
+          src.dice_formula)) ||
+        "",
+    ).trim();
+    return raw || `({${ability}}+{侵蝕率D})DX+{${skill}}`;
+  };
+
+  const buildDiceFormulaFromComputed = (combo, skill, computed) => {
+    const baseSkill = normalizeSkillName(skill);
+    const skillForFormula = baseSkill === "-" ? "" : baseSkill;
+    const attributeName =
+      (combo && combo.baseAbility && combo.baseAbility.statOverride) ||
+      skillToAbilityMap[baseSkill] ||
+      "肉体";
+
+    const finalDice = Number(computed && computed.totalDice) || 0;
+    const finalCrit = Number(computed && computed.finalCrit) || 10;
+    const finalAchieve = Number(computed && computed.totalAchieve) || 0;
+
+    let diceFormula = `({${attributeName}}+{侵蝕率D}${
+      finalDice >= 0 ? "+" : ""
+    }${finalDice})DX${finalCrit}`;
+
+    if (skillForFormula) {
+      diceFormula += `+{${skillForFormula}}`;
+    }
+    if (finalAchieve !== 0) {
+      diceFormula += `${finalAchieve >= 0 ? "+" : ""}${finalAchieve}`;
+    }
+    diceFormula += ` ◆${(combo && combo.name) || "コンボ"}`;
+    return diceFormula;
+  };
+
+  const pickVal = (v, defVal = "-") => {
+    if (v === null || v === undefined) return defVal;
+    const s = String(v).trim();
+    return s ? s : defVal;
+  };
+
+  const normalizeTiming = (t) => {
+    if (!t) return "-";
+    let norm = String(t).replace(/[\s　]+/g, "");
+    if (norm === "リアクション") return "リアクション";
+    norm = norm.replace("アクション", "").replace("プロセス", "");
+    if (norm.includes("メジャー") && norm.includes("リア")) {
+      return "メジャー／リア";
+    }
+    return norm || "-";
+  };
+
+  const getPriorityValue = (sources, prop, defaultValue = "-") => {
+    const priorityOrder = {
+      timing: [
+        "メジャー／リア",
+        "メジャー",
+        "リアクション",
+        "マイナー",
+        "セットアップ",
+        "イニシアチブ",
+        "クリンナップ",
+        "オート",
+        "常時",
+      ],
+      range: ["視界", "武器", "至近"],
+      target: [
+        "自身",
+        "単体",
+        "2体",
+        "3体",
+        "[LV+1]体",
+        "範囲(選択)",
+        "範囲",
+        "シーン(選択)",
+        "シーン",
+      ],
+    };
+
+    for (const p of priorityOrder[prop] || []) {
+      const found = sources.some((s) => {
+        const raw = s && s[prop];
+        const val =
+          prop === "timing" ? normalizeTiming(raw) : String(raw || "");
+        return val === p;
+      });
+      if (found) return p;
+    }
+
+    const firstValid = sources.find((s) => {
+      if (!s) return false;
+      const raw = s[prop];
+      if (raw === null || raw === undefined) return false;
+      const v = String(raw).trim();
+      return v && v !== "-";
+    });
+    if (!firstValid) return defaultValue;
+    return prop === "timing"
+      ? normalizeTiming(firstValid[prop])
+      : String(firstValid[prop]);
+  };
+
+  const normalizeSkill = (combo, mainEffect) => {
+    return normalizeSkillName(
+      (combo && combo.baseAbility && combo.baseAbility.skill) ||
+        (mainEffect && mainEffect.skill) ||
+        "-",
+    );
+  };
+
+  const evaluateDiceString = (str, level = 0) => {
+    if (typeof str !== "string" && typeof str !== "number") {
+      return { dice: 0, fixed: 0 };
+    }
+    let expression = String(str).trim();
+    if (expression === "") {
+      return { dice: 0, fixed: 0 };
+    }
+    expression = expression.replace(/lv/gi, String(level));
+    try {
+      if (!/^[0-9dD\s\-+*/().]+$/.test(expression)) {
+        if (!/[dD]/.test(expression)) {
+          const fixedValue = Number(expression);
+          return { dice: 0, fixed: Number.isNaN(fixedValue) ? 0 : fixedValue };
+        }
+      }
+      expression = String(new Function(`return ${expression}`)());
+    } catch (_) {}
+
+    let dice = 0;
+    let fixed = 0;
+    const diceMatch = expression.match(/(\d+)d/i);
+    if (diceMatch) {
+      dice = parseInt(diceMatch[1], 10);
+      expression = expression.replace(/(\d+)d/i, "");
+    }
+    expression = expression.replace(/\s/g, "");
+    if (expression) {
+      try {
+        const remainingValue = new Function(`return ${expression}`)();
+        if (!Number.isNaN(remainingValue)) fixed = Number(remainingValue) || 0;
+      } catch (_) {}
+    }
+    return { dice, fixed };
+  };
+
+  const formatDiceString = ({ dice, fixed }) => {
+    const d = Number(dice) || 0;
+    const f = Number(fixed) || 0;
+    const dicePart = d > 0 ? `${d}D` : "";
+    const fixedPart = f > 0 ? `${f}` : f < 0 ? `${f}` : "";
+    if (dicePart && fixedPart) {
+      return f > 0 ? `${dicePart}+${fixedPart}` : `${dicePart}${fixedPart}`;
+    }
+    return dicePart || fixedPart || "0";
+  };
+
+  const getRelevantEffects = (combo) => {
+    const names = Array.isArray(combo && combo.effectNames)
+      ? combo.effectNames
+      : [];
+    return names
+      .map((nameOrObj) => {
+        const effectName =
+          typeof nameOrObj === "string"
+            ? nameOrObj
+            : String(nameOrObj && nameOrObj.name ? nameOrObj.name : "");
+        return allEffects.find((e) => e && e.name === effectName);
+      })
+      .filter(Boolean);
+  };
+
+  const getRelevantItems = (combo) => {
+    const items = Array.isArray(comboData.items) ? comboData.items : [];
+    const names = Array.isArray(combo && combo.itemNames)
+      ? combo.itemNames
+      : [];
+    return names
+      .map((nameOrObj) => {
+        const itemName =
+          typeof nameOrObj === "string"
+            ? nameOrObj
+            : String(nameOrObj && nameOrObj.name ? nameOrObj.name : "");
+        const item = items.find((i) => i && i.name === itemName);
+        return item ? { ...item, sourceType: "item" } : null;
+      })
+      .filter(Boolean);
+  };
+
+  const getAllSelectedSources = (combo) => {
+    const effects = getRelevantEffects(combo).map((e) => ({
+      ...e,
+      sourceType: "effect",
+    }));
+    const items = getRelevantItems(combo);
+    const merged = [...effects, ...items];
+    const seen = new Set();
+    return merged.filter((s) => {
+      const key = `${s.sourceType}:${s.name}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+
+  const calcValueResult = (valueKey, sources, comboLevelBonus) => {
+    let totalDice = 0;
+    let totalFixed = 0;
+    sources.forEach((source) => {
+      if (!source || !source.values || !source.values[valueKey]) return;
+      const effectiveLevel =
+        (Number(source.level) || 0) + (comboLevelBonus || 0);
+
+      if (valueKey === "dice") {
+        const baseDice = Number(source.values.dice.base) || 0;
+        const perLevelDice = Number(source.values.dice.perLevel) || 0;
+        totalDice += baseDice + effectiveLevel * perLevelDice;
+        return;
+      }
+
+      const baseParsed = evaluateDiceString(
+        String(source.values[valueKey].base || "0"),
+        effectiveLevel,
+      );
+      const perLevelParsed = evaluateDiceString(
+        String(source.values[valueKey].perLevel || "0"),
+        effectiveLevel,
+      );
+      totalDice += baseParsed.dice + effectiveLevel * perLevelParsed.dice;
+      totalFixed += baseParsed.fixed + effectiveLevel * perLevelParsed.fixed;
+    });
+
+    return { dice: totalDice, fixed: totalFixed };
+  };
+
+  const calculateFromValues = (combo, sourceList) => {
+    const comboLevelBonus = Number(combo && combo.comboLevelBonus) || 0;
+    const relevantEffects = sourceList.filter((s) => s.sourceType === "effect");
+    const relevantItems = sourceList.filter((s) => s.sourceType === "item");
+
+    const diceResult = calcValueResult(
+      "dice",
+      relevantEffects,
+      comboLevelBonus,
+    );
+    const achieveResult = calcValueResult(
+      "achieve",
+      relevantEffects,
+      comboLevelBonus,
+    );
+    const atkResult = calcValueResult("attack", sourceList, comboLevelBonus);
+    const accuracyResult = calcValueResult(
+      "accuracy",
+      relevantItems,
+      comboLevelBonus,
+    );
+
+    let critTotal = 10;
+    sourceList.forEach((source) => {
+      if (!source || !source.values || !source.values.crit) return;
+      const base = Number(source.values.crit.base) || 0;
+      if (base === 0) return;
+      const effectiveLevel =
+        source.level !== undefined
+          ? (Number(source.level) || 0) + comboLevelBonus
+          : 0;
+      const perLevel = Number(source.values.crit.perLevel) || 0;
+      const min = Number(source.values.crit.min) || 2;
+      const value = Math.max(base - effectiveLevel * perLevel, min);
+      if (value < critTotal) critTotal = value;
+    });
+
+    const weaponAtk = evaluateDiceString(
+      String((combo && combo.atk_weapon) || "0"),
+      comboLevelBonus,
+    );
+    const totalAtk = {
+      dice: weaponAtk.dice + atkResult.dice,
+      fixed: weaponAtk.fixed + atkResult.fixed,
+    };
+
+    return {
+      totalDice:
+        (Number(diceResult.dice) || 0) + (Number(accuracyResult.dice) || 0),
+      totalAchieve:
+        (Number(achieveResult.fixed) || 0) +
+        (Number(accuracyResult.fixed) || 0),
+      totalAtk: formatDiceString(totalAtk),
+      finalCrit: critTotal,
+    };
+  };
+
+  const buildFromCombo = (combo, preferCompositionText = "") => {
+    if (!combo || !combo.name) return "";
+
+    const relevantEffects = getRelevantEffects(combo);
+    const sourceList =
+      Array.isArray(combo.allSelectedSources) && combo.allSelectedSources.length
+        ? combo.allSelectedSources
+        : getAllSelectedSources(combo);
+
+    const computed = calculateFromValues(combo, sourceList);
+    const compositionText =
+      String(preferCompositionText || "").trim() ||
+      relevantEffects.map((e) => `《${e.name}》Lv${pickLevel(e)}`).join("+");
+    const flavorText = combo.flavor ? `『${combo.flavor}』` : "";
+    const timingFromSources = getPriorityValue(sourceList, "timing", "-");
+    const rangeFromSources = getPriorityValue(sourceList, "range", "-");
+    const targetFromSources = getPriorityValue(sourceList, "target", "-");
+
+    const mainEffect =
+      sourceList.find((e) =>
+        ["メジャー", "リアクション", "メジャー／リア"].includes(
+          normalizeTiming(e && e.timing),
+        ),
+      ) || sourceList[0];
+
+    const isMajorAction = [
+      "メジャー",
+      "リアクション",
+      "メジャー／リア",
+    ].includes(timingFromSources);
+    const skill = normalizeSkill(combo, mainEffect);
+    const manualDiceFormula = pickDiceFormula(
+      combo,
+      skill === "-" ? "白兵" : skill,
+    );
+    const computedDiceFormula = buildDiceFormulaFromComputed(
+      combo,
+      skill,
+      computed,
+    );
+    const diceFormula =
+      String(
+        combo && combo.diceFormulaTextarea ? combo.diceFormulaTextarea : "",
+      ).trim() ||
+      String(
+        combo && combo.diceFormulaTextArea ? combo.diceFormulaTextArea : "",
+      ).trim() ||
+      String(
+        combo && combo.dice_formula_textarea ? combo.dice_formula_textarea : "",
+      ).trim() ||
+      computedDiceFormula ||
+      manualDiceFormula;
+
+    const totalCostFromSources = sourceList.reduce(
+      (acc, s) => acc + (Number((s && s.cost) || 0) || 0),
+      0,
+    );
+
+    const timingFinal =
+      pickVal(combo.timing, "-") !== "-" ? combo.timing : timingFromSources;
+    const rangeFinal =
+      pickVal(combo.range, "-") !== "-" ? combo.range : rangeFromSources;
+    const targetFinal =
+      pickVal(combo.target, "-") !== "-" ? combo.target : targetFromSources;
+    const difficultyFinal =
+      pickVal(mainEffect && mainEffect.difficulty, "-") !== "-"
+        ? mainEffect.difficulty
+        : isMajorAction
+          ? "自動"
+          : pickVal(sourceList[0] && sourceList[0].difficulty, "自動");
+    const costFinal =
+      pickVal(combo.totalCost || combo.cost, "-") !== "-"
+        ? combo.totalCost || combo.cost
+        : totalCostFromSources;
+
+    const details = [
+      `侵蝕値:${pickVal(costFinal, "0")}`,
+      `タイミング:${pickVal(timingFinal)}`,
+      `技能:${pickVal(skill)}`,
+      `難易度:${pickVal(difficultyFinal, "自動")}`,
+      `対象:${pickVal(targetFinal)}`,
+      `射程:${pickVal(rangeFinal)}`,
+      `攻撃力:${pickVal(combo.totalAtk || combo.attack || computed.totalAtk)}`,
+      `達成値:${pickVal(
+        combo.totalAchieve || combo.achieve || computed.totalAchieve,
+        "0",
+      )}`,
+      `C値:${pickVal(combo.finalCrit || combo.critical || computed.finalCrit, "10")}`,
+    ].join("　");
+
+    return [`◆${combo.name}`, compositionText, flavorText, details, diceFormula]
+      .filter(Boolean)
+      .join("\n");
+  };
+
+  if (
+    Array.isArray(comboData.processedCombos) &&
+    comboData.processedCombos.length
+  ) {
+    const p = ["//▼コンボデータ"];
+    comboData.processedCombos.forEach((pc) => {
+      if (!pc) return;
+      const text = buildFromCombo(pc, pc.compositionText || "");
+      if (text) {
+        p.push(text);
+        p.push("");
+      }
+    });
+    return p.join("\n").trim();
+  }
+
   let palette = "//▼コンボデータ\n";
   for (const combo of comboData.combos) {
-    if (!combo || !combo.name) continue;
-    const relevantEffects = (combo.effectNames || [])
-      .map((name) => allEffects.find((e) => e && e.name === name))
-      .filter(Boolean);
-
-    const compositionText = relevantEffects
-      .map((e) => `《${e.name}》Lv${e.level || 1}`)
-      .join("+");
-    const flavorText = combo.flavor ? `『${combo.flavor}』` : "";
-    const effectDescription =
-      combo.effectDescriptionMode === "manual"
-        ? combo.manualEffectDescription
-        : relevantEffects
-            .map((e) => e.effect || e.notes)
-            .filter(Boolean)
-            .join("\n");
-
-    const skill = (combo.baseAbility && combo.baseAbility.skill) || "白兵";
-    const ability = skillToAbilityMap[skill] || "肉体";
-    const diceFormula = `({${ability}}+{侵蝕率D})DX+{${skill}}`;
-
-    palette += `◆${combo.name}\n`;
-    if (compositionText) palette += `${compositionText}\n`;
-    if (flavorText) palette += `${flavorText}\n`;
-    if (effectDescription) palette += `${effectDescription}\n`;
-    palette += `${diceFormula}\n\n`;
+    const text = buildFromCombo(combo);
+    if (!text) continue;
+    palette += `${text}\n\n`;
   }
 
   return palette.trim();
@@ -1314,7 +1719,7 @@ function createDxRoice(html) {
   return { memo: roiceMemo, value: roiceCount, max: roiceMax };
 }
 
-async function getDataDX(html, url, img, opt, additionalPalette) {
+async function getDataDX(html, url, img, opt, additionalPalette, comboPalette) {
   const data = {
     name: pickInputById(
       html,
@@ -1332,7 +1737,6 @@ async function getDataDX(html, url, img, opt, additionalPalette) {
 
   const roice = createDxRoice(html);
   let commands = opt[1] ? createDxChapale() : "";
-  const comboPalette = await getComboPaletteByUrl(url);
   if (comboPalette) commands += (commands ? "\n" : "") + comboPalette;
   if (additionalPalette) commands += (commands ? "\n" : "") + additionalPalette;
 
@@ -1776,8 +2180,21 @@ async function processSheetData(formData) {
   let eff = [[1, 2]];
 
   if (system === "DX3") {
-    outObj = await getDataDX(html, url, img, opt, additionalPalette);
+    const comboPalette = await getComboPaletteByUrl(url);
+    const useComboPalette =
+      String(formData.useComboPalette || "false") === "true";
+    outObj = await getDataDX(
+      html,
+      url,
+      img,
+      opt,
+      additionalPalette,
+      useComboPalette ? comboPalette : "",
+    );
     message = `ククク、${charName}よ。任務に向かえ。`;
+    if (comboPalette && !useComboPalette) {
+      message = "コンボデータが見つかりました！コンボデータを反映させますか？";
+    }
     eff = getEffectDX(html);
   } else if (system === "SW25") {
     outObj = getDataSW25(html, url, img);
@@ -1806,6 +2223,12 @@ async function processSheetData(formData) {
     message,
     out: JSON.stringify(outObj),
     eff,
+    comboFound:
+      system === "DX3"
+        ? String(formData.useComboPalette || "false") !== "true" &&
+          message ===
+            "コンボデータが見つかりました！コンボデータを反映させますか？"
+        : false,
   };
 }
 
