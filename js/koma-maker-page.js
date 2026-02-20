@@ -219,6 +219,14 @@ function updatePage(result) {
   messageArea.textContent = result.message || "メッセージの受信に失敗した。";
   outputArea.value = result.out || "出力の受信に失敗した。";
 
+  const txt = outputArea.value || "";
+  const canCopy =
+    txt &&
+    txt !== "ここに情報が出力される。よく見ておくんだな" &&
+    !txt.includes("エラー発生") &&
+    !txt.includes("対応していない");
+  copyButton.disabled = !canCopy;
+
   finalizeUiUpdate();
 }
 
@@ -231,6 +239,7 @@ function showError(error) {
         : "不明なエラーが発生した。";
   messageArea.textContent = "エラーが発生した！: " + errorMessage;
   outputArea.value = "エラー発生";
+  copyButton.disabled = true;
   finalizeUiUpdate();
 }
 
@@ -244,7 +253,6 @@ function finalizeUiUpdate() {
 
   setTimeout(() => {
     submitButton.disabled = false;
-    copyButton.disabled = false;
     loadingOverlay.style.display = "none";
   }, 350);
 }
