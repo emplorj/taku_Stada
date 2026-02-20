@@ -27,7 +27,21 @@ function getConfiguredApiBase() {
   if (apiBaseFromQuery) {
     localStorage.setItem("komaMakerApiBase", apiBaseFromQuery);
   }
-  return apiBaseFromQuery || localStorage.getItem("komaMakerApiBase") || "";
+
+  const fromStorage = localStorage.getItem("komaMakerApiBase") || "";
+  if (apiBaseFromQuery || fromStorage) {
+    return apiBaseFromQuery || fromStorage;
+  }
+
+  // GitHub Pages では同一オリジン /api が存在しないため、
+  // 既定の Vercel API を自動採用してクエリ指定を不要にする。
+  if (window.location.hostname.endsWith("github.io")) {
+    const fallback = DEFAULT_VERCEL_API_BASES[0] || "";
+    if (fallback) localStorage.setItem("komaMakerApiBase", fallback);
+    return fallback;
+  }
+
+  return "";
 }
 
 function normalizeBaseUrl(baseUrl) {
