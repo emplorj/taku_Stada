@@ -12,6 +12,7 @@ const progressBar = document.getElementById("progressBar");
 const plNameInput = document.getElementById("plName");
 
 const PL_NAME_STORAGE_KEY = "komaMakerPlName";
+const DEFAULT_VERCEL_API_BASES = ["https://taku-stada.vercel.app"];
 
 if (plNameInput) {
   plNameInput.value = localStorage.getItem(PL_NAME_STORAGE_KEY) || "";
@@ -33,10 +34,27 @@ function normalizeBaseUrl(baseUrl) {
   return String(baseUrl || "").replace(/\/+$/, "");
 }
 
+function guessVercelApiBaseFromPath() {
+  const parts = String(window.location.pathname || "")
+    .split("/")
+    .filter(Boolean);
+  if (!parts.length) return "";
+  const repoName = parts[0].toLowerCase().replace(/_/g, "-");
+  if (!repoName) return "";
+  return `https://${repoName}.vercel.app`;
+}
+
 function getApiCandidates() {
   const configuredBase = normalizeBaseUrl(getConfiguredApiBase());
+  const guessedBase = normalizeBaseUrl(guessVercelApiBaseFromPath());
+  const defaultBases = window.location.hostname.endsWith("github.io")
+    ? DEFAULT_VERCEL_API_BASES.map(normalizeBaseUrl)
+    : [];
+
   const candidates = [
     configuredBase ? `${configuredBase}/api/koma-maker` : null,
+    guessedBase ? `${guessedBase}/api/koma-maker` : null,
+    ...defaultBases.map((b) => `${b}/api/koma-maker`),
     new URL("/api/koma-maker", window.location.origin).toString(),
     new URL("../api/koma-maker", window.location.href).toString(),
     new URL("./api/koma-maker", window.location.href).toString(),
@@ -95,8 +113,17 @@ async function submitSheetData(formData) {
         : "";
 
     if (window.location.hostname.endsWith("github.io")) {
+      const suggestedBase = normalizeBaseUrl(
+        getConfiguredApiBase() ||
+          guessVercelApiBaseFromPath() ||
+          DEFAULT_VERCEL_API_BASES[0],
+      );
+      const helpUrl = new URL(window.location.href);
+      if (suggestedBase) helpUrl.searchParams.set("apiBase", suggestedBase);
+
       throw new Error(
-        "GitHub Pages 上では同一オリジンに /api が無いため、Vercel 側 API ベースURL指定が必要。?apiBase=https://<your-vercel-domain> を付けて開いてくれ。" +
+        "GitHub Pages 上では同一オリジンに /api が無いため、Vercel 側 API ベースURL指定が必要。" +
+          ` 推奨: ${helpUrl.toString()}` +
           attempted,
       );
     }

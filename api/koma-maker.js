@@ -1560,7 +1560,7 @@ function getDataSW25(html, url, img) {
     })),
     { label: "回避", value: String(evasion) },
     { label: "移動力", value: String(move) },
-  ].filter((p) => p.value !== "0");
+  ].filter((p) => p.label === "回避" || p.value !== "0");
 
   const out = {
     kind: "character",
