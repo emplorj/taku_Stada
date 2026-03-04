@@ -14,3 +14,6 @@ Thumbs.db
 .gemini/
 .env
 .vercel
+
+# Local reference assets (do not commit)
+reference/

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>ボスカットインジェネレーター - 卓スタダ</title>
+  <meta property="og:title" content="ボスカットインジェネレーター - 卓スタダ" />
+  <meta property="og:description" content="TRPGのボス登場カットインをアニメーションで作成・書き出しできます。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="boss_cutin_generator.html" />
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/boss_cutin_generator.css?v=1.0.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body class="page-boss-cutin-generator">
+  <div id="header-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="main-content">
+    <header class="page-header-with-actions">
+      <h1>ボスカットインジェネレーター</h1>
+      <p class="subtitle">
+        ボス登場時のカットインを作るページです。<br>
+        素材：背景1枚＋キャラクター2枚まで／字幕：二つ名＋キャラ名
+      </p>
+    </header>
+
+    <div class="cutin-layout">
+      <aside class="controls-panel">
+        <h2>設定</h2>
+
+        <div class="controls-tabs" role="tablist" aria-label="設定タブ">
+          <button type="button" class="controls-tab-btn is-active" data-tab="basic">基本</button>
+          <button type="button" class="controls-tab-btn" data-tab="effects">演出</button>
+        </div>
+
+        <section class="controls-tab-panel is-active" data-tab-panel="basic">
+          <div class="form-group form-group-item-inline">
+            <label for="design-select">デザイン</label>
+            <select id="design-select">
+              <option value="ff14-shadowbringers" selected>FF14風（デフォルト）</option>
+              <option value="classic">シンプル（既存）</option>
+            </select>
+          </div>
+
+          <div class="form-group form-group-item-inline">
+            <label for="camera-preset-select">カメラワーク</label>
+            <select id="camera-preset-select">
+              <option value="no-motion">動きなし（背景静止）</option>
+              <option value="standard" selected>標準（微パン）</option>
+              <option value="zoom-in">ズームイン</option>
+              <option value="zoom-out">ズームアウト</option>
+              <option value="slide-left-right">左→右スライド</option>
+              <option value="slide-right-left">右→左スライド</option>
+              <option value="dolly-wobble">ドリーイン＋横揺れ</option>
+              <option value="cinematic-soft">シネマティック（緩い複合）</option>
+              <option value="feet-to-face-lick-up">足元→顔（舐め上げ）</option>
+              <option value="parts-zoom-face-full">部分ズーム→顔→全身</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-inline" for="subtitle-scale-15">
+              <span>字幕サイズ1.5倍</span>
+              <input id="subtitle-scale-15" class="switch" type="checkbox" checked>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="epithet-input">二つ名</label>
+            <input id="epithet-input" type="text" value="人斬りセーラー">
+          </div>
+
+          <div class="form-group">
+            <label for="name-input">キャラ名</label>
+            <input id="name-input" type="text" value="仁科アリサ">
+          </div>
+
+          <div class="form-group">
+            <label>背景画像</label>
+            <input id="bg-upload" type="file" accept="image/*">
+          </div>
+
+          <div class="form-group">
+            <label>キャラクター画像</label>
+            <input id="char-upload" type="file" accept="image/*">
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-inline" for="char-switch-enable">
+              <span>立ち絵チェンジを使う</span>
+              <input id="char-switch-enable" class="switch" type="checkbox">
+            </label>
+          </div>
+
+          <div id="char-switch-dependent" class="end-zoomout-controls">
+            <details class="form-group character2-details">
+              <summary>キャラクター画像2（チェンジ後）</summary>
+              <input id="char-upload-2" type="file" accept="image/*">
+            </details>
+
+            <div id="char-switch-controls" class="form-group end-zoomout-controls">
+              <div class="form-group form-group-inline end-zoomout-inline">
+                <div class="form-group-item">
+                  <label for="char-switch-time">開始秒</label>
+                  <div class="range-with-number">
+                    <input id="char-switch-time" type="range" min="0" max="12" step="0.1" value="1.4">
+                    <input id="char-switch-time-number" type="number" min="0" max="12" step="0.1" value="1.4">
+                  </div>
+                </div>
+                <div class="form-group-item">
+                  <label for="char-switch-duration">継続秒</label>
+                  <div class="range-with-number">
+                    <input id="char-switch-duration" type="range" min="0.05" max="2" step="0.05" value="0.35">
+                    <input id="char-switch-duration-number" type="number" min="0.05" max="2" step="0.05" value="0.35">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group form-group-item-inline">
+                <label for="char-switch-type">チェンジ演出</label>
+                <select id="char-switch-type">
+                  <option value="fade" selected>フェード</option>
+                  <option value="cut">瞬間切替</option>
+                  <option value="flash-subtitle">白フラッシュ＋字幕と同時</option>
+                  <option value="glitch-slice">グリッチスライス</option>
+                  <option value="wipe-left">横ワイプ</option>
+                  <option value="zoom-pop">ズームポップ</option>
+                </select>
+              </div>
+            </div>
+
+            <details class="form-group adjust-details" open>
+              <summary>キャラ拡大率・座標</summary>
+              <div class="form-group">
+                <label for="char-scale">キャラ 拡大率</label>
+                <div class="range-with-number">
+                  <input id="char-scale" type="range" min="0.3" max="2.5" step="0.01" value="1">
+                  <input id="char-scale-number" type="number" min="0.3" max="2.5" step="0.01" value="1">
+                </div>
+              </div>
+
+              <div class="form-group form-group-inline">
+                <div class="form-group-item">
+                  <label for="char-x">キャラ X</label>
+                  <div class="range-with-number">
+                    <input id="char-x" type="range" min="-800" max="800" step="1" value="0">
+                    <input id="char-x-number" type="number" min="-800" max="800" step="1" value="0">
+                  </div>
+                </div>
+                <div class="form-group-item">
+                  <label for="char-y">キャラ Y</label>
+                  <div class="range-with-number">
+                    <input id="char-y" type="range" min="-500" max="500" step="1" value="0">
+                    <input id="char-y-number" type="number" min="-500" max="500" step="1" value="0">
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <details class="form-group adjust-details" open>
+            <summary>背景拡大率・座標</summary>
+            <div class="form-group">
+              <label for="bg-scale">背景 拡大率</label>
+              <div class="range-with-number">
+                <input id="bg-scale" type="range" min="0.5" max="2.0" step="0.01" value="1">
+                <input id="bg-scale-number" type="number" min="0.5" max="2.0" step="0.01" value="1">
+              </div>
+            </div>
+
+            <div class="form-group form-group-inline">
+              <div class="form-group-item">
+                <label for="bg-x">背景 X</label>
+                <div class="range-with-number">
+                  <input id="bg-x" type="range" min="-600" max="600" step="1" value="0">
+                  <input id="bg-x-number" type="number" min="-600" max="600" step="1" value="0">
+                </div>
+              </div>
+              <div class="form-group-item">
+                <label for="bg-y">背景 Y</label>
+                <div class="range-with-number">
+                  <input id="bg-y" type="range" min="-600" max="600" step="1" value="0">
+                  <input id="bg-y-number" type="number" min="-600" max="600" step="1" value="0">
+                </div>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section class="controls-tab-panel" data-tab-panel="effects">
+          <div class="form-group">
+            <label class="checkbox-inline" for="end-zoomout-checkbox">
+              <span>終盤で激しくズームアウト</span>
+              <input id="end-zoomout-checkbox" class="switch" type="checkbox">
+            </label>
+          </div>
+
+          <div id="end-zoomout-controls" class="form-group end-zoomout-controls">
+            <div class="form-group form-group-inline end-zoomout-inline">
+              <div class="form-group-item">
+                <label for="end-zoomout-duration-ratio">時間%（尺）</label>
+                <div class="range-with-number">
+                  <input id="end-zoomout-duration-ratio" type="range" min="1" max="60" step="1" value="18">
+                  <input id="end-zoomout-duration-ratio-number" type="number" min="1" max="60" step="1" value="18">
+                </div>
+              </div>
+              <div class="form-group-item">
+                <label for="end-zoomout-return-ratio">戻し率%</label>
+                <div class="range-with-number">
+                  <input id="end-zoomout-return-ratio" type="range" min="0" max="100" step="1" value="100">
+                  <input id="end-zoomout-return-ratio-number" type="number" min="0" max="100" step="1" value="100">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group form-group-item-inline">
+            <label for="resolution-select">解像度</label>
+            <select id="resolution-select">
+              <option value="1280x720">1280 x 720（16:9 / HD）</option>
+              <option value="1920x1080">1920 x 1080（16:9 / Full HD）</option>
+              <option value="960x720">960 x 720（4:3 / 720ライン）</option>
+              <option value="1440x1080">1440 x 1080（4:3 / 1080ライン）</option>
+            </select>
+          </div>
+
+          <div class="form-group form-group-inline">
+            <div class="form-group-item form-group-item-inline">
+              <label for="duration-input">尺（秒）</label>
+              <input id="duration-input" type="number" min="1" max="12" step="0.1" value="3.0">
+            </div>
+            <div class="form-group-item form-group-item-inline">
+              <label for="fps-select">FPS</label>
+              <select id="fps-select">
+                <option value="15" selected>15</option>
+                <option value="24">24</option>
+                <option value="30">30</option>
+              </select>
+            </div>
+          </div>
+
+        </section>
+
+      </aside>
+
+      <main class="preview-panel">
+        <div class="preview-header">
+          <h2>プレビュー</h2>
+          <p id="status-text" class="status-text">待機中</p>
+        </div>
+        <div class="preview-canvas-wrap">
+          <canvas id="cutin-canvas" width="1280" height="720"></canvas>
+        </div>
+        <div class="preview-controls control-buttons">
+          <label class="checkbox-inline webp-loop-inline" for="webp-loop-checkbox">
+            <span>WebPループ</span>
+            <input id="webp-loop-checkbox" class="switch" type="checkbox">
+          </label>
+          <button id="play-btn" class="add-new-button">プレビュー再生</button>
+          <button id="stop-btn" class="secondary-button">停止</button>
+          <button id="export-webp-btn" class="add-new-button">アニメーションWebPを書き出し</button>
+          <button id="export-png-btn" class="secondary-button">PNGを書き出し</button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="vendor/ffmpeg/ffmpeg.js"></script>
+  <script src="vendor/ffmpeg/util.js"></script>
+  <script src="js/common.js?v=20260220a"></script>
+  <script src="js/boss_cutin_generator.js?v=1.0.0"></script>
+</body>
+
+</html>
