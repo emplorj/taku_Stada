@@ -52,11 +52,6 @@
     statusText: $("status-text"),
   };
 
-  const tabButtons = Array.from(document.querySelectorAll(".controls-tab-btn"));
-  const tabPanels = Array.from(
-    document.querySelectorAll(".controls-tab-panel[data-tab-panel]"),
-  );
-
   const state = {
     width: 1280,
     height: 720,
@@ -80,15 +75,6 @@
 
   function setStatus(text) {
     UI.statusText.textContent = text;
-  }
-
-  function switchControlsTab(tabName) {
-    tabButtons.forEach((btn) => {
-      btn.classList.toggle("is-active", btn.dataset.tab === tabName);
-    });
-    tabPanels.forEach((panel) => {
-      panel.classList.toggle("is-active", panel.dataset.tabPanel === tabName);
-    });
   }
 
   function clamp(v, min, max) {
@@ -1343,11 +1329,6 @@
   }
 
   function bindEvents() {
-    tabButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        switchControlsTab(btn.dataset.tab || "basic");
-      });
-    });
     UI.resolutionSelect.addEventListener("change", () =>
       drawFrame(0, { forceOverlayVisible: true }),
     );

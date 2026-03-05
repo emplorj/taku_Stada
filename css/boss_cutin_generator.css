@@ -59,35 +59,12 @@
   gap: 8px;
 }
 
-.controls-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+.section-details {
   margin-bottom: 10px;
 }
 
-.controls-tab-btn {
-  border: 1px solid rgba(139, 177, 235, 0.45);
-  border-radius: 9px;
-  background: rgba(20, 27, 43, 0.72);
-  color: #dceaff;
-  font-weight: 700;
-  padding: 7px 8px;
-  cursor: pointer;
-}
-
-.controls-tab-btn.is-active {
-  background: linear-gradient(135deg, #2f7de7, #53b3ff);
-  color: #fff;
-  border-color: rgba(146, 207, 255, 0.85);
-}
-
-.controls-tab-panel {
-  display: none;
-}
-
-.controls-tab-panel.is-active {
-  display: block;
+.section-details > .section-body {
+  margin-top: 8px;
 }
 
 .adjust-details {
@@ -331,10 +308,6 @@
 @media (max-width: 1100px) {
   .cutin-layout {
     grid-template-columns: 1fr;
-  }
-
-  .controls-tabs {
-    grid-template-columns: repeat(2, 1fr);
   }
 
   .end-zoomout-inline {
