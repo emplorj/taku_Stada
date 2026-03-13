@@ -23,6 +23,7 @@
     highResCheckbox: get("high-res-checkbox"),
     downloadTemplateBtn: get("download-template-btn"),
     sparkleCheckbox: get("sparkle-checkbox"),
+    privateModeCheckbox: get("private-mode-checkbox"),
     verticalOutputContainer: get("vertical-output-container"),
     verticalOutputCheckbox: get("vertical-output-checkbox"),
     overlayImageUpload: get("overlay-image-upload"),
@@ -88,6 +89,7 @@
     dbSearchInput: get("db-search-input"),
     dbSearchField: get("db-search-field"),
     dbSortSelect: get("db-sort-select"),
+    dbDraftOnlyCheckbox: get("db-draft-only-checkbox"),
     dbColorFilterContainer: get("db-color-filter-container"),
     dbBatchSelectionBar: get("db-batch-selection-bar"),
   };

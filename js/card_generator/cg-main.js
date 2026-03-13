@@ -130,7 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       UI.sparkleCheckbox.addEventListener("change", IMAGE.updateSparkleEffect);
 
-      UI.openDbModalBtn.addEventListener("click", DB.openDatabaseModal);
+      UI.openDbModalBtn.addEventListener("click", () =>
+        DB.openDatabaseModal(UI.privateModeCheckbox?.checked === true),
+      );
       UI.modalCloseBtn.addEventListener("click", () =>
         UI.dbModalOverlay.classList.remove("is-visible"),
       );
@@ -141,12 +143,13 @@ document.addEventListener("DOMContentLoaded", () => {
       UI.dbUpdateBtn.addEventListener("click", () => handleDatabaseSave(true));
       UI.dbCreateBtn.addEventListener("click", () => handleDatabaseSave(false));
 
-      UI.registrantInput.addEventListener("input", () =>
+      UI.registrantInput.addEventListener("input", () => {
         localStorage.setItem(
           "cardGeneratorRegistrant",
           UI.registrantInput.value,
-        ),
-      );
+        );
+        if (UI.tabDatabase.checked) DB.fetchAllCards();
+      });
       UI.artistInput.addEventListener("input", () =>
         localStorage.setItem("cardGeneratorArtist", UI.artistInput.value),
       );
@@ -164,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
       UI.dbSearchInput.addEventListener("input", applyDbFiltersAndSort);
       UI.dbSearchField.addEventListener("change", applyDbFiltersAndSort);
       UI.dbSortSelect.addEventListener("change", applyDbFiltersAndSort);
+      UI.dbDraftOnlyCheckbox?.addEventListener("change", applyDbFiltersAndSort);
       UI.cardListContainer.addEventListener("click", handleCardListClick);
 
       UI.openTeikeiModalBtn.addEventListener("click", DB.openTeikeiModal);

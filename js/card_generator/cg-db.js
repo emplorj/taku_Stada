@@ -17,6 +17,40 @@
   const TEXT_CANVAS = window.CG_TEXT_CANVAS;
 
   const DB = {
+    isPrivateCard: (card) => {
+      const raw = (
+        card?.["非公開"] ??
+        card?.["公開範囲"] ??
+        card?.private ??
+        card?.isPrivate ??
+        ""
+      )
+        .toString()
+        .trim()
+        .toLowerCase();
+      return ["true", "1", "yes", "private", "非公開"].includes(raw);
+    },
+
+    normalizeName: (name) =>
+      String(name || "")
+        .trim()
+        .toLowerCase(),
+
+    getCurrentRegistrantName: () => {
+      const inputName = UI.registrantInput?.value || "";
+      const storedName = localStorage.getItem("cardGeneratorRegistrant") || "";
+      return DB.normalizeName(inputName || storedName);
+    },
+
+    canViewCard: (card) => {
+      const isPrivate = DB.isPrivateCard(card);
+      if (!isPrivate) return true;
+
+      const currentUser = DB.getCurrentRegistrantName();
+      const cardRegistrant = DB.normalizeName(card?.["登録者"]);
+      return !!currentUser && currentUser === cardRegistrant;
+    },
+
     // GAS経由で画像をアップロード
     uploadImageViaGAS: (file) => {
       return new Promise((resolve, reject) => {
@@ -118,6 +152,7 @@
           artist: UI.artistInput.value,
           source: UI.sourceInput.value,
           notes: UI.notesInput.value,
+          private: UI.privateModeCheckbox?.checked === true,
           action: isUpdate ? "update" : "create",
         };
         if (isUpdate && S.currentEditingCardId)
@@ -126,11 +161,12 @@
         button.innerHTML = `<span class="spinner"></span> DB登録中...`;
         await DB.saveCardToDatabase(cardData);
 
+        const visibilityText = cardData.private ? "（非公開）" : "";
         const message = isUpdate
-          ? `カード「${escapeHtml(cardData.name) || "(無題)"}」を更新しました。`
+          ? `カード「${escapeHtml(cardData.name) || "(無題)"}」を更新しました${visibilityText}。`
           : `カード「${
               escapeHtml(cardData.name) || "(無題)"
-            }」を新規登録しました。`;
+            }」を新規登録しました${visibilityText}。`;
         showCustomAlert(
           message + "\n\n（数秒後にデータベースタブで確認できます）",
         );
@@ -177,7 +213,19 @@
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const csvText = await response.text();
-        S.allCardsData = parseDatabaseCsv(csvText);
+        const dbCards = parseDatabaseCsv(csvText)
+          .filter((card) => DB.canViewCard(card))
+          .map((card) => {
+            const isPrivate = DB.isPrivateCard(card);
+            const isMine =
+              DB.normalizeName(card?.["登録者"]) ===
+              DB.getCurrentRegistrantName();
+            return {
+              ...card,
+              __ownedPrivate: isPrivate && isMine,
+            };
+          });
+        S.allCardsData = dbCards;
         DB.applyDbFiltersAndSort();
       } catch (error) {
         console.error("データ取得エラー:", error);
@@ -188,6 +236,10 @@
     applyDbFiltersAndSort: () => {
       if (!S.allCardsData) return;
       let filteredCards = [...S.allCardsData];
+
+      if (UI.dbDraftOnlyCheckbox?.checked) {
+        filteredCards = filteredCards.filter((card) => card.__ownedPrivate);
+      }
 
       if (!S.activeColorFilters.has("all") && S.activeColorFilters.size > 0) {
         filteredCards = filteredCards.filter((card) =>
@@ -273,6 +325,9 @@
           imageUrl = "Card_asset/now_painting.png";
 
         const isChecked = S.selectedCardIds.has(card["ID"]) ? "checked" : "";
+        const privateBadge = card.__ownedPrivate
+          ? `<p class="db-card-meta" style="color: ${colorDetails.textColor}; opacity: 0.9;">下書き（非公開）</p>`
+          : "";
 
         cardElement.innerHTML = `
                     <div class="card-checkbox-container"><input type="checkbox" class="card-checkbox" data-id="${
@@ -291,6 +346,7 @@
                         <p class="db-card-meta" style="color: ${
                           colorDetails.textColor
                         }">絵師: ${escapeHtml(card["絵師"] || "N/A")}</p>
+                        ${privateBadge}
                         <p class="db-card-id" style="color: ${
                           colorDetails.textColor
                         }; opacity: 0.8;">ID: ${card["ID"]}</p>
@@ -441,7 +497,7 @@
       });
     },
 
-    openDatabaseModal: () => {
+    openDatabaseModal: (isPrivate = false) => {
       if (S.currentEditingCardId) {
         UI.dbUpdateBtn.style.display = "block";
         UI.dbCreateBtn.style.display = "block";
@@ -451,6 +507,9 @@
         UI.dbUpdateBtn.style.display = "none";
         UI.dbCreateBtn.style.display = "block";
         UI.dbCreateBtn.textContent = "この内容で新規登録する";
+      }
+      if (UI.privateModeCheckbox) {
+        UI.privateModeCheckbox.checked = !!isPrivate;
       }
       UI.dbModalOverlay.classList.add("is-visible");
     },
@@ -479,7 +538,8 @@
           showCustomConfirm(
             `【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除しますか？`,
           ).then((confirmed) => {
-            if (confirmed) DB.deleteCard(cardId);
+            if (!confirmed) return;
+            DB.deleteCard(cardId);
           });
         }
         return;
@@ -550,10 +610,10 @@
           showCustomConfirm(
             `【確認】\nカード名: ${cardName} (ID: ${cardId})\n\n本当にこのカードを削除しますか？`,
           ).then((confirmed) => {
-            if (confirmed)
-              DB.deleteCard(cardId).then(() =>
-                document.getElementById("db-back-to-list-btn").click(),
-              );
+            if (!confirmed) return;
+            DB.deleteCard(cardId).then(() =>
+              document.getElementById("db-back-to-list-btn").click(),
+            );
           });
         }
       });
@@ -568,12 +628,27 @@
       UI.flavorInput.value = data["フレーバー"] || data.flavor || "";
       UI.flavorSpeakerInput.value = data["話者"] || data.speaker || "";
 
-      // レアリティの処理を追加
-      const rarityValue = data["レアリティ"] || data.rarity || "none";
+      // レアリティの処理
+      const rawRarity = data["レアリティ"] || data.rarity || "none";
+      const presetRarityValues = new Set([
+        "none",
+        "1",
+        "2",
+        "3",
+        "4",
+        "custom",
+      ]);
+      const isCustomRarityUrl = rawRarity && !presetRarityValues.has(rawRarity);
+      const rarityValue = isCustomRarityUrl ? "custom" : rawRarity;
+
       UI.raritySelect.value = rarityValue;
+      UI.rarityUploadGroup.style.display =
+        rarityValue === "custom" ? "block" : "none";
+
       if (rarityValue === "custom") {
-        const customRarityImageUrl =
-          data["カスタムレアリティ画像URL"] || data.customRarityImage || "";
+        const customRarityImageUrl = isCustomRarityUrl
+          ? rawRarity
+          : data["カスタムレアリティ画像URL"] || data.customRarityImage || "";
         if (customRarityImageUrl) {
           S.customRarityImageUrl = customRarityImageUrl;
           UI.rarityImage.src = customRarityImageUrl;
@@ -587,6 +662,7 @@
       } else {
         S.customRarityImageUrl = null;
         UI.rarityImage.style.display = "none"; // デフォルトのレアリティ画像はupdatePreviewで設定される
+        UI.rarityFileName.textContent = "選択されていません";
       }
 
       const isSparkle =

@@ -171,6 +171,10 @@
                 <button id="open-db-modal-btn" class="secondary-button">データベースに登録</button>
                 <button id="download-template-btn" class="secondary-button">テンプレを保存</button>
                 <div class="checkbox-container">
+                  <input type="checkbox" id="private-mode-checkbox" class="switch">
+                  <label for="private-mode-checkbox">下書きとして保存（非公開）</label>
+                </div>
+                <div class="checkbox-container">
                   <input type="checkbox" id="high-res-checkbox" class="switch">
                   <label for="high-res-checkbox">高画質</label>
                 </div>
@@ -299,6 +303,10 @@
             <option value="registrant-asc">登録者名 (昇順)</option>
             <option value="artist-asc">絵師名 (昇順)</option>
           </select>
+          <div class="checkbox-container">
+            <input type="checkbox" id="db-draft-only-checkbox" class="switch">
+            <label for="db-draft-only-checkbox">下書きのみ</label>
+          </div>
           <div id="db-color-filter-container"
             style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center; width: 100%;">
             <!-- 色ボタンはJSでここに動的に追加されます -->
