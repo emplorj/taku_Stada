@@ -109,6 +109,7 @@
     overlayImageFitDirection: "landscape",
     activeManipulationTarget: "base",
     currentEditingCardId: null,
+    currentEditingCardPrivate: null,
     originalImageUrlForEdit: null,
     originalOverlayImageUrlForEdit: null,
     isNewImageSelected: false,

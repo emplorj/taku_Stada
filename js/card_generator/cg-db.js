@@ -17,6 +17,10 @@
   const TEXT_CANVAS = window.CG_TEXT_CANVAS;
 
   const DB = {
+    IMAGE_STATE_STORAGE_KEY: "cardGeneratorImageStateById",
+    // 検証用: true の間は登録者照合なしで非公開シート分も一覧表示する
+    DEBUG_ALLOW_ALL_PRIVATE: false,
+
     isPrivateCard: (card) => {
       const raw = (
         card?.["非公開"] ??
@@ -29,6 +33,118 @@
         .trim()
         .toLowerCase();
       return ["true", "1", "yes", "private", "非公開"].includes(raw);
+    },
+
+    getImageStateStore: () => {
+      try {
+        const raw = localStorage.getItem(DB.IMAGE_STATE_STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    },
+
+    setImageStateStore: (store) => {
+      localStorage.setItem(DB.IMAGE_STATE_STORAGE_KEY, JSON.stringify(store));
+    },
+
+    sanitizeState: (state) => {
+      if (!state || typeof state !== "object") return null;
+      const x = Number(state.x);
+      const y = Number(state.y);
+      const scale = Number(state.scale);
+      if (![x, y, scale].every(Number.isFinite)) return null;
+      return { x, y, scale };
+    },
+
+    parseStateField: (value) => {
+      if (!value) return null;
+      if (typeof value === "object") return DB.sanitizeState(value);
+      try {
+        return DB.sanitizeState(JSON.parse(value));
+      } catch {
+        return null;
+      }
+    },
+
+    persistCurrentImageState: (cardId) => {
+      if (!cardId) return;
+      const store = DB.getImageStateStore();
+      store[String(cardId)] = {
+        imageState: DB.sanitizeState(S.imageState),
+        overlayImageState: DB.sanitizeState(S.overlayImageState),
+      };
+      DB.setImageStateStore(store);
+    },
+
+    resolveSavedImageState: (data) => {
+      const stateFromData = {
+        imageState:
+          DB.parseStateField(data?.["画像位置"]) ||
+          DB.parseStateField(data?.imageState),
+        overlayImageState:
+          DB.parseStateField(data?.["上絵位置"]) ||
+          DB.parseStateField(data?.overlayImageState),
+      };
+
+      const id = String(data?.["ID"] || data?.ID || "");
+      const store = id ? DB.getImageStateStore()[id] : null;
+
+      return {
+        imageState:
+          stateFromData.imageState || DB.sanitizeState(store?.imageState),
+        overlayImageState:
+          stateFromData.overlayImageState ||
+          DB.sanitizeState(store?.overlayImageState),
+      };
+    },
+
+    applySavedImageState: (data) => {
+      const saved = DB.resolveSavedImageState(data);
+      if (!saved.imageState && !saved.overlayImageState) return;
+
+      const waitImage = new Promise((resolve) => {
+        if (UI.cardImage.complete) resolve();
+        else {
+          const prev = UI.cardImage.onload;
+          UI.cardImage.onload = (...args) => {
+            if (typeof prev === "function") prev.apply(UI.cardImage, args);
+            resolve();
+          };
+        }
+      });
+
+      const waitOverlay = new Promise((resolve) => {
+        if (
+          !UI.overlayImage.src ||
+          UI.overlayImage.style.display === "none" ||
+          UI.overlayImage.complete
+        ) {
+          resolve();
+        } else {
+          const prev = UI.overlayImage.onload;
+          UI.overlayImage.onload = (...args) => {
+            if (typeof prev === "function") prev.apply(UI.overlayImage, args);
+            resolve();
+          };
+        }
+      });
+
+      Promise.all([waitImage, waitOverlay]).then(() => {
+        requestAnimationFrame(() => {
+          if (saved.imageState) {
+            S.imageState = { ...saved.imageState };
+            IMAGE.clampCardImagePosition();
+          }
+          if (saved.overlayImageState) {
+            S.overlayImageState = { ...saved.overlayImageState };
+            IMAGE.clampOverlayImagePosition();
+          }
+          IMAGE.updateImageTransform();
+        });
+      });
     },
 
     normalizeName: (name) =>
@@ -49,6 +165,110 @@
       const currentUser = DB.getCurrentRegistrantName();
       const cardRegistrant = DB.normalizeName(card?.["登録者"]);
       return !!currentUser && currentUser === cardRegistrant;
+    },
+
+    buildCardApiQuery: (action, extraParams = {}) => {
+      const params = new URLSearchParams({
+        tool: "cardDb",
+        action,
+      });
+      Object.entries(extraParams).forEach(([key, value]) => {
+        if (value == null || value === "") return;
+        params.set(key, String(value));
+      });
+      return `${S.GAS_WEB_APP_URL}?${params.toString()}`;
+    },
+
+    fetchCardListViaApi: async () => {
+      const publicUrl = DB.buildCardApiQuery("listPublic");
+      const publicRes = await fetch(publicUrl, { cache: "no-cache" });
+      if (!publicRes.ok) throw new Error(`HTTP ${publicRes.status}`);
+      const publicJson = await publicRes.json();
+      if (publicJson.status !== "success") {
+        throw new Error(
+          publicJson.message || "公開カード一覧の取得に失敗しました。",
+        );
+      }
+
+      const registrant = DB.getCurrentRegistrantName();
+      let mineRows = [];
+      if (DB.DEBUG_ALLOW_ALL_PRIVATE) {
+        const mineUrl = DB.buildCardApiQuery("listPrivateAll");
+        const mineRes = await fetch(mineUrl, { cache: "no-cache" });
+        if (!mineRes.ok) throw new Error(`HTTP ${mineRes.status}`);
+        const mineJson = await mineRes.json();
+        if (mineJson.status !== "success") {
+          throw new Error(
+            mineJson.message || "非公開カード一覧の取得に失敗しました。",
+          );
+        }
+        mineRows = Array.isArray(mineJson.data) ? mineJson.data : [];
+      } else if (registrant) {
+        const mineUrl = DB.buildCardApiQuery("listMine", { registrant });
+        const mineRes = await fetch(mineUrl, { cache: "no-cache" });
+        if (!mineRes.ok) throw new Error(`HTTP ${mineRes.status}`);
+        const mineJson = await mineRes.json();
+        if (mineJson.status !== "success") {
+          throw new Error(
+            mineJson.message || "自分の下書き一覧の取得に失敗しました。",
+          );
+        }
+        mineRows = Array.isArray(mineJson.data) ? mineJson.data : [];
+      }
+
+      const map = new Map();
+      const publicRows = Array.isArray(publicJson.data) ? publicJson.data : [];
+      publicRows.forEach((card) => {
+        const id = String(card?.["ID"] || card?.ID || "");
+        if (!id) return;
+        map.set(id, {
+          ...card,
+          ID: id,
+          __ownedPrivate: false,
+        });
+      });
+
+      mineRows.forEach((card) => {
+        const id = String(card?.["ID"] || card?.ID || "");
+        if (!id) return;
+        const cardRegistrant = DB.normalizeName(card?.["登録者"]);
+        const isOwnedByCurrent = registrant && cardRegistrant === registrant;
+        map.set(id, {
+          ...card,
+          ID: id,
+          private: true,
+          非公開: "TRUE",
+          __ownedPrivate: DB.DEBUG_ALLOW_ALL_PRIVATE
+            ? true
+            : !!isOwnedByCurrent,
+        });
+      });
+
+      const merged = Array.from(map.values());
+      return DB.DEBUG_ALLOW_ALL_PRIVATE
+        ? merged
+        : merged.filter((card) => DB.canViewCard(card));
+    },
+
+    loadCardByIdViaApi: async (cardId) => {
+      const registrant = DB.getCurrentRegistrantName();
+      const url = DB.buildCardApiQuery("loadById", {
+        id: cardId,
+        registrant,
+      });
+      const response = await fetch(url, { cache: "no-cache" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      if (result.status === "success") {
+        return result.data || null;
+      }
+      if (result.status === "not_found") return null;
+      if (result.status === "forbidden") {
+        throw new Error(result.message || "このカードの閲覧権限がありません。");
+      }
+      throw new Error(
+        result.message || "カード取得APIでエラーが発生しました。",
+      );
     },
 
     // GAS経由で画像をアップロード
@@ -153,6 +373,8 @@
           source: UI.sourceInput.value,
           notes: UI.notesInput.value,
           private: UI.privateModeCheckbox?.checked === true,
+          imageState: JSON.stringify(S.imageState),
+          overlayImageState: JSON.stringify(S.overlayImageState),
           action: isUpdate ? "update" : "create",
         };
         if (isUpdate && S.currentEditingCardId)
@@ -172,6 +394,9 @@
         );
 
         UI.dbModalOverlay.classList.remove("is-visible");
+        if (isUpdate && S.currentEditingCardId) {
+          DB.persistCurrentImageState(S.currentEditingCardId);
+        }
         DB.clearEditingState();
         if (UI.tabDatabase.checked) setTimeout(DB.fetchAllCards, 2000);
       } catch (err) {
@@ -184,16 +409,31 @@
     },
 
     saveCardToDatabase: (cardData) => {
+      const payload = {
+        tool: "cardDb",
+        ...cardData,
+      };
+
       return fetch(S.GAS_WEB_APP_URL, {
         method: "POST",
-        body: JSON.stringify(cardData),
-        mode: "no-cors",
-      });
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+      }).catch(() =>
+        fetch(S.GAS_WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          mode: "no-cors",
+        }),
+      );
     },
 
     deleteCard: async (cardId) => {
       try {
-        await DB.saveCardToDatabase({ action: "delete", ID: cardId });
+        await DB.saveCardToDatabase({
+          action: "delete",
+          ID: cardId,
+          registrant: UI.registrantInput?.value || "",
+        });
         showCustomAlert(
           `ID: ${cardId} の削除リクエストを送信しました。\n2秒後にリストを更新します。`,
         );
@@ -207,6 +447,18 @@
     fetchAllCards: async () => {
       UI.cardListContainer.innerHTML =
         "<p>データベースを読み込んでいます...</p>";
+      try {
+        const apiCards = await DB.fetchCardListViaApi();
+        S.allCardsData = apiCards;
+        DB.applyDbFiltersAndSort();
+        return;
+      } catch (apiError) {
+        console.warn(
+          "カードAPI取得失敗。CSV取得にフォールバックします:",
+          apiError,
+        );
+      }
+
       try {
         const response = await fetch(S.SPREADSHEET_CSV_URL, {
           cache: "no-cache",
@@ -405,6 +657,7 @@
 
     clearEditingState: () => {
       S.currentEditingCardId = null;
+      S.currentEditingCardPrivate = null;
       S.originalImageUrlForEdit = null;
       S.originalOverlayImageUrlForEdit = null;
       S.isNewImageSelected = false;
@@ -443,6 +696,9 @@
             await DB.fetchAllCards();
             cardData = S.allCardsData.find((card) => card["ID"] === dataOrId);
           }
+          if (!cardData) {
+            cardData = await DB.loadCardByIdViaApi(dataOrId);
+          }
           if (!cardData)
             throw new Error(`ID ${dataOrId}のカードが見つかりません。`);
         } else {
@@ -451,11 +707,25 @@
 
         if (isEditing) {
           S.currentEditingCardId = dataOrId;
+          S.currentEditingCardPrivate = DB.isPrivateCard(cardData);
           S.isNewImageSelected = false;
           S.isNewOverlayImageSelected = false;
           S.originalImageUrlForEdit = cardData["画像URL"] || null;
           S.originalOverlayImageUrlForEdit =
-            cardData["オーバーレイ画像URL"] || cardData["上絵画像URL"] || null;
+            cardData["装飾画像URL"] ||
+            cardData["オーバーレイ画像URL"] ||
+            cardData["上絵画像URL"] ||
+            null;
+
+          // DB登録モーダル用の情報を、編集中カードから復元
+          UI.registrantInput.value = cardData["登録者"] || "";
+          UI.artistInput.value = cardData["絵師"] || "";
+          UI.sourceInput.value = cardData["元ネタ"] || "";
+          UI.notesInput.value = cardData["備考"] || "";
+
+          if (UI.privateModeCheckbox) {
+            UI.privateModeCheckbox.checked = S.currentEditingCardPrivate;
+          }
         }
 
         DB.updatePreviewFromData(cardData, isEditing);
@@ -509,7 +779,9 @@
         UI.dbCreateBtn.textContent = "この内容で新規登録する";
       }
       if (UI.privateModeCheckbox) {
-        UI.privateModeCheckbox.checked = !!isPrivate;
+        UI.privateModeCheckbox.checked = S.currentEditingCardId
+          ? !!S.currentEditingCardPrivate
+          : !!isPrivate;
       }
       UI.dbModalOverlay.classList.add("is-visible");
     },
@@ -626,7 +898,8 @@
       UI.cardNameInput.value = data["カード名"] || data.cardName || "";
       UI.effectInput.value = data["効果説明"] || data.effect || "";
       UI.flavorInput.value = data["フレーバー"] || data.flavor || "";
-      UI.flavorSpeakerInput.value = data["話者"] || data.speaker || "";
+      UI.flavorSpeakerInput.value =
+        data["セリフ"] || data["話者"] || data.speaker || "";
 
       // レアリティの処理
       const rawRarity = data["レアリティ"] || data.rarity || "none";
@@ -690,7 +963,10 @@
       }
 
       let overlayImageUrl =
-        data["オーバーレイ画像URL"] || data["上絵画像URL"] || "";
+        data["装飾画像URL"] ||
+        data["オーバーレイ画像URL"] ||
+        data["上絵画像URL"] ||
+        "";
       if (overlayImageUrl) {
         UI.overlayImage.src = overlayImageUrl;
         UI.overlayImage.style.display = "block";
@@ -703,6 +979,7 @@
       }
 
       RENDERER.updatePreview();
+      DB.applySavedImageState(data);
     },
 
     // Teikei Modal functions
@@ -1161,7 +1438,7 @@
             IMAGE.updateSparkleEffect();
           } else {
             const scale = UI.highResCheckbox.checked ? 2 : 1;
-            const canvas = await RENDERER.html2canvas(UI.cardContainer, {
+            const canvas = await html2canvas(UI.cardContainer, {
               backgroundColor: null,
               useCORS: true,
               scale: scale,
@@ -1451,13 +1728,21 @@
           );
         };
         renderText();
-        if (document.fonts?.load) {
+        if (typeof RENDERER.ensureTextFontsReady === "function") {
+          RENDERER.ensureTextFontsReady().then(() => {
+            // フォントロード後にカード名レイアウトとCanvas文字を再描画
+            RENDERER.updateCardNameForElement(
+              cardData["カード名"] || "",
+              elements.nameContent,
+            );
+            renderText();
+          });
+        } else if (document.fonts?.load) {
           Promise.allSettled([
             document.fonts.load("400 20px nitalago-ruika"),
             document.fonts.load("600 16px 'Klee One'"),
             document.fonts.load("400 28px 'RocknRoll One'"),
           ]).then(() => {
-            // フォントロード後にカード名レイアウトとCanvas文字を再描画
             RENDERER.updateCardNameForElement(
               cardData["カード名"] || "",
               elements.nameContent,

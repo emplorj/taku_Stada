@@ -430,7 +430,7 @@ body {
 }
 #card-image {
   position: absolute;
-  transform-origin: center;
+  transform-origin: top left;
 }
 
 /* ===============================================
@@ -749,7 +749,7 @@ body {
   width: 100%;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid var(--theme-border, #2a3c7d);
+  border: 1px solid var(--theme-input-border, #2a3c7d);
 }
 .toggle-switch-container input[type="radio"] {
   display: none;
@@ -762,6 +762,7 @@ body {
   cursor: pointer;
   color: #bdc3c7;
   background-color: var(--theme-input-bg, #0d1a50);
+  border: 1px solid var(--theme-input-border, #2a3c7d);
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
@@ -770,10 +771,12 @@ body {
 .toggle-switch-container input[type="radio"]:checked + label {
   color: var(--button-color, #ffffff);
   background-color: var(--button-bg, #3498db);
+  border-color: var(--theme-input-border, #2a3c7d);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 .toggle-switch-container input[type="radio"]:not(:checked) + label:hover {
   background-color: var(--controls-panel-bg, #1a2c6d);
+  border-color: var(--theme-input-border, #2a3c7d);
 }
 
 /* ===============================================
@@ -1345,6 +1348,31 @@ body {
   font-size: 1.1em;
   line-height: 1.5;
 }
+.custom-modal-content #custom-alert-ok-btn {
+  min-width: 72px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid #d8d8d8;
+  background: linear-gradient(#f6f6f6, #e3e3e3);
+  color: #111;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  box-shadow:
+    inset 0 0 0 1px #ffffff,
+    0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.custom-modal-content #custom-alert-ok-btn:hover {
+  background: linear-gradient(#ffffff, #e9e9e9);
+}
+.custom-modal-content #custom-alert-ok-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.custom-modal-content #custom-alert-ok-btn:focus-visible {
+  outline: 2px solid #7ec8ff;
+  outline-offset: 2px;
+}
 .custom-modal-actions {
   display: flex;
   justify-content: center;
@@ -1558,7 +1586,7 @@ body {
 #card-image,
 #db-card-image {
   position: absolute;
-  transform-origin: center;
+  transform-origin: top left;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1577,7 +1605,7 @@ body {
 #overlay-image,
 #db-overlay-image {
   position: absolute;
-  transform-origin: center;
+  transform-origin: top left;
   pointer-events: none;
 }
 

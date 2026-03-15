@@ -9,6 +9,45 @@
   const { layoutText } = window.CG_TEXT_LAYOUT;
 
   const RENDERER = {
+    textFontFaces: [
+      "400 20px nitalago-ruika",
+      "600 16px 'Klee One'",
+      "400 28px 'RocknRoll One'",
+    ],
+    _fontLoadPromise: null,
+    _fontRepaintScheduled: false,
+
+    areTextFontsReady: () => {
+      if (!document.fonts?.check) return true;
+      return RENDERER.textFontFaces.every((font) => document.fonts.check(font));
+    },
+
+    ensureTextFontsReady: () => {
+      if (RENDERER.areTextFontsReady()) return Promise.resolve(true);
+      if (RENDERER._fontLoadPromise) return RENDERER._fontLoadPromise;
+      if (!document.fonts?.load) return Promise.resolve(false);
+
+      RENDERER._fontLoadPromise = Promise.allSettled(
+        RENDERER.textFontFaces.map((font) => document.fonts.load(font)),
+      )
+        .then(() => RENDERER.areTextFontsReady())
+        .finally(() => {
+          RENDERER._fontLoadPromise = null;
+        });
+      return RENDERER._fontLoadPromise;
+    },
+
+    requestPreviewRerenderAfterFonts: () => {
+      if (RENDERER._fontRepaintScheduled) return;
+      RENDERER._fontRepaintScheduled = true;
+      RENDERER.ensureTextFontsReady().finally(() => {
+        requestAnimationFrame(() => {
+          RENDERER._fontRepaintScheduled = false;
+          RENDERER.updatePreview();
+        });
+      });
+    },
+
     updateThemeColor: (details) => {
       if (!details) return;
       const root = document.documentElement;
@@ -379,20 +418,11 @@
           );
         };
         renderText();
-        if (document.fonts?.load) {
-          Promise.allSettled([
-            document.fonts.load("400 20px nitalago-ruika"),
-            document.fonts.load("600 16px 'Klee One'"),
-            document.fonts.load("400 28px 'RocknRoll One'"),
-          ]).then(() => {
-            // フォント到着後にカード名スケーリングとCanvas文字を再描画
-            RENDERER.updateCardName(UI.cardNameInput.value);
-            renderText();
-          });
+        if (!RENDERER.areTextFontsReady()) {
+          RENDERER.requestPreviewRerenderAfterFonts();
         }
       }
       RENDERER.updateRarityDisplay();
-      RENDERER.updateThemeColor(colorDetails);
       RENDERER.updateThemeColor(colorDetails);
 
       const layoutKey = `${selectedType}|${UI.cardImage.src}|${cardWidth}x${
