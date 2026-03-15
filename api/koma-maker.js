@@ -43,19 +43,35 @@ function extractAll(html, regex) {
 
 function pickInputByName(html, name, defVal = "") {
   const n = escRe(name);
-  return extractFirst(
-    html,
-    new RegExp(`name=["']${n}["'][^>]*value=["']([^"']*)["']`, "i"),
-    defVal,
+  // 属性順が value→name のケースにも対応する
+  return (
+    extractFirst(
+      html,
+      new RegExp(`name=["']${n}["'][^>]*value=["']([^"']*)["']`, "i"),
+      "",
+    ) ||
+    extractFirst(
+      html,
+      new RegExp(`value=["']([^"']*)["'][^>]*name=["']${n}["']`, "i"),
+      defVal,
+    )
   );
 }
 
 function pickInputById(html, id, defVal = "") {
   const n = escRe(id);
-  return extractFirst(
-    html,
-    new RegExp(`id=["']${n}["'][^>]*value=["']([^"']*)["']`, "i"),
-    defVal,
+  // 属性順が value→id のケースにも対応する
+  return (
+    extractFirst(
+      html,
+      new RegExp(`id=["']${n}["'][^>]*value=["']([^"']*)["']`, "i"),
+      "",
+    ) ||
+    extractFirst(
+      html,
+      new RegExp(`value=["']([^"']*)["'][^>]*id=["']${n}["']`, "i"),
+      defVal,
+    )
   );
 }
 
@@ -1575,6 +1591,36 @@ async function fetchViaPhantom(url) {
   throw new Error("PhantomJSCloudからのHTML取得に失敗しました。");
 }
 
+async function fetchSatasupeDisplayJson(sheetUrl) {
+  try {
+    const u = new URL(sheetUrl);
+    const key = u.searchParams.get("key");
+    if (!key) return null;
+
+    const api = new URL(
+      "https://character-sheets.appspot.com/satasupe/display",
+    );
+    api.searchParams.set("key", key);
+    api.searchParams.set("ajax", "1");
+
+    const res = await fetch(api.toString(), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+        Accept: "application/json,text/plain,*/*",
+      },
+    });
+    if (!res.ok) return null;
+
+    const text = await res.text();
+    if (!text) return null;
+    const data = JSON.parse(text);
+    return data && typeof data === "object" ? data : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 async function fetchAndIdentifySystem(url) {
   const lower = String(url || "").toLowerCase();
 
@@ -1611,7 +1657,8 @@ async function fetchAndIdentifySystem(url) {
     } catch (_) {
       html = await fetchRawHtml(url);
     }
-    return { system: "Satasupe", html };
+    const satasupeData = await fetchSatasupeDisplayJson(url);
+    return { system: "Satasupe", html, satasupeData };
   }
 
   const html = await fetchRawHtml(url);
@@ -2099,47 +2146,313 @@ function getDataNC(html, url, img, opt, additionalPalette) {
   return out;
 }
 
-function chapareSata() {
-  return "@基本\nSR({性業値}) 性業値判定\n({犯罪})R>=X[,1,13] 犯罪判定\n({生活})R>=X[,1,13] 生活判定\n({恋愛})R>=X[,1,13] 恋愛判定\n({教養})R>=X[,1,13] 教養判定\n({戦闘})R>=X[,1,13] 戦闘判定\n({肉体})R>=X[,1,13] 肉体判定\n({精神})R>=X[,1,13] 精神判定";
+const SATASUPE_HOBBY_NAMES = [
+  ["イベント", "アブノーマル", "カワイイ", "トンデモ", "マニア", "ヲタク"],
+  ["音楽", "好きなタグ", "トレンド", "読書", "パフォーマンス", "美術"],
+  ["アラサガシ", "おせっかい", "好きなタグ", "家事", "ガリ勉", "健康"],
+  ["アウトドア", "工作", "スポーツ", "同一のタグ", "ハイソ", "旅行"],
+  ["育成", "サビシガリヤ", "ヒマツブシ", "宗教", "同一のタグ", "ワビサビ"],
+  ["アダルト", "飲食", "ギャンブル", "ゴシップ", "ファッション", "ハプニング"],
+];
+
+function chapareSata(satasupeData) {
+  const base = (satasupeData && satasupeData.base) || {};
+  const power = base.power || {};
+  const weapons = Array.isArray(satasupeData && satasupeData.weapons)
+    ? satasupeData.weapons
+    : [];
+  const karma = Array.isArray(satasupeData && satasupeData.karma)
+    ? satasupeData.karma
+    : [];
+
+  const lines = [];
+  lines.push("＠基本");
+  lines.push("SR{〔性業値〕} 性業値判定");
+  lines.push("{〔犯罪〕}R>=X[,1,13] 犯罪判定");
+  lines.push("{〔生活〕}R>=X[,1,13] 生活判定");
+  lines.push("{〔恋愛〕}R>=X[,1,13] 恋愛判定");
+  lines.push("{〔教養〕}R>=X[,1,13] 教養判定");
+  lines.push("{〔戦闘〕}R>=X[,1,13] 戦闘判定");
+  lines.push("{〔肉体〕}R>=X[,1,13] 肉体判定");
+  lines.push("{〔精神〕}R>=X[,1,13] 精神判定");
+
+  lines.push("＠汎用");
+  lines.push("{〔肉体〕}R>=X[,1,13] セーブ判定");
+  lines.push("{〔肉体〕}R>=X[1,2,13] 跳ぶ");
+  lines.push("{〔教養〕}R>=X[4,1,13] リンク判定");
+  lines.push("CultureIET イベント表");
+  lines.push("CultureIHT ハプニング表");
+  lines.push("{〔肉体〕}R>=7[1,1,13] BT(酒)");
+
+  lines.push("＠武器");
+  weapons.forEach((w) => {
+    const name = String((w && w.name) || "").trim();
+    if (!name) return;
+    const aim = String((w && w.aim) || "").trim();
+    const damage = String((w && w.damage) || "").trim();
+    if (aim) lines.push(`${aim}R>=8[,2,12] ${name}破壊力:${damage || "?"}`);
+    else lines.push(`${name} 破壊力:${damage || "?"}`);
+  });
+  lines.push("{〔攻撃力〕}R>=X[,1,13] 攻撃力判定");
+
+  lines.push("＠判定");
+  lines.push("");
+
+  lines.push("＠異能/代償");
+  karma.forEach((k) => {
+    const t = (k && k.talent) || {};
+    const p = (k && k.price) || {};
+    if (t.name) {
+      lines.push(
+        `【${t.name}】${t.use || "常駐"}・${t.target || "自分"}・${t.judge || "なし"}`,
+      );
+      if (t.effect) lines.push(String(t.effect));
+    }
+    if (p.name) {
+      lines.push(
+        `【${p.name}】${p.use || "常駐"}・${p.target || "自分"}・${p.judge || "なし"}`,
+      );
+      if (p.effect) lines.push(String(p.effect));
+    }
+  });
+
+  lines.push("");
+  lines.push("各種表");
+  lines.push("TAGT 情報タグ決定表");
+  lines.push("FumbleT 命中判定ファンブル表");
+  lines.push("FatalT 14番表");
+  lines.push("FatalT 致命傷表");
+  lines.push("FatalVT 乗物致命傷表");
+  lines.push("RomanceFT ロマンスファンブル表");
+  lines.push("AccidentT ケチャップアクシデント表");
+  lines.push("GeneralAT 汎用アクシデント表");
+  lines.push("AfterT その後表");
+  lines.push("KusaiMT 臭い飯表");
+  lines.push("EnterT 登場表");
+  lines.push("BudTT バッドトリップ表");
+  lines.push("GetgT ガラクタ表");
+  lines.push("GetzT 実用品表");
+  lines.push("GetnT 値打ち物表");
+  lines.push("GetkT 奇天烈表");
+  lines.push("CrimeIET 犯罪イベント表");
+  lines.push("LifeIET 生活イベント表");
+  lines.push("LoveIET 恋愛イベント表");
+  lines.push("CultureIET 教養イベント表");
+  lines.push("CombatIET 戦闘イベント表");
+  lines.push("CrimeIHT 犯罪ハプニング表");
+  lines.push("LifeIHT 生活ハプニング表");
+  lines.push("LoveIHT 恋愛ハプニング表");
+  lines.push("CultureIHT 教養ハプニング表");
+  lines.push("CombatIHT 戦闘ハプニング表");
+  lines.push("MinamiRET ミナミ遭遇表");
+  lines.push("ChinatownRET 中華街遭遇表");
+  lines.push("WarshipLandRET 軍艦島遭遇表");
+  lines.push("CivicCenterRET 官庁街遭遇表");
+  lines.push("DowntownRET 十三遭遇表");
+  lines.push("ShaokinRET 沙京遭遇表");
+  lines.push("LoveLoveRET らぶらぶ遭遇表");
+  lines.push("AjitoRET アジト遭遇表");
+  lines.push("JigokuSpaRET 地獄湯遭遇表");
+  lines.push("JailHouseRET JAIL HOUSE遭遇表");
+  lines.push("TreatmentIT 治療イベント表");
+  lines.push("CollegeIT 大学イベント表");
+
+  return lines.join("\n");
 }
 
-function getDataSata(html, url, img, opt, additionalPalette) {
-  let commands = opt[1] ? chapareSata() : "";
+function buildSatasupeMemo(satasupeData, plName = "") {
+  const base = (satasupeData && satasupeData.base) || {};
+  const abl = base.abl || {};
+  const gift = base.gift || {};
+  const power = base.power || {};
+  const karmaList = Array.isArray(satasupeData && satasupeData.karma)
+    ? satasupeData.karma
+    : [];
+  const learned = Array.isArray(satasupeData && satasupeData.learned)
+    ? satasupeData.learned
+    : [];
+  const outfits = Array.isArray(satasupeData && satasupeData.outfits)
+    ? satasupeData.outfits
+    : [];
+  const weapons = Array.isArray(satasupeData && satasupeData.weapons)
+    ? satasupeData.weapons
+    : [];
+  const vehicles = Array.isArray(satasupeData && satasupeData.vehicles)
+    ? satasupeData.vehicles
+    : [];
+
+  const p = (v) => (v === null || v === undefined || v === "" ? "" : String(v));
+  const v = (obj, key) =>
+    obj && obj[key] && obj[key].value !== undefined
+      ? String(obj[key].value)
+      : "";
+
+  const hobbyNames = learned
+    .map((x) => String((x && x.id) || ""))
+    .filter((id) => /^hobby\.\d+_\d+$/.test(id))
+    .map((id) => {
+      const m = id.match(/^hobby\.(\d+)_(\d+)$/);
+      if (!m) return "";
+      const r = Math.max(1, Number(m[1])) - 1;
+      const c = Math.max(1, Number(m[2])) - 1;
+      return (SATASUPE_HOBBY_NAMES[r] && SATASUPE_HOBBY_NAMES[r][c]) || "";
+    })
+    .filter(Boolean);
+
+  const talentNames = karmaList
+    .map((k) => (k && k.talent && k.talent.name ? `【${k.talent.name}】` : ""))
+    .filter(Boolean);
+  const priceNames = karmaList
+    .map((k) => (k && k.price && k.price.name ? `【${k.price.name}】` : ""))
+    .filter(Boolean);
+
+  const itemLines = [];
+  const ajitoItemLines = [];
+  const pushItem = (name, opts = {}) => {
+    const nm = p(name).trim();
+    if (!nm) return;
+    const num = p(opts.num).trim();
+    const use = p(opts.use).trim();
+    const notes = p(opts.notes).trim();
+    const place = p(opts.place).trim();
+    const isAjito = place.includes("アジト");
+
+    let line = nm;
+    if (num && num !== "1") line += `×${num}`;
+    if (use) line += `（${use}）`;
+    if (notes) line += ` ${notes}`;
+    if (place && !isAjito) line += `（${place}に）`;
+    if (isAjito) ajitoItemLines.push(line);
+    else itemLines.push(line);
+  };
+  outfits.forEach((o) =>
+    pushItem(o && o.name, {
+      num: o && o.num,
+      use: o && o.use,
+      notes: o && o.notes,
+      place: o && o.place,
+    }),
+  );
+  weapons.forEach((w) => {
+    pushItem(w && w.name, {
+      num: w && w.num,
+      use: w && w.use,
+      notes: w && w.notes,
+      place: w && w.place,
+    });
+  });
+  vehicles.forEach((w) => {
+    pushItem(w && w.name, {
+      num: w && w.num,
+      use: w && w.use,
+      notes: w && w.notes,
+      place: w && w.place,
+    });
+  });
+
+  const lines = [];
+  lines.push("───");
+  lines.push(`【PL名】${plName || "○○"}`);
+  lines.push(`【PC名】${p(base.name)}`);
+  if (p(base.age) || p(base.sex)) {
+    lines.push(`年齢：${p(base.age)}、性別：${p(base.sex)}`);
+  }
+  if (p(base.favorites)) lines.push(`好み：${p(base.favorites)}`);
+  lines.push(
+    `【犯罪】${v(abl, "crime")}【生活】${v(abl, "life")}【恋愛】${v(abl, "love")}【教養】${v(abl, "culture")}【戦闘】${v(abl, "combat")}`,
+  );
+  lines.push(`【肉体】${v(gift, "body")}【精神】${v(gift, "mind")}`);
+  lines.push(`【性業値】${p(base.emotion)}`);
+  lines.push(
+    `【反応力】${p(power.initiative)}【攻撃力】${p(power.attack)}【破壊力】${p(power.destroy)}`,
+  );
+
+  lines.push("");
+  lines.push(`趣味：${hobbyNames.join("、")}`);
+  lines.push(`異能：${talentNames.join("")}`);
+  lines.push(`代償：${priceNames.join("")}`);
+  lines.push("───");
+  itemLines.forEach((x) => lines.push(`・${x}`));
+  if (ajitoItemLines.length) {
+    lines.push("アジト");
+    ajitoItemLines.forEach((x) => lines.push(`・${x}`));
+  }
+
+  if (base.memo) {
+    lines.push("");
+    lines.push(String(base.memo));
+  }
+
+  lines.push("───");
+
+  return lines.join("\n");
+}
+
+function getDataSata(
+  html,
+  url,
+  img,
+  opt,
+  additionalPalette,
+  satasupeData = null,
+  plName = "",
+) {
+  let commands = opt[1] ? chapareSata(satasupeData) : "";
   if (additionalPalette) commands += (commands ? "\n" : "") + additionalPalette;
+  const base = (satasupeData && satasupeData.base) || {};
+  const abl = base.abl || {};
+  const readAbl = (key, fallbackId) => {
+    const fromJson =
+      abl && abl[key] && abl[key].value !== undefined
+        ? String(abl[key].value)
+        : "";
+    return fromJson || pickInputById(html, fallbackId, "");
+  };
+  const satasupeName =
+    String(base.name || "") ||
+    pickInputById(html, "base.name", "") ||
+    getNameBySystem(html, "Satasupe");
   const out = {
     kind: "character",
     data: {
-      name: getNameBySystem(html, "Satasupe"),
-      memo: opt[0] ? "サタスペのメモ" : "",
-      initiative: toInt(pickInputById(html, "base.power.initiative", "0"), 0),
+      name: satasupeName,
+      memo: opt[0] ? buildSatasupeMemo(satasupeData, plName) : "",
+      initiative: toInt(
+        (base.power && base.power.initiative) ||
+          pickInputById(html, "base.power.initiative", "0"),
+        0,
+      ),
       externalUrl: url,
       status: [
         {
           label: "性業値",
-          value: toInt(pickInputById(html, "base.emotion", "0"), 0),
+          value: toInt(
+            base.emotion || pickInputById(html, "base.emotion", "0"),
+            0,
+          ),
           max: 13,
         },
       ],
       params: [
         {
           label: "犯罪",
-          value: pickInputById(html, "base.abl.crime.value", ""),
+          value: readAbl("crime", "base.abl.crime.value"),
         },
         {
           label: "生活",
-          value: pickInputById(html, "base.abl.life.value", ""),
+          value: readAbl("life", "base.abl.life.value"),
         },
         {
           label: "恋愛",
-          value: pickInputById(html, "base.abl.love.value", ""),
+          value: readAbl("love", "base.abl.love.value"),
         },
         {
           label: "教養",
-          value: pickInputById(html, "base.abl.culture.value", ""),
+          value: readAbl("culture", "base.abl.culture.value"),
         },
         {
           label: "戦闘",
-          value: pickInputById(html, "base.abl.combat.value", ""),
+          value: readAbl("combat", "base.abl.combat.value"),
         },
       ],
       commands,
@@ -2164,7 +2477,7 @@ async function processSheetData(formData) {
     };
   }
 
-  const { system, html } = await fetchAndIdentifySystem(url);
+  const { system, html, satasupeData } = await fetchAndIdentifySystem(url);
   if (system === "Unknown") {
     return {
       message:
@@ -2203,8 +2516,16 @@ async function processSheetData(formData) {
     outObj = getDataNC(html, url, img, opt, additionalPalette);
     message = `${charName}、きみも、心を…取り戻したんだね`;
   } else if (system === "Satasupe") {
-    outObj = getDataSata(html, url, img, opt, additionalPalette);
-    message = `ククク、${charName}よ。涅槃で待つ`;
+    outObj = getDataSata(
+      html,
+      url,
+      img,
+      opt,
+      additionalPalette,
+      satasupeData,
+      plName,
+    );
+    message = `ククク、${(outObj && outObj.data && outObj.data.name) || charName}よ。涅槃で待つ`;
   }
 
   if (
