@@ -2164,6 +2164,12 @@ function chapareSata(satasupeData) {
   const karma = Array.isArray(satasupeData && satasupeData.karma)
     ? satasupeData.karma
     : [];
+  const fmtKarmaName = (name) => {
+    const s = String(name || "").trim();
+    if (!s) return "";
+    const core = s.replace(/^【+|】+$/g, "");
+    return `【${core}】`;
+  };
 
   const lines = [];
   lines.push("＠基本");
@@ -2190,7 +2196,7 @@ function chapareSata(satasupeData) {
     if (!name) return;
     const aim = String((w && w.aim) || "").trim();
     const damage = String((w && w.damage) || "").trim();
-    if (aim) lines.push(`${aim}R>=8[,2,12] ${name}破壊力:${damage || "?"}`);
+    if (aim) lines.push(`${aim}R>=8[,2,12]　${name}破壊力:${damage || "?"}`);
     else lines.push(`${name} 破壊力:${damage || "?"}`);
   });
   lines.push("({攻撃力})R>=X[,1,13] 攻撃力判定");
@@ -2204,13 +2210,13 @@ function chapareSata(satasupeData) {
     const p = (k && k.price) || {};
     if (t.name) {
       lines.push(
-        `【${t.name}】${t.use || "常駐"}・${t.target || "自分"}・${t.judge || "なし"}`,
+        `${fmtKarmaName(t.name)}${t.use || "常駐"}・${t.target || "自分"}・${t.judge || "なし"}`,
       );
       if (t.effect) lines.push(String(t.effect));
     }
     if (p.name) {
       lines.push(
-        `【${p.name}】${p.use || "常駐"}・${p.target || "自分"}・${p.judge || "なし"}`,
+        `${fmtKarmaName(p.name)}${p.use || "常駐"}・${p.target || "自分"}・${p.judge || "なし"}`,
       );
       if (p.effect) lines.push(String(p.effect));
     }
@@ -2314,15 +2320,18 @@ function buildSatasupeMemo(satasupeData, plName = "") {
 
   const itemLines = [];
   const ajitoItemLines = [];
+  const norimonoItemLines = [];
   const pushItem = (name, opts = {}) => {
     const nm = p(name).trim();
     if (!nm) return;
     const place = p(opts.place).trim();
     const isAjito = place.includes("アジト");
+    const isNorimono = place.includes("乗物");
 
     const line = nm;
-    if (place && !isAjito) line += `（${place}に）`;
+    if (place && !isAjito && !isNorimono) line += `（${place}に）`;
     if (isAjito) ajitoItemLines.push(line);
+    else if (isNorimono) norimonoItemLines.push(line);
     else itemLines.push(line);
   };
   outfits.forEach((o) =>
@@ -2355,7 +2364,7 @@ function buildSatasupeMemo(satasupeData, plName = "") {
   lines.push(`【PL名】${plName || "○○"}`);
   lines.push(`【PC名】${p(base.name)}`);
   if (p(base.age) || p(base.sex)) {
-    lines.push(`年齢：${p(base.age)}、性別：${p(base.sex)}`);
+    lines.push(`年齢：${p(base.age)}　性別：${p(base.sex)}`);
   }
   if (p(base.favorites)) lines.push(`好み：${p(base.favorites)}`);
   lines.push(
@@ -2371,11 +2380,15 @@ function buildSatasupeMemo(satasupeData, plName = "") {
   lines.push(`趣味：${hobbyNames.join("、")}`);
   lines.push(`異能：${talentNames.join("")}`);
   lines.push(`代償：${priceNames.join("")}`);
-  lines.push("───");
+  lines.push("◆手持ちのアイテム");
   itemLines.forEach((x) => lines.push(`・${x}`));
   if (ajitoItemLines.length) {
-    lines.push("アジト");
+    lines.push("◆アジトのアイテム");
     ajitoItemLines.forEach((x) => lines.push(`・${x}`));
+  }
+  if (norimonoItemLines.length) {
+    lines.push("◆乗り物のアイテム");
+    norimonoItemLines.forEach((x) => lines.push(`・${x}`));
   }
 
   if (base.memo) {
