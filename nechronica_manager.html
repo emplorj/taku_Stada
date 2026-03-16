@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>ネクロニカ エネミー管理</title>
+  <meta property="og:title" content="ネクロニカ エネミー管理 - 卓スタダ">
+  <meta property="og:description" content="nechronica_enemies シート向けの一覧・詳細編集UI（Web側モック）">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/nechronica_manager.css">
+</head>
+
+<body class="nechronica-manager-page">
+  <div id="header-placeholder"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <main class="main-content nechronica-main">
+    <header class="nechronica-header">
+      <h1>ネクロニカ エネミー管理</h1>
+      <p class="subtitle">一覧表示 + 詳細編集（ローカル保存）</p>
+    </header>
+
+    <section class="sheet-spec">
+      <h2>管理項目</h2>
+      <p><code>ID（自動） / 作者名 / エネミー名 / 種別 / メモ / アイコン / 更新日時</code></p>
+    </section>
+
+    <section class="manager-layout single-column">
+      <details class="enemy-list-collapsible" open>
+        <summary>
+          <h2 class="enemy-list-title">みんなのエネミー</h2>
+        </summary>
+        <div class="enemy-list-pane">
+          <div class="pane-header">
+            <h2>エネミー一覧</h2>
+            <button id="createEnemyButton" class="stamp-btn">新規</button>
+          </div>
+          <input id="enemySearchInput" class="asian-input full" type="text" placeholder="名前・作者で検索">
+          <ul id="enemyList" class="enemy-list"></ul>
+        </div>
+      </details>
+
+      <section class="editor-pane">
+        <div class="pane-header">
+          <h2>詳細編集</h2>
+        </div>
+
+        <form id="enemyEditorForm" class="editor-form" autocomplete="off">
+          <section class="data-block">
+            <div class="sub-header">
+              <h3>基本情報</h3>
+              <p class="meta-line">更新日時: <span id="field-time-text">-</span></p>
+            </div>
+            <div class="primary-info-grid">
+              <label class="compact-field"><span class="field-label">悪意点</span><input id="field-malice" type="number"
+                  readonly title="自動入力項目（マニューバ内容から計算）"></label>
+              <label><span class="field-label">エネミー名</span><input id="field-name" type="text" required></label>
+              <label class="class-field">種別
+                <select id="field-class-type">
+                  <option value="サヴァント">サヴァント</option>
+                  <option value="ホラー">ホラー</option>
+                  <option value="レギオン">レギオン</option>
+                </select>
+              </label>
+              <datalist id="partTypeList">
+                <option value="頭"></option>
+                <option value="腕"></option>
+                <option value="胴"></option>
+                <option value="脚"></option>
+              </datalist>
+              <label class="compact-field"><span class="field-label">行動値</span><input id="field-initiative"
+                  type="number" readonly title="自動入力項目（マニューバ内容から計算）"></label>
+            </div>
+            <div class="sub-info-grid">
+              <label><span class="field-label">作者名</span><input id="field-author" type="text"
+                  placeholder="例: エンJ"></label>
+              <label><span class="field-label">アイコンURL</span><input id="field-icon-url" type="url"
+                  placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
+              <label class="public-switch-label">
+                <span class="public-switch-wrap">
+                  <input id="field-is-public" class="switch" type="checkbox" checked>
+                  <span class="public-switch-text" id="field-is-public-text">公開</span>
+                </span>
+              </label>
+            </div>
+            <label>メモ<textarea id="field-memo" rows="3"></textarea></label>
+            <input id="field-id" type="hidden">
+            <input id="field-time" type="hidden">
+          </section>
+
+          <section class="data-block">
+            <div class="sub-header">
+              <h3>パーツ（実データ）</h3>
+              <div>
+                <button id="addBasicManeuversButton" type="button" class="small-square-btn">基本パーツを追加</button>
+                <button id="addManeuverButton" type="button" class="small-square-btn">+ 追加</button>
+              </div>
+            </div>
+            <p class="meta-line maneuver-initiative-note">※行動値増減は通常0。負の値は「損傷」時のみ同値を加算（例: -1 → 損傷で +1）。</p>
+            <div class="table-wrap">
+              <table class="asian-table" id="maneuversTable">
+                <colgroup>
+                  <col class="col-state">
+                  <col class="col-name">
+                  <col class="col-part">
+                  <col class="col-timing">
+                  <col class="col-cost">
+                  <col class="col-range">
+                  <col class="col-initiative">
+                  <col class="col-effect">
+                  <col class="col-malice">
+                  <col class="col-remove">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>状態</th>
+                    <th>名称</th>
+                    <th>部位</th>
+                    <th>タイミング</th>
+                    <th>コスト</th>
+                    <th>射程</th>
+                    <th class="initiative-head" title="行動値増減（通常0、負値は損傷時に加算）">行動値</th>
+                    <th>効果</th>
+                    <th>悪意</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <datalist id="maneuverRangeList">
+              <option value="なし"></option>
+              <option value="効果参照"></option>
+              <option value="自身"></option>
+              <option value="0"></option>
+              <option value="1"></option>
+              <option value="2"></option>
+              <option value="3"></option>
+              <option value="0-1"></option>
+              <option value="0-2"></option>
+              <option value="0-3"></option>
+              <option value="1-2"></option>
+              <option value="1-3"></option>
+              <option value="2-3"></option>
+            </datalist>
+            <datalist id="maneuverCostList">
+              <option value="なし"></option>
+              <option value="6"></option>
+              <option value="4"></option>
+              <option value="3"></option>
+              <option value="2"></option>
+              <option value="1"></option>
+              <option value="0"></option>
+              <option value="効果参照"></option>
+            </datalist>
+          </section>
+        </form>
+
+        <details class="json-preview" open>
+          <summary>コマメモ風プレビュー</summary>
+          <pre id="memoPreview">---</pre>
+        </details>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/common.js?v=20260220a"></script>
+  <script src="js/nechronica-manager.js?v=20260316a"></script>
+</body>
+
+</html>

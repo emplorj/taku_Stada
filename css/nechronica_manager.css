@@ -1,0 +1,551 @@
+.nechronica-main {
+  max-width: 1400px;
+}
+
+.nechronica-manager-page {
+  --sheet-bg: #b8b8b8;
+  --sheet-cell: #c4c4c4;
+  --sheet-header: #222;
+  --sheet-header-text: #fff;
+  --sheet-border: #111;
+}
+
+.nechronica-manager-page,
+.nechronica-manager-page * {
+  box-sizing: border-box;
+}
+
+.nechronica-header {
+  margin-bottom: 1rem;
+}
+
+.sheet-spec {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.manager-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1rem;
+}
+
+.manager-layout.single-column {
+  grid-template-columns: 1fr;
+}
+
+.enemy-list-collapsible {
+  border: 2px solid var(--sheet-border);
+  background: transparent;
+}
+
+.enemy-list-collapsible summary {
+  position: relative;
+  cursor: pointer;
+  list-style: none;
+  display: block;
+  margin-bottom: 10px;
+  padding: 0;
+  user-select: none;
+}
+
+.enemy-list-collapsible summary::-webkit-details-marker {
+  display: none;
+}
+
+.enemy-list-collapsible summary::before {
+  content: "\25B6";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 1rem;
+  color: #ddd;
+}
+
+.enemy-list-collapsible[open] summary::before {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.enemy-list-title {
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  margin: 0;
+  padding-left: 35px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f2f2f2;
+  background: #637f9d;
+  border: none;
+  border-radius: 8px;
+}
+
+.enemy-list-pane,
+.editor-pane {
+  border: 2px solid var(--sheet-border);
+  border-radius: 0;
+  background: var(--sheet-bg);
+  padding: 0.8rem;
+  color: #000;
+}
+
+.enemy-list-pane {
+  border: none;
+  padding-top: 0.4rem;
+}
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.action-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.full {
+  width: 100%;
+  margin: 0.6rem 0;
+}
+
+.enemy-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.enemy-list button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--sheet-border);
+  background: #d4d4d4;
+  color: #000;
+  border-radius: 0;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.enemy-list button.is-active {
+  border-color: var(--sheet-border);
+  background: #9f9f9f;
+}
+
+.editor-form {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.editor-form label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+}
+
+.primary-info-grid {
+  display: grid;
+  grid-template-columns:
+    max-content minmax(320px, 1fr)
+    max-content max-content;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.primary-info-grid label {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.primary-info-grid > label,
+.sub-info-grid > label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.field-label {
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.primary-info-grid > label > input,
+.primary-info-grid > label > select,
+.sub-info-grid > label > input,
+.sub-info-grid > label > select {
+  flex: 1 1 auto;
+}
+
+.primary-info-grid > label.compact-field > input {
+  flex: 0 0 5ch;
+  width: 5ch;
+  min-width: 5ch;
+  max-width: 5ch;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+
+.sub-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr auto;
+  gap: 0.6rem;
+  margin-top: 0.45rem;
+  align-items: center;
+}
+
+.sub-info-grid label {
+  font-size: 0.86rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+#field-malice,
+#field-initiative,
+#field-name,
+#field-class-type {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+#field-name {
+  min-width: 300px;
+}
+
+.calc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05em;
+  height: 1.05em;
+  margin-left: 0.2em;
+  font-size: 0.8em;
+  color: #444;
+  border: 1px solid #666;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+#field-malice[readonly],
+#field-initiative[readonly] {
+  background: #a8a8a8;
+  color: #222;
+}
+
+.compact-field {
+  width: auto;
+}
+
+.compact-field input {
+  width: 5ch;
+  flex: 0 0 5ch;
+  min-width: 5ch;
+  max-width: 5ch;
+  text-align: center;
+}
+
+.class-field {
+  width: auto;
+  min-width: max-content;
+}
+
+.class-field select {
+  width: 7.2em;
+  flex: 0 0 7.2em;
+  min-width: 7.2em;
+  max-width: 7.2em;
+}
+
+.public-switch-label {
+  width: auto;
+  align-self: center;
+}
+
+.sub-info-grid .public-switch-label {
+  justify-self: end;
+}
+
+.public-switch-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.public-switch-text {
+  min-width: 2.5em;
+}
+
+.meta-line {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #111;
+}
+
+.editor-form input,
+.editor-form select,
+.editor-form textarea {
+  width: 100%;
+  background: #f2f2f2;
+  color: #000;
+  border: 1px solid var(--sheet-border);
+  border-radius: 0;
+  padding: 0.45rem;
+}
+
+.data-block {
+  border: 1px solid var(--sheet-border);
+  border-radius: 0;
+  padding: 0.5rem;
+}
+
+.sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--sheet-border);
+  background: var(--sheet-cell);
+}
+
+.nechronica-manager-page .asian-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: var(--sheet-cell);
+}
+
+.nechronica-manager-page .asian-table th,
+.nechronica-manager-page .asian-table td {
+  border: 1px solid var(--sheet-border);
+  color: #000;
+  padding: 0.25rem;
+  vertical-align: middle;
+}
+
+.nechronica-manager-page .asian-table thead th {
+  background: var(--sheet-header);
+  color: var(--sheet-header-text);
+  font-weight: 700;
+}
+
+#maneuversTable th.initiative-head {
+  font-size: 0.84rem;
+  letter-spacing: -0.01em;
+}
+
+.asian-table input {
+  min-width: 0;
+  width: 100%;
+}
+
+.asian-table .use-check {
+  min-width: auto;
+  width: 18px;
+  height: 18px;
+}
+
+#maneuversTable col.col-state {
+  width: 6.5rem;
+}
+
+#maneuversTable col.col-name {
+  width: 10em;
+}
+
+#maneuversTable col.col-part {
+  width: 4.5em;
+}
+
+#maneuversTable col.col-timing {
+  width: 6.8em;
+}
+
+#maneuversTable col.col-cost,
+#maneuversTable col.col-range,
+#maneuversTable col.col-malice {
+  width: 4em;
+}
+
+#maneuversTable col.col-range {
+  width: 4.6em;
+}
+
+#maneuversTable col.col-initiative {
+  width: 3.2em;
+}
+
+#maneuversTable col.col-remove {
+  width: 3.4rem;
+}
+
+.row-action-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  width: max-content;
+  margin: 0 auto;
+}
+
+#maneuversTable .delete-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--sheet-border);
+  background-color: #e74c3c;
+  color: #fff;
+  line-height: 1;
+}
+
+#maneuversTable .delete-btn:hover {
+  background-color: #c0392b;
+}
+
+#maneuversTable .delete-btn i {
+  font-size: 0.72rem;
+}
+
+.drag-hint {
+  display: inline-block;
+  font-size: 0.82rem;
+  line-height: 1;
+  opacity: 0.72;
+  user-select: none;
+  cursor: grab;
+  padding: 0;
+  margin: 0;
+}
+
+#maneuversTable td:last-child {
+  padding-left: 0.22rem;
+  padding-right: 0.1rem;
+  white-space: nowrap;
+}
+
+#maneuversTable tr.is-dragging .drag-hint {
+  cursor: grabbing;
+}
+
+.maneuver-initiative-note {
+  margin: 0 0 0.4rem;
+  font-size: 0.86rem;
+}
+
+#maneuversTable .timing-select,
+#maneuversTable .range-select {
+  font-size: 0.9rem;
+  padding-left: 0.3rem;
+  padding-right: 0.2rem;
+}
+
+.editor-form input[type="number"],
+#partsTable input[type="number"],
+#maneuversTable input[type="number"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#maneuversTable tbody tr {
+  cursor: move;
+}
+
+#maneuversTable tbody tr.is-dragging {
+  opacity: 0.55;
+}
+
+.initiative-total {
+  margin: 0.6rem 0 0;
+  font-size: 1rem;
+}
+
+.json-preview {
+  margin-top: 0.8rem;
+}
+
+#dataPreview {
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--sheet-cell);
+  color: #000;
+  border: 1px solid var(--sheet-border);
+  padding: 0.6rem;
+  border-radius: 0;
+}
+
+#memoPreview {
+  background: var(--sheet-cell);
+  color: #000;
+  border: 1px solid var(--sheet-border);
+  border-radius: 0;
+}
+
+.nechronica-manager-page .stamp-btn,
+.nechronica-manager-page .small-square-btn {
+  border: 1px solid var(--sheet-border);
+  background: #2a2a2a;
+  color: #fff;
+  border-radius: 0;
+}
+
+.nechronica-manager-page .stamp-btn:hover,
+.nechronica-manager-page .small-square-btn:hover {
+  background: #000;
+}
+
+@media (max-width: 980px) {
+  .manager-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .primary-info-grid,
+  .sub-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
