@@ -146,8 +146,8 @@ E:\Github\taku_Stada\img\shoukai2.png
 E:\Github\taku_Stada\img\spreadsheet.svg
 E:\Github\taku_Stada\img\ukihito.png
 E:\Github\taku_Stada\img\仁科済.png
-E:\Github\taku_Stada\img\卓スタダminiロゴ.png
-E:\Github\taku_Stada\img\卓スタダロゴ.png
+E:\Github\taku_Stada\img\taku_stada_mini.png
+E:\Github\taku_Stada\img\taku_stada.png
 E:\Github\taku_Stada\img\favicon\apple-touch-icon.png
 E:\Github\taku_Stada\img\favicon\favicon-16x16.png
 E:\Github\taku_Stada\img\favicon\favicon-32x32.png

@@ -1,12 +1,82 @@
 const sheetForm = document.getElementById("sheetForm");
 const submitButton = document.getElementById("submitButton");
 const copyButton = document.getElementById("copyButton");
+const itemSection = document.getElementById("itemSection");
+const itemOutputHandArea = document.getElementById("itemOutputHand");
+const itemOutputAjitoArea = document.getElementById("itemOutputAjito");
+const itemOutputVehicleArea = document.getElementById("itemOutputVehicle");
+const itemHeaderHand = document.getElementById("itemHeaderHand");
+const itemHeaderAjito = document.getElementById("itemHeaderAjito");
+const itemHeaderVehicle = document.getElementById("itemHeaderVehicle");
+const copyItemHandButton = document.getElementById("copyItemHandButton");
+const copyItemAjitoButton = document.getElementById("copyItemAjitoButton");
+const copyItemVehicleButton = document.getElementById("copyItemVehicleButton");
 const messageArea = document.getElementById("messageArea");
 const outputArea = document.getElementById("output");
 const loadingOverlay = document.getElementById("loading");
 const progressBarContainer = document.getElementById("progressBarContainer");
 const progressBar = document.getElementById("progressBar");
 const plNameInput = document.getElementById("plName");
+
+let toastTimer = null;
+let progressTimer = null;
+
+function getCurrentProgressValue() {
+  if (!progressBar) return 0;
+  const w = String(progressBar.style.width || "0").trim();
+  const n = Number(w.replace("%", ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function setProgress(value, animated = true) {
+  if (!progressBar) return;
+  const clamped = Math.max(0, Math.min(100, Number(value) || 0));
+  progressBar.style.transition = animated ? "width 0.25s ease-out" : "none";
+  progressBar.style.width = `${clamped}%`;
+}
+
+function setProgressAtLeast(value, animated = true) {
+  const now = getCurrentProgressValue();
+  if (value > now) setProgress(value, animated);
+}
+
+function startProgressTracking() {
+  stopProgressTracking();
+  setProgress(5, false);
+  progressTimer = setInterval(() => {
+    if (!loadingOverlay || loadingOverlay.style.display !== "flex") return;
+    const now = getCurrentProgressValue();
+    // 通信待ち中は 78% まで緩やかに進め、実処理完了時に一気に詰める。
+    if (now < 78) setProgress(now + 1, true);
+  }, 450);
+}
+
+function stopProgressTracking() {
+  if (!progressTimer) return;
+  clearInterval(progressTimer);
+  progressTimer = null;
+}
+
+function showToast(message, kind = "info") {
+  let toast = document.getElementById("copyToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "copyToast";
+    toast.className = "copy-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.remove("is-error", "is-show");
+  if (kind === "error") toast.classList.add("is-error");
+  // reflow
+  void toast.offsetWidth;
+  toast.classList.add("is-show");
+
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("is-show");
+  }, 1400);
+}
 
 const PL_NAME_STORAGE_KEY = "komaMakerPlName";
 const DEFAULT_VERCEL_API_BASES = ["https://taku-stada.vercel.app"];
@@ -89,15 +159,18 @@ async function postToKomaMakerApi(formData) {
 
   for (const endpoint of endpoints) {
     try {
+      setProgressAtLeast(18, true);
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+      setProgressAtLeast(78, true);
 
       let data = null;
       try {
         data = await response.json();
+        setProgressAtLeast(86, true);
       } catch (_) {}
 
       if (response.status === 404) {
@@ -114,6 +187,7 @@ async function postToKomaMakerApi(formData) {
       }
 
       if (!data) throw new Error(`APIの応答がJSONではない: ${endpoint}`);
+      setProgressAtLeast(90, true);
       return data;
     } catch (error) {
       lastError = error;
@@ -161,19 +235,232 @@ copyButton.addEventListener("click", () => {
     txt.includes("エラー発生") ||
     txt.includes("対応していない")
   ) {
-    alert("まだコピーできる内容が出力されていない、あるいはエラーのようだ！");
+    showToast(
+      "まだコピーできる内容が出力されていない、あるいはエラーのようだ！",
+      "error",
+    );
     return;
   }
   navigator.clipboard
     .writeText(txt)
     .then(() =>
-      alert("コピーした！ これをココフォリアに持って行ってペーストだ！"),
+      showToast(
+        "コピーした！ これをココフォリアに持って行ってペーストだ！",
+        "info",
+      ),
     )
     .catch((err) => {
-      alert("コピーに失敗したようだ… ブラウザの権限を確認しろ！: " + err);
+      showToast("コピーに失敗したようだ… ブラウザの権限を確認しろ！", "error");
       console.error("Clipboard copy failed: ", err);
     });
 });
+
+function setupItemCopyButton(button, textarea, emptyText, successMessage) {
+  if (!button || !textarea) return;
+  button.addEventListener("click", () => {
+    const txt = textarea.value || "";
+    if (!txt || txt === emptyText) {
+      showToast("まだアイテム欄が出力されていないようだ！", "error");
+      return;
+    }
+    navigator.clipboard
+      .writeText(txt)
+      .then(() => showToast(successMessage, "info"))
+      .catch((err) => {
+        showToast(
+          "コピーに失敗したようだ… ブラウザの権限を確認しろ！",
+          "error",
+        );
+        console.error("Clipboard copy failed: ", err);
+      });
+  });
+}
+
+function setItemSectionVisible(visible) {
+  if (!itemSection) return;
+  itemSection.style.display = visible ? "block" : "none";
+}
+
+function setItemHeader(el, title, current = null, max = null) {
+  if (!el) return;
+  if (current === null || max === null) {
+    el.textContent = title;
+    return;
+  }
+  const c = Number.isFinite(Number(current)) ? Number(current) : 0;
+  const m = Number.isFinite(Number(max)) ? Number(max) : 0;
+  const isOver = c > m;
+  el.innerHTML = `<span class="item-title">${title}</span><span class="item-count${isOver ? " is-over" : ""}">${c} / ${m}${isOver ? " ⚠" : ""}</span>`;
+}
+
+function resetItemSection() {
+  setItemHeader(itemHeaderHand, "手持ち");
+  setItemHeader(itemHeaderAjito, "アジト");
+  setItemHeader(itemHeaderVehicle, "乗り物");
+  if (itemOutputHandArea)
+    itemOutputHandArea.value = "ここに手持ちアイテムが出力される。";
+  if (itemOutputAjitoArea)
+    itemOutputAjitoArea.value = "ここにアジトアイテムが出力される。";
+  if (itemOutputVehicleArea)
+    itemOutputVehicleArea.value = "ここに乗り物アイテムが出力される。";
+  if (copyItemHandButton) copyItemHandButton.disabled = true;
+  if (copyItemAjitoButton) copyItemAjitoButton.disabled = true;
+  if (copyItemVehicleButton) copyItemVehicleButton.disabled = true;
+}
+
+function parseItemSectionsFromMemo(memo) {
+  const out = { hand: [], ajito: [], vehicle: [] };
+  const lines = String(memo || "").split(/\r?\n/);
+  let current = "";
+  for (const raw of lines) {
+    const line = String(raw || "").trim();
+    if (line === "◆手持ちのアイテム") {
+      current = "hand";
+      continue;
+    }
+    if (line === "◆アジトのアイテム") {
+      current = "ajito";
+      continue;
+    }
+    if (line === "◆乗り物のアイテム") {
+      current = "vehicle";
+      continue;
+    }
+    if (!current) continue;
+    if (!line) continue;
+    if (line.startsWith("◆")) {
+      current = "";
+      continue;
+    }
+    if (line.startsWith("・")) {
+      out[current].push(line);
+      continue;
+    }
+    current = "";
+  }
+  return out;
+}
+
+function fillItemSectionFromOutput(
+  rawText,
+  itemLimits = null,
+  itemSectionsFromApi = null,
+) {
+  let memo = "";
+  let isSatasupe = false;
+  try {
+    const outObj = JSON.parse(String(rawText || ""));
+    memo = String(
+      outObj && outObj.data && outObj.data.memo ? outObj.data.memo : "",
+    );
+    const externalUrl = String(
+      outObj && outObj.data && outObj.data.externalUrl
+        ? outObj.data.externalUrl
+        : "",
+    );
+    isSatasupe = /satasupe|appspot\.com/i.test(externalUrl);
+  } catch (_) {
+    memo = "";
+    isSatasupe = false;
+  }
+
+  if (!isSatasupe) {
+    setItemSectionVisible(false);
+    resetItemSection();
+    return;
+  }
+
+  const sections =
+    itemSectionsFromApi && typeof itemSectionsFromApi === "object"
+      ? {
+          hand: Array.isArray(itemSectionsFromApi.hand)
+            ? itemSectionsFromApi.hand.map((x) => `・${String(x || "")}`)
+            : [],
+          ajito: Array.isArray(itemSectionsFromApi.ajito)
+            ? itemSectionsFromApi.ajito.map((x) => `・${String(x || "")}`)
+            : [],
+          vehicle: Array.isArray(itemSectionsFromApi.vehicle)
+            ? itemSectionsFromApi.vehicle.map((x) => `・${String(x || "")}`)
+            : [],
+        }
+      : parseItemSectionsFromMemo(memo);
+
+  const countFilled = (arr) =>
+    (Array.isArray(arr) ? arr : []).filter(
+      (x) => String(x || "").trim() !== "・",
+    ).length;
+  const handCurrent = countFilled(sections.hand);
+  const ajitoCurrent = countFilled(sections.ajito);
+  const vehicleCurrent = countFilled(sections.vehicle);
+
+  const outObj = (() => {
+    try {
+      return JSON.parse(String(rawText || ""));
+    } catch (_) {
+      return null;
+    }
+  })();
+  const handMax = Math.max(0, Number(itemLimits && itemLimits.handMax) || 0);
+  const ajitoMax = Math.max(0, Number(itemLimits && itemLimits.ajitoMax) || 10);
+  const vehicleMax = Math.max(
+    0,
+    Number(itemLimits && itemLimits.vehicleMax) || 0,
+  );
+
+  const withSlots = (arr, max) => {
+    const base = Array.isArray(arr) ? arr.slice() : [];
+    const remain = Math.max(0, Number(max) - base.length);
+    for (let i = 0; i < remain; i++) base.push("・");
+    return base;
+  };
+
+  const handLines = withSlots(sections.hand, handMax);
+  const ajitoLines = withSlots(sections.ajito, ajitoMax);
+  const vehicleLines = withSlots(sections.vehicle, vehicleMax);
+
+  setItemHeader(itemHeaderHand, "手持ち", handCurrent, handMax);
+  setItemHeader(itemHeaderAjito, "アジト", ajitoCurrent, ajitoMax);
+  setItemHeader(itemHeaderVehicle, "乗り物", vehicleCurrent, vehicleMax);
+
+  const sectionTexts = {
+    hand: ["◆手持ちのアイテム", ...handLines].join("\n").trim(),
+    ajito: ["◆アジトのアイテム", ...ajitoLines].join("\n").trim(),
+    vehicle: ["◆乗り物のアイテム", ...vehicleLines].join("\n").trim(),
+  };
+  if (itemOutputHandArea) itemOutputHandArea.value = sectionTexts.hand;
+  if (itemOutputAjitoArea) itemOutputAjitoArea.value = sectionTexts.ajito;
+  if (itemOutputVehicleArea) itemOutputVehicleArea.value = sectionTexts.vehicle;
+
+  if (copyItemHandButton) copyItemHandButton.disabled = false;
+  if (copyItemAjitoButton) copyItemAjitoButton.disabled = false;
+  if (copyItemVehicleButton) copyItemVehicleButton.disabled = false;
+
+  setItemSectionVisible(true);
+}
+
+setupItemCopyButton(
+  copyItemHandButton,
+  itemOutputHandArea,
+  "ここに手持ちアイテムが出力される。",
+  "手持ちアイテムをコピーした！",
+);
+setupItemCopyButton(
+  copyItemAjitoButton,
+  itemOutputAjitoArea,
+  "ここにアジトアイテムが出力される。",
+  "アジトアイテムをコピーした！",
+);
+setupItemCopyButton(
+  copyItemVehicleButton,
+  itemOutputVehicleArea,
+  "ここに乗り物アイテムが出力される。",
+  "乗り物アイテムをコピーした！",
+);
+
+if (itemSection) {
+  setItemSectionVisible(false);
+  resetItemSection();
+}
 
 sheetForm.addEventListener("submit", function (event) {
   event.preventDefault();
@@ -181,25 +468,15 @@ sheetForm.addEventListener("submit", function (event) {
 
   submitButton.disabled = true;
   copyButton.disabled = true;
-  progressBar.style.removeProperty("animation");
-  progressBar.style.transition = "none";
-  progressBar.style.width = "0%";
-  progressBarContainer.classList.remove("satasupe-progress");
-  loadingOverlay.style.display = "flex";
-
-  if (
-    sheetUrlValue.includes("satasupe") ||
-    sheetUrlValue.includes("appspot.com")
-  ) {
-    progressBarContainer.classList.add("satasupe-progress");
-  } else {
-    setTimeout(() => {
-      if (loadingOverlay.style.display === "flex") {
-        progressBar.style.transition = "width 5s linear";
-        progressBar.style.width = "95%";
-      }
-    }, 50);
+  if (itemSection) {
+    setItemSectionVisible(false);
+    resetItemSection();
   }
+  stopProgressTracking();
+  setProgress(0, false);
+  loadingOverlay.style.display = "flex";
+  startProgressTracking();
+  setProgressAtLeast(10, true);
 
   messageArea.textContent = "処理を開始する…";
   outputArea.value = "";
@@ -215,13 +492,16 @@ sheetForm.addEventListener("submit", function (event) {
 
   submitSheetData(formData)
     .then(async (result) => {
+      setProgressAtLeast(92, true);
       if (result && result.comboFound) {
         const yes = window.confirm(
           "コンボデータが見つかりました！コンボデータを反映させますか？",
         );
         if (yes) {
+          setProgress(25, false);
           formData.useComboPalette = "true";
           const resultWithCombo = await submitSheetData(formData);
+          setProgressAtLeast(92, true);
           updatePage(resultWithCombo);
           return;
         }
@@ -232,8 +512,50 @@ sheetForm.addEventListener("submit", function (event) {
 });
 
 function updatePage(result) {
+  const hideMemoDisplay = !!(document.getElementById("hideMemoDisplay") || {})
+    .checked;
+
+  let renderedOut =
+    result && result.out ? String(result.out) : "出力の受信に失敗した。";
+  if (hideMemoDisplay) {
+    try {
+      const parsed = JSON.parse(renderedOut);
+      if (
+        parsed &&
+        parsed.data &&
+        Object.prototype.hasOwnProperty.call(parsed.data, "memo")
+      ) {
+        const memoText = String(parsed.data.memo || "");
+        const lines = memoText.split(/\r?\n/);
+        const tailDelimiterIndex = lines.lastIndexOf("───");
+        if (tailDelimiterIndex > 0) {
+          let blankStart = -1;
+          for (let i = tailDelimiterIndex - 1; i >= 0; i--) {
+            if (String(lines[i] || "").trim() === "") {
+              blankStart = i;
+              break;
+            }
+          }
+          if (blankStart >= 0) {
+            const keep = lines.slice(0, blankStart);
+            keep.push("───");
+            parsed.data.memo = keep.join("\n");
+          }
+        }
+        renderedOut = JSON.stringify(parsed);
+      }
+    } catch (_) {}
+  }
+
+  setProgressAtLeast(95, true);
   messageArea.textContent = result.message || "メッセージの受信に失敗した。";
-  outputArea.value = result.out || "出力の受信に失敗した。";
+  outputArea.value = renderedOut;
+
+  fillItemSectionFromOutput(
+    outputArea.value || "",
+    result && result.itemLimits,
+    result && result.itemSections,
+  );
 
   const txt = outputArea.value || "";
   const canCopy =
@@ -247,6 +569,7 @@ function updatePage(result) {
 }
 
 function showError(error) {
+  setProgressAtLeast(95, true);
   const errorMessage =
     error && error.message
       ? error.message
@@ -256,16 +579,16 @@ function showError(error) {
   messageArea.textContent = "エラーが発生した！: " + errorMessage;
   outputArea.value = "エラー発生";
   copyButton.disabled = true;
+  if (itemSection) {
+    setItemSectionVisible(false);
+    resetItemSection();
+  }
   finalizeUiUpdate();
 }
 
 function finalizeUiUpdate() {
-  const isSatasupe =
-    progressBarContainer.classList.contains("satasupe-progress");
-  if (isSatasupe) progressBar.style.animation = "none";
-  progressBar.style.transition = "none";
-  progressBar.style.transition = "width 0.3s ease-out";
-  progressBar.style.width = "100%";
+  stopProgressTracking();
+  setProgress(100, true);
 
   setTimeout(() => {
     submitButton.disabled = false;

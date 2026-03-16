@@ -2191,13 +2191,18 @@ function chapareSata(satasupeData) {
   lines.push("({肉体})R>=7[1,1,13] BT(酒)");
 
   lines.push("＠武器");
+  const noWeaponDamage = toInt(power.destroy, 0) - 1;
+  lines.push(
+    `({攻撃力})R>=6[,1,13] 武器なし 破壊力:${noWeaponDamage} ※成功度加算不可`,
+  );
   weapons.forEach((w) => {
     const name = String((w && w.name) || "").trim();
     if (!name) return;
     const aim = String((w && w.aim) || "").trim();
     const damage = String((w && w.damage) || "").trim();
-    if (aim) lines.push(`${aim}R>=8[,2,12]　${name}破壊力:${damage || "?"}`);
-    else lines.push(`${name} 破壊力:${damage || "?"}`);
+    if (aim)
+      lines.push(`({攻撃力})R>=${aim}[,1,13] ${name}　破壊力:${damage || "?"}`);
+    else lines.push(`${name}　破壊力:${damage || "?"}`);
   });
   lines.push("({攻撃力})R>=X[,1,13] 攻撃力判定");
 
@@ -2324,6 +2329,7 @@ function buildSatasupeMemo(satasupeData, plName = "") {
   const pushItem = (name, opts = {}) => {
     const nm = p(name).trim();
     if (!nm) return;
+    if (["武器なし", "乗り物なし", "乗物なし"].includes(nm)) return;
     const place = p(opts.place).trim();
     const isAjito = place.includes("アジト");
     const isNorimono = place.includes("乗物");
@@ -2380,16 +2386,13 @@ function buildSatasupeMemo(satasupeData, plName = "") {
   lines.push(`趣味：${hobbyNames.join("、")}`);
   lines.push(`異能：${talentNames.join("")}`);
   lines.push(`代償：${priceNames.join("")}`);
-  lines.push("◆手持ちのアイテム");
-  itemLines.forEach((x) => lines.push(`・${x}`));
-  if (ajitoItemLines.length) {
-    lines.push("◆アジトのアイテム");
-    ajitoItemLines.forEach((x) => lines.push(`・${x}`));
-  }
-  if (norimonoItemLines.length) {
-    lines.push("◆乗り物のアイテム");
-    norimonoItemLines.forEach((x) => lines.push(`・${x}`));
-  }
+
+  const carryLimit = toInt(v(abl, "crime"), 0) + toInt(v(gift, "body"), 0);
+  const ajitoLimit = 10;
+  const norimonoLimit = vehicles.reduce(
+    (max, veh) => Math.max(max, toInt(veh && veh.burden, 0)),
+    0,
+  );
 
   if (base.memo) {
     lines.push("");
@@ -2533,6 +2536,59 @@ function getDataSata(
   return out;
 }
 
+function getSatasupeItemLimits(satasupeData) {
+  const base = (satasupeData && satasupeData.base) || {};
+  const abl = base.abl || {};
+  const gift = base.gift || {};
+  const handMax =
+    toInt(abl && abl.crime && abl.crime.value, 0) +
+    toInt(gift && gift.body && gift.body.value, 0);
+  const ajitoMax = 10;
+  const vehicleMax = Array.isArray(satasupeData && satasupeData.vehicles)
+    ? satasupeData.vehicles.reduce(
+        (max, v) => Math.max(max, toInt(v && v.burden, 0)),
+        0,
+      )
+    : 0;
+  return { handMax, ajitoMax, vehicleMax };
+}
+
+function getSatasupeItemSections(satasupeData) {
+  const outfits = Array.isArray(satasupeData && satasupeData.outfits)
+    ? satasupeData.outfits
+    : [];
+  const weapons = Array.isArray(satasupeData && satasupeData.weapons)
+    ? satasupeData.weapons
+    : [];
+  const vehicles = Array.isArray(satasupeData && satasupeData.vehicles)
+    ? satasupeData.vehicles
+    : [];
+
+  const out = { hand: [], ajito: [], vehicle: [] };
+  const pushItem = (name, opts = {}) => {
+    const nm = String(name || "").trim();
+    if (!nm) return;
+    if (["武器なし", "乗り物なし", "乗物なし"].includes(nm)) return;
+
+    const place = String(opts.place || "").trim();
+    const isAjito = place.includes("アジト");
+    const isVehicle = place.includes("乗物") || place.includes("乗り物");
+
+    let line = nm;
+    if (place && !isAjito && !isVehicle) line += `（${place}に）`;
+
+    if (isAjito) out.ajito.push(line);
+    else if (isVehicle) out.vehicle.push(line);
+    else out.hand.push(line);
+  };
+
+  outfits.forEach((o) => pushItem(o && o.name, { place: o && o.place }));
+  weapons.forEach((w) => pushItem(w && w.name, { place: w && w.place }));
+  vehicles.forEach((v) => pushItem(v && v.name, { place: v && v.place }));
+
+  return out;
+}
+
 async function processSheetData(formData) {
   const url = formData.sheet;
   const img = formData.img;
@@ -2562,6 +2618,8 @@ async function processSheetData(formData) {
   let outObj;
   let message = "";
   let eff = [[1, 2]];
+  let itemLimits = null;
+  let itemSections = null;
 
   if (system === "DX3") {
     const comboPalette = await getComboPaletteByUrl(url);
@@ -2596,6 +2654,8 @@ async function processSheetData(formData) {
       satasupeData,
       plName,
     );
+    itemLimits = getSatasupeItemLimits(satasupeData);
+    itemSections = getSatasupeItemSections(satasupeData);
     message = `ククク、${(outObj && outObj.data && outObj.data.name) || charName}よ。涅槃で待つ`;
   }
 
@@ -2615,6 +2675,8 @@ async function processSheetData(formData) {
     message,
     out: JSON.stringify(outObj),
     eff,
+    itemLimits,
+    itemSections,
     comboFound:
       system === "DX3"
         ? String(formData.useComboPalette || "false") !== "true" &&

@@ -24,22 +24,45 @@
     <div class="koma-layout">
       <div class="koma-main">
         <div class="intro-block">
-          <p class="whiter"><b>対応：</b>ダブルクロス3rd、ソード・ワールド2.5、ネクロニカ (キャラクター保管所)、サタスペ（appspot）</p>
+          <p class="whiter system-links"><b>対応：</b><a href="https://charasheet.vampire-blood.net/dx3_pc_making.html"
+              target="_blank" rel="noopener noreferrer">ダブルクロス3rd</a>、<a
+              href="https://charasheet.vampire-blood.net/swordworld2_pc_making.html" target="_blank"
+              rel="noopener noreferrer">ソード・ワールド2.5</a>、<a
+              href="https://charasheet.vampire-blood.net/nechro_pc_making.html" target="_blank"
+              rel="noopener noreferrer">ネクロニカ</a> (キャラクター保管所)、<a href="https://character-sheets.appspot.com/satasupe/"
+              target="_blank" rel="noopener noreferrer">サタスペ（appspot）</a></p>
 
           <form id="sheetForm">
-            <p class="form-row">
-              <span class="form-label">PL名（ブラウザに記憶、コマの一番上に表示）</span>
-              <input type="text" name="plName" id="plName" size="55" placeholder="例: エンJ">
-            </p>
-            <p class="form-hint">キャラシURL(https://charasheet.vampire-blood.net/等)に対応しているよ</p>
-            <input type="url" name="sheet" id="sheetUrl" size="55"
-              placeholder="https://charasheet.vampire-blood.net/..." required><br>
-            <p class="whiter">画像URL（つけないなら空欄でもいいよ）<br>
-              <input type="url" name="img" id="imgUrl" size="55"
-                placeholder="https://storage.ccfolia-cdn.net/users/...">
-            </p>
-            <label><input type="checkbox" value="true" name="nomemo" id="noMemo"><span>駒のメモなし</span></label>
-            <label><input type="checkbox" value="true" name="nochp" id="noChp"><span>チャットパレットなし</span></label><br>
+            <div class="form-card form-card-inputs">
+              <p class="form-row">
+                <span class="form-label">PL名（ブラウザに記憶、コマの一番上に表示）</span>
+                <input type="text" name="plName" id="plName" size="55" placeholder="例: エンJ">
+              </p>
+              <p class="form-hint">キャラシURL(https://charasheet.vampire-blood.net/等)に対応しているよ</p>
+              <p class="form-row url-input-row">
+                <span class="form-label">キャラシURL</span>
+                <input type="url" name="sheet" id="sheetUrl" size="55"
+                  placeholder="https://charasheet.vampire-blood.net/..." required>
+              </p>
+              <p class="form-row url-input-row">
+                <span class="form-label">画像URL <span class="form-inline-note">（※空欄でOK）</span></span>
+                <input type="url" name="img" id="imgUrl" size="55"
+                  placeholder="https://storage.ccfolia-cdn.net/users/...">
+              </p>
+            </div>
+
+            <div class="form-card form-card-settings">
+              <p class="settings-title">出力オプション</p>
+              <div class="settings-bar">
+                <label class="setting-pill"><input type="checkbox" value="true" name="nomemo" id="noMemo"><span><i
+                      class="fa-solid fa-note-sticky" aria-hidden="true"></i> 駒のメモなし</span></label>
+                <label class="setting-pill"><input type="checkbox" value="true" name="nochp" id="noChp"><span><i
+                      class="fa-solid fa-comments" aria-hidden="true"></i> チャットパレットなし</span></label>
+                <label class="setting-pill"><input type="checkbox" value="true" name="hideMemoDisplay"
+                    id="hideMemoDisplay"><span><i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+                    補足メモを隠す</span></label>
+              </div>
+            </div>
             <input type="submit" class="hoha" id="submitButton" value="生成開始">
           </form>
 
@@ -48,6 +71,32 @@
           </p>
           <textarea id="output" disabled>ここに情報が出力される。よく見ておくんだな</textarea><br>
           <button id="copyButton" class="hoha" disabled>コピー</button>
+          <div id="itemSection" style="display:none;">
+            <p class="message-row"><span>アイテム（パネルにコピペしてね）</span></p>
+            <div class="item-box-grid">
+              <section class="item-box-card">
+                <div class="item-box-header">
+                  <span id="itemHeaderHand">◆手持ちのアイテム</span>
+                  <button id="copyItemHandButton" class="hoha" disabled>コピー</button>
+                </div>
+                <textarea id="itemOutputHand" disabled>ここに手持ちアイテムが出力される。</textarea>
+              </section>
+              <section class="item-box-card">
+                <div class="item-box-header">
+                  <span id="itemHeaderAjito">◆アジトのアイテム</span>
+                  <button id="copyItemAjitoButton" class="hoha" disabled>コピー</button>
+                </div>
+                <textarea id="itemOutputAjito" disabled>ここにアジトアイテムが出力される。</textarea>
+              </section>
+              <section class="item-box-card">
+                <div class="item-box-header">
+                  <span id="itemHeaderVehicle">◆乗り物のアイテム</span>
+                  <button id="copyItemVehicleButton" class="hoha" disabled>コピー</button>
+                </div>
+                <textarea id="itemOutputVehicle" disabled>ここに乗り物アイテムが出力される。</textarea>
+              </section>
+            </div>
+          </div>
         </div>
 
       </div>
