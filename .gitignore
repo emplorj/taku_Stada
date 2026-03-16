@@ -5,6 +5,7 @@
 
 # Allow archive CSV for schedule page
 !archive.csv
+!ネクロニカ_マニューバ.csv
 
 # OS files
 Thumbs.db
