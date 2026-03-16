@@ -2167,22 +2167,22 @@ function chapareSata(satasupeData) {
 
   const lines = [];
   lines.push("＠基本");
-  lines.push("SR{〔性業値〕} 性業値判定");
-  lines.push("{〔犯罪〕}R>=X[,1,13] 犯罪判定");
-  lines.push("{〔生活〕}R>=X[,1,13] 生活判定");
-  lines.push("{〔恋愛〕}R>=X[,1,13] 恋愛判定");
-  lines.push("{〔教養〕}R>=X[,1,13] 教養判定");
-  lines.push("{〔戦闘〕}R>=X[,1,13] 戦闘判定");
-  lines.push("{〔肉体〕}R>=X[,1,13] 肉体判定");
-  lines.push("{〔精神〕}R>=X[,1,13] 精神判定");
+  lines.push("SR({性業値}) 性業値判定");
+  lines.push("({犯罪})R>=X[,1,13] 犯罪判定");
+  lines.push("({生活})R>=X[,1,13] 生活判定");
+  lines.push("({恋愛})R>=X[,1,13] 恋愛判定");
+  lines.push("({教養})R>=X[,1,13] 教養判定");
+  lines.push("({戦闘})R>=X[,1,13] 戦闘判定");
+  lines.push("({肉体})R>=X[,1,13] 肉体判定");
+  lines.push("({精神})R>=X[,1,13] 精神判定");
 
   lines.push("＠汎用");
-  lines.push("{〔肉体〕}R>=X[,1,13] セーブ判定");
-  lines.push("{〔肉体〕}R>=X[1,2,13] 跳ぶ");
-  lines.push("{〔教養〕}R>=X[4,1,13] リンク判定");
+  lines.push("({肉体})R>=X[,1,13] セーブ判定");
+  lines.push("({肉体})R>=X[1,2,13] 跳ぶ");
+  lines.push("({教養})R>=X[4,1,13] リンク判定");
   lines.push("CultureIET イベント表");
   lines.push("CultureIHT ハプニング表");
-  lines.push("{〔肉体〕}R>=7[1,1,13] BT(酒)");
+  lines.push("({肉体})R>=7[1,1,13] BT(酒)");
 
   lines.push("＠武器");
   weapons.forEach((w) => {
@@ -2193,7 +2193,7 @@ function chapareSata(satasupeData) {
     if (aim) lines.push(`${aim}R>=8[,2,12] ${name}破壊力:${damage || "?"}`);
     else lines.push(`${name} 破壊力:${damage || "?"}`);
   });
-  lines.push("{〔攻撃力〕}R>=X[,1,13] 攻撃力判定");
+  lines.push("({攻撃力})R>=X[,1,13] 攻撃力判定");
 
   lines.push("＠判定");
   lines.push("");
@@ -2299,11 +2299,17 @@ function buildSatasupeMemo(satasupeData, plName = "") {
     })
     .filter(Boolean);
 
+  const wrapKarmaName = (name) => {
+    const s = p(name).trim();
+    if (!s) return "";
+    if (/^【.*】$/.test(s)) return s;
+    return `【${s.replace(/^【|】$/g, "")}】`;
+  };
   const talentNames = karmaList
-    .map((k) => (k && k.talent && k.talent.name ? `【${k.talent.name}】` : ""))
+    .map((k) => wrapKarmaName(k && k.talent && k.talent.name))
     .filter(Boolean);
   const priceNames = karmaList
-    .map((k) => (k && k.price && k.price.name ? `【${k.price.name}】` : ""))
+    .map((k) => wrapKarmaName(k && k.price && k.price.name))
     .filter(Boolean);
 
   const itemLines = [];
@@ -2311,16 +2317,10 @@ function buildSatasupeMemo(satasupeData, plName = "") {
   const pushItem = (name, opts = {}) => {
     const nm = p(name).trim();
     if (!nm) return;
-    const num = p(opts.num).trim();
-    const use = p(opts.use).trim();
-    const notes = p(opts.notes).trim();
     const place = p(opts.place).trim();
     const isAjito = place.includes("アジト");
 
-    let line = nm;
-    if (num && num !== "1") line += `×${num}`;
-    if (use) line += `（${use}）`;
-    if (notes) line += ` ${notes}`;
+    const line = nm;
     if (place && !isAjito) line += `（${place}に）`;
     if (isAjito) ajitoItemLines.push(line);
     else itemLines.push(line);
@@ -2400,6 +2400,7 @@ function getDataSata(
   let commands = opt[1] ? chapareSata(satasupeData) : "";
   if (additionalPalette) commands += (commands ? "\n" : "") + additionalPalette;
   const base = (satasupeData && satasupeData.base) || {};
+  const cond = (satasupeData && satasupeData.cond) || {};
   const abl = base.abl || {};
   const readAbl = (key, fallbackId) => {
     const fromJson =
@@ -2412,6 +2413,16 @@ function getDataSata(
     String(base.name || "") ||
     pickInputById(html, "base.name", "") ||
     getNameBySystem(html, "Satasupe");
+
+  const lifeMax = toInt(readAbl("life", "base.abl.life.value"), 0);
+  const bodyDamage = toInt(cond && cond.body && cond.body.value, 0);
+  const mentalDamage = toInt(cond && cond.mental && cond.mental.value, 0);
+  const walletDamage = toInt(cond && cond.wallet && cond.wallet.value, 0);
+  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+  const bodyNow = clamp(10 - bodyDamage, 0, 10);
+  const mentalNow = clamp(10 - mentalDamage, 0, 10);
+  const walletNow = clamp(lifeMax - walletDamage, 0, lifeMax);
+
   const out = {
     kind: "character",
     data: {
@@ -2424,6 +2435,21 @@ function getDataSata(
       ),
       externalUrl: url,
       status: [
+        {
+          label: "肉体点",
+          value: bodyNow,
+          max: 10,
+        },
+        {
+          label: "精神点",
+          value: mentalNow,
+          max: 10,
+        },
+        {
+          label: "サイフ",
+          value: walletNow,
+          max: lifeMax,
+        },
         {
           label: "性業値",
           value: toInt(
@@ -2453,6 +2479,38 @@ function getDataSata(
         {
           label: "戦闘",
           value: readAbl("combat", "base.abl.combat.value"),
+        },
+        {
+          label: "肉体",
+          value:
+            String(
+              (base.gift && base.gift.body && base.gift.body.value) || "",
+            ) || pickInputById(html, "base.gift.body.value", ""),
+        },
+        {
+          label: "精神",
+          value:
+            String(
+              (base.gift && base.gift.mind && base.gift.mind.value) || "",
+            ) || pickInputById(html, "base.gift.mind.value", ""),
+        },
+        {
+          label: "反応力",
+          value:
+            String((base.power && base.power.initiative) || "") ||
+            pickInputById(html, "base.power.initiative", ""),
+        },
+        {
+          label: "攻撃力",
+          value:
+            String((base.power && base.power.attack) || "") ||
+            pickInputById(html, "base.power.attack", ""),
+        },
+        {
+          label: "破壊力",
+          value:
+            String((base.power && base.power.destroy) || "") ||
+            pickInputById(html, "base.power.destroy", ""),
         },
       ],
       commands,

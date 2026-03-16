@@ -381,7 +381,7 @@
           cardData.ID = S.currentEditingCardId;
 
         button.innerHTML = `<span class="spinner"></span> DB登録中...`;
-        await DB.saveCardToDatabase(cardData);
+        const saveResult = await DB.saveCardToDatabase(cardData);
 
         const visibilityText = cardData.private ? "（非公開）" : "";
         const message = isUpdate
@@ -394,10 +394,27 @@
         );
 
         UI.dbModalOverlay.classList.remove("is-visible");
-        if (isUpdate && S.currentEditingCardId) {
-          DB.persistCurrentImageState(S.currentEditingCardId);
+
+        const resolvedId =
+          String(
+            (isUpdate && S.currentEditingCardId) ||
+              cardData.ID ||
+              saveResult?.id ||
+              "",
+          ) || null;
+
+        // 保存後も「編集中ID」を維持して、次回モーダルで更新ボタンを出す
+        if (resolvedId) {
+          S.currentEditingCardId = resolvedId;
+          S.currentEditingCardPrivate = !!cardData.private;
+          S.originalImageUrlForEdit = imageUrl || null;
+          S.originalOverlayImageUrlForEdit = overlayImageUrl || null;
+          DB.persistCurrentImageState(resolvedId);
+        } else {
+          // IDが取得できなかった場合のみ従来どおり編集状態を解除
+          DB.clearEditingState();
         }
-        DB.clearEditingState();
+
         if (UI.tabDatabase.checked) setTimeout(DB.fetchAllCards, 2000);
       } catch (err) {
         console.error("DB保存エラー:", err);
@@ -408,23 +425,35 @@
       }
     },
 
-    saveCardToDatabase: (cardData) => {
+    saveCardToDatabase: async (cardData) => {
       const payload = {
         tool: "cardDb",
         ...cardData,
       };
 
-      return fetch(S.GAS_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-      }).catch(() =>
-        fetch(S.GAS_WEB_APP_URL, {
+      try {
+        const response = await fetch(S.GAS_WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+        });
+
+        // no-cors時はopaqueでJSON取得不可
+        if (response.type === "opaque") return { status: "submitted" };
+
+        try {
+          return await response.json();
+        } catch {
+          return { status: response.ok ? "success" : "error" };
+        }
+      } catch {
+        await fetch(S.GAS_WEB_APP_URL, {
           method: "POST",
           body: JSON.stringify(payload),
           mode: "no-cors",
-        }),
-      );
+        });
+        return { status: "submitted" };
+      }
     },
 
     deleteCard: async (cardId) => {
@@ -779,9 +808,8 @@
         UI.dbCreateBtn.textContent = "この内容で新規登録する";
       }
       if (UI.privateModeCheckbox) {
-        UI.privateModeCheckbox.checked = S.currentEditingCardId
-          ? !!S.currentEditingCardPrivate
-          : !!isPrivate;
+        // ユーザーが直前に切り替えた値を優先する
+        UI.privateModeCheckbox.checked = !!isPrivate;
       }
       UI.dbModalOverlay.classList.add("is-visible");
     },
