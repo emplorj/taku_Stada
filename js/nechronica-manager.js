@@ -332,7 +332,7 @@ function parseManeuverCsv(text) {
 
 async function loadManeuverMaster() {
   if (state.maneuverMasterLoaded) return;
-  const candidates = ["nec_man.csv", "ネクロニカ_マニューバ.csv"];
+  const candidates = ["ネクロニカ_マニューバ.csv"];
   for (const p of candidates) {
     try {
       const res = await fetch(p, { cache: "force-cache" });
