@@ -1,30 +1,79 @@
 .nechronica-main {
-  max-width: 1400px;
 }
 
 .nechronica-manager-page {
-  --sheet-bg: #b8b8b8;
-  --sheet-cell: #c4c4c4;
-  --sheet-header: #222;
-  --sheet-header-text: #fff;
-  --sheet-border: #111;
+  --sheet-bg: #1b1a1d;
+  --sheet-cell: #242228;
+  --sheet-header: #0f0e12;
+  --sheet-header-text: #f4f1e8;
+  --sheet-border: #3f3945;
+  --sheet-accent-blood: #7b1d2a;
+  --sheet-accent-bone: #d6d0c3;
+  --sheet-accent-fog: #8a7f73;
+  --enemy-title-shadow: 0 6px 14px rgba(0, 0, 0, 0.55);
 }
 
-.nechronica-manager-page,
-.nechronica-manager-page * {
+body.nechronica-manager-page {
+  color: #ddd8cf;
+  background:
+    radial-gradient(
+      1200px 520px at 15% -10%,
+      rgba(123, 29, 42, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 100% 0%,
+      rgba(109, 102, 88, 0.14),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #151418 0%, #0d0c10 100%);
+}
+
+.nechronica-manager-page .main-content {
+  position: relative;
+  backdrop-filter: blur(1.5px);
+}
+
+.nechronica-manager-page .main-content,
+.nechronica-manager-page .main-content p,
+.nechronica-manager-page .main-content li,
+.nechronica-manager-page .main-content label,
+.nechronica-manager-page .main-content input,
+.nechronica-manager-page .main-content select,
+.nechronica-manager-page .main-content textarea,
+.nechronica-manager-page .main-content button,
+.nechronica-manager-page .main-content th,
+.nechronica-manager-page .main-content td,
+.nechronica-manager-page #memoPreview {
+  font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+
+.nechronica-manager-page .nechronica-header h1,
+.nechronica-manager-page .enemy-list-title {
+  font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+
+.nechronica-manager-page .pane-header h2,
+.nechronica-manager-page .sub-header h3 {
+  font-family:
+    "isego", "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.nechronica-manager-page .enemy-list-title {
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.enemy-list-collapsible summary,
+.enemy-list-collapsible summary *,
+.enemy-list-pane,
+.enemy-list-pane *,
+.editor-pane,
+.editor-pane * {
   box-sizing: border-box;
 }
 
 .nechronica-header {
   margin-bottom: 1rem;
-}
-
-.sheet-spec {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  padding: 0.8rem 1rem;
-  margin-bottom: 1rem;
-  background: rgba(0, 0, 0, 0.2);
 }
 
 .manager-layout {
@@ -38,18 +87,25 @@
 }
 
 .enemy-list-collapsible {
-  border: 2px solid var(--sheet-border);
+  border: none;
   background: transparent;
+  overflow: visible;
 }
 
 .enemy-list-collapsible summary {
   position: relative;
   cursor: pointer;
+  outline: none;
   list-style: none;
   display: block;
   margin-bottom: 10px;
   padding: 0;
   user-select: none;
+  overflow: visible;
+}
+
+.enemy-list-collapsible summary::after {
+  content: none;
 }
 
 .enemy-list-collapsible summary::-webkit-details-marker {
@@ -69,6 +125,8 @@
   text-align: center;
   font-size: 1rem;
   color: #ddd;
+  z-index: 3;
+  pointer-events: none;
 }
 
 .enemy-list-collapsible[open] summary::before {
@@ -78,35 +136,65 @@
 .enemy-list-title {
   display: flex;
   align-items: center;
-  min-height: 50px;
   margin: 0;
-  padding-left: 35px;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #f2f2f2;
-  background: #637f9d;
+  padding-top: 10px;
+  padding-bottom: 0;
+  padding-left: 40px;
+  padding-right: 0;
+  min-height: 0;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.5em;
+  font-weight: normal;
+  color: #f5f0e5;
+  text-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(123, 29, 42, 0.35);
+  background: linear-gradient(90deg, #2b0f16 0%, #4a121e 42%, #1f191d 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 8px 0 0 8px;
+  width: calc(100% + 20px);
+  margin-right: -20px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
 }
 
 .enemy-list-pane,
 .editor-pane {
   border: 2px solid var(--sheet-border);
-  border-radius: 0;
+  border-radius: 6px;
   background: var(--sheet-bg);
   padding: 0.8rem;
-  color: #000;
+  color: #dfd9ce;
+  box-shadow:
+    inset 0 0 0 1px rgba(214, 208, 195, 0.05),
+    0 10px 18px rgba(0, 0, 0, 0.32);
 }
 
 .enemy-list-pane {
-  border: none;
+  border: 2px solid var(--sheet-border);
+  border-top: none;
   padding-top: 0.4rem;
+  max-width: 100%;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.editor-pane {
+  max-width: 100%;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .pane-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 0.6rem;
 }
 
@@ -132,16 +220,27 @@
   width: 100%;
   text-align: left;
   border: 1px solid var(--sheet-border);
-  background: #d4d4d4;
-  color: #000;
-  border-radius: 0;
+  background: linear-gradient(180deg, #2a2528 0%, #1f1b1e 100%);
+  color: #e8e1d4;
+  border-radius: 4px;
   padding: 0.5rem;
   cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 120ms ease;
 }
 
 .enemy-list button.is-active {
-  border-color: var(--sheet-border);
-  background: #9f9f9f;
+  border-color: #8d3746;
+  background: linear-gradient(180deg, #3a1821 0%, #2a141a 100%);
+  box-shadow: 0 0 0 1px rgba(141, 55, 70, 0.35);
+}
+
+.enemy-list button:hover {
+  border-color: #7f6d58;
+  background: linear-gradient(180deg, #332b2a 0%, #261f1f 100%);
+  transform: translateY(-1px);
 }
 
 .editor-form {
@@ -176,7 +275,7 @@
 .primary-info-grid {
   display: grid;
   grid-template-columns:
-    max-content minmax(320px, 1fr)
+    max-content minmax(220px, 1fr)
     max-content max-content;
   gap: 0.6rem;
   align-items: end;
@@ -219,7 +318,7 @@
 
 .sub-info-grid {
   display: grid;
-  grid-template-columns: 1fr 1.6fr auto;
+  grid-template-columns: minmax(180px, 1fr) minmax(260px, 1.6fr) auto;
   gap: 0.6rem;
   margin-top: 0.45rem;
   align-items: center;
@@ -240,7 +339,8 @@
 }
 
 #field-name {
-  min-width: 300px;
+  min-width: 0;
+  width: 100%;
 }
 
 .calc-badge {
@@ -261,6 +361,69 @@
 #field-initiative[readonly] {
   background: #a8a8a8;
   color: #222;
+}
+
+#field-malice {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    text-shadow 180ms ease;
+}
+
+#field-malice.is-malice-0 {
+  background: #a8a8a8;
+  color: #222;
+  border-color: #666;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+#field-malice.is-malice-1 {
+  background: #b6a39a;
+  color: #2a1a16;
+  border-color: #7a4a3a;
+  box-shadow: inset 0 0 0 1px rgba(122, 74, 58, 0.35);
+}
+
+#field-malice.is-malice-2 {
+  background: #b88872;
+  color: #30140e;
+  border-color: #8a3828;
+  box-shadow:
+    inset 0 0 0 1px rgba(138, 56, 40, 0.45),
+    0 0 0.16rem rgba(138, 56, 40, 0.35);
+}
+
+#field-malice.is-malice-3 {
+  background: #b85f48;
+  color: #2a0a08;
+  border-color: #8f2318;
+  box-shadow:
+    inset 0 0 0 1px rgba(143, 35, 24, 0.5),
+    0 0 0.26rem rgba(143, 35, 24, 0.4);
+  text-shadow: 0 0 1px rgba(255, 220, 210, 0.25);
+}
+
+#field-malice.is-malice-4 {
+  background: #7a1f1f;
+  color: #ffe9e4;
+  border-color: #4b0909;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 180, 170, 0.2),
+    0 0 0.34rem rgba(120, 10, 10, 0.5);
+  text-shadow: 0 0 2px rgba(255, 225, 215, 0.35);
+}
+
+#field-malice.is-malice-5 {
+  background: linear-gradient(180deg, #1f0004 0%, #000 100%);
+  color: #ffd0d0;
+  border-color: #090102;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 140, 140, 0.24),
+    0 0 0.58rem rgba(90, 0, 20, 0.55);
+  text-shadow: 0 0 3px rgba(255, 180, 180, 0.45);
 }
 
 .compact-field {
@@ -309,24 +472,34 @@
 .meta-line {
   margin: 0;
   font-size: 0.9rem;
-  color: #111;
+  color: #bdb4a6;
 }
 
 .editor-form input,
 .editor-form select,
 .editor-form textarea {
   width: 100%;
-  background: #f2f2f2;
-  color: #000;
+  background: #18161b;
+  color: #e7e0d4;
   border: 1px solid var(--sheet-border);
-  border-radius: 0;
+  border-radius: 4px;
   padding: 0.45rem;
+}
+
+.editor-form input::placeholder,
+.editor-form textarea::placeholder {
+  color: #8f8a83;
 }
 
 .data-block {
   border: 1px solid var(--sheet-border);
-  border-radius: 0;
+  border-radius: 6px;
   padding: 0.5rem;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 24, 30, 0.88) 0%,
+    rgba(20, 18, 24, 0.88) 100%
+  );
 }
 
 .sub-header {
@@ -340,6 +513,7 @@
   overflow: auto;
   border: 1px solid var(--sheet-border);
   background: var(--sheet-cell);
+  border-radius: 4px;
 }
 
 .nechronica-manager-page .asian-table {
@@ -352,15 +526,16 @@
 .nechronica-manager-page .asian-table th,
 .nechronica-manager-page .asian-table td {
   border: 1px solid var(--sheet-border);
-  color: #000;
+  color: #e7dfd2;
   padding: 0.25rem;
   vertical-align: middle;
 }
 
 .nechronica-manager-page .asian-table thead th {
-  background: var(--sheet-header);
+  background: linear-gradient(180deg, #1b1820 0%, #100f13 100%);
   color: var(--sheet-header-text);
   font-weight: 700;
+  text-shadow: 0 0 6px rgba(123, 29, 42, 0.24);
 }
 
 #maneuversTable th.initiative-head {
@@ -476,6 +651,28 @@
   padding-right: 0.2rem;
 }
 
+#maneuversTable .status-select {
+  font-weight: 700;
+}
+
+#maneuversTable .status-select.status-safe {
+  background: #243328;
+  color: #d7f5df;
+  border-color: #4f8a5f;
+}
+
+#maneuversTable .status-select.status-used {
+  background: #3a341f;
+  color: #fff3c8;
+  border-color: #9f8f4c;
+}
+
+#maneuversTable .status-select.status-damaged {
+  background: #3a2020;
+  color: #ffd7d7;
+  border-color: #a76060;
+}
+
 .editor-form input[type="number"],
 #partsTable input[type="number"],
 #maneuversTable input[type="number"] {
@@ -491,6 +688,24 @@
   opacity: 0.55;
 }
 
+#maneuversTable tbody tr.is-forbidden-maneuver td {
+  background: #ffe0e0;
+}
+
+#maneuversTable .forbidden-note {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: #8a0f0f;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#maneuversTable.hide-part-column col.col-part,
+#maneuversTable.hide-part-column th:nth-child(3),
+#maneuversTable.hide-part-column td:nth-child(3) {
+  display: none;
+}
+
 .initiative-total {
   margin: 0.6rem 0 0;
   font-size: 1rem;
@@ -498,6 +713,168 @@
 
 .json-preview {
   margin-top: 0.8rem;
+}
+
+.json-preview > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.json-preview > summary::-webkit-details-marker {
+  display: none;
+}
+
+.preview-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.preview-title {
+  font-weight: 700;
+}
+
+.preview-summary-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
+.parts-status-panel {
+  --parts-row-height: 1.95rem;
+  display: flex;
+  align-items: stretch;
+  gap: 0.45rem;
+  flex-wrap: nowrap;
+  margin-top: 0.55rem;
+  margin-bottom: 0.6rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #4a4048;
+  background: linear-gradient(180deg, #141214 0%, #1f1a1b 100%);
+  color: #ece7de;
+  box-shadow:
+    inset 0 0 0 1px rgba(123, 29, 42, 0.14),
+    0 5px 12px rgba(0, 0, 0, 0.28);
+}
+
+.parts-status-total {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: var(--parts-row-height);
+  margin-right: 0.45rem;
+  margin-bottom: 0;
+  padding: 0 0.5rem;
+  border: 1px solid #6d4f56;
+  background: linear-gradient(180deg, #2a1017 0%, #200d14 100%);
+  color: #f3e7da;
+  font-weight: 700;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.parts-chip-list {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.parts-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: var(--parts-row-height);
+  padding: 0 0.5rem;
+  border: 1px solid #4a4a4a;
+  background: #202020;
+  color: #e6e6e6;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.parts-chip-label {
+  font-weight: 700;
+}
+
+.parts-chip-value {
+  opacity: 0.95;
+}
+
+.parts-chip.is-safe {
+  border-color: #4f8a5f;
+  background: #213326;
+  color: #d7f5df;
+}
+
+.parts-chip.is-caution {
+  border-color: #9f8f4c;
+  background: #3a341f;
+  color: #fff3c8;
+}
+
+.parts-chip.is-danger {
+  border-color: #a76060;
+  background: #3a2020;
+  color: #ffd7d7;
+}
+
+.koma-json-actions {
+  display: grid;
+  grid-template-columns: auto minmax(260px, 1fr);
+  align-items: center;
+  column-gap: 0.55rem;
+  row-gap: 0.35rem;
+}
+
+.parts-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.1rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--sheet-border);
+  background: #edf4ff;
+  color: #234;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.koma-import-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.koma-import-inline #komaJsonInput {
+  width: 100%;
+  min-width: 0;
+  height: 2.1rem;
+  min-height: 2.1rem;
+  padding: 0.2rem 0.45rem;
+  line-height: 1.35;
+  background: #15141a;
+  color: #e7e0d4;
+  border: 1px solid #4a4048;
+}
+
+.koma-import-inline #komaJsonInput::placeholder {
+  color: #8b8691;
+}
+
+.koma-import-help {
+  flex: 1 1 100%;
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.84rem;
+  color: #bdb4a6;
+  opacity: 0.95;
 }
 
 #dataPreview {
@@ -511,23 +888,44 @@
 }
 
 #memoPreview {
-  background: var(--sheet-cell);
-  color: #000;
+  background: linear-gradient(180deg, #1a1618 0%, #141113 100%);
+  color: #e8e1d4;
   border: 1px solid var(--sheet-border);
-  border-radius: 0;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(214, 208, 195, 0.06);
 }
 
 .nechronica-manager-page .stamp-btn,
 .nechronica-manager-page .small-square-btn {
   border: 1px solid var(--sheet-border);
-  background: #2a2a2a;
+  background: linear-gradient(180deg, #2e1119 0%, #231019 100%);
+  color: #f4ece0;
+  border-radius: 4px;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.nechronica-manager-page #exportKomaJsonButton {
+  height: 2.1rem;
+  min-height: 2.1rem;
+  padding: 0 16px;
+  border: none;
+  border-radius: 4px;
   color: #fff;
-  border-radius: 0;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  background: linear-gradient(180deg, #4a1621 0%, #351019 100%);
 }
 
 .nechronica-manager-page .stamp-btn:hover,
 .nechronica-manager-page .small-square-btn:hover {
-  background: #000;
+  background: linear-gradient(180deg, #5a1b28 0%, #3f1420 100%);
+  border-color: #8d3746;
+}
+
+.nechronica-manager-page #exportKomaJsonButton:hover {
+  background: linear-gradient(180deg, #61202e 0%, #451621 100%);
 }
 
 @media (max-width: 980px) {
@@ -544,8 +942,32 @@
     grid-template-columns: 1fr;
   }
 
-  .primary-info-grid,
+  .primary-info-grid {
+    grid-template-columns: max-content minmax(180px, 1fr);
+  }
+
   .sub-info-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(140px, 1fr) minmax(180px, 1.2fr) auto;
+  }
+
+  .sub-info-grid .public-switch-label {
+    justify-self: start;
+  }
+
+  .primary-info-grid > label,
+  .sub-info-grid {
+    white-space: normal;
+  }
+
+  .koma-json-actions {
+    width: 100%;
+  }
+
+  .koma-import-inline {
+    flex: 1 1 100%;
+  }
+
+  .koma-import-inline #komaJsonInput {
+    width: 100%;
   }
 }

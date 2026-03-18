@@ -23,29 +23,18 @@
       <p class="subtitle">一覧表示 + 詳細編集（ローカル保存）</p>
     </header>
 
-    <section class="sheet-spec">
-      <h2>管理項目</h2>
-      <p><code>ID（自動） / 作者名 / エネミー名 / 種別 / メモ / アイコン / 更新日時</code></p>
-    </section>
-
     <section class="manager-layout single-column">
-      <details class="enemy-list-collapsible" open>
-        <summary>
-          <h2 class="enemy-list-title">みんなのエネミー</h2>
-        </summary>
-        <div class="enemy-list-pane">
-          <div class="pane-header">
-            <h2>エネミー一覧</h2>
-            <button id="createEnemyButton" class="stamp-btn">新規</button>
-          </div>
-          <input id="enemySearchInput" class="asian-input full" type="text" placeholder="名前・作者で検索">
-          <ul id="enemyList" class="enemy-list"></ul>
-        </div>
-      </details>
-
       <section class="editor-pane">
         <div class="pane-header">
           <h2>詳細編集</h2>
+          <div class="koma-json-actions">
+            <button id="exportKomaJsonButton" type="button" class="small-square-btn">ココフォリア駒へ出力</button>
+            <div class="koma-import-inline">
+              <input id="komaJsonInput" type="text" placeholder='ココフォリア駒JSONを貼り付けてインポート'
+                aria-label="ココフォリア駒JSONを貼り付けてインポート">
+            </div>
+            <p class="koma-import-help">※ココフォリアの駒JSONを貼り付けると、現在のエネミーへインポートされます。</p>
+          </div>
         </div>
 
         <form id="enemyEditorForm" class="editor-form" autocomplete="off">
@@ -160,12 +149,39 @@
         </form>
 
         <details class="json-preview" open>
-          <summary>コマメモ風プレビュー</summary>
+          <summary>
+            <span class="preview-summary-row">
+              <span class="preview-title">ココフォリア駒出力プレビュー</span>
+              <span class="preview-summary-actions">
+                <button id="copyMemoPreviewButton" type="button" class="small-square-btn">コマメモコピー</button>
+              </span>
+            </span>
+          </summary>
+          <div id="partsStatusPanel" class="parts-status-panel" aria-live="polite">
+            <span class="parts-status-total">残存パーツ --/--</span>
+          </div>
           <pre id="memoPreview">---</pre>
         </details>
       </section>
+
+      <details class="enemy-list-collapsible" open>
+        <summary>
+          <h2 class="enemy-list-title">みんなのエネミー</h2>
+        </summary>
+        <div class="enemy-list-pane">
+          <div class="pane-header">
+            <h2>エネミー一覧</h2>
+          </div>
+          <input id="enemySearchInput" class="asian-input full" type="text" placeholder="名前・作者で検索">
+          <ul id="enemyList" class="enemy-list"></ul>
+        </div>
+      </details>
     </section>
   </main>
+
+  <footer>
+    <p>© 2025 卓スタダ</p>
+  </footer>
 
   <script src="js/common.js?v=20260220a"></script>
   <script src="js/nechronica-manager.js?v=20260316a"></script>

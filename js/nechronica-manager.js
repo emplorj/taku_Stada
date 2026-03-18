@@ -50,9 +50,13 @@ const BASIC_MANEUVERS_TEMPLATE = [
 const el = {
   enemyList: document.getElementById("enemyList"),
   enemySearchInput: document.getElementById("enemySearchInput"),
-  createEnemyButton: document.getElementById("createEnemyButton"),
   saveEnemyButton: document.getElementById("saveEnemyButton"),
   exportJsonButton: document.getElementById("exportJsonButton"),
+  exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
+  copyMemoPreviewButton: document.getElementById("copyMemoPreviewButton"),
+  importKomaJsonButton: document.getElementById("importKomaJsonButton"),
+  komaJsonInput: document.getElementById("komaJsonInput"),
+  partsStatusPanel: document.getElementById("partsStatusPanel"),
   addBasicManeuversButton: document.getElementById("addBasicManeuversButton"),
   addManeuverButton: document.getElementById("addManeuverButton"),
   enemyEditorForm: document.getElementById("enemyEditorForm"),
@@ -146,6 +150,13 @@ function buildSelectOptions(values, current) {
         `<option value="${escapeHtml(v)}" ${v === cur ? "selected" : ""}>${escapeHtml(v)}</option>`,
     )
     .join("");
+}
+
+function getManeuverStatusClass(status) {
+  const s = String(status || "無事");
+  if (s === "損傷") return "status-damaged";
+  if (s === "使用") return "status-used";
+  return "status-safe";
 }
 
 function isServantEnemy(enemy) {
@@ -330,6 +341,33 @@ function parseManeuverCsv(text) {
   return map;
 }
 
+function hasManeuverCsvHeader(text) {
+  const head = String(text || "")
+    .replace(/^\uFEFF/, "")
+    .split(/\r?\n/, 1)[0];
+  return head.includes("名称") && head.includes("タイミング");
+}
+
+async function readCsvTextWithEncodingFallback(res) {
+  const buf = await res.arrayBuffer();
+
+  const utf8Text = new TextDecoder("utf-8").decode(buf);
+  if (hasManeuverCsvHeader(utf8Text)) {
+    return utf8Text;
+  }
+
+  try {
+    const sjisText = new TextDecoder("shift-jis").decode(buf);
+    if (hasManeuverCsvHeader(sjisText)) {
+      return sjisText;
+    }
+  } catch (_e) {
+    // shift-jis 非対応環境では utf-8 の結果を使う
+  }
+
+  return utf8Text;
+}
+
 async function loadManeuverMaster() {
   if (state.maneuverMasterLoaded) return;
   const candidates = ["ネクロニカ_マニューバ.csv"];
@@ -337,7 +375,7 @@ async function loadManeuverMaster() {
     try {
       const res = await fetch(p, { cache: "force-cache" });
       if (!res.ok) continue;
-      const text = await res.text();
+      const text = await readCsvTextWithEncodingFallback(res);
       const parsed = parseManeuverCsv(text);
       if (parsed.size) {
         state.maneuverMasterMap = parsed;
@@ -384,18 +422,21 @@ function ensurePartFromManeuver(enemy, maneuver) {
   enemy.data.parts = parts;
 }
 
-function applyManeuverMasterRow(enemy, row) {
+function applyManeuverMasterRow(enemy, row, options = {}) {
   const key = String(
     row && row.name ? row.name : row && row.kindName ? row.kindName : "",
   ).trim();
   if (!key) return;
   const master = state.maneuverMasterMap.get(key);
   if (!master) return;
+  const keepPartType = !!(options && options.keepPartType);
   // 補完結果は maneuvers 実データ(name/kindName)へ反映する
   row.name = master.kindName;
   row.kindName = master.kindName;
   row.displayName = row.name;
-  row.partType = sanitizePartType(master.partType);
+  row.partType = keepPartType
+    ? sanitizePartType(row.partType || master.partType)
+    : sanitizePartType(master.partType);
   row.timing = master.timing;
   row.cost = master.cost;
   row.range = master.range;
@@ -405,6 +446,23 @@ function applyManeuverMasterRow(enemy, row) {
   row.masterId = master.masterId;
   row.source = master.source;
   ensurePartFromManeuver(enemy, row);
+}
+
+function pickPartTypeFromCommandLine(line, nameText = "") {
+  const beforeName = String(line || "")
+    .split("【")[0]
+    .trim();
+  const fromPrefix = sanitizePartType(beforeName, "");
+  if (fromPrefix) return fromPrefix;
+
+  const name = String(nameText || "").trim();
+  const m = name.match(/[（(【\[]\s*(頭|腕|胴|脚)\s*[）)】\]]/);
+  if (m && m[1]) return sanitizePartType(m[1], "");
+
+  const m2 = name.match(/^(頭|腕|胴|脚)[：:・\s]/);
+  if (m2 && m2[1]) return sanitizePartType(m2[1], "");
+
+  return "";
 }
 
 function getSelectedEnemy() {
@@ -498,6 +556,11 @@ function calcInitiativeTotal(enemy) {
 }
 
 function calcMalice(enemy) {
+  const rawRounded = calcMaliceRawRounded(enemy);
+  return rawRounded < 0 ? 0 : rawRounded;
+}
+
+function calcMaliceRawRounded(enemy) {
   const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
   const sumMalice = maneuvers.reduce(
     (acc, m) => acc + Number((m && m.malice) || 0),
@@ -517,14 +580,42 @@ function calcMalice(enemy) {
   // =LET(悪意,ROUNDUP(合計悪意点-SWITCH(種類,"サヴァント",8,"ホラー",4,"レギオン",10-H831,0)),IF(悪意<0,0,悪意))
   const raw = sumMalice - classAdjust;
   const rounded = raw >= 0 ? Math.ceil(raw) : Math.floor(raw); // ROUNDUP 相当(0桁)
-  return rounded < 0 ? 0 : rounded;
+  return rounded;
+}
+
+function getMaliceToneClass(maliceValue) {
+  const v = Number(maliceValue || 0);
+  if (v >= 20) return "is-malice-5"; // 強すぎ: 真っ暗
+  if (v >= 15) return "is-malice-4"; // 最強帯
+  if (v >= 10) return "is-malice-3";
+  if (v >= 6) return "is-malice-2";
+  if (v >= 2) return "is-malice-1"; // 最低発光帯
+  return "is-malice-0";
 }
 
 function renderCalculatedHeader(enemy) {
   if (!enemy) return;
   if (el.fields.initiative)
     el.fields.initiative.value = String(calcInitiativeTotal(enemy));
-  if (el.fields.malice) el.fields.malice.value = String(calcMalice(enemy));
+  if (el.fields.malice) {
+    const rawMalice = calcMaliceRawRounded(enemy);
+    const shownMalice = rawMalice < 0 ? 0 : rawMalice;
+    el.fields.malice.value = String(shownMalice);
+    if (rawMalice < 0) {
+      el.fields.malice.title = `自動入力項目（マニューバ内容から計算） / 丸め前: ${rawMalice}`;
+    } else {
+      el.fields.malice.title = "自動入力項目（マニューバ内容から計算）";
+    }
+    el.fields.malice.classList.remove(
+      "is-malice-0",
+      "is-malice-1",
+      "is-malice-2",
+      "is-malice-3",
+      "is-malice-4",
+      "is-malice-5",
+    );
+    el.fields.malice.classList.add(getMaliceToneClass(shownMalice));
+  }
 }
 
 function renderPartsTable(enemy) {
@@ -548,10 +639,22 @@ function renderPartsTable(enemy) {
 }
 
 function renderManeuversTable(enemy) {
+  const table = document.getElementById("maneuversTable");
+  if (table) {
+    table.classList.toggle("hide-part-column", !isServantEnemy(enemy));
+  }
   const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
   el.maneuversTableBody.innerHTML = "";
   maneuvers.forEach((m, index) => {
+    const statusValue = String((m && m.status) || "無事");
+    const statusClass = getManeuverStatusClass(statusValue);
     const partType = sanitizePartType((m && m.partType) || "");
+    const maliceValue = Number((m && m.malice) || 0);
+    const isForbiddenMalice = maliceValue === 99;
+    const partTypeOptions = buildSelectOptions(
+      ["頭", "腕", "胴", "脚"],
+      partType,
+    );
     const timingOptions = buildSelectOptions(
       TIMING_OPTIONS,
       (m && m.timing) || "",
@@ -559,16 +662,21 @@ function renderManeuversTable(enemy) {
     const tr = document.createElement("tr");
     tr.setAttribute("draggable", "true");
     tr.dataset.index = String(index);
+    if (isForbiddenMalice) tr.classList.add("is-forbidden-maneuver");
     tr.innerHTML = `
       <td>
-        <select data-kind="maneuvers" data-index="${index}" data-key="status">
-          <option value="無事" ${String(m.status || "無事") === "無事" ? "selected" : ""}>無事</option>
-          <option value="使用" ${String(m.status || "無事") === "使用" ? "selected" : ""}>使用</option>
-          <option value="損傷" ${String(m.status || "無事") === "損傷" ? "selected" : ""}>損傷</option>
+        <select class="status-select ${statusClass}" data-kind="maneuvers" data-index="${index}" data-key="status">
+          <option value="無事" ${statusValue === "無事" ? "selected" : ""}>無事</option>
+          <option value="使用" ${statusValue === "使用" ? "selected" : ""}>使用</option>
+          <option value="損傷" ${statusValue === "損傷" ? "selected" : ""}>損傷</option>
         </select>
       </td>
       <td><input data-kind="maneuvers" data-index="${index}" data-key="name" value="${escapeHtml(m.name || m.kindName || "")}"></td>
-      <td><input data-kind="maneuvers" data-index="${index}" data-key="partType" list="partTypeList" value="${escapeHtml(partType)}"></td>
+      <td>
+        <select data-kind="maneuvers" data-index="${index}" data-key="partType">
+          ${partTypeOptions}
+        </select>
+      </td>
       <td>
         <select class="timing-select" data-kind="maneuvers" data-index="${index}" data-key="timing">
           ${timingOptions}
@@ -577,8 +685,11 @@ function renderManeuversTable(enemy) {
       <td><input data-kind="maneuvers" data-index="${index}" data-key="cost" list="maneuverCostList" value="${escapeHtml(m.cost || "")}"></td>
       <td><input class="range-input" data-kind="maneuvers" data-index="${index}" data-key="range" list="maneuverRangeList" value="${escapeHtml((m && m.range) || "")}"></td>
       <td><input data-kind="maneuvers" data-index="${index}" data-key="initiative" type="number" value="${Number(m.initiative || 0)}"></td>
-      <td><input data-kind="maneuvers" data-index="${index}" data-key="effect" value="${escapeHtml(m.effect || "")}"></td>
-      <td><input data-kind="maneuvers" data-index="${index}" data-key="malice" type="number" min="0" value="${Number(m.malice || 0)}"></td>
+      <td>
+        <input data-kind="maneuvers" data-index="${index}" data-key="effect" value="${escapeHtml(m.effect || "")}">
+        ${isForbiddenMalice ? '<div class="forbidden-note">※悪意99: エネミーに付与不可</div>' : ""}
+      </td>
+      <td><input data-kind="maneuvers" data-index="${index}" data-key="malice" type="number" min="0" value="${maliceValue}" title="${isForbiddenMalice ? "悪意99のマニューバはエネミーに付与できません" : ""}"></td>
       <td>
         <div class="row-action-wrap">
           <button type="button" class="delete-btn" data-remove-kind="maneuvers" data-index="${index}" title="削除" aria-label="削除">
@@ -614,40 +725,304 @@ function stateMark(entity) {
   return entity.use ? "⭕" : "✅";
 }
 
+function isDamageTriggeredEffectText(effectText) {
+  const s = String(effectText || "");
+  return /損傷(した|している|中|時|したとき|していたなら)|このパーツが損傷したとき|このパーツの損傷時/.test(
+    s,
+  );
+}
+
+function formatEffectWithTriggerHint(effectText) {
+  const base = String(effectText || "").trim();
+  if (!base) return "";
+  if (!isDamageTriggeredEffectText(base)) return base;
+  return `〔未発動 / 損傷時に発動〕${base}`;
+}
+
+function normalizeUserMemoText(rawMemo) {
+  const raw = String(rawMemo || "").replace(/\r\n?/g, "\n");
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+
+  const lines = trimmed.split("\n");
+  const iniIndex = lines.findIndex((l) => /初期行動値：/.test(String(l)));
+  const legendIndex = lines.findIndex((l) =>
+    /無事：⭕、使用：✅、損傷：❌/.test(String(l)),
+  );
+
+  // 既存のコマメモ全文を再取込した場合は、自由記述メモ部分だけを抽出して二重化を防ぐ
+  if (iniIndex >= 0 && legendIndex > iniIndex) {
+    const mid = lines
+      .slice(iniIndex + 1, legendIndex)
+      .join("\n")
+      .trim();
+    if (!mid || /^\/\/ここに解説\s*$/u.test(mid)) return "";
+    return mid;
+  }
+
+  return trimmed;
+}
+
+function getPartStatusText(enemy) {
+  const list = buildKomaStatus(enemy);
+  if (!Array.isArray(list) || !list.length) return "残存パーツ --/--";
+  if (list.length === 1) {
+    const row = list[0] || {};
+    return `残存パーツ ${Number(row.value || 0)}/${Number(row.max || 0)}`;
+  }
+  const now = list.reduce(
+    (sum, row) => sum + Number((row && row.value) || 0),
+    0,
+  );
+  const max = list.reduce((sum, row) => sum + Number((row && row.max) || 0), 0);
+  return `残存パーツ ${now}/${max}`;
+}
+
+function getPartStatusItems(enemy) {
+  const list = buildKomaStatus(enemy);
+  if (!Array.isArray(list) || !list.length) {
+    return [];
+  }
+  return list.map((row) => {
+    const value = Number((row && row.value) || 0);
+    const max = Number((row && row.max) || 0);
+    const ratio = max > 0 ? value / max : 0;
+    return {
+      label: String((row && row.label) || "全体"),
+      value,
+      max,
+      ratio,
+    };
+  });
+}
+
+function renderPartsStatusPanel(enemy) {
+  if (!el.partsStatusPanel) return;
+  if (!enemy) {
+    el.partsStatusPanel.innerHTML =
+      '<span class="parts-status-total">残存パーツ --/--</span>';
+    return;
+  }
+
+  const total = getPartStatusText(enemy);
+  if (!isServantEnemy(enemy)) {
+    el.partsStatusPanel.innerHTML = `<span class="parts-status-total">${escapeHtml(total)}</span>`;
+    return;
+  }
+
+  const items = getPartStatusItems(enemy);
+  const chipsHtml = items
+    .map((item) => {
+      const ratioClass =
+        item.ratio >= 0.7
+          ? "is-safe"
+          : item.ratio >= 0.35
+            ? "is-caution"
+            : "is-danger";
+      return `<span class="parts-chip ${ratioClass}"><span class="parts-chip-label">${escapeHtml(item.label)}</span><span class="parts-chip-value">${item.value}/${item.max}</span></span>`;
+    })
+    .join("");
+
+  el.partsStatusPanel.innerHTML = `<span class="parts-status-total">${escapeHtml(total)}</span><span class="parts-chip-list">${chipsHtml}</span>`;
+}
+
 function renderMemoPreview(enemy) {
   if (!el.memoPreview) return;
   if (!enemy) {
     el.memoPreview.textContent = "---";
+    renderPartsStatusPanel(null);
     return;
   }
+  el.memoPreview.textContent = buildKomaMemo(enemy);
+  renderPartsStatusPanel(enemy);
+}
 
+function hasManeuverName(m) {
+  const shownName = String(
+    (m && (m.name || m.kindName || m.displayName)) || "",
+  ).trim();
+  return shownName.length > 0;
+}
+
+function buildKomaStatus(enemy) {
+  const maneuvers = (
+    (enemy && enemy.data && enemy.data.maneuvers) ||
+    []
+  ).filter(hasManeuverName);
+  if (isServantEnemy(enemy)) {
+    return PART_TYPES.map((p) => {
+      const list = maneuvers.filter(
+        (m) => sanitizePartType(m && m.partType, "") === p,
+      );
+      const max = list.length;
+      const value = list.filter(
+        (m) => String((m && m.status) || "無事") !== "損傷",
+      ).length;
+      return { label: p, value, max };
+    }).filter((x) => x.max > 0);
+  }
+  const max = maneuvers.length;
+  const value = maneuvers.filter(
+    (m) => String((m && m.status) || "無事") !== "損傷",
+  ).length;
+  return [{ label: "パーツ", value, max }];
+}
+
+function buildKomaCommands(enemy) {
   const iniTotal = calcInitiativeTotal(enemy);
-  const lines = [];
-  lines.push(`───`);
-  lines.push(`初期行動値：${iniTotal}`);
-  if (enemy.memo) lines.push(enemy.memo);
-  lines.push("");
-  lines.push("無事：⭕、使用：✅、損傷：❌");
-  lines.push("🟩【パーツ名】 《タイミング / コスト / 射程》");
+  const lines = [
+    "NC+2 行動判定",
+    "NC+1 行動判定",
+    "NC 行動判定",
+    "NC-1 行動判定",
+    "NC-2 行動判定",
+    "",
+    "NA+2 攻撃判定",
+    "NA+1 攻撃判定",
+    "NA 攻撃判定",
+    "",
+    "◆行動値操作",
+    ":initiative-1",
+    ":initiative-2",
+    ":initiative-3",
+    `:initiative=${iniTotal}`,
+    "🟩【マニューバ名】《タイミング / コスト / 射程》効果 ",
+  ];
 
-  const maneuvers = (enemy.data && enemy.data.maneuvers) || [];
+  const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
+  let currentPart = "";
   maneuvers.forEach((m) => {
-    // 表示は常にデータ本体(name/kindName)を優先
-    const shownName = m.name || m.kindName || m.displayName || "";
-    const broken = m.brokenEffect || m.broken || "";
-    const effect = m.effect || "";
-    const mergedEffect = broken ? `${effect}（損傷:${broken}）` : effect;
+    const part = sanitizePartType((m && m.partType) || "", "");
+    if (isServantEnemy(enemy) && part && part !== currentPart) {
+      lines.push(partEmoji(part));
+      currentPart = part;
+    }
+    const shownName = (m && (m.name || m.kindName || m.displayName)) || "";
+    const effectText = formatEffectWithTriggerHint((m && m.effect) || "");
     lines.push(
-      `${stateMark(m)}【${shownName}】《${m.timing || ""}/${m.cost || ""}/${m.range || ""}》${mergedEffect}`,
+      `【${shownName}】《${(m && m.timing) || ""}/${(m && m.cost) || ""}/${(m && m.range) || ""}》${effectText}`,
     );
   });
+  return lines.join("\n");
+}
 
-  lines.push("");
-  const partCount =
-    (enemy.data && enemy.data.maneuvers && enemy.data.maneuvers.length) || 0;
-  lines.push(`status: パーツ ${partCount}/${partCount}`);
+function buildKomaMemo(enemy) {
+  const iniTotal = calcInitiativeTotal(enemy);
+  const userMemo = normalizeUserMemoText(enemy && enemy.memo);
+  const lines = [
+    "───",
+    `初期行動値：${iniTotal}`,
+    userMemo || "//ここに解説",
+    "",
+    "無事：⭕、使用：✅、損傷：❌",
+    isServantEnemy(enemy)
+      ? "🟩【マニューバ名】《タイミング / コスト / 射程》"
+      : "🟩【マニューバ名】 《タイミング / コスト / 射程》",
+  ];
 
-  el.memoPreview.textContent = lines.join("\n");
+  const maneuvers = (
+    (enemy && enemy.data && enemy.data.maneuvers) ||
+    []
+  ).filter(hasManeuverName);
+  let currentPart = "";
+  maneuvers.forEach((m) => {
+    const part = sanitizePartType((m && m.partType) || "", "");
+    if (isServantEnemy(enemy) && part && part !== currentPart) {
+      lines.push(partEmoji(part));
+      currentPart = part;
+    }
+    const effectText = formatEffectWithTriggerHint((m && m.effect) || "");
+    lines.push(
+      `${stateMark(m)}【${(m && (m.name || m.kindName || m.displayName)) || ""}】《${(m && m.timing) || ""}/${(m && m.cost) || ""}/${(m && m.range) || ""}》${effectText}`,
+    );
+  });
+  return lines.join("\n");
+}
+
+function buildKomaCharacterJson(enemy) {
+  return {
+    kind: "character",
+    data: {
+      name: String((enemy && enemy.name) || ""),
+      memo: buildKomaMemo(enemy),
+      initiative: calcInitiativeTotal(enemy),
+      iconUrl: String((enemy && enemy.icon_url) || ""),
+      commands: buildKomaCommands(enemy),
+      status: buildKomaStatus(enemy),
+    },
+  };
+}
+
+function importFromKomaJson(enemy, src) {
+  const data = src && src.data ? src.data : {};
+  enemy.name = String(data.name || enemy.name || "").trim();
+  enemy.icon_url = String(data.iconUrl || enemy.icon_url || "").trim();
+  if (typeof data.memo === "string" && data.memo.trim()) {
+    enemy.memo = normalizeUserMemoText(data.memo);
+  }
+
+  const statusList = Array.isArray(data.status) ? data.status : [];
+  const hasServantParts = statusList.some((s) =>
+    PART_TYPES.includes(String(s && s.label)),
+  );
+  if (hasServantParts) {
+    enemy.class_type = "サヴァント";
+  }
+
+  const cmd = String(data.commands || "");
+  const rows = [];
+  let currentPart = "";
+  cmd.split(/\r?\n/).forEach((lineRaw) => {
+    const line = String(lineRaw || "").trim();
+    if (!line) return;
+    if (line.startsWith("👧")) {
+      currentPart = "頭";
+      return;
+    }
+    if (line.startsWith("💪")) {
+      currentPart = "腕";
+      return;
+    }
+    if (line.startsWith("🧍")) {
+      currentPart = "胴";
+      return;
+    }
+    if (line.startsWith("🦵")) {
+      currentPart = "脚";
+      return;
+    }
+    const m = line.match(/^【(.+?)】《([^/]*)\/([^/]*)\/([^》]*)》\s*(.*)$/);
+    if (!m) return;
+    const row = createEmptyManeuver();
+    const inlinePartType = pickPartTypeFromCommandLine(line, m[1]);
+    const importedPartType = sanitizePartType(
+      inlinePartType || currentPart || "",
+      "",
+    );
+    const hasImportedPartType = !!importedPartType;
+    row.name = String(m[1] || "").trim();
+    row.kindName = row.name;
+    row.displayName = row.name;
+    row.timing = String(m[2] || "").trim();
+    row.cost = String(m[3] || "").trim();
+    row.range = String(m[4] || "").trim();
+    row.effect = String(m[5] || "").trim();
+    row.partType = sanitizePartType(importedPartType || row.partType);
+    applyManeuverMasterRow(enemy, row, {
+      keepPartType: hasImportedPartType,
+    });
+    // CSV補完後に、取込元の明示値を優先
+    row.timing = String(m[2] || row.timing || "").trim();
+    row.cost = String(m[3] || row.cost || "").trim();
+    row.range = String(m[4] || row.range || "").trim();
+    row.effect = String(m[5] || row.effect || "").trim();
+    rows.push(row);
+  });
+
+  if (rows.length) {
+    enemy.data.maneuvers = rows;
+  }
+  normalizePartsByClass(enemy);
 }
 
 function renderAll() {
@@ -729,6 +1104,8 @@ function bindTableEvents() {
           : target.value;
     if (kind === "maneuvers" && key === "status") {
       row.use = row.status !== "損傷";
+      target.classList.remove("status-safe", "status-used", "status-damaged");
+      target.classList.add(getManeuverStatusClass(row.status));
     }
     if (kind === "maneuvers" && key === "partType") {
       row.partType = sanitizePartType(row.partType);
@@ -762,6 +1139,9 @@ function bindTableEvents() {
           renderManeuversTable(enemy);
         }
       }
+    }
+    if (kind === "maneuvers" && key === "malice") {
+      renderManeuversTable(enemy);
     }
     if (kind === "parts" && key === "type") {
       row.type = sanitizePartType(row.type);
@@ -877,15 +1257,6 @@ function setupEvents() {
     renderEnemyList();
   });
 
-  el.createEnemyButton.addEventListener("click", () => {
-    const next = createEnemyTemplate();
-    next.ID = getNextId();
-    state.enemies.unshift(next);
-    state.selectedId = next.ID;
-    saveToStorage();
-    renderAll();
-  });
-
   if (el.saveEnemyButton) {
     el.saveEnemyButton.addEventListener("click", () => {
       upsertCurrentEnemyFromForm();
@@ -910,6 +1281,94 @@ function setupEvents() {
           console.log(pretty);
         });
     });
+  }
+
+  if (el.exportKomaJsonButton) {
+    el.exportKomaJsonButton.addEventListener("click", () => {
+      upsertCurrentEnemyFromForm();
+      const enemy = getSelectedEnemy();
+      if (!enemy) return;
+      const out = buildKomaCharacterJson(enemy);
+      const pretty = JSON.stringify(out, null, 0);
+      navigator.clipboard
+        .writeText(pretty)
+        .then(() => {
+          alert("ココフォリア駒データをコピーした");
+        })
+        .catch(() => {
+          alert("コピー失敗。コンソールに出力する");
+          console.log(pretty);
+        });
+    });
+  }
+
+  if (el.copyMemoPreviewButton) {
+    el.copyMemoPreviewButton.addEventListener("click", () => {
+      upsertCurrentEnemyFromForm();
+      const enemy = getSelectedEnemy();
+      if (!enemy) return;
+      const text = buildKomaMemo(enemy);
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          alert("コマメモをコピーした");
+        })
+        .catch(() => {
+          alert("コピー失敗。コンソールに出力する");
+          console.log(text);
+        });
+    });
+  }
+
+  if (el.importKomaJsonButton || el.komaJsonInput) {
+    const runKomaJsonImport = (rawSource = null) => {
+      const enemy = getSelectedEnemy();
+      if (!enemy) return false;
+      const raw = String(
+        rawSource != null
+          ? rawSource
+          : (el.komaJsonInput && el.komaJsonInput.value) || "",
+      ).trim();
+      if (!raw) return false;
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || parsed.kind !== "character" || !parsed.data) {
+          alert("コマJSON形式ではありません");
+          return false;
+        }
+        importFromKomaJson(enemy, parsed);
+        enemy.time = nowIsoLocal();
+        saveToStorage();
+        renderAll();
+        return true;
+      } catch (_e) {
+        alert("JSONの解析に失敗しました");
+        return false;
+      }
+    };
+
+    if (el.importKomaJsonButton) {
+      el.importKomaJsonButton.addEventListener("click", () => {
+        runKomaJsonImport();
+      });
+    }
+
+    if (el.komaJsonInput) {
+      el.komaJsonInput.addEventListener("paste", (event) => {
+        const pasted =
+          (event.clipboardData && event.clipboardData.getData("text")) || "";
+        if (!pasted) return;
+        event.preventDefault();
+        el.komaJsonInput.value = pasted;
+        runKomaJsonImport(pasted);
+      });
+
+      el.komaJsonInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        runKomaJsonImport();
+      });
+    }
   }
 
   if (el.addManeuverButton) {
@@ -938,11 +1397,27 @@ function setupEvents() {
     const enemy = getSelectedEnemy();
     if (!enemy) return;
     upsertCurrentEnemyFromForm();
+    if (document.activeElement === el.fields.classType) {
+      renderManeuversTable(enemy);
+    }
     renderCalculatedHeader(enemy);
     renderDataPreview(enemy);
     renderMemoPreview(enemy);
     renderEnemyList();
   });
+
+  if (el.fields.classType) {
+    el.fields.classType.addEventListener("change", () => {
+      const enemy = getSelectedEnemy();
+      if (!enemy) return;
+      upsertCurrentEnemyFromForm();
+      renderManeuversTable(enemy);
+      renderCalculatedHeader(enemy);
+      renderDataPreview(enemy);
+      renderMemoPreview(enemy);
+      renderEnemyList();
+    });
+  }
 
   bindTableEvents();
 }
