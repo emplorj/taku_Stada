@@ -1,0 +1,1750 @@
+.nechronica-enemies-page {
+  --sheet-bg: #1b1a1d;
+  --sheet-cell: #242228;
+  --sheet-header: #0f0e12;
+  --sheet-header-text: #f4f1e8;
+  --sheet-border: #3f3945;
+  --sheet-accent-blood: #7b1d2a;
+  --sheet-accent-bone: #d6d0c3;
+  --sheet-accent-fog: #8a7f73;
+  --enemy-title-shadow: 0 6px 14px rgba(0, 0, 0, 0.55);
+}
+
+body.nechronica-enemies-page {
+  color: #ddd8cf;
+  background:
+    radial-gradient(
+      1200px 520px at 15% -10%,
+      rgba(123, 29, 42, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 100% 0%,
+      rgba(109, 102, 88, 0.14),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #151418 0%, #0d0c10 100%);
+}
+
+.nechronica-enemies-page .main-content {
+  position: relative;
+  backdrop-filter: blur(1.5px);
+}
+
+.nechronica-enemies-page .main-content,
+.nechronica-enemies-page .main-content p,
+.nechronica-enemies-page .main-content li,
+.nechronica-enemies-page .main-content label,
+.nechronica-enemies-page .main-content input,
+.nechronica-enemies-page .main-content select,
+.nechronica-enemies-page .main-content textarea,
+.nechronica-enemies-page .main-content button,
+.nechronica-enemies-page .main-content th,
+.nechronica-enemies-page .main-content td,
+.nechronica-enemies-page #memoPreview {
+  font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+
+.nechronica-enemies-page .nechronica-header h1,
+.nechronica-enemies-page .enemy-list-title {
+  font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+
+.nechronica-enemies-page .pane-header h2,
+.nechronica-enemies-page .sub-header h3 {
+  font-family:
+    "isemin", "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.nechronica-enemies-page .enemy-list-title {
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.enemy-list-collapsible summary,
+.enemy-list-collapsible summary *,
+.enemy-list-pane,
+.enemy-list-pane *,
+.editor-pane,
+.editor-pane * {
+  box-sizing: border-box;
+}
+
+.nechronica-header {
+  margin-bottom: 1rem;
+}
+
+.enemies-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1rem;
+}
+
+.enemies-layout.single-column {
+  grid-template-columns: 1fr;
+}
+
+.enemy-list-collapsible {
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.enemy-list-collapsible summary {
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  list-style: none;
+  display: block;
+  margin-bottom: 10px;
+  padding: 0;
+  user-select: none;
+  overflow: visible;
+}
+
+.enemy-list-collapsible summary::after {
+  content: none;
+}
+
+.enemy-list-collapsible summary::-webkit-details-marker {
+  display: none;
+}
+
+.enemy-list-collapsible summary::before {
+  content: "\25B6";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 1rem;
+  color: #ddd;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.enemy-list-collapsible[open] summary::before {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.enemy-list-title {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding-top: 10px;
+  padding-bottom: 0;
+  padding-left: 40px;
+  padding-right: 0;
+  min-height: 0;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.5em;
+  font-weight: normal;
+  color: #f5f0e5;
+  text-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(123, 29, 42, 0.35);
+  background: linear-gradient(90deg, #2b0f16 0%, #4a121e 42%, #1f191d 100%);
+  border: none;
+  border-radius: 8px 0 0 8px;
+  width: calc(100% + 20px);
+  margin-right: -20px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.enemy-list-pane,
+.editor-pane {
+  border: 2px solid var(--sheet-border);
+  border-radius: 6px;
+  background: var(--sheet-bg);
+  padding: 0.8rem;
+  color: #dfd9ce;
+  box-shadow:
+    inset 0 0 0 1px rgba(214, 208, 195, 0.05),
+    0 10px 18px rgba(0, 0, 0, 0.32);
+}
+
+.enemy-list-pane {
+  border: 2px solid var(--sheet-border);
+  border-top: none;
+  padding-top: 0.4rem;
+  max-width: 100%;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.editor-pane {
+  max-width: 100%;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.db-action-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.save-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.1rem;
+  padding: 0 0.55rem;
+  border: 1px solid var(--sheet-border);
+  border-radius: 4px;
+  font-size: 0.82rem;
+  line-height: 1;
+  white-space: nowrap;
+  background: #1d1a1c;
+  color: #cfc5b8;
+}
+
+.save-status:empty {
+  display: none;
+}
+
+.save-status.is-idle {
+  background: #1d1a1c;
+  color: #cfc5b8;
+}
+
+.save-status.is-saving {
+  background: #3a2f1b;
+  color: #ffe2a8;
+  border-color: #8e6d2e;
+}
+
+.save-status.is-ok {
+  background: #1f3523;
+  color: #d4f5da;
+  border-color: #4f8a5f;
+}
+
+.save-status.is-error {
+  background: #3a2020;
+  color: #ffd7d7;
+  border-color: #a76060;
+}
+
+.action-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.full {
+  width: 100%;
+  margin: 0.6rem 0;
+}
+
+.enemy-sort-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.sort-chip {
+  border: 1px solid var(--sheet-border);
+  background: #1c181b;
+  color: #d8cfbf;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.sort-chip:hover {
+  border-color: #7f6d58;
+  background: #2a2325;
+}
+
+.sort-chip.is-active {
+  border-color: #8d3746;
+  background: #3a1821;
+  color: #f4e7d8;
+}
+
+.enemy-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.enemy-list-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--sheet-border);
+  background: linear-gradient(180deg, #2a2528 0%, #1f1b1e 100%);
+  color: #e8e1d4;
+  border-radius: 4px;
+  padding: 0.5rem;
+  display: grid;
+  gap: 0.4rem;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.enemy-list-card.is-active {
+  border-color: #8d3746;
+  background: linear-gradient(180deg, #3a1821 0%, #2a141a 100%);
+  box-shadow: 0 0 0 1px rgba(141, 55, 70, 0.35);
+}
+
+.enemy-list-card::before {
+  content: "";
+  position: absolute;
+  /* 疑似要素の見切れを防ぐため高さを大きくとる */
+  top: 50%;
+  right: 0%;
+  width: 40%; /* 右半分を埋めるようにサイズ調整 */
+  aspect-ratio: 1 / 2; /* 高さが足りず見切れるのを防ぐため、横幅に対して十分に縦長な枠を作る */
+  background-position: center right;
+  background-repeat: no-repeat;
+  background-size: 100% auto; /* 疑似要素のwidthに対してのみ100%（幅基準） */
+  opacity: 0.12; /* うっすらと */
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(0.8);
+  /* 縦位置を中央にしつつ傾ける */
+  transform: translateY(-50%) rotate(-15deg);
+  transform-origin: right center;
+}
+
+.enemy-list-card.is-class-servant::before {
+  background-image: url("../img/nc/Servant.png");
+}
+
+.enemy-list-card.is-class-horror::before {
+  background-image: url("../img/nc/Horror.png");
+}
+
+.enemy-list-card.is-class-region::before {
+  background-image: url("../img/nc/Region.png");
+}
+
+.enemy-list-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.enemy-list-row-main {
+  justify-content: flex-start;
+}
+
+.enemy-malice-badge {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px;
+  height: 40px;
+  padding: 2px 0;
+  border: 1px solid #7b4f5a;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #2d171d 0%, #1a0d11 100%);
+  color: #ffdbe4;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  gap: 0;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.malice-label {
+  font-size: 0.58rem;
+  opacity: 0.85;
+  margin-bottom: 4px; /* 数値との間隔を広げる */
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.malice-value {
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  font-family: "Corporate-Logo-Bold", sans-serif;
+  white-space: nowrap;
+  line-height: 1;
+  position: relative;
+  top: 1px;
+}
+
+.enemy-list-icon-wrap {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+}
+
+.enemy-list-icon {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #574b4f;
+  border-radius: 4px;
+  object-fit: cover;
+  background: #1c181b;
+}
+
+.enemy-list-icon-placeholder {
+  color: #b7ac9f;
+  font-size: 0.95rem;
+}
+
+.enemy-list-side-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.enemy-list-content-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.enemy-list-upper-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.enemy-list-name {
+  font-weight: bold;
+  font-size: 1.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.enemy-list-lower-info {
+  display: flex;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: #888;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+.meta-item {
+  white-space: nowrap;
+}
+
+.enemy-list-side-right-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.enemy-list-meta-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.enemy-list-class-tag {
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: var(--sheet-accent-bone);
+  opacity: 0.9;
+  line-height: 1.2;
+}
+
+.enemy-list-time-tag {
+  font-size: 0.68rem;
+  color: #888;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.list-side-btn {
+  width: 40px;
+  height: 40px;
+  padding: 2px 0 4px 0; /* 上を狭く、下を広く */
+  font-size: 0.62rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1.1;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.list-side-btn i {
+  font-size: 1rem; /* わずかに大きく */
+  margin-bottom: -8px; /* 文字との間隔を狭める */
+}
+
+.list-side-btn.is-load {
+  background: linear-gradient(135deg, #7b1d2a 0%, #4a121e 100%);
+  color: #fff;
+  border: 1px solid #9d2535;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.list-side-btn.is-load:hover {
+  background: linear-gradient(135deg, #9d2535 0%, #611827 100%);
+  box-shadow: 0 0 12px rgba(157, 37, 53, 0.6);
+  transform: translateY(-1px);
+}
+
+.list-side-btn.is-copy {
+  background: linear-gradient(135deg, #252a3a 0%, #1a1e2b 100%);
+  color: #dbe4ff;
+  border: 1px solid #37468d;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.list-side-btn.is-copy:hover {
+  background: linear-gradient(135deg, #333a4d 0%, #202638 100%);
+  box-shadow: 0 0 12px rgba(55, 70, 141, 0.6);
+  transform: translateY(-1px);
+}
+
+.list-side-btn.is-success {
+  background: linear-gradient(135deg, #1f3523 0%, #142116 100%) !important;
+  color: #d4f5da !important;
+  border-color: #4f8a5f !important;
+  box-shadow: 0 0 12px rgba(79, 138, 95, 0.6) !important;
+}
+
+.enemy-list-btns-row {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+}
+
+.enemy-list-row-meta {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.enemy-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.35rem;
+  padding: 0 0.45rem;
+  border: 1px solid #5e5454;
+  border-radius: 3px;
+  background: #1a171a;
+  color: #dfd7c8;
+  font-size: 0.76rem;
+  line-height: normal; /* 縦崩れ防止 */
+  white-space: nowrap; /* 縦崩れ防止 */
+  min-width: max-content; /* 縦崩れ防止 */
+}
+
+.enemy-meta-inline {
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.enemy-malice-badge {
+  flex-direction: column;
+  gap: 0.04rem;
+}
+
+.enemy-malice-badge .label {
+  font-size: 0.56rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
+.enemy-malice-badge .value {
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.enemy-malice-badge.is-mlv-0 {
+  border-color: #54505a;
+  background: #242028;
+  color: #e3deeb;
+}
+
+.enemy-malice-badge.is-mlv-1 {
+  border-color: #5d6a8f;
+  background: linear-gradient(180deg, #1f2844 0%, #1a223a 100%);
+  color: #dce7ff;
+}
+
+.enemy-malice-badge.is-mlv-2 {
+  border-color: #4a7d6a;
+  background: linear-gradient(180deg, #1c3028 0%, #182923 100%);
+  color: #dbffea;
+}
+
+.enemy-malice-badge.is-mlv-3 {
+  border-color: #8d7a42;
+  background: linear-gradient(180deg, #3a321c 0%, #2d2717 100%);
+  color: #fff3c8;
+}
+
+.enemy-malice-badge.is-mlv-4 {
+  border-color: #95514b;
+  background: linear-gradient(180deg, #4a1f1f 0%, #381919 100%);
+  color: #ffd9d2;
+}
+
+.enemy-malice-badge.is-mlv-5 {
+  border-color: #7b2d39;
+  background: linear-gradient(180deg, #421019 0%, #2f0b11 100%);
+  color: #ffd7e0;
+  box-shadow:
+    0 0 0 1px rgba(123, 45, 57, 0.42),
+    0 0 14px rgba(160, 38, 58, 0.28);
+}
+
+.editor-form {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.editor-form label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+}
+
+.primary-info-grid {
+  display: grid;
+  grid-template-columns:
+    max-content minmax(220px, 1fr)
+    max-content max-content;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.primary-info-grid label {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.primary-info-grid > label,
+.sub-info-grid > label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.field-label {
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.primary-info-grid > label > input,
+.primary-info-grid > label > select,
+.sub-info-grid > label > input,
+.sub-info-grid > label > select {
+  flex: 1 1 auto;
+}
+
+.primary-info-grid > label.compact-field > input {
+  flex: 0 0 5ch;
+  width: 5ch;
+  min-width: 5ch;
+  max-width: 5ch;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+
+.sub-info-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(260px, 1.6fr) auto;
+  gap: 0.6rem;
+  margin-top: 0.45rem;
+  align-items: center;
+}
+
+.editor-meta-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
+  gap: 0.6rem;
+  margin-top: 0.45rem;
+  align-items: center;
+}
+
+.meta-author-field {
+  min-width: 0;
+}
+
+.editor-meta-row .meta-author-field {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.editor-meta-row .meta-author-field > input {
+  flex: 1 1 auto;
+}
+
+.sub-info-grid label {
+  font-size: 0.86rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+#field-malice,
+#field-initiative,
+#field-name,
+#field-class-type {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+#field-name {
+  min-width: 0;
+  width: 100%;
+}
+
+.calc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05em;
+  height: 1.05em;
+  margin-left: 0.2em;
+  font-size: 0.8em;
+  color: #444;
+  border: 1px solid #666;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+#field-malice[readonly],
+#field-initiative[readonly] {
+  background: #a8a8a8;
+  color: #222;
+}
+
+#field-malice {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    text-shadow 180ms ease;
+}
+
+#field-malice.is-malice-0 {
+  background: #a8a8a8;
+  color: #222;
+  border-color: #666;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+#field-malice.is-malice-1 {
+  background: #b6a39a;
+  color: #2a1a16;
+  border-color: #7a4a3a;
+  box-shadow: inset 0 0 0 1px rgba(122, 74, 58, 0.35);
+}
+
+#field-malice.is-malice-2 {
+  background: #b88872;
+  color: #30140e;
+  border-color: #8a3828;
+  box-shadow:
+    inset 0 0 0 1px rgba(138, 56, 40, 0.45),
+    0 0 0.16rem rgba(138, 56, 40, 0.35);
+}
+
+#field-malice.is-malice-3 {
+  background: #b85f48;
+  color: #2a0a08;
+  border-color: #8f2318;
+  box-shadow:
+    inset 0 0 0 1px rgba(143, 35, 24, 0.5),
+    0 0 0.26rem rgba(143, 35, 24, 0.4);
+  text-shadow: 0 0 1px rgba(255, 220, 210, 0.25);
+}
+
+#field-malice.is-malice-4 {
+  background: #7a1f1f;
+  color: #ffe9e4;
+  border-color: #4b0909;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 180, 170, 0.2),
+    0 0 0.34rem rgba(120, 10, 10, 0.5);
+  text-shadow: 0 0 2px rgba(255, 225, 215, 0.35);
+}
+
+#field-malice.is-malice-5 {
+  background: linear-gradient(180deg, #1f0004 0%, #000 100%);
+  color: #ffd0d0;
+  border-color: #090102;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 140, 140, 0.24),
+    0 0 0.58rem rgba(90, 0, 20, 0.55);
+  text-shadow: 0 0 3px rgba(255, 180, 180, 0.45);
+}
+
+.compact-field {
+  width: auto;
+}
+
+.compact-field input {
+  width: 5ch;
+  flex: 0 0 5ch;
+  min-width: 5ch;
+  max-width: 5ch;
+  text-align: center;
+}
+
+.class-field {
+  width: auto;
+  min-width: max-content;
+}
+
+.class-field select {
+  width: 7.2em;
+  flex: 0 0 7.2em;
+  min-width: 7.2em;
+  max-width: 7.2em;
+}
+
+.public-switch-label {
+  width: auto;
+  align-self: center;
+}
+
+.sub-info-grid .public-switch-label {
+  justify-self: end;
+}
+
+.editor-meta-row .public-switch-label {
+  justify-self: start;
+}
+
+.public-switch-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.public-switch-text {
+  min-width: 2.5em;
+}
+
+.meta-line {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #bdb4a6;
+}
+
+.editor-form input,
+.editor-form select,
+.editor-form textarea {
+  width: 100%;
+  background: #18161b;
+  color: #e7e0d4;
+  border: 1px solid var(--sheet-border);
+  border-radius: 4px;
+  padding: 0.45rem;
+}
+
+.editor-form input::placeholder,
+.editor-form textarea::placeholder {
+  color: #8f8a83;
+}
+
+.data-block {
+  border: 1px solid var(--sheet-border);
+  border-radius: 6px;
+  padding: 0.5rem;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 24, 30, 0.88) 0%,
+    rgba(20, 18, 24, 0.88) 100%
+  );
+}
+
+.data-block {
+  border: 1px solid var(--sheet-border);
+  border-radius: 6px;
+  padding: 0.5rem;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 24, 30, 0.88) 0%,
+    rgba(20, 18, 24, 0.88) 100%
+  );
+}
+
+/* ==========================================================================
+   アクションバー (エディタ下部)
+   ========================================================================== */
+.editor-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  background: #1b1a1d;
+  border-top: 1px solid var(--sheet-border);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  margin: 1.5rem -0.5rem -0.5rem -0.5rem;
+  border-radius: 0 0 4px 4px;
+}
+.action-bar-left,
+.action-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+.action-btn i {
+  font-size: 1.1em;
+}
+.action-btn.is-sub {
+  background: #2a2528;
+  color: #dfd9ce;
+  border: 1px solid var(--sheet-border);
+}
+.action-btn.is-sub:hover {
+  background: #3a3337;
+  border-color: #8d3746;
+}
+.action-btn.is-main {
+  background: linear-gradient(180deg, #7b1d2a 0%, #4a121e 100%);
+  color: #fff;
+  border: 1px solid #8d3746;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.action-btn.is-main:hover {
+  background: linear-gradient(180deg, #9d2535 0%, #611827 100%);
+  border-color: #bd4a5d;
+  transform: translateY(-1px);
+}
+.action-btn.is-danger {
+  background: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b33;
+}
+.action-btn.is-danger:hover {
+  background: #ff6b6b11;
+  border-color: #ff6b6b;
+}
+@media (max-width: 600px) {
+  .editor-action-bar {
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: stretch;
+  }
+  .action-bar-left,
+  .action-bar-right {
+    justify-content: space-between;
+  }
+}
+
+.sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--sheet-border);
+  background: var(--sheet-cell);
+  border-radius: 4px;
+}
+
+.nechronica-enemies-page .asian-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: var(--sheet-cell);
+}
+
+.nechronica-enemies-page .asian-table th,
+.nechronica-enemies-page .asian-table td {
+  border: 1px solid var(--sheet-border);
+  color: #e7dfd2;
+  padding: 0.25rem;
+  vertical-align: middle;
+}
+
+.nechronica-enemies-page .asian-table thead th {
+  background: linear-gradient(180deg, #1b1820 0%, #100f13 100%);
+  color: var(--sheet-header-text);
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(123, 29, 42, 0.24);
+}
+
+#maneuversTable th.initiative-head {
+  font-size: 0.84rem;
+  letter-spacing: -0.01em;
+}
+
+.asian-table input {
+  min-width: 0;
+  width: 100%;
+}
+
+.asian-table .use-check {
+  min-width: auto;
+  width: 18px;
+  height: 18px;
+}
+
+#maneuversTable col.col-state {
+  width: 6.5rem;
+}
+
+#maneuversTable col.col-name {
+  width: 10em;
+}
+
+#maneuversTable col.col-part {
+  width: 4.5em;
+}
+
+#maneuversTable col.col-timing {
+  width: 6.8em;
+}
+
+#maneuversTable col.col-cost,
+#maneuversTable col.col-range,
+#maneuversTable col.col-malice {
+  width: 4em;
+}
+
+#maneuversTable col.col-range {
+  width: 4.6em;
+}
+
+#maneuversTable col.col-initiative {
+  width: 3.2em;
+}
+
+#maneuversTable col.col-remove {
+  width: 3.4rem;
+}
+
+.row-action-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  width: max-content;
+  margin: 0 auto;
+}
+
+#maneuversTable .delete-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--sheet-border);
+  background-color: #e74c3c;
+  color: #fff;
+  line-height: 1;
+}
+
+#maneuversTable .delete-btn:hover {
+  background-color: #c0392b;
+}
+
+#maneuversTable .delete-btn i {
+  font-size: 0.72rem;
+}
+
+.drag-hint {
+  display: inline-block;
+  font-size: 0.82rem;
+  line-height: 1;
+  opacity: 0.72;
+  user-select: none;
+  cursor: grab;
+  padding: 0;
+  margin: 0;
+}
+
+#maneuversTable td:last-child {
+  padding-left: 0.22rem;
+  padding-right: 0.1rem;
+  white-space: nowrap;
+}
+
+#maneuversTable tr.is-dragging .drag-hint {
+  cursor: grabbing;
+}
+
+.maneuver-initiative-note {
+  margin: 0 0 0.4rem;
+  font-size: 0.86rem;
+}
+
+#maneuversTable .timing-select,
+#maneuversTable .range-select {
+  font-size: 0.9rem;
+  padding-left: 0.3rem;
+  padding-right: 0.2rem;
+}
+
+#maneuversTable .status-select {
+  font-weight: 700;
+}
+
+#maneuversTable .status-select.status-safe {
+  background: #243328;
+  color: #d7f5df;
+  border-color: #4f8a5f;
+}
+
+#maneuversTable .status-select.status-used {
+  background: #3a341f;
+  color: #fff3c8;
+  border-color: #9f8f4c;
+}
+
+#maneuversTable .status-select.status-damaged {
+  background: #3a2020;
+  color: #ffd7d7;
+  border-color: #a76060;
+}
+
+.editor-form input[type="number"],
+#partsTable input[type="number"],
+#maneuversTable input[type="number"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#maneuversTable tbody tr {
+  cursor: move;
+}
+
+#maneuversTable tbody tr.is-dragging {
+  opacity: 0.55;
+}
+
+#maneuversTable tbody tr.is-forbidden-maneuver td {
+  background: #ffe0e0;
+}
+
+#maneuversTable .forbidden-note {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: #8a0f0f;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#maneuversTable.hide-part-column col.col-part,
+#maneuversTable.hide-part-column th:nth-child(3),
+#maneuversTable.hide-part-column td:nth-child(3) {
+  display: none;
+}
+
+.initiative-total {
+  margin: 0.6rem 0 0;
+  font-size: 1rem;
+}
+
+.json-preview {
+  margin-top: 0.8rem;
+}
+
+.json-preview > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.json-preview > summary::-webkit-details-marker {
+  display: none;
+}
+
+.preview-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.preview-title {
+  font-weight: 700;
+}
+
+.preview-summary-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
+.parts-status-panel {
+  --parts-row-height: 1.95rem;
+  display: flex;
+  align-items: stretch;
+  gap: 0.45rem;
+  flex-wrap: nowrap;
+  margin-top: 0.55rem;
+  margin-bottom: 0.6rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #4a4048;
+  background: linear-gradient(180deg, #141214 0%, #1f1a1b 100%);
+  color: #ece7de;
+  box-shadow:
+    inset 0 0 0 1px rgba(123, 29, 42, 0.14),
+    0 5px 12px rgba(0, 0, 0, 0.28);
+}
+
+.parts-status-total {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: var(--parts-row-height);
+  margin-right: 0.45rem;
+  margin-bottom: 0;
+  padding: 0 0.5rem;
+  border: 1px solid #6d4f56;
+  background: linear-gradient(180deg, #2a1017 0%, #200d14 100%);
+  color: #f3e7da;
+  font-weight: 700;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.parts-chip-list {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.parts-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: var(--parts-row-height);
+  padding: 0 0.5rem;
+  border: 1px solid #4a4a4a;
+  background: #202020;
+  color: #e6e6e6;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.parts-chip-label {
+  font-weight: 700;
+}
+
+.parts-chip-value {
+  opacity: 0.95;
+}
+
+.parts-chip.is-safe {
+  border-color: #4f8a5f;
+  background: #213326;
+  color: #d7f5df;
+}
+
+.parts-chip.is-caution {
+  border-color: #9f8f4c;
+  background: #3a341f;
+  color: #fff3c8;
+}
+
+.parts-chip.is-danger {
+  border-color: #a76060;
+  background: #3a2020;
+  color: #ffd7d7;
+}
+
+.koma-json-actions {
+  display: grid;
+  grid-template-columns: auto minmax(260px, 1fr);
+  align-items: center;
+  column-gap: 0.55rem;
+  row-gap: 0.35rem;
+}
+
+.parts-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.1rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--sheet-border);
+  background: #edf4ff;
+  color: #234;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.koma-import-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.koma-import-inline #komaJsonInput {
+  width: 100%;
+  min-width: 0;
+  height: 2.1rem;
+  min-height: 2.1rem;
+  padding: 0.2rem 0.45rem;
+  line-height: 1.35;
+  background: #15141a;
+  color: #e7e0d4;
+  border: 1px solid #4a4048;
+}
+
+.koma-import-inline #komaJsonInput::placeholder {
+  color: #8b8691;
+}
+
+.koma-import-help {
+  flex: 1 1 100%;
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.84rem;
+  color: #bdb4a6;
+  opacity: 0.95;
+}
+
+#dataPreview {
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--sheet-cell);
+  color: #000;
+  border: 1px solid var(--sheet-border);
+  padding: 0.6rem;
+  border-radius: 0;
+}
+
+#memoPreview {
+  background: linear-gradient(180deg, #1a1618 0%, #141113 100%);
+  color: #e8e1d4;
+  border: 1px solid var(--sheet-border);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(214, 208, 195, 0.06);
+}
+
+.nechronica-enemies-page .stamp-btn,
+.nechronica-enemies-page .small-square-btn {
+  border: 1px solid var(--sheet-border);
+  background: linear-gradient(180deg, #2e1119 0%, #231019 100%);
+  color: #f4ece0;
+  border-radius: 4px;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.nechronica-enemies-page #exportKomaJsonButton {
+  height: 2.1rem;
+  min-height: 2.1rem;
+  padding: 0 16px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  background: linear-gradient(180deg, #4a1621 0%, #351019 100%);
+}
+
+.nechronica-enemies-page .stamp-btn:hover,
+.nechronica-enemies-page .small-square-btn:hover {
+  background: linear-gradient(180deg, #5a1b28 0%, #3f1420 100%);
+  border-color: #8d3746;
+}
+
+.nechronica-enemies-page #exportKomaJsonButton:hover {
+  background: linear-gradient(180deg, #61202e 0%, #451621 100%);
+}
+
+@media (max-width: 980px) {
+  .enemies-layout {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .primary-info-grid {
+    grid-template-columns: max-content minmax(180px, 1fr);
+  }
+
+  .sub-info-grid {
+    grid-template-columns: minmax(140px, 1fr) minmax(180px, 1.2fr) auto;
+  }
+
+  .editor-meta-row {
+    grid-template-columns: minmax(140px, 1fr) auto auto;
+  }
+
+  .sub-info-grid .public-switch-label {
+    justify-self: start;
+  }
+
+  .primary-info-grid > label,
+  .sub-info-grid {
+    white-space: normal;
+  }
+
+  .koma-json-actions {
+    width: 100%;
+  }
+
+  .koma-import-inline {
+    flex: 1 1 100%;
+  }
+  .koma-import-inline #komaJsonInput {
+    width: 100%;
+  }
+}
+
+.restore-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 12, 0.75);
+  backdrop-filter: blur(3px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.restore-dialog {
+  background: var(--sheet-bg);
+  border: 2px solid var(--sheet-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: #dfd9ce;
+}
+
+.restore-dialog-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 1rem 0;
+  color: #f5f0e5;
+}
+
+.restore-dialog-enemy {
+  margin: 0 0 1.5rem 0;
+  padding: 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+/* 不要な下部セクション・アクションボタンスタイルを削除 */
+.enemy-list-row-main {
+  gap: 0.8rem;
+  align-items: center;
+}
+.restore-dialog-name {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffdbe4;
+}
+
+/* 古いメタ情報スタイルを削除 */
+
+.restore-dialog-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.restore-dialog-actions button {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 0.95rem;
+}
+/* ===== Mobile Responsiveness (600px以下) ===== */
+@media (max-width: 600px) {
+  .enemies-layout.single-column {
+    padding: 0.5rem;
+  }
+
+  /* 基本情報グリッドの調整 */
+  .primary-info-grid {
+    grid-template-columns: 1fr; /* 縦1列に */
+    gap: 0.8rem;
+  }
+
+  .primary-info-grid label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 4px;
+  }
+
+  .primary-info-grid input,
+  .primary-info-grid select {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* 特殊な横並びフィールド（悪意、行動値） */
+  .primary-info-grid .compact-field {
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: center !important;
+  }
+
+  .primary-info-grid .compact-field input {
+    width: 60px !important;
+  }
+
+  /* 作者名と公開設定の行 */
+  .editor-meta-row {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  /* テーブルの横スクロール強制 */
+  .table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #4a2b32;
+    margin-bottom: 1rem;
+  }
+
+  #maneuversTable {
+    min-width: 600px; /* スクロールさせるための最小幅 */
+    font-size: 0.85rem;
+  }
+
+  /* アクションバーを2段に */
+  .editor-action-bar {
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: stretch;
+  }
+
+  .action-bar-left,
+  .action-bar-right {
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .action-bar-left .action-btn,
+  .action-bar-right .action-btn {
+    flex: 1;
+    padding: 0.6rem 0.4rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  /* 手駒リストのチップス */
+  .enemy-sort-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .sort-chip {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  /* 重なり防止とはみ出し防止のジャストフィット調整 */
+  .enemy-list-card {
+    padding: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    height: auto !important;
+    overflow: visible !important; /* ボタンを見切らせない */
+  }
+
+  /* 1行目を「アイコン＋名前」に特化(横並び・端まで使う) */
+  .enemy-list-row-main {
+    display: flex !important;
+    flex-direction: column !important; /* 行を分けて管理しやすくする */
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  /* 1段目: 悪意・アイコン・名前を横並びに */
+  .enemy-list-side-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .enemy-list-content-main {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .enemy-list-upper-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .enemy-list-name {
+    font-size: 1.1rem !important;
+    font-weight: bold !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex: 1 !important;
+  }
+
+  /* 2段目: メタ情報(左) と ボタン(右) */
+  .enemy-list-side-right-group {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding-top: 8px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* 2段目左: 行動値・作者・ID */
+  .enemy-list-lower-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    font-size: 0.65rem !important;
+  }
+
+  /* 2段目中央(本来は右側だが左に並べる): 行動値を最下段へ */
+  .enemy-meta-chip {
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    height: 20px !important;
+    padding: 0 6px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .enemy-list-meta-column {
+    display: none !important; /* スマホなら隠す */
+  }
+
+  /* 2段目右: 操作ボタン */
+  .enemy-list-btns-row {
+    display: flex !important;
+    gap: 10px !important;
+    margin-bottom: -2px;
+  }
+
+  .list-side-btn {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 0.62rem !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .list-side-btn i {
+    font-size: 1.1rem !important;
+    margin-bottom: -6px !important;
+  }
+}
+.restore-dialog-actions .is-secondary {
+  background: #2a2528;
+  color: #ccc;
+  border-color: #555;
+}

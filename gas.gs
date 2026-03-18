@@ -4,6 +4,14 @@
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || "status";
 
+  if (action === "listNechronicaEnemies") {
+    return listNechronicaEnemies(e);
+  }
+
+  if (action === "getNechronicaEnemyDetail") {
+    return getNechronicaEnemyDetail(e);
+  }
+
   if (action === "listArchive") {
     return listScenarioArchive();
   }
@@ -27,6 +35,12 @@ function doPost(e) {
   try {
     logMessages.push("[GAS] 受信データ: " + e.postData.contents);
     const requestData = JSON.parse(e.postData.contents);
+    const action = String((requestData && requestData.action) || "").trim();
+
+    if (action === "saveNechronicaEnemy") {
+      return saveNechronicaEnemy(requestData, logMessages);
+    }
+
     const scenarioNames = requestData.scenarioNames; // 'scenarioName' -> 'scenarioNames'
     const userName = requestData.userName;
     logMessages.push(
@@ -120,6 +134,286 @@ function createJsonResponse(data, logs = []) {
   return ContentService.createTextOutput(
     JSON.stringify(responseData),
   ).setMimeType(ContentService.MimeType.JSON);
+}
+
+const NECHRONICA_SPREADSHEET_ID =
+  "1oa_MU-iWivWdJwHr-vqCZloXGuMQpYJcN-i5CX-aNW0";
+const NECHRONICA_SHEET_NAME = "nechronica_enemies";
+const NECHRONICA_COLUMNS = [
+  "ID",
+  "author",
+  "name",
+  "class_type",
+  "is_public",
+  "memo",
+  "data",
+  "icon_url",
+  "time",
+];
+
+function openNechronicaSheet() {
+  const spreadsheet = SpreadsheetApp.openById(NECHRONICA_SPREADSHEET_ID);
+  let sheet = spreadsheet.getSheetByName(NECHRONICA_SHEET_NAME);
+  if (!sheet) sheet = spreadsheet.insertSheet(NECHRONICA_SHEET_NAME);
+  ensureNechronicaHeaderRow(sheet);
+  return sheet;
+}
+
+function ensureNechronicaHeaderRow(sheet) {
+  if (sheet.getMaxColumns() < NECHRONICA_COLUMNS.length) {
+    sheet.insertColumnsAfter(
+      sheet.getMaxColumns(),
+      NECHRONICA_COLUMNS.length - sheet.getMaxColumns(),
+    );
+  }
+  const firstRow =
+    sheet.getLastRow() >= 1
+      ? sheet.getRange(1, 1, 1, NECHRONICA_COLUMNS.length).getValues()[0]
+      : [];
+  const hasHeader = NECHRONICA_COLUMNS.every(
+    (name, idx) => String(firstRow[idx] || "") === name,
+  );
+  if (!hasHeader) {
+    sheet
+      .getRange(1, 1, 1, NECHRONICA_COLUMNS.length)
+      .setValues([NECHRONICA_COLUMNS]);
+  }
+}
+
+function getNechronicaHeaderMap(sheet) {
+  const row =
+    sheet.getRange(1, 1, 1, NECHRONICA_COLUMNS.length).getValues()[0] || [];
+  const map = {};
+  NECHRONICA_COLUMNS.forEach((name, idx) => {
+    const colName = String(row[idx] || name);
+    map[colName] = idx;
+    if (colName !== name && map[name] == null) map[name] = idx;
+  });
+  return map;
+}
+
+function parseBooleanLike(v) {
+  if (typeof v === "boolean") return v;
+  const s = String(v || "")
+    .trim()
+    .toLowerCase();
+  return s === "true" || s === "1" || s === "yes" || s === "on" || s === "公開";
+}
+
+function safeParseJson(text, fallback) {
+  try {
+    return JSON.parse(text);
+  } catch (_e) {
+    return fallback;
+  }
+}
+
+function nowNechronicaTimeText() {
+  const tz = Session.getScriptTimeZone() || "Asia/Tokyo";
+  return Utilities.formatDate(new Date(), tz, "yyyy/MM/dd HH:mm:ss");
+}
+
+function isSequentialNechronicaId(value) {
+  const s = String(value || "").trim();
+  if (!/^\d+$/.test(s)) return false;
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 && n < 1000000000000;
+}
+
+function getNextNechronicaSequentialId(sheet, map) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return "1";
+  const idCol = (map.ID != null ? map.ID : 0) + 1;
+  const ids = sheet.getRange(2, idCol, lastRow - 1, 1).getValues();
+  let maxId = 0;
+  for (let i = 0; i < ids.length; i += 1) {
+    const raw = ids[i][0];
+    if (!isSequentialNechronicaId(raw)) continue;
+    const n = Number(raw);
+    if (n > maxId) maxId = n;
+  }
+  return String(maxId + 1);
+}
+
+function normalizeEnemyPayload(enemy) {
+  const src = enemy && typeof enemy === "object" ? enemy : {};
+  const id = String(src.ID || "").trim();
+  const now = nowNechronicaTimeText();
+  return {
+    ID: id,
+    author: String(src.author || "").trim(),
+    name: String(src.name || "").trim(),
+    class_type: String(src.class_type || "サヴァント").trim() || "サヴァント",
+    is_public: !!src.is_public,
+    memo: String(src.memo || ""),
+    data:
+      src.data && typeof src.data === "object"
+        ? src.data
+        : { parts: [], maneuvers: [] },
+    icon_url: String(src.icon_url || "").trim(),
+    time: String(src.time || "").trim() || now,
+  };
+}
+
+function enemyToSheetRow(enemy) {
+  return [
+    enemy.ID,
+    enemy.author,
+    enemy.name,
+    enemy.class_type,
+    enemy.is_public ? "true" : "false",
+    enemy.memo,
+    JSON.stringify(enemy.data || {}),
+    enemy.icon_url,
+    enemy.time,
+  ];
+}
+
+function rowToEnemy(row, map) {
+  const pick = (name) => row[map[name] != null ? map[name] : -1];
+  const dataRaw = String(pick("data") || "");
+  return {
+    ID: String(pick("ID") || "").trim(),
+    author: String(pick("author") || "").trim(),
+    name: String(pick("name") || "").trim(),
+    class_type: String(pick("class_type") || "").trim() || "サヴァント",
+    is_public: parseBooleanLike(pick("is_public")),
+    memo: String(pick("memo") || ""),
+    data: safeParseJson(dataRaw || "{}", { parts: [], maneuvers: [] }),
+    icon_url: String(pick("icon_url") || "").trim(),
+    time: String(pick("time") || "").trim(),
+  };
+}
+
+function listNechronicaEnemies(e) {
+  try {
+    const author = String(
+      (e && e.parameter && e.parameter.author) || "",
+    ).trim();
+    const sheet = openNechronicaSheet();
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1)
+      return createJsonResponse({ status: "success", data: [] });
+
+    const map = getNechronicaHeaderMap(sheet);
+    const values = sheet
+      .getRange(2, 1, lastRow - 1, NECHRONICA_COLUMNS.length)
+      .getValues();
+
+    const rows = values
+      .map((row) => rowToEnemy(row, map))
+      .filter((enemy) => {
+        if (!enemy.ID) return false;
+        if (enemy.is_public) return true;
+        return author && enemy.author === author;
+      })
+      .sort((a, b) => String(b.time || "").localeCompare(String(a.time || "")));
+
+    return createJsonResponse({ status: "success", data: rows });
+  } catch (error) {
+    return createJsonResponse({
+      status: "error",
+      message: error.message || "ネクロニカ一覧取得に失敗しました。",
+    });
+  }
+}
+
+function getNechronicaEnemyDetail(e) {
+  try {
+    const enemyId = String(
+      (e && e.parameter && e.parameter.enemyId) || "",
+    ).trim();
+    const author = String(
+      (e && e.parameter && e.parameter.author) || "",
+    ).trim();
+    if (!enemyId) {
+      throw new Error("enemyId パラメータが必要です。");
+    }
+
+    const sheet = openNechronicaSheet();
+    const map = getNechronicaHeaderMap(sheet);
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+      throw new Error("対象データが見つかりません。");
+    }
+
+    const values = sheet
+      .getRange(2, 1, lastRow - 1, NECHRONICA_COLUMNS.length)
+      .getValues();
+    const found = values
+      .map((row, idx) => ({ rowIndex: idx + 2, enemy: rowToEnemy(row, map) }))
+      .find((item) => item.enemy.ID === enemyId);
+    if (!found) throw new Error("指定IDのエネミーが見つかりません。");
+
+    if (!found.enemy.is_public && (!author || found.enemy.author !== author)) {
+      throw new Error("非公開データの取得権限がありません。");
+    }
+
+    return createJsonResponse({ status: "success", data: found.enemy });
+  } catch (error) {
+    return createJsonResponse({
+      status: "error",
+      message: error.message || "ネクロニカ詳細取得に失敗しました。",
+    });
+  }
+}
+
+function saveNechronicaEnemy(requestData, logs) {
+  try {
+    const incoming = requestData && requestData.enemy;
+    if (!incoming || typeof incoming !== "object") {
+      throw new Error("enemy が未指定です。");
+    }
+
+    const sheet = openNechronicaSheet();
+    const map = getNechronicaHeaderMap(sheet);
+    const enemy = normalizeEnemyPayload(incoming);
+    enemy.time = nowNechronicaTimeText();
+    if (!isSequentialNechronicaId(enemy.ID)) {
+      enemy.ID = getNextNechronicaSequentialId(sheet, map);
+    }
+
+    const lastRow = sheet.getLastRow();
+    const idCol = (map.ID != null ? map.ID : 0) + 1;
+    let targetRow = -1;
+    if (lastRow > 1) {
+      const ids = sheet.getRange(2, idCol, lastRow - 1, 1).getValues();
+      for (let i = 0; i < ids.length; i += 1) {
+        if (String(ids[i][0] || "").trim() === enemy.ID) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    const rowValues = enemyToSheetRow(enemy);
+    if (targetRow > 0) {
+      sheet
+        .getRange(targetRow, 1, 1, NECHRONICA_COLUMNS.length)
+        .setValues([rowValues]);
+      logs.push(`[GAS] nechronica update: ID=${enemy.ID} row=${targetRow}`);
+    } else {
+      sheet.appendRow(rowValues);
+      logs.push(`[GAS] nechronica insert: ID=${enemy.ID}`);
+    }
+
+    return createJsonResponse(
+      {
+        status: "success",
+        message: "保存しました",
+        data: enemy,
+      },
+      logs,
+    );
+  } catch (error) {
+    return createJsonResponse(
+      {
+        status: "error",
+        message: error.message || "ネクロニカ保存に失敗しました。",
+      },
+      logs,
+    );
+  }
 }
 
 // getSheetByGid: 変更なし

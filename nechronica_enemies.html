@@ -5,25 +5,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
-  <title>ネクロニカ エネミー管理</title>
-  <meta property="og:title" content="ネクロニカ エネミー管理 - 卓スタダ">
+  <title>ネクロニカ 手駒管理</title>
+  <meta property="og:title" content="ネクロニカ 手駒管理 - 卓スタダ">
   <meta property="og:description" content="nechronica_enemies シート向けの一覧・詳細編集UI（Web側モック）">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="css/nechronica_manager.css">
+  <link rel="stylesheet" href="css/nechronica_enemies.css">
 </head>
 
-<body class="nechronica-manager-page">
+<body class="nechronica-enemies-page">
   <div id="header-placeholder"></div>
   <canvas id="particleCanvas"></canvas>
 
   <main class="main-content nechronica-main">
     <header class="nechronica-header">
-      <h1>ネクロニカ エネミー管理</h1>
-      <p class="subtitle">一覧表示 + 詳細編集（ローカル保存）</p>
+      <h1>ネクロニカ 手駒管理</h1>
+      <p class="subtitle">一覧表示 + 詳細編集（DB保存）</p>
     </header>
 
-    <section class="manager-layout single-column">
+    <section class="enemies-layout single-column">
       <section class="editor-pane">
         <div class="pane-header">
           <h2>詳細編集</h2>
@@ -33,7 +33,7 @@
               <input id="komaJsonInput" type="text" placeholder='ココフォリア駒JSONを貼り付けてインポート'
                 aria-label="ココフォリア駒JSONを貼り付けてインポート">
             </div>
-            <p class="koma-import-help">※ココフォリアの駒JSONを貼り付けると、現在のエネミーへインポートされます。</p>
+            <p class="koma-import-help">※ココフォリアの駒JSONを貼り付けると、現在の手駒へインポートされます。</p>
           </div>
         </div>
 
@@ -41,12 +41,11 @@
           <section class="data-block">
             <div class="sub-header">
               <h3>基本情報</h3>
-              <p class="meta-line">更新日時: <span id="field-time-text">-</span></p>
             </div>
             <div class="primary-info-grid">
               <label class="compact-field"><span class="field-label">悪意点</span><input id="field-malice" type="number"
-                  readonly title="自動入力項目（マニューバ内容から計算）"></label>
-              <label><span class="field-label">エネミー名</span><input id="field-name" type="text" required></label>
+                  readonly title="自動入力項目（マニューバ内容から計算）" value="0"></label>
+              <label><span class="field-label">手駒名</span><input id="field-name" type="text" required></label>
               <label class="class-field">種別
                 <select id="field-class-type">
                   <option value="サヴァント">サヴァント</option>
@@ -61,19 +60,21 @@
                 <option value="脚"></option>
               </datalist>
               <label class="compact-field"><span class="field-label">行動値</span><input id="field-initiative"
-                  type="number" readonly title="自動入力項目（マニューバ内容から計算）"></label>
+                  type="number" readonly title="自動入力項目（マニューバ内容から計算）" value="6"></label>
             </div>
-            <div class="sub-info-grid">
-              <label><span class="field-label">作者名</span><input id="field-author" type="text"
+            <div class="editor-meta-row">
+              <label class="meta-author-field"><span class="field-label">作者名</span><input id="field-author" type="text"
                   placeholder="例: エンJ"></label>
-              <label><span class="field-label">アイコンURL</span><input id="field-icon-url" type="url"
-                  placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
               <label class="public-switch-label">
                 <span class="public-switch-wrap">
                   <input id="field-is-public" class="switch" type="checkbox" checked>
                   <span class="public-switch-text" id="field-is-public-text">公開</span>
                 </span>
               </label>
+            </div>
+            <div class="sub-info-grid">
+              <label><span class="field-label">アイコンURL</span><input id="field-icon-url" type="url"
+                  placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
             </div>
             <label>メモ<textarea id="field-memo" rows="3"></textarea></label>
             <input id="field-id" type="hidden">
@@ -82,7 +83,7 @@
 
           <section class="data-block">
             <div class="sub-header">
-              <h3>パーツ（実データ）</h3>
+              <h3>パーツ</h3>
               <div>
                 <button id="addBasicManeuversButton" type="button" class="small-square-btn">基本パーツを追加</button>
                 <button id="addManeuverButton" type="button" class="small-square-btn">+ 追加</button>
@@ -146,6 +147,19 @@
               <option value="効果参照"></option>
             </datalist>
           </section>
+
+          <section class="editor-action-bar">
+            <div class="action-bar-left">
+              <button id="deleteEnemyButton" type="button" class="action-btn is-danger"><i class="fa-solid fa-trash-can"></i> 削除</button>
+              <span id="saveStatusText" class="save-status" aria-live="polite">未保存</span>
+              <button id="reloadEnemyListButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-rotate-right"></i> 最新の状態を取得</button>
+            </div>
+            <div class="action-bar-right">
+              <button id="newEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-file"></i> 新規白紙</button>
+              <button id="duplicateEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-copy"></i> 複製して新規</button>
+              <button id="saveEnemyButton" type="button" class="action-btn is-main"><i class="fa-solid fa-cloud-arrow-up"></i> データベースへ保存（上書き）</button>
+            </div>
+          </section>
         </form>
 
         <details class="json-preview" open>
@@ -166,11 +180,18 @@
 
       <details class="enemy-list-collapsible" open>
         <summary>
-          <h2 class="enemy-list-title">みんなのエネミー</h2>
+          <h2 class="enemy-list-title">みんなの手駒</h2>
         </summary>
         <div class="enemy-list-pane">
           <div class="pane-header">
-            <h2>エネミー一覧</h2>
+            <h2>手駒一覧</h2>
+          </div>
+          <div class="enemy-sort-row" id="enemySortRow" aria-label="手駒一覧ソート">
+            <button id="sortByIdButton" type="button" class="sort-chip">ID順</button>
+            <button id="sortByTimeButton" type="button" class="sort-chip">更新順</button>
+            <button id="sortByMaliceButton" type="button" class="sort-chip">悪意</button>
+            <button id="sortByInitiativeButton" type="button" class="sort-chip">行動値</button>
+            <button id="sortByAuthorButton" type="button" class="sort-chip">作者</button>
           </div>
           <input id="enemySearchInput" class="asian-input full" type="text" placeholder="名前・作者で検索">
           <ul id="enemyList" class="enemy-list"></ul>
@@ -183,8 +204,8 @@
     <p>© 2025 卓スタダ</p>
   </footer>
 
-  <script src="js/common.js?v=20260220a"></script>
-  <script src="js/nechronica-manager.js?v=20260316a"></script>
+  <script src="js/common.js"></script>
+  <script src="js/nechronica-enemies.js"></script>
 </body>
 
 </html>
