@@ -1,7 +1,5 @@
-.nechronica-main {
-}
 
-.nechronica-manager-page {
+.nechronica-enemies-page {
   --sheet-bg: #1b1a1d;
   --sheet-cell: #242228;
   --sheet-header: #0f0e12;
@@ -13,7 +11,7 @@
   --enemy-title-shadow: 0 6px 14px rgba(0, 0, 0, 0.55);
 }
 
-body.nechronica-manager-page {
+body.nechronica-enemies-page {
   color: #ddd8cf;
   background:
     radial-gradient(
@@ -29,37 +27,37 @@ body.nechronica-manager-page {
     linear-gradient(180deg, #151418 0%, #0d0c10 100%);
 }
 
-.nechronica-manager-page .main-content {
+.nechronica-enemies-page .main-content {
   position: relative;
   backdrop-filter: blur(1.5px);
 }
 
-.nechronica-manager-page .main-content,
-.nechronica-manager-page .main-content p,
-.nechronica-manager-page .main-content li,
-.nechronica-manager-page .main-content label,
-.nechronica-manager-page .main-content input,
-.nechronica-manager-page .main-content select,
-.nechronica-manager-page .main-content textarea,
-.nechronica-manager-page .main-content button,
-.nechronica-manager-page .main-content th,
-.nechronica-manager-page .main-content td,
-.nechronica-manager-page #memoPreview {
+.nechronica-enemies-page .main-content,
+.nechronica-enemies-page .main-content p,
+.nechronica-enemies-page .main-content li,
+.nechronica-enemies-page .main-content label,
+.nechronica-enemies-page .main-content input,
+.nechronica-enemies-page .main-content select,
+.nechronica-enemies-page .main-content textarea,
+.nechronica-enemies-page .main-content button,
+.nechronica-enemies-page .main-content th,
+.nechronica-enemies-page .main-content td,
+.nechronica-enemies-page #memoPreview {
   font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
 }
 
-.nechronica-manager-page .nechronica-header h1,
-.nechronica-manager-page .enemy-list-title {
+.nechronica-enemies-page .nechronica-header h1,
+.nechronica-enemies-page .enemy-list-title {
   font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
 }
 
-.nechronica-manager-page .pane-header h2,
-.nechronica-manager-page .sub-header h3 {
+.nechronica-enemies-page .pane-header h2,
+.nechronica-enemies-page .sub-header h3 {
   font-family:
     "isego", "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
 }
 
-.nechronica-manager-page .enemy-list-title {
+.nechronica-enemies-page .enemy-list-title {
   font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
 }
 
@@ -76,13 +74,13 @@ body.nechronica-manager-page {
   margin-bottom: 1rem;
 }
 
-.manager-layout {
+.enemies-layout {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 1rem;
 }
 
-.manager-layout.single-column {
+.enemies-layout.single-column {
   grid-template-columns: 1fr;
 }
 
@@ -198,6 +196,54 @@ body.nechronica-manager-page {
   gap: 0.6rem;
 }
 
+.db-action-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.save-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.1rem;
+  padding: 0 0.55rem;
+  border: 1px solid var(--sheet-border);
+  border-radius: 4px;
+  font-size: 0.82rem;
+  line-height: 1;
+  white-space: nowrap;
+  background: #1d1a1c;
+  color: #cfc5b8;
+}
+
+.save-status:empty {
+  display: none;
+}
+
+.save-status.is-idle {
+  background: #1d1a1c;
+  color: #cfc5b8;
+}
+
+.save-status.is-saving {
+  background: #3a2f1b;
+  color: #ffe2a8;
+  border-color: #8e6d2e;
+}
+
+.save-status.is-ok {
+  background: #1f3523;
+  color: #d4f5da;
+  border-color: #4f8a5f;
+}
+
+.save-status.is-error {
+  background: #3a2020;
+  color: #ffd7d7;
+  border-color: #a76060;
+}
+
 .action-row {
   display: flex;
   gap: 0.5rem;
@@ -206,6 +252,35 @@ body.nechronica-manager-page {
 .full {
   width: 100%;
   margin: 0.6rem 0;
+}
+
+.enemy-sort-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.sort-chip {
+  border: 1px solid var(--sheet-border);
+  background: #1c181b;
+  color: #d8cfbf;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.sort-chip:hover {
+  border-color: #7f6d58;
+  background: #2a2325;
+}
+
+.sort-chip.is-active {
+  border-color: #8d3746;
+  background: #3a1821;
+  color: #f4e7d8;
 }
 
 .enemy-list {
@@ -241,6 +316,213 @@ body.nechronica-manager-page {
   border-color: #7f6d58;
   background: linear-gradient(180deg, #332b2a 0%, #261f1f 100%);
   transform: translateY(-1px);
+}
+
+.enemy-list-card {
+  display: grid;
+  gap: 0.4rem;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.enemy-list-card::before {
+  content: "";
+  position: absolute;
+  top: -18%;
+  bottom: -18%;
+  right: -2%;
+  left: 46%;
+  background-position: right center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.32;
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(0.9);
+}
+
+.enemy-list-card.is-class-servant::before {
+  background-image: url("../img/nc/Servant.png");
+}
+
+.enemy-list-card.is-class-horror::before {
+  background-image: url("../img/nc/Horror.png");
+}
+
+.enemy-list-card.is-class-region::before {
+  background-image: url("../img/nc/Region.png");
+}
+
+.enemy-list-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.enemy-list-row-main {
+  justify-content: flex-start;
+}
+
+.enemy-malice-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-width: 56px;
+  padding: 0 0.45rem;
+  border: 1px solid #7b4f5a;
+  border-radius: 4px;
+  background: #2d171d;
+  color: #ffdbe4;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.enemy-list-icon-wrap {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+}
+
+.enemy-list-icon {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #574b4f;
+  border-radius: 4px;
+  object-fit: cover;
+  background: #1c181b;
+}
+
+.enemy-list-icon-placeholder {
+  color: #b7ac9f;
+  font-size: 0.95rem;
+}
+
+.enemy-list-main-text {
+  min-width: 0;
+  display: grid;
+  gap: 0.08rem;
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.enemy-list-main-text::after {
+  content: none;
+}
+
+.enemy-list-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.enemy-list-name {
+  font-weight: 700;
+  line-height: 1.2;
+  word-break: break-word;
+  position: relative;
+  z-index: 1;
+}
+
+.enemy-list-class {
+  font-size: 0.78rem;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+}
+
+.enemy-list-row-meta {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.enemy-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.35rem;
+  padding: 0 0.42rem;
+  border: 1px solid #5e5454;
+  border-radius: 3px;
+  background: #1a171a;
+  color: #dfd7c8;
+  font-size: 0.76rem;
+  line-height: 1;
+}
+
+.enemy-meta-inline {
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.enemy-malice-badge {
+  flex-direction: column;
+  gap: 0.04rem;
+}
+
+.enemy-malice-badge .label {
+  font-size: 0.56rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
+.enemy-malice-badge .value {
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.enemy-malice-badge.is-mlv-0 {
+  border-color: #54505a;
+  background: #242028;
+  color: #e3deeb;
+}
+
+.enemy-malice-badge.is-mlv-1 {
+  border-color: #5d6a8f;
+  background: linear-gradient(180deg, #1f2844 0%, #1a223a 100%);
+  color: #dce7ff;
+}
+
+.enemy-malice-badge.is-mlv-2 {
+  border-color: #4a7d6a;
+  background: linear-gradient(180deg, #1c3028 0%, #182923 100%);
+  color: #dbffea;
+}
+
+.enemy-malice-badge.is-mlv-3 {
+  border-color: #8d7a42;
+  background: linear-gradient(180deg, #3a321c 0%, #2d2717 100%);
+  color: #fff3c8;
+}
+
+.enemy-malice-badge.is-mlv-4 {
+  border-color: #95514b;
+  background: linear-gradient(180deg, #4a1f1f 0%, #381919 100%);
+  color: #ffd9d2;
+}
+
+.enemy-malice-badge.is-mlv-5 {
+  border-color: #7b2d39;
+  background: linear-gradient(180deg, #421019 0%, #2f0b11 100%);
+  color: #ffd7e0;
+  box-shadow:
+    0 0 0 1px rgba(123, 45, 57, 0.42),
+    0 0 14px rgba(160, 38, 58, 0.28);
 }
 
 .editor-form {
@@ -322,6 +604,29 @@ body.nechronica-manager-page {
   gap: 0.6rem;
   margin-top: 0.45rem;
   align-items: center;
+}
+
+.editor-meta-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
+  gap: 0.6rem;
+  margin-top: 0.45rem;
+  align-items: center;
+}
+
+.meta-author-field {
+  min-width: 0;
+}
+
+.editor-meta-row .meta-author-field {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.editor-meta-row .meta-author-field > input {
+  flex: 1 1 auto;
 }
 
 .sub-info-grid label {
@@ -459,6 +764,10 @@ body.nechronica-manager-page {
   justify-self: end;
 }
 
+.editor-meta-row .public-switch-label {
+  justify-self: start;
+}
+
 .public-switch-wrap {
   display: inline-flex;
   align-items: center;
@@ -516,22 +825,22 @@ body.nechronica-manager-page {
   border-radius: 4px;
 }
 
-.nechronica-manager-page .asian-table {
+.nechronica-enemies-page .asian-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
   background: var(--sheet-cell);
 }
 
-.nechronica-manager-page .asian-table th,
-.nechronica-manager-page .asian-table td {
+.nechronica-enemies-page .asian-table th,
+.nechronica-enemies-page .asian-table td {
   border: 1px solid var(--sheet-border);
   color: #e7dfd2;
   padding: 0.25rem;
   vertical-align: middle;
 }
 
-.nechronica-manager-page .asian-table thead th {
+.nechronica-enemies-page .asian-table thead th {
   background: linear-gradient(180deg, #1b1820 0%, #100f13 100%);
   color: var(--sheet-header-text);
   font-weight: 700;
@@ -895,8 +1204,8 @@ body.nechronica-manager-page {
   box-shadow: inset 0 0 0 1px rgba(214, 208, 195, 0.06);
 }
 
-.nechronica-manager-page .stamp-btn,
-.nechronica-manager-page .small-square-btn {
+.nechronica-enemies-page .stamp-btn,
+.nechronica-enemies-page .small-square-btn {
   border: 1px solid var(--sheet-border);
   background: linear-gradient(180deg, #2e1119 0%, #231019 100%);
   color: #f4ece0;
@@ -904,7 +1213,7 @@ body.nechronica-manager-page {
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
 }
 
-.nechronica-manager-page #exportKomaJsonButton {
+.nechronica-enemies-page #exportKomaJsonButton {
   height: 2.1rem;
   min-height: 2.1rem;
   padding: 0 16px;
@@ -918,19 +1227,21 @@ body.nechronica-manager-page {
   background: linear-gradient(180deg, #4a1621 0%, #351019 100%);
 }
 
-.nechronica-manager-page .stamp-btn:hover,
-.nechronica-manager-page .small-square-btn:hover {
+.nechronica-enemies-page .stamp-btn:hover,
+.nechronica-enemies-page .small-square-btn:hover {
   background: linear-gradient(180deg, #5a1b28 0%, #3f1420 100%);
   border-color: #8d3746;
 }
 
-.nechronica-manager-page #exportKomaJsonButton:hover {
+.nechronica-enemies-page #exportKomaJsonButton:hover {
   background: linear-gradient(180deg, #61202e 0%, #451621 100%);
 }
 
 @media (max-width: 980px) {
-  .manager-layout {
+  .enemies-layout {
     grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
   }
 
   .grid-2 {
@@ -950,6 +1261,10 @@ body.nechronica-manager-page {
     grid-template-columns: minmax(140px, 1fr) minmax(180px, 1.2fr) auto;
   }
 
+  .editor-meta-row {
+    grid-template-columns: minmax(140px, 1fr) auto auto;
+  }
+
   .sub-info-grid .public-switch-label {
     justify-self: start;
   }
@@ -966,8 +1281,78 @@ body.nechronica-manager-page {
   .koma-import-inline {
     flex: 1 1 100%;
   }
-
   .koma-import-inline #komaJsonInput {
     width: 100%;
   }
+}
+
+.restore-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 12, 0.75);
+  backdrop-filter: blur(3px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.restore-dialog {
+  background: var(--sheet-bg);
+  border: 2px solid var(--sheet-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: #dfd9ce;
+}
+
+.restore-dialog-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 1rem 0;
+  color: #f5f0e5;
+}
+
+.restore-dialog-enemy {
+  margin: 0 0 1.5rem 0;
+  padding: 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.restore-dialog-name {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffdbe4;
+}
+
+.restore-dialog-class {
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  opacity: 0.8;
+}
+
+.restore-dialog-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.restore-dialog-actions button {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 0.95rem;
+}
+
+.restore-dialog-actions .is-secondary {
+  background: #2a2528;
+  color: #ccc;
+  border-color: #555;
 }

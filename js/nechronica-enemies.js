@@ -4,6 +4,8 @@ const state = {
   search: "",
   maneuverMasterMap: new Map(),
   maneuverMasterLoaded: false,
+  enemySortKey: "time",
+  enemySortDir: "desc",
 };
 
 const PART_TYPES = ["頭", "腕", "胴", "脚"];
@@ -31,7 +33,15 @@ const RANGE_OPTIONS = [
   "1-3",
   "2-3",
 ];
-const NC_AUTHOR_STORAGE_KEY = "nechronicaManagerAuthor";
+const NC_AUTHOR_STORAGE_KEY = "nechronicaEnemiesAuthor";
+const NC_API_STORAGE_KEY = "nechronicaEnemiesApiUrl";
+const NC_LAST_SELECTED_ID_KEY = "nechronicaEnemiesLastSelectedId";
+const DEFAULT_NECHRONICA_GAS_WEB_APP_URL =
+  "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
+let saveDebounceTimer = null;
+let saveRequestInFlight = false;
+let secondaryRenderDebounceTimer = null;
+let hasUnsavedChanges = false;
 const BASIC_MANEUVERS_TEMPLATE = [
   { type: "頭", name: "のうみそ" },
   { type: "頭", name: "めだま" },
@@ -51,6 +61,14 @@ const el = {
   enemyList: document.getElementById("enemyList"),
   enemySearchInput: document.getElementById("enemySearchInput"),
   saveEnemyButton: document.getElementById("saveEnemyButton"),
+  newEnemyButton: document.getElementById("newEnemyButton"),
+  reloadEnemyListButton: document.getElementById("reloadEnemyListButton"),
+  saveStatusText: document.getElementById("saveStatusText"),
+  sortByMaliceButton: document.getElementById("sortByMaliceButton"),
+  sortByInitiativeButton: document.getElementById("sortByInitiativeButton"),
+  sortByAuthorButton: document.getElementById("sortByAuthorButton"),
+  sortByIdButton: document.getElementById("sortByIdButton"),
+  sortByTimeButton: document.getElementById("sortByTimeButton"),
   exportJsonButton: document.getElementById("exportJsonButton"),
   exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
   copyMemoPreviewButton: document.getElementById("copyMemoPreviewButton"),
@@ -81,7 +99,14 @@ const el = {
 };
 
 function nowIsoLocal() {
-  return new Date().toISOString();
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  const s = String(d.getSeconds()).padStart(2, "0");
+  return `${y}/${m}/${day} ${h}:${min}:${s}`;
 }
 
 function getRememberedAuthor() {
@@ -101,13 +126,141 @@ function rememberAuthor(name) {
   }
 }
 
+function getConfiguredNechronicaApiUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const apiFromQuery = params.get("ncApi") || params.get("gasApi");
+  if (apiFromQuery) {
+    try {
+      localStorage.setItem(NC_API_STORAGE_KEY, apiFromQuery);
+    } catch (_e) {
+      // ignore
+    }
+    return String(apiFromQuery).trim();
+  }
+  try {
+    const fromStorage = localStorage.getItem(NC_API_STORAGE_KEY) || "";
+    const trimmed = String(fromStorage).trim();
+    if (trimmed) return trimmed;
+  } catch (_e) {
+    // ignore
+  }
+  return DEFAULT_NECHRONICA_GAS_WEB_APP_URL;
+}
+
+function normalizeApiUrl(url) {
+  return String(url || "").replace(/\/+$/, "");
+}
+
+function buildApiUrl(action, params = {}) {
+  const base = normalizeApiUrl(getConfiguredNechronicaApiUrl());
+  if (!base) throw new Error("API URLが未設定");
+  const url = new URL(base);
+  url.searchParams.set("tool", "nechronica");
+  url.searchParams.set("action", action);
+  Object.entries(params || {}).forEach(([k, v]) => {
+    if (v == null) return;
+    const s = String(v).trim();
+    if (!s) return;
+    url.searchParams.set(k, s);
+  });
+  return url.toString();
+}
+
+async function fetchApiJson(url, init = null) {
+  const res = await fetch(url, init || undefined);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    const msg =
+      data && data.message ? data.message : `APIエラー (HTTP ${res.status})`;
+    throw new Error(msg);
+  }
+  if (!data || data.status === "error") {
+    throw new Error((data && data.message) || "API応答が不正");
+  }
+  return data;
+}
+
+function scheduleSaveToDb(delayMs = 600) {
+  void delayMs;
+  if (saveDebounceTimer) {
+    clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = null;
+  }
+  if (!hasUnsavedChanges) {
+    hasUnsavedChanges = true;
+  }
+  setSaveStatus("idle", "未保存の変更あり");
+}
+
+function clearUnsavedChanges() {
+  hasUnsavedChanges = false;
+  setSaveStatus("idle", "");
+}
+
+function scheduleSecondaryRenders(options = {}) {
+  const { includeList = false, delayMs = 120 } = options;
+  const selectedIdAtSchedule = state.selectedId;
+  if (secondaryRenderDebounceTimer) {
+    clearTimeout(secondaryRenderDebounceTimer);
+  }
+  secondaryRenderDebounceTimer = setTimeout(() => {
+    secondaryRenderDebounceTimer = null;
+    // 選択中が変わった場合は renderAll 側の描画を優先
+    if (selectedIdAtSchedule !== state.selectedId) return;
+    const enemy = getSelectedEnemy();
+    if (!enemy) return;
+    renderDataPreview(enemy);
+    renderMemoPreview(enemy);
+    if (includeList) {
+      renderEnemyList();
+    }
+  }, delayMs);
+}
+
+function setSaveStatus(kind, text) {
+  if (!el.saveStatusText) return;
+  el.saveStatusText.textContent = String(text || "");
+  el.saveStatusText.classList.remove(
+    "is-idle",
+    "is-saving",
+    "is-ok",
+    "is-error",
+  );
+  if (kind === "saving") {
+    el.saveStatusText.classList.add("is-saving");
+  } else if (kind === "ok") {
+    el.saveStatusText.classList.add("is-ok");
+  } else if (kind === "error") {
+    el.saveStatusText.classList.add("is-error");
+  } else {
+    el.saveStatusText.classList.add("is-idle");
+  }
+}
+
 function formatDateTimeDisplay(isoLike) {
-  const d = isoLike ? new Date(isoLike) : new Date();
+  const raw = String(isoLike || "").trim();
+  if (raw) {
+    const alreadyFormatted = raw.match(
+      /^(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/,
+    );
+    if (alreadyFormatted) {
+      return `${alreadyFormatted[1]}/${alreadyFormatted[2]}/${alreadyFormatted[3]} ${alreadyFormatted[4]}:${alreadyFormatted[5]}:${alreadyFormatted[6]}`;
+    }
+
+    const isoLikeMatch = raw.match(
+      /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2}):(\d{2})/,
+    );
+    if (isoLikeMatch) {
+      return `${isoLikeMatch[1]}/${isoLikeMatch[2]}/${isoLikeMatch[3]} ${isoLikeMatch[4]}:${isoLikeMatch[5]}:${isoLikeMatch[6]}`;
+    }
+  }
+
+  const d = raw ? new Date(raw) : new Date();
   if (Number.isNaN(d.getTime())) return "-";
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  const h = d.getHours();
+  const h = String(d.getHours()).padStart(2, "0");
   const min = String(d.getMinutes()).padStart(2, "0");
   const s = String(d.getSeconds()).padStart(2, "0");
   return `${y}/${m}/${day} ${h}:${min}:${s}`;
@@ -115,7 +268,7 @@ function formatDateTimeDisplay(isoLike) {
 
 function createEmptyManeuver() {
   return {
-    id: `man_${Date.now()}`,
+    id: `man_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     status: "無事",
     name: "",
     kindName: "",
@@ -184,7 +337,7 @@ function normalizePartsByClass(enemy) {
 }
 
 function createEnemyTemplate() {
-  const id = String(Date.now());
+  const id = getNextId();
   return {
     ID: id,
     author: getRememberedAuthor(),
@@ -201,9 +354,18 @@ function createEnemyTemplate() {
   };
 }
 
+function isSequentialEnemyId(idLike) {
+  const s = String(idLike || "").trim();
+  if (!/^\d+$/.test(s)) return false;
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 && n < 1000000000000;
+}
+
 function getNextId() {
   const nums = state.enemies
-    .map((e) => Number(e && e.ID))
+    .map((e) => String((e && e.ID) || "").trim())
+    .filter((id) => isSequentialEnemyId(id))
+    .map((id) => Number(id))
     .filter((n) => Number.isFinite(n));
   if (!nums.length) return "1";
   return String(Math.max(...nums) + 1);
@@ -469,20 +631,183 @@ function getSelectedEnemy() {
   return state.enemies.find((e) => e.ID === state.selectedId) || null;
 }
 
-function loadFromStorage() {
+function isNoNameServantPlaceholder(enemy) {
+  if (!enemy) return false;
+  const classType = String(enemy.class_type || "").trim();
+  if (classType !== "サヴァント") return false;
+  const name = String(enemy.name || "")
+    .trim()
+    .toLowerCase();
+  return !name || name === "(no name)";
+}
+
+function getEnemySortValue(enemy, key) {
+  if (key === "author") {
+    return String((enemy && enemy.author) || "").toLowerCase();
+  }
+  if (key === "id") {
+    const idNum = Number(String((enemy && enemy.ID) || "").trim());
+    return Number.isFinite(idNum) ? idNum : Number.NEGATIVE_INFINITY;
+  }
+  if (key === "time") {
+    return String((enemy && enemy.time) || "").trim();
+  }
+  if (key === "initiative") {
+    const v = Number(calcInitiativeTotal(enemy));
+    return Number.isFinite(v) ? v : Number.NEGATIVE_INFINITY;
+  }
+  const malice = Number(calcMalice(enemy));
+  return Number.isFinite(malice) ? malice : Number.NEGATIVE_INFINITY;
+}
+
+function sortEnemies(list) {
+  const key = state.enemySortKey || "malice";
+  const dir = state.enemySortDir === "asc" ? 1 : -1;
+  return [...list].sort((a, b) => {
+    const av = getEnemySortValue(a, key);
+    const bv = getEnemySortValue(b, key);
+    if (typeof av === "string" && typeof bv === "string") {
+      const c = av.localeCompare(bv, "ja");
+      if (c !== 0) return c * dir;
+    } else {
+      const c = Number(av) - Number(bv);
+      if (c !== 0) return c * dir;
+    }
+    return String((a && a.name) || "").localeCompare(
+      String((b && b.name) || ""),
+      "ja",
+    );
+  });
+}
+
+function updateEnemySortButtons() {
+  const map = [
+    [el.sortByMaliceButton, "malice", "悪意"],
+    [el.sortByInitiativeButton, "initiative", "行動値"],
+    [el.sortByAuthorButton, "author", "作者"],
+    [el.sortByIdButton, "id", "ID順"],
+    [el.sortByTimeButton, "time", "更新順"],
+  ];
+  map.forEach(([btn, key, label]) => {
+    if (!btn) return;
+    const active = state.enemySortKey === key;
+    btn.classList.toggle("is-active", active);
+    const arrow = active ? (state.enemySortDir === "asc" ? "↑" : "↓") : "";
+    btn.textContent = `${label}${arrow}`;
+  });
+}
+
+function setEnemySort(key) {
+  if (!key) return;
+  if (state.enemySortKey === key) {
+    state.enemySortDir = state.enemySortDir === "asc" ? "desc" : "asc";
+  } else {
+    state.enemySortKey = key;
+    state.enemySortDir = key === "author" || key === "id" ? "asc" : "desc";
+  }
+  renderEnemyList();
+}
+
+async function loadFromStorage() {
+  const author = getRememberedAuthor();
+  try {
+    const url = buildApiUrl("listNechronicaEnemies", { author });
+    const response = await fetchApiJson(url);
+    const list = Array.isArray(response.data) ? response.data : [];
+    if (list.length) {
+      state.enemies = list
+        .map((row) => normalizeEnemy(row))
+        .filter((enemy) => !isNoNameServantPlaceholder(enemy));
+      if (!state.enemies.length) {
+        const initial = createEnemyTemplate();
+        state.enemies = [normalizeEnemy(initial)];
+        state.selectedId = initial.ID;
+        return;
+      }
+      if (
+        !state.selectedId ||
+        !state.enemies.some((e) => e.ID === state.selectedId)
+      ) {
+        state.selectedId = null;
+      }
+      clearUnsavedChanges();
+      return;
+    }
+  } catch (error) {
+    console.warn("[nechronica] DB一覧取得失敗:", error);
+  }
+
   const initial = createEnemyTemplate();
   state.enemies = [normalizeEnemy(initial)];
   state.selectedId = initial.ID;
+  clearUnsavedChanges();
 }
 
 function saveToStorage() {
-  // DB保存へ置換予定。ローカル保存は廃止。
+  const enemy = getSelectedEnemy();
+  if (!enemy || saveRequestInFlight) return;
+  setSaveStatus("saving", "保存中…");
+  console.info(
+    "[nechronica] DB保存開始",
+    enemy && enemy.ID ? `ID=${enemy.ID}` : "new",
+  );
+  saveRequestInFlight = true;
+  const payload = normalizeEnemy(JSON.parse(JSON.stringify(enemy)));
+  fetchApiJson(buildApiUrl("saveNechronicaEnemy"), {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      tool: "nechronica",
+      action: "saveNechronicaEnemy",
+      author: getRememberedAuthor(),
+      enemy: payload,
+    }),
+  })
+    .then((response) => {
+      const saved = response && response.data ? response.data : null;
+      if (!saved) return;
+      const current = getSelectedEnemy();
+      if (!current) return;
+      if (saved.ID) {
+        current.ID = String(saved.ID);
+        el.fields.id.value = current.ID;
+      }
+      if (saved.time) {
+        current.time = String(saved.time);
+        el.fields.time.value = current.time;
+        if (el.fields.timeText) {
+          el.fields.timeText.textContent = formatDateTimeDisplay(current.time);
+        }
+      }
+      setSaveStatus(
+        "ok",
+        `保存完了 ${formatDateTimeDisplay((saved && saved.time) || nowIsoLocal())}`,
+      );
+      hasUnsavedChanges = false;
+      console.info(
+        "[nechronica] DB保存成功",
+        saved && saved.ID ? `ID=${saved.ID}` : "",
+      );
+    })
+    .catch((error) => {
+      console.warn("[nechronica] DB保存失敗:", error);
+      setSaveStatus(
+        "error",
+        `保存失敗: ${error && error.message ? error.message : "通信エラー"}`,
+      );
+    })
+    .finally(() => {
+      saveRequestInFlight = false;
+    });
 }
 
 function renderEnemyList() {
   const q = state.search.trim().toLowerCase();
+  const myAuthor = getRememberedAuthor();
   const targets = state.enemies.filter((e) => {
-    if (!e.is_public) return false;
+    if (isNoNameServantPlaceholder(e)) return false;
+    const isMine = myAuthor && String(e.author || "") === String(myAuthor);
+    if (!e.is_public && !isMine) return false;
     if (!q) return true;
     return (
       String(e.name || "")
@@ -494,21 +819,70 @@ function renderEnemyList() {
     );
   });
 
+  const sortedTargets = sortEnemies(targets);
   el.enemyList.innerHTML = "";
-  if (!targets.length) {
+  updateEnemySortButtons();
+  if (!sortedTargets.length) {
     const li = document.createElement("li");
     li.textContent = "該当なし";
     el.enemyList.appendChild(li);
     return;
   }
 
-  targets.forEach((enemy) => {
+  sortedTargets.forEach((enemy) => {
     const li = document.createElement("li");
     const button = document.createElement("button");
+    button.classList.add("enemy-list-card");
     if (enemy.ID === state.selectedId) button.classList.add("is-active");
-    button.textContent = `${enemy.name || "(no name)"} / ${enemy.class_type || "未設定"}`;
+    const nameText = String(enemy.name || "(no name)");
+    const classText = String(enemy.class_type || "未設定");
+    const classBgClass =
+      classText === "サヴァント"
+        ? "is-class-servant"
+        : classText === "ホラー"
+          ? "is-class-horror"
+          : classText === "レギオン"
+            ? "is-class-region"
+            : "";
+    if (classBgClass) {
+      button.classList.add(classBgClass);
+    }
+    const authorText = String(enemy.author || "-");
+    const maliceValue = calcMalice(enemy);
+    const maliceBadgeClass = getMaliceBadgeClass(maliceValue);
+    const initiativeValue = Number(calcInitiativeTotal(enemy));
+    const showInitiative = Number.isFinite(initiativeValue);
+    const iconUrl = String(enemy.icon_url || "").trim();
+    button.innerHTML = `
+      <span class="enemy-list-row enemy-list-row-main">
+        <span class="enemy-malice-badge ${maliceBadgeClass}" title="悪意点">
+          <span class="label">悪意</span>
+          <span class="value">${escapeHtml(maliceValue)}</span>
+        </span>
+        <span class="enemy-list-icon-wrap">
+          ${
+            iconUrl
+              ? `<img class="enemy-list-icon" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(nameText)}">`
+              : `<span class="enemy-list-icon enemy-list-icon-placeholder" aria-hidden="true">👤</span>`
+          }
+        </span>
+        <span class="enemy-list-main-text ${classBgClass}">
+          <span class="enemy-list-name-row">
+            <span class="enemy-list-name">${escapeHtml(nameText)}</span>
+            ${
+              showInitiative
+                ? `<span class="enemy-meta-chip enemy-meta-inline">行動値 ${escapeHtml(initiativeValue)}</span>`
+                : ""
+            }
+            <span class="enemy-meta-chip enemy-meta-inline">作者 ${escapeHtml(authorText)}</span>
+          </span>
+          <span class="enemy-list-class">${escapeHtml(classText)}</span>
+        </span>
+      </span>
+    `;
     button.addEventListener("click", () => {
       state.selectedId = enemy.ID;
+      saveLastSelectedId(enemy.ID);
       renderAll();
     });
     li.appendChild(button);
@@ -533,8 +907,10 @@ function fillForm(enemy) {
 }
 
 function calcInitiativeTotal(enemy) {
-  const base = 6 + (String(enemy && enemy.class_type) === "レギオン" ? 2 : 0);
   const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
+  if (maneuvers.length === 0) return 0;
+  
+  const base = 6 + (String(enemy && enemy.class_type) === "レギオン" ? 2 : 0);
   const delta = maneuvers.reduce((acc, m) => {
     const n = Number((m && m.initiative) || 0);
     if (!Number.isFinite(n)) return acc;
@@ -562,6 +938,8 @@ function calcMalice(enemy) {
 
 function calcMaliceRawRounded(enemy) {
   const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
+  if (maneuvers.length === 0) return 0;
+  
   const sumMalice = maneuvers.reduce(
     (acc, m) => acc + Number((m && m.malice) || 0),
     0,
@@ -591,6 +969,16 @@ function getMaliceToneClass(maliceValue) {
   if (v >= 6) return "is-malice-2";
   if (v >= 2) return "is-malice-1"; // 最低発光帯
   return "is-malice-0";
+}
+
+function getMaliceBadgeClass(maliceValue) {
+  const v = Number(maliceValue || 0);
+  if (v >= 20) return "is-mlv-5";
+  if (v >= 15) return "is-mlv-4";
+  if (v >= 10) return "is-mlv-3";
+  if (v >= 6) return "is-mlv-2";
+  if (v >= 2) return "is-mlv-1";
+  return "is-mlv-0";
 }
 
 function renderCalculatedHeader(enemy) {
@@ -1140,9 +1528,10 @@ function bindTableEvents() {
         }
       }
     }
-    if (kind === "maneuvers" && key === "malice") {
-      renderManeuversTable(enemy);
-    }
+    // NOTE:
+    // malice入力ごとにテーブル全体を再描画すると、
+    // number入力のフォーカス/キャレットが外れて編集しづらくなる。
+    // ここでは再描画せず、下部の計算ヘッダ/プレビュー更新のみで追従する。
     if (kind === "parts" && key === "type") {
       row.type = sanitizePartType(row.type);
     }
@@ -1151,8 +1540,11 @@ function bindTableEvents() {
     if (el.fields.timeText)
       el.fields.timeText.textContent = formatDateTimeDisplay(enemy.time);
     renderCalculatedHeader(enemy);
-    renderDataPreview(enemy);
-    renderMemoPreview(enemy);
+    const shouldRefreshList =
+      kind === "maneuvers" &&
+      (key === "malice" || key === "initiative" || key === "status");
+    scheduleSecondaryRenders({ includeList: shouldRefreshList });
+    scheduleSaveToDb();
   };
 
   document.addEventListener("input", handleTableValueChange);
@@ -1169,7 +1561,7 @@ function bindTableEvents() {
     if (!enemy || !enemy.data || !Array.isArray(enemy.data[kind])) return;
     enemy.data[kind].splice(index, 1);
     enemy.time = nowIsoLocal();
-    saveToStorage();
+    scheduleSaveToDb();
     renderAll();
   });
 
@@ -1222,7 +1614,7 @@ function bindTableEvents() {
     rows.splice(toIndex, 0, moved);
 
     enemy.time = nowIsoLocal();
-    saveToStorage();
+    scheduleSaveToDb();
     renderAll();
     draggingIndex = -1;
   });
@@ -1257,12 +1649,69 @@ function setupEvents() {
     renderEnemyList();
   });
 
+  if (el.newEnemyButton) {
+    el.newEnemyButton.addEventListener("click", () => {
+      upsertCurrentEnemyFromForm();
+      const fresh = normalizeEnemy(createEnemyTemplate());
+      state.enemies.unshift(fresh);
+      state.selectedId = fresh.ID;
+      scheduleSaveToDb();
+      renderAll();
+      setSaveStatus("idle", "新規作成（未保存）");
+    });
+  }
+
   if (el.saveEnemyButton) {
     el.saveEnemyButton.addEventListener("click", () => {
       upsertCurrentEnemyFromForm();
+      setSaveStatus("saving", "保存要求を送信中…");
       saveToStorage();
       renderAll();
     });
+  }
+
+  if (el.reloadEnemyListButton) {
+    el.reloadEnemyListButton.addEventListener("click", async () => {
+      try {
+        if (hasUnsavedChanges) {
+          const ok = window.confirm(
+            "未保存の変更があります。再読込すると失われます。続行しますか？",
+          );
+          if (!ok) return;
+        }
+        setSaveStatus("saving", "DB再読込中…");
+        await loadFromStorage();
+        renderAll();
+        setSaveStatus("ok", "DB再読込完了");
+        alert("DBから再読込した");
+      } catch (error) {
+        console.warn("[nechronica] DB再読込失敗:", error);
+        setSaveStatus("error", "DB再読込失敗");
+        alert("DB再読込に失敗しました");
+      }
+    });
+  }
+
+  if (el.sortByMaliceButton) {
+    el.sortByMaliceButton.addEventListener("click", () =>
+      setEnemySort("malice"),
+    );
+  }
+  if (el.sortByInitiativeButton) {
+    el.sortByInitiativeButton.addEventListener("click", () =>
+      setEnemySort("initiative"),
+    );
+  }
+  if (el.sortByAuthorButton) {
+    el.sortByAuthorButton.addEventListener("click", () =>
+      setEnemySort("author"),
+    );
+  }
+  if (el.sortByIdButton) {
+    el.sortByIdButton.addEventListener("click", () => setEnemySort("id"));
+  }
+  if (el.sortByTimeButton) {
+    el.sortByTimeButton.addEventListener("click", () => setEnemySort("time"));
   }
 
   if (el.exportJsonButton) {
@@ -1338,7 +1787,7 @@ function setupEvents() {
         }
         importFromKomaJson(enemy, parsed);
         enemy.time = nowIsoLocal();
-        saveToStorage();
+        scheduleSaveToDb();
         renderAll();
         return true;
       } catch (_e) {
@@ -1377,7 +1826,7 @@ function setupEvents() {
       if (!enemy) return;
       enemy.data.maneuvers.push(createEmptyManeuver());
       enemy.time = nowIsoLocal();
-      saveToStorage();
+      scheduleSaveToDb();
       renderAll();
     });
   }
@@ -1388,12 +1837,18 @@ function setupEvents() {
       if (!enemy) return;
       appendBasicManeuvers(enemy);
       enemy.time = nowIsoLocal();
-      saveToStorage();
+      scheduleSaveToDb();
       renderAll();
     });
   }
 
-  el.enemyEditorForm.addEventListener("input", () => {
+  el.enemyEditorForm.addEventListener("input", (event) => {
+    const target = event.target;
+    // テーブル入力は bindTableEvents 側で更新とオートセーブを処理する。
+    // ここで追加処理すると、入力中に不要な再描画が走りカーソルが外れやすい。
+    if (target instanceof HTMLElement && target.closest("#maneuversTable")) {
+      return;
+    }
     const enemy = getSelectedEnemy();
     if (!enemy) return;
     upsertCurrentEnemyFromForm();
@@ -1401,9 +1856,17 @@ function setupEvents() {
       renderManeuversTable(enemy);
     }
     renderCalculatedHeader(enemy);
-    renderDataPreview(enemy);
-    renderMemoPreview(enemy);
-    renderEnemyList();
+    const targetId =
+      target instanceof HTMLElement ? String(target.id || "") : "";
+    const shouldRefreshList =
+      targetId === "field-id" ||
+      targetId === "field-author" ||
+      targetId === "field-name" ||
+      targetId === "field-class-type" ||
+      targetId === "field-icon-url" ||
+      targetId === "field-is-public";
+    scheduleSecondaryRenders({ includeList: shouldRefreshList });
+    scheduleSaveToDb();
   });
 
   if (el.fields.classType) {
@@ -1416,17 +1879,132 @@ function setupEvents() {
       renderDataPreview(enemy);
       renderMemoPreview(enemy);
       renderEnemyList();
+      scheduleSaveToDb();
     });
   }
+
+  window.addEventListener("beforeunload", (event) => {
+    if (!hasUnsavedChanges) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
 
   bindTableEvents();
 }
 
+// ===== 前回選択エネミーの保存・復元 =====
+
+function saveLastSelectedId(id) {
+  try {
+    if (id) {
+      localStorage.setItem(NC_LAST_SELECTED_ID_KEY, String(id));
+    } else {
+      localStorage.removeItem(NC_LAST_SELECTED_ID_KEY);
+    }
+  } catch (_e) {
+    // ignore
+  }
+}
+
+function getLastSelectedId() {
+  try {
+    return String(localStorage.getItem(NC_LAST_SELECTED_ID_KEY) || "").trim();
+  } catch (_e) {
+    return "";
+  }
+}
+
+function showRestoreDialog(enemy) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "restore-dialog-overlay";
+
+    const dialog = document.createElement("div");
+    dialog.className = "restore-dialog";
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-labelledby", "restore-dialog-title");
+
+    const nameText = String(enemy.name || "(no name)");
+    const classText = String(enemy.class_type || "");
+
+    dialog.innerHTML = `
+      <p id="restore-dialog-title" class="restore-dialog-title">前回の続きを開きますか？</p>
+      <p class="restore-dialog-enemy">
+        <span class="restore-dialog-name">${escapeHtml(nameText)}</span>
+        ${classText ? `<span class="restore-dialog-class">${escapeHtml(classText)}</span>` : ""}
+      </p>
+      <div class="restore-dialog-actions">
+        <button id="restoreDialogYes" class="small-square-btn">続きを開く</button>
+        <button id="restoreDialogNo" class="small-square-btn is-secondary">新規で開く</button>
+      </div>
+    `;
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    // フォーカス
+    const yesBtn = dialog.querySelector("#restoreDialogYes");
+    const noBtn = dialog.querySelector("#restoreDialogNo");
+    if (yesBtn) yesBtn.focus();
+
+    function close(result) {
+      overlay.remove();
+      resolve(result);
+    }
+
+    if (yesBtn) yesBtn.addEventListener("click", () => close(true));
+    if (noBtn) noBtn.addEventListener("click", () => close(false));
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close(false);
+    });
+    document.addEventListener("keydown", function onKey(e) {
+      if (e.key === "Escape") {
+        document.removeEventListener("keydown", onKey);
+        close(false);
+      }
+    });
+  });
+}
+
 async function boot() {
-  loadFromStorage();
+  setSaveStatus("idle", "読込中…");
+  await loadFromStorage();
   await loadManeuverMaster();
   setupEvents();
+
+  // 前回開いていたエネミーの復元確認
+  const lastId = getLastSelectedId();
+  const lastEnemy = lastId ? state.enemies.find((e) => String(e.ID) === lastId) : null;
+  
+  if (lastEnemy && String(lastEnemy.ID) !== String(state.selectedId)) {
+    const restore = await showRestoreDialog(lastEnemy);
+    if (restore) {
+      state.selectedId = lastEnemy.ID;
+      saveLastSelectedId(lastEnemy.ID);
+    } else {
+      // 復元しない場合は新規作成
+      const fresh = createEnemyTemplate();
+      state.enemies.unshift(normalizeEnemy(fresh));
+      state.selectedId = fresh.ID;
+      saveLastSelectedId(fresh.ID);
+      scheduleSaveToDb();
+    }
+  } else if (!state.selectedId) {
+    // 記憶がない・対象がない場合で、まだ未選択なら新規作成
+    const fresh = createEnemyTemplate();
+    state.enemies.unshift(normalizeEnemy(fresh));
+    state.selectedId = fresh.ID;
+    saveLastSelectedId(fresh.ID);
+    scheduleSaveToDb();
+  }
+
   renderAll();
+  if (hasUnsavedChanges) {
+    setSaveStatus("idle", "未保存の変更あり");
+  } else {
+    setSaveStatus("idle", "");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", boot);
