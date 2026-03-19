@@ -4,8 +4,13 @@ const state = {
   search: "",
   maneuverMasterMap: new Map(),
   maneuverMasterLoaded: false,
+<<<<<<< HEAD
   enemySortKey: "id",
   enemySortDir: "asc",
+=======
+  enemySortKey: "time",
+  enemySortDir: "desc",
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
 };
 
 const PART_TYPES = ["頭", "腕", "胴", "脚"];
@@ -62,8 +67,11 @@ const el = {
   enemySearchInput: document.getElementById("enemySearchInput"),
   saveEnemyButton: document.getElementById("saveEnemyButton"),
   newEnemyButton: document.getElementById("newEnemyButton"),
+<<<<<<< HEAD
   duplicateEnemyButton: document.getElementById("duplicateEnemyButton"),
   deleteEnemyButton: document.getElementById("deleteEnemyButton"),
+=======
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
   reloadEnemyListButton: document.getElementById("reloadEnemyListButton"),
   saveStatusText: document.getElementById("saveStatusText"),
   sortByMaliceButton: document.getElementById("sortByMaliceButton"),
@@ -241,6 +249,25 @@ function setSaveStatus(kind, text) {
 
 function formatDateTimeDisplay(isoLike) {
   const raw = String(isoLike || "").trim();
+<<<<<<< HEAD
+=======
+  if (raw) {
+    const alreadyFormatted = raw.match(
+      /^(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/,
+    );
+    if (alreadyFormatted) {
+      return `${alreadyFormatted[1]}/${alreadyFormatted[2]}/${alreadyFormatted[3]} ${alreadyFormatted[4]}:${alreadyFormatted[5]}:${alreadyFormatted[6]}`;
+    }
+
+    const isoLikeMatch = raw.match(
+      /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2}):(\d{2})/,
+    );
+    if (isoLikeMatch) {
+      return `${isoLikeMatch[1]}/${isoLikeMatch[2]}/${isoLikeMatch[3]} ${isoLikeMatch[4]}:${isoLikeMatch[5]}:${isoLikeMatch[6]}`;
+    }
+  }
+
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
   const d = raw ? new Date(raw) : new Date();
   if (Number.isNaN(d.getTime())) return "-";
   const y = d.getFullYear();
@@ -652,6 +679,7 @@ function sortEnemies(list) {
   return [...list].sort((a, b) => {
     const av = getEnemySortValue(a, key);
     const bv = getEnemySortValue(b, key);
+<<<<<<< HEAD
     let c = 0;
     if (typeof av === "string" && typeof bv === "string") {
       c = av.localeCompare(bv, "ja");
@@ -670,6 +698,15 @@ function sortEnemies(list) {
     }
 
     // それでも同じなら名前
+=======
+    if (typeof av === "string" && typeof bv === "string") {
+      const c = av.localeCompare(bv, "ja");
+      if (c !== 0) return c * dir;
+    } else {
+      const c = Number(av) - Number(bv);
+      if (c !== 0) return c * dir;
+    }
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
     return String((a && a.name) || "").localeCompare(
       String((b && b.name) || ""),
       "ja",
@@ -689,6 +726,7 @@ function updateEnemySortButtons() {
     if (!btn) return;
     const active = state.enemySortKey === key;
     btn.classList.toggle("is-active", active);
+<<<<<<< HEAD
     
     let iconHtml = "";
     if (active) {
@@ -697,11 +735,16 @@ function updateEnemySortButtons() {
         : ' <i class="fa-solid fa-sort-down"></i>';
     }
     btn.innerHTML = `${label}${iconHtml}`;
+=======
+    const arrow = active ? (state.enemySortDir === "asc" ? "↑" : "↓") : "";
+    btn.textContent = `${label}${arrow}`;
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
   });
 }
 
 function setEnemySort(key) {
   if (!key) return;
+<<<<<<< HEAD
 
   const isRecommendAsc = key === "author" || key === "id";
   const recommendDir = isRecommendAsc ? "asc" : "desc";
@@ -720,6 +763,13 @@ function setEnemySort(key) {
     // 別のキーをクリック -> 1回目(推奨)
     state.enemySortKey = key;
     state.enemySortDir = recommendDir;
+=======
+  if (state.enemySortKey === key) {
+    state.enemySortDir = state.enemySortDir === "asc" ? "desc" : "asc";
+  } else {
+    state.enemySortKey = key;
+    state.enemySortDir = key === "author" || key === "id" ? "asc" : "desc";
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
   }
   renderEnemyList();
 }
@@ -845,6 +895,7 @@ function renderEnemyList() {
     return;
   }
 
+<<<<<<< HEAD
     sortedTargets.forEach((enemy) => {
       const li = document.createElement("li");
       const card = document.createElement("div");
@@ -951,6 +1002,63 @@ function renderEnemyList() {
 
       li.appendChild(card);
       el.enemyList.appendChild(li);
+=======
+  sortedTargets.forEach((enemy) => {
+    const li = document.createElement("li");
+    const button = document.createElement("button");
+    button.classList.add("enemy-list-card");
+    if (enemy.ID === state.selectedId) button.classList.add("is-active");
+    const nameText = String(enemy.name || "(no name)");
+    const classText = String(enemy.class_type || "未設定");
+    const classBgClass =
+      classText === "サヴァント"
+        ? "is-class-servant"
+        : classText === "ホラー"
+          ? "is-class-horror"
+          : classText === "レギオン"
+            ? "is-class-region"
+            : "";
+    if (classBgClass) {
+      button.classList.add(classBgClass);
+    }
+    const authorText = String(enemy.author || "-");
+    const maliceValue = calcMalice(enemy);
+    const maliceBadgeClass = getMaliceBadgeClass(maliceValue);
+    const initiativeValue = Number(calcInitiativeTotal(enemy));
+    const showInitiative = Number.isFinite(initiativeValue);
+    const iconUrl = String(enemy.icon_url || "").trim();
+    button.innerHTML = `
+      <span class="enemy-list-row enemy-list-row-main">
+        <span class="enemy-malice-badge ${maliceBadgeClass}" title="悪意点">
+          <span class="label">悪意</span>
+          <span class="value">${escapeHtml(maliceValue)}</span>
+        </span>
+        <span class="enemy-list-icon-wrap">
+          ${
+            iconUrl
+              ? `<img class="enemy-list-icon" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(nameText)}">`
+              : `<span class="enemy-list-icon enemy-list-icon-placeholder" aria-hidden="true">👤</span>`
+          }
+        </span>
+        <span class="enemy-list-main-text ${classBgClass}">
+          <span class="enemy-list-name-row">
+            <span class="enemy-list-name">${escapeHtml(nameText)}</span>
+            ${
+              showInitiative
+                ? `<span class="enemy-meta-chip enemy-meta-inline">行動値 ${escapeHtml(initiativeValue)}</span>`
+                : ""
+            }
+            <span class="enemy-meta-chip enemy-meta-inline">作者 ${escapeHtml(authorText)}</span>
+          </span>
+          <span class="enemy-list-class">${escapeHtml(classText)}</span>
+        </span>
+      </span>
+    `;
+    button.addEventListener("click", () => {
+      state.selectedId = enemy.ID;
+      saveLastSelectedId(enemy.ID);
+      renderAll();
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
     });
 }
 
@@ -1725,6 +1833,7 @@ function setupEvents() {
     });
   }
 
+<<<<<<< HEAD
   if (el.duplicateEnemyButton) {
     el.duplicateEnemyButton.addEventListener("click", () => {
       upsertCurrentEnemyFromForm();
@@ -1770,6 +1879,8 @@ function setupEvents() {
     });
   }
 
+=======
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
   if (el.saveEnemyButton) {
     el.saveEnemyButton.addEventListener("click", () => {
       upsertCurrentEnemyFromForm();
@@ -2097,6 +2208,10 @@ async function boot() {
       state.enemies.unshift(normalizeEnemy(fresh));
       state.selectedId = fresh.ID;
       saveLastSelectedId(fresh.ID);
+<<<<<<< HEAD
+=======
+      scheduleSaveToDb();
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
     }
   } else if (!state.selectedId) {
     // 記憶がない・対象がない場合で、まだ未選択なら新規作成
@@ -2104,6 +2219,10 @@ async function boot() {
     state.enemies.unshift(normalizeEnemy(fresh));
     state.selectedId = fresh.ID;
     saveLastSelectedId(fresh.ID);
+<<<<<<< HEAD
+=======
+    scheduleSaveToDb();
+>>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
   }
 
   renderAll();
