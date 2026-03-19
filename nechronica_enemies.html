@@ -49,11 +49,7 @@
             </div>
             <div class="primary-info-grid">
               <label class="compact-field"><span class="field-label">悪意点</span><input id="field-malice" type="number"
-<<<<<<< HEAD
                   readonly title="自動入力項目（マニューバ内容から計算）" value="0"></label>
-=======
-                  readonly title="自動入力項目（マニューバ内容から計算）"></label>
->>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
               <label><span class="field-label">手駒名</span><input id="field-name" type="text" required></label>
               <label class="class-field">種別
                 <select id="field-class-type">
@@ -81,10 +77,6 @@
                 </span>
               </label>
               <button id="saveEnemyButton" type="button" class="small-square-btn">DB保存</button>
-            </div>
-            <div class="sub-info-grid">
-              <label><span class="field-label">アイコンURL</span><input id="field-icon-url" type="url"
-                  placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
             </div>
             <div class="sub-info-grid">
               <label><span class="field-label">アイコンURL</span><input id="field-icon-url" type="url"
@@ -164,14 +156,19 @@
 
           <section class="editor-action-bar">
             <div class="action-bar-left">
-              <button id="deleteEnemyButton" type="button" class="action-btn is-danger"><i class="fa-solid fa-trash-can"></i> 削除</button>
+              <button id="deleteEnemyButton" type="button" class="action-btn is-danger"><i
+                  class="fa-solid fa-trash-can"></i> 削除</button>
               <span id="saveStatusText" class="save-status" aria-live="polite">未保存</span>
-              <button id="reloadEnemyListButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-rotate-right"></i> 最新の状態を取得</button>
+              <button id="reloadEnemyListButton" type="button" class="action-btn is-sub"><i
+                  class="fa-solid fa-rotate-right"></i> 最新の状態を取得</button>
             </div>
             <div class="action-bar-right">
-              <button id="newEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-file"></i> 新規白紙</button>
-              <button id="duplicateEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-copy"></i> 複製して新規</button>
-              <button id="saveEnemyButton" type="button" class="action-btn is-main"><i class="fa-solid fa-cloud-arrow-up"></i> データベースへ保存（上書き）</button>
+              <button id="newEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-file"></i>
+                新規白紙</button>
+              <button id="duplicateEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-copy"></i>
+                複製して新規</button>
+              <button id="saveEnemyButton" type="button" class="action-btn is-main"><i
+                  class="fa-solid fa-cloud-arrow-up"></i> データベースへ保存（上書き）</button>
             </div>
           </section>
         </form>
@@ -201,19 +198,16 @@
             <h2>手駒一覧</h2>
           </div>
           <div class="enemy-sort-row" id="enemySortRow" aria-label="手駒一覧ソート">
-<<<<<<< HEAD
             <button id="sortByIdButton" type="button" class="sort-chip">ID順</button>
             <button id="sortByTimeButton" type="button" class="sort-chip">更新順</button>
             <button id="sortByMaliceButton" type="button" class="sort-chip">悪意</button>
             <button id="sortByInitiativeButton" type="button" class="sort-chip">行動値</button>
             <button id="sortByAuthorButton" type="button" class="sort-chip">作者</button>
-=======
             <button id="sortByMaliceButton" type="button" class="sort-chip">悪意</button>
             <button id="sortByInitiativeButton" type="button" class="sort-chip">行動値</button>
             <button id="sortByAuthorButton" type="button" class="sort-chip">作者</button>
             <button id="sortByIdButton" type="button" class="sort-chip">ID順</button>
             <button id="sortByTimeButton" type="button" class="sort-chip">更新順</button>
->>>>>>> e0be5a7edbbd6b10be5c21a5de0254a94334eab3
           </div>
           <input id="enemySearchInput" class="asian-input full" type="text" placeholder="名前・作者で検索">
           <ul id="enemyList" class="enemy-list"></ul>
