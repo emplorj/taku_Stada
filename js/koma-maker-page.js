@@ -18,16 +18,92 @@ const progressBarContainer = document.getElementById("progressBarContainer");
 const progressBar = document.getElementById("progressBar");
 const plNameInput = document.getElementById("plName");
 const nechronicaSection = document.getElementById("nechronicaSection");
+const includeOutputNechronicaManeuverCheckbox = document.getElementById(
+  "includeOutputNechronicaManeuver",
+);
+const includeOutputNechronicaBaseCheckbox = document.getElementById(
+  "includeOutputNechronicaBase",
+);
+const includeNechronicaManeuverCheckbox = document.getElementById(
+  "includeNechronicaManeuver",
+);
 const includeNechronicaBaseCheckbox = document.getElementById(
   "includeNechronicaBase",
 );
 const nechronicaPartEditor = document.getElementById("nechronicaPartEditor");
 const nechronicaOutputArea = document.getElementById("nechronicaOutput");
+const nechronicaKakeraTemplateArea = document.getElementById(
+  "nechronicaKakeraTemplate",
+);
+const copyKakeraTemplateButton = document.getElementById(
+  "copyKakeraTemplateButton",
+);
 const copyNechronicaButton = document.getElementById("copyNechronicaButton");
+const usedToSafeAllButton = document.getElementById("usedToSafeAllButton");
+const damageAllPartsButton = document.getElementById("damageAllPartsButton");
+const safeAllPartsButton = document.getElementById("safeAllPartsButton");
+const copyCheckedPartsButton = document.getElementById(
+  "copyCheckedPartsButton",
+);
+const clearCheckedPartsButton = document.getElementById(
+  "clearCheckedPartsButton",
+);
 
 let toastTimer = null;
 let progressTimer = null;
 let nechronicaEditorState = null;
+let lastRawOutputText = "";
+const DEFAULT_NECHRONICA_KAKERA_TEMPLATE =
+  "【記憶のカケラ：初期】\n" +
+  "「テキスト」\n" +
+  "----------------------------------------------------------------------------\n" +
+  "【記憶のカケラ：取得】";
+
+function quoteKakeraTokensFromLine(line) {
+  return String(line || "")
+    .split(/[、,\/／|｜]+/)
+    .map((x) => String(x || "").trim())
+    .filter(Boolean)
+    .map((x) => `「${x.replace(/[「」]/g, "")}」`)
+    .join("");
+}
+
+function buildNechronicaKakeraTemplateFromBaseLines(baseLines) {
+  const lines = Array.isArray(baseLines)
+    ? baseLines.map((x) => String(x || ""))
+    : [];
+  if (!lines.length) return DEFAULT_NECHRONICA_KAKERA_TEMPLATE;
+
+  const initialIdx = lines.findIndex((x) =>
+    x.includes("【記憶のカケラ：初期】"),
+  );
+  const acquiredIdx = lines.findIndex((x) =>
+    x.includes("【記憶のカケラ：取得】"),
+  );
+  if (initialIdx >= 0 && acquiredIdx >= 0 && acquiredIdx > initialIdx) {
+    const picked = lines
+      .slice(initialIdx, acquiredIdx + 2)
+      .filter((x) => x.trim() !== "");
+    if (picked.length >= 3) return picked.join("\n");
+  }
+
+  const oldIdx = lines.findIndex(
+    (x) => String(x || "").trim() === "[記憶のカケラ]",
+  );
+  let initialQuoted = "「テキスト」";
+  if (oldIdx >= 0) {
+    const src = String(lines[oldIdx + 1] || "").trim();
+    const q = quoteKakeraTokensFromLine(src);
+    if (q) initialQuoted = q;
+  }
+
+  return (
+    "【記憶のカケラ：初期】\n" +
+    `${initialQuoted}\n` +
+    "----------------------------------------------------------------------------\n" +
+    "【記憶のカケラ：取得】"
+  );
+}
 
 function getCurrentProgressValue() {
   if (!progressBar) return 0;
@@ -84,6 +160,21 @@ function showToast(message, kind = "info") {
   toastTimer = setTimeout(() => {
     toast.classList.remove("is-show");
   }, 1400);
+}
+
+function copyTextWithToast(text, successMessage, emptyMessage = "") {
+  const txt = String(text || "").trim();
+  if (!txt) {
+    if (emptyMessage) showToast(emptyMessage, "error");
+    return;
+  }
+  navigator.clipboard
+    .writeText(txt)
+    .then(() => showToast(successMessage, "info"))
+    .catch((err) => {
+      showToast("コピーに失敗したようだ… ブラウザの権限を確認しろ！", "error");
+      console.error("Clipboard copy failed: ", err);
+    });
 }
 
 const PL_NAME_STORAGE_KEY = "komaMakerPlName";
@@ -296,8 +387,17 @@ function setNechronicaSectionVisible(visible) {
 
 function resetNechronicaSection() {
   nechronicaEditorState = null;
+  if (includeOutputNechronicaManeuverCheckbox)
+    includeOutputNechronicaManeuverCheckbox.checked = false;
+  if (includeOutputNechronicaBaseCheckbox)
+    includeOutputNechronicaBaseCheckbox.checked = true;
+  if (includeNechronicaManeuverCheckbox)
+    includeNechronicaManeuverCheckbox.checked = true;
   if (includeNechronicaBaseCheckbox)
     includeNechronicaBaseCheckbox.checked = true;
+  if (nechronicaKakeraTemplateArea) {
+    nechronicaKakeraTemplateArea.value = DEFAULT_NECHRONICA_KAKERA_TEMPLATE;
+  }
   if (nechronicaPartEditor) {
     nechronicaPartEditor.innerHTML = "";
   }
@@ -306,6 +406,33 @@ function resetNechronicaSection() {
       "ここにネクロニカ用の引用テキストが出力される。";
   }
   if (copyNechronicaButton) copyNechronicaButton.disabled = true;
+  if (usedToSafeAllButton) usedToSafeAllButton.disabled = true;
+  if (damageAllPartsButton) damageAllPartsButton.disabled = true;
+  if (safeAllPartsButton) safeAllPartsButton.disabled = true;
+  if (copyCheckedPartsButton) copyCheckedPartsButton.disabled = true;
+  if (clearCheckedPartsButton) clearCheckedPartsButton.disabled = true;
+  lastRawOutputText = "";
+}
+
+function getNechronicaKakeraTemplateLines() {
+  const raw = nechronicaKakeraTemplateArea
+    ? String(nechronicaKakeraTemplateArea.value || "")
+    : "";
+  const src = raw.trim() || DEFAULT_NECHRONICA_KAKERA_TEMPLATE;
+  return src.split(/\r?\n/).map((line) => String(line || "").trimEnd());
+}
+
+function overwriteNechronicaKakeraInBaseLines(baseLines) {
+  const lines = Array.isArray(baseLines) ? baseLines.slice() : [];
+  if (!lines.length) return lines;
+  const startIdx = lines.findIndex((line) => {
+    const t = String(line || "").trim();
+    return t === "[記憶のカケラ]" || t.startsWith("【記憶のカケラ");
+  });
+
+  const templateLines = getNechronicaKakeraTemplateLines();
+  if (startIdx < 0) return [...lines, ...templateLines];
+  return [...lines.slice(0, startIdx), ...templateLines];
 }
 
 function parseNechronicaMemo(memo) {
@@ -334,41 +461,73 @@ function parseNechronicaMemo(memo) {
   const sectionHeaders = new Set(["👧頭", "💪腕", "🧍胴", "🦵脚"]);
   const stateMarks = ["🟩", "✅", "⭕", "❌"];
   let currentSection = "class";
+  const sanitizeNechronicaBody = (text) => {
+    const raw = String(text || "").trim();
+    const idx = raw.indexOf("【");
+    if (idx >= 0) return raw.slice(idx).replace(/~/g, "～");
+    return raw.replace(/^[�\uFFFD]+/, "");
+  };
+  const normalizeStateMark = (state, allowDamage) => {
+    const s = String(state || "").trim();
+    const defaultState = allowDamage ? "⭕" : "🟩";
+    if (["🟩", "✅", "⭕", "❌"].includes(s)) {
+      if (!allowDamage && s === "❌") return "✅";
+      if (!allowDamage && s === "⭕") return "🟩";
+      if (allowDamage && s === "🟩") return "⭕";
+      return s;
+    }
+    if (s.includes("✅")) return "✅";
+    if (s.includes("⭕")) return allowDamage ? "⭕" : "🟩";
+    if (allowDamage && s.includes("❌")) return "❌";
+    if (s.includes("🟩")) return allowDamage ? "⭕" : "🟩";
+    return defaultState;
+  };
 
   for (let i = 1; i < quoteLines.length; i++) {
     const line = String(quoteLines[i] || "").trim();
-    const normalizedLine = line.replace(/^�(?=【)/, "🟩");
+    const normalizedLine = line
+      .replace(/^\uFEFF+/, "")
+      .replace(/^[�\uFFFD]+(?=【)/, "🟩");
     if (!line) continue;
     if (sectionHeaders.has(line)) {
       items.push({ type: "header", text: line });
       currentSection = line;
       continue;
     }
+    if (/^【マニューバ名】/.test(normalizedLine)) {
+      items.push({ type: "header", text: normalizedLine });
+      continue;
+    }
     const m = normalizedLine.match(/^([🟩✅⭕❌])\s*(.+)$/);
     if (m) {
       const allowDamage = currentSection !== "class";
-      const state = !allowDamage && m[1] === "❌" ? "✅" : m[1];
-      const sanitizedBody = String(m[2] || "").replace(/^[�\uFFFD]+(?=【)/, "");
+      const state = normalizeStateMark(m[1], allowDamage);
+      const sanitizedBody = sanitizeNechronicaBody(m[2]);
       items.push({
         type: "row",
         state,
         body: sanitizedBody,
         allowDamage,
+        section: currentSection,
+        reportChecked: false,
       });
       continue;
     }
     // 想定外フォーマットでも行を失わないよう固定状態で保持。
     const fallbackState =
-      stateMarks.find((mark) => normalizedLine.startsWith(mark)) || "⭕";
-    const body = normalizedLine
-      .replace(/^[🟩✅⭕❌]\s*/, "")
-      .replace(/^[�\uFFFD]+(?=【)/, "");
+      stateMarks.find((mark) => normalizedLine.startsWith(mark)) ||
+      (currentSection === "class" ? "🟩" : "⭕");
+    const body = sanitizeNechronicaBody(
+      normalizedLine.replace(/^[🟩✅⭕❌]\s*/, ""),
+    );
     const allowDamage = currentSection !== "class";
     items.push({
       type: "row",
-      state: !allowDamage && fallbackState === "❌" ? "✅" : fallbackState,
+      state: normalizeStateMark(fallbackState, allowDamage),
       body,
       allowDamage,
+      section: currentSection,
+      reportChecked: false,
     });
   }
 
@@ -380,6 +539,77 @@ function parseNechronicaMemo(memo) {
       : [];
 
   return { legend, items, baseLines };
+}
+
+function buildNechronicaMemoFromParsed(
+  parsedMemo,
+  includeManeuver = true,
+  includeBase = true,
+) {
+  if (!parsedMemo || !Array.isArray(parsedMemo.items)) return "";
+  const lines = [];
+  if (includeManeuver) {
+    lines.push(parsedMemo.legend || "");
+    parsedMemo.items.forEach((item) => {
+      if (item.type === "header") lines.push(item.text || "");
+      else lines.push(`${item.state || "⭕"}${item.body || ""}`);
+    });
+  }
+  if (
+    includeBase &&
+    Array.isArray(parsedMemo.baseLines) &&
+    parsedMemo.baseLines.length
+  ) {
+    if (lines.length) lines.push("");
+    lines.push(...parsedMemo.baseLines);
+  }
+  return lines.join("\n").trim();
+}
+
+function stripKakeraFromBaseLines(baseLines) {
+  const lines = Array.isArray(baseLines) ? baseLines.slice() : [];
+  if (!lines.length) return lines;
+
+  const startIdx = lines.findIndex((line) => {
+    const t = String(line || "").trim();
+    return (
+      t === "[記憶のカケラ]" ||
+      t.startsWith("【記憶のカケラ：初期】") ||
+      t.startsWith("【記憶のカケラ：取得】")
+    );
+  });
+  if (startIdx < 0) return lines;
+  return lines.slice(0, startIdx).filter((x) => String(x || "").trim() !== "");
+}
+
+function applyNechronicaOutputDisplayFilter(rawOutText) {
+  let parsedOut = null;
+  try {
+    parsedOut = JSON.parse(String(rawOutText || ""));
+  } catch (_) {
+    return String(rawOutText || "");
+  }
+  if (!parsedOut || !parsedOut.data) return String(rawOutText || "");
+
+  const memo = String(parsedOut.data.memo || "");
+  const parsedMemo = parseNechronicaMemo(memo);
+  if (!parsedMemo) return String(rawOutText || "");
+
+  const includeManeuver = !!(
+    includeOutputNechronicaManeuverCheckbox &&
+    includeOutputNechronicaManeuverCheckbox.checked
+  );
+  const includeBase = !!(
+    includeOutputNechronicaBaseCheckbox &&
+    includeOutputNechronicaBaseCheckbox.checked
+  );
+  const baseLinesForOutput = stripKakeraFromBaseLines(parsedMemo.baseLines);
+  parsedOut.data.memo = buildNechronicaMemoFromParsed(
+    { ...parsedMemo, baseLines: baseLinesForOutput },
+    includeManeuver,
+    includeBase,
+  );
+  return JSON.stringify(parsedOut);
 }
 
 function renderNechronicaEditor() {
@@ -394,13 +624,48 @@ function renderNechronicaEditor() {
     { mark: "⭕", label: "無事" },
     { mark: "❌", label: "損傷" },
   ];
+  const getTimingFromBody = (body) => {
+    const m = String(body || "").match(/《\s*([^/\s]*)\s*\//);
+    return m && m[1] ? String(m[1]).trim() : "";
+  };
+  const isRepeatableTiming = (body) => {
+    const timing = getTimingFromBody(body);
+    return timing === "オート" || timing === "アクション";
+  };
   let rowIndex = -1;
 
   nechronicaEditorState.items.forEach((item) => {
     if (item.type === "header") {
       const h = document.createElement("div");
       h.className = "nechronica-part-header";
-      h.textContent = item.text;
+      const title = document.createElement("span");
+      title.className = "nechronica-part-header-title";
+      title.textContent = item.text;
+      h.appendChild(title);
+
+      if (["👧頭", "💪腕", "🧍胴", "🦵脚"].includes(String(item.text || ""))) {
+        const actions = document.createElement("span");
+        actions.className = "nechronica-part-header-actions";
+
+        const dmgBtn = document.createElement("button");
+        dmgBtn.type = "button";
+        dmgBtn.className = "hoha nechronica-mini-btn nechronica-header-action";
+        dmgBtn.textContent = "損傷";
+        dmgBtn.dataset.section = item.text;
+        dmgBtn.dataset.mark = "❌";
+
+        const safeBtn = document.createElement("button");
+        safeBtn.type = "button";
+        safeBtn.className = "hoha nechronica-mini-btn nechronica-header-action";
+        safeBtn.textContent = "無事";
+        safeBtn.dataset.section = item.text;
+        safeBtn.dataset.mark = "⭕";
+
+        actions.appendChild(dmgBtn);
+        actions.appendChild(safeBtn);
+        h.appendChild(actions);
+      }
+
       nechronicaPartEditor.appendChild(h);
       return;
     }
@@ -409,12 +674,27 @@ function renderNechronicaEditor() {
     const row = document.createElement("div");
     row.className = "nechronica-part-row";
 
+    const reportCheck = document.createElement("input");
+    reportCheck.type = "checkbox";
+    reportCheck.className = "nechronica-report-check";
+    reportCheck.dataset.rowIndex = String(rowIndex);
+    reportCheck.checked = !!item.reportChecked;
+    reportCheck.disabled = !item.allowDamage;
+
     const select = document.createElement("select");
-    select.className = "nechronica-state-select";
+    select.className = "nechronica-state-select status-select";
     select.dataset.rowIndex = String(rowIndex);
+    const repeatable = isRepeatableTiming(item.body);
     const availableStates = item.allowDamage
-      ? stateOptions
-      : stateOptions.filter((x) => x.mark !== "❌");
+      ? repeatable
+        ? stateOptions.filter((x) => x.mark === "⭕" || x.mark === "❌")
+        : stateOptions.filter((x) => x.mark !== "🟩")
+      : repeatable
+        ? stateOptions.filter((x) => x.mark === "🟩")
+        : stateOptions.filter((x) => x.mark === "🟩" || x.mark === "✅");
+    if (!availableStates.some((x) => x.mark === item.state)) {
+      item.state = item.allowDamage ? "⭕" : "🟩";
+    }
     availableStates.forEach((state) => {
       const opt = document.createElement("option");
       opt.value = state.mark;
@@ -422,15 +702,52 @@ function renderNechronicaEditor() {
       if (state.mark === item.state) opt.selected = true;
       select.appendChild(opt);
     });
+    syncNechronicaStateSelectClass(select);
 
     const text = document.createElement("span");
     text.className = "nechronica-part-text";
     text.textContent = item.body;
 
+    const copyLineButton = document.createElement("button");
+    copyLineButton.type = "button";
+    copyLineButton.className = "nechronica-line-copy-btn";
+    copyLineButton.dataset.rowIndex = String(rowIndex);
+    copyLineButton.textContent = "⧉";
+    copyLineButton.title = "この行をコピー";
+    copyLineButton.disabled = !item.allowDamage;
+
+    row.appendChild(reportCheck);
     row.appendChild(select);
     row.appendChild(text);
+    row.appendChild(copyLineButton);
     nechronicaPartEditor.appendChild(row);
   });
+}
+
+function syncNechronicaStateSelectClass(selectEl) {
+  if (!(selectEl instanceof HTMLSelectElement)) return;
+  selectEl.classList.remove(
+    "status-unused",
+    "status-safe",
+    "status-used",
+    "status-damaged",
+  );
+  const v = String(selectEl.value || "");
+  if (v === "🟩") {
+    selectEl.classList.add("status-unused");
+    return;
+  }
+  if (v === "⭕") {
+    selectEl.classList.add("status-safe");
+    return;
+  }
+  if (v === "✅") {
+    selectEl.classList.add("status-used");
+    return;
+  }
+  if (v === "❌") {
+    selectEl.classList.add("status-damaged");
+  }
 }
 
 function renderNechronicaQuoteOutput() {
@@ -455,14 +772,99 @@ function renderNechronicaQuoteOutput() {
   const includeBase = !!(
     includeNechronicaBaseCheckbox && includeNechronicaBaseCheckbox.checked
   );
-  const lines = [nechronicaEditorState.legend, ...bodyLines];
+  const includeManeuver = !!(
+    includeNechronicaManeuverCheckbox &&
+    includeNechronicaManeuverCheckbox.checked
+  );
+  const lines = [];
+  if (includeManeuver) {
+    lines.push(nechronicaEditorState.legend, ...bodyLines);
+  }
   if (includeBase && nechronicaEditorState.baseLines.length) {
-    lines.push("", ...nechronicaEditorState.baseLines);
+    if (lines.length) lines.push("");
+    lines.push(
+      ...overwriteNechronicaKakeraInBaseLines(nechronicaEditorState.baseLines),
+    );
   }
 
   nechronicaOutputArea.value = lines.join("\n").trim();
   if (copyNechronicaButton)
     copyNechronicaButton.disabled = !nechronicaOutputArea.value;
+  const hasPartRows = !!(
+    nechronicaEditorState &&
+    Array.isArray(nechronicaEditorState.items) &&
+    nechronicaEditorState.items.some((x) => x.type === "row" && x.allowDamage)
+  );
+  const hasUsedRows = !!(
+    nechronicaEditorState &&
+    Array.isArray(nechronicaEditorState.items) &&
+    nechronicaEditorState.items.some(
+      (x) => x.type === "row" && x.state === "✅",
+    )
+  );
+  if (usedToSafeAllButton) usedToSafeAllButton.disabled = !hasUsedRows;
+  if (damageAllPartsButton) damageAllPartsButton.disabled = !hasPartRows;
+  if (safeAllPartsButton) safeAllPartsButton.disabled = !hasPartRows;
+  const hasCheckedRows = !!(
+    nechronicaEditorState &&
+    Array.isArray(nechronicaEditorState.items) &&
+    nechronicaEditorState.items.some(
+      (x) => x.type === "row" && x.allowDamage && x.reportChecked,
+    )
+  );
+  if (copyCheckedPartsButton) copyCheckedPartsButton.disabled = !hasCheckedRows;
+  if (clearCheckedPartsButton)
+    clearCheckedPartsButton.disabled = !hasCheckedRows;
+}
+
+function setNechronicaStatesForAllParts(mark) {
+  if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+    return;
+  nechronicaEditorState.items.forEach((item) => {
+    if (item.type !== "row") return;
+    if (!item.allowDamage) return;
+    item.state = mark;
+  });
+  renderNechronicaEditor();
+  renderNechronicaQuoteOutput();
+}
+
+function setNechronicaStatesForPart(sectionLabel, mark) {
+  if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+    return;
+  nechronicaEditorState.items.forEach((item) => {
+    if (item.type !== "row") return;
+    if (!item.allowDamage) return;
+    if (String(item.section || "") !== String(sectionLabel || "")) return;
+    item.state = mark;
+  });
+  renderNechronicaEditor();
+  renderNechronicaQuoteOutput();
+}
+
+function setNechronicaUsedToSafeForPart(sectionLabel) {
+  if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+    return;
+  nechronicaEditorState.items.forEach((item) => {
+    if (item.type !== "row") return;
+    if (!item.allowDamage) return;
+    if (String(item.section || "") !== String(sectionLabel || "")) return;
+    if (item.state === "✅") item.state = "⭕";
+  });
+  renderNechronicaEditor();
+  renderNechronicaQuoteOutput();
+}
+
+function setNechronicaUsedToSafeForAll() {
+  if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+    return;
+  nechronicaEditorState.items.forEach((item) => {
+    if (item.type !== "row") return;
+    if (!item.allowDamage) return;
+    if (item.state === "✅") item.state = "⭕";
+  });
+  renderNechronicaEditor();
+  renderNechronicaQuoteOutput();
 }
 
 function fillNechronicaSectionFromOutput(rawText) {
@@ -499,8 +901,14 @@ function fillNechronicaSectionFromOutput(rawText) {
   }
 
   nechronicaEditorState = parsedMemo;
+  if (nechronicaKakeraTemplateArea) {
+    nechronicaKakeraTemplateArea.value =
+      buildNechronicaKakeraTemplateFromBaseLines(parsedMemo.baseLines);
+  }
   if (includeNechronicaBaseCheckbox)
     includeNechronicaBaseCheckbox.checked = true;
+  if (includeNechronicaManeuverCheckbox)
+    includeNechronicaManeuverCheckbox.checked = true;
   renderNechronicaEditor();
   renderNechronicaQuoteOutput();
   setNechronicaSectionVisible(true);
@@ -688,6 +1096,34 @@ if (itemSection) {
 }
 
 if (nechronicaPartEditor) {
+  nechronicaPartEditor.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLButtonElement)) return;
+    if (target.classList.contains("nechronica-line-copy-btn")) {
+      if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+        return;
+      const rowIndex = Number(target.dataset.rowIndex || "-1");
+      if (!Number.isInteger(rowIndex) || rowIndex < 0) return;
+      let currentRow = -1;
+      for (const item of nechronicaEditorState.items) {
+        if (item.type !== "row") continue;
+        currentRow += 1;
+        if (currentRow !== rowIndex) continue;
+        copyTextWithToast(
+          `${item.state || "⭕"}${item.body || ""}`,
+          "行をコピーした！",
+        );
+        break;
+      }
+      return;
+    }
+    if (!target.classList.contains("nechronica-header-action")) return;
+    setNechronicaStatesForPart(
+      target.dataset.section || "",
+      target.dataset.mark || "⭕",
+    );
+  });
+
   nechronicaPartEditor.addEventListener("change", (event) => {
     const target = event.target;
     if (!(target instanceof HTMLSelectElement)) return;
@@ -697,6 +1133,7 @@ if (nechronicaPartEditor) {
 
     const rowIndex = Number(target.dataset.rowIndex || "-1");
     if (!Number.isInteger(rowIndex) || rowIndex < 0) return;
+    syncNechronicaStateSelectClass(target);
 
     let currentRow = -1;
     for (const item of nechronicaEditorState.items) {
@@ -708,10 +1145,57 @@ if (nechronicaPartEditor) {
     }
     renderNechronicaQuoteOutput();
   });
+
+  nechronicaPartEditor.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (!target.classList.contains("nechronica-report-check")) return;
+    if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+      return;
+    const rowIndex = Number(target.dataset.rowIndex || "-1");
+    if (!Number.isInteger(rowIndex) || rowIndex < 0) return;
+    let currentRow = -1;
+    for (const item of nechronicaEditorState.items) {
+      if (item.type !== "row") continue;
+      currentRow += 1;
+      if (currentRow !== rowIndex) continue;
+      item.reportChecked = !!target.checked;
+      break;
+    }
+    renderNechronicaQuoteOutput();
+  });
+}
+
+if (includeNechronicaManeuverCheckbox) {
+  includeNechronicaManeuverCheckbox.addEventListener("change", () => {
+    renderNechronicaQuoteOutput();
+  });
+}
+
+if (includeOutputNechronicaManeuverCheckbox) {
+  includeOutputNechronicaManeuverCheckbox.addEventListener("change", () => {
+    outputArea.value = applyNechronicaOutputDisplayFilter(
+      lastRawOutputText || "",
+    );
+  });
+}
+
+if (includeOutputNechronicaBaseCheckbox) {
+  includeOutputNechronicaBaseCheckbox.addEventListener("change", () => {
+    outputArea.value = applyNechronicaOutputDisplayFilter(
+      lastRawOutputText || "",
+    );
+  });
 }
 
 if (includeNechronicaBaseCheckbox) {
   includeNechronicaBaseCheckbox.addEventListener("change", () => {
+    renderNechronicaQuoteOutput();
+  });
+}
+
+if (nechronicaKakeraTemplateArea) {
+  nechronicaKakeraTemplateArea.addEventListener("input", () => {
     renderNechronicaQuoteOutput();
   });
 }
@@ -733,6 +1217,74 @@ if (copyNechronicaButton && nechronicaOutputArea) {
         );
         console.error("Clipboard copy failed: ", err);
       });
+  });
+}
+
+if (copyKakeraTemplateButton && nechronicaKakeraTemplateArea) {
+  copyKakeraTemplateButton.addEventListener("click", () => {
+    const txt = String(nechronicaKakeraTemplateArea.value || "").trim();
+    if (!txt) {
+      showToast("記憶のカケラテンプレが空だ！", "error");
+      return;
+    }
+    navigator.clipboard
+      .writeText(txt)
+      .then(() => showToast("記憶のカケラテンプレをコピーした！", "info"))
+      .catch((err) => {
+        showToast(
+          "コピーに失敗したようだ… ブラウザの権限を確認しろ！",
+          "error",
+        );
+        console.error("Clipboard copy failed: ", err);
+      });
+  });
+}
+
+if (damageAllPartsButton) {
+  damageAllPartsButton.addEventListener("click", () => {
+    setNechronicaStatesForAllParts("❌");
+  });
+}
+
+if (usedToSafeAllButton) {
+  usedToSafeAllButton.addEventListener("click", () => {
+    setNechronicaUsedToSafeForAll();
+  });
+}
+
+if (safeAllPartsButton) {
+  safeAllPartsButton.addEventListener("click", () => {
+    setNechronicaStatesForAllParts("⭕");
+  });
+}
+
+if (copyCheckedPartsButton) {
+  copyCheckedPartsButton.addEventListener("click", () => {
+    if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+      return;
+    const lines = nechronicaEditorState.items
+      .filter(
+        (item) => item.type === "row" && item.allowDamage && item.reportChecked,
+      )
+      .map((item) => `${item.state || "⭕"}${item.body || ""}`);
+    copyTextWithToast(
+      lines.join("\n"),
+      "チェック項目をコピーした！",
+      "コピー対象が選ばれていないようだ！",
+    );
+  });
+}
+
+if (clearCheckedPartsButton) {
+  clearCheckedPartsButton.addEventListener("click", () => {
+    if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+      return;
+    nechronicaEditorState.items.forEach((item) => {
+      if (item.type !== "row") return;
+      item.reportChecked = false;
+    });
+    renderNechronicaEditor();
+    renderNechronicaQuoteOutput();
   });
 }
 
@@ -832,7 +1384,8 @@ function updatePage(result) {
 
   setProgressAtLeast(95, true);
   messageArea.textContent = result.message || "メッセージの受信に失敗した。";
-  outputArea.value = renderedOut;
+  lastRawOutputText = renderedOut;
+  outputArea.value = applyNechronicaOutputDisplayFilter(lastRawOutputText);
 
   fillItemSectionFromOutput(
     outputArea.value || "",
@@ -862,6 +1415,7 @@ function showError(error) {
         : "不明なエラーが発生した。";
   messageArea.textContent = "エラーが発生した！: " + errorMessage;
   outputArea.value = "エラー発生";
+  lastRawOutputText = "";
   copyButton.disabled = true;
   if (itemSection) {
     setItemSectionVisible(false);

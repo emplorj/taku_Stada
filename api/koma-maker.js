@@ -2068,7 +2068,8 @@ function getDataNC(html, url, img, opt, additionalPalette) {
 
   for (let i = 0; i < names.length; i++) {
     if (!names[i] || names[i].includes("Power_id")) continue;
-    const txt = `【${names[i]}】《${convertTim(timings[i])}/${costs[i] || ""}/${ranges[i] || ""}》`;
+    const normalizedRange = String(ranges[i] || "").replace(/~/g, "～");
+    const txt = `【${names[i]}】《${convertTim(timings[i])}/${costs[i] || ""}/${normalizedRange}》`;
     const pos = String(positions[i] || "");
     if (["1", "2", "3"].includes(pos)) bui[0].push(`🟩${txt}`);
     else if (pos === "4") bui[1].push(`⭕${txt}`);

@@ -217,7 +217,6 @@ body {
 
 .nechronica-section {
   width: 90%;
-  max-width: 640px;
   margin: 10px auto 8px;
   padding: 10px;
   border: 1px solid rgba(255, 255, 255, 0.45);
@@ -232,6 +231,126 @@ body {
   justify-content: center;
   align-items: center;
   margin: 6px 0 8px;
+}
+
+.nechronica-display-label {
+  color: #fff;
+  font-size: 0.88em;
+  font-weight: 700;
+}
+
+.nechronica-bulk-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.nechronica-kakera-box {
+  margin: 0 0 8px;
+  text-align: left;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-sizing: border-box;
+}
+
+.nechronica-kakera-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0 0 4px;
+}
+
+.nechronica-kakera-title {
+  margin: 0;
+  color: #fff;
+  font-size: 0.86em;
+  font-weight: 700;
+}
+
+#nechronicaKakeraTemplate {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.16);
+  color: #f3fbff;
+  font-family: monospace;
+  font-size: 0.84em;
+  padding: 6px 44px 6px 8px;
+  scrollbar-gutter: stable;
+}
+
+.nechronica-kakera-copy-container {
+  position: relative;
+}
+
+.nechronica-kakera-copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #b7ffda;
+  background: #2a9d69;
+  color: #fff;
+  cursor: pointer;
+}
+
+.nechronica-kakera-copy-btn:hover {
+  background: #1f8556;
+}
+
+.nechronica-output-copy-container {
+  position: relative;
+  margin-top: 10px;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-sizing: border-box;
+}
+
+#nechronicaOutput {
+  width: 100%;
+  min-height: 170px;
+  padding-right: 44px;
+  scrollbar-gutter: stable;
+}
+
+.nechronica-output-copy-btn {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #b7ffda;
+  background: #2a9d69;
+  color: #fff;
+  cursor: pointer;
+}
+
+.nechronica-output-copy-btn:hover {
+  background: #1f8556;
+}
+
+.nechronica-output-copy-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.nechronica-mini-btn {
+  margin: 0;
+  padding: 4px 10px;
+  font-size: 0.9em;
 }
 
 .nechronica-part-editor {
@@ -250,25 +369,75 @@ body {
 }
 
 .nechronica-part-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin-top: 2px;
   color: #fff;
   font-weight: 700;
 }
 
+.nechronica-part-header-title {
+  display: inline-block;
+}
+
+.nechronica-part-header-actions {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.nechronica-header-action {
+  padding: 2px 8px;
+  font-size: 0.78em;
+}
+
 .nechronica-part-row {
   display: grid;
-  grid-template-columns: 86px 1fr;
+  grid-template-columns: 20px 86px 1fr 28px;
   gap: 6px;
   align-items: center;
+}
+
+.nechronica-report-check {
+  width: 14px;
+  height: 14px;
+  margin: 0;
 }
 
 .nechronica-state-select {
   width: 86px;
   padding: 3px 6px;
   border-radius: 4px;
-  border: 1px solid #ccc;
-  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.96);
+  color: #0e2235;
   font-size: 12px;
+  font-weight: 700;
+}
+
+.nechronica-section .nechronica-state-select.status-safe {
+  background: #1f3d2e;
+  color: #d8ffe7;
+  border-color: #61a582;
+}
+
+.nechronica-section .nechronica-state-select.status-unused {
+  background: #1f3d2e;
+  color: #d8ffe7;
+  border-color: #61a582;
+}
+
+.nechronica-section .nechronica-state-select.status-used {
+  background: #4a3d1b;
+  color: #fff0c2;
+  border-color: #b59642;
+}
+
+.nechronica-section .nechronica-state-select.status-damaged {
+  background: #472325;
+  color: #ffd8dd;
+  border-color: #bb6a75;
 }
 
 .nechronica-part-text {
@@ -278,14 +447,73 @@ body {
   word-break: break-word;
 }
 
+.nechronica-line-copy-btn {
+  width: 28px;
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nechronica-line-copy-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.nechronica-line-copy-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 #nechronicaOutput {
   resize: vertical;
   width: 100%;
   min-height: 160px;
   max-width: 100%;
-  margin-top: 10px;
+  margin-top: 0;
   box-sizing: border-box;
   font-family: monospace;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #f3fbff;
+  padding: 8px 38px 8px 8px;
+}
+
+#nechronicaOutput:disabled {
+  opacity: 1;
+  -webkit-text-fill-color: #f3fbff;
+}
+
+#nechronicaOutput,
+#nechronicaKakeraTemplate,
+.nechronica-part-editor {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.45) rgba(0, 0, 0, 0.18);
+}
+
+#nechronicaOutput::-webkit-scrollbar,
+#nechronicaKakeraTemplate::-webkit-scrollbar,
+.nechronica-part-editor::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+#nechronicaOutput::-webkit-scrollbar-track,
+#nechronicaKakeraTemplate::-webkit-scrollbar-track,
+.nechronica-part-editor::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 8px;
+}
+
+#nechronicaOutput::-webkit-scrollbar-thumb,
+#nechronicaKakeraTemplate::-webkit-scrollbar-thumb,
+.nechronica-part-editor::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 #additionalPalette {

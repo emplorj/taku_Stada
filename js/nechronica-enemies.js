@@ -298,6 +298,15 @@ function getManeuverStatusClass(status) {
   return "status-safe";
 }
 
+function isRepeatableTiming(timing) {
+  const t = String(timing || "").trim();
+  return t === "オート" || t === "アクション";
+}
+
+function canUseUsedStatusForManeuver(maneuver) {
+  return !isRepeatableTiming(maneuver && maneuver.timing);
+}
+
 function isServantEnemy(enemy) {
   return String(enemy && enemy.class_type) === "サヴァント";
 }
@@ -1099,7 +1108,11 @@ function renderManeuversTable(enemy) {
   const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
   el.maneuversTableBody.innerHTML = "";
   maneuvers.forEach((m, index) => {
-    const statusValue = String((m && m.status) || "無事");
+    const canUseUsed = canUseUsedStatusForManeuver(m);
+    const rawStatus = String((m && m.status) || "無事");
+    const statusValue =
+      !canUseUsed && rawStatus === "使用" ? "無事" : rawStatus;
+    if (m) m.status = statusValue;
     const statusClass = getManeuverStatusClass(statusValue);
     const partType = sanitizePartType((m && m.partType) || "");
     const maliceValue = Number((m && m.malice) || 0);
@@ -1120,7 +1133,7 @@ function renderManeuversTable(enemy) {
       <td>
         <select class="status-select ${statusClass}" data-kind="maneuvers" data-index="${index}" data-key="status">
           <option value="無事" ${statusValue === "無事" ? "selected" : ""}>無事</option>
-          <option value="使用" ${statusValue === "使用" ? "selected" : ""}>使用</option>
+          ${canUseUsed ? `<option value="使用" ${statusValue === "使用" ? "selected" : ""}>使用</option>` : ""}
           <option value="損傷" ${statusValue === "損傷" ? "selected" : ""}>損傷</option>
         </select>
       </td>
@@ -1556,9 +1569,19 @@ function bindTableEvents() {
           ? target.checked
           : target.value;
     if (kind === "maneuvers" && key === "status") {
+      if (!canUseUsedStatusForManeuver(row) && row.status === "使用") {
+        row.status = "無事";
+        target.value = "無事";
+      }
       row.use = row.status !== "損傷";
       target.classList.remove("status-safe", "status-used", "status-damaged");
       target.classList.add(getManeuverStatusClass(row.status));
+    }
+    if (kind === "maneuvers" && key === "timing") {
+      if (!canUseUsedStatusForManeuver(row) && row.status === "使用") {
+        row.status = "無事";
+      }
+      renderManeuversTable(enemy);
     }
     if (kind === "maneuvers" && key === "partType") {
       row.partType = sanitizePartType(row.partType);

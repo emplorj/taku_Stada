@@ -74,12 +74,44 @@
           <div id="nechronicaSection" class="nechronica-section" style="display:none;">
             <p class="message-row"><span>ネクロニカ用 パーツ状態エディタ（引用用）</span></p>
             <div class="nechronica-controls">
-              <label class="setting-pill"><input type="checkbox" id="includeNechronicaBase" checked><span><i
-                    class="fa-solid fa-database" aria-hidden="true"></i> 基礎データを含める</span></label>
-              <button id="copyNechronicaButton" class="hoha" disabled>引用ボックスをコピー</button>
+              <span class="nechronica-display-label">上のコマ（output）に表示するもの:</span>
+              <label class="setting-pill"><input type="checkbox" id="includeOutputNechronicaManeuver"><span><i
+                    class="fa-solid fa-list-check" aria-hidden="true"></i> マニューバ</span></label>
+              <label class="setting-pill"><input type="checkbox" id="includeOutputNechronicaBase" checked><span><i
+                    class="fa-solid fa-database" aria-hidden="true"></i> 基本データ</span></label>
+            </div>
+            <div class="nechronica-bulk-actions">
+              <button id="usedToSafeAllButton" class="hoha nechronica-mini-btn" disabled>使用→無事（全マニューバ）</button>
+              <button id="copyCheckedPartsButton" class="hoha nechronica-mini-btn" disabled>チェック項目をコピー</button>
+              <button id="clearCheckedPartsButton" class="hoha nechronica-mini-btn" disabled>チェック解除</button>
             </div>
             <div id="nechronicaPartEditor" class="nechronica-part-editor"></div>
-            <textarea id="nechronicaOutput" disabled>ここにネクロニカ用の引用テキストが出力される。</textarea>
+            <div class="nechronica-controls nechronica-controls-lower">
+              <span class="nechronica-display-label">下のボックスに表示するもの（戦闘用コマ／マニューバ一覧）:</span>
+              <label class="setting-pill"><input type="checkbox" id="includeNechronicaManeuver" checked><span><i
+                    class="fa-solid fa-list-check" aria-hidden="true"></i> マニューバ</span></label>
+              <label class="setting-pill"><input type="checkbox" id="includeNechronicaBase" checked><span><i
+                    class="fa-solid fa-database" aria-hidden="true"></i> 基本データ</span></label>
+            </div>
+            <div class="nechronica-output-copy-container">
+              <textarea id="nechronicaOutput" disabled>ここにネクロニカ用の引用テキストが出力される。</textarea>
+              <button id="copyNechronicaButton" class="nechronica-output-copy-btn" type="button" disabled
+                title="引用ボックスをコピー"><i class="fa-solid fa-paste"></i></button>
+            </div>
+            <div class="nechronica-kakera-box">
+              <div class="nechronica-kakera-title-row">
+                <p class="nechronica-kakera-title">記憶のカケラ（スクリーンパネルに上書き）</p>
+              </div>
+              <div class="nechronica-kakera-copy-container">
+                <textarea id="nechronicaKakeraTemplate">【記憶のカケラ：初期】
+「双子」「青い空」
+----------------------------------------------------------------------------
+【記憶のカケラ：取得】
+「テキスト」</textarea>
+                <button id="copyKakeraTemplateButton" class="nechronica-kakera-copy-btn" type="button"
+                  title="記憶のカケラテンプレをコピー"><i class="fa-solid fa-paste"></i></button>
+              </div>
+            </div>
           </div>
           <div id="itemSection" style="display:none;">
             <p class="message-row"><span>アイテム（パネルにコピペしてね）</span></p>
