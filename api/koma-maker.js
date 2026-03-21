@@ -2077,17 +2077,26 @@ function getDataNC(html, url, img, opt, additionalPalette) {
     else if (pos === "7") bui[4].push(`⭕${txt}`);
   }
 
+  const toDamagedPartDisplay = (lines) =>
+    lines
+      .map((line) =>
+        String(line || "")
+          .replace(/(《[^》]*》).*/, "$1")
+          .trim(),
+      )
+      .join("\n");
+
   const buiList =
     "未使用：🟩、使用：✅、無事：⭕、損傷：❌\n" +
     bui[0].join("\n") +
     "\n" +
-    bui[1].join("\n").replace(/《.*/g, "》") +
+    toDamagedPartDisplay(bui[1]) +
     "\n" +
-    bui[2].join("\n").replace(/《.*/g, "》") +
+    toDamagedPartDisplay(bui[2]) +
     "\n" +
-    bui[3].join("\n").replace(/《.*/g, "》") +
+    toDamagedPartDisplay(bui[3]) +
     "\n" +
-    bui[4].join("\n").replace(/《.*/g, "》");
+    toDamagedPartDisplay(bui[4]);
 
   let commandPalette = bui
     .map((b) => b.join("\n"))

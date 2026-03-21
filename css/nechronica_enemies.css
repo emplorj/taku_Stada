@@ -1643,42 +1643,37 @@ body.nechronica-enemies-page {
     font-size: 0.75rem;
   }
 
-  /* 重なり防止とはみ出し防止のジャストフィット調整 */
+  /* 重なり（笠庵り）を物理的に防ぐ 2段スタック構成 */
   .enemy-list-card {
-    padding: 10px !important;
+    padding: 8px 10px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 8px !important; /* 1段目と2段目の間にしっかり隙間を作る */
     height: auto !important;
-    overflow: visible !important; /* ボタンを見切らせない */
+    min-height: 0 !important;
+    overflow: visible !important;
   }
 
-  /* 1行目を「アイコン＋名前」に特化(横並び・端まで使う) */
+  /* 1段目: アイコン、名前、行動値 */
   .enemy-list-row-main {
     display: flex !important;
-    flex-direction: column !important; /* 行を分けて管理しやすくする */
-    gap: 8px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
     width: 100% !important;
+    position: relative !important;
   }
 
-  /* 1段目: 悪意・アイコン・名前を横並びに */
   .enemy-list-side-left {
     display: flex !important;
     align-items: center !important;
     gap: 10px !important;
-    width: 100% !important;
+    flex-shrink: 0 !important;
   }
 
   .enemy-list-content-main {
     flex: 1 !important;
     min-width: 0 !important;
-  }
-
-  .enemy-list-upper-info {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    width: 100% !important;
   }
 
   .enemy-list-name {
@@ -1687,60 +1682,72 @@ body.nechronica-enemies-page {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    flex: 1 !important;
+    color: #ffdbe4;
   }
 
-  /* 2段目: メタ情報(左) と ボタン(右) */
+  /* 2段目: 作者・ID（左）と、操作ボタン（右） */
   .enemy-list-side-right-group {
     display: flex !important;
     flex-direction: row !important;
     justify-content: space-between !important;
     align-items: flex-end !important;
     width: 100% !important;
-    margin-left: 0 !important;
-    padding-top: 8px !important;
+    padding-top: 6px !important;
     border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    margin-left: 0 !important;
   }
 
-  /* 2段目左: 行動値・作者・ID */
+  /* 2段目左側: 行動値・作者・ID */
   .enemy-list-lower-info {
     display: flex !important;
     flex-direction: column !important;
-    gap: 4px !important;
+    gap: 2px !important;
     font-size: 0.65rem !important;
+    opacity: 0.8;
   }
 
-  /* 2段目中央(本来は右側だが左に並べる): 行動値を最下段へ */
-  .enemy-meta-chip {
-    white-space: nowrap !important;
-    display: inline-flex !important;
-    height: 20px !important;
-    padding: 0 6px !important;
-    font-size: 0.72rem !important;
-  }
-
-  .enemy-list-meta-column {
-    display: none !important; /* スマホなら隠す */
-  }
-
-  /* 2段目右: 操作ボタン */
+  /* 2段目右側: 操作ボタン */
   .enemy-list-btns-row {
     display: flex !important;
-    gap: 10px !important;
-    margin-bottom: -2px;
+    gap: 8px !important;
+    flex-shrink: 0 !important;
   }
 
   .list-side-btn {
     width: 44px !important;
-    height: 44px !important;
-    font-size: 0.62rem !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
-    flex-shrink: 0 !important;
+    height: 42px !important;
+    padding: 2px 0 !important;
+    font-size: 0.6rem !important;
+    border-radius: 4px !important;
   }
 
   .list-side-btn i {
-    font-size: 1.1rem !important;
-    margin-bottom: -6px !important;
+    font-size: 1rem !important;
+    margin-bottom: -4px !important;
+  }
+
+  /* 共通パーツのサイズ調整 */
+  .enemy-malice-badge {
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .enemy-list-icon-wrap {
+    width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px !important;
+  }
+
+  .enemy-meta-chip {
+    height: 20px !important;
+    font-size: 0.72rem !important;
+    padding: 0 6px !important;
+    white-space: nowrap !important;
+  }
+
+  .enemy-list-meta-column {
+    display: none !important;
   }
 }
 .restore-dialog-actions .is-secondary {
