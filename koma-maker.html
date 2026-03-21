@@ -71,6 +71,16 @@
           </p>
           <textarea id="output" disabled>ここに情報が出力される。よく見ておくんだな</textarea><br>
           <button id="copyButton" class="hoha" disabled>コピー</button>
+          <div id="nechronicaSection" class="nechronica-section" style="display:none;">
+            <p class="message-row"><span>ネクロニカ用 パーツ状態エディタ（引用用）</span></p>
+            <div class="nechronica-controls">
+              <label class="setting-pill"><input type="checkbox" id="includeNechronicaBase" checked><span><i
+                    class="fa-solid fa-database" aria-hidden="true"></i> 基礎データを含める</span></label>
+              <button id="copyNechronicaButton" class="hoha" disabled>引用ボックスをコピー</button>
+            </div>
+            <div id="nechronicaPartEditor" class="nechronica-part-editor"></div>
+            <textarea id="nechronicaOutput" disabled>ここにネクロニカ用の引用テキストが出力される。</textarea>
+          </div>
           <div id="itemSection" style="display:none;">
             <p class="message-row"><span>アイテム（パネルにコピペしてね）</span></p>
             <div class="item-box-grid">

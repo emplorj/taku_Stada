@@ -215,6 +215,79 @@ body {
   font-size: 0.9em;
 }
 
+.nechronica-section {
+  width: 90%;
+  max-width: 640px;
+  margin: 10px auto 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.nechronica-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  margin: 6px 0 8px;
+}
+
+.nechronica-part-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  max-height: 250px;
+  overflow: auto;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-sizing: border-box;
+}
+
+.nechronica-part-header {
+  margin-top: 2px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.nechronica-part-row {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 6px;
+  align-items: center;
+}
+
+.nechronica-state-select {
+  width: 86px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-size: 12px;
+}
+
+.nechronica-part-text {
+  color: #fff;
+  font-family: monospace;
+  font-size: 0.86em;
+  word-break: break-word;
+}
+
+#nechronicaOutput {
+  resize: vertical;
+  width: 100%;
+  min-height: 160px;
+  max-width: 100%;
+  margin-top: 10px;
+  box-sizing: border-box;
+  font-family: monospace;
+}
+
 #additionalPalette {
   resize: vertical;
   width: 90%;

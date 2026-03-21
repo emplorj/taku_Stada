@@ -2059,7 +2059,7 @@ function getDataNC(html, url, img, opt, additionalPalette) {
   const memos = pickAllByName(html, "Power_memo[]");
 
   const bui = [
-    ["🟩【マニューバ名】 《タイミング / コスト / 射程》"],
+    ["【マニューバ名】 《タイミング / コスト / 射程》"],
     ["👧頭"],
     ["💪腕"],
     ["🧍胴"],

@@ -17,9 +17,17 @@ const loadingOverlay = document.getElementById("loading");
 const progressBarContainer = document.getElementById("progressBarContainer");
 const progressBar = document.getElementById("progressBar");
 const plNameInput = document.getElementById("plName");
+const nechronicaSection = document.getElementById("nechronicaSection");
+const includeNechronicaBaseCheckbox = document.getElementById(
+  "includeNechronicaBase",
+);
+const nechronicaPartEditor = document.getElementById("nechronicaPartEditor");
+const nechronicaOutputArea = document.getElementById("nechronicaOutput");
+const copyNechronicaButton = document.getElementById("copyNechronicaButton");
 
 let toastTimer = null;
 let progressTimer = null;
+let nechronicaEditorState = null;
 
 function getCurrentProgressValue() {
   if (!progressBar) return 0;
@@ -281,6 +289,223 @@ function setItemSectionVisible(visible) {
   itemSection.style.display = visible ? "block" : "none";
 }
 
+function setNechronicaSectionVisible(visible) {
+  if (!nechronicaSection) return;
+  nechronicaSection.style.display = visible ? "block" : "none";
+}
+
+function resetNechronicaSection() {
+  nechronicaEditorState = null;
+  if (includeNechronicaBaseCheckbox)
+    includeNechronicaBaseCheckbox.checked = true;
+  if (nechronicaPartEditor) {
+    nechronicaPartEditor.innerHTML = "";
+  }
+  if (nechronicaOutputArea) {
+    nechronicaOutputArea.value =
+      "ここにネクロニカ用の引用テキストが出力される。";
+  }
+  if (copyNechronicaButton) copyNechronicaButton.disabled = true;
+}
+
+function parseNechronicaMemo(memo) {
+  const lines = String(memo || "").split(/\r?\n/);
+  const legendIndex = lines.findIndex((line) =>
+    String(line || "").startsWith("未使用：🟩、使用：✅、無事：⭕、損傷：❌"),
+  );
+  if (legendIndex < 0) return null;
+
+  const baseIndex = lines.findIndex(
+    (line, idx) =>
+      idx >= legendIndex && String(line || "").trim() === "基礎データ:",
+  );
+
+  const quoteLinesRaw =
+    baseIndex >= 0
+      ? lines.slice(legendIndex, baseIndex)
+      : lines.slice(legendIndex);
+  const quoteLines = quoteLinesRaw.filter(
+    (line) => String(line || "").trim() !== "",
+  );
+  if (!quoteLines.length) return null;
+
+  const legend = quoteLines[0];
+  const items = [];
+  const sectionHeaders = new Set(["👧頭", "💪腕", "🧍胴", "🦵脚"]);
+  const stateMarks = ["🟩", "✅", "⭕", "❌"];
+  let currentSection = "class";
+
+  for (let i = 1; i < quoteLines.length; i++) {
+    const line = String(quoteLines[i] || "").trim();
+    const normalizedLine = line.replace(/^�(?=【)/, "🟩");
+    if (!line) continue;
+    if (sectionHeaders.has(line)) {
+      items.push({ type: "header", text: line });
+      currentSection = line;
+      continue;
+    }
+    const m = normalizedLine.match(/^([🟩✅⭕❌])\s*(.+)$/);
+    if (m) {
+      const allowDamage = currentSection !== "class";
+      const state = !allowDamage && m[1] === "❌" ? "✅" : m[1];
+      const sanitizedBody = String(m[2] || "").replace(/^[�\uFFFD]+(?=【)/, "");
+      items.push({
+        type: "row",
+        state,
+        body: sanitizedBody,
+        allowDamage,
+      });
+      continue;
+    }
+    // 想定外フォーマットでも行を失わないよう固定状態で保持。
+    const fallbackState =
+      stateMarks.find((mark) => normalizedLine.startsWith(mark)) || "⭕";
+    const body = normalizedLine
+      .replace(/^[🟩✅⭕❌]\s*/, "")
+      .replace(/^[�\uFFFD]+(?=【)/, "");
+    const allowDamage = currentSection !== "class";
+    items.push({
+      type: "row",
+      state: !allowDamage && fallbackState === "❌" ? "✅" : fallbackState,
+      body,
+      allowDamage,
+    });
+  }
+
+  const baseLines =
+    baseIndex >= 0
+      ? lines
+          .slice(baseIndex)
+          .filter((line) => String(line || "").trim() !== "")
+      : [];
+
+  return { legend, items, baseLines };
+}
+
+function renderNechronicaEditor() {
+  if (!nechronicaPartEditor) return;
+  nechronicaPartEditor.innerHTML = "";
+  if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+    return;
+
+  const stateOptions = [
+    { mark: "🟩", label: "未使用" },
+    { mark: "✅", label: "使用" },
+    { mark: "⭕", label: "無事" },
+    { mark: "❌", label: "損傷" },
+  ];
+  let rowIndex = -1;
+
+  nechronicaEditorState.items.forEach((item) => {
+    if (item.type === "header") {
+      const h = document.createElement("div");
+      h.className = "nechronica-part-header";
+      h.textContent = item.text;
+      nechronicaPartEditor.appendChild(h);
+      return;
+    }
+
+    rowIndex += 1;
+    const row = document.createElement("div");
+    row.className = "nechronica-part-row";
+
+    const select = document.createElement("select");
+    select.className = "nechronica-state-select";
+    select.dataset.rowIndex = String(rowIndex);
+    const availableStates = item.allowDamage
+      ? stateOptions
+      : stateOptions.filter((x) => x.mark !== "❌");
+    availableStates.forEach((state) => {
+      const opt = document.createElement("option");
+      opt.value = state.mark;
+      opt.textContent = state.label;
+      if (state.mark === item.state) opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    const text = document.createElement("span");
+    text.className = "nechronica-part-text";
+    text.textContent = item.body;
+
+    row.appendChild(select);
+    row.appendChild(text);
+    nechronicaPartEditor.appendChild(row);
+  });
+}
+
+function renderNechronicaQuoteOutput() {
+  if (!nechronicaOutputArea) return;
+  if (!nechronicaEditorState) {
+    nechronicaOutputArea.value =
+      "ここにネクロニカ用の引用テキストが出力される。";
+    if (copyNechronicaButton) copyNechronicaButton.disabled = true;
+    return;
+  }
+
+  const bodyLines = nechronicaEditorState.items.map((item) => {
+    if (item.type === "header") return item.text;
+    const state = item.allowDamage
+      ? item.state
+      : item.state === "❌"
+        ? "✅"
+        : item.state;
+    return `${state}${item.body}`;
+  });
+
+  const includeBase = !!(
+    includeNechronicaBaseCheckbox && includeNechronicaBaseCheckbox.checked
+  );
+  const lines = [nechronicaEditorState.legend, ...bodyLines];
+  if (includeBase && nechronicaEditorState.baseLines.length) {
+    lines.push("", ...nechronicaEditorState.baseLines);
+  }
+
+  nechronicaOutputArea.value = lines.join("\n").trim();
+  if (copyNechronicaButton)
+    copyNechronicaButton.disabled = !nechronicaOutputArea.value;
+}
+
+function fillNechronicaSectionFromOutput(rawText) {
+  let parsed = null;
+  try {
+    parsed = JSON.parse(String(rawText || ""));
+  } catch (_) {
+    parsed = null;
+  }
+
+  const memo = String(
+    parsed && parsed.data && parsed.data.memo ? parsed.data.memo : "",
+  );
+  const externalUrl = String(
+    parsed && parsed.data && parsed.data.externalUrl
+      ? parsed.data.externalUrl
+      : "",
+  );
+  const isNechronica =
+    /nechro|nechronica/i.test(externalUrl) ||
+    memo.includes("未使用：🟩、使用：✅、無事：⭕、損傷：❌");
+
+  if (!isNechronica) {
+    setNechronicaSectionVisible(false);
+    resetNechronicaSection();
+    return;
+  }
+
+  const parsedMemo = parseNechronicaMemo(memo);
+  if (!parsedMemo) {
+    setNechronicaSectionVisible(false);
+    resetNechronicaSection();
+    return;
+  }
+
+  nechronicaEditorState = parsedMemo;
+  if (includeNechronicaBaseCheckbox)
+    includeNechronicaBaseCheckbox.checked = true;
+  renderNechronicaEditor();
+  renderNechronicaQuoteOutput();
+  setNechronicaSectionVisible(true);
+}
+
 function setItemHeader(el, title, current = null, max = null) {
   if (!el) return;
   if (current === null || max === null) {
@@ -462,6 +687,60 @@ if (itemSection) {
   resetItemSection();
 }
 
+if (nechronicaPartEditor) {
+  nechronicaPartEditor.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+    if (!target.classList.contains("nechronica-state-select")) return;
+    if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+      return;
+
+    const rowIndex = Number(target.dataset.rowIndex || "-1");
+    if (!Number.isInteger(rowIndex) || rowIndex < 0) return;
+
+    let currentRow = -1;
+    for (const item of nechronicaEditorState.items) {
+      if (item.type !== "row") continue;
+      currentRow += 1;
+      if (currentRow !== rowIndex) continue;
+      item.state = target.value;
+      break;
+    }
+    renderNechronicaQuoteOutput();
+  });
+}
+
+if (includeNechronicaBaseCheckbox) {
+  includeNechronicaBaseCheckbox.addEventListener("change", () => {
+    renderNechronicaQuoteOutput();
+  });
+}
+
+if (copyNechronicaButton && nechronicaOutputArea) {
+  copyNechronicaButton.addEventListener("click", () => {
+    const txt = nechronicaOutputArea.value || "";
+    if (!txt || txt === "ここにネクロニカ用の引用テキストが出力される。") {
+      showToast("ネクロニカ引用ボックスがまだ生成されていない！", "error");
+      return;
+    }
+    navigator.clipboard
+      .writeText(txt)
+      .then(() => showToast("ネクロニカ引用ボックスをコピーした！", "info"))
+      .catch((err) => {
+        showToast(
+          "コピーに失敗したようだ… ブラウザの権限を確認しろ！",
+          "error",
+        );
+        console.error("Clipboard copy failed: ", err);
+      });
+  });
+}
+
+if (nechronicaSection) {
+  setNechronicaSectionVisible(false);
+  resetNechronicaSection();
+}
+
 sheetForm.addEventListener("submit", function (event) {
   event.preventDefault();
   const sheetUrlValue = document.getElementById("sheetUrl").value.toLowerCase();
@@ -471,6 +750,10 @@ sheetForm.addEventListener("submit", function (event) {
   if (itemSection) {
     setItemSectionVisible(false);
     resetItemSection();
+  }
+  if (nechronicaSection) {
+    setNechronicaSectionVisible(false);
+    resetNechronicaSection();
   }
   stopProgressTracking();
   setProgress(0, false);
@@ -556,6 +839,7 @@ function updatePage(result) {
     result && result.itemLimits,
     result && result.itemSections,
   );
+  fillNechronicaSectionFromOutput(outputArea.value || "");
 
   const txt = outputArea.value || "";
   const canCopy =
@@ -582,6 +866,10 @@ function showError(error) {
   if (itemSection) {
     setItemSectionVisible(false);
     resetItemSection();
+  }
+  if (nechronicaSection) {
+    setNechronicaSectionVisible(false);
+    resetNechronicaSection();
   }
   finalizeUiUpdate();
 }
