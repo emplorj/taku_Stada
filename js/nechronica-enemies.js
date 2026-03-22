@@ -2,14 +2,21 @@ const state = {
   enemies: [],
   selectedId: null,
   search: "",
+  enemySearchField: "all",
+  summaryPlayerCount: 4,
+  summaryKarmaCount: 1,
+  activeTab: "editor",
   maneuverMasterMap: new Map(),
   maneuverMasterLoaded: false,
   enemySortKey: "id",
   enemySortDir: "asc",
+  enemyListPageSize: 10,
+  enemyListPage: 1,
 };
 
 const PART_TYPES = ["頭", "腕", "胴", "脚"];
 const CLASS_TYPES = ["サヴァント", "ホラー", "レギオン"];
+const PLACE_TYPES = ["地獄", "奈落", "煉獄", "花園", "楽園"];
 const TIMING_OPTIONS = [
   "オート",
   "アクション",
@@ -58,13 +65,40 @@ const BASIC_MANEUVERS_TEMPLATE = [
 ];
 
 const el = {
+  editorTabButton: document.getElementById("editorTabButton"),
+  summaryTabButton: document.getElementById("summaryTabButton"),
+  editorTabPanel: document.getElementById("editorTabPanel"),
+  summaryTabPanel: document.getElementById("summaryTabPanel"),
+  refreshSummaryButton: document.getElementById("refreshSummaryButton"),
+  summaryTotalMalice: document.getElementById("summaryTotalMalice"),
+  summaryFavorPoints: document.getElementById("summaryFavorPoints"),
+  summaryPlayerCountInput: document.getElementById("summaryPlayerCountInput"),
+  summaryKarmaCountInput: document.getElementById("summaryKarmaCountInput"),
+  summaryBaseParts: document.getElementById("summaryBaseParts"),
+  summaryEnhancedParts: document.getElementById("summaryEnhancedParts"),
+  summaryEnemiesBody: document.getElementById("summaryEnemiesBody"),
+  summaryDamageUnitList: document.getElementById("summaryDamageUnitList"),
+  summaryPlaceGrid: document.getElementById("summaryPlaceGrid"),
   enemyList: document.getElementById("enemyList"),
+  enemyListPager: document.getElementById("enemyListPager"),
   enemySearchInput: document.getElementById("enemySearchInput"),
+  enemySearchField: document.getElementById("enemySearchField"),
+  enemyPageSizeInput: document.getElementById("enemyPageSizeInput"),
+  enemyShowAllButton: document.getElementById("enemyShowAllButton"),
   saveEnemyButton: document.getElementById("saveEnemyButton"),
+  saveEnemyButtonBottom: document.getElementById("saveEnemyButtonBottom"),
   newEnemyButton: document.getElementById("newEnemyButton"),
+  newEnemyButtonBottom: document.getElementById("newEnemyButtonBottom"),
   duplicateEnemyButton: document.getElementById("duplicateEnemyButton"),
+  duplicateEnemyButtonBottom: document.getElementById(
+    "duplicateEnemyButtonBottom",
+  ),
   deleteEnemyButton: document.getElementById("deleteEnemyButton"),
+  deleteEnemyButtonBottom: document.getElementById("deleteEnemyButtonBottom"),
   reloadEnemyListButton: document.getElementById("reloadEnemyListButton"),
+  reloadEnemyListButtonBottom: document.getElementById(
+    "reloadEnemyListButtonBottom",
+  ),
   saveStatusText: document.getElementById("saveStatusText"),
   sortByMaliceButton: document.getElementById("sortByMaliceButton"),
   sortByInitiativeButton: document.getElementById("sortByInitiativeButton"),
@@ -73,7 +107,6 @@ const el = {
   sortByTimeButton: document.getElementById("sortByTimeButton"),
   exportJsonButton: document.getElementById("exportJsonButton"),
   exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
-  copyMemoPreviewButton: document.getElementById("copyMemoPreviewButton"),
   importKomaJsonButton: document.getElementById("importKomaJsonButton"),
   komaJsonInput: document.getElementById("komaJsonInput"),
   partsStatusPanel: document.getElementById("partsStatusPanel"),
@@ -272,6 +305,7 @@ function createEmptyManeuver() {
     partId: "",
     broken: "",
     use: true,
+    reportChecked: false,
   };
 }
 
@@ -338,6 +372,9 @@ function createEnemyTemplate() {
     author: getRememberedAuthor(),
     name: "",
     class_type: "サヴァント",
+    place: "煉獄",
+    unit_count: 1,
+    summary_slots: [],
     is_public: true,
     memo: "",
     data: {
@@ -372,7 +409,63 @@ function normalizeEnemy(enemy) {
   if (!CLASS_TYPES.includes(String(enemy.class_type || ""))) {
     enemy.class_type = "サヴァント";
   }
-  // 旧版の initiative 構造は保持しない（行動値はマニューバ効果由来）
+  const place = String(enemy.place || "煉獄").trim();
+  enemy.place = PLACE_TYPES.includes(place) ? place : "煉獄";
+  const units = Number(enemy.unit_count || 1);
+  enemy.unit_count =
+    Number.isFinite(units) && units > 0 ? Math.floor(units) : 1;
+  if (!Array.isArray(enemy.summary_slots)) {
+    if (enemy.summary_included) {
+      enemy.summary_slots = [
+        {
+          place: enemy.place,
+          unit_count: enemy.unit_count,
+        },
+      ];
+    } else {
+      enemy.summary_slots = [];
+    }
+  }
+  enemy.summary_slots = enemy.summary_slots
+    .map((slot) => {
+      const slotPlace = String(
+        (slot && slot.place) || enemy.place || "煉獄",
+      ).trim();
+      const slotUnits = Number(
+        (slot && slot.unit_count) || enemy.unit_count || 1,
+      );
+      return {
+        place: PLACE_TYPES.includes(slotPlace) ? slotPlace : "煉獄",
+        unit_count:
+          Number.isFinite(slotUnits) && slotUnits > 0
+            ? Math.floor(slotUnits)
+            : 1,
+      };
+    })
+    .filter((slot) => slot && slot.unit_count > 0);
+  if (
+    !enemy.summary_unit_damage_notes ||
+    typeof enemy.summary_unit_damage_notes !== "object"
+  ) {
+    enemy.summary_unit_damage_notes = {};
+  }
+  if (
+    !enemy.summary_unit_part_states ||
+    typeof enemy.summary_unit_part_states !== "object"
+  ) {
+    enemy.summary_unit_part_states = {};
+  }
+  // 旧版の initiative は top-level へ救済してから data 側を整理する
+  // （enemies.txt など data.initiative 起点の入力との互換維持）
+  const topLevelInitiative = Number(enemy.initiative || 0);
+  const legacyDataInitiative = Number(enemy.data.initiative || 0);
+  if (
+    (!Number.isFinite(topLevelInitiative) || topLevelInitiative <= 0) &&
+    Number.isFinite(legacyDataInitiative) &&
+    legacyDataInitiative > 0
+  ) {
+    enemy.initiative = legacyDataInitiative;
+  }
   if (enemy.data.initiative) delete enemy.data.initiative;
   if (!Array.isArray(enemy.data.parts)) enemy.data.parts = [];
   if (!Array.isArray(enemy.data.maneuvers)) enemy.data.maneuvers = [];
@@ -413,6 +506,7 @@ function normalizeEnemy(enemy) {
       partId: (m && m.partId) || "",
       broken: (m && m.broken) || "",
       use: status !== "損傷",
+      reportChecked: !!(m && m.reportChecked),
     };
   });
 
@@ -686,6 +780,17 @@ function sortEnemies(list) {
   });
 }
 
+function normalizeEnemyListPageSize(rawValue) {
+  const raw = String(rawValue || "").trim();
+  if (!raw) return 10;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return 10;
+  const i = Math.floor(n);
+  if (i === 0) return 0;
+  if (i < 0) return 10;
+  return i;
+}
+
 function updateEnemySortButtons() {
   const map = [
     [el.sortByMaliceButton, "malice", "悪意"],
@@ -731,6 +836,7 @@ function setEnemySort(key) {
     state.enemySortKey = key;
     state.enemySortDir = recommendDir;
   }
+  state.enemyListPage = 1;
   renderEnemyList();
 }
 
@@ -829,33 +935,64 @@ function saveToStorage() {
 
 function renderEnemyList() {
   const q = state.search.trim().toLowerCase();
+  const searchField = String(state.enemySearchField || "all").trim();
   const myAuthor = getRememberedAuthor();
   const targets = state.enemies.filter((e) => {
     if (isNoNameServantPlaceholder(e)) return false;
     const isMine = myAuthor && String(e.author || "") === String(myAuthor);
     if (!e.is_public && !isMine) return false;
     if (!q) return true;
-    return (
-      String(e.name || "")
-        .toLowerCase()
-        .includes(q) ||
-      String(e.author || "")
-        .toLowerCase()
-        .includes(q)
-    );
+    const fields = {
+      name: String(e.name || "").toLowerCase(),
+      author: String(e.author || "").toLowerCase(),
+      class: String(e.class_type || "").toLowerCase(),
+      id: String(e.ID || "").toLowerCase(),
+    };
+    if (searchField === "all") {
+      return Object.values(fields).some((v) => v.includes(q));
+    }
+    return String(fields[searchField] || "").includes(q);
   });
 
   const sortedTargets = sortEnemies(targets);
+  const pageSize = normalizeEnemyListPageSize(state.enemyListPageSize);
+  state.enemyListPageSize = pageSize;
+  const showAll = pageSize <= 0;
+  const totalPages = showAll
+    ? 1
+    : Math.max(1, Math.ceil(sortedTargets.length / pageSize));
+  state.enemyListPage = showAll
+    ? 1
+    : Math.min(Math.max(1, state.enemyListPage), totalPages);
+  const pageStart = showAll ? 0 : (state.enemyListPage - 1) * pageSize;
+  const pageEnd = showAll ? sortedTargets.length : pageStart + pageSize;
+  const visibleTargets = sortedTargets.slice(pageStart, pageEnd);
+
+  if (el.enemyPageSizeInput) {
+    const expectedValue = showAll ? "0" : String(pageSize);
+    if (el.enemyPageSizeInput.value !== expectedValue) {
+      el.enemyPageSizeInput.value = expectedValue;
+    }
+  }
+
+  if (el.enemyListPager) {
+    el.enemyListPager.innerHTML = "";
+  }
+
   el.enemyList.innerHTML = "";
   updateEnemySortButtons();
   if (!sortedTargets.length) {
     const li = document.createElement("li");
     li.textContent = "該当なし";
     el.enemyList.appendChild(li);
+    if (el.enemyListPager) {
+      el.enemyListPager.innerHTML =
+        '<span class="enemy-list-pager-info">0件</span>';
+    }
     return;
   }
 
-  sortedTargets.forEach((enemy) => {
+  visibleTargets.forEach((enemy) => {
     const li = document.createElement("li");
     const card = document.createElement("div");
     card.classList.add("enemy-list-card");
@@ -879,6 +1016,8 @@ function renderEnemyList() {
     const initiativeValue = Number(calcInitiativeTotal(enemy));
     const showInitiative = Number.isFinite(initiativeValue);
     const iconUrl = String(enemy.icon_url || "").trim();
+    const showSummaryAdd = state.activeTab === "summary";
+    const addLabel = "追加";
 
     card.innerHTML = `
         <span class="enemy-list-row enemy-list-row-main">
@@ -923,11 +1062,16 @@ function renderEnemyList() {
             <!-- アクションボタン -->
             <span class="enemy-list-btns-row">
               <button type="button" class="list-side-btn is-load" title="編集を表示">
-                <i class="fa-solid fa-file-signature"></i><br>読込
+                <i class="fa-solid fa-file-signature"></i><br>編集
               </button>
               <button type="button" class="list-side-btn is-copy" title="コピー">
-                <i class="fa-solid fa-copy"></i><br>コピー
+                <i class="fa-solid fa-copy"></i><br>出力
               </button>
+              ${
+                showSummaryAdd
+                  ? `<button type="button" class="list-side-btn is-add-summary" title="敵まとめへ追加" data-add-summary-id="${escapeHtml(enemy.ID || "")}"><i class="fa-solid fa-plus"></i><br>${escapeHtml(addLabel)}</button>`
+                  : ""
+              }
             </span>
           </span>
         </span>
@@ -937,6 +1081,7 @@ function renderEnemyList() {
     card.querySelector(".is-load").addEventListener("click", () => {
       state.selectedId = enemy.ID;
       saveLastSelectedId(enemy.ID);
+      setActivePageTab("editor");
       renderAll();
       // 編集画面へスクロール
       const editor = document.querySelector(".editor-pane");
@@ -944,11 +1089,12 @@ function renderEnemyList() {
     });
 
     // コピーボタン
-    card.querySelector(".is-copy").addEventListener("click", (e) => {
-      e.stopPropagation();
+    card.querySelector(".is-copy").addEventListener("click", (event) => {
+      event.stopPropagation();
       const copyData = buildKomaCharacterJson(enemy);
       navigator.clipboard.writeText(JSON.stringify(copyData)).then(() => {
-        const btn = e.target;
+        const btn = event.currentTarget;
+        if (!(btn instanceof HTMLButtonElement)) return;
         const originalText = btn.textContent;
         btn.textContent = "完了!";
         btn.classList.add("is-success");
@@ -959,9 +1105,40 @@ function renderEnemyList() {
       });
     });
 
+    const addSummaryBtn = card.querySelector("[data-add-summary-id]");
+    if (addSummaryBtn instanceof HTMLButtonElement) {
+      addSummaryBtn.addEventListener("click", () => {
+        if (!Array.isArray(enemy.summary_slots)) enemy.summary_slots = [];
+        enemy.summary_slots.push({
+          place: getEnemyPlace(enemy),
+          unit_count: getEnemyUnitCount(enemy),
+        });
+        enemy.time = nowIsoLocal();
+        scheduleSaveToDb();
+        renderEnemyList();
+        renderSummaryPanel();
+      });
+    }
+
     li.appendChild(card);
     el.enemyList.appendChild(li);
   });
+
+  if (el.enemyListPager) {
+    const from = pageStart + 1;
+    const to = Math.min(pageEnd, sortedTargets.length);
+    if (showAll || totalPages <= 1) {
+      el.enemyListPager.innerHTML = `<span class="enemy-list-pager-info">${escapeHtml(
+        sortedTargets.length,
+      )}件表示</span>`;
+      return;
+    }
+    el.enemyListPager.innerHTML = `
+      <button type="button" class="pager-btn" data-page-action="prev" ${state.enemyListPage <= 1 ? "disabled" : ""}>前へ</button>
+      <span class="enemy-list-pager-info">${escapeHtml(from)}-${escapeHtml(to)} / ${escapeHtml(sortedTargets.length)}件（${escapeHtml(state.enemyListPage)} / ${escapeHtml(totalPages)}ページ）</span>
+      <button type="button" class="pager-btn" data-page-action="next" ${state.enemyListPage >= totalPages ? "disabled" : ""}>次へ</button>
+    `;
+  }
 }
 
 function fillForm(enemy) {
@@ -982,11 +1159,14 @@ function fillForm(enemy) {
 
 function calcInitiativeTotal(enemy) {
   const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
-  if (maneuvers.length === 0) return 0;
-
   const base = 6 + (String(enemy && enemy.class_type) === "レギオン" ? 2 : 0);
-  const delta = maneuvers.reduce((acc, m) => {
-    const n = Number((m && m.initiative) || 0);
+  const legacyTotal = Number(
+    (enemy && (enemy.initiative ?? (enemy.data && enemy.data.initiative))) || 0,
+  );
+  const hasLegacyTotal = Number.isFinite(legacyTotal) && legacyTotal > 0;
+  if (maneuvers.length === 0) return hasLegacyTotal ? legacyTotal : base;
+
+  const addInitiativeByRule = (acc, n, status) => {
     if (!Number.isFinite(n)) return acc;
     // 行動値増減仕様:
     // - 通常は 0
@@ -994,11 +1174,37 @@ function calcInitiativeTotal(enemy) {
     // - 負の値は「損傷」時のみ同値を加算（例: -1 -> +1）
     // - 負の値で「損傷」以外のときは 0 扱い
     if (n < 0) {
-      if (m && m.status === "損傷") return acc + Math.abs(n);
+      if (status === "損傷") return acc + Math.abs(n);
       return acc;
     }
     if (n > 0) return acc + n;
     return acc;
+  };
+
+  const hasManeuverInitiative = maneuvers.some((m) => {
+    const n = Number((m && m.initiative) || 0);
+    return Number.isFinite(n) && n !== 0;
+  });
+  if (!hasManeuverInitiative && hasLegacyTotal) {
+    return legacyTotal;
+  }
+
+  const shouldUseMasterFallback = !hasManeuverInitiative;
+  const delta = maneuvers.reduce((acc, m) => {
+    const direct = Number((m && m.initiative) || 0);
+    if (Number.isFinite(direct) && (direct !== 0 || !shouldUseMasterFallback)) {
+      return addInitiativeByRule(acc, direct, String((m && m.status) || ""));
+    }
+    if (!shouldUseMasterFallback) return acc;
+
+    const key = String(
+      (m && (m.kindName || m.name || m.displayName)) || "",
+    ).trim();
+    if (!key) return acc;
+    const master = state.maneuverMasterMap.get(key);
+    if (!master) return acc;
+    const masterIni = Number(master.initiative || 0);
+    return addInitiativeByRule(acc, masterIni, String((m && m.status) || ""));
   }, 0);
   // 既定値: 6 + IF(種別="レギオン",2,0)
   // その上にマニューバ由来の増減を加算する。
@@ -1012,12 +1218,41 @@ function calcMalice(enemy) {
 
 function calcMaliceRawRounded(enemy) {
   const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
-  if (maneuvers.length === 0) return 0;
-
-  const sumMalice = maneuvers.reduce(
-    (acc, m) => acc + Number((m && m.malice) || 0),
-    0,
+  const legacyRaw = Number(
+    (enemy && (enemy.malice ?? (enemy.data && enemy.data.malice))) || 0,
   );
+  const hasLegacyMalice = Number.isFinite(legacyRaw) && legacyRaw > 0;
+  const legacyRounded = hasLegacyMalice ? Math.ceil(legacyRaw) : 0;
+  if (maneuvers.length === 0) return legacyRounded;
+
+  const hasManeuverMalice = maneuvers.some((m) => {
+    const v = Number((m && m.malice) || 0);
+    return Number.isFinite(v) && v !== 0;
+  });
+  if (!hasManeuverMalice && hasLegacyMalice) {
+    return legacyRounded;
+  }
+
+  const shouldUseMasterFallback = !hasManeuverMalice && !hasLegacyMalice;
+
+  const sumMalice = maneuvers.reduce((acc, m) => {
+    const direct = Number((m && m.malice) || 0);
+    if (Number.isFinite(direct) && (direct !== 0 || !shouldUseMasterFallback)) {
+      return acc + direct;
+    }
+
+    if (!shouldUseMasterFallback) return acc;
+
+    const key = String(
+      (m && (m.kindName || m.name || m.displayName)) || "",
+    ).trim();
+    if (!key) return acc;
+
+    const master = state.maneuverMasterMap.get(key);
+    if (!master) return acc;
+    const masterMalice = Number(master.malice || 0);
+    return Number.isFinite(masterMalice) ? acc + masterMalice : acc;
+  }, 0);
   const classType = String((enemy && enemy.class_type) || "");
   const classAdjust =
     classType === "サヴァント"
@@ -1108,12 +1343,6 @@ function renderManeuversTable(enemy) {
   const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
   el.maneuversTableBody.innerHTML = "";
   maneuvers.forEach((m, index) => {
-    const canUseUsed = canUseUsedStatusForManeuver(m);
-    const rawStatus = String((m && m.status) || "無事");
-    const statusValue =
-      !canUseUsed && rawStatus === "使用" ? "無事" : rawStatus;
-    if (m) m.status = statusValue;
-    const statusClass = getManeuverStatusClass(statusValue);
     const partType = sanitizePartType((m && m.partType) || "");
     const maliceValue = Number((m && m.malice) || 0);
     const isForbiddenMalice = maliceValue === 99;
@@ -1130,13 +1359,6 @@ function renderManeuversTable(enemy) {
     tr.dataset.index = String(index);
     if (isForbiddenMalice) tr.classList.add("is-forbidden-maneuver");
     tr.innerHTML = `
-      <td>
-        <select class="status-select ${statusClass}" data-kind="maneuvers" data-index="${index}" data-key="status">
-          <option value="無事" ${statusValue === "無事" ? "selected" : ""}>無事</option>
-          ${canUseUsed ? `<option value="使用" ${statusValue === "使用" ? "selected" : ""}>使用</option>` : ""}
-          <option value="損傷" ${statusValue === "損傷" ? "selected" : ""}>損傷</option>
-        </select>
-      </td>
       <td><input data-kind="maneuvers" data-index="${index}" data-key="name" value="${escapeHtml(m.name || m.kindName || "")}"></td>
       <td>
         <select data-kind="maneuvers" data-index="${index}" data-key="partType">
@@ -1158,6 +1380,9 @@ function renderManeuversTable(enemy) {
       <td><input data-kind="maneuvers" data-index="${index}" data-key="malice" type="number" min="0" value="${maliceValue}" title="${isForbiddenMalice ? "悪意99のマニューバはエネミーに付与できません" : ""}"></td>
       <td>
         <div class="row-action-wrap">
+          <button type="button" class="copy-row-btn" data-copy-kind="maneuver-line" data-index="${index}" title="この行をコピー" aria-label="この行をコピー">
+            <i class="fa-solid fa-copy"></i>
+          </button>
           <button type="button" class="delete-btn" data-remove-kind="maneuvers" data-index="${index}" title="削除" aria-label="削除">
             <i class="fa-solid fa-trash"></i>
           </button>
@@ -1419,6 +1644,31 @@ function buildKomaCharacterJson(enemy) {
   };
 }
 
+function formatManeuverLineForReport(maneuver) {
+  if (!maneuver) return "";
+  const name = String(
+    (maneuver &&
+      (maneuver.name || maneuver.kindName || maneuver.displayName)) ||
+      "",
+  ).trim();
+  if (!name) return "";
+  const timing = String((maneuver && maneuver.timing) || "");
+  const cost = String((maneuver && maneuver.cost) || "");
+  const range = String((maneuver && maneuver.range) || "");
+  const effectText = formatEffectWithTriggerHint(
+    (maneuver && maneuver.effect) || "",
+  );
+  return `${stateMark(maneuver)}【${name}】《${timing}/${cost}/${range}》${effectText}`;
+}
+
+function getCheckedManeuverReportLines(enemy) {
+  const maneuvers = (enemy && enemy.data && enemy.data.maneuvers) || [];
+  return maneuvers
+    .filter((m) => m && m.reportChecked)
+    .map((m) => formatManeuverLineForReport(m))
+    .filter((line) => line.length > 0);
+}
+
 function importFromKomaJson(enemy, src) {
   const data = src && src.data ? src.data : {};
   enemy.name = String(data.name || enemy.name || "").trim();
@@ -1499,6 +1749,799 @@ function renderAll() {
   renderCalculatedHeader(enemy);
   renderDataPreview(enemy);
   renderMemoPreview(enemy);
+  renderSummaryPanel();
+}
+
+function getEnemyUnitCount(enemy) {
+  const n = Number(enemy && enemy.unit_count);
+  if (!Number.isFinite(n) || n <= 0) return 1;
+  return Math.floor(n);
+}
+
+function getEnemyPlace(enemy) {
+  const place = String((enemy && enemy.place) || "").trim();
+  return PLACE_TYPES.includes(place) ? place : "煉獄";
+}
+
+function normalizeSummaryPlayerCount(rawValue) {
+  const n = Number(rawValue);
+  if (!Number.isFinite(n)) return 4;
+  const normalized = Math.floor(n);
+  if (normalized < 1) return 1;
+  if (normalized > 99) return 99;
+  return normalized;
+}
+
+function normalizeSummaryKarmaCount(rawValue) {
+  const n = Number(rawValue);
+  if (!Number.isFinite(n)) return 1;
+  const normalized = Math.floor(n);
+  if (normalized < 0) return 0;
+  if (normalized > 99) return 99;
+  return normalized;
+}
+
+function calcSummaryScore(totalMalice, allMalice) {
+  const den = Number(allMalice || 0);
+  const num = Number(totalMalice || 0);
+  if (!Number.isFinite(num) || num <= 0) return "0";
+  if (!Number.isFinite(den) || den <= 0) return `${num.toFixed(2)}/-`;
+  return `${(num / den).toFixed(2)}`;
+}
+
+function getAlphabetIndexLabel(index) {
+  let n = Number(index);
+  if (!Number.isFinite(n) || n < 0) return "A";
+  n = Math.floor(n);
+  let label = "";
+  do {
+    label = String.fromCharCode(65 + (n % 26)) + label;
+    n = Math.floor(n / 26) - 1;
+  } while (n >= 0);
+  return label;
+}
+
+function buildSummaryUnitKey(slotIndex, unitIndex) {
+  return `${Number(slotIndex)}:${Number(unitIndex)}`;
+}
+
+function buildSummaryUnitPartKey(maneuver, index) {
+  if (maneuver && maneuver.id) return String(maneuver.id);
+  return `m_${Number(index)}`;
+}
+
+function normalizeSummaryUnitPartState(entry) {
+  if (entry && typeof entry === "object") {
+    const statusRaw = String(entry.status || "無事").trim();
+    const status =
+      statusRaw === "損傷" || statusRaw === "使用" ? statusRaw : "無事";
+    return {
+      status,
+      reportChecked: !!entry.reportChecked,
+    };
+  }
+  return {
+    status: "無事",
+    reportChecked: false,
+  };
+}
+
+function getSummaryUnitRows(summaryRows) {
+  const unitRows = [];
+  summaryRows.forEach((row) => {
+    const units = Number(row && row.units);
+    const isLegion = String((row && row.classType) || "") === "レギオン";
+    const normalizedUnits = isLegion
+      ? 1
+      : Number.isFinite(units) && units > 0
+        ? Math.floor(units)
+        : 1;
+    const enemy = state.enemies.find(
+      (e) => String((e && e.ID) || "") === String(row.id || ""),
+    );
+    if (!enemy) return;
+    if (
+      !enemy.summary_unit_damage_notes ||
+      typeof enemy.summary_unit_damage_notes !== "object"
+    ) {
+      enemy.summary_unit_damage_notes = {};
+    }
+    if (
+      !enemy.summary_unit_part_states ||
+      typeof enemy.summary_unit_part_states !== "object"
+    ) {
+      enemy.summary_unit_part_states = {};
+    }
+    for (let unitIndex = 0; unitIndex < normalizedUnits; unitIndex += 1) {
+      const unitKey = buildSummaryUnitKey(row.slotIndex, unitIndex);
+      const currentMap = enemy.summary_unit_part_states[unitKey];
+      if (!currentMap || typeof currentMap !== "object") {
+        enemy.summary_unit_part_states[unitKey] = {};
+      }
+      unitRows.push({
+        id: row.id,
+        slotIndex: row.slotIndex,
+        unitIndex,
+        unitKey,
+        unitLabel: `${unitIndex + 1}`,
+        rowName: row.displayName || row.name,
+        classType: String(row.classType || ""),
+        place: row.place,
+        enemy,
+      });
+    }
+  });
+  return unitRows;
+}
+
+function getSummaryUnitPartRows(unitRow) {
+  const enemy = unitRow.enemy;
+  const maneuvers = Array.isArray(enemy?.data?.maneuvers)
+    ? enemy.data.maneuvers
+    : [];
+  const aliveLabel = getPartStatusText(enemy);
+  const unitMap = enemy.summary_unit_part_states[unitRow.unitKey] || {};
+  return maneuvers.filter(hasManeuverName).map((m, index) => {
+    const partKey = buildSummaryUnitPartKey(m, index);
+    const stateObj = normalizeSummaryUnitPartState(unitMap[partKey]);
+    unitMap[partKey] = stateObj;
+    enemy.summary_unit_part_states[unitRow.unitKey] = unitMap;
+    return {
+      id: unitRow.id,
+      slotIndex: unitRow.slotIndex,
+      unitIndex: unitRow.unitIndex,
+      unitKey: unitRow.unitKey,
+      partKey,
+      enemyName: unitRow.rowName,
+      place: unitRow.place,
+      unitLabel: unitRow.unitLabel,
+      classType: String(unitRow.classType || ""),
+      aliveLabel,
+      partType: sanitizePartType((m && m.partType) || "", "胴"),
+      partName: String((m && (m.name || m.kindName || m.displayName)) || ""),
+      timing: String((m && m.timing) || ""),
+      cost: String((m && m.cost) || ""),
+      range: String((m && m.range) || ""),
+      effect: String((m && m.effect) || ""),
+      status: stateObj.status,
+      reportChecked: !!stateObj.reportChecked,
+    };
+  });
+}
+
+function buildSummaryCheckedPartCopyText(partRows) {
+  return partRows
+    .map((row) => {
+      const mark = stateMark({ status: row.status || "無事" });
+      return `${mark}${row.partType}【${row.partName}】《${row.timing}/${row.cost}/${row.range}》${row.effect}`;
+    })
+    .join("\n");
+}
+
+function buildEnemySummaryRows() {
+  const rows = [];
+  state.enemies
+    .filter((enemy) => !isNoNameServantPlaceholder(enemy))
+    .forEach((enemy) => {
+      const baseMalice = calcMalice(enemy);
+      const slots = Array.isArray(enemy.summary_slots)
+        ? enemy.summary_slots
+        : [];
+      slots.forEach((slot, index) => {
+        const units = Number((slot && slot.unit_count) || 1);
+        const normalizedUnits =
+          Number.isFinite(units) && units > 0 ? Math.floor(units) : 1;
+        const place = String((slot && slot.place) || getEnemyPlace(enemy));
+        const normalizedPlace = PLACE_TYPES.includes(place) ? place : "煉獄";
+        const totalMalice = baseMalice * normalizedUnits;
+        const baseName = String(enemy.name || "(no name)");
+        rows.push({
+          id: String(enemy.ID || ""),
+          slotIndex: index,
+          rowKey: `${String(enemy.ID || "")}:${index}`,
+          name: baseName,
+          displayName: baseName,
+          classType: String(enemy.class_type || ""),
+          place: normalizedPlace,
+          units: normalizedUnits,
+          malice: baseMalice,
+          totalMalice,
+          damageStatus: getPartStatusText(enemy),
+        });
+      });
+    });
+
+  const nameMap = new Map();
+  rows.forEach((row) => {
+    if (String(row.classType || "") === "レギオン") return;
+    const key = String(row.name || "").trim();
+    if (!nameMap.has(key)) nameMap.set(key, []);
+    nameMap.get(key).push(row);
+  });
+  nameMap.forEach((sameNameRows) => {
+    if (!Array.isArray(sameNameRows) || sameNameRows.length <= 1) return;
+    sameNameRows.forEach((row, i) => {
+      row.displayName = `${row.name} ${getAlphabetIndexLabel(i)}`;
+    });
+  });
+
+  const allMalice = rows.reduce((sum, row) => sum + row.totalMalice, 0);
+  rows.forEach((row) => {
+    row.scoreText = calcSummaryScore(row.totalMalice, allMalice);
+  });
+  return { rows, allMalice };
+}
+
+function renderSummaryPanel() {
+  if (
+    !el.summaryEnemiesBody ||
+    !el.summaryPlaceGrid ||
+    !el.summaryDamageUnitList
+  )
+    return;
+  const { rows, allMalice } = buildEnemySummaryRows();
+  const unitRows = getSummaryUnitRows(rows);
+  const playerCount = normalizeSummaryPlayerCount(state.summaryPlayerCount);
+  const karmaCount = normalizeSummaryKarmaCount(state.summaryKarmaCount);
+  state.summaryPlayerCount = playerCount;
+  state.summaryKarmaCount = karmaCount;
+  const baseParts = Math.ceil(allMalice / 1);
+  const enhancedParts = Math.ceil(allMalice / 2);
+  const favorPointsRaw = allMalice / playerCount + karmaCount * 2;
+  const favorPoints = Number.isFinite(favorPointsRaw)
+    ? Number.isInteger(favorPointsRaw)
+      ? String(favorPointsRaw)
+      : favorPointsRaw.toFixed(2)
+    : "0";
+
+  if (el.summaryTotalMalice)
+    el.summaryTotalMalice.textContent = String(allMalice);
+  if (el.summaryFavorPoints) el.summaryFavorPoints.textContent = favorPoints;
+  if (el.summaryPlayerCountInput)
+    el.summaryPlayerCountInput.value = String(playerCount);
+  if (el.summaryKarmaCountInput)
+    el.summaryKarmaCountInput.value = String(karmaCount);
+  if (el.summaryBaseParts) el.summaryBaseParts.textContent = String(baseParts);
+  if (el.summaryEnhancedParts)
+    el.summaryEnhancedParts.textContent = String(enhancedParts);
+
+  el.summaryEnemiesBody.innerHTML = "";
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    const placeOptions = PLACE_TYPES.map(
+      (p) =>
+        `<option value="${escapeHtml(p)}" ${
+          p === row.place ? "selected" : ""
+        }>${escapeHtml(p)}</option>`,
+    ).join("");
+    tr.innerHTML = `
+      <td>${escapeHtml(row.totalMalice)}</td>
+      <td>${escapeHtml(row.malice)}</td>
+      <td><input class="summary-unit-input" type="number" min="1" step="1" data-summary-id="${escapeHtml(row.id)}" data-summary-slot="${escapeHtml(row.slotIndex)}" data-summary-key="unit_count" value="${escapeHtml(row.units)}"></td>
+      <td>${escapeHtml(row.classType)}</td>
+      <td><select class="summary-place-select" data-summary-id="${escapeHtml(row.id)}" data-summary-slot="${escapeHtml(row.slotIndex)}" data-summary-key="place">${placeOptions}</select></td>
+      <td>
+        <div class="summary-name-cell-wrap">
+          <span class="summary-name-text">${escapeHtml(row.displayName || row.name)}</span>
+          <span class="summary-row-actions">
+            <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-memo-id="${escapeHtml(row.id)}" data-summary-copy-memo-slot="${escapeHtml(row.slotIndex)}">コマ状態コピー</button>
+            <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-koma-json-id="${escapeHtml(row.id)}">コマ出力</button>
+            <button type="button" class="small-square-btn summary-remove-btn" data-summary-remove-id="${escapeHtml(row.id)}" data-summary-remove-slot="${escapeHtml(row.slotIndex)}">除外</button>
+          </span>
+        </div>
+      </td>
+    `;
+    el.summaryEnemiesBody.appendChild(tr);
+  });
+
+  el.summaryDamageUnitList.innerHTML = "";
+  if (!unitRows.length) {
+    el.summaryDamageUnitList.innerHTML =
+      '<div class="summary-place-empty">（まとめに追加した手駒がありません）</div>';
+  } else {
+    unitRows.forEach((unitRow) => {
+      const partRows = getSummaryUnitPartRows(unitRow);
+      const article = document.createElement("article");
+      article.className = "summary-damage-unit-card";
+      article.innerHTML = `
+        <header class="summary-damage-unit-header">
+          <div>
+            <strong>${escapeHtml(unitRow.rowName)} #${escapeHtml(unitRow.unitLabel)}</strong>
+            <span class="summary-damage-unit-meta">${escapeHtml(unitRow.place)} / ${escapeHtml(getPartStatusText(unitRow.enemy))}</span>
+          </div>
+          <div class="summary-unit-header-actions">
+            <button type="button" class="small-square-btn summary-unit-copy-btn" data-summary-unit-memo-id="${escapeHtml(unitRow.id)}" data-summary-unit-memo-slot="${escapeHtml(unitRow.slotIndex)}" data-summary-unit-memo-unit="${escapeHtml(unitRow.unitIndex)}">コマ状態コピー</button>
+            <button type="button" class="small-square-btn summary-unit-copy-btn" data-summary-unit-clear-check-id="${escapeHtml(unitRow.id)}" data-summary-unit-clear-check-slot="${escapeHtml(unitRow.slotIndex)}" data-summary-unit-clear-check-unit="${escapeHtml(unitRow.unitIndex)}">チェック解除</button>
+            ${
+              unitRow.classType === "レギオン"
+                ? ""
+                : `<button type="button" class="small-square-btn summary-unit-copy-btn" data-summary-unit-copy-id="${escapeHtml(unitRow.id)}" data-summary-unit-copy-slot="${escapeHtml(unitRow.slotIndex)}" data-summary-unit-copy-unit="${escapeHtml(unitRow.unitIndex)}">チェック行をコピー</button>`
+            }
+          </div>
+        </header>
+        <div class="table-wrap summary-unit-parts-wrap">
+          <table class="asian-table summary-unit-parts-table">
+            <colgroup>
+              <col class="col-report">
+              <col class="col-copy">
+              <col class="col-state">
+              <col class="col-part">
+              <col class="col-name">
+              <col class="col-timing">
+              <col class="col-cost">
+              <col class="col-range">
+              <col class="col-effect">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>チェック</th>
+                <th>コピー</th>
+                <th>状態</th>
+                <th>部位</th>
+                <th>名称</th>
+                <th>タイミング</th>
+                <th>コスト</th>
+                <th>射程</th>
+                <th>効果</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${partRows
+                .map((row) => {
+                  const statusClass = getManeuverStatusClass(
+                    row.status || "無事",
+                  );
+                  const isLegion = row.classType === "レギオン";
+                  const isHorror = row.classType === "ホラー";
+                  return `<tr>
+                    <td><input class="summary-damage-check" type="checkbox" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="reportChecked" ${row.reportChecked ? "checked" : ""}></td>
+                    <td><button type="button" class="small-square-btn summary-part-copy-btn" data-summary-part-copy-id="${escapeHtml(row.id)}" data-summary-part-copy-slot="${escapeHtml(row.slotIndex)}" data-summary-part-copy-unit="${escapeHtml(row.unitIndex)}" data-summary-part-copy-key="${escapeHtml(row.partKey)}">コピー</button></td>
+                    <td>${isLegion ? "-" : `<select class="status-select ${statusClass}" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="status"><option value="無事" ${row.status === "無事" ? "selected" : ""}>無事</option><option value="使用" ${row.status === "使用" ? "selected" : ""}>使用</option><option value="損傷" ${row.status === "損傷" ? "selected" : ""}>損傷</option></select>`}</td>
+                    <td>${isLegion || isHorror ? "-" : escapeHtml(row.partType)}</td>
+                    <td>${escapeHtml(row.partName)}</td>
+                    <td>${escapeHtml(row.timing)}</td>
+                    <td>${escapeHtml(row.cost)}</td>
+                    <td>${escapeHtml(row.range)}</td>
+                    <td>${escapeHtml(row.effect)}</td>
+                  </tr>`;
+                })
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+      el.summaryDamageUnitList.appendChild(article);
+    });
+  }
+
+  const byPlace = new Map(PLACE_TYPES.map((p) => [p, []]));
+  rows.forEach((row) => {
+    const list = byPlace.get(row.place);
+    if (list) {
+      list.push({
+        id: row.id,
+        slotIndex: row.slotIndex,
+        name: row.displayName || row.name,
+        damageStatus: row.damageStatus || "-",
+        units: row.units,
+      });
+    }
+  });
+  el.summaryPlaceGrid.innerHTML = "";
+  PLACE_TYPES.forEach((place) => {
+    const card = document.createElement("article");
+    card.className = `summary-place-card place-${place}`;
+    const items = byPlace.get(place) || [];
+    card.innerHTML = `
+      <header>${escapeHtml(place)}</header>
+      <div class="summary-place-body">${
+        items.length
+          ? `<div class="summary-place-item-line">${items
+              .map(
+                (item, idx) =>
+                  `<span class="summary-place-badge" draggable="true" data-drag-id="${escapeHtml(
+                    item.id || "",
+                  )}" data-drag-slot="${escapeHtml(item.slotIndex)}" data-drag-place="${escapeHtml(
+                    place,
+                  )}" data-drag-index="${escapeHtml(idx)}" title="${escapeHtml(
+                    item.damageStatus || "-",
+                  )}"><span class="summary-place-dot" aria-hidden="true"></span><span class="summary-place-badge-name">${escapeHtml(item.name || "")}</span><span class="summary-place-badge-count">×${escapeHtml(item.units || 0)}</span></span>`,
+              )
+              .join("")}</div>`
+          : '<div class="summary-place-empty">（なし）</div>'
+      }</div>
+    `;
+    el.summaryPlaceGrid.appendChild(card);
+  });
+
+  bindSummaryBadgeDnD();
+}
+
+function bindSummaryBadgeDnD() {
+  if (!el.summaryPlaceGrid) return;
+  let dragging = null;
+
+  el.summaryPlaceGrid
+    .querySelectorAll(".summary-place-badge")
+    .forEach((badge) => {
+      badge.addEventListener("dragstart", (event) => {
+        const target = event.currentTarget;
+        if (!(target instanceof HTMLElement)) return;
+        const enemyId = String(
+          target.getAttribute("data-drag-id") || "",
+        ).trim();
+        const slotIndex = Number(target.getAttribute("data-drag-slot"));
+        const fromPlace = String(
+          target.getAttribute("data-drag-place") || "",
+        ).trim();
+        if (!enemyId || Number.isNaN(slotIndex)) return;
+        dragging = { enemyId, slotIndex, fromPlace };
+        target.classList.add("is-dragging");
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", `${enemyId}:${slotIndex}`);
+        }
+      });
+
+      badge.addEventListener("dragend", (event) => {
+        const target = event.currentTarget;
+        if (target instanceof HTMLElement)
+          target.classList.remove("is-dragging");
+        dragging = null;
+      });
+    });
+
+  el.summaryPlaceGrid
+    .querySelectorAll(".summary-place-card")
+    .forEach((card) => {
+      card.addEventListener("dragover", (event) => {
+        if (!dragging) return;
+        event.preventDefault();
+        card.classList.add("is-drop-target");
+        if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+      });
+      card.addEventListener("dragleave", () => {
+        card.classList.remove("is-drop-target");
+      });
+      card.addEventListener("drop", (event) => {
+        card.classList.remove("is-drop-target");
+        if (!dragging) return;
+        event.preventDefault();
+        const header = card.querySelector("header");
+        const toPlaceRaw =
+          header instanceof HTMLElement ? String(header.textContent || "") : "";
+        const toPlace = PLACE_TYPES.includes(toPlaceRaw) ? toPlaceRaw : "";
+        if (!toPlace) return;
+        const enemy = state.enemies.find(
+          (e) => String((e && e.ID) || "") === dragging.enemyId,
+        );
+        if (!enemy || !Array.isArray(enemy.summary_slots)) return;
+        const slot = enemy.summary_slots[dragging.slotIndex];
+        if (!slot) return;
+        slot.place = toPlace;
+        enemy.time = nowIsoLocal();
+        scheduleSaveToDb();
+        renderSummaryPanel();
+        renderEnemyList();
+        dragging = null;
+      });
+    });
+}
+
+function handleSummaryTableChange(event) {
+  const target = event.target;
+  if (
+    !(target instanceof HTMLInputElement) &&
+    !(target instanceof HTMLSelectElement)
+  )
+    return;
+  const id = String(target.getAttribute("data-summary-id") || "").trim();
+  const slotIndex = Number(target.getAttribute("data-summary-slot"));
+  const key = String(target.getAttribute("data-summary-key") || "").trim();
+  if (!id || !key || Number.isNaN(slotIndex)) return;
+  const enemy = state.enemies.find((e) => String(e && e.ID) === id);
+  if (!enemy) return;
+  if (!Array.isArray(enemy.summary_slots)) enemy.summary_slots = [];
+  const slot = enemy.summary_slots[slotIndex];
+  if (!slot) return;
+
+  if (key === "unit_count") {
+    const n = Number(target.value || 1);
+    const normalized = Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+    slot.unit_count = normalized;
+    target.value = String(normalized);
+  }
+  if (key === "place") {
+    const place = String(target.value || "").trim();
+    slot.place = PLACE_TYPES.includes(place) ? place : "煉獄";
+    if (target instanceof HTMLSelectElement) target.value = slot.place;
+  }
+
+  enemy.time = nowIsoLocal();
+  if (String(enemy.ID) === String(state.selectedId)) {
+    if (el.fields.time) el.fields.time.value = enemy.time;
+    if (el.fields.timeText)
+      el.fields.timeText.textContent = formatDateTimeDisplay(enemy.time);
+  }
+  scheduleSaveToDb();
+  renderSummaryPanel();
+  renderEnemyList();
+}
+
+function handleSummaryTableClick(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const copyMemoBtn = target.closest("[data-summary-copy-memo-id]");
+  if (copyMemoBtn instanceof HTMLElement) {
+    const id = String(
+      copyMemoBtn.getAttribute("data-summary-copy-memo-id") || "",
+    ).trim();
+    if (!id) return;
+    const enemy = state.enemies.find((e) => String(e && e.ID) === id);
+    if (!enemy) return;
+    const text = buildKomaMemo(enemy);
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        alert("コマ状態をコピーした");
+      })
+      .catch(() => {
+        alert("コピー失敗。コンソールに出力する");
+        console.log(text);
+      });
+    return;
+  }
+
+  const copyKomaJsonBtn = target.closest("[data-summary-copy-koma-json-id]");
+  if (copyKomaJsonBtn instanceof HTMLElement) {
+    const id = String(
+      copyKomaJsonBtn.getAttribute("data-summary-copy-koma-json-id") || "",
+    ).trim();
+    if (!id) return;
+    const enemy = state.enemies.find((e) => String(e && e.ID) === id);
+    if (!enemy) return;
+    const text = JSON.stringify(buildKomaCharacterJson(enemy), null, 2);
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        alert("コマ出力をコピーした");
+      })
+      .catch(() => {
+        alert("コピー失敗。コンソールに出力する");
+        console.log(text);
+      });
+    return;
+  }
+
+  const btn = target.closest("[data-summary-remove-id]");
+  if (!(btn instanceof HTMLElement)) return;
+  const id = String(btn.getAttribute("data-summary-remove-id") || "").trim();
+  const slotIndex = Number(btn.getAttribute("data-summary-remove-slot"));
+  if (!id || Number.isNaN(slotIndex)) return;
+  const enemy = state.enemies.find((e) => String(e && e.ID) === id);
+  if (!enemy) return;
+  if (!Array.isArray(enemy.summary_slots)) enemy.summary_slots = [];
+  enemy.summary_slots.splice(slotIndex, 1);
+  enemy.time = nowIsoLocal();
+  scheduleSaveToDb();
+  renderSummaryPanel();
+  renderEnemyList();
+}
+
+function handleSummaryDamageInput(event) {
+  const target = event.target;
+  if (
+    !(target instanceof HTMLInputElement) &&
+    !(target instanceof HTMLSelectElement)
+  )
+    return;
+  const id = String(target.getAttribute("data-summary-part-id") || "").trim();
+  const slotIndex = Number(target.getAttribute("data-summary-part-slot"));
+  const unitIndex = Number(target.getAttribute("data-summary-part-unit"));
+  const partKey = String(
+    target.getAttribute("data-summary-part-key") || "",
+  ).trim();
+  const prop = String(
+    target.getAttribute("data-summary-part-prop") || "",
+  ).trim();
+  if (!id || Number.isNaN(slotIndex) || Number.isNaN(unitIndex)) return;
+  const enemy = state.enemies.find((e) => String((e && e.ID) || "") === id);
+  if (!enemy) return;
+  if (
+    !enemy.summary_unit_part_states ||
+    typeof enemy.summary_unit_part_states !== "object"
+  ) {
+    enemy.summary_unit_part_states = {};
+  }
+  const unitKey = buildSummaryUnitKey(slotIndex, unitIndex);
+  if (
+    !enemy.summary_unit_part_states[unitKey] ||
+    typeof enemy.summary_unit_part_states[unitKey] !== "object"
+  ) {
+    enemy.summary_unit_part_states[unitKey] = {};
+  }
+  const unitMap = enemy.summary_unit_part_states[unitKey];
+  const current = normalizeSummaryUnitPartState(unitMap[partKey]);
+  if (prop === "status" && target instanceof HTMLSelectElement) {
+    const s = String(target.value || "無事").trim();
+    current.status = s === "損傷" || s === "使用" ? s : "無事";
+    target.classList.remove("status-safe", "status-used", "status-damaged");
+    target.classList.add(getManeuverStatusClass(current.status));
+  } else if (prop === "reportChecked" && target instanceof HTMLInputElement) {
+    current.reportChecked = !!target.checked;
+  }
+  unitMap[partKey] = current;
+  enemy.time = nowIsoLocal();
+  scheduleSaveToDb();
+}
+
+function handleSummaryDamageClick(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const memoBtn = target.closest("[data-summary-unit-memo-id]");
+  if (memoBtn instanceof HTMLButtonElement) {
+    const id = String(
+      memoBtn.getAttribute("data-summary-unit-memo-id") || "",
+    ).trim();
+    if (!id) return;
+    const enemy = state.enemies.find((e) => String((e && e.ID) || "") === id);
+    if (!enemy) return;
+    const text = buildKomaMemo(enemy);
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        const original = memoBtn.textContent;
+        memoBtn.textContent = "完了";
+        setTimeout(() => {
+          memoBtn.textContent = original;
+        }, 1200);
+      })
+      .catch(() => {
+        // noop
+      });
+    return;
+  }
+
+  const clearCheckBtn = target.closest("[data-summary-unit-clear-check-id]");
+  if (clearCheckBtn instanceof HTMLButtonElement) {
+    const id = String(
+      clearCheckBtn.getAttribute("data-summary-unit-clear-check-id") || "",
+    ).trim();
+    const slotIndex = Number(
+      clearCheckBtn.getAttribute("data-summary-unit-clear-check-slot"),
+    );
+    const unitIndex = Number(
+      clearCheckBtn.getAttribute("data-summary-unit-clear-check-unit"),
+    );
+    if (!id || Number.isNaN(slotIndex) || Number.isNaN(unitIndex)) return;
+    const enemy = state.enemies.find((e) => String((e && e.ID) || "") === id);
+    if (!enemy) return;
+    if (
+      !enemy.summary_unit_part_states ||
+      typeof enemy.summary_unit_part_states !== "object"
+    ) {
+      enemy.summary_unit_part_states = {};
+    }
+    const unitKey = buildSummaryUnitKey(slotIndex, unitIndex);
+    const unitMap = enemy.summary_unit_part_states[unitKey];
+    if (unitMap && typeof unitMap === "object") {
+      Object.keys(unitMap).forEach((partKey) => {
+        const entry = normalizeSummaryUnitPartState(unitMap[partKey]);
+        entry.reportChecked = false;
+        unitMap[partKey] = entry;
+      });
+    }
+    enemy.time = nowIsoLocal();
+    scheduleSaveToDb();
+    renderSummaryPanel();
+    renderEnemyList();
+    return;
+  }
+
+  const partCopyBtn = target.closest("[data-summary-part-copy-id]");
+  if (partCopyBtn instanceof HTMLButtonElement) {
+    const id = String(
+      partCopyBtn.getAttribute("data-summary-part-copy-id") || "",
+    ).trim();
+    const slotIndex = Number(
+      partCopyBtn.getAttribute("data-summary-part-copy-slot"),
+    );
+    const unitIndex = Number(
+      partCopyBtn.getAttribute("data-summary-part-copy-unit"),
+    );
+    const partKey = String(
+      partCopyBtn.getAttribute("data-summary-part-copy-key") || "",
+    ).trim();
+    if (!id || Number.isNaN(slotIndex) || Number.isNaN(unitIndex) || !partKey)
+      return;
+    const summaryRows = buildEnemySummaryRows().rows;
+    const unitRows = getSummaryUnitRows(summaryRows);
+    const unitRow = unitRows.find(
+      (r) =>
+        String(r.id) === id &&
+        Number(r.slotIndex) === slotIndex &&
+        Number(r.unitIndex) === unitIndex,
+    );
+    if (!unitRow) return;
+    const row = getSummaryUnitPartRows(unitRow).find(
+      (part) => String(part.partKey) === partKey,
+    );
+    if (!row) return;
+    const text = buildSummaryCheckedPartCopyText([row]);
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        const original = partCopyBtn.textContent;
+        partCopyBtn.textContent = "完了";
+        setTimeout(() => {
+          partCopyBtn.textContent = original;
+        }, 1200);
+      })
+      .catch(() => {
+        // noop
+      });
+    return;
+  }
+
+  const btn = target.closest("[data-summary-unit-copy-id]");
+  if (!(btn instanceof HTMLButtonElement)) return;
+  const id = String(btn.getAttribute("data-summary-unit-copy-id") || "").trim();
+  const slotIndex = Number(btn.getAttribute("data-summary-unit-copy-slot"));
+  const unitIndex = Number(btn.getAttribute("data-summary-unit-copy-unit"));
+  if (!id || Number.isNaN(slotIndex) || Number.isNaN(unitIndex)) return;
+  const summaryRows = buildEnemySummaryRows().rows;
+  const unitRows = getSummaryUnitRows(summaryRows);
+  const unitRow = unitRows.find(
+    (r) =>
+      String(r.id) === id &&
+      Number(r.slotIndex) === slotIndex &&
+      Number(r.unitIndex) === unitIndex,
+  );
+  if (!unitRow) return;
+  const checkedRows = getSummaryUnitPartRows(unitRow).filter(
+    (r) => r.reportChecked,
+  );
+  if (!checkedRows.length) {
+    alert("チェックされた行がありません");
+    return;
+  }
+  const text = buildSummaryCheckedPartCopyText(checkedRows);
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      const original = btn.textContent;
+      btn.textContent = "完了";
+      setTimeout(() => {
+        btn.textContent = original;
+      }, 1200);
+    })
+    .catch(() => {
+      // noop
+    });
+}
+
+function setActivePageTab(tabName) {
+  const isSummary = tabName === "summary";
+  state.activeTab = isSummary ? "summary" : "editor";
+  if (el.summaryTabButton) {
+    el.summaryTabButton.classList.toggle("is-active", isSummary);
+    el.summaryTabButton.setAttribute(
+      "aria-selected",
+      isSummary ? "true" : "false",
+    );
+  }
+  if (el.editorTabButton) {
+    el.editorTabButton.classList.toggle("is-active", !isSummary);
+    el.editorTabButton.setAttribute(
+      "aria-selected",
+      isSummary ? "false" : "true",
+    );
+  }
+  if (el.summaryTabPanel) el.summaryTabPanel.hidden = !isSummary;
+  if (el.editorTabPanel) el.editorTabPanel.hidden = isSummary;
+  renderEnemyList();
+  if (isSummary) renderSummaryPanel();
 }
 
 function appendBasicManeuvers(enemy) {
@@ -1641,6 +2684,28 @@ function bindTableEvents() {
   document.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
+    const copyButton = target.closest('[data-copy-kind="maneuver-line"]');
+    if (copyButton instanceof HTMLElement) {
+      const index = Number(copyButton.getAttribute("data-index"));
+      if (Number.isNaN(index)) return;
+      const enemy = getSelectedEnemy();
+      if (!enemy || !enemy.data || !Array.isArray(enemy.data.maneuvers)) return;
+      const line = formatManeuverLineForReport(enemy.data.maneuvers[index]);
+      if (!line) {
+        alert("コピー対象のマニューバ名が未入力です");
+        return;
+      }
+      navigator.clipboard
+        .writeText(line)
+        .then(() => {
+          alert("選択行をコピーした");
+        })
+        .catch(() => {
+          alert("コピー失敗。コンソールに出力する");
+          console.log(line);
+        });
+      return;
+    }
     const kind = target.getAttribute("data-remove-kind");
     const index = Number(target.getAttribute("data-index"));
     if (!kind || Number.isNaN(index)) return;
@@ -1725,6 +2790,10 @@ function escapeHtml(v) {
 }
 
 function setupEvents() {
+  const bindClick = (element, handler) => {
+    if (element) element.addEventListener("click", handler);
+  };
+
   if (el.fields.author) {
     const remembered = getRememberedAuthor();
     if (remembered && !el.fields.author.value) {
@@ -1734,104 +2803,226 @@ function setupEvents() {
 
   el.enemySearchInput.addEventListener("input", () => {
     state.search = el.enemySearchInput.value || "";
+    state.enemyListPage = 1;
     renderEnemyList();
   });
 
-  if (el.newEnemyButton) {
-    el.newEnemyButton.addEventListener("click", () => {
-      upsertCurrentEnemyFromForm();
-      const fresh = normalizeEnemy(createEnemyTemplate());
-      state.enemies.unshift(fresh);
-      state.selectedId = fresh.ID;
-      scheduleSaveToDb();
-      renderAll();
-      setSaveStatus("idle", "新規作成（未保存）");
+  if (el.enemySearchField) {
+    el.enemySearchField.addEventListener("change", () => {
+      state.enemySearchField = String(
+        el.enemySearchField.value || "all",
+      ).trim();
+      state.enemyListPage = 1;
+      renderEnemyList();
     });
   }
 
-  if (el.duplicateEnemyButton) {
-    el.duplicateEnemyButton.addEventListener("click", () => {
-      upsertCurrentEnemyFromForm();
-      const current = getSelectedEnemy();
-      if (!current) return;
-
-      const duplicated = JSON.parse(JSON.stringify(current));
-      duplicated.ID = getNextId();
-      duplicated.name = duplicated.name + "（コピー）";
-      duplicated.time = nowIsoLocal();
-
-      state.enemies.unshift(duplicated);
-      state.selectedId = duplicated.ID;
-      saveLastSelectedId(duplicated.ID);
-
-      scheduleSaveToDb();
-      renderAll();
-      setSaveStatus("idle", "複製しました（未保存）");
+  if (el.enemyPageSizeInput) {
+    el.enemyPageSizeInput.addEventListener("change", () => {
+      const raw = String(el.enemyPageSizeInput.value || "").trim();
+      state.enemyListPageSize = normalizeEnemyListPageSize(raw);
+      el.enemyPageSizeInput.value = String(state.enemyListPageSize || 0);
+      state.enemyListPage = 1;
+      renderEnemyList();
     });
   }
 
-  if (el.deleteEnemyButton) {
-    el.deleteEnemyButton.addEventListener("click", async () => {
-      const enemy = getSelectedEnemy();
-      if (!enemy || !enemy.ID) return;
-      if (
-        !window.confirm(
-          `「${enemy.name}」を完全に削除しますか？\n(データベースからも削除されます)`,
-        )
+  if (el.enemyShowAllButton) {
+    el.enemyShowAllButton.addEventListener("click", () => {
+      state.enemyListPageSize = 0;
+      state.enemyListPage = 1;
+      if (el.enemyPageSizeInput) {
+        el.enemyPageSizeInput.value = "0";
+      }
+      renderEnemyList();
+    });
+  }
+
+  if (el.enemyListPager) {
+    el.enemyListPager.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const btn = target.closest("[data-page-action]");
+      if (!(btn instanceof HTMLButtonElement)) return;
+      const action = String(btn.getAttribute("data-page-action") || "").trim();
+      if (!action) return;
+      const pageSize = normalizeEnemyListPageSize(state.enemyListPageSize);
+      if (pageSize <= 0) return;
+      if (action === "prev") {
+        state.enemyListPage = Math.max(1, state.enemyListPage - 1);
+      } else if (action === "next") {
+        state.enemyListPage += 1;
+      }
+      renderEnemyList();
+    });
+  }
+
+  if (el.editorTabButton) {
+    el.editorTabButton.addEventListener("click", () => {
+      setActivePageTab("editor");
+    });
+  }
+  if (el.summaryTabButton) {
+    el.summaryTabButton.addEventListener("click", () => {
+      upsertCurrentEnemyFromForm();
+      setActivePageTab("summary");
+    });
+  }
+  if (el.refreshSummaryButton) {
+    el.refreshSummaryButton.addEventListener("click", () => {
+      upsertCurrentEnemyFromForm();
+      renderSummaryPanel();
+    });
+  }
+  if (el.summaryPlayerCountInput) {
+    const handleSummaryPlayerCountInput = () => {
+      const normalized = normalizeSummaryPlayerCount(
+        el.summaryPlayerCountInput.value,
+      );
+      state.summaryPlayerCount = normalized;
+      el.summaryPlayerCountInput.value = String(normalized);
+      renderSummaryPanel();
+    };
+    el.summaryPlayerCountInput.addEventListener(
+      "change",
+      handleSummaryPlayerCountInput,
+    );
+    el.summaryPlayerCountInput.addEventListener(
+      "blur",
+      handleSummaryPlayerCountInput,
+    );
+  }
+  if (el.summaryKarmaCountInput) {
+    const handleSummaryKarmaCountInput = () => {
+      const normalized = normalizeSummaryKarmaCount(
+        el.summaryKarmaCountInput.value,
+      );
+      state.summaryKarmaCount = normalized;
+      el.summaryKarmaCountInput.value = String(normalized);
+      renderSummaryPanel();
+    };
+    el.summaryKarmaCountInput.addEventListener(
+      "change",
+      handleSummaryKarmaCountInput,
+    );
+    el.summaryKarmaCountInput.addEventListener(
+      "blur",
+      handleSummaryKarmaCountInput,
+    );
+  }
+  if (el.summaryEnemiesBody) {
+    el.summaryEnemiesBody.addEventListener("change", handleSummaryTableChange);
+    el.summaryEnemiesBody.addEventListener("click", handleSummaryTableClick);
+  }
+  if (el.summaryDamageUnitList) {
+    el.summaryDamageUnitList.addEventListener(
+      "input",
+      handleSummaryDamageInput,
+    );
+    el.summaryDamageUnitList.addEventListener(
+      "change",
+      handleSummaryDamageInput,
+    );
+    el.summaryDamageUnitList.addEventListener(
+      "click",
+      handleSummaryDamageClick,
+    );
+  }
+
+  const handleNewEnemy = () => {
+    upsertCurrentEnemyFromForm();
+    const fresh = normalizeEnemy(createEnemyTemplate());
+    state.enemies.unshift(fresh);
+    state.selectedId = fresh.ID;
+    scheduleSaveToDb();
+    renderAll();
+    setSaveStatus("idle", "新規作成（未保存）");
+  };
+  bindClick(el.newEnemyButton, handleNewEnemy);
+  bindClick(el.newEnemyButtonBottom, handleNewEnemy);
+
+  const handleDuplicateEnemy = () => {
+    upsertCurrentEnemyFromForm();
+    const current = getSelectedEnemy();
+    if (!current) return;
+
+    const duplicated = JSON.parse(JSON.stringify(current));
+    duplicated.ID = getNextId();
+    duplicated.name = duplicated.name + "（コピー）";
+    duplicated.time = nowIsoLocal();
+
+    state.enemies.unshift(duplicated);
+    state.selectedId = duplicated.ID;
+    saveLastSelectedId(duplicated.ID);
+
+    scheduleSaveToDb();
+    renderAll();
+    setSaveStatus("idle", "複製しました（未保存）");
+  };
+  bindClick(el.duplicateEnemyButton, handleDuplicateEnemy);
+  bindClick(el.duplicateEnemyButtonBottom, handleDuplicateEnemy);
+
+  const handleDeleteEnemy = async () => {
+    const enemy = getSelectedEnemy();
+    if (!enemy || !enemy.ID) return;
+    if (
+      !window.confirm(
+        `「${enemy.name}」を完全に削除しますか？\n(データベースからも削除されます)`,
       )
-        return;
+    )
+      return;
 
-      setSaveStatus("saving", "削除中...");
-      try {
-        const url = buildApiUrl("delete", { id: enemy.ID });
-        await fetchApiJson(url);
+    setSaveStatus("saving", "削除中...");
+    try {
+      const url = buildApiUrl("delete", { id: enemy.ID });
+      await fetchApiJson(url);
 
-        state.enemies = state.enemies.filter(
-          (e) => String(e.ID) !== String(enemy.ID),
-        );
-        state.selectedId =
-          state.enemies.length > 0 ? state.enemies[0].ID : null;
+      state.enemies = state.enemies.filter(
+        (e) => String(e.ID) !== String(enemy.ID),
+      );
+      state.selectedId = state.enemies.length > 0 ? state.enemies[0].ID : null;
 
-        setSaveStatus("ok", "削除完了");
-        renderAll();
-      } catch (error) {
-        console.error("削除失敗:", error);
-        setSaveStatus("error", "削除失敗");
-        alert("削除に失敗しました: " + error.message);
-      }
-    });
-  }
-
-  if (el.saveEnemyButton) {
-    el.saveEnemyButton.addEventListener("click", () => {
-      upsertCurrentEnemyFromForm();
-      setSaveStatus("saving", "保存要求を送信中…");
-      saveToStorage();
+      setSaveStatus("ok", "削除完了");
       renderAll();
-    });
-  }
+    } catch (error) {
+      console.error("削除失敗:", error);
+      setSaveStatus("error", "削除失敗");
+      alert("削除に失敗しました: " + error.message);
+    }
+  };
+  bindClick(el.deleteEnemyButton, handleDeleteEnemy);
+  bindClick(el.deleteEnemyButtonBottom, handleDeleteEnemy);
 
-  if (el.reloadEnemyListButton) {
-    el.reloadEnemyListButton.addEventListener("click", async () => {
-      try {
-        if (hasUnsavedChanges) {
-          const ok = window.confirm(
-            "未保存の変更があります。再読込すると失われます。続行しますか？",
-          );
-          if (!ok) return;
-        }
-        setSaveStatus("saving", "DB再読込中…");
-        await loadFromStorage();
-        renderAll();
-        setSaveStatus("ok", "DB再読込完了");
-        alert("DBから再読込した");
-      } catch (error) {
-        console.warn("[nechronica] DB再読込失敗:", error);
-        setSaveStatus("error", "DB再読込失敗");
-        alert("DB再読込に失敗しました");
+  const handleSaveEnemy = () => {
+    upsertCurrentEnemyFromForm();
+    setSaveStatus("saving", "保存要求を送信中…");
+    saveToStorage();
+    renderAll();
+  };
+  bindClick(el.saveEnemyButton, handleSaveEnemy);
+  bindClick(el.saveEnemyButtonBottom, handleSaveEnemy);
+
+  const handleReloadEnemyList = async () => {
+    try {
+      if (hasUnsavedChanges) {
+        const ok = window.confirm(
+          "未保存の変更があります。再読込すると失われます。続行しますか？",
+        );
+        if (!ok) return;
       }
-    });
-  }
+      setSaveStatus("saving", "DB再読込中…");
+      await loadFromStorage();
+      renderAll();
+      setSaveStatus("ok", "DB再読込完了");
+      alert("DBから再読込した");
+    } catch (error) {
+      console.warn("[nechronica] DB再読込失敗:", error);
+      setSaveStatus("error", "DB再読込失敗");
+      alert("DB再読込に失敗しました");
+    }
+  };
+  bindClick(el.reloadEnemyListButton, handleReloadEnemyList);
+  bindClick(el.reloadEnemyListButtonBottom, handleReloadEnemyList);
 
   if (el.sortByMaliceButton) {
     el.sortByMaliceButton.addEventListener("click", () =>
@@ -1888,24 +3079,6 @@ function setupEvents() {
         .catch(() => {
           alert("コピー失敗。コンソールに出力する");
           console.log(pretty);
-        });
-    });
-  }
-
-  if (el.copyMemoPreviewButton) {
-    el.copyMemoPreviewButton.addEventListener("click", () => {
-      upsertCurrentEnemyFromForm();
-      const enemy = getSelectedEnemy();
-      if (!enemy) return;
-      const text = buildKomaMemo(enemy);
-      navigator.clipboard
-        .writeText(text)
-        .then(() => {
-          alert("コマメモをコピーした");
-        })
-        .catch(() => {
-          alert("コピー失敗。コンソールに出力する");
-          console.log(text);
         });
     });
   }
@@ -2031,6 +3204,7 @@ function setupEvents() {
   });
 
   bindTableEvents();
+  setActivePageTab("editor");
 }
 
 // ===== 前回選択エネミーの保存・復元 =====

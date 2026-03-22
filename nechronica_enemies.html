@@ -23,15 +23,17 @@
       <p class="subtitle">一覧表示 + 詳細編集（DB保存）</p>
     </header>
 
+    <div class="nechronica-page-tabs" role="tablist" aria-label="表示タブ">
+      <button id="editorTabButton" type="button" class="page-tab-btn is-active" role="tab" aria-selected="true"
+        aria-controls="editorTabPanel">詳細編集</button>
+      <button id="summaryTabButton" type="button" class="page-tab-btn" role="tab" aria-selected="false"
+        aria-controls="summaryTabPanel">まとめ</button>
+    </div>
+
     <section class="enemies-layout single-column">
-      <section class="editor-pane">
+      <section class="editor-pane" id="editorTabPanel" role="tabpanel" aria-labelledby="editorTabButton">
         <div class="pane-header">
           <h2>詳細編集</h2>
-          <div class="db-action-row">
-            <button id="newEnemyButton" type="button" class="small-square-btn">新規作成</button>
-            <button id="reloadEnemyListButton" type="button" class="small-square-btn">DB再読込</button>
-            <span id="saveStatusText" class="save-status" aria-live="polite">未保存</span>
-          </div>
           <div class="koma-json-actions">
             <button id="exportKomaJsonButton" type="button" class="small-square-btn">ココフォリア駒へ出力</button>
             <div class="koma-import-inline">
@@ -41,6 +43,25 @@
             <p class="koma-import-help">※ココフォリアの駒JSONを貼り付けると、現在の手駒へインポートされます。</p>
           </div>
         </div>
+
+        <section class="editor-action-bar">
+          <div class="action-bar-left">
+            <button id="newEnemyButtonBottom" type="button" class="action-btn is-sub"><i class="fa-solid fa-file"></i>
+              新規白紙</button>
+            <button id="deleteEnemyButtonBottom" type="button" class="action-btn is-danger"><i
+                class="fa-solid fa-trash-can"></i> 削除</button>
+            <button id="reloadEnemyListButtonBottom" type="button" class="action-btn is-sub"><i
+                class="fa-solid fa-rotate-right"></i> DB再読込</button>
+            <span id="saveStatusText" class="save-status" aria-live="polite">未保存</span>
+          </div>
+          <div class="action-bar-right">
+            <button id="duplicateEnemyButtonBottom" type="button" class="action-btn is-sub"><i
+                class="fa-solid fa-copy"></i>
+              複製して新規</button>
+            <button id="saveEnemyButtonBottom" type="button" class="action-btn is-main"><i
+                class="fa-solid fa-cloud-arrow-up"></i> データベースへ保存（上書き）</button>
+          </div>
+        </section>
 
         <form id="enemyEditorForm" class="editor-form" autocomplete="off">
           <section class="data-block">
@@ -70,17 +91,14 @@
             <div class="editor-meta-row">
               <label class="meta-author-field"><span class="field-label">作者名</span><input id="field-author" type="text"
                   placeholder="例: エンJ"></label>
+              <label class="meta-icon-field"><span class="field-label">アイコンURL</span><input id="field-icon-url"
+                  type="url" placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
               <label class="public-switch-label">
                 <span class="public-switch-wrap">
                   <input id="field-is-public" class="switch" type="checkbox" checked>
                   <span class="public-switch-text" id="field-is-public-text">公開</span>
                 </span>
               </label>
-              <button id="saveEnemyButton" type="button" class="small-square-btn">DB保存</button>
-            </div>
-            <div class="sub-info-grid">
-              <label><span class="field-label">アイコンURL</span><input id="field-icon-url" type="url"
-                  placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
             </div>
             <label>メモ<textarea id="field-memo" rows="3"></textarea></label>
             <input id="field-id" type="hidden">
@@ -99,7 +117,6 @@
             <div class="table-wrap">
               <table class="asian-table" id="maneuversTable">
                 <colgroup>
-                  <col class="col-state">
                   <col class="col-name">
                   <col class="col-part">
                   <col class="col-timing">
@@ -112,7 +129,6 @@
                 </colgroup>
                 <thead>
                   <tr>
-                    <th>状態</th>
                     <th>名称</th>
                     <th>部位</th>
                     <th>タイミング</th>
@@ -154,39 +170,84 @@
             </datalist>
           </section>
 
-          <section class="editor-action-bar">
-            <div class="action-bar-left">
-              <button id="deleteEnemyButton" type="button" class="action-btn is-danger"><i
-                  class="fa-solid fa-trash-can"></i> 削除</button>
-              <span id="saveStatusText" class="save-status" aria-live="polite">未保存</span>
-              <button id="reloadEnemyListButton" type="button" class="action-btn is-sub"><i
-                  class="fa-solid fa-rotate-right"></i> 最新の状態を取得</button>
-            </div>
-            <div class="action-bar-right">
-              <button id="newEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-file"></i>
-                新規白紙</button>
-              <button id="duplicateEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-copy"></i>
-                複製して新規</button>
-              <button id="saveEnemyButton" type="button" class="action-btn is-main"><i
-                  class="fa-solid fa-cloud-arrow-up"></i> データベースへ保存（上書き）</button>
-            </div>
-          </section>
         </form>
 
-        <details class="json-preview" open>
-          <summary>
-            <span class="preview-summary-row">
-              <span class="preview-title">ココフォリア駒出力プレビュー</span>
-              <span class="preview-summary-actions">
-                <button id="copyMemoPreviewButton" type="button" class="small-square-btn">コマメモコピー</button>
-              </span>
-            </span>
-          </summary>
-          <div id="partsStatusPanel" class="parts-status-panel" aria-live="polite">
-            <span class="parts-status-total">残存パーツ --/--</span>
+      </section>
+
+      <section class="summary-pane" id="summaryTabPanel" role="tabpanel" aria-labelledby="summaryTabButton" hidden>
+        <div class="pane-header">
+          <h2>敵まとめ</h2>
+          <div class="db-action-row">
+            <button id="refreshSummaryButton" type="button" class="small-square-btn">再集計</button>
           </div>
-          <pre id="memoPreview">---</pre>
-        </details>
+        </div>
+
+        <section class="summary-total-grid" aria-label="集計サマリ">
+          <article class="summary-total-card is-malice">
+            <div class="summary-total-label">合計悪意</div>
+            <div id="summaryTotalMalice" class="summary-total-value">0</div>
+          </article>
+          <article class="summary-total-card is-count">
+            <div class="summary-total-label">PL人数</div>
+            <input id="summaryPlayerCountInput" class="summary-total-value summary-player-count-input" type="number"
+              min="1" max="99" step="1" value="4" inputmode="numeric" aria-label="プレイヤー人数（1-99）">
+          </article>
+          <article class="summary-total-card is-karma">
+            <div class="summary-total-label">カルマ数</div>
+            <input id="summaryKarmaCountInput" class="summary-total-value summary-player-count-input" type="number"
+              min="0" max="99" step="1" value="1" inputmode="numeric" aria-label="カルマ数（0-99）">
+          </article>
+          <article class="summary-total-card is-favor">
+            <div class="summary-total-label">寵愛点</div>
+            <div id="summaryFavorPoints" class="summary-total-value">0</div>
+          </article>
+          <article class="summary-total-card is-base">
+            <div class="summary-total-label">基本パーツ</div>
+            <div id="summaryBaseParts" class="summary-total-value">0</div>
+          </article>
+          <article class="summary-total-card is-enhanced">
+            <div class="summary-total-label">強化パーツ</div>
+            <div id="summaryEnhancedParts" class="summary-total-value">0</div>
+          </article>
+        </section>
+
+        <div class="table-wrap summary-table-wrap">
+          <table class="asian-table" id="summaryEnemiesTable">
+            <colgroup>
+              <col class="col-total-malice">
+              <col class="col-single-malice">
+              <col class="col-units-input">
+              <col class="col-class">
+              <col class="col-place">
+              <col class="col-name">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>合計悪意</th>
+                <th>単体悪意</th>
+                <th>数（入力可能）</th>
+                <th>種別</th>
+                <th>場所</th>
+                <th>名前</th>
+              </tr>
+            </thead>
+            <tbody id="summaryEnemiesBody"></tbody>
+          </table>
+        </div>
+
+        <section class="summary-damage-section" aria-label="個体ごとの損傷管理">
+          <div class="sub-header summary-damage-header">
+            <h3>個体ごとの損傷管理</h3>
+          </div>
+          <div id="summaryDamageUnitList" class="summary-damage-unit-list">
+            <div class="summary-place-empty">（まとめに追加した手駒がありません）</div>
+          </div>
+        </section>
+
+        <section class="summary-place-section" aria-label="場所別配置">
+          <h3>場所ごとの配置</h3>
+          <div id="summaryPlaceGrid" class="summary-place-grid"></div>
+        </section>
       </section>
 
       <details class="enemy-list-collapsible" open>
@@ -203,13 +264,25 @@
             <button id="sortByMaliceButton" type="button" class="sort-chip">悪意</button>
             <button id="sortByInitiativeButton" type="button" class="sort-chip">行動値</button>
             <button id="sortByAuthorButton" type="button" class="sort-chip">作者</button>
-            <button id="sortByMaliceButton" type="button" class="sort-chip">悪意</button>
-            <button id="sortByInitiativeButton" type="button" class="sort-chip">行動値</button>
-            <button id="sortByAuthorButton" type="button" class="sort-chip">作者</button>
-            <button id="sortByIdButton" type="button" class="sort-chip">ID順</button>
-            <button id="sortByTimeButton" type="button" class="sort-chip">更新順</button>
+            <div class="enemy-list-controls" aria-label="手駒表示件数">
+              <label for="enemyPageSizeInput">表示件数</label>
+              <input id="enemyPageSizeInput" class="enemy-page-size-input" type="number" min="0" step="1" value="10"
+                inputmode="numeric" aria-label="表示件数（空欄は10、0で全部）">
+              <button id="enemyShowAllButton" type="button" class="enemy-show-all-btn"
+                title="0を入れて全部表示にする">0（全部）</button>
+            </div>
+            <div id="enemyListPager" class="enemy-list-pager enemy-list-pager-inline" aria-live="polite"></div>
           </div>
-          <input id="enemySearchInput" class="asian-input full" type="text" placeholder="名前・作者で検索">
+          <div class="enemy-search-row" aria-label="手駒一覧検索">
+            <select id="enemySearchField" class="enemy-search-field-select">
+              <option value="all">ごちゃ混ぜ</option>
+              <option value="name">名前</option>
+              <option value="author">作者</option>
+              <option value="class">種別</option>
+              <option value="id">ID</option>
+            </select>
+            <input id="enemySearchInput" class="asian-input enemy-search-input" type="text" placeholder="名前・作者などで検索">
+          </div>
           <ul id="enemyList" class="enemy-list"></ul>
         </div>
       </details>
