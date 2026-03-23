@@ -52,7 +52,6 @@
                 class="fa-solid fa-trash-can"></i> 削除</button>
             <button id="reloadEnemyListButtonBottom" type="button" class="action-btn is-sub"><i
                 class="fa-solid fa-rotate-right"></i> DB再読込</button>
-            <span id="saveStatusText" class="save-status" aria-live="polite">未保存</span>
           </div>
           <div class="action-bar-right">
             <button id="duplicateEnemyButtonBottom" type="button" class="action-btn is-sub"><i
@@ -60,6 +59,18 @@
               複製して新規</button>
             <button id="saveEnemyButtonBottom" type="button" class="action-btn is-main"><i
                 class="fa-solid fa-cloud-arrow-up"></i> データベースへ保存（上書き）</button>
+            <div class="action-bar-meta" aria-label="メタ情報">
+              <label class="action-meta-field"><span class="field-label">作者</span><input id="field-author" type="text"
+                  placeholder="例: エンJ"></label>
+              <label class="action-meta-field is-icon"><span class="field-label">アイコンURL</span><input
+                  id="field-icon-url" type="url" placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
+              <label class="public-switch-label">
+                <span class="public-switch-wrap">
+                  <input id="field-is-public" class="switch" type="checkbox" checked>
+                  <span class="public-switch-text" id="field-is-public-text">公開</span>
+                </span>
+              </label>
+            </div>
           </div>
         </section>
 
@@ -69,8 +80,8 @@
               <h3>基本情報</h3>
             </div>
             <div class="primary-info-grid">
-              <label class="compact-field"><span class="field-label">悪意点</span><input id="field-malice" type="number"
-                  readonly title="自動入力項目（マニューバ内容から計算）" value="0"></label>
+              <label class="compact-field"><span id="fieldMaliceLabel" class="field-label">悪意点</span><input
+                  id="field-malice" type="number" readonly title="自動入力項目（マニューバ内容から計算）" value="0"></label>
               <label><span class="field-label">手駒名</span><input id="field-name" type="text" required></label>
               <label class="class-field">種別
                 <select id="field-class-type">
@@ -85,19 +96,11 @@
                 <option value="胴"></option>
                 <option value="脚"></option>
               </datalist>
-              <label class="compact-field"><span class="field-label">行動値</span><input id="field-initiative"
-                  type="number" readonly title="自動入力項目（マニューバ内容から計算）" value="6"></label>
-            </div>
-            <div class="editor-meta-row">
-              <label class="meta-author-field"><span class="field-label">作者名</span><input id="field-author" type="text"
-                  placeholder="例: エンJ"></label>
-              <label class="meta-icon-field"><span class="field-label">アイコンURL</span><input id="field-icon-url"
-                  type="url" placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
-              <label class="public-switch-label">
-                <span class="public-switch-wrap">
-                  <input id="field-is-public" class="switch" type="checkbox" checked>
-                  <span class="public-switch-text" id="field-is-public-text">公開</span>
-                </span>
+              <label class="compact-field"><span class="field-label">行動値</span>
+                <span class="initiative-plus-wrap"><input id="field-initiative" type="number" readonly
+                    title="自動入力項目（マニューバ内容から計算）" value="6"><span id="fieldLegionInitiativeBonusWrap" hidden>
+                    +<input id="field-legion-initiative-bonus" type="number" step="1" value="0"
+                      title="レギオン時のみ有効"></span></span>
               </label>
             </div>
             <label>メモ<textarea id="field-memo" rows="3"></textarea></label>
@@ -178,7 +181,7 @@
         <div class="pane-header">
           <h2>敵まとめ</h2>
           <div class="db-action-row">
-            <button id="refreshSummaryButton" type="button" class="small-square-btn">再集計</button>
+            <button id="copySummaryPartsButton" type="button" class="small-square-btn">基本/強化/寵愛をコピー</button>
           </div>
         </div>
 
@@ -245,10 +248,16 @@
         </section>
 
         <section class="summary-place-section" aria-label="場所別配置">
-          <h3>場所ごとの配置</h3>
+          <div class="sub-header summary-place-header">
+            <h3>場所ごとの配置</h3>
+            <button id="clearAllSummaryPlaceButton" type="button"
+              class="small-square-btn summary-place-clear-all-btn">全部いったん片付ける</button>
+          </div>
           <div id="summaryPlaceGrid" class="summary-place-grid"></div>
         </section>
       </section>
+
+      <span id="saveStatusText" class="save-status" aria-live="polite">未保存</span>
 
       <details class="enemy-list-collapsible" open>
         <summary>

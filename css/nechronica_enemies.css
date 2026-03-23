@@ -206,21 +206,35 @@ body.nechronica-enemies-page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 2.1rem;
   min-height: 2.1rem;
-  padding: 0 0.55rem;
+  padding: 0.35rem 0.65rem;
   border: 1px solid var(--sheet-border);
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.82rem;
-  line-height: 1;
+  line-height: 1.2;
   box-sizing: border-box;
   white-space: nowrap;
   background: #1d1a1c;
   color: #cfc5b8;
+  position: fixed;
+  right: 1rem;
+  bottom: 0.9rem;
+  z-index: 1200;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+  pointer-events: none;
 }
 
 .save-status:empty {
   display: none;
+}
+
+@media (max-width: 600px) {
+  .save-status {
+    right: 0.65rem;
+    bottom: 0.65rem;
+    font-size: 0.76rem;
+    padding: 0.3rem 0.55rem;
+  }
 }
 
 .save-status.is-idle {
@@ -885,6 +899,36 @@ body.nechronica-enemies-page {
   padding-right: 0.2rem;
 }
 
+.initiative-plus-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.initiative-plus-wrap > #field-initiative {
+  flex: 0 0 5ch;
+  width: 5ch;
+  min-width: 5ch;
+  max-width: 5ch;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+
+#fieldLegionInitiativeBonusWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+}
+
+#field-legion-initiative-bonus {
+  width: 6ch;
+  min-width: 6ch;
+  max-width: 6ch;
+  text-align: right;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+
 .sub-info-grid {
   display: grid;
   grid-template-columns: minmax(180px, 1fr) minmax(260px, 1.6fr) auto;
@@ -1145,6 +1189,45 @@ body.nechronica-enemies-page {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.action-bar-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.action-meta-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.action-meta-field > input {
+  height: 1.6rem;
+  border: 1px solid #5a4f55;
+  background: #19151a;
+  color: #ece5d9;
+  border-radius: 3px;
+  padding: 0.12rem 0.34rem;
+}
+
+.action-meta-field > input#field-author {
+  width: 9.5rem;
+}
+
+.action-meta-field.is-icon > input#field-icon-url {
+  width: 14rem;
+}
+
+.action-bar-meta .public-switch-label {
+  margin-left: 0.15rem;
 }
 .action-btn {
   display: inline-flex;
@@ -1162,6 +1245,7 @@ body.nechronica-enemies-page {
   transition: all 0.2s ease;
   line-height: 1;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 .action-btn i {
   font-size: 1.1em;
@@ -1282,38 +1366,42 @@ body.nechronica-enemies-page {
 .summary-total-card {
   border: 1px solid var(--sheet-border);
   background: linear-gradient(180deg, #1b1820 0%, #110f14 100%);
-  padding: 0.45rem 0.55rem;
+  padding: 0.3rem 0.46rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.36rem;
 }
 
 .summary-total-label {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   opacity: 0.85;
+  white-space: nowrap;
 }
 
 .summary-total-value {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
 .summary-player-count-input {
   display: block;
-  width: 2.6ch;
-  max-width: 2.6ch;
-  min-width: 2.6ch;
-  margin-left: auto;
-  height: 1.2em;
+  width: 3ch;
+  max-width: 3ch;
+  min-width: 3ch;
+  margin-left: 0;
+  height: 1.3rem;
   line-height: 1.2;
-  padding: 0;
+  padding: 0.05rem 0.26rem;
   text-align: right;
-  border: none;
-  border-bottom: none;
-  border-radius: 0;
-  background: transparent;
+  border: 1px solid #6a5c63;
+  border-radius: 4px;
+  background: #1b171c;
   color: #ece5d9;
-  box-shadow: none;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
   font-size: inherit;
   font-weight: inherit;
   font-variant-numeric: tabular-nums;
@@ -1327,8 +1415,11 @@ body.nechronica-enemies-page {
 }
 
 .summary-player-count-input:focus {
-  outline: 1px solid rgba(201, 172, 110, 0.45);
-  outline-offset: 1px;
+  outline: none;
+  border-color: #c9ac6e;
+  box-shadow:
+    0 0 0 1px rgba(201, 172, 110, 0.35),
+    inset 0 1px 1px rgba(0, 0, 0, 0.35);
 }
 
 #summaryEnemiesTable th:nth-child(1),
@@ -1379,10 +1470,10 @@ body.nechronica-enemies-page {
 }
 
 .summary-name-cell-wrap {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.4rem;
-  flex-wrap: wrap;
+  width: 100%;
 }
 
 .summary-row-actions {
@@ -1390,11 +1481,39 @@ body.nechronica-enemies-page {
   align-items: center;
   gap: 0.28rem;
   flex-wrap: wrap;
+  margin-left: auto;
+  justify-content: flex-end;
 }
 
 .summary-row-action-btn {
-  padding: 0.12rem 0.4rem;
-  font-size: 0.7rem;
+  min-height: 28px;
+  padding: 0.18rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 5px;
+  border: 1px solid #37468d;
+  background: linear-gradient(135deg, #252a3a 0%, #1a1e2b 100%);
+  color: #dbe4ff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.34rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.summary-row-action-btn i {
+  font-size: 0.82rem;
+}
+
+.summary-row-action-btn:hover {
+  border-color: #4c62c4;
+  background: linear-gradient(135deg, #333a4d 0%, #202638 100%);
+  box-shadow: 0 0 12px rgba(55, 70, 141, 0.6);
+  transform: translateY(-1px);
 }
 
 .summary-damage-section {
@@ -1406,6 +1525,63 @@ body.nechronica-enemies-page {
 }
 
 .summary-damage-unit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.summary-damage-tabs {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.26rem;
+  margin: 0 0 -2px;
+  padding-left: 0.2rem;
+  border-bottom: 2px solid var(--sheet-border);
+}
+
+.summary-damage-tab-btn {
+  border: 2px solid var(--sheet-border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #2a2429 0%, #1a161a 100%);
+  color: #e7dfd2;
+  padding: 0.26rem 0.72rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  top: 2px;
+  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+}
+
+.summary-damage-tab-btn .summary-place-dot {
+  width: 1.35em;
+  height: 1.35em;
+  font-size: 0.78em;
+  line-height: 1;
+  flex: 0 0 auto;
+  transform: translateY(0.06em);
+}
+
+.summary-damage-tab-btn:hover {
+  border-color: #8d3746;
+  background: linear-gradient(180deg, #3a2a30 0%, #251b1f 100%);
+}
+
+.summary-damage-tab-btn.is-active {
+  border-color: #8d3746;
+  background: linear-gradient(180deg, #7b1d2a 0%, #4f141f 100%);
+  color: #fff;
+  top: 1px;
+  opacity: 1;
+  box-shadow: 0 -2px 8px rgba(123, 29, 42, 0.24);
+}
+
+.summary-damage-tab-panel {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
@@ -1431,6 +1607,8 @@ body.nechronica-enemies-page {
   align-items: center;
   gap: 0.35rem;
   flex-wrap: wrap;
+  margin-left: auto;
+  justify-content: flex-end;
 }
 
 .summary-damage-unit-meta {
@@ -1438,6 +1616,11 @@ body.nechronica-enemies-page {
   margin-left: 0.45rem;
   opacity: 0.82;
   font-size: 0.8rem;
+}
+
+.summary-damage-unit-initiative {
+  font-weight: 700;
+  opacity: 0.96;
 }
 
 .summary-unit-parts-wrap {
@@ -1546,32 +1729,112 @@ body.nechronica-enemies-page {
 }
 
 .summary-unit-copy-btn {
-  padding: 0.12rem 0.5rem;
+  min-height: 28px;
+  padding: 0.18rem 0.6rem;
   font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 5px;
+  border: 1px solid #9d2535;
+  background: linear-gradient(135deg, #7b1d2a 0%, #4a121e 100%);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.34rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.summary-unit-copy-btn i {
+  font-size: 0.82rem;
+}
+
+.summary-unit-copy-btn:hover {
+  border-color: #bd4a5d;
+  background: linear-gradient(135deg, #9d2535 0%, #611827 100%);
+  box-shadow: 0 0 12px rgba(157, 37, 53, 0.6);
+  transform: translateY(-1px);
 }
 
 .summary-part-copy-btn {
-  padding: 0.08rem 0.38rem;
-  font-size: 0.7rem;
+  padding: 0.18rem 0.52rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 4px;
+  border: 1px solid #37468d;
+  background: linear-gradient(135deg, #252a3a 0%, #1a1e2b 100%);
+  color: #dbe4ff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.28);
+  transition: all 0.2s ease;
+}
+
+.summary-part-copy-btn:hover {
+  border-color: #4c62c4;
+  background: linear-gradient(135deg, #333a4d 0%, #202638 100%);
+  box-shadow: 0 0 10px rgba(55, 70, 141, 0.5);
 }
 
 .summary-remove-btn {
-  padding: 0.14rem 0.52rem;
+  min-height: 28px;
+  padding: 0.18rem 0.6rem;
   font-size: 0.72rem;
-  border-color: #8f3e4c;
-  background: linear-gradient(180deg, #4b1f29 0%, #32131b 100%);
-  color: #ffd9df;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  border-radius: 4px;
+  border-color: #a64a58;
+  background: linear-gradient(135deg, #6b1f2f 0%, #451421 100%);
+  color: #ffe3e8;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.34rem;
+}
+
+.summary-remove-btn i {
+  font-size: 0.82rem;
 }
 
 .summary-remove-btn:hover {
-  border-color: #b85a6b;
-  background: linear-gradient(180deg, #5a2733 0%, #3d1822 100%);
+  border-color: #d06a80;
+  background: linear-gradient(135deg, #84283a 0%, #561a2a 100%);
+  box-shadow: 0 0 12px rgba(157, 37, 53, 0.55);
+  transform: translateY(-1px);
 }
 
 .summary-place-section h3 {
   margin: 0.1rem 0 0.45rem;
   font-size: 0.98rem;
+}
+
+.summary-place-header {
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.summary-place-header h3 {
+  margin: 0;
+}
+
+.summary-place-clear-all-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.7rem;
+  padding: 0.18rem 0.55rem;
+  font-size: 0.76rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  border-color: #8a5f73;
+  background: linear-gradient(180deg, #3c2430 0%, #26151d 100%);
+}
+
+.summary-place-clear-all-btn:hover {
+  border-color: #b77b95;
+  background: linear-gradient(180deg, #523041 0%, #341e2a 100%);
 }
 
 .summary-place-grid {
@@ -1618,13 +1881,14 @@ body.nechronica-enemies-page {
   display: inline-flex;
   align-items: center;
   gap: 0.24rem;
-  padding: 0.14rem 0.4rem;
+  padding: 0.16rem 0.44rem;
   border: 1px solid #5f5159;
   border-radius: 999px;
   background: linear-gradient(180deg, #2a2329 0%, #1b161b 100%);
-  font-size: 0.78rem;
-  line-height: 1.15;
-  color: #ece5d9;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  color: #111;
+  text-shadow: none;
   cursor: grab;
 }
 
@@ -1634,25 +1898,79 @@ body.nechronica-enemies-page {
 }
 
 .summary-place-dot {
-  width: 0.52rem;
-  height: 0.52rem;
+  width: 0.58rem;
+  height: 0.58rem;
   border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.48rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #111;
   background: radial-gradient(
     circle at 35% 35%,
-    #ffe9f1 0%,
-    #d26f8d 55%,
-    #8e2b4b 100%
+    #fff6fa 0%,
+    #f4adc7 55%,
+    #d96b96 100%
   );
-  box-shadow: 0 0 0 1px rgba(116, 36, 58, 0.55);
+  box-shadow: 0 0 0 1px rgba(130, 65, 91, 0.55);
   flex: 0 0 auto;
 }
 
+.summary-place-badge.is-legion {
+  border-color: #6c79b8;
+  background: linear-gradient(180deg, #d9dff7 0%, #bcc8ef 100%);
+}
+
+.summary-place-badge.is-horror {
+  border-color: #b05f82;
+  background: linear-gradient(180deg, #f3d5e1 0%, #e9b6ca 100%);
+}
+
+.summary-place-badge.is-servant {
+  border-color: #4f8d71;
+  background: linear-gradient(180deg, #d9f2e5 0%, #b9e4cd 100%);
+}
+
+.summary-place-dot.is-legion {
+  background: radial-gradient(
+    circle at 35% 35%,
+    #ffffff 0%,
+    #b9c5ff 58%,
+    #7b89d8 100%
+  );
+  box-shadow: 0 0 0 1px rgba(80, 94, 170, 0.72);
+}
+
+.summary-place-dot.is-horror {
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fff6fa 0%,
+    #f4adc7 55%,
+    #d96b96 100%
+  );
+  box-shadow: 0 0 0 1px rgba(130, 65, 91, 0.55);
+}
+
+.summary-place-dot.is-servant {
+  background: radial-gradient(
+    circle at 35% 35%,
+    #f6fff9 0%,
+    #9ce0bc 56%,
+    #57b888 100%
+  );
+  box-shadow: 0 0 0 1px rgba(56, 131, 95, 0.62);
+}
+
 .summary-place-badge-name {
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 .summary-place-badge-count {
-  opacity: 0.88;
+  opacity: 0.95;
+  font-weight: 700;
 }
 
 .summary-place-card.is-drop-target {
