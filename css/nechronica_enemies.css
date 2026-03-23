@@ -1825,6 +1825,23 @@ body.nechronica-enemies-page .save-status {
   min-width: 16em;
 }
 
+.summary-part-name-input {
+  width: 100%;
+  min-width: 7.5em;
+  border: 1px solid #55474d;
+  background: #1a171d;
+  color: #ece4d8;
+  border-radius: 4px;
+  padding: 0.22rem 0.35rem;
+  font-size: 0.82rem;
+}
+
+.summary-part-name-input:focus {
+  outline: none;
+  border-color: #9d7b40;
+  box-shadow: 0 0 0 1px rgba(157, 123, 64, 0.28);
+}
+
 .summary-unit-parts-table tbody tr {
   cursor: default;
 }

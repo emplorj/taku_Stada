@@ -2088,14 +2088,17 @@ function normalizeSummaryUnitPartState(entry) {
     const statusRaw = String(entry.status || "無事").trim();
     const status =
       statusRaw === "損傷" || statusRaw === "使用" ? statusRaw : "無事";
+    const nameOverride = String(entry.nameOverride || "").trim();
     return {
       status,
       reportChecked: !!entry.reportChecked,
+      nameOverride,
     };
   }
   return {
     status: "無事",
     reportChecked: false,
+    nameOverride: "",
   };
 }
 
@@ -2166,6 +2169,10 @@ function getSummaryUnitPartRows(unitRow) {
     const stateObj = normalizeSummaryUnitPartState(unitMap[partKey]);
     unitMap[partKey] = stateObj;
     enemy.summary_unit_part_states[unitRow.unitKey] = unitMap;
+    const basePartName = String(
+      (m && (m.name || m.kindName || m.displayName)) || "",
+    ).trim();
+    const partName = stateObj.nameOverride || basePartName;
     return {
       id: unitRow.id,
       slotIndex: unitRow.slotIndex,
@@ -2178,7 +2185,8 @@ function getSummaryUnitPartRows(unitRow) {
       classType: String(unitRow.classType || ""),
       aliveLabel,
       partType: sanitizePartType((m && m.partType) || "", "胴"),
-      partName: String((m && (m.name || m.kindName || m.displayName)) || ""),
+      partName,
+      basePartName,
       timing: String((m && m.timing) || ""),
       cost: String((m && m.cost) || ""),
       range: String((m && m.range) || ""),
@@ -2248,7 +2256,7 @@ function buildSummaryCheckedPartCopyText(partRows) {
   return partRows
     .map((row) => {
       const status = String((row && row.status) || "無事");
-      const mark = status === "損傷" ? "❌" : "⭕";
+      const mark = status === "損傷" ? "❌" : status === "使用" ? "✅" : "⭕";
       return `${mark}${row.partType}【${row.partName}】《${row.timing}/${row.cost}/${row.range}》${row.effect}`;
     })
     .join("\n");
@@ -2497,7 +2505,7 @@ function renderSummaryPanel() {
                     <td><button type="button" class="small-square-btn summary-part-copy-btn" data-summary-part-copy-id="${escapeHtml(row.id)}" data-summary-part-copy-slot="${escapeHtml(row.slotIndex)}" data-summary-part-copy-unit="${escapeHtml(row.unitIndex)}" data-summary-part-copy-key="${escapeHtml(row.partKey)}" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy" aria-hidden="true"></i></button></td>
                     <td>${isLegion ? "-" : `<select class="status-select ${statusClass}" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="status"><option value="無事" ${row.status === "無事" ? "selected" : ""}>無事</option><option value="使用" ${row.status === "使用" ? "selected" : ""}>使用</option><option value="損傷" ${row.status === "損傷" ? "selected" : ""}>損傷</option></select>`}</td>
                     <td>${isLegion || isHorror ? "-" : escapeHtml(partTypeText)}</td>
-                    <td>${escapeHtml(row.partName)}</td>
+                    <td><input type="text" class="summary-part-name-input" value="${escapeHtml(row.partName)}" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="nameOverride" placeholder="名称"></td>
                     <td>${escapeHtml(row.timing)}</td>
                     <td>${escapeHtml(row.cost)}</td>
                     <td>${escapeHtml(row.range)}</td>
@@ -2813,6 +2821,9 @@ function handleSummaryDamageInput(event) {
     target.classList.add(getManeuverStatusClass(current.status));
   } else if (prop === "reportChecked" && target instanceof HTMLInputElement) {
     current.reportChecked = !!target.checked;
+  } else if (prop === "nameOverride" && target instanceof HTMLInputElement) {
+    const typed = String(target.value || "").trim();
+    current.nameOverride = typed;
   }
   unitMap[partKey] = current;
   enemy.time = nowIsoLocal();
@@ -2939,11 +2950,11 @@ function handleSummaryDamageClick(event) {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        const original = partCopyBtn.textContent;
+        const originalHtml = partCopyBtn.innerHTML;
         partCopyBtn.textContent = "完了";
         showToast("チェック行をコピーした", "info");
         setTimeout(() => {
-          partCopyBtn.textContent = original;
+          partCopyBtn.innerHTML = originalHtml;
         }, 1200);
       })
       .catch(() => {

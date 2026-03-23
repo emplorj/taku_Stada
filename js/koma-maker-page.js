@@ -435,11 +435,21 @@ function overwriteNechronicaKakeraInBaseLines(baseLines) {
   return [...lines.slice(0, startIdx), ...templateLines];
 }
 
+function isNechronicaLegendLine(line) {
+  const s = String(line || "").trim();
+  if (!s) return false;
+  return (
+    s.includes("無事：⭕") &&
+    s.includes("損傷：❌") &&
+    (s.includes("使用：✅") ||
+      s.includes("使用：⭕") ||
+      s.includes("未使用：🟩"))
+  );
+}
+
 function parseNechronicaMemo(memo) {
   const lines = String(memo || "").split(/\r?\n/);
-  const legendIndex = lines.findIndex((line) =>
-    String(line || "").startsWith("未使用：🟩、使用：✅、無事：⭕、損傷：❌"),
-  );
+  const legendIndex = lines.findIndex((line) => isNechronicaLegendLine(line));
   if (legendIndex < 0) return null;
 
   const baseIndex = lines.findIndex(
@@ -885,7 +895,8 @@ function fillNechronicaSectionFromOutput(rawText) {
   );
   const isNechronica =
     /nechro|nechronica/i.test(externalUrl) ||
-    memo.includes("未使用：🟩、使用：✅、無事：⭕、損傷：❌");
+    isNechronicaLegendLine(memo) ||
+    (memo.includes("【マニューバ名】") && memo.includes("損傷：❌"));
 
   if (!isNechronica) {
     setNechronicaSectionVisible(false);
@@ -1350,8 +1361,21 @@ function updatePage(result) {
   const hideMemoDisplay = !!(document.getElementById("hideMemoDisplay") || {})
     .checked;
 
-  let renderedOut =
-    result && result.out ? String(result.out) : "出力の受信に失敗した。";
+  let renderedOut = "出力の受信に失敗した。";
+  if (result && Object.prototype.hasOwnProperty.call(result, "out")) {
+    const outRaw = result.out;
+    if (typeof outRaw === "string") {
+      renderedOut = outRaw;
+    } else if (outRaw && typeof outRaw === "object") {
+      try {
+        renderedOut = JSON.stringify(outRaw);
+      } catch (_e) {
+        renderedOut = String(outRaw);
+      }
+    } else if (outRaw != null) {
+      renderedOut = String(outRaw);
+    }
+  }
   if (hideMemoDisplay) {
     try {
       const parsed = JSON.parse(renderedOut);
@@ -1387,12 +1411,16 @@ function updatePage(result) {
   lastRawOutputText = renderedOut;
   outputArea.value = applyNechronicaOutputDisplayFilter(lastRawOutputText);
 
+  // セクション解析は表示フィルタ適用前の生データを使う。
+  // （表示側チェックがOFFでも、ネクロニカ/アイテムの下部UIは維持するため）
+  const sectionSourceText = lastRawOutputText || outputArea.value || "";
+
   fillItemSectionFromOutput(
-    outputArea.value || "",
+    sectionSourceText,
     result && result.itemLimits,
     result && result.itemSections,
   );
-  fillNechronicaSectionFromOutput(outputArea.value || "");
+  fillNechronicaSectionFromOutput(sectionSourceText);
 
   const txt = outputArea.value || "";
   const canCopy =

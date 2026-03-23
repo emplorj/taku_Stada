@@ -83,6 +83,67 @@ function pickAllByName(html, name) {
   );
 }
 
+function pickAllFieldsByName(html, name) {
+  const n = escRe(name);
+  const nodes = [];
+
+  const inputRe = new RegExp(
+    `<input\\b(?=[^>]*\\bname=["']${n}["'])[^>]*>`,
+    "gi",
+  );
+  let m;
+  while ((m = inputRe.exec(html)) !== null) {
+    const tag = String(m[0] || "");
+    const v = extractFirst(tag, /value=["']([^"']*)["']/i, "");
+    nodes.push({ idx: m.index, value: v });
+  }
+
+  const selectRe = new RegExp(
+    `<select\\b(?=[^>]*\\bname=["']${n}["'])[^>]*>([\\s\\S]*?)<\\/select>`,
+    "gi",
+  );
+  while ((m = selectRe.exec(html)) !== null) {
+    const body = String(m[1] || "");
+    const selectedWithValue = extractFirst(
+      body,
+      /<option\b[^>]*\bselected\b[^>]*value=["']([^"']*)["'][^>]*>/i,
+      "",
+    );
+    const selectedText = extractFirst(
+      body,
+      /<option\b[^>]*\bselected\b[^>]*>([\s\S]*?)<\/option>/i,
+      "",
+    ).replace(/<[^>]+>/g, "");
+    const firstWithValue = extractFirst(
+      body,
+      /<option\b[^>]*value=["']([^"']*)["'][^>]*>/i,
+      "",
+    );
+    const firstText = extractFirst(
+      body,
+      /<option\b[^>]*>([\s\S]*?)<\/option>/i,
+      "",
+    )
+      .replace(/<[^>]+>/g, "")
+      .trim();
+    const value =
+      selectedWithValue || selectedText || firstWithValue || firstText;
+    nodes.push({ idx: m.index, value });
+  }
+
+  const textareaRe = new RegExp(
+    `<textarea\\b(?=[^>]*\\bname=["']${n}["'])[^>]*>([\\s\\S]*?)<\\/textarea>`,
+    "gi",
+  );
+  while ((m = textareaRe.exec(html)) !== null) {
+    nodes.push({ idx: m.index, value: decodeHtml(String(m[1] || "")) });
+  }
+
+  return nodes
+    .sort((a, b) => a.idx - b.idx)
+    .map((x) => decodeHtml(String(x.value || "")).trim());
+}
+
 function parseTitle(html) {
   return extractFirst(html, /<title>([\s\S]*?)<\/title>/i, "").trim();
 }
@@ -2051,12 +2112,34 @@ function convertTim(x) {
 }
 
 function getDataNC(html, url, img, opt, additionalPalette) {
-  const names = pickAllByName(html, "Power_name[]");
-  const positions = pickAllByName(html, "V_Power_hantei[]");
-  const timings = pickAllByName(html, "V_Power_timing[]");
-  const costs = pickAllByName(html, "Power_cost[]");
-  const ranges = pickAllByName(html, "Power_range[]");
-  const memos = pickAllByName(html, "Power_memo[]");
+  const names = pickAllFieldsByName(html, "Power_name[]");
+  const timings = pickAllFieldsByName(html, "V_Power_timing[]");
+  const costs = pickAllFieldsByName(html, "Power_cost[]");
+  const ranges = pickAllFieldsByName(html, "Power_range[]");
+  const memos = pickAllFieldsByName(html, "Power_memo[]");
+  const positionCandidates = [
+    pickAllFieldsByName(html, "Power_position[]"),
+    pickAllFieldsByName(html, "V_Power_position[]"),
+    pickAllFieldsByName(html, "Power_bui[]"),
+    pickAllFieldsByName(html, "Power_part[]"),
+    pickAllFieldsByName(html, "V_Power_hantei[]"),
+  ];
+  const positions = positionCandidates
+    .map((arr) => {
+      const len = Array.isArray(arr) ? arr.length : 0;
+      const partScore = (arr || []).filter((v) =>
+        /^(4|5|6|7)$/.test(String(v)),
+      ).length;
+      const rangeScore = (arr || []).filter((v) =>
+        /^(1|2|3|4|5|6|7)$/.test(String(v)),
+      ).length;
+      return { arr: arr || [], len, partScore, rangeScore };
+    })
+    .sort((a, b) => {
+      if (b.partScore !== a.partScore) return b.partScore - a.partScore;
+      if (b.rangeScore !== a.rangeScore) return b.rangeScore - a.rangeScore;
+      return Math.abs(b.len - names.length) - Math.abs(a.len - names.length);
+    })[0].arr;
 
   const bui = [
     ["【マニューバ名】 《タイミング / コスト / 射程》"],
@@ -2083,11 +2166,8 @@ function getDataNC(html, url, img, opt, additionalPalette) {
 
   const toDamagedPartDisplay = (lines) =>
     lines
-      .map((line) =>
-        String(line || "")
-          .replace(/(《[^》]*》).*/, "$1")
-          .trim(),
-      )
+      .map((line) => String(line || "").trim())
+      .filter(Boolean)
       .join("\n");
 
   const buiList =
