@@ -247,6 +247,24 @@ body {
   margin: 0 0 8px;
 }
 
+.nechronica-usage-details {
+  margin: 0 0 8px;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.nechronica-usage-details summary {
+  cursor: pointer;
+  font-size: 0.8em;
+  line-height: 1.2;
+}
+
+.nechronica-usage-text {
+  margin-top: 4px;
+  font-size: 0.76em;
+  line-height: 1.25;
+}
+
 .nechronica-kakera-box {
   margin: 0 0 8px;
   text-align: left;

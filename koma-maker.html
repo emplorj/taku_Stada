@@ -81,9 +81,21 @@
                     class="fa-solid fa-database" aria-hidden="true"></i> 基本データ</span></label>
             </div>
             <div class="nechronica-bulk-actions">
-              <button id="usedToSafeAllButton" class="hoha nechronica-mini-btn" disabled>使用→無事（全マニューバ）</button>
+              <button id="usedToSafeAllButton" class="hoha nechronica-mini-btn" disabled>使用回数回復</button>
               <button id="copyCheckedPartsButton" class="hoha nechronica-mini-btn" disabled>チェック項目をコピー</button>
               <button id="clearCheckedPartsButton" class="hoha nechronica-mini-btn" disabled>チェック解除</button>
+            </div>
+            <details class="nechronica-usage-details">
+              <summary>※チェック出力の使い方（折りたたみ）</summary>
+              <div class="nechronica-usage-text">損傷（❌）にすると、その行は自動でチェックされる。損傷を外すとチェックも外れる。<br>
+                チェックした行だけを「チェック項目をコピー」でまとめて出力きる。<br>
+                負傷したパーツをまとめて送信するために使うがいい……<br>
+                部位ヘッダーの「チェック解除」で部位ごと解除、上の「チェック解除」で全解除だ。送信を終えたら次の攻撃に備えて押すとよいだろう。</div>
+            </details>
+            <div class="nechronica-controls">
+              <span class="nechronica-display-label">編集欄（nechronicaPartEditor）の表示:</span>
+              <label class="setting-pill"><input type="checkbox" id="hideNechronicaEditorEffect" checked><span><i
+                    class="fa-solid fa-eye-slash" aria-hidden="true"></i> 説明文を非表示</span></label>
             </div>
             <div id="nechronicaPartEditor" class="nechronica-part-editor"></div>
             <div class="nechronica-controls nechronica-controls-lower">
@@ -172,6 +184,7 @@
   <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
 
   <script src="js/common.js"></script>
+  <script src="js/nechronica-shared.js"></script>
   <script src="js/koma-maker-page.js"></script>
 </body>
 

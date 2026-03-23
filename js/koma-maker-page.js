@@ -24,6 +24,9 @@ const includeOutputNechronicaManeuverCheckbox = document.getElementById(
 const includeOutputNechronicaBaseCheckbox = document.getElementById(
   "includeOutputNechronicaBase",
 );
+const hideNechronicaEditorEffectCheckbox = document.getElementById(
+  "hideNechronicaEditorEffect",
+);
 const includeNechronicaManeuverCheckbox = document.getElementById(
   "includeNechronicaManeuver",
 );
@@ -58,6 +61,80 @@ const DEFAULT_NECHRONICA_KAKERA_TEMPLATE =
   "「テキスト」\n" +
   "----------------------------------------------------------------------------\n" +
   "【記憶のカケラ：取得】";
+
+function getNechronicaShared() {
+  const shared =
+    typeof window !== "undefined" && window && window.NechronicaShared
+      ? window.NechronicaShared
+      : null;
+  if (shared && typeof shared.isRepeatableTiming === "function") {
+    return shared;
+  }
+  return {
+    isRepeatableTiming: (timing) => {
+      const t = String(timing || "").trim();
+      return t === "オート" || t === "アクション";
+    },
+    writeClipboardText: async (text) => {
+      const value = String(text == null ? "" : text);
+      if (
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
+        await navigator.clipboard.writeText(value);
+        return;
+      }
+      const ta = document.createElement("textarea");
+      ta.value = value;
+      ta.setAttribute("readonly", "readonly");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (!ok) throw new Error("clipboard unavailable");
+    },
+    showToast: (message, opts = {}) => {
+      const text = String(message || "").trim();
+      if (!text) return;
+      const id = String(opts.id || "copyToast");
+      const className = String(opts.className || "copy-toast");
+      let toast = document.getElementById(id);
+      if (!toast) {
+        toast = document.createElement("div");
+        toast.id = id;
+        toast.className = className;
+        document.body.appendChild(toast);
+      }
+      toast.className = className;
+      toast.textContent = text;
+      toast.classList.remove("is-error", "is-show");
+      if ((opts && opts.kind) === "error") toast.classList.add("is-error");
+      void toast.offsetWidth;
+      toast.classList.add("is-show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(
+        () => {
+          toast.classList.remove("is-show");
+        },
+        Number(opts.duration) > 0 ? Number(opts.duration) : 1400,
+      );
+    },
+    resolveReportCheckedOnDamageTransition: (
+      prevStatus,
+      nextStatus,
+      currentChecked,
+      damageToken = "❌",
+    ) => {
+      const prev = String(prevStatus || "");
+      const next = String(nextStatus || "");
+      if (next === damageToken) return true;
+      if (prev === damageToken && next !== damageToken) return false;
+      return !!currentChecked;
+    },
+  };
+}
 
 function quoteKakeraTokensFromLine(line) {
   return String(line || "")
@@ -142,24 +219,14 @@ function stopProgressTracking() {
 }
 
 function showToast(message, kind = "info") {
-  let toast = document.getElementById("copyToast");
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.id = "copyToast";
-    toast.className = "copy-toast";
-    document.body.appendChild(toast);
-  }
-  toast.textContent = message;
-  toast.classList.remove("is-error", "is-show");
-  if (kind === "error") toast.classList.add("is-error");
-  // reflow
-  void toast.offsetWidth;
-  toast.classList.add("is-show");
-
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toast.classList.remove("is-show");
-  }, 1400);
+  getNechronicaShared().showToast(message, {
+    kind,
+    id: "copyToast",
+    className: "copy-toast",
+    errorClass: "is-error",
+    showClass: "is-show",
+    duration: 1400,
+  });
 }
 
 function copyTextWithToast(text, successMessage, emptyMessage = "") {
@@ -168,8 +235,8 @@ function copyTextWithToast(text, successMessage, emptyMessage = "") {
     if (emptyMessage) showToast(emptyMessage, "error");
     return;
   }
-  navigator.clipboard
-    .writeText(txt)
+  getNechronicaShared()
+    .writeClipboardText(txt)
     .then(() => showToast(successMessage, "info"))
     .catch((err) => {
       showToast("コピーに失敗したようだ… ブラウザの権限を確認しろ！", "error");
@@ -362,8 +429,8 @@ function setupItemCopyButton(button, textarea, emptyText, successMessage) {
       showToast("まだアイテム欄が出力されていないようだ！", "error");
       return;
     }
-    navigator.clipboard
-      .writeText(txt)
+    getNechronicaShared()
+      .writeClipboardText(txt)
       .then(() => showToast(successMessage, "info"))
       .catch((err) => {
         showToast(
@@ -640,7 +707,7 @@ function renderNechronicaEditor() {
   };
   const isRepeatableTiming = (body) => {
     const timing = getTimingFromBody(body);
-    return timing === "オート" || timing === "アクション";
+    return !!getNechronicaShared().isRepeatableTiming(timing);
   };
   let rowIndex = -1;
 
@@ -660,7 +727,7 @@ function renderNechronicaEditor() {
         const dmgBtn = document.createElement("button");
         dmgBtn.type = "button";
         dmgBtn.className = "hoha nechronica-mini-btn nechronica-header-action";
-        dmgBtn.textContent = "損傷";
+        dmgBtn.textContent = "切断";
         dmgBtn.dataset.section = item.text;
         dmgBtn.dataset.mark = "❌";
 
@@ -671,8 +738,17 @@ function renderNechronicaEditor() {
         safeBtn.dataset.section = item.text;
         safeBtn.dataset.mark = "⭕";
 
+        const clearCheckBtn = document.createElement("button");
+        clearCheckBtn.type = "button";
+        clearCheckBtn.className =
+          "hoha nechronica-mini-btn nechronica-header-action";
+        clearCheckBtn.textContent = "チェック解除";
+        clearCheckBtn.dataset.section = item.text;
+        clearCheckBtn.dataset.action = "clear-check";
+
         actions.appendChild(dmgBtn);
         actions.appendChild(safeBtn);
+        actions.appendChild(clearCheckBtn);
         h.appendChild(actions);
       }
 
@@ -716,7 +792,13 @@ function renderNechronicaEditor() {
 
     const text = document.createElement("span");
     text.className = "nechronica-part-text";
-    text.textContent = item.body;
+    const shouldHideEffect = !(
+      hideNechronicaEditorEffectCheckbox &&
+      hideNechronicaEditorEffectCheckbox.checked === false
+    );
+    text.textContent = shouldHideEffect
+      ? stripNechronicaEffectText(item.body)
+      : String(item.body || "");
 
     const copyLineButton = document.createElement("button");
     copyLineButton.type = "button";
@@ -760,6 +842,11 @@ function syncNechronicaStateSelectClass(selectEl) {
   }
 }
 
+function stripNechronicaEffectText(body) {
+  const s = String(body || "");
+  return s.replace(/(《[^》]*》).*/, "$1").trim();
+}
+
 function renderNechronicaQuoteOutput() {
   if (!nechronicaOutputArea) return;
   if (!nechronicaEditorState) {
@@ -776,7 +863,7 @@ function renderNechronicaQuoteOutput() {
       : item.state === "❌"
         ? "✅"
         : item.state;
-    return `${state}${item.body}`;
+    return `${state}${stripNechronicaEffectText(item.body)}`;
   });
 
   const includeBase = !!(
@@ -834,6 +921,7 @@ function setNechronicaStatesForAllParts(mark) {
     if (item.type !== "row") return;
     if (!item.allowDamage) return;
     item.state = mark;
+    item.reportChecked = mark === "❌";
   });
   renderNechronicaEditor();
   renderNechronicaQuoteOutput();
@@ -847,6 +935,20 @@ function setNechronicaStatesForPart(sectionLabel, mark) {
     if (!item.allowDamage) return;
     if (String(item.section || "") !== String(sectionLabel || "")) return;
     item.state = mark;
+    item.reportChecked = mark === "❌";
+  });
+  renderNechronicaEditor();
+  renderNechronicaQuoteOutput();
+}
+
+function clearNechronicaCheckedForPart(sectionLabel) {
+  if (!nechronicaEditorState || !Array.isArray(nechronicaEditorState.items))
+    return;
+  nechronicaEditorState.items.forEach((item) => {
+    if (item.type !== "row") return;
+    if (!item.allowDamage) return;
+    if (String(item.section || "") !== String(sectionLabel || "")) return;
+    item.reportChecked = false;
   });
   renderNechronicaEditor();
   renderNechronicaQuoteOutput();
@@ -1129,6 +1231,10 @@ if (nechronicaPartEditor) {
       return;
     }
     if (!target.classList.contains("nechronica-header-action")) return;
+    if ((target.dataset.action || "") === "clear-check") {
+      clearNechronicaCheckedForPart(target.dataset.section || "");
+      return;
+    }
     setNechronicaStatesForPart(
       target.dataset.section || "",
       target.dataset.mark || "⭕",
@@ -1151,7 +1257,25 @@ if (nechronicaPartEditor) {
       if (item.type !== "row") continue;
       currentRow += 1;
       if (currentRow !== rowIndex) continue;
+      const prev = item.state;
       item.state = target.value;
+      if (item.allowDamage) {
+        item.reportChecked =
+          getNechronicaShared().resolveReportCheckedOnDamageTransition(
+            prev,
+            item.state,
+            item.reportChecked,
+            "❌",
+          );
+        const rowEl = target.closest(".nechronica-part-row");
+        const checkEl =
+          rowEl && rowEl.querySelector
+            ? rowEl.querySelector(".nechronica-report-check")
+            : null;
+        if (checkEl instanceof HTMLInputElement) {
+          checkEl.checked = !!item.reportChecked;
+        }
+      }
       break;
     }
     renderNechronicaQuoteOutput();
@@ -1205,6 +1329,12 @@ if (includeNechronicaBaseCheckbox) {
   });
 }
 
+if (hideNechronicaEditorEffectCheckbox) {
+  hideNechronicaEditorEffectCheckbox.addEventListener("change", () => {
+    renderNechronicaEditor();
+  });
+}
+
 if (nechronicaKakeraTemplateArea) {
   nechronicaKakeraTemplateArea.addEventListener("input", () => {
     renderNechronicaQuoteOutput();
@@ -1218,8 +1348,8 @@ if (copyNechronicaButton && nechronicaOutputArea) {
       showToast("ネクロニカ引用ボックスがまだ生成されていない！", "error");
       return;
     }
-    navigator.clipboard
-      .writeText(txt)
+    getNechronicaShared()
+      .writeClipboardText(txt)
       .then(() => showToast("ネクロニカ引用ボックスをコピーした！", "info"))
       .catch((err) => {
         showToast(
@@ -1238,8 +1368,8 @@ if (copyKakeraTemplateButton && nechronicaKakeraTemplateArea) {
       showToast("記憶のカケラテンプレが空だ！", "error");
       return;
     }
-    navigator.clipboard
-      .writeText(txt)
+    getNechronicaShared()
+      .writeClipboardText(txt)
       .then(() => showToast("記憶のカケラテンプレをコピーした！", "info"))
       .catch((err) => {
         showToast(

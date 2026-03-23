@@ -242,6 +242,14 @@
           <div class="sub-header summary-damage-header">
             <h3>個体ごとの損傷管理</h3>
           </div>
+          <details class="summary-damage-usage-details">
+            <summary>※チェック出力の使い方（折りたたみ）</summary>
+            <div class="summary-damage-usage-text">損傷（❌）にすると、その行は自動でチェックされます。損傷を外すとチェックも外れます。<br>
+              これは summary-unit-parts-table でも同じ挙動です。<br>
+              タイミングがオート/アクションの項目は「使用」を選べません（表示しません）。<br>
+              チェックした行だけを「チェック項目をコピー」でまとめて出力できます。<br>
+              部位ヘッダーの「チェック解除」で部位ごと解除、上の「チェック解除」で全解除です。</div>
+          </details>
           <div id="summaryDamageUnitList" class="summary-damage-unit-list">
             <div class="summary-place-empty">（まとめに追加した手駒がありません）</div>
           </div>
@@ -277,6 +285,7 @@
                 inputmode="numeric" aria-label="表示件数（空欄は10、0で全部）">
               <button id="enemyShowAllButton" type="button" class="enemy-show-all-btn"
                 title="0を入れて全部表示にする">0（全部）</button>
+              <button id="enemyShowTenButton" type="button" class="enemy-show-all-btn" title="10件表示に戻す">10</button>
             </div>
             <div id="enemyListPager" class="enemy-list-pager enemy-list-pager-inline" aria-live="polite"></div>
           </div>
@@ -303,6 +312,7 @@
   </footer>
 
   <script src="js/common.js"></script>
+  <script src="js/nechronica-shared.js"></script>
   <script src="js/nechronica-enemies.js"></script>
 </body>
 

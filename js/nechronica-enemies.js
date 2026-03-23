@@ -52,6 +52,7 @@ const DEFAULT_NECHRONICA_GAS_WEB_APP_URL =
 let saveDebounceTimer = null;
 let saveRequestInFlight = false;
 let secondaryRenderDebounceTimer = null;
+let summaryRenderDebounceTimer = null;
 let hasUnsavedChanges = false;
 let saveToastTimer = null;
 const localUnsavedEnemyIds = new Set();
@@ -344,6 +345,26 @@ function scheduleSecondaryRenders(options = {}) {
   }, delayMs);
 }
 
+function scheduleSummaryRenders(options = {}) {
+  const { includeList = true, delayMs = 60, immediate = false } = options;
+  if (summaryRenderDebounceTimer) {
+    clearTimeout(summaryRenderDebounceTimer);
+    summaryRenderDebounceTimer = null;
+  }
+  const run = () => {
+    renderSummaryPanel();
+    if (includeList) renderEnemyList();
+  };
+  if (immediate || delayMs <= 0) {
+    run();
+    return;
+  }
+  summaryRenderDebounceTimer = setTimeout(() => {
+    summaryRenderDebounceTimer = null;
+    run();
+  }, delayMs);
+}
+
 function setSaveStatus(kind, text) {
   const message = String(text || "").trim();
   if (!el.saveStatusText) return;
@@ -371,6 +392,18 @@ function setSaveStatus(kind, text) {
 }
 
 function showToast(message, kind = "info") {
+  const shared = getNechronicaShared();
+  if (shared && typeof shared.showToast === "function") {
+    shared.showToast(message, {
+      kind,
+      id: "copyToast",
+      className: "copy-toast",
+      errorClass: "is-error",
+      showClass: "is-show",
+      duration: 1400,
+    });
+    return;
+  }
   const text = String(message || "").trim();
   if (!text) return;
 
@@ -403,24 +436,7 @@ function showKomaJsonCopySuccessToast() {
 }
 
 async function writeClipboardText(text) {
-  const value = String(text == null ? "" : text);
-  if (
-    navigator.clipboard &&
-    typeof navigator.clipboard.writeText === "function"
-  ) {
-    await navigator.clipboard.writeText(value);
-    return;
-  }
-  const ta = document.createElement("textarea");
-  ta.value = value;
-  ta.setAttribute("readonly", "readonly");
-  ta.style.position = "fixed";
-  ta.style.left = "-9999px";
-  document.body.appendChild(ta);
-  ta.select();
-  const ok = document.execCommand("copy");
-  document.body.removeChild(ta);
-  if (!ok) throw new Error("clipboard unavailable");
+  await getNechronicaShared().writeClipboardText(text);
 }
 
 function setSaveButtonLabelByEnemy(enemy) {
@@ -504,12 +520,93 @@ function getManeuverStatusClass(status) {
   return "status-safe";
 }
 
+function getNechronicaShared() {
+  const shared =
+    typeof window !== "undefined" && window && window.NechronicaShared
+      ? window.NechronicaShared
+      : null;
+  if (shared && typeof shared.isRepeatableTiming === "function") {
+    return shared;
+  }
+  return {
+    isRepeatableTiming: (timing) => {
+      const t = String(timing || "").trim();
+      return t === "オート" || t === "アクション";
+    },
+    canUseUsedStatusForManeuver: (maneuver) => {
+      const timing = String((maneuver && maneuver.timing) || "").trim();
+      return timing !== "オート" && timing !== "アクション";
+    },
+    writeClipboardText: async (text) => {
+      const value = String(text == null ? "" : text);
+      if (
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
+        await navigator.clipboard.writeText(value);
+        return;
+      }
+      const ta = document.createElement("textarea");
+      ta.value = value;
+      ta.setAttribute("readonly", "readonly");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (!ok) throw new Error("clipboard unavailable");
+    },
+    showToast: (message, opts = {}) => {
+      const text = String(message || "").trim();
+      if (!text) return;
+      const id = String(opts.id || "copyToast");
+      const className = String(opts.className || "copy-toast");
+      let toast = document.getElementById(id);
+      if (!toast) {
+        toast = document.createElement("div");
+        toast.id = id;
+        toast.className = className;
+        document.body.appendChild(toast);
+      }
+      toast.className = className;
+      toast.textContent = text;
+      toast.classList.remove("is-error", "is-show");
+      if ((opts && opts.kind) === "error") toast.classList.add("is-error");
+      void toast.offsetWidth;
+      toast.classList.add("is-show");
+      if (saveToastTimer) clearTimeout(saveToastTimer);
+      saveToastTimer = setTimeout(
+        () => {
+          toast.classList.remove("is-show");
+        },
+        Number(opts.duration) > 0 ? Number(opts.duration) : 1400,
+      );
+    },
+    resolveReportCheckedOnDamageTransition: (
+      prevStatus,
+      nextStatus,
+      currentChecked,
+      damageToken = "損傷",
+    ) => {
+      const prev = String(prevStatus || "");
+      const next = String(nextStatus || "");
+      if (next === damageToken) return true;
+      if (prev === damageToken && next !== damageToken) return false;
+      return !!currentChecked;
+    },
+  };
+}
+
 function isRepeatableTiming(timing) {
-  const t = String(timing || "").trim();
-  return t === "オート" || t === "アクション";
+  return !!getNechronicaShared().isRepeatableTiming(timing);
 }
 
 function canUseUsedStatusForManeuver(maneuver) {
+  const shared = getNechronicaShared();
+  if (typeof shared.canUseUsedStatusForManeuver === "function") {
+    return !!shared.canUseUsedStatusForManeuver(maneuver);
+  }
   return !isRepeatableTiming(maneuver && maneuver.timing);
 }
 
@@ -971,7 +1068,7 @@ function sortEnemies(list) {
 }
 
 function normalizeEnemyListPageSize(rawValue) {
-  const raw = String(rawValue || "").trim();
+  const raw = String(rawValue ?? "").trim();
   if (!raw) return 10;
   const n = Number(raw);
   if (!Number.isFinite(n)) return 10;
@@ -1337,16 +1434,14 @@ function renderEnemyList() {
   if (el.enemyListPager) {
     const from = pageStart + 1;
     const to = Math.min(pageEnd, sortedTargets.length);
-    if (showAll || totalPages <= 1) {
-      el.enemyListPager.innerHTML = `<span class="enemy-list-pager-info">${escapeHtml(
-        sortedTargets.length,
-      )}件表示</span>`;
-      return;
-    }
+    const pagerPage = showAll ? 1 : state.enemyListPage;
+    const pagerTotalPages = showAll ? 1 : totalPages;
+    const disablePrev = pagerPage <= 1;
+    const disableNext = pagerPage >= pagerTotalPages;
     el.enemyListPager.innerHTML = `
-      <button type="button" class="pager-btn" data-page-action="prev" ${state.enemyListPage <= 1 ? "disabled" : ""}>前へ</button>
-      <span class="enemy-list-pager-info">${escapeHtml(from)}-${escapeHtml(to)} / ${escapeHtml(sortedTargets.length)}件（${escapeHtml(state.enemyListPage)} / ${escapeHtml(totalPages)}ページ）</span>
-      <button type="button" class="pager-btn" data-page-action="next" ${state.enemyListPage >= totalPages ? "disabled" : ""}>次へ</button>
+      <button type="button" class="pager-btn" data-page-action="prev" ${disablePrev ? "disabled" : ""}>前へ</button>
+      <span class="enemy-list-pager-info">${escapeHtml(from)}-${escapeHtml(to)} / ${escapeHtml(sortedTargets.length)}件（${escapeHtml(pagerPage)} / ${escapeHtml(pagerTotalPages)}ページ）</span>
+      <button type="button" class="pager-btn" data-page-action="next" ${disableNext ? "disabled" : ""}>次へ</button>
     `;
   }
 }
@@ -2172,6 +2267,11 @@ function getSummaryUnitPartRows(unitRow) {
     const basePartName = String(
       (m && (m.name || m.kindName || m.displayName)) || "",
     ).trim();
+    const timingText = String((m && m.timing) || "");
+    const allowUsedStatus = canUseUsedStatusForManeuver({ timing: timingText });
+    if (!allowUsedStatus && stateObj.status === "使用") {
+      stateObj.status = "無事";
+    }
     const partName = stateObj.nameOverride || basePartName;
     return {
       id: unitRow.id,
@@ -2187,14 +2287,41 @@ function getSummaryUnitPartRows(unitRow) {
       partType: sanitizePartType((m && m.partType) || "", "胴"),
       partName,
       basePartName,
-      timing: String((m && m.timing) || ""),
+      timing: timingText,
       cost: String((m && m.cost) || ""),
       range: String((m && m.range) || ""),
       effect: String((m && m.effect) || ""),
+      allowUsedStatus,
       status: stateObj.status,
       reportChecked: !!stateObj.reportChecked,
     };
   });
+}
+
+function buildSummaryPartStatusTextFromRows(partRows) {
+  if (!Array.isArray(partRows) || !partRows.length) return "残存パーツ --/--";
+  const max = partRows.length;
+  const now = partRows.reduce(
+    (acc, row) =>
+      acc + (String((row && row.status) || "無事") === "損傷" ? 0 : 1),
+    0,
+  );
+  return `残存パーツ ${now}/${max}`;
+}
+
+function summaryPartAllowsUsedStatus(enemy, partKey) {
+  const key = String(partKey || "").trim();
+  if (!key) return true;
+  const maneuvers = Array.isArray(enemy?.data?.maneuvers)
+    ? enemy.data.maneuvers.filter(hasManeuverName)
+    : [];
+  for (let i = 0; i < maneuvers.length; i += 1) {
+    const m = maneuvers[i];
+    if (buildSummaryUnitPartKey(m, i) === key) {
+      return canUseUsedStatusForManeuver(m);
+    }
+  }
+  return true;
 }
 
 function calcSummaryUnitInitiative(unitRow, partRows = null) {
@@ -2445,6 +2572,7 @@ function renderSummaryPanel() {
     } else {
       tabUnitRows.forEach((unitRow) => {
         const partRows = getSummaryUnitPartRows(unitRow);
+        const partStatusText = buildSummaryPartStatusTextFromRows(partRows);
         const currentInitiative = calcSummaryUnitInitiative(unitRow, partRows);
         const article = document.createElement("article");
         article.className = "summary-damage-unit-card";
@@ -2452,7 +2580,7 @@ function renderSummaryPanel() {
         <header class="summary-damage-unit-header">
           <div>
             <strong>${escapeHtml(unitRow.unitDisplayName || unitRow.rowName)}</strong>
-            <span class="summary-damage-unit-meta">${escapeHtml(unitRow.place)} / ${escapeHtml(getPartStatusText(unitRow.enemy))}<span class="summary-damage-unit-initiative"> / 現在行動値:${escapeHtml(currentInitiative)}</span></span>
+            <span class="summary-damage-unit-meta">${escapeHtml(unitRow.place)} / ${escapeHtml(partStatusText)}<span class="summary-damage-unit-initiative"> / 現在行動値:${escapeHtml(currentInitiative)}</span></span>
           </div>
           <div class="summary-unit-header-actions">
             <button type="button" class="small-square-btn summary-unit-copy-btn" data-summary-unit-memo-id="${escapeHtml(unitRow.id)}" data-summary-unit-memo-slot="${escapeHtml(unitRow.slotIndex)}" data-summary-unit-memo-unit="${escapeHtml(unitRow.unitIndex)}" title="コマ状態コピー"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>状態コピー</span></button>
@@ -2496,6 +2624,7 @@ function renderSummaryPanel() {
                   const statusClass = getManeuverStatusClass(
                     row.status || "無事",
                   );
+                  const allowUsedStatus = !!row.allowUsedStatus;
                   const isLegion = row.classType === "レギオン";
                   const isHorror = row.classType === "ホラー";
                   const rowToneClass = getPartTypeToneClass(row.partType);
@@ -2503,7 +2632,7 @@ function renderSummaryPanel() {
                   return `<tr class="${escapeHtml(rowToneClass)}">
                     <td><input class="summary-damage-check" type="checkbox" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="reportChecked" ${row.reportChecked ? "checked" : ""}></td>
                     <td><button type="button" class="small-square-btn summary-part-copy-btn" data-summary-part-copy-id="${escapeHtml(row.id)}" data-summary-part-copy-slot="${escapeHtml(row.slotIndex)}" data-summary-part-copy-unit="${escapeHtml(row.unitIndex)}" data-summary-part-copy-key="${escapeHtml(row.partKey)}" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy" aria-hidden="true"></i></button></td>
-                    <td>${isLegion ? "-" : `<select class="status-select ${statusClass}" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="status"><option value="無事" ${row.status === "無事" ? "selected" : ""}>無事</option><option value="使用" ${row.status === "使用" ? "selected" : ""}>使用</option><option value="損傷" ${row.status === "損傷" ? "selected" : ""}>損傷</option></select>`}</td>
+                    <td>${isLegion ? "-" : `<select class="status-select ${statusClass}" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="status"><option value="無事" ${row.status === "無事" ? "selected" : ""}>無事</option>${allowUsedStatus ? `<option value="使用" ${row.status === "使用" ? "selected" : ""}>使用</option>` : ""}<option value="損傷" ${row.status === "損傷" ? "selected" : ""}>損傷</option></select>`}</td>
                     <td>${isLegion || isHorror ? "-" : escapeHtml(partTypeText)}</td>
                     <td><input type="text" class="summary-part-name-input" value="${escapeHtml(row.partName)}" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="nameOverride" placeholder="名称"></td>
                     <td>${escapeHtml(row.timing)}</td>
@@ -2653,8 +2782,7 @@ function bindSummaryBadgeDnD() {
         enemy.time = nowIsoLocal();
         saveSummaryLayoutToLocal();
         scheduleSaveToDb();
-        renderSummaryPanel();
-        renderEnemyList();
+        scheduleSummaryRenders({ includeList: true });
         dragging = null;
       });
     });
@@ -2697,8 +2825,7 @@ function handleSummaryTableChange(event) {
   }
   scheduleSaveToDb();
   saveSummaryLayoutToLocal();
-  renderSummaryPanel();
-  renderEnemyList();
+  scheduleSummaryRenders({ includeList: true });
 }
 
 function handleSummaryTableClick(event) {
@@ -2713,8 +2840,7 @@ function handleSummaryTableClick(event) {
     const enemy = state.enemies.find((e) => String(e && e.ID) === id);
     if (!enemy) return;
     const text = buildKomaMemo(enemy);
-    navigator.clipboard
-      .writeText(text)
+    writeClipboardText(text)
       .then(() => {
         showToast("コマ状態をコピーした", "info");
       })
@@ -2734,8 +2860,7 @@ function handleSummaryTableClick(event) {
     const enemy = state.enemies.find((e) => String(e && e.ID) === id);
     if (!enemy) return;
     const text = JSON.stringify(buildKomaCharacterJson(enemy), null, 2);
-    navigator.clipboard
-      .writeText(text)
+    writeClipboardText(text)
       .then(() => {
         showKomaJsonCopySuccessToast();
       })
@@ -2758,8 +2883,7 @@ function handleSummaryTableClick(event) {
   enemy.time = nowIsoLocal();
   saveSummaryLayoutToLocal();
   scheduleSaveToDb();
-  renderSummaryPanel();
-  renderEnemyList();
+  scheduleSummaryRenders({ includeList: true });
 }
 
 function handleSummaryDamageInput(event) {
@@ -2799,23 +2923,23 @@ function handleSummaryDamageInput(event) {
   if (prop === "status" && target instanceof HTMLSelectElement) {
     const prevStatus = String(current.status || "無事");
     const s = String(target.value || "無事").trim();
-    current.status = s === "損傷" || s === "使用" ? s : "無事";
-    if (current.status === "損傷" && prevStatus !== "損傷") {
-      current.reportChecked = true;
-      const rowEl = target.closest("tr");
-      const checkEl =
-        rowEl && rowEl.querySelector
-          ? rowEl.querySelector(".summary-damage-check")
-          : null;
-      if (checkEl instanceof HTMLInputElement) checkEl.checked = true;
-    } else if (prevStatus === "損傷" && current.status !== "損傷") {
-      current.reportChecked = false;
-      const rowEl = target.closest("tr");
-      const checkEl =
-        rowEl && rowEl.querySelector
-          ? rowEl.querySelector(".summary-damage-check")
-          : null;
-      if (checkEl instanceof HTMLInputElement) checkEl.checked = false;
+    const allowUsed = summaryPartAllowsUsedStatus(enemy, partKey);
+    current.status =
+      s === "損傷" ? "損傷" : allowUsed && s === "使用" ? "使用" : "無事";
+    current.reportChecked =
+      getNechronicaShared().resolveReportCheckedOnDamageTransition(
+        prevStatus,
+        current.status,
+        current.reportChecked,
+        "損傷",
+      );
+    const rowEl = target.closest("tr");
+    const checkEl =
+      rowEl && rowEl.querySelector
+        ? rowEl.querySelector(".summary-damage-check")
+        : null;
+    if (checkEl instanceof HTMLInputElement) {
+      checkEl.checked = !!current.reportChecked;
     }
     target.classList.remove("status-safe", "status-used", "status-damaged");
     target.classList.add(getManeuverStatusClass(current.status));
@@ -2828,6 +2952,9 @@ function handleSummaryDamageInput(event) {
   unitMap[partKey] = current;
   enemy.time = nowIsoLocal();
   scheduleSaveToDb();
+  if (prop === "status") {
+    scheduleSummaryRenders({ includeList: false, delayMs: 30 });
+  }
 }
 
 function clearSummaryUnitCheckedRows(enemy, slotIndex, unitIndex) {
@@ -2866,7 +2993,7 @@ function handleSummaryDamageClick(event) {
     ).trim();
     if (!key) return;
     state.summaryDamageTabKey = key;
-    renderSummaryPanel();
+    scheduleSummaryRenders({ includeList: false, immediate: true });
     return;
   }
 
@@ -2879,8 +3006,7 @@ function handleSummaryDamageClick(event) {
     const enemy = state.enemies.find((e) => String((e && e.ID) || "") === id);
     if (!enemy) return;
     const text = buildKomaMemo(enemy);
-    navigator.clipboard
-      .writeText(text)
+    writeClipboardText(text)
       .then(() => {
         const original = memoBtn.textContent;
         memoBtn.textContent = "完了";
@@ -2912,8 +3038,7 @@ function handleSummaryDamageClick(event) {
     clearSummaryUnitCheckedRows(enemy, slotIndex, unitIndex);
     enemy.time = nowIsoLocal();
     scheduleSaveToDb();
-    renderSummaryPanel();
-    renderEnemyList();
+    scheduleSummaryRenders({ includeList: true });
     return;
   }
 
@@ -2947,8 +3072,7 @@ function handleSummaryDamageClick(event) {
     );
     if (!row) return;
     const text = buildSummaryCheckedPartCopyText([row]);
-    navigator.clipboard
-      .writeText(text)
+    writeClipboardText(text)
       .then(() => {
         const originalHtml = partCopyBtn.innerHTML;
         partCopyBtn.textContent = "完了";
@@ -2986,15 +3110,13 @@ function handleSummaryDamageClick(event) {
     return;
   }
   const text = buildSummaryCheckedPartCopyText(checkedRows);
-  navigator.clipboard
-    .writeText(text)
+  writeClipboardText(text)
     .then(() => {
       const enemy = unitRow.enemy;
       clearSummaryUnitCheckedRows(enemy, slotIndex, unitIndex);
       enemy.time = nowIsoLocal();
       scheduleSaveToDb();
-      renderSummaryPanel();
-      renderEnemyList();
+      scheduleSummaryRenders({ includeList: true });
       const original = btn.textContent;
       btn.textContent = "完了";
       showToast("チェック分をコピーした", "info");
@@ -3207,8 +3329,7 @@ function bindTableEvents() {
         showToast("コピー対象のマニューバ名が未入力です", "error");
         return;
       }
-      navigator.clipboard
-        .writeText(line)
+      writeClipboardText(line)
         .then(() => {
           showToast("選択行をコピーした", "info");
         })
@@ -3396,8 +3517,7 @@ function setupEvents() {
     el.copySummaryPartsButton.addEventListener("click", () => {
       upsertCurrentEnemyFromForm();
       const text = buildSummaryPartsCopyText();
-      navigator.clipboard
-        .writeText(text)
+      writeClipboardText(text)
         .then(() => {
           showToast("基本/強化/寵愛をコピーした", "info");
         })
@@ -3608,8 +3728,7 @@ function setupEvents() {
       const enemy = getSelectedEnemy();
       if (!enemy) return;
       const pretty = JSON.stringify(enemy, null, 2);
-      navigator.clipboard
-        .writeText(pretty)
+      writeClipboardText(pretty)
         .then(() => {
           showToast("選択中エネミーJSONをコピーした", "info");
         })
@@ -3627,8 +3746,7 @@ function setupEvents() {
       if (!enemy) return;
       const out = buildKomaCharacterJson(enemy);
       const pretty = JSON.stringify(out, null, 0);
-      navigator.clipboard
-        .writeText(pretty)
+      writeClipboardText(pretty)
         .then(() => {
           showKomaJsonCopySuccessToast();
         })

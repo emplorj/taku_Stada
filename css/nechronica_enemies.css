@@ -515,8 +515,8 @@ body.nechronica-enemies-page .save-status {
   content: "";
   position: absolute;
   /* 疑似要素の見切れを防ぐため高さを大きくとる */
-  top: 85%;
-  right: 8%;
+  top: 64%;
+  right: 15%;
   width: 15%; /* 右半分を埋めるようにサイズ調整 */
   aspect-ratio: 1 / 2; /* 高さが足りず見切れるのを防ぐため、横幅に対して十分に縦長な枠を作る */
   background-position: center right;
@@ -1620,6 +1620,23 @@ body.nechronica-enemies-page .save-status {
   align-items: center;
 }
 
+.summary-damage-usage-details {
+  margin: 0 0 0.45rem;
+  color: rgba(235, 235, 238, 0.94);
+}
+
+.summary-damage-usage-details summary {
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.summary-damage-usage-text {
+  margin-top: 0.24rem;
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
 .summary-damage-unit-list {
   display: flex;
   flex-direction: column;
@@ -1817,6 +1834,16 @@ body.nechronica-enemies-page .save-status {
   white-space: nowrap;
 }
 
+.summary-unit-parts-table th:nth-child(7),
+.summary-unit-parts-table td:nth-child(7) {
+  text-align: right;
+}
+
+.summary-unit-parts-table th:nth-child(8),
+.summary-unit-parts-table td:nth-child(8) {
+  text-align: center;
+}
+
 .summary-unit-parts-table td:nth-child(5) {
   min-width: 8.5em;
 }
@@ -1826,13 +1853,17 @@ body.nechronica-enemies-page .save-status {
 }
 
 .summary-part-name-input {
+  display: block;
   width: 100%;
-  min-width: 7.5em;
+  min-width: 0;
+  box-sizing: border-box;
   border: 1px solid #55474d;
   background: #1a171d;
   color: #ece4d8;
   border-radius: 4px;
-  padding: 0.22rem 0.35rem;
+  padding: 0.08rem 0.3rem;
+  height: 1.45rem;
+  line-height: 1.1;
   font-size: 0.82rem;
 }
 
