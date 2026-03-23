@@ -224,6 +224,10 @@ body.nechronica-enemies-page {
   pointer-events: none;
 }
 
+body.nechronica-enemies-page .save-status {
+  position: fixed;
+}
+
 .save-status:empty {
   display: none;
 }
@@ -258,6 +262,47 @@ body.nechronica-enemies-page {
   background: #3a2020;
   color: #ffd7d7;
   border-color: #a76060;
+}
+
+.summary-part-type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.15em;
+  padding: 0.08rem 0.42rem;
+  border: 1px solid var(--sheet-border);
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #f4eee5;
+  background: #2a252b;
+}
+
+.summary-part-type-badge.is-head {
+  border-color: #8a63cb;
+  background: linear-gradient(180deg, #51406e 0%, #3d3054 100%);
+}
+
+.summary-part-type-badge.is-arm {
+  border-color: #b8802d;
+  background: linear-gradient(180deg, #6a5128 0%, #513f20 100%);
+}
+
+.summary-part-type-badge.is-body {
+  border-color: #3d8f98;
+  background: linear-gradient(180deg, #2f5f67 0%, #254950 100%);
+}
+
+.summary-part-type-badge.is-leg {
+  border-color: #4f9666;
+  background: linear-gradient(180deg, #355d42 0%, #2a4b35 100%);
+}
+
+.summary-part-type-badge.is-other {
+  border-color: #7a6e84;
+  background: linear-gradient(180deg, #463f4e 0%, #38323f 100%);
 }
 
 .action-row {
@@ -1325,14 +1370,28 @@ body.nechronica-enemies-page {
   border: 2px solid var(--sheet-border);
   border-bottom: none;
   border-radius: 8px 8px 0 0;
-  background: linear-gradient(180deg, #2a2429 0%, #1a161a 100%);
-  color: #e7dfd2;
+  background: linear-gradient(180deg, #2a2429 0%, #171318 100%);
+  color: #c2b8aa;
   padding: 0.42rem 0.95rem;
   font-weight: 700;
   cursor: pointer;
   position: relative;
   top: 2px;
-  opacity: 0.9;
+  opacity: 0.78;
+  filter: saturate(0.72);
+  transition:
+    opacity 0.16s ease,
+    color 0.16s ease,
+    background 0.18s ease,
+    box-shadow 0.2s ease,
+    transform 0.16s ease;
+}
+
+.page-tab-btn:hover {
+  opacity: 0.92;
+  color: #efe6d8;
+  background: linear-gradient(180deg, #372d33 0%, #231c22 100%);
+  filter: saturate(0.9);
 }
 
 .page-tab-btn.is-active {
@@ -1340,7 +1399,13 @@ body.nechronica-enemies-page {
   color: #fff;
   top: 1px;
   opacity: 1;
-  box-shadow: 0 -2px 8px rgba(123, 29, 42, 0.24);
+  filter: saturate(1.06);
+  text-shadow: 0 0 8px rgba(255, 245, 235, 0.28);
+  box-shadow:
+    0 -2px 8px rgba(123, 29, 42, 0.24),
+    0 0 0 1px rgba(255, 255, 255, 0.18) inset,
+    0 0 14px rgba(141, 55, 70, 0.45);
+  transform: translateY(-1px);
 }
 
 .summary-pane {
@@ -1632,13 +1697,18 @@ body.nechronica-enemies-page {
 }
 
 .summary-unit-parts-table col.col-copy {
-  width: 4.9rem;
+  width: 3.2rem;
 }
 
 .summary-unit-parts-table th:nth-child(1),
 .summary-unit-parts-table td:nth-child(1) {
   text-align: center;
   white-space: nowrap;
+}
+
+.summary-unit-parts-table th:nth-child(2),
+.summary-unit-parts-table td:nth-child(2) {
+  text-align: center;
 }
 
 .summary-unit-parts-table th:nth-child(1) {
@@ -1728,6 +1798,26 @@ body.nechronica-enemies-page {
   cursor: default;
 }
 
+.summary-unit-parts-table tbody tr.is-head td {
+  background: linear-gradient(180deg, #372b44 0%, #2b2235 100%);
+}
+
+.summary-unit-parts-table tbody tr.is-arm td {
+  background: linear-gradient(180deg, #4a3923 0%, #382b1a 100%);
+}
+
+.summary-unit-parts-table tbody tr.is-body td {
+  background: linear-gradient(180deg, #26434a 0%, #1e3439 100%);
+}
+
+.summary-unit-parts-table tbody tr.is-leg td {
+  background: linear-gradient(180deg, #2f4936 0%, #24382a 100%);
+}
+
+.summary-unit-parts-table tbody tr.is-other td {
+  background: linear-gradient(180deg, #31303a 0%, #25242c 100%);
+}
+
 .summary-unit-copy-btn {
   min-height: 28px;
   padding: 0.18rem 0.6rem;
@@ -1759,22 +1849,35 @@ body.nechronica-enemies-page {
 }
 
 .summary-part-copy-btn {
-  padding: 0.18rem 0.52rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  border-radius: 4px;
-  border: 1px solid #37468d;
-  background: linear-gradient(135deg, #252a3a 0%, #1a1e2b 100%);
-  color: #dbe4ff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.28);
+  width: 1.7rem;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  font-size: 0.78rem;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #e2e9ff;
+  text-shadow: none;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center bottom;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   transition: all 0.2s ease;
 }
 
+.nechronica-enemies-page .small-square-btn.summary-part-copy-btn {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
 .summary-part-copy-btn:hover {
-  border-color: #4c62c4;
-  background: linear-gradient(135deg, #333a4d 0%, #202638 100%);
-  box-shadow: 0 0 10px rgba(55, 70, 141, 0.5);
+  color: #f0f4ff;
+  filter: drop-shadow(0 2px 4px rgba(57, 79, 182, 0.65));
+  transform: translateY(-1px);
 }
 
 .summary-remove-btn {
@@ -2152,6 +2255,26 @@ body.nechronica-enemies-page {
 
 #maneuversTable tbody tr {
   cursor: move;
+}
+
+#maneuversTable tbody tr.is-head td {
+  background: linear-gradient(180deg, #372b44 0%, #2b2235 100%);
+}
+
+#maneuversTable tbody tr.is-arm td {
+  background: linear-gradient(180deg, #4a3923 0%, #382b1a 100%);
+}
+
+#maneuversTable tbody tr.is-body td {
+  background: linear-gradient(180deg, #26434a 0%, #1e3439 100%);
+}
+
+#maneuversTable tbody tr.is-leg td {
+  background: linear-gradient(180deg, #2f4936 0%, #24382a 100%);
+}
+
+#maneuversTable tbody tr.is-other td {
+  background: linear-gradient(180deg, #31303a 0%, #25242c 100%);
 }
 
 #maneuversTable tbody tr.is-dragging {

@@ -1462,6 +1462,7 @@ function renderManeuversTable(enemy) {
   el.maneuversTableBody.innerHTML = "";
   maneuvers.forEach((m, index) => {
     const partType = sanitizePartType((m && m.partType) || "");
+    const partToneClass = getPartTypeToneClass(partType);
     const maliceValue = Number((m && m.malice) || 0);
     const isForbiddenMalice = maliceValue === 99;
     const partTypeOptions = buildSelectOptions(
@@ -1475,6 +1476,7 @@ function renderManeuversTable(enemy) {
     const tr = document.createElement("tr");
     tr.setAttribute("draggable", "true");
     tr.dataset.index = String(index);
+    tr.classList.add(partToneClass);
     if (isForbiddenMalice) tr.classList.add("is-forbidden-maneuver");
     tr.innerHTML = `
       <td><input data-kind="maneuvers" data-index="${index}" data-key="name" value="${escapeHtml(m.name || m.kindName || "")}"></td>
@@ -1526,12 +1528,19 @@ function partEmoji(type) {
   return "🟩その他";
 }
 
+function getPartTypeToneClass(type) {
+  const t = sanitizePartType(type, "");
+  if (t === "頭") return "is-head";
+  if (t === "腕") return "is-arm";
+  if (t === "胴") return "is-body";
+  if (t === "脚") return "is-leg";
+  return "is-other";
+}
+
 function stateMark(entity) {
   if (!entity) return "⭕";
-  if (entity.status === "無事") return "⭕";
   if (entity.status === "損傷") return "❌";
-  if (entity.status === "使用") return "✅";
-  return entity.use ? "⭕" : "✅";
+  return "⭕";
 }
 
 function isDamageTriggeredEffectText(effectText) {
@@ -1556,7 +1565,7 @@ function normalizeUserMemoText(rawMemo) {
   const lines = trimmed.split("\n");
   const iniIndex = lines.findIndex((l) => /初期行動値：/.test(String(l)));
   const legendIndex = lines.findIndex((l) =>
-    /無事：⭕、使用：✅、損傷：❌/.test(String(l)),
+    /無事：⭕、使用：[✅⭕]、損傷：❌/.test(String(l)),
   );
 
   // 既存のコマメモ全文を再取込した場合は、自由記述メモ部分だけを抽出して二重化を防ぐ
@@ -1722,7 +1731,7 @@ function buildKomaMemo(enemy) {
   if (userMemo) lines.push(userMemo);
   lines.push(
     "",
-    "無事：⭕、使用：✅、損傷：❌",
+    "無事：⭕、使用：⭕、損傷：❌",
     isServantEnemy(enemy)
       ? "🟩【マニューバ名】《タイミング / コスト / 射程》"
       : "🟩【マニューバ名】 《タイミング / コスト / 射程》",
@@ -2126,7 +2135,8 @@ function calcSummaryUnitInitiative(unitRow, partRows = null) {
 function buildSummaryCheckedPartCopyText(partRows) {
   return partRows
     .map((row) => {
-      const mark = stateMark({ status: row.status || "無事" });
+      const status = String((row && row.status) || "無事");
+      const mark = status === "損傷" ? "❌" : "⭕";
       return `${mark}${row.partType}【${row.partName}】《${row.timing}/${row.cost}/${row.range}》${row.effect}`;
     })
     .join("\n");
@@ -2368,11 +2378,13 @@ function renderSummaryPanel() {
                   );
                   const isLegion = row.classType === "レギオン";
                   const isHorror = row.classType === "ホラー";
-                  return `<tr>
+                  const rowToneClass = getPartTypeToneClass(row.partType);
+                  const partTypeText = String(row.partType || "-");
+                  return `<tr class="${escapeHtml(rowToneClass)}">
                     <td><input class="summary-damage-check" type="checkbox" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="reportChecked" ${row.reportChecked ? "checked" : ""}></td>
-                    <td><button type="button" class="small-square-btn summary-part-copy-btn" data-summary-part-copy-id="${escapeHtml(row.id)}" data-summary-part-copy-slot="${escapeHtml(row.slotIndex)}" data-summary-part-copy-unit="${escapeHtml(row.unitIndex)}" data-summary-part-copy-key="${escapeHtml(row.partKey)}">コピー</button></td>
+                    <td><button type="button" class="small-square-btn summary-part-copy-btn" data-summary-part-copy-id="${escapeHtml(row.id)}" data-summary-part-copy-slot="${escapeHtml(row.slotIndex)}" data-summary-part-copy-unit="${escapeHtml(row.unitIndex)}" data-summary-part-copy-key="${escapeHtml(row.partKey)}" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy" aria-hidden="true"></i></button></td>
                     <td>${isLegion ? "-" : `<select class="status-select ${statusClass}" data-summary-part-id="${escapeHtml(row.id)}" data-summary-part-slot="${escapeHtml(row.slotIndex)}" data-summary-part-unit="${escapeHtml(row.unitIndex)}" data-summary-part-key="${escapeHtml(row.partKey)}" data-summary-part-prop="status"><option value="無事" ${row.status === "無事" ? "selected" : ""}>無事</option><option value="使用" ${row.status === "使用" ? "selected" : ""}>使用</option><option value="損傷" ${row.status === "損傷" ? "selected" : ""}>損傷</option></select>`}</td>
-                    <td>${isLegion || isHorror ? "-" : escapeHtml(row.partType)}</td>
+                    <td>${isLegion || isHorror ? "-" : escapeHtml(partTypeText)}</td>
                     <td>${escapeHtml(row.partName)}</td>
                     <td>${escapeHtml(row.timing)}</td>
                     <td>${escapeHtml(row.cost)}</td>
@@ -2991,6 +3003,7 @@ function bindTableEvents() {
     if (kind === "maneuvers" && key === "partType") {
       row.partType = sanitizePartType(row.partType);
       ensurePartFromManeuver(enemy, row);
+      renderManeuversTable(enemy);
     }
     if (kind === "maneuvers" && key === "name") {
       row.kindName = row.name;
