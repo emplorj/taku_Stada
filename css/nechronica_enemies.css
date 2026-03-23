@@ -264,6 +264,37 @@ body.nechronica-enemies-page .save-status {
   border-color: #a76060;
 }
 
+.copy-toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  transform: translateX(120%);
+  background: rgba(32, 40, 58, 0.94);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  max-width: min(92vw, 480px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    transform 0.22s ease;
+}
+
+.copy-toast.is-show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.copy-toast.is-error {
+  background: rgba(120, 26, 26, 0.94);
+  border-color: rgba(255, 170, 170, 0.7);
+}
+
 .summary-part-type-badge {
   display: inline-flex;
   align-items: center;
@@ -281,8 +312,8 @@ body.nechronica-enemies-page .save-status {
 }
 
 .summary-part-type-badge.is-head {
-  border-color: #8a63cb;
-  background: linear-gradient(180deg, #51406e 0%, #3d3054 100%);
+  border-color: #4f9666;
+  background: linear-gradient(180deg, #355d42 0%, #2a4b35 100%);
 }
 
 .summary-part-type-badge.is-arm {
@@ -296,8 +327,8 @@ body.nechronica-enemies-page .save-status {
 }
 
 .summary-part-type-badge.is-leg {
-  border-color: #4f9666;
-  background: linear-gradient(180deg, #355d42 0%, #2a4b35 100%);
+  border-color: #8a63cb;
+  background: linear-gradient(180deg, #51406e 0%, #3d3054 100%);
 }
 
 .summary-part-type-badge.is-other {
@@ -484,9 +515,9 @@ body.nechronica-enemies-page .save-status {
   content: "";
   position: absolute;
   /* 疑似要素の見切れを防ぐため高さを大きくとる */
-  top: 60%;
-  right: 15%;
-  width: 25%; /* 右半分を埋めるようにサイズ調整 */
+  top: 85%;
+  right: 8%;
+  width: 15%; /* 右半分を埋めるようにサイズ調整 */
   aspect-ratio: 1 / 2; /* 高さが足りず見切れるのを防ぐため、横幅に対して十分に縦長な枠を作る */
   background-position: center right;
   background-repeat: no-repeat;
@@ -1799,7 +1830,7 @@ body.nechronica-enemies-page .save-status {
 }
 
 .summary-unit-parts-table tbody tr.is-head td {
-  background: linear-gradient(180deg, #372b44 0%, #2b2235 100%);
+  background: linear-gradient(180deg, #2f4936 0%, #24382a 100%);
 }
 
 .summary-unit-parts-table tbody tr.is-arm td {
@@ -1811,7 +1842,7 @@ body.nechronica-enemies-page .save-status {
 }
 
 .summary-unit-parts-table tbody tr.is-leg td {
-  background: linear-gradient(180deg, #2f4936 0%, #24382a 100%);
+  background: linear-gradient(180deg, #372b44 0%, #2b2235 100%);
 }
 
 .summary-unit-parts-table tbody tr.is-other td {
@@ -2258,7 +2289,7 @@ body.nechronica-enemies-page .save-status {
 }
 
 #maneuversTable tbody tr.is-head td {
-  background: linear-gradient(180deg, #372b44 0%, #2b2235 100%);
+  background: linear-gradient(180deg, #2f4936 0%, #24382a 100%);
 }
 
 #maneuversTable tbody tr.is-arm td {
@@ -2270,7 +2301,7 @@ body.nechronica-enemies-page .save-status {
 }
 
 #maneuversTable tbody tr.is-leg td {
-  background: linear-gradient(180deg, #2f4936 0%, #24382a 100%);
+  background: linear-gradient(180deg, #372b44 0%, #2b2235 100%);
 }
 
 #maneuversTable tbody tr.is-other td {

@@ -45,13 +45,17 @@ const NC_AUTHOR_STORAGE_KEY = "nechronicaEnemiesAuthor";
 const NC_API_STORAGE_KEY = "nechronicaEnemiesApiUrl";
 const NC_LAST_SELECTED_ID_KEY = "nechronicaEnemiesLastSelectedId";
 const NC_SUMMARY_LAYOUT_STORAGE_KEY = "nechronicaEnemiesSummaryLayoutV1";
+const KOMA_JSON_COPY_SUCCESS_MESSAGE =
+  "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！";
 const DEFAULT_NECHRONICA_GAS_WEB_APP_URL =
   "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
 let saveDebounceTimer = null;
 let saveRequestInFlight = false;
 let secondaryRenderDebounceTimer = null;
 let hasUnsavedChanges = false;
-const BASIC_MANEUVERS_TEMPLATE = [
+let saveToastTimer = null;
+const localUnsavedEnemyIds = new Set();
+const SERVANT_BASIC_MANEUVERS_TEMPLATE = [
   { type: "頭", name: "のうみそ" },
   { type: "頭", name: "めだま" },
   { type: "頭", name: "あご" },
@@ -64,6 +68,20 @@ const BASIC_MANEUVERS_TEMPLATE = [
   { type: "脚", name: "ほね" },
   { type: "脚", name: "ほね" },
   { type: "脚", name: "あし" },
+];
+
+const HORROR_BASIC_MANEUVERS_TEMPLATE = [
+  { type: "頭", name: "のうみそ" },
+  { type: "胴", name: "ほね" },
+  { type: "胴", name: "はらわた" },
+  { type: "胴", name: "はらわた" },
+  { type: "胴", name: "", effect: "Lv1-2の強化パーツ" },
+];
+
+const LEGION_BASIC_MANEUVERS_TEMPLATE = [
+  { type: "腕", name: "ひきさく" },
+  { type: "脚", name: "よろめく" },
+  { type: "胴", name: "むらがる" },
 ];
 
 const el = {
@@ -327,8 +345,9 @@ function scheduleSecondaryRenders(options = {}) {
 }
 
 function setSaveStatus(kind, text) {
+  const message = String(text || "").trim();
   if (!el.saveStatusText) return;
-  el.saveStatusText.textContent = String(text || "");
+  el.saveStatusText.textContent = message;
   el.saveStatusText.classList.remove(
     "is-idle",
     "is-saving",
@@ -344,6 +363,85 @@ function setSaveStatus(kind, text) {
   } else {
     el.saveStatusText.classList.add("is-idle");
   }
+
+  if (!message) return;
+  if (kind !== "ok" && kind !== "error") return;
+
+  showToast(message, kind === "error" ? "error" : "info");
+}
+
+function showToast(message, kind = "info") {
+  const text = String(message || "").trim();
+  if (!text) return;
+
+  let toast = document.getElementById("copyToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "copyToast";
+    toast.className = "copy-toast";
+    document.body.appendChild(toast);
+  }
+  // 既存DOMに同ID要素がある場合でも、通知用スタイルを強制適用する
+  toast.className = "copy-toast";
+  toast.textContent = text;
+  toast.classList.remove("is-error", "is-show");
+  if (kind === "error") {
+    toast.classList.add("is-error");
+  }
+  // reflow
+  void toast.offsetWidth;
+  toast.classList.add("is-show");
+
+  if (saveToastTimer) clearTimeout(saveToastTimer);
+  saveToastTimer = setTimeout(() => {
+    toast.classList.remove("is-show");
+  }, 1400);
+}
+
+function showKomaJsonCopySuccessToast() {
+  showToast(KOMA_JSON_COPY_SUCCESS_MESSAGE, "info");
+}
+
+async function writeClipboardText(text) {
+  const value = String(text == null ? "" : text);
+  if (
+    navigator.clipboard &&
+    typeof navigator.clipboard.writeText === "function"
+  ) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+  const ta = document.createElement("textarea");
+  ta.value = value;
+  ta.setAttribute("readonly", "readonly");
+  ta.style.position = "fixed";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.select();
+  const ok = document.execCommand("copy");
+  document.body.removeChild(ta);
+  if (!ok) throw new Error("clipboard unavailable");
+}
+
+function setSaveButtonLabelByEnemy(enemy) {
+  const isNew =
+    !!enemy && localUnsavedEnemyIds.has(String((enemy && enemy.ID) || ""));
+  const label = isNew
+    ? "データベースへ保存（新規）"
+    : "データベースへ保存（上書き）";
+  const apply = (btn) => {
+    if (!(btn instanceof HTMLButtonElement)) return;
+    const icon = btn.querySelector("i");
+    if (icon) {
+      btn.innerHTML = `<i class="${icon.className}"></i> ${escapeHtml(label)}`;
+    } else {
+      btn.textContent = label;
+    }
+    btn.title = label;
+    btn.setAttribute("aria-label", label);
+  };
+  apply(el.saveEnemyButton);
+  apply(el.saveEnemyButtonBottom);
 }
 
 function formatDateTimeDisplay(isoLike) {
@@ -945,6 +1043,7 @@ async function loadFromStorage() {
       if (!state.enemies.length) {
         const initial = createEnemyTemplate();
         state.enemies = [normalizeEnemy(initial)];
+        localUnsavedEnemyIds.add(String(initial.ID || ""));
         loadSummaryLayoutFromLocal();
         state.selectedId = initial.ID;
         return;
@@ -955,6 +1054,7 @@ async function loadFromStorage() {
       ) {
         state.selectedId = null;
       }
+      localUnsavedEnemyIds.clear();
       loadSummaryLayoutFromLocal();
       clearUnsavedChanges();
       return;
@@ -965,6 +1065,7 @@ async function loadFromStorage() {
 
   const initial = createEnemyTemplate();
   state.enemies = [normalizeEnemy(initial)];
+  localUnsavedEnemyIds.add(String(initial.ID || ""));
   loadSummaryLayoutFromLocal();
   state.selectedId = initial.ID;
   clearUnsavedChanges();
@@ -995,6 +1096,7 @@ function saveToStorage() {
       if (!saved) return;
       const current = getSelectedEnemy();
       if (!current) return;
+      const beforeId = String(current.ID || "");
       if (saved.ID) {
         current.ID = String(saved.ID);
         el.fields.id.value = current.ID;
@@ -1010,6 +1112,9 @@ function saveToStorage() {
         "ok",
         `保存完了 ${formatDateTimeDisplay((saved && saved.time) || nowIsoLocal())}`,
       );
+      localUnsavedEnemyIds.delete(beforeId);
+      localUnsavedEnemyIds.delete(String(current.ID || ""));
+      setSaveButtonLabelByEnemy(current);
       hasUnsavedChanges = false;
       console.info(
         "[nechronica] DB保存成功",
@@ -1187,20 +1292,26 @@ function renderEnemyList() {
     });
 
     // コピーボタン
-    card.querySelector(".is-copy").addEventListener("click", (event) => {
+    card.querySelector(".is-copy").addEventListener("click", async (event) => {
       event.stopPropagation();
       const copyData = buildKomaCharacterJson(enemy);
-      navigator.clipboard.writeText(JSON.stringify(copyData)).then(() => {
+      try {
+        await writeClipboardText(JSON.stringify(copyData));
+        showKomaJsonCopySuccessToast();
         const btn = event.currentTarget;
-        if (!(btn instanceof HTMLButtonElement)) return;
-        const originalText = btn.textContent;
-        btn.textContent = "完了!";
-        btn.classList.add("is-success");
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.classList.remove("is-success");
-        }, 1500);
-      });
+        if (btn instanceof HTMLButtonElement) {
+          const originalText = btn.textContent;
+          btn.textContent = "完了!";
+          btn.classList.add("is-success");
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove("is-success");
+          }, 1500);
+        }
+      } catch (_e) {
+        showToast("コピー失敗。コンソールに出力する", "error");
+        console.log(copyData);
+      }
     });
 
     const addSummaryBtn = card.querySelector("[data-add-summary-id]");
@@ -1242,6 +1353,7 @@ function renderEnemyList() {
 
 function fillForm(enemy) {
   if (!enemy) return;
+  setSaveButtonLabelByEnemy(enemy);
   el.fields.id.value = enemy.ID || "";
   el.fields.author.value = enemy.author || "";
   el.fields.name.value = enemy.name || "";
@@ -1474,7 +1586,7 @@ function renderManeuversTable(enemy) {
       (m && m.timing) || "",
     );
     const tr = document.createElement("tr");
-    tr.setAttribute("draggable", "true");
+    tr.setAttribute("draggable", "false");
     tr.dataset.index = String(index);
     tr.classList.add(partToneClass);
     if (isForbiddenMalice) tr.classList.add("is-forbidden-maneuver");
@@ -1506,7 +1618,7 @@ function renderManeuversTable(enemy) {
           <button type="button" class="delete-btn" data-remove-kind="maneuvers" data-index="${index}" title="削除" aria-label="削除">
             <i class="fa-solid fa-trash"></i>
           </button>
-          <span class="drag-hint" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
+          <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
         </div>
       </td>
     `;
@@ -2596,10 +2708,10 @@ function handleSummaryTableClick(event) {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        alert("コマ状態をコピーした");
+        showToast("コマ状態をコピーした", "info");
       })
       .catch(() => {
-        alert("コピー失敗。コンソールに出力する");
+        showToast("コピー失敗。コンソールに出力する", "error");
         console.log(text);
       });
     return;
@@ -2617,10 +2729,10 @@ function handleSummaryTableClick(event) {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        alert("コマ出力をコピーした");
+        showKomaJsonCopySuccessToast();
       })
       .catch(() => {
-        alert("コピー失敗。コンソールに出力する");
+        showToast("コピー失敗。コンソールに出力する", "error");
         console.log(text);
       });
     return;
@@ -2761,12 +2873,13 @@ function handleSummaryDamageClick(event) {
       .then(() => {
         const original = memoBtn.textContent;
         memoBtn.textContent = "完了";
+        showToast("コマ状態をコピーした", "info");
         setTimeout(() => {
           memoBtn.textContent = original;
         }, 1200);
       })
       .catch(() => {
-        // noop
+        showToast("コピー失敗", "error");
       });
     return;
   }
@@ -2828,12 +2941,13 @@ function handleSummaryDamageClick(event) {
       .then(() => {
         const original = partCopyBtn.textContent;
         partCopyBtn.textContent = "完了";
+        showToast("チェック行をコピーした", "info");
         setTimeout(() => {
           partCopyBtn.textContent = original;
         }, 1200);
       })
       .catch(() => {
-        // noop
+        showToast("コピー失敗", "error");
       });
     return;
   }
@@ -2857,7 +2971,7 @@ function handleSummaryDamageClick(event) {
     (r) => r.reportChecked,
   );
   if (!checkedRows.length) {
-    alert("チェックされた行がありません");
+    showToast("チェックされた行がありません", "error");
     return;
   }
   const text = buildSummaryCheckedPartCopyText(checkedRows);
@@ -2872,12 +2986,13 @@ function handleSummaryDamageClick(event) {
       renderEnemyList();
       const original = btn.textContent;
       btn.textContent = "完了";
+      showToast("チェック分をコピーした", "info");
       setTimeout(() => {
         btn.textContent = original;
       }, 1200);
     })
     .catch(() => {
-      // noop
+      showToast("コピー失敗", "error");
     });
 }
 
@@ -2908,13 +3023,24 @@ function appendBasicManeuvers(enemy) {
   if (!enemy || !enemy.data) return;
   if (!Array.isArray(enemy.data.maneuvers)) enemy.data.maneuvers = [];
 
-  BASIC_MANEUVERS_TEMPLATE.forEach((p) => {
+  const classType = String(enemy.class_type || "").trim();
+  const template =
+    classType === "ホラー"
+      ? HORROR_BASIC_MANEUVERS_TEMPLATE
+      : classType === "レギオン"
+        ? LEGION_BASIC_MANEUVERS_TEMPLATE
+        : SERVANT_BASIC_MANEUVERS_TEMPLATE;
+
+  template.forEach((p) => {
     const row = createEmptyManeuver();
     row.partType = p.type;
-    row.name = p.name;
-    row.kindName = p.name;
-    row.displayName = p.name;
+    row.name = String(p.name || "");
+    row.kindName = String(p.name || "");
+    row.displayName = String(p.name || "");
     applyManeuverMasterRow(enemy, row);
+    if (typeof p.effect === "string") {
+      row.effect = p.effect;
+    }
     ensurePartFromManeuver(enemy, row);
     enemy.data.maneuvers.push(row);
   });
@@ -3067,16 +3193,16 @@ function bindTableEvents() {
       if (!enemy || !enemy.data || !Array.isArray(enemy.data.maneuvers)) return;
       const line = formatManeuverLineForReport(enemy.data.maneuvers[index]);
       if (!line) {
-        alert("コピー対象のマニューバ名が未入力です");
+        showToast("コピー対象のマニューバ名が未入力です", "error");
         return;
       }
       navigator.clipboard
         .writeText(line)
         .then(() => {
-          alert("選択行をコピーした");
+          showToast("選択行をコピーした", "info");
         })
         .catch(() => {
-          alert("コピー失敗。コンソールに出力する");
+          showToast("コピー失敗。コンソールに出力する", "error");
           console.log(line);
         });
       return;
@@ -3104,6 +3230,9 @@ function bindTableEvents() {
     ) {
       if (event.dataTransfer) event.dataTransfer.effectAllowed = "none";
       event.preventDefault();
+      return;
+    }
+    if (!target.closest("#maneuversTable .drag-hint")) {
       return;
     }
     const tr = target.closest("#maneuversTable tbody tr");
@@ -3259,10 +3388,10 @@ function setupEvents() {
       navigator.clipboard
         .writeText(text)
         .then(() => {
-          alert("基本/強化/寵愛をコピーした");
+          showToast("基本/強化/寵愛をコピーした", "info");
         })
         .catch(() => {
-          alert("コピー失敗。コンソールに出力する");
+          showToast("コピー失敗。コンソールに出力する", "error");
           console.log(text);
         });
     });
@@ -3340,6 +3469,7 @@ function setupEvents() {
     upsertCurrentEnemyFromForm();
     const fresh = normalizeEnemy(createEnemyTemplate());
     state.enemies.unshift(fresh);
+    localUnsavedEnemyIds.add(String(fresh.ID || ""));
     state.selectedId = fresh.ID;
     scheduleSaveToDb();
     renderAll();
@@ -3359,6 +3489,7 @@ function setupEvents() {
     duplicated.time = nowIsoLocal();
 
     state.enemies.unshift(duplicated);
+    localUnsavedEnemyIds.add(String(duplicated.ID || ""));
     state.selectedId = duplicated.ID;
     saveLastSelectedId(duplicated.ID);
 
@@ -3387,6 +3518,7 @@ function setupEvents() {
       state.enemies = state.enemies.filter(
         (e) => String(e.ID) !== String(enemy.ID),
       );
+      localUnsavedEnemyIds.delete(String(enemy.ID || ""));
       state.selectedId = state.enemies.length > 0 ? state.enemies[0].ID : null;
 
       setSaveStatus("ok", "削除完了");
@@ -3468,10 +3600,10 @@ function setupEvents() {
       navigator.clipboard
         .writeText(pretty)
         .then(() => {
-          alert("選択中エネミーJSONをクリップボードへコピーした");
+          showToast("選択中エネミーJSONをコピーした", "info");
         })
         .catch(() => {
-          alert("コピー失敗。コンソールに出力する");
+          showToast("コピー失敗。コンソールに出力する", "error");
           console.log(pretty);
         });
     });
@@ -3487,10 +3619,10 @@ function setupEvents() {
       navigator.clipboard
         .writeText(pretty)
         .then(() => {
-          alert("ココフォリア駒データをコピーした");
+          showKomaJsonCopySuccessToast();
         })
         .catch(() => {
-          alert("コピー失敗。コンソールに出力する");
+          showToast("コピー失敗。コンソールに出力する", "error");
           console.log(pretty);
         });
     });
@@ -3734,6 +3866,7 @@ async function boot() {
       // 復元しない場合は新規作成
       const fresh = createEnemyTemplate();
       state.enemies.unshift(normalizeEnemy(fresh));
+      localUnsavedEnemyIds.add(String(fresh.ID || ""));
       state.selectedId = fresh.ID;
       saveLastSelectedId(fresh.ID);
     }
@@ -3741,6 +3874,7 @@ async function boot() {
     // 記憶がない・対象がない場合で、まだ未選択なら新規作成
     const fresh = createEnemyTemplate();
     state.enemies.unshift(normalizeEnemy(fresh));
+    localUnsavedEnemyIds.add(String(fresh.ID || ""));
     state.selectedId = fresh.ID;
     saveLastSelectedId(fresh.ID);
   }
