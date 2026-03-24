@@ -1482,21 +1482,20 @@ function calcInitiativeTotal(enemy) {
     ? Math.floor(legionBonus)
     : 0;
   const base = 6 + (isLegion ? 2 + normalizedLegionBonus : 0);
-  const legacyTotal = Number(
-    (enemy && (enemy.initiative ?? (enemy.data && enemy.data.initiative))) || 0,
-  );
-  const hasLegacyTotal = Number.isFinite(legacyTotal) && legacyTotal > 0;
-  if (maneuvers.length === 0) return hasLegacyTotal ? legacyTotal : base;
+  if (maneuvers.length === 0) return base;
 
   const addInitiativeByRule = (acc, n, status) => {
     if (!Number.isFinite(n)) return acc;
     // 行動値増減仕様:
     // - 通常は 0
-    // - 正の値は常に加算
+    // - 正の値は「損傷」以外のときのみ加算
     // - 負の値は「損傷」時のみ同値を加算（例: -1 -> +1）
-    // - 負の値で「損傷」以外のときは 0 扱い
+    // - 損傷中は正の補正を失う
+    if (status === "損傷") {
+      if (n < 0) return acc + Math.abs(n);
+      return acc;
+    }
     if (n < 0) {
-      if (status === "損傷") return acc + Math.abs(n);
       return acc;
     }
     if (n > 0) return acc + n;
@@ -1507,9 +1506,6 @@ function calcInitiativeTotal(enemy) {
     const n = Number((m && m.initiative) || 0);
     return Number.isFinite(n) && n !== 0;
   });
-  if (!hasManeuverInitiative && hasLegacyTotal) {
-    return legacyTotal;
-  }
 
   const shouldUseMasterFallback = !hasManeuverInitiative;
   const delta = maneuvers.reduce((acc, m) => {
@@ -1530,11 +1526,7 @@ function calcInitiativeTotal(enemy) {
   }, 0);
   // 既定値: 6 + IF(種別="レギオン",2,0)
   // その上にマニューバ由来の増減を加算する。
-  const computed = base + delta;
-  if (hasLegacyTotal && computed < legacyTotal) {
-    return legacyTotal;
-  }
-  return computed;
+  return base + delta;
 }
 
 function calcMalice(enemy) {
@@ -2476,12 +2468,8 @@ function calcSummaryUnitInitiative(unitRow, partRows = null) {
   const maneuvers = Array.isArray(enemy?.data?.maneuvers)
     ? enemy.data.maneuvers.filter(hasManeuverName)
     : [];
-  const legacyTotal = Number(
-    (enemy && (enemy.initiative ?? (enemy.data && enemy.data.initiative))) || 0,
-  );
-  const hasLegacyTotal = Number.isFinite(legacyTotal) && legacyTotal > 0;
   const base = 6 + (String(enemy && enemy.class_type) === "レギオン" ? 2 : 0);
-  if (!maneuvers.length) return hasLegacyTotal ? legacyTotal : base;
+  if (!maneuvers.length) return base;
 
   const stateRows = Array.isArray(partRows)
     ? partRows
@@ -2495,8 +2483,11 @@ function calcSummaryUnitInitiative(unitRow, partRows = null) {
 
   const addInitiativeByRule = (acc, n, status) => {
     if (!Number.isFinite(n)) return acc;
+    if (status === "損傷") {
+      if (n < 0) return acc + Math.abs(n);
+      return acc;
+    }
     if (n < 0) {
-      if (status === "損傷") return acc + Math.abs(n);
       return acc;
     }
     if (n > 0) return acc + n;
@@ -2527,11 +2518,7 @@ function calcSummaryUnitInitiative(unitRow, partRows = null) {
     return addInitiativeByRule(acc, masterIni, status);
   }, 0);
 
-  const computed = base + delta;
-  if (hasLegacyTotal && computed < legacyTotal) {
-    return legacyTotal;
-  }
-  return computed;
+  return base + delta;
 }
 
 function buildSummaryCheckedPartCopyText(partRows) {
@@ -2853,6 +2840,7 @@ function renderSummaryPanel() {
           </div>
           <div class="summary-unit-header-actions">
             <button type="button" class="small-square-btn summary-unit-copy-btn" data-summary-unit-memo-id="${escapeHtml(unitRow.id)}" data-summary-unit-memo-slot="${escapeHtml(unitRow.slotIndex)}" data-summary-unit-memo-unit="${escapeHtml(unitRow.unitIndex)}" title="コマ状態コピー"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>状態コピー</span></button>
+            <button type="button" class="small-square-btn summary-unit-copy-btn" data-summary-unit-used-safe-id="${escapeHtml(unitRow.id)}" data-summary-unit-used-safe-slot="${escapeHtml(unitRow.slotIndex)}" data-summary-unit-used-safe-unit="${escapeHtml(unitRow.unitIndex)}" title="使用回数回復"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>使用回数回復</span></button>
             <button type="button" class="small-square-btn summary-unit-copy-btn" data-summary-unit-clear-check-id="${escapeHtml(unitRow.id)}" data-summary-unit-clear-check-slot="${escapeHtml(unitRow.slotIndex)}" data-summary-unit-clear-check-unit="${escapeHtml(unitRow.unitIndex)}" title="チェック解除"><i class="fa-solid fa-eraser" aria-hidden="true"></i><span>チェック解除</span></button>
             ${
               unitRow.classType === "レギオン"
@@ -3392,6 +3380,32 @@ function clearSummaryUnitCheckedRows(enemy, slotIndex, unitIndex) {
   }
 }
 
+function setSummaryUnitUsedToSafe(enemy, slotIndex, unitIndex) {
+  if (
+    !enemy ||
+    Number.isNaN(Number(slotIndex)) ||
+    Number.isNaN(Number(unitIndex))
+  ) {
+    return;
+  }
+  if (
+    !enemy.summary_unit_part_states ||
+    typeof enemy.summary_unit_part_states !== "object"
+  ) {
+    enemy.summary_unit_part_states = {};
+  }
+  const unitKey = buildSummaryUnitKey(slotIndex, unitIndex);
+  const unitMap = enemy.summary_unit_part_states[unitKey];
+  if (!unitMap || typeof unitMap !== "object") return;
+  Object.keys(unitMap).forEach((partKey) => {
+    const entry = normalizeSummaryUnitPartState(unitMap[partKey]);
+    if (entry.status === "使用") {
+      entry.status = "無事";
+      unitMap[partKey] = entry;
+    }
+  });
+}
+
 function handleSummaryDamageClick(event) {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
@@ -3460,6 +3474,27 @@ function handleSummaryDamageClick(event) {
     const enemy = state.enemies.find((e) => String((e && e.ID) || "") === id);
     if (!enemy) return;
     clearSummaryUnitCheckedRows(enemy, slotIndex, unitIndex);
+    enemy.time = nowIsoLocal();
+    scheduleSaveToDb();
+    scheduleSummaryRenders({ includeList: true });
+    return;
+  }
+
+  const usedSafeBtn = target.closest("[data-summary-unit-used-safe-id]");
+  if (usedSafeBtn instanceof HTMLButtonElement) {
+    const id = String(
+      usedSafeBtn.getAttribute("data-summary-unit-used-safe-id") || "",
+    ).trim();
+    const slotIndex = Number(
+      usedSafeBtn.getAttribute("data-summary-unit-used-safe-slot"),
+    );
+    const unitIndex = Number(
+      usedSafeBtn.getAttribute("data-summary-unit-used-safe-unit"),
+    );
+    if (!id || Number.isNaN(slotIndex) || Number.isNaN(unitIndex)) return;
+    const enemy = state.enemies.find((e) => String((e && e.ID) || "") === id);
+    if (!enemy) return;
+    setSummaryUnitUsedToSafe(enemy, slotIndex, unitIndex);
     enemy.time = nowIsoLocal();
     scheduleSaveToDb();
     scheduleSummaryRenders({ includeList: true });
