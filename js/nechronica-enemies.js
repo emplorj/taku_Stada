@@ -2254,8 +2254,8 @@ function buildSummaryPartsCopyText() {
   const { allMalice } = buildEnemySummaryRows();
   const playerCount = normalizeSummaryPlayerCount(state.summaryPlayerCount);
   const karmaCount = normalizeSummaryKarmaCount(state.summaryKarmaCount);
-  const baseParts = Math.ceil(allMalice / 1);
-  const enhancedParts = Math.ceil(allMalice / 2);
+  const baseParts = Math.ceil(allMalice / 4);
+  const enhancedParts = Math.ceil(allMalice / 8);
   const favorPointsRaw = allMalice / playerCount + karmaCount * 2;
   const favorPoints = Number.isFinite(favorPointsRaw)
     ? String(Math.floor(favorPointsRaw))
@@ -2698,8 +2698,8 @@ function renderSummaryPanel() {
   const karmaCount = normalizeSummaryKarmaCount(state.summaryKarmaCount);
   state.summaryPlayerCount = playerCount;
   state.summaryKarmaCount = karmaCount;
-  const baseParts = Math.ceil(allMalice / 1);
-  const enhancedParts = Math.ceil(allMalice / 2);
+  const baseParts = Math.ceil(allMalice / 4);
+  const enhancedParts = Math.ceil(allMalice / 8);
   const favorPointsRaw = allMalice / playerCount + karmaCount * 2;
   const favorPoints = Number.isFinite(favorPointsRaw)
     ? String(Math.floor(favorPointsRaw))
