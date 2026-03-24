@@ -2778,11 +2778,23 @@ body.nechronica-enemies-page .save-status {
     width: 60px !important;
   }
 
-  /* 作者名と公開設定の行 */
-  .editor-meta-row {
+  /* 作者名と公開設定の行（メタ情報） */
+  .action-bar-meta {
+    width: 100%;
+    margin-left: 0;
     flex-direction: column;
-    gap: 1rem;
     align-items: stretch;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .action-bar-meta .action-meta-field {
+    width: 100%;
+  }
+
+  .action-bar-meta .action-meta-field input {
+    flex: 1; /* 入力欄を画面幅いっぱいまで広げる */
+    width: auto !important;
   }
 
   /* テーブルの横スクロール強制 */
@@ -2798,8 +2810,58 @@ body.nechronica-enemies-page .save-status {
     font-size: 0.85rem;
   }
 
+  /* 名称列を左端に固定 */
+  #maneuversTable th:first-child,
+  #maneuversTable td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+  }
+  /* THEADの背景色も適宜追尾 */
+  #maneuversTable thead th:first-child {
+    background: #1b1820; 
+  }
+  #maneuversTable tbody td:first-child {
+    background: inherit; /* 行の背景色を維持 */
+    border-right: 2px solid var(--sheet-border); /* 境界線を強調 */
+  }
+
   .summary-unit-parts-table {
     min-width: 600px;
+  }
+
+  /* チェック列とステータス列を固定 */
+  .summary-unit-parts-table th:nth-child(1),
+  .summary-unit-parts-table td:nth-child(1),
+  .summary-unit-parts-table th:nth-child(2),
+  .summary-unit-parts-table td:nth-child(2) {
+    position: sticky;
+    z-index: 2;
+  }
+  .summary-unit-parts-table th:nth-child(1),
+  .summary-unit-parts-table td:nth-child(1) { left: 0; }
+  
+  .summary-unit-parts-table th:nth-child(2),
+  .summary-unit-parts-table td:nth-child(2) { 
+    left: 28px; /* 1列目(チェック行)の幅分 */
+  }
+
+  /* 縦列ごとの背景色指定を確実に行う（透過防止） */
+  .summary-unit-parts-table thead th:nth-child(1),
+  .summary-unit-parts-table thead th:nth-child(2) {
+    background: #1b1820;
+  }
+  .summary-unit-parts-table tbody td:nth-child(1),
+  .summary-unit-parts-table tbody td:nth-child(2) {
+    background: inherit;
+  }
+  .summary-unit-parts-table tbody td:nth-child(2) {
+    border-right: 2px solid var(--sheet-border);
+  }
+
+  .koma-json-actions {
+    grid-template-columns: 1fr; /* 1列の縦並びに変更 */
+    gap: 0.6rem;
   }
 
   .summary-total-grid {
@@ -2826,9 +2888,14 @@ body.nechronica-enemies-page .save-status {
     align-items: stretch;
   }
 
-  .action-bar-left,
-  .action-bar-right {
+  .action-bar-left {
     justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .action-bar-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 0.5rem;
   }
 
@@ -2859,10 +2926,20 @@ body.nechronica-enemies-page .save-status {
     font-size: 0.75rem;
   }
 
+  .enemy-search-row {
+    flex-wrap: nowrap;
+  }
+
   .enemy-search-field-select {
-    min-width: 6.2rem;
+    min-width: auto;
+    width: 30%;
     font-size: 0.74rem;
     padding: 0.3rem 0.35rem;
+  }
+
+  #enemySearchInput {
+    width: 70%;
+    min-width: 0;
   }
 
   .enemy-list-controls {
