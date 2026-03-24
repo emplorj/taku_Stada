@@ -6,6 +6,8 @@ const state = {
   summaryPlayerCount: 4,
   summaryKarmaCount: 1,
   summaryDamageTabKey: "",
+  summarySortKey: "totalMalice",
+  summarySortDir: "desc",
   activeTab: "editor",
   maneuverMasterMap: new Map(),
   maneuverMasterLoaded: false,
@@ -97,6 +99,7 @@ const el = {
   summaryKarmaCountInput: document.getElementById("summaryKarmaCountInput"),
   summaryBaseParts: document.getElementById("summaryBaseParts"),
   summaryEnhancedParts: document.getElementById("summaryEnhancedParts"),
+  summaryEnemiesTable: document.getElementById("summaryEnemiesTable"),
   summaryEnemiesBody: document.getElementById("summaryEnemiesBody"),
   summaryDamageUnitList: document.getElementById("summaryDamageUnitList"),
   summaryPlaceGrid: document.getElementById("summaryPlaceGrid"),
@@ -2446,6 +2449,96 @@ function buildEnemySummaryRows() {
   return { rows, allMalice };
 }
 
+function sortSummaryRows(rows) {
+  const key = String(state.summarySortKey || "totalMalice");
+  const dir = state.summarySortDir === "asc" ? 1 : -1;
+  const list = Array.isArray(rows) ? [...rows] : [];
+  const textCmp = (a, b) =>
+    String(a || "").localeCompare(String(b || ""), "ja", {
+      sensitivity: "base",
+      numeric: true,
+    });
+  const numCmp = (a, b) => {
+    const av = Number(a || 0);
+    const bv = Number(b || 0);
+    const an = Number.isFinite(av) ? av : 0;
+    const bn = Number.isFinite(bv) ? bv : 0;
+    return an - bn;
+  };
+  list.sort((a, b) => {
+    if (key === "totalMalice") {
+      const d = numCmp(a.totalMalice, b.totalMalice);
+      return d !== 0
+        ? d * dir
+        : textCmp(a.displayName || a.name, b.displayName || b.name);
+    }
+    if (key === "malice") {
+      const d = numCmp(a.malice, b.malice);
+      return d !== 0
+        ? d * dir
+        : textCmp(a.displayName || a.name, b.displayName || b.name);
+    }
+    if (key === "units") {
+      const d = numCmp(a.units, b.units);
+      return d !== 0
+        ? d * dir
+        : textCmp(a.displayName || a.name, b.displayName || b.name);
+    }
+    if (key === "classType") {
+      const d = textCmp(a.classType, b.classType);
+      return d !== 0
+        ? d * dir
+        : textCmp(a.displayName || a.name, b.displayName || b.name);
+    }
+    if (key === "place") {
+      const d = textCmp(a.place, b.place);
+      return d !== 0
+        ? d * dir
+        : textCmp(a.displayName || a.name, b.displayName || b.name);
+    }
+    const d = textCmp(a.displayName || a.name, b.displayName || b.name);
+    return d * dir;
+  });
+  return list;
+}
+
+function updateSummarySortHeaders() {
+  if (!(el.summaryEnemiesTable instanceof HTMLTableElement)) return;
+  const thList = Array.from(
+    el.summaryEnemiesTable.querySelectorAll("thead th"),
+  );
+  const sortKeys = [
+    "totalMalice",
+    "malice",
+    "units",
+    "classType",
+    "place",
+    "name",
+  ];
+  thList.forEach((th, index) => {
+    const key = sortKeys[index];
+    if (!key) return;
+    const savedLabel = String(
+      th.getAttribute("data-summary-sort-label") || "",
+    ).trim();
+    const baseLabel =
+      savedLabel ||
+      String(th.textContent || "")
+        .replace(/[\s▲▼]+$/g, "")
+        .trim();
+    th.setAttribute("data-summary-sort-label", baseLabel);
+    th.setAttribute("data-summary-sort-key", key);
+    th.style.cursor = "pointer";
+    const isActive = state.summarySortKey === key;
+    const arrow = isActive
+      ? state.summarySortDir === "asc"
+        ? " ▲"
+        : " ▼"
+      : "";
+    th.textContent = `${baseLabel}${arrow}`;
+  });
+}
+
 function renderSummaryPanel() {
   if (
     !el.summaryEnemiesBody ||
@@ -2454,6 +2547,7 @@ function renderSummaryPanel() {
   )
     return;
   const { rows, allMalice } = buildEnemySummaryRows();
+  const sortedRows = sortSummaryRows(rows);
   const unitRows = getSummaryUnitRows(rows);
   const playerCount = normalizeSummaryPlayerCount(state.summaryPlayerCount);
   const karmaCount = normalizeSummaryKarmaCount(state.summaryKarmaCount);
@@ -2479,8 +2573,10 @@ function renderSummaryPanel() {
   if (el.summaryEnhancedParts)
     el.summaryEnhancedParts.textContent = String(enhancedParts);
 
+  updateSummarySortHeaders();
+
   el.summaryEnemiesBody.innerHTML = "";
-  rows.forEach((row) => {
+  sortedRows.forEach((row) => {
     const tr = document.createElement("tr");
     const placeOptions = PLACE_TYPES.map(
       (p) =>
@@ -2500,6 +2596,16 @@ function renderSummaryPanel() {
           <span class="summary-row-actions">
             <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-memo-id="${escapeHtml(row.id)}" data-summary-copy-memo-slot="${escapeHtml(row.slotIndex)}" title="コマ状態コピー"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>状態コピー</span></button>
             <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-koma-json-id="${escapeHtml(row.id)}" title="コマJSON出力"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>JSON出力</span></button>
+            ${
+              Number(row.units || 0) >= 2
+                ? `<button type="button" class="small-square-btn summary-row-action-btn" data-summary-split-slot-id="${escapeHtml(row.id)}" data-summary-split-slot-index="${escapeHtml(row.slotIndex)}" title="配置を分離"><i class="fa-solid fa-grip-lines-vertical" aria-hidden="true"></i><span>配置分離</span></button>`
+                : ""
+            }
+            ${
+              String(row.classType || "") === "レギオン"
+                ? `<button type="button" class="small-square-btn summary-row-action-btn" data-summary-duplicate-slot-id="${escapeHtml(row.id)}" data-summary-duplicate-slot-index="${escapeHtml(row.slotIndex)}" title="レギオン配置を複製"><i class="fa-solid fa-copy" aria-hidden="true"></i><span>複製</span></button>`
+                : ""
+            }
             <button type="button" class="small-square-btn summary-remove-btn" data-summary-remove-id="${escapeHtml(row.id)}" data-summary-remove-slot="${escapeHtml(row.slotIndex)}" title="配置から除外"><i class="fa-solid fa-trash" aria-hidden="true"></i><span>配置除外</span></button>
           </span>
         </div>
@@ -2875,6 +2981,71 @@ function restoreSummaryUnitInputFocus(id, slotIndex) {
 function handleSummaryTableClick(event) {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
+
+  const splitBtn = target.closest("[data-summary-split-slot-id]");
+  if (splitBtn instanceof HTMLElement) {
+    const id = String(
+      splitBtn.getAttribute("data-summary-split-slot-id") || "",
+    ).trim();
+    const slotIndex = Number(
+      splitBtn.getAttribute("data-summary-split-slot-index"),
+    );
+    if (!id || Number.isNaN(slotIndex)) return;
+    const enemy = state.enemies.find((e) => String(e && e.ID) === id);
+    if (!enemy) return;
+    if (!Array.isArray(enemy.summary_slots)) enemy.summary_slots = [];
+    const slot = enemy.summary_slots[slotIndex];
+    if (!slot) return;
+    const units = Number(slot.unit_count || 1);
+    const normalizedUnits =
+      Number.isFinite(units) && units > 0 ? Math.floor(units) : 1;
+    if (normalizedUnits < 2) return;
+    const place = String((slot && slot.place) || "煉獄").trim();
+    const normalizedPlace = PLACE_TYPES.includes(place) ? place : "煉獄";
+    const separated = Array.from({ length: normalizedUnits }, () => ({
+      place: normalizedPlace,
+      unit_count: 1,
+    }));
+    enemy.summary_slots.splice(slotIndex, 1, ...separated);
+    enemy.time = nowIsoLocal();
+    saveSummaryLayoutToLocal();
+    scheduleSaveToDb();
+    scheduleSummaryRenders({ includeList: true });
+    showToast("配置を分離した", "info");
+    return;
+  }
+
+  const duplicateBtn = target.closest("[data-summary-duplicate-slot-id]");
+  if (duplicateBtn instanceof HTMLElement) {
+    const id = String(
+      duplicateBtn.getAttribute("data-summary-duplicate-slot-id") || "",
+    ).trim();
+    const slotIndex = Number(
+      duplicateBtn.getAttribute("data-summary-duplicate-slot-index"),
+    );
+    if (!id || Number.isNaN(slotIndex)) return;
+    const enemy = state.enemies.find((e) => String(e && e.ID) === id);
+    if (!enemy) return;
+    if (!Array.isArray(enemy.summary_slots)) enemy.summary_slots = [];
+    const slot = enemy.summary_slots[slotIndex];
+    if (!slot) return;
+    const place = String((slot && slot.place) || "煉獄").trim();
+    const normalizedPlace = PLACE_TYPES.includes(place) ? place : "煉獄";
+    const units = Number(slot.unit_count || 1);
+    const normalizedUnits =
+      Number.isFinite(units) && units > 0 ? Math.floor(units) : 1;
+    enemy.summary_slots.splice(slotIndex + 1, 0, {
+      place: normalizedPlace,
+      unit_count: normalizedUnits,
+    });
+    enemy.time = nowIsoLocal();
+    saveSummaryLayoutToLocal();
+    scheduleSaveToDb();
+    scheduleSummaryRenders({ includeList: true });
+    showToast("レギオン配置を複製した", "info");
+    return;
+  }
+
   const copyMemoBtn = target.closest("[data-summary-copy-memo-id]");
   if (copyMemoBtn instanceof HTMLElement) {
     const id = String(
@@ -3630,6 +3801,26 @@ function setupEvents() {
   if (el.summaryEnemiesBody) {
     el.summaryEnemiesBody.addEventListener("change", handleSummaryTableChange);
     el.summaryEnemiesBody.addEventListener("click", handleSummaryTableClick);
+  }
+  if (el.summaryEnemiesTable) {
+    el.summaryEnemiesTable.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const th = target.closest("th[data-summary-sort-key]");
+      if (!(th instanceof HTMLTableCellElement)) return;
+      const key = String(th.getAttribute("data-summary-sort-key") || "").trim();
+      if (!key) return;
+      if (state.summarySortKey === key) {
+        state.summarySortDir = state.summarySortDir === "asc" ? "desc" : "asc";
+      } else {
+        state.summarySortKey = key;
+        state.summarySortDir =
+          key === "totalMalice" || key === "malice" || key === "units"
+            ? "desc"
+            : "asc";
+      }
+      scheduleSummaryRenders({ includeList: false, immediate: true });
+    });
   }
   if (el.summaryDamageUnitList) {
     el.summaryDamageUnitList.addEventListener(
