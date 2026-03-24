@@ -216,6 +216,45 @@ const MALICE_OVERRIDE_TEXT = `
 1,発勁
 `;
 
+// 備考:
+// - 「最大行動値+N」は +N を設定
+// - 「リミッター」は「損傷時のみ +2」を現行計算ロジックで表現するため -2 を設定
+//   （通常時は 0 扱い、損傷時に +2 相当として加算される）
+const INITIATIVE_OVERRIDE_TEXT = `
+2,のうみそ
+2,強化脊髄
+1,しっぽ
+2,中枢神経
+2,反射行動
+1,めだま
+1,アドレナリン
+1,しんぞう
+2,メインエンジン
+1,サブエンジン
+2,殺戮本能
+1,リフレックス
+-2,リミッター
+1,カンフー
+2,人工知能
+2,エンジン
+1,ブースター
+2,選ばれし脳
+1,選ばれし瞳
+1,選ばれし手
+1,選ばれし指先
+1,選ばれし心臓
+1,選ばれし骨格
+1,奇怪な動き
+2,高速化処理
+2,肥大脳
+1,強化反応器
+2,覚醒領域
+1,脳幹刺激端末
+1,触覚
+2,増設用脳
+1,生態駆動
+`;
+
 function buildMaliceOverrideMap() {
   const map = new Map();
   const lines = String(MALICE_OVERRIDE_TEXT || "")
@@ -236,6 +275,27 @@ function buildMaliceOverrideMap() {
 }
 
 const MALICE_OVERRIDE_MAP = buildMaliceOverrideMap();
+
+function buildInitiativeOverrideMap() {
+  const map = new Map();
+  const lines = String(INITIATIVE_OVERRIDE_TEXT || "")
+    .split(/\r?\n/)
+    .map((x) => String(x || "").trim())
+    .filter((x) => x.length > 0);
+  lines.forEach((line) => {
+    const comma = line.indexOf(",");
+    if (comma <= 0) return;
+    const initiativeText = line.slice(0, comma).trim();
+    const name = line.slice(comma + 1).trim();
+    if (!name) return;
+    const initiative = Number(initiativeText);
+    if (!Number.isFinite(initiative)) return;
+    map.set(name, initiative);
+  });
+  return map;
+}
+
+const INITIATIVE_OVERRIDE_MAP = buildInitiativeOverrideMap();
 
 function parseCsvLine(line) {
   const out = [];
@@ -345,7 +405,12 @@ function parseManeuvers(commandsText = "", masterMap = new Map()) {
     const [, name, timing, cost, range, effect] = m;
     const normalizedName = String(name || "").trim();
     const master = masterMap.get(normalizedName);
-    const initiative = Number(master && master.initiative);
+    const overrideInitiative = Number(
+      INITIATIVE_OVERRIDE_MAP.get(normalizedName),
+    );
+    const initiative = Number.isFinite(overrideInitiative)
+      ? overrideInitiative
+      : Number(master && master.initiative);
     const overrideMalice = Number(MALICE_OVERRIDE_MAP.get(normalizedName));
     const malice = Number.isFinite(overrideMalice)
       ? overrideMalice
