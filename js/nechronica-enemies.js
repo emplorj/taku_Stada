@@ -2123,9 +2123,7 @@ function buildSummaryPartsCopyText() {
   const enhancedParts = Math.ceil(allMalice / 2);
   const favorPointsRaw = allMalice / playerCount + karmaCount * 2;
   const favorPoints = Number.isFinite(favorPointsRaw)
-    ? Number.isInteger(favorPointsRaw)
-      ? String(favorPointsRaw)
-      : favorPointsRaw.toFixed(2)
+    ? String(Math.floor(favorPointsRaw))
     : "0";
   return [
     `基本パーツ: ${baseParts}`,
@@ -2395,16 +2393,21 @@ function buildEnemySummaryRows() {
     .filter((enemy) => !isNoNameServantPlaceholder(enemy))
     .forEach((enemy) => {
       const baseMalice = calcMalice(enemy);
+      const classType = String(enemy.class_type || "");
       const slots = Array.isArray(enemy.summary_slots)
         ? enemy.summary_slots
         : [];
       slots.forEach((slot, index) => {
         const units = Number((slot && slot.unit_count) || 1);
-        const normalizedUnits =
+        const normalizedUnitsRaw =
           Number.isFinite(units) && units > 0 ? Math.floor(units) : 1;
+        const maliceUnits =
+          classType === "レギオン"
+            ? Math.max(1, Math.ceil(normalizedUnitsRaw / 5))
+            : normalizedUnitsRaw;
         const place = String((slot && slot.place) || getEnemyPlace(enemy));
         const normalizedPlace = PLACE_TYPES.includes(place) ? place : "煉獄";
-        const totalMalice = baseMalice * normalizedUnits;
+        const totalMalice = baseMalice * maliceUnits;
         const baseName = String(enemy.name || "(no name)");
         rows.push({
           id: String(enemy.ID || ""),
@@ -2412,9 +2415,9 @@ function buildEnemySummaryRows() {
           rowKey: `${String(enemy.ID || "")}:${index}`,
           name: baseName,
           displayName: baseName,
-          classType: String(enemy.class_type || ""),
+          classType,
           place: normalizedPlace,
-          units: normalizedUnits,
+          units: normalizedUnitsRaw,
           malice: baseMalice,
           totalMalice,
           damageStatus: getPartStatusText(enemy),
@@ -2505,7 +2508,10 @@ function renderSummaryPanel() {
     el.summaryEnemiesBody.appendChild(tr);
   });
 
-  const availableTabKeys = rows.map((row) => String(row.rowKey || ""));
+  const availableTabKeys = unitRows.map(
+    (unitRow) =>
+      `${String(unitRow.id)}:${Number(unitRow.slotIndex)}:${Number(unitRow.unitIndex)}`,
+  );
   if (
     !state.summaryDamageTabKey ||
     !availableTabKeys.includes(state.summaryDamageTabKey)
@@ -2522,15 +2528,15 @@ function renderSummaryPanel() {
     const tabsWrap = document.createElement("div");
     tabsWrap.className = "summary-damage-tabs";
     tabsWrap.setAttribute("role", "tablist");
-    rows.forEach((row) => {
-      const key = String(row.rowKey || "");
+    unitRows.forEach((unitRow) => {
+      const key = `${String(unitRow.id)}:${Number(unitRow.slotIndex)}:${Number(unitRow.unitIndex)}`;
       const btn = document.createElement("button");
       const classKey =
-        row.classType === "レギオン"
+        unitRow.classType === "レギオン"
           ? "legion"
-          : row.classType === "ホラー"
+          : unitRow.classType === "ホラー"
             ? "horror"
-            : row.classType === "サヴァント"
+            : unitRow.classType === "サヴァント"
               ? "servant"
               : "other";
       const dotClass = `summary-place-dot is-${classKey}`;
@@ -2551,7 +2557,7 @@ function renderSummaryPanel() {
         "aria-selected",
         key === state.summaryDamageTabKey ? "true" : "false",
       );
-      btn.innerHTML = `<span class="${escapeHtml(dotClass)}" aria-hidden="true">${escapeHtml(classMark)}</span><span>${escapeHtml(formatSummaryDamageDisplayName(row))}</span>`;
+      btn.innerHTML = `<span class="${escapeHtml(dotClass)}" aria-hidden="true">${escapeHtml(classMark)}</span><span>${escapeHtml(unitRow.unitDisplayName || unitRow.rowName)}</span>`;
       tabsWrap.appendChild(btn);
     });
     el.summaryDamageUnitList.appendChild(tabsWrap);
@@ -2561,22 +2567,23 @@ function renderSummaryPanel() {
     el.summaryDamageUnitList.appendChild(panel);
 
     const targetKey = String(state.summaryDamageTabKey || "");
-    const tabUnitRows = unitRows.filter(
+    const activeUnitRow = unitRows.find(
       (unitRow) =>
-        `${String(unitRow.id)}:${Number(unitRow.slotIndex)}` === targetKey,
+        `${String(unitRow.id)}:${Number(unitRow.slotIndex)}:${Number(unitRow.unitIndex)}` ===
+        targetKey,
     );
 
-    if (!tabUnitRows.length) {
+    if (!activeUnitRow) {
       panel.innerHTML =
         '<div class="summary-place-empty">（この手駒の個体がありません）</div>';
     } else {
-      tabUnitRows.forEach((unitRow) => {
-        const partRows = getSummaryUnitPartRows(unitRow);
-        const partStatusText = buildSummaryPartStatusTextFromRows(partRows);
-        const currentInitiative = calcSummaryUnitInitiative(unitRow, partRows);
-        const article = document.createElement("article");
-        article.className = "summary-damage-unit-card";
-        article.innerHTML = `
+      const unitRow = activeUnitRow;
+      const partRows = getSummaryUnitPartRows(unitRow);
+      const partStatusText = buildSummaryPartStatusTextFromRows(partRows);
+      const currentInitiative = calcSummaryUnitInitiative(unitRow, partRows);
+      const article = document.createElement("article");
+      article.className = "summary-damage-unit-card";
+      article.innerHTML = `
         <header class="summary-damage-unit-header">
           <div>
             <strong>${escapeHtml(unitRow.unitDisplayName || unitRow.rowName)}</strong>
@@ -2646,8 +2653,7 @@ function renderSummaryPanel() {
           </table>
         </div>
       `;
-        panel.appendChild(article);
-      });
+      panel.appendChild(article);
     }
   }
 
@@ -3112,11 +3118,6 @@ function handleSummaryDamageClick(event) {
   const text = buildSummaryCheckedPartCopyText(checkedRows);
   writeClipboardText(text)
     .then(() => {
-      const enemy = unitRow.enemy;
-      clearSummaryUnitCheckedRows(enemy, slotIndex, unitIndex);
-      enemy.time = nowIsoLocal();
-      scheduleSaveToDb();
-      scheduleSummaryRenders({ includeList: true });
       const original = btn.textContent;
       btn.textContent = "完了";
       showToast("チェック分をコピーした", "info");
