@@ -109,8 +109,10 @@ const el = {
   enemySearchField: document.getElementById("enemySearchField"),
   enemyPageSizeInput: document.getElementById("enemyPageSizeInput"),
   enemyShowAllButton: document.getElementById("enemyShowAllButton"),
+  enemyShowTenButton: document.getElementById("enemyShowTenButton"),
   saveEnemyButton: document.getElementById("saveEnemyButton"),
   saveEnemyButtonBottom: document.getElementById("saveEnemyButtonBottom"),
+  saveAsEnemyButtonBottom: document.getElementById("saveAsEnemyButtonBottom"),
   newEnemyButton: document.getElementById("newEnemyButton"),
   newEnemyButtonBottom: document.getElementById("newEnemyButtonBottom"),
   duplicateEnemyButton: document.getElementById("duplicateEnemyButton"),
@@ -442,9 +444,7 @@ async function writeClipboardText(text) {
 function setSaveButtonLabelByEnemy(enemy) {
   const isNew =
     !!enemy && localUnsavedEnemyIds.has(String((enemy && enemy.ID) || ""));
-  const label = isNew
-    ? "データベースへ保存（新規）"
-    : "データベースへ保存（上書き）";
+  const label = isNew ? "新規保存" : "上書き保存";
   const apply = (btn) => {
     if (!(btn instanceof HTMLButtonElement)) return;
     const icon = btn.querySelector("i");
@@ -3483,6 +3483,17 @@ function setupEvents() {
     });
   }
 
+  if (el.enemyShowTenButton) {
+    el.enemyShowTenButton.addEventListener("click", () => {
+      state.enemyListPageSize = 10;
+      state.enemyListPage = 1;
+      if (el.enemyPageSizeInput) {
+        el.enemyPageSizeInput.value = "10";
+      }
+      renderEnemyList();
+    });
+  }
+
   if (el.enemyListPager) {
     el.enemyListPager.addEventListener("click", (event) => {
       const target = event.target;
@@ -3662,6 +3673,26 @@ function setupEvents() {
   };
   bindClick(el.deleteEnemyButton, handleDeleteEnemy);
   bindClick(el.deleteEnemyButtonBottom, handleDeleteEnemy);
+
+  const handleSaveAsEnemy = () => {
+    upsertCurrentEnemyFromForm();
+    const current = getSelectedEnemy();
+    if (!current) return;
+
+    const duplicated = JSON.parse(JSON.stringify(current));
+    duplicated.ID = getNextId();
+    duplicated.name = duplicated.name + "（コピー）";
+    duplicated.time = nowIsoLocal();
+
+    state.enemies.unshift(duplicated);
+    localUnsavedEnemyIds.add(String(duplicated.ID || ""));
+    state.selectedId = duplicated.ID;
+    saveLastSelectedId(duplicated.ID);
+    renderAll();
+    setSaveStatus("saving", "別名保存中…");
+    saveToStorage();
+  };
+  bindClick(el.saveAsEnemyButtonBottom, handleSaveAsEnemy);
 
   const handleSaveEnemy = () => {
     upsertCurrentEnemyFromForm();

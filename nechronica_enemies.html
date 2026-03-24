@@ -37,7 +37,7 @@
           <div class="koma-json-actions">
             <button id="exportKomaJsonButton" type="button" class="small-square-btn">ココフォリア駒へ出力</button>
             <div class="koma-import-inline">
-              <input id="komaJsonInput" type="text" placeholder='ココフォリア駒JSONを貼り付けてインポート'
+              <input id="komaJsonInput" type="text" placeholder='{"kind":"character","data":{"name":"……'
                 aria-label="ココフォリア駒JSONを貼り付けてインポート">
             </div>
             <p class="koma-import-help">※ココフォリアの駒JSONを貼り付けると、現在の手駒へインポートされます。</p>
@@ -54,11 +54,11 @@
                 class="fa-solid fa-rotate-right"></i> DB再読込</button>
           </div>
           <div class="action-bar-right">
-            <button id="duplicateEnemyButtonBottom" type="button" class="action-btn is-sub"><i
+            <button id="saveAsEnemyButtonBottom" type="button" class="action-btn is-main"><i
                 class="fa-solid fa-copy"></i>
-              複製して新規</button>
+              別名保存</button>
             <button id="saveEnemyButtonBottom" type="button" class="action-btn is-main"><i
-                class="fa-solid fa-cloud-arrow-up"></i> データベースへ保存（上書き）</button>
+                class="fa-solid fa-cloud-arrow-up"></i> 上書き保存</button>
             <div class="action-bar-meta" aria-label="メタ情報">
               <label class="action-meta-field"><span class="field-label">作者</span><input id="field-author" type="text"
                   placeholder="例: エンJ"></label>

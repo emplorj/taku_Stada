@@ -1369,6 +1369,35 @@ body.nechronica-enemies-page .save-status {
   justify-content: center;
 }
 
+@media (max-width: 1500px) {
+  .editor-action-bar {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.6rem 0.8rem;
+  }
+
+  .action-bar-left,
+  .action-bar-right {
+    gap: 0.6rem;
+  }
+
+  .action-bar-right {
+    margin-left: 0;
+  }
+
+  .action-bar-meta {
+    margin-left: 0;
+  }
+
+  .action-meta-field > input#field-author {
+    width: 8.8rem;
+  }
+
+  .action-meta-field.is-icon > input#field-icon-url {
+    width: 12.8rem;
+  }
+}
+
 @media (max-width: 600px) {
   .editor-action-bar {
     flex-direction: column;
