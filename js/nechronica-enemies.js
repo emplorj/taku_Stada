@@ -2811,6 +2811,11 @@ function handleSummaryTableChange(event) {
   const slot = enemy.summary_slots[slotIndex];
   if (!slot) return;
 
+  const shouldRestoreUnitInputFocus =
+    key === "unit_count" &&
+    target instanceof HTMLInputElement &&
+    target === document.activeElement;
+
   if (key === "unit_count") {
     const n = Number(target.value || 1);
     const normalized = Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
@@ -2832,6 +2837,39 @@ function handleSummaryTableChange(event) {
   scheduleSaveToDb();
   saveSummaryLayoutToLocal();
   scheduleSummaryRenders({ includeList: true });
+  if (shouldRestoreUnitInputFocus) {
+    restoreSummaryUnitInputFocus(id, slotIndex);
+  }
+}
+
+function restoreSummaryUnitInputFocus(id, slotIndex) {
+  let attempts = 0;
+  const maxAttempts = 6;
+  const idText = String(id || "").trim();
+  const slotText = String(Number(slotIndex));
+  const tryRestore = () => {
+    attempts += 1;
+    if (!el.summaryEnemiesBody) return;
+    const candidates = Array.from(
+      el.summaryEnemiesBody.querySelectorAll(
+        '.summary-unit-input[data-summary-key="unit_count"]',
+      ),
+    );
+    const input = candidates.find(
+      (node) =>
+        String(node.getAttribute("data-summary-id") || "").trim() === idText &&
+        String(node.getAttribute("data-summary-slot") || "").trim() ===
+          slotText,
+    );
+    if (input instanceof HTMLInputElement) {
+      input.focus({ preventScroll: true });
+      return;
+    }
+    if (attempts < maxAttempts) {
+      setTimeout(tryRestore, 35);
+    }
+  };
+  setTimeout(tryRestore, 0);
 }
 
 function handleSummaryTableClick(event) {
