@@ -2758,7 +2758,8 @@ function renderSummaryPanel() {
             <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-memo-id="${escapeHtml(row.id)}" data-summary-copy-memo-slot="${escapeHtml(row.slotIndex)}" data-summary-copy-memo-unit="0" title="コマ状態コピー"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>状態コピー</span></button>
             <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-koma-json-id="${escapeHtml(row.id)}" data-summary-copy-koma-json-slot="${escapeHtml(row.slotIndex)}" data-summary-copy-koma-json-unit="0" title="コマ出力"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>コマ出力</span></button>
             ${
-              Number(row.units || 0) >= 2
+              Number(row.units || 0) >= 2 &&
+              String(row.classType || "") !== "レギオン"
                 ? `<button type="button" class="small-square-btn summary-row-action-btn" data-summary-split-slot-id="${escapeHtml(row.id)}" data-summary-split-slot-index="${escapeHtml(row.slotIndex)}" title="配置を分離"><i class="fa-solid fa-grip-lines-vertical" aria-hidden="true"></i><span>配置分離</span></button>`
                 : ""
             }
