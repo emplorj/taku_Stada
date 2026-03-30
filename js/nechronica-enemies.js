@@ -2349,6 +2349,8 @@ function getSummaryUnitRows(summaryRows) {
   const unitRows = [];
   summaryRows.forEach((row) => {
     const units = Number(row && row.units);
+    const slotUnits =
+      Number.isFinite(units) && units > 0 ? Math.floor(units) : 1;
     const isLegion = String((row && row.classType) || "") === "レギオン";
     const normalizedUnits = isLegion
       ? 1
@@ -2387,7 +2389,7 @@ function getSummaryUnitRows(summaryRows) {
         id: row.id,
         slotIndex: row.slotIndex,
         unitIndex,
-        units: normalizedUnits,
+        units: slotUnits,
         unitKey,
         unitLabel: `${unitIndex + 1}`,
         rowName: baseRowName,
@@ -2754,7 +2756,7 @@ function renderSummaryPanel() {
           <span class="summary-name-text">${escapeHtml(row.displayName || row.name)}</span>
           <span class="summary-row-actions">
             <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-memo-id="${escapeHtml(row.id)}" data-summary-copy-memo-slot="${escapeHtml(row.slotIndex)}" data-summary-copy-memo-unit="0" title="コマ状態コピー"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>状態コピー</span></button>
-            <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-koma-json-id="${escapeHtml(row.id)}" data-summary-copy-koma-json-slot="${escapeHtml(row.slotIndex)}" data-summary-copy-koma-json-unit="0" title="コマJSON出力"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>JSON出力</span></button>
+            <button type="button" class="small-square-btn summary-row-action-btn" data-summary-copy-koma-json-id="${escapeHtml(row.id)}" data-summary-copy-koma-json-slot="${escapeHtml(row.slotIndex)}" data-summary-copy-koma-json-unit="0" title="コマ出力"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>コマ出力</span></button>
             ${
               Number(row.units || 0) >= 2
                 ? `<button type="button" class="small-square-btn summary-row-action-btn" data-summary-split-slot-id="${escapeHtml(row.id)}" data-summary-split-slot-index="${escapeHtml(row.slotIndex)}" title="配置を分離"><i class="fa-solid fa-grip-lines-vertical" aria-hidden="true"></i><span>配置分離</span></button>`
@@ -3162,16 +3164,25 @@ function handleSummaryTableClick(event) {
     if (normalizedUnits < 2) return;
     const place = String((slot && slot.place) || "煉獄").trim();
     const normalizedPlace = PLACE_TYPES.includes(place) ? place : "煉獄";
-    const separated = Array.from({ length: normalizedUnits }, () => ({
-      place: normalizedPlace,
-      unit_count: 1,
-    }));
+    const firstUnits = Math.ceil(normalizedUnits / 2);
+    const secondUnits = normalizedUnits - firstUnits;
+    if (secondUnits < 1) return;
+    const separated = [
+      {
+        place: normalizedPlace,
+        unit_count: firstUnits,
+      },
+      {
+        place: normalizedPlace,
+        unit_count: secondUnits,
+      },
+    ];
     enemy.summary_slots.splice(slotIndex, 1, ...separated);
     enemy.time = nowIsoLocal();
     saveSummaryLayoutToLocal();
     scheduleSaveToDb();
     scheduleSummaryRenders({ includeList: true });
-    showToast("配置を分離した", "info");
+    showToast("配置を半分に分割した", "info");
     return;
   }
 
