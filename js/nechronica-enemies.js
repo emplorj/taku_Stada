@@ -1869,6 +1869,10 @@ function hasManeuverName(m) {
 }
 
 function buildKomaStatus(enemy) {
+  if (String((enemy && enemy.class_type) || "") === "レギオン") {
+    const units = getEnemyUnitCount(enemy);
+    return [{ label: "パーツ", value: units, max: units }];
+  }
   const maneuvers = (
     (enemy && enemy.data && enemy.data.maneuvers) ||
     []
@@ -2065,6 +2069,17 @@ function resolveSummaryUnitRow(enemy, id, slotIndex, unitIndex = 0) {
 function buildKomaStatusFromSummaryUnit(unitRow) {
   const enemy = unitRow && unitRow.enemy;
   if (!enemy) return [];
+  if (String((unitRow && unitRow.classType) || "") === "レギオン") {
+    const unitsRaw = Number(
+      (unitRow && unitRow.units) ||
+        (enemy && enemy.summary_slots && enemy.summary_slots[unitRow.slotIndex]
+          ? enemy.summary_slots[unitRow.slotIndex].unit_count
+          : 1),
+    );
+    const units =
+      Number.isFinite(unitsRaw) && unitsRaw > 0 ? Math.floor(unitsRaw) : 1;
+    return [{ label: "パーツ", value: units, max: units }];
+  }
   const partRows = getSummaryUnitPartRows(unitRow);
   if (isServantEnemy(enemy)) {
     return PART_TYPES.map((p) => {
@@ -2372,6 +2387,7 @@ function getSummaryUnitRows(summaryRows) {
         id: row.id,
         slotIndex: row.slotIndex,
         unitIndex,
+        units: normalizedUnits,
         unitKey,
         unitLabel: `${unitIndex + 1}`,
         rowName: baseRowName,

@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     {
       title: "ソード・ワールド2.5の卓スタダのキャラたち",
       bgColorClass: "bg-sw",
+      anchorId: "sw25-section",
     },
     {
       title: "ダブルクロス The 3rd Editionの卓スタダのキャラたち",
@@ -22,18 +23,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     {
       title: "クトゥルフ神話TRPGの卓スタダ-miniのキャラたち",
       bgColorClass: "bg-coc-mini",
+      anchorId: "coc-mini-section",
     },
     {
-      title: "ソード・ワールド2.5-miniの卓スタダのキャラたち",
+      title: "ソード・ワールド2.5の卓スタダ-miniのキャラたち",
       bgColorClass: "bg-sw-mini",
+      anchorId: "sw-mini-section",
     },
     {
-      title: "ダブルクロス The 3rd Edition-miniの卓スタダのキャラたち",
+      title: "ダブルクロス The 3rd Editionの卓スタダ-miniのキャラたち",
       bgColorClass: "bg-dx-mini",
+      anchorId: "dx-mini-section",
     },
     {
-      title: "永い後日談のネクロニカ-miniの卓スタダのキャラたち",
+      title: "永い後日談のネクロニカの卓スタダ-miniのキャラたち",
       bgColorClass: "bg-nc-mini",
+      anchorId: "nc-mini-section",
     },
   ];
 
@@ -51,15 +56,15 @@ document.addEventListener("DOMContentLoaded", async function () {
       title: "miniCoCキャラクターまとめ",
     },
     5: {
-      path: "img/sutada_display/SW_no.png",
+      path: "img/sutada_display/SWmini_no.png",
       title: "miniSWキャラクターまとめ",
     },
     6: {
-      path: "img/sutada_display/DX_no.png",
+      path: "img/sutada_display/DXmini_no.png",
       title: "miniDXキャラクターまとめ",
     },
     7: {
-      path: "img/sutada_display/NC_no.png",
+      path: "img/sutada_display/NCmini_no.png",
       title: "miniNCキャラクターまとめ",
     },
   };
@@ -174,6 +179,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 // スライドショーのHTMLを生成する関数
 function generateSlideshowHtml(config, imagePaths, index) {
   const slideshowId = `swiper-container-${index}`;
+  const anchorAttr = config.anchorId ? ` id="${config.anchorId}"` : "";
   const slides = [...imagePaths, ...imagePaths, ...imagePaths]
     .map(
       (path) => `
@@ -185,7 +191,7 @@ function generateSlideshowHtml(config, imagePaths, index) {
     .join("");
 
   return `
-        <div class="slideshow-wrapper" data-index="${index}">
+        <div class="slideshow-wrapper" data-index="${index}"${anchorAttr}>
             <h3 class="section-title start-title ${config.bgColorClass}">${config.title}</h3>
             <div class="swiper ${slideshowId}">
                 <div class="swiper-wrapper">
@@ -441,12 +447,43 @@ async function getImagePaths(index) {
     ],
     [
       /* miniNC */
+      "miniA-1.png",
+      "miniA-2.png",
+      "miniA-3.png",
+      "miniA-4.png",
+      "miniB-1.png",
+      "miniB-2.png",
+      "miniB-3.png",
+      "miniB-4.png",
+      // 将来的な追加予定（mini-c 1-4）
+      "miniC-1.png",
+      "miniC-2.png",
+      "miniC-3.png",
+      "miniC-4.png",
     ],
   ];
 
   const imageList = allImageData[index] || [];
   const folder = gameFolders[index] || "";
-  return imageList.map((file) => basePath + folder + file);
+  const candidatePaths = imageList.map((file) => basePath + folder + file);
+
+  // 実在する画像だけを表示（将来追加分の先行定義で404を出さないため）
+  const existenceChecks = await Promise.all(
+    candidatePaths.map((path) =>
+      imageExists(path).then((exists) => ({ path, exists })),
+    ),
+  );
+
+  return existenceChecks.filter((item) => item.exists).map((item) => item.path);
+}
+
+function imageExists(path) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = path;
+  });
 }
 
 // 画像をクリックしたときにモーダルを開く関数

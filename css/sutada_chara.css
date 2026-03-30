@@ -4,7 +4,7 @@ body {
   height: 100%; /* スクロールバーを機能させるために100%に戻す */
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  /* overflow-x: hidden; を無効化 */
 }
 
 /* sutada_chara.htmlのフッターの固定を解除 */
@@ -40,7 +40,9 @@ body > footer {
   justify-content: center;
   margin: 0 10px; /* スライド間のマージン */
 }
-
+.main-content {
+  overflow-x: hidden;
+}
 /* スライド内画像のスタイル */
 .swiper-slide img {
   width: 100%;
@@ -131,10 +133,6 @@ body > footer {
 
 .all-characters {
   margin-top: 60px;
-}
-
-.main-content {
-  box-sizing: border-box; /* paddingを幅に含める */
 }
 
 /* _noで終わる画像のスタイル */
