@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>サタスペ エネミーシート管理</title>
+  <meta property="og:title" content="サタスペ エネミーシート管理 - 卓スタダ">
+  <meta property="og:description" content="サタスペ敵データ向けの保存付きエディタ（配置集計なし）">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/satasupe_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Yuji+Syuku&family=Kosugi+Maru&family=RocknRoll+One&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/satasupe_enemies.css">
+</head>
+
+<body class="satasupe-body satasupe-enemies-page">
+  <div id="header-placeholder"></div>
+  <div class="grunge-overlay"></div>
+
+  <main class="main-content satasupe-enemies-main">
+    <header class="satasupe-header">
+      <h1>サタスペ エネミーシート管理</h1>
+      <p>参考元：
+        <a href="https://character-sheets.appspot.com/satasupe/edit.html" target="_blank"
+          rel="noopener noreferrer">character-sheets.appspot.com</a>
+        ／ ローカル保存対応（配置集計なし）
+      </p>
+    </header>
+
+    <section class="satasupe-layout">
+      <section class="editor-pane">
+        <div class="action-row">
+          <button id="saveEnemyButton" type="button" class="action-btn is-main"><i
+              class="fa-solid fa-cloud-arrow-up"></i> 保存</button>
+          <button id="saveAsEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-copy"></i>
+            複製保存</button>
+          <button id="deleteEnemyButton" type="button" class="action-btn is-danger"><i class="fa-solid fa-trash"></i>
+            削除</button>
+          <button id="exportJsonButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-file-export"></i>
+            JSON出力</button>
+          <button id="exportKomaJsonButton" type="button" class="action-btn is-sub"><i
+              class="fa-solid fa-chess-pawn"></i>
+            コマJSON出力</button>
+          <label class="import-wrap action-btn is-sub">
+            <i class="fa-solid fa-file-import"></i> JSON読込
+            <input id="importJsonInput" type="file" accept="application/json">
+          </label>
+        </div>
+
+        <form id="enemyEditorForm" class="editor-form" autocomplete="off">
+          <input id="field-id" type="hidden" data-field="id">
+
+          <div class="top-two-col">
+            <section class="data-block">
+              <h3>ステータス</h3>
+              <div class="status-key-metrics" aria-label="危険度と性業値">
+                <label class="key-metric is-danger">危険度<input type="number" data-field="meta.danger" readonly></label>
+                <label class="key-metric is-karma">性業値<input type="number" data-field="meta.karmaValue"></label>
+              </div>
+              <div class="status-sheet">
+                <table class="status-personal-table">
+                  <tbody>
+                    <tr>
+                      <th>名前</th>
+                      <td colspan="3"><input id="field-name" type="text" data-field="name" required></td>
+                    </tr>
+                    <tr>
+                      <th>カナ</th>
+                      <td colspan="3"><input type="text" data-field="nameKana"></td>
+                    </tr>
+                    <tr>
+                      <th>反応</th>
+                      <td>
+                        <select data-field="meta.reaction">
+                          <option value="">未設定</option>
+                          <option value="憎悪">憎悪</option>
+                          <option value="敵対">敵対</option>
+                          <option value="懐疑">懐疑</option>
+                          <option value="中立">中立</option>
+                        </select>
+                      </td>
+                      <th>サイズ</th>
+                      <td>
+                        <select data-field="meta.size">
+                          <option value="">未設定</option>
+                          <option value="小">小</option>
+                          <option value="中">中</option>
+                          <option value="大">大</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>盟約</th>
+                      <td><input type="text" data-field="base.alliance"></td>
+                      <th>階級</th>
+                      <td><input type="text" data-field="base.hierarchy"></td>
+                    </tr>
+                    <tr>
+                      <th>好</th>
+                      <td><input type="text" data-field="base.likes"></td>
+                      <th>嫌</th>
+                      <td><input type="text" data-field="base.dislikes"></td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <table class="status-ability-table">
+                  <thead>
+                    <tr>
+                      <th colspan="5">環境値</th>
+                    </tr>
+                    <tr>
+                      <th>犯罪</th>
+                      <th>生活</th>
+                      <th>恋愛</th>
+                      <th>教養</th>
+                      <th>戦闘</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="number" data-field="ability.crime"></td>
+                      <td><input type="number" data-field="ability.life"></td>
+                      <td><input type="number" data-field="ability.love"></td>
+                      <td><input type="number" data-field="ability.culture"></td>
+                      <td><input type="number" data-field="ability.combat"></td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <table class="status-ability-table secondary">
+                  <thead>
+                    <tr>
+                      <th colspan="2">天分値</th>
+                      <th colspan="3">戦闘力</th>
+                    </tr>
+                    <tr>
+                      <th>肉体</th>
+                      <th>精神</th>
+                      <th>反応力</th>
+                      <th>攻撃力</th>
+                      <th>破壊力</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="number" data-field="ability.body"></td>
+                      <td><input type="number" data-field="ability.mind"></td>
+                      <td><input type="number" data-field="ability.powerInit"></td>
+                      <td><input type="number" data-field="ability.powerAtk"></td>
+                      <td><input type="number" data-field="ability.powerDes"></td>
+                    </tr>
+                  </tbody>
+                </table>
+
+              </div>
+            </section>
+
+            <section class="data-block">
+              <h3>パーソナルデータ</h3>
+              <div class="grid personal-grid-author-title">
+                <label class="w-half">作者<input id="field-author" type="text" data-field="author"></label>
+                <label class="w-full">通り名<input type="text" data-field="base.nickname"></label>
+              </div>
+              <div class="grid personal-grid-basic-inline">
+                <label class="w-1ch">性別<input type="text" maxlength="1" data-field="base.sex"></label>
+                <label class="w-3ch">年齢<input type="number" data-field="base.age" min="8" max="80"></label>
+                <label class="w-half">国籍<input type="text" data-field="base.homeland"></label>
+              </div>
+              <div class="grid grid-1">
+                <label>セリフ / フレーバー<input type="text" data-field="meta.quote"></label>
+              </div>
+              <div class="grid personal-grid-hobby-image">
+                <label class="hobby-picker-field w-full">趣味
+                  <div class="hobby-picker-inline">
+                    <input id="field-hobbies" type="text" data-field="meta.hobbies" placeholder="手入力可（例: 飲食,健康）">
+                    <button id="openHobbyPickerButton" type="button"
+                      class="small-square-btn hobby-picker-btn">選択</button>
+                  </div>
+                  <div id="hobbyPickerPanel" class="hobby-picker-panel" hidden>
+                    <label class="hobby-picker-toggle">
+                      <input id="hobbyDiceGridToggle" type="checkbox" class="switch" checked>
+                      <span class="hobby-picker-toggle-text">ダイスグリッド表示（6×6）</span>
+                      <span class="hobby-base-count-wrap">趣味の数(基本):
+                        <input id="hobbyBaseCount" type="number" value="1" min="1" max="6" readonly>
+                      </span>
+                    </label>
+                    <div id="hobbyPickerList" class="hobby-picker-list"></div>
+                  </div>
+                </label>
+                <label class="w-half">絵URL<input type="url" data-field="meta.imageUrl"></label>
+              </div>
+              <div class="grid personal-grid-like-row">
+                <label class="w-half">好み年齢
+                  <select data-field="meta.likeDetail">
+                    <option value="">未設定</option>
+                    <option value="年下">年下</option>
+                    <option value="同い年">同い年</option>
+                    <option value="年上">年上</option>
+                  </select>
+                </label>
+                <label class="w-full">好みタイプ
+                  <select data-field="meta.likeType">
+                    <option value="">未設定</option>
+                    <option value="ダークな">ダークな</option>
+                    <option value="お金持ちな">お金持ちな</option>
+                    <option value="美形な">美形な</option>
+                    <option value="知的な">知的な</option>
+                    <option value="ワイルドな">ワイルドな</option>
+                    <option value="バランスが取れてる">バランスが取れてる</option>
+                  </select>
+                </label>
+                <label class="random-like-age-label w-auto">
+                  <span>ランダム設定</span>
+                  <button id="randomLikeAgeButton" type="button" class="small-square-btn">抽選</button>
+                </label>
+              </div>
+              <div class="grid grid-2">
+                <label>ドロップ表
+                  <select data-field="meta.garbageTable">
+                    <option value="">未設定</option>
+                    <option value="ガラクタ表">ガラクタ表</option>
+                    <option value="実用品表">実用品表</option>
+                    <option value="値打ち物表">値打ち物表</option>
+                    <option value="奇天烈表">奇天烈表</option>
+                  </select>
+                </label>
+                <label>経験換算
+                  <input type="number" data-field="meta.expConv" readonly title="能力値から自動計算">
+                </label>
+              </div>
+              <section class="data-block personal-memo-block">
+                <h4>メモ</h4>
+                <textarea rows="8" data-field="memo"></textarea>
+              </section>
+            </section>
+          </div>
+
+          <section class="data-block">
+            <div class="block-head">
+              <h3>異能 / 代償</h3>
+              <button id="addKarmaButton" type="button" class="small-square-btn">行追加</button>
+            </div>
+            <div class="karma-count-row">
+              <label>異能数<input type="number" data-field="meta.karmaCount" readonly></label>
+              <label>代償数<input type="number" data-field="meta.priceCount" readonly></label>
+            </div>
+            <div class="table-wrap">
+              <table class="asian-table" id="karmaTable">
+                <thead>
+                  <tr>
+                    <th>名称(異/代)</th>
+                    <th>異能</th>
+                    <th>代償</th>
+                    <th>使用</th>
+                    <th>対象</th>
+                    <th>判定</th>
+                    <th>効果</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="karmaBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="data-block">
+            <div class="block-head">
+              <h3>装備 / アイテム</h3>
+            </div>
+
+            <div class="block-head inner-block-head">
+              <h4>武器</h4>
+              <button id="addWeaponButton" type="button" class="small-square-btn">行追加</button>
+            </div>
+            <div class="table-wrap">
+              <table class="asian-table" id="weaponsTable">
+                <thead>
+                  <tr>
+                    <th>保管</th>
+                    <th>名称</th>
+                    <th>命中</th>
+                    <th>ダメージ</th>
+                    <th>射程</th>
+                    <th>特殊機能</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="weaponsBody"></tbody>
+              </table>
+            </div>
+
+            <div class="block-head inner-block-head">
+              <h4>一般装備</h4>
+              <button id="addOutfitButton" type="button" class="small-square-btn">行追加</button>
+            </div>
+            <div class="table-wrap">
+              <table class="asian-table" id="outfitsTable">
+                <thead>
+                  <tr>
+                    <th>保管</th>
+                    <th>名称</th>
+                    <th>使用</th>
+                    <th>効果</th>
+                    <th>特殊機能</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="outfitsBody"></tbody>
+              </table>
+            </div>
+
+            <div class="block-head inner-block-head">
+              <h4>乗物 / その他アイテム</h4>
+              <button id="addVehicleButton" type="button" class="small-square-btn">行追加</button>
+            </div>
+            <div class="table-wrap">
+              <table class="asian-table" id="vehiclesTable">
+                <thead>
+                  <tr>
+                    <th>名称</th>
+                    <th>スピード</th>
+                    <th>車体</th>
+                    <th>荷物</th>
+                    <th>特殊機能</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="vehiclesBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </form>
+      </section>
+
+      <details class="enemy-list-collapsible" open>
+        <summary>
+          <h2 class="enemy-list-title">みんなのエネミー</h2>
+        </summary>
+        <div class="enemy-list-pane">
+          <div class="list-head">
+            <h2>エネミー一覧</h2>
+            <button id="newEnemyButton" type="button" class="small-square-btn">新規</button>
+          </div>
+          <input id="enemySearchInput" class="asian-input" type="text" placeholder="名前 / 作者 / ID で検索">
+          <ul id="enemyList" class="enemy-list"></ul>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <span id="saveStatusText" class="save-status" aria-live="polite">未保存</span>
+
+  <footer>
+    <p>© 2025 卓スタダ</p>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/satasupe-enemies.js"></script>
+</body>
+
+</html>

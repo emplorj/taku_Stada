@@ -19,7 +19,7 @@ const state = {
 
 const PART_TYPES = ["頭", "腕", "胴", "脚"];
 const CLASS_TYPES = ["サヴァント", "ホラー", "レギオン"];
-const PLACE_TYPES = ["地獄", "奈落", "煉獄", "花園", "楽園"];
+const PLACE_TYPES = ["奈落", "地獄", "煉獄", "花園", "楽園"];
 const TIMING_OPTIONS = [
   "オート",
   "アクション",
