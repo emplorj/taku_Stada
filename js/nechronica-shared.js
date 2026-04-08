@@ -47,14 +47,16 @@
     if (typeof document === "undefined") return;
     const text = String(message || "").trim();
     if (!text) return;
+
     const {
       id = "copyToast",
       className = "copy-toast",
       kind = "info",
       errorClass = "is-error",
       showClass = "is-show",
-      duration = 1400,
+      duration = 1800,
     } = opts || {};
+
     let toast = document.getElementById(id);
     if (!toast) {
       toast = document.createElement("div");
@@ -62,21 +64,25 @@
       toast.className = className;
       document.body.appendChild(toast);
     }
+
+    // すでに表示中の場合は一度クラスを消して再表示（アニメーションのリセット）
+    toast.classList.remove(showClass);
+    void toast.offsetWidth; // reflow
+
     toast.textContent = text;
-    toast.classList.remove(errorClass, showClass);
+    toast.className = className; // クラスをリセット
     if (kind === "error") toast.classList.add(errorClass);
-    void toast.offsetWidth;
+    
     toast.classList.add(showClass);
 
     const prevTimer = toastTimers.get(id);
     if (prevTimer) clearTimeout(prevTimer);
-    const timer = setTimeout(
-      () => {
-        toast.classList.remove(showClass);
-        toastTimers.delete(id);
-      },
-      Number(duration) > 0 ? Number(duration) : 1400,
-    );
+
+    const timer = setTimeout(() => {
+      toast.classList.remove(showClass);
+      toastTimers.delete(id);
+    }, duration);
+    
     toastTimers.set(id, timer);
   }
 
@@ -94,6 +100,16 @@
     return !!currentChecked;
   }
 
+  async function saveFile(filename, content, mimeType = "application/json") {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   const shared = {
     normalizeTimingText,
     isRepeatableTiming,
@@ -102,6 +118,7 @@
     writeClipboardText,
     showToast,
     resolveReportCheckedOnDamageTransition,
+    saveFile,
   };
 
   globalScope.NechronicaShared = Object.assign(

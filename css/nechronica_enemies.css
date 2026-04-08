@@ -46,8 +46,7 @@ body.nechronica-enemies-page {
   font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
 }
 
-.nechronica-enemies-page .nechronica-header h1,
-.nechronica-enemies-page .enemy-list-title {
+.nechronica-enemies-page .nechronica-header h1 {
   font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
 }
 
@@ -55,10 +54,6 @@ body.nechronica-enemies-page {
 .nechronica-enemies-page .sub-header h3 {
   font-family:
     "isemin", "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
-}
-
-.nechronica-enemies-page .enemy-list-title {
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
 }
 
 .enemy-list-collapsible summary,

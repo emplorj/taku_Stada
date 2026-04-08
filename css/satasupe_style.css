@@ -1,11 +1,34 @@
 @charset "UTF-8";
 
+:root {
+  --sp-bg-main: #2f2a28;
+  --sp-bg-panel: #1a1615;
+  --sp-bg-deep: #120f0e;
+  --sp-text-main: #e0d5c1;
+  --sp-text-sub: #b9ab92;
+  --sp-neon-main: #d67a1f;
+  --sp-neon-sub: #a83f39;
+  --sp-neon-cyber: #05d9e8;
+  --sp-separator: #4a3630;
+}
+
 /* ==========================================================================
    1. Base Settings & Layout
    ========================================================================== */
 body.satasupe-body {
-  background-color: #1a1815;
-  color: #dcd3b9;
+  background:
+    radial-gradient(
+      circle at 20% 10%,
+      rgba(214, 122, 31, 0.08),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 80% 85%,
+      rgba(168, 63, 57, 0.06),
+      transparent 40%
+    ),
+    var(--sp-bg-main);
+  color: var(--sp-text-main);
   font-family: "Shippori Mincho", serif;
   margin: 0;
   padding: 0;
@@ -27,14 +50,16 @@ body.menu-open .layout-container {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, transparent 40%, #000 100%),
+  background:
+    radial-gradient(circle, transparent 35%, rgba(0, 0, 0, 0.7) 100%),
     repeating-linear-gradient(
       0deg,
-      transparent,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.025) 1px,
       transparent 1px,
-      #111 1px,
-      #111 2px
+      transparent 3px
     );
+  opacity: 0.7;
   pointer-events: none;
   z-index: -1;
 }
@@ -48,8 +73,8 @@ body.menu-open .layout-container {
    2. Header
    ========================================================================== */
 #global-header {
-  background-color: #1f1b18;
-  border-bottom: 4px double #a83f39;
+  background-color: #1e1917;
+  border-bottom: 4px double var(--sp-neon-sub);
   padding: 10px 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
   position: sticky;
@@ -66,15 +91,15 @@ body.menu-open .layout-container {
 .header-logo a {
   font-family: "Yuji Syuku", serif;
   font-size: 1.8rem;
-  color: #fff;
+  color: var(--sp-text-main);
   text-decoration: none;
-  text-shadow: 0 0 5px #a83f39;
+  text-shadow: 0 0 5px var(--sp-neon-sub);
   margin-right: 15px;
 }
 .header-sub {
   font-family: "Kosugi Maru", sans-serif;
   font-size: 0.8rem;
-  color: #a83f39;
+  color: var(--sp-neon-sub);
   letter-spacing: 0.1em;
 }
 .back-link {
@@ -103,37 +128,41 @@ body.menu-open .layout-container {
   box-sizing: border-box;
 }
 .alert-box {
-  background-color: #3d1a1a;
-  border: 1px solid #ff5555;
-  color: #ffcccc;
+  background-color: rgba(30, 10, 10, 0.85);
+  border: 1px solid #ff003c;
+  color: #ffb3c1;
   padding: 15px;
   margin-bottom: 20px;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
   gap: 15px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(255, 0, 60, 0.4);
 }
 .alert-box i {
   font-size: 1.5rem;
-  color: #ff5555;
+  color: #ff003c;
+  text-shadow: 0 0 8px rgba(255, 0, 60, 0.8);
 }
 
 .page-title-area {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  border-bottom: 1px dashed #555;
+  margin-bottom: 20px;
+  border-bottom: 1px dashed var(--sp-neon-sub);
   padding-bottom: 10px;
 }
 .page-title-area h1 {
-  font-family: "Yuji Syuku", serif;
-  font-size: 2rem;
-  color: #a83f39;
+  font-family: "RocknRoll One", sans-serif;
+  font-size: 2.2rem;
+  color: var(--sp-neon-main);
   margin: 0;
-  text-shadow: 1px 1px 0 #000;
+  text-shadow:
+    0 0 12px rgba(214, 122, 31, 0.65),
+    2px 2px 0 #000;
+  letter-spacing: 2px;
 }
 
 /* ==========================================================================
@@ -205,36 +234,43 @@ body.menu-open .layout-container {
   margin-bottom: 10px; /* 入力欄と結果の間に隙間を作る */
 }
 .paper-box {
-  background-color: #e3dac9;
-  color: #2b2522;
+  background:
+    linear-gradient(165deg, rgba(38, 31, 29, 0.55), rgba(12, 10, 9, 0.5)),
+    var(--sp-bg-panel);
+  color: var(--sp-text-main);
   padding: 15px;
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.45),
+    inset 0 0 18px rgba(0, 0, 0, 0.45);
   border-radius: 2px;
-  border-left: 6px solid #a83f39;
+  border: 1px solid var(--sp-separator);
+  border-left: 6px solid var(--sp-neon-main);
   display: flex;
   flex-direction: column;
   position: relative;
 }
 .paper-box h2 {
-  border-bottom: 2px solid #2b2522;
+  border-bottom: 2px solid var(--sp-neon-sub);
   margin: 0 0 10px 0;
-  padding-bottom: 8px; /* ★追加: 下線との余白 */
-  font-family: "Yuji Syuku", serif;
+  padding-bottom: 8px;
+  font-family: "RocknRoll One", sans-serif;
   font-size: 1.2rem;
-  color: #222;
-  line-height: 1.5; /* ★追加: 行高さを確保 */
+  color: var(--sp-neon-main);
+  line-height: 1.5;
+  text-shadow: 0 0 8px rgba(214, 122, 31, 0.55);
 }
 /* 2. 見出しの中にある一括ボタン専用のスタイル */
 .btn-header-batch {
-  margin-left: 15px; /* 左の余白 */
-  font-size: 0.9rem; /* 文字少し小さめ */
-  padding: 2px 15px; /* 上下の余白を詰める */
-  vertical-align: middle; /* ★重要: 文字の高さに合わせる */
-  height: auto; /* 高さを自動調整 */
+  margin-left: 15px;
+  font-size: 0.9rem;
+  padding: 2px 15px;
+  vertical-align: middle;
+  height: auto;
 }
 .kanji-num {
-  color: #a83f39;
+  color: var(--sp-neon-sub);
   margin-right: 5px;
+  text-shadow: 0 0 8px rgba(168, 63, 57, 0.6);
 }
 .box-footer {
   margin-top: auto;
@@ -243,55 +279,85 @@ body.menu-open .layout-container {
   justify-content: space-between;
   align-items: center;
   font-size: 0.8rem;
-  color: #666;
+  color: var(--sp-text-sub);
 }
 
 /* ==========================================================================
    5. Components (Buttons, Inputs)
    ========================================================================== */
 .asian-input {
-  background: #fff;
-  border: 2px solid #2b2522;
-  font-family: monospace;
+  background: rgba(10, 8, 8, 0.9);
+  border: 1px solid transparent;
+  border-bottom: 2px solid var(--sp-neon-sub);
+  font-family: inherit;
   font-size: 1.2rem;
+  font-weight: bold;
   text-align: center;
   padding: 5px;
+  outline: none;
+  transition: 0.2s;
+  color: var(--sp-text-main);
+}
+.asian-input:focus {
+  background: rgba(18, 14, 13, 0.95);
+  border-bottom-color: var(--sp-neon-main);
+  box-shadow: 0 0 10px rgba(214, 122, 31, 0.35);
 }
 .asian-input.small {
   width: 50px;
 }
 .asian-select {
-  background: #fff;
-  border: 2px solid #a83f39;
+  background: rgba(10, 8, 8, 0.9);
+  border: 1px solid transparent;
+  border-bottom: 2px solid var(--sp-neon-sub);
   padding: 6px;
   width: 100%;
+  font-family: inherit;
+  font-weight: bold;
+  color: var(--sp-text-main);
+  cursor: pointer;
+  outline: none;
+  transition: 0.2s;
+}
+.asian-select:focus {
+  background: rgba(18, 14, 13, 0.95);
+  border-bottom-color: var(--sp-neon-main);
+  box-shadow: 0 0 10px rgba(214, 122, 31, 0.3);
+}
+.asian-select option {
+  background: #191413;
+  color: var(--sp-text-main);
 }
 
 .stamp-btn {
-  background-color: #a83f39;
-  color: #fff;
-  border: 2px solid #fff;
+  background-color: var(--sp-bg-deep);
+  color: var(--sp-neon-main);
+  border: 1px solid var(--sp-neon-main);
   padding: 5px 20px;
   cursor: pointer;
   font-family: "Yuji Syuku", serif;
-  outline: 2px double #a83f39;
-  box-shadow: 3px 3px 0 #2b2522;
-  transition: 0.1s;
+  box-shadow:
+    2px 2px 0 #000,
+    inset 0 0 0 1px rgba(214, 122, 31, 0.2);
+  transition: 0.2s;
 }
 .stamp-btn:hover {
-  background-color: #c94e47;
+  background-color: var(--sp-neon-main);
+  color: #120f0e;
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #2b2522;
+  box-shadow:
+    3px 3px 0 #000,
+    0 0 14px rgba(214, 122, 31, 0.55);
 }
 .stamp-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0 0 0;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #000;
 }
 
 .small-square-btn {
-  background: #fff;
-  border: 2px solid #a83f39;
-  color: #a83f39;
+  background: var(--sp-bg-deep);
+  border: 1px solid var(--sp-neon-sub);
+  color: var(--sp-neon-sub);
   font-size: 0.8rem;
   width: 32px;
   height: 32px;
@@ -299,42 +365,49 @@ body.menu-open .layout-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: 0.1s;
+  border-radius: 3px;
+  transition: 0.2s;
   padding: 0;
   font-weight: bold;
+  box-shadow: 2px 2px 0 #000;
 }
 .small-square-btn:hover {
-  background: #a83f39;
-  color: #fff;
+  background: var(--sp-neon-sub);
+  color: #120f0e;
+  box-shadow:
+    2px 2px 0 #000,
+    0 0 10px rgba(168, 63, 57, 0.55);
 }
 
 .label-btn {
   width: 70px;
   height: 36px;
-  background: #a83f39;
-  border: 2px solid #fff;
-  color: #fff;
+  background: var(--sp-bg-deep);
+  border: 1px solid var(--sp-neon-main);
+  color: var(--sp-neon-main);
   font-size: 0.9rem;
   font-weight: bold;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 3px;
-  transition: 0.1s;
-  box-shadow: 2px 2px 0 #ccc;
-  outline: 1px solid #a83f39;
+  border-radius: 2px;
+  transition: 0.2s;
+  box-shadow: 2px 2px 0 #000;
+  outline: none;
   flex-shrink: 0;
   padding: 0;
 }
 .label-btn:hover {
-  background: #c94e47;
-  transform: translateY(1px);
-  box-shadow: 1px 1px 0 #999;
+  background: var(--sp-neon-main);
+  color: #120f0e;
+  transform: translateY(-1px);
+  box-shadow:
+    2px 2px 0 #000,
+    0 0 10px rgba(214, 122, 31, 0.5);
 }
 .label-btn:active {
-  transform: translateY(2px);
+  transform: translateY(1px);
   box-shadow: none;
 }
 
@@ -350,44 +423,36 @@ body.menu-open .layout-container {
    ========================================================================== */
 /* Status */
 .big-red {
-  color: #c00;
+  color: var(--sp-neon-main);
   font-size: 2.2rem;
   font-weight: bold;
   font-family: inherit;
-
-  /* 行の高さによるズレを防ぐ */
   line-height: 1;
-
   margin: 0 5px;
   position: relative;
-
-  /* ★変更: 中央揃えにした上で、数字の重心を微調整 (少し上に上げるなど) */
   top: -2px;
-
-  /* もしパディングが邪魔しているならリセット */
   padding: 0;
+  text-shadow:
+    0 0 10px rgba(214, 122, 31, 0.7),
+    1px 1px 0 #000;
 }
 .result-row.mini {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(12, 10, 10, 0.75);
   padding: 8px;
-  border: 1px dashed #8a7b66;
+  border: 1px solid var(--sp-separator);
+  flex-grow: 1;
 }
 .center-result.mini {
   text-align: center;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px dashed #8a7b66;
+  background: rgba(12, 10, 10, 0.75);
+  border: 1px solid var(--sp-separator);
   padding: 5px 10px;
   position: relative;
-
-  /* 高さを確保しつつ */
   min-height: 60px;
-
-  /* ★追加: 親要素(paper-box)の高さに合わせて縦に伸びるようにする */
   flex-grow: 1;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -398,17 +463,22 @@ body.menu-open .layout-container {
 .hand-write {
   font-size: 1.4rem;
   font-weight: bold;
-  border-bottom: 2px solid #a83f39;
+  border-bottom: 2px solid var(--sp-neon-sub);
   display: inline-block;
   line-height: 1.4;
+  color: var(--sp-neon-sub);
+  text-shadow: 0 0 6px rgba(168, 63, 57, 0.55);
 }
 .result-area.dark-bg {
-  background: #222;
-  color: #fff;
+  background: rgba(12, 10, 10, 0.85);
+  border: 1px solid var(--sp-neon-sub);
+  color: var(--sp-text-main);
   padding: 8px;
   text-align: center;
   font-size: 0.9rem;
   border-radius: 3px;
+  box-shadow: inset 0 0 10px rgba(168, 63, 57, 0.15);
+  text-shadow: 0 0 3px rgba(214, 122, 31, 0.35);
 }
 
 /* Tooltip */
@@ -419,8 +489,8 @@ body.menu-open .layout-container {
 .tooltip-text {
   visibility: hidden;
   width: 220px;
-  background-color: #1a1a1a;
-  color: #fff;
+  background-color: #161211;
+  color: var(--sp-text-main);
   text-align: left;
   border-radius: 6px;
   padding: 10px;
@@ -432,8 +502,8 @@ body.menu-open .layout-container {
   opacity: 0;
   transition: opacity 0.3s;
   font-size: 0.85rem;
-  border: 1px solid #a83f39;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--sp-neon-sub);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   line-height: 1.4;
   white-space: normal;
 }
@@ -445,7 +515,7 @@ body.menu-open .layout-container {
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #a83f39 transparent transparent transparent;
+  border-color: var(--sp-neon-sub) transparent transparent transparent;
 }
 .tooltip-container:hover .tooltip-text {
   visibility: visible;
@@ -460,13 +530,14 @@ body.menu-open .layout-container {
 }
 .agit-info-row {
   font-size: 0.9rem;
-  color: #444;
-  background: rgba(255, 255, 255, 0.4);
+  color: #f1f1f1;
+  background: rgba(10, 12, 15, 0.6);
   padding: 8px;
   border-radius: 4px;
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  border: 1px solid #333;
 }
 .medium-text {
   font-size: 1.3rem;
@@ -479,7 +550,7 @@ body.menu-open .layout-container {
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(10, 12, 15, 0.6);
   padding: 8px;
   border-radius: 4px;
 }
@@ -494,18 +565,24 @@ body.menu-open .layout-container {
   align-items: flex-start;
 }
 .table-caption {
-  margin: 5px;
+  margin: 0 0 8px 0;
+  font-weight: bold;
+  color: #05d9e8;
+  border-bottom: 1px solid #333;
+  padding-bottom: 4px;
 }
 .hobby-tag {
   position: relative;
   display: inline-block;
-  background: #fff;
-  border: 3px solid #222;
+  background: #0b0c10;
+  border: 2px solid #333;
   padding: 10px 20px;
   font-family: "RocknRoll One", sans-serif;
   font-size: 1.4rem;
-  color: #000;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+  color: #f1f1f1;
+  box-shadow:
+    0 0 10px rgba(0, 0, 0, 0.8),
+    inset 0 0 5px rgba(255, 255, 255, 0.1);
   transform: rotate(-1deg);
   margin-top: 10px;
 }
@@ -516,55 +593,84 @@ body.menu-open .layout-container {
   left: -3px;
   font-size: 0.7rem;
   color: #fff;
-  background: #000;
+  background: #0b0c10;
   padding: 2px 6px;
   font-family: "Kosugi Maru", sans-serif;
   font-weight: bold;
   transform: rotate(0deg);
-  border: 1px solid #fff;
+  border: 1px solid currentColor;
   white-space: nowrap;
 }
 .tag-pink {
   border-color: #ff00cc;
+  box-shadow:
+    0 0 10px rgba(255, 0, 204, 0.5),
+    inset 0 0 10px rgba(255, 0, 204, 0.3);
+  color: #ff00cc;
+  text-shadow: 0 0 5px rgba(255, 0, 204, 0.8);
 }
 .tag-pink::before {
-  background-color: #ff00cc;
+  color: #ff00cc;
 }
 .tag-blue {
   border-color: #0099ff;
+  box-shadow:
+    0 0 10px rgba(0, 153, 255, 0.5),
+    inset 0 0 10px rgba(0, 153, 255, 0.3);
+  color: #0099ff;
+  text-shadow: 0 0 5px rgba(0, 153, 255, 0.8);
 }
 .tag-blue::before {
-  background-color: #0099ff;
+  color: #0099ff;
 }
 .tag-gray {
-  border-color: #666666;
+  border-color: #888888;
+  box-shadow: 0 0 10px rgba(136, 136, 136, 0.3);
+  color: #aaa;
 }
 .tag-gray::before {
-  background-color: #666666;
+  color: #aaa;
 }
 .tag-yellow {
   border-color: #ffcc00;
+  box-shadow:
+    0 0 10px rgba(255, 204, 0, 0.5),
+    inset 0 0 10px rgba(255, 204, 0, 0.3);
+  color: #ffcc00;
+  text-shadow: 0 0 5px rgba(255, 204, 0, 0.8);
 }
 .tag-yellow::before {
-  background-color: #cc9900;
-  color: #fff;
+  color: #ffcc00;
 }
 .tag-green {
   border-color: #33cc33;
+  box-shadow:
+    0 0 10px rgba(51, 204, 51, 0.5),
+    inset 0 0 10px rgba(51, 204, 51, 0.3);
+  color: #33cc33;
+  text-shadow: 0 0 5px rgba(51, 204, 51, 0.8);
 }
 .tag-green::before {
-  background-color: #33cc33;
+  color: #33cc33;
 }
 .tag-purple {
   border-color: #9933ff;
+  box-shadow:
+    0 0 10px rgba(153, 51, 255, 0.5),
+    inset 0 0 10px rgba(153, 51, 255, 0.3);
+  color: #9933ff;
+  text-shadow: 0 0 5px rgba(153, 51, 255, 0.8);
 }
 .tag-purple::before {
-  background-color: #9933ff;
+  color: #9933ff;
 }
 
 .hobby-table-wrapper {
-  border-top: 1px dashed #8a7b66;
-  padding-top: 0px;
+  background: rgba(10, 12, 15, 0.4);
+  border: 1px dashed #333;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 15px;
 }
 .hobby-table-scroll {
   overflow-x: auto;
@@ -574,15 +680,17 @@ body.menu-open .layout-container {
   display: grid;
   grid-template-columns: 40px repeat(6, 1fr);
   min-width: 500px;
-  gap: 2px;
+  gap: 1px;
   font-family: "Kosugi Maru", sans-serif;
+  background: #333;
+  border: 1px solid #333;
 }
 .hobby-cell {
-  border: 1px solid #555;
+  background: #0b0c10;
   padding: 4px;
   text-align: center;
   font-size: 0.75rem;
-  color: #000;
+  color: #e0e0e0;
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -590,27 +698,34 @@ body.menu-open .layout-container {
 }
 .hobby-cell.header-row,
 .hobby-cell.header-col {
-  background-color: #333;
-  color: #fff;
+  background-color: #1a1a20;
+  color: #05d9e8;
   font-weight: bold;
+  text-shadow: 0 0 3px rgba(5, 217, 232, 0.5);
 }
 .bg-pink {
-  background: #ffccff;
+  background: rgba(255, 0, 204, 0.15);
+  border: 1px solid rgba(255, 0, 204, 0.3);
 }
 .bg-blue {
-  background: #ccffff;
+  background: rgba(0, 153, 255, 0.15);
+  border: 1px solid rgba(0, 153, 255, 0.3);
 }
 .bg-gray {
-  background: #e0e0e0;
+  background: rgba(102, 102, 102, 0.15);
+  border: 1px solid rgba(136, 136, 136, 0.3);
 }
 .bg-yellow {
-  background: #ffffcc;
+  background: rgba(255, 204, 0, 0.15);
+  border: 1px solid rgba(255, 204, 0, 0.3);
 }
 .bg-green {
-  background: #ccffcc;
+  background: rgba(51, 204, 51, 0.15);
+  border: 1px solid rgba(51, 204, 51, 0.3);
 }
 .bg-purple {
-  background: #e6ccff;
+  background: rgba(153, 51, 255, 0.15);
+  border: 1px solid rgba(153, 51, 255, 0.3);
 }
 
 /* Otakara */
@@ -627,20 +742,20 @@ body.menu-open .layout-container {
 .control-group label {
   font-size: 0.8rem;
   font-weight: bold;
-  color: #555;
+  color: var(--sp-neon-main);
 }
 .result-area.big-result {
-  background: #111;
-  color: #fff;
+  background: #151110;
+  color: var(--sp-neon-main);
   padding: 20px;
   text-align: center;
-
-  /* ★変更: 基本サイズをかなり大きく (5文字以下くらい用) */
   font-size: 3rem;
-
   font-weight: bold;
-  border: 3px solid #a83f39;
-  box-shadow: 0 0 8px #a83f39;
+  border: 2px solid var(--sp-neon-main);
+  box-shadow:
+    2px 2px 0 #000,
+    0 0 12px rgba(214, 122, 31, 0.35);
+  text-shadow: 0 0 8px rgba(214, 122, 31, 0.55);
   min-height: 80px;
   display: flex;
   align-items: center;
@@ -651,16 +766,12 @@ body.menu-open .layout-container {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-/* ★追加: 文字数が少し多い時 (6〜9文字くらい) */
 .result-area.big-result.medium-text {
   font-size: 2rem;
 }
-
-/* ★追加: 文字数がだいぶ多い時 (10文字以上) */
 .result-area.big-result.long-text {
   font-size: 1.3rem;
 }
-
 .result-area.big-result::-webkit-scrollbar {
   display: none;
 }
@@ -669,8 +780,8 @@ body.menu-open .layout-container {
 .item-list-scroll-area {
   height: 250px;
   overflow-y: auto;
-  border: 2px solid #8a7b66;
-  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--sp-separator);
+  background: rgba(12, 10, 10, 0.8);
 }
 .asian-table {
   width: 100%;
@@ -678,18 +789,20 @@ body.menu-open .layout-container {
   font-size: 0.85rem;
 }
 .asian-table th {
-  background: #2b2522;
-  color: #dcd3b9;
+  background: #1f1918;
+  color: var(--sp-neon-main);
   padding: 8px;
   position: sticky;
   top: 0;
   z-index: 1;
   white-space: nowrap;
+  border-bottom: 2px solid var(--sp-neon-sub);
 }
 .asian-table td {
-  border-bottom: 1px solid #8a7b66;
+  border-bottom: 1px dashed var(--sp-separator);
   padding: 8px;
   vertical-align: top;
+  color: var(--sp-text-main);
 }
 
 /* ==========================================================================
@@ -702,10 +815,10 @@ body.menu-open .layout-container {
 }
 
 .chart-group {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(24, 20, 19, 0.9);
   padding: 15px;
-  border-radius: 4px;
-  border: 1px dashed #8a7b66;
+  border-radius: 3px;
+  border: 1px solid var(--sp-separator);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -715,13 +828,15 @@ body.menu-open .layout-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #2b2522;
+  border-bottom: 1px dashed var(--sp-neon-sub);
   padding-bottom: 5px;
   margin-bottom: 5px;
 }
 .chart-header h3 {
   margin: 0;
   font-size: 1.1rem;
+  color: var(--sp-neon-main);
+  text-shadow: 0 0 6px rgba(214, 122, 31, 0.45);
 }
 
 .chart-list {
@@ -751,13 +866,15 @@ body.menu-open .layout-container {
 .detail-input {
   flex-grow: 1;
   height: 36px;
-  background: #fff;
-  border: 1px solid #999;
+  background: rgba(12, 10, 10, 0.85);
+  border: 1px solid transparent;
+  border-bottom: 1px solid var(--sp-separator);
   padding: 0 10px;
   font-family: monospace;
   font-size: 1rem;
   box-sizing: border-box;
-  color: #333;
+  color: var(--sp-text-main);
+  text-shadow: 0 0 2px rgba(214, 122, 31, 0.3);
 }
 
 /* 新規: detail-input-div (divタグ用、ルビ表示対応) */
@@ -765,12 +882,13 @@ body.menu-open .layout-container {
 .detail-input-div {
   flex-grow: 1;
   min-height: 46px;
-  background: #fff;
-  border: 1px solid #999;
+  background: rgba(12, 10, 10, 0.85);
+  border: 1px solid var(--sp-separator);
   padding: 2px 10px;
   font-family: "Shippori Mincho", serif;
   font-size: 1.4rem;
-  color: #333;
+  color: var(--sp-text-main);
+  text-shadow: 0 0 4px rgba(214, 122, 31, 0.35);
   box-sizing: border-box;
   display: flex;
   align-items: flex-end;
@@ -793,10 +911,12 @@ body.menu-open .layout-container {
 .detail-box {
   flex-grow: 1;
   min-height: 36px;
-  background: #fff;
-  border: 1px solid #999;
+  background: rgba(12, 10, 10, 0.85);
+  border: 1px solid var(--sp-separator);
   padding: 5px 10px;
   scrollbar-width: none;
+  color: var(--sp-text-main);
+  text-shadow: 0 0 4px rgba(214, 122, 31, 0.35);
 }
 .detail-box::-webkit-scrollbar {
   display: none;
@@ -804,7 +924,7 @@ body.menu-open .layout-container {
 
 .large-text {
   font-size: 1.5rem;
-  color: #2b2522;
+  color: #f1f1f1;
   font-weight: bold;
 }
 
@@ -812,7 +932,7 @@ body.menu-open .layout-container {
 .nickname-part {
   display: inline-block;
   padding: 0 5px;
-  border-bottom: 2px solid #a83f39;
+  border-bottom: 2px solid var(--sp-neon-sub);
 }
 .nickname-part + .nickname-part {
   margin-left: 20px;
@@ -833,7 +953,7 @@ body.menu-open .layout-container {
 
 .label-text-mini {
   font-size: 0.75rem;
-  color: #555;
+  color: #f1f1f1;
   margin-bottom: 2px;
   font-weight: bold;
 }
@@ -854,28 +974,30 @@ body.menu-open .layout-container {
   align-items: center;
 }
 
-/* 証明ボタン（少し色を変えるなど） */
 /* 証明ボタン（視認性向上） */
 .sub-roll-btn {
-  background-color: #a83f39; /* メインカラーに合わせる */
-  border: 2px solid #fff;
-  color: #fff;
+  background-color: var(--sp-bg-deep);
+  border: 1px solid var(--sp-neon-cyber);
+  color: var(--sp-neon-cyber);
   padding: 8px 20px;
   font-family: "Yuji Syuku", serif;
   cursor: pointer;
-  outline: 2px double #a83f39;
-  box-shadow: 3px 3px 0 #2b2522;
-  transition: 0.1s;
+  box-shadow:
+    2px 2px 0 #000,
+    0 0 8px rgba(5, 217, 232, 0.3);
+  transition: 0.2s;
   margin-left: 10px;
 }
 .sub-roll-btn:hover {
-  background-color: #c94e47;
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #2b2522;
+  background-color: var(--sp-neon-cyber);
+  color: #111;
+  box-shadow:
+    2px 2px 0 #000,
+    0 0 14px rgba(5, 217, 232, 0.65);
 }
 .sub-roll-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0 0 0;
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 5px rgba(5, 217, 232, 0.4);
 }
 .sub-roll-btn i {
   margin-right: 5px;
@@ -885,12 +1007,13 @@ body.menu-open .layout-container {
 .modal-intro {
   font-family: "Shippori Mincho", serif;
   font-size: 0.9rem;
-  color: #444;
+  color: var(--sp-text-main);
   text-align: center;
   margin-bottom: 15px;
   line-height: 1.6;
-  border-bottom: 1px solid #a83f39;
+  border-bottom: 1px dashed var(--sp-neon-sub);
   padding-bottom: 10px;
+  text-shadow: 0 0 4px rgba(214, 122, 31, 0.35);
 }
 
 /* --- モーダル (スクショ用) --- */
@@ -900,7 +1023,7 @@ body.menu-open .layout-container {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.9);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -910,11 +1033,14 @@ body.menu-open .layout-container {
 }
 
 .modal-content {
-  background: #e3dac9;
+  background: rgba(23, 19, 18, 0.96);
+  color: var(--sp-text-main);
   width: 100%;
-  max-width: 400px; /* スマホで見やすい幅 */
-  border: 4px double #a83f39;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  max-width: 400px;
+  border: 2px solid var(--sp-neon-main);
+  box-shadow:
+    0 0 24px rgba(214, 122, 31, 0.35),
+    inset 0 0 20px rgba(0, 0, 0, 0.7);
   padding: 15px;
   position: relative;
 }
@@ -923,7 +1049,7 @@ body.menu-open .layout-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #2b2522;
+  border-bottom: 2px solid var(--sp-neon-sub);
   margin-bottom: 15px;
   padding-bottom: 5px;
 }
@@ -932,15 +1058,21 @@ body.menu-open .layout-container {
   border: none;
   font-size: 1.5rem;
   padding: 0;
+  color: var(--sp-neon-main);
+  text-shadow: 0 0 8px rgba(214, 122, 31, 0.55);
 }
 
 .close-btn {
   background: none;
   border: none;
   font-size: 2rem;
-  color: #2b2522;
+  color: var(--sp-neon-main);
   cursor: pointer;
   line-height: 1;
+}
+.close-btn:hover {
+  color: var(--sp-neon-sub);
+  text-shadow: 0 0 10px rgba(168, 63, 57, 0.7);
 }
 
 .modal-body {
@@ -950,44 +1082,33 @@ body.menu-open .layout-container {
 }
 
 .summary-item {
-  /* ★修正: 全ての項目にパディングを持たせる */
   padding: 10px;
-
-  /* ★追加: ハイライト時の枠線(2px)分、通常時も透明な枠を取って位置ズレを防ぐ */
-  border: 2px solid transparent;
-
-  /* 区切り線（下線） */
-  border-bottom: 1px dashed #999;
-
+  border: 1px solid transparent;
+  border-bottom: 1px dashed var(--sp-separator);
   display: flex;
   flex-direction: column;
 }
 .summary-item.highlight {
-  background: rgba(168, 63, 57, 0.1);
-
-  border-color: #a83f39;
-  border-style: solid; /* dashedを上書きして実線に */
-
+  background: rgba(214, 122, 31, 0.1);
+  border-color: var(--sp-neon-main);
+  border-style: solid;
   border-radius: 4px;
 }
 
 .summary-label {
   font-size: 0.8rem;
-  color: #555;
+  color: var(--sp-neon-main);
   font-weight: bold;
 }
 
 .summary-value {
   font-size: 1.2rem;
-  color: #2b2522;
+  color: var(--sp-text-main);
   text-align: center;
   font-weight: bold;
   min-height: 1.5em;
   display: flex;
-
-  /* ★変更: baseline -> center (高さの異なる文字同士は中央揃えの方が安定します) */
   align-items: center;
-
   justify-content: center;
   flex-wrap: wrap;
   line-height: 1.2;
@@ -997,8 +1118,9 @@ body.menu-open .layout-container {
   text-align: center;
   margin-top: 15px;
   font-size: 0.7rem;
-  color: #666;
+  color: var(--sp-neon-main);
   letter-spacing: 0.2em;
+  opacity: 0.7;
 }
 
 /* モーダル内の文字サイズ調整 */
@@ -1007,11 +1129,15 @@ body.menu-open .layout-container {
 #modal-karma {
   font-size: 1.8rem;
   margin: 0 5px;
+  color: var(--sp-neon-main);
+  text-shadow: 0 0 10px rgba(214, 122, 31, 0.55);
 }
 #modal-otakara {
   font-size: 1.4rem;
   white-space: normal;
   word-break: break-all;
+  color: var(--sp-neon-main);
+  text-shadow: 0 0 5px rgba(214, 122, 31, 0.55);
 }
 
 /* ==========================================================================
@@ -1136,12 +1262,12 @@ body.menu-open .layout-container {
    9. Side Menu (Asian Punk Style)
    ========================================================================== */
 body.satasupe-body .side-menu {
-  background-color: rgba(26, 24, 21, 0.95); /* Dark gritty background */
-  border: 2px solid #a83f39; /* Red border */
-  border-radius: 2px; /* Sharp corners */
-  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.8); /* Hard shadow */
+  background-color: rgba(10, 12, 15, 0.98); /* Deep tech dark */
+  border: 1px solid #05d9e8; /* Cyan border */
+  border-radius: 2px;
+  box-shadow: 0 0 15px rgba(5, 217, 232, 0.3); /* Neon glow */
   font-family: "Shippori Mincho", serif;
-  padding: 10px 15px; /* Reduced padding */
+  padding: 10px 15px;
 
   /* Hide Scrollbar */
   scrollbar-width: none; /* Firefox */
@@ -1173,11 +1299,11 @@ body.satasupe-body .side-menu .menu-logo-container a:hover {
 }
 
 body.satasupe-body .side-menu h2 {
-  color: #a83f39;
-  border-bottom: 2px dashed #555;
+  color: #05d9e8;
+  border-bottom: 1px dashed #333;
   font-family: "Yuji Syuku", serif;
-  text-shadow: 1px 1px 0 #000;
-  font-size: 1rem; /* Smaller header */
+  text-shadow: 0 0 5px rgba(5, 217, 232, 0.5);
+  font-size: 1rem;
   margin: 5px 0;
   padding-bottom: 3px;
 }
@@ -1194,29 +1320,31 @@ body.satasupe-body .side-menu li {
 body.satasupe-body .side-menu .submenu-trigger {
   font-size: 0.85rem;
   font-weight: bold;
-  color: #c0a080;
+  color: #f9c80e;
+  text-shadow: 0 0 3px rgba(249, 200, 14, 0.5);
   padding: 4px 0 2px;
   display: block;
 }
 
 /* Links */
 body.satasupe-body .side-menu a {
-  color: #dcd3b9; /* Beige text */
+  color: #f1f1f1;
   font-family: "Shippori Mincho", serif;
-  font-size: 0.8rem; /* Even smaller font size */
+  font-size: 0.8rem;
   transition: all 0.2s;
-  padding: 4px 0; /* Increased padding for better hit area */
+  padding: 4px 0;
   line-height: 1.2;
   display: flex;
   align-items: center;
-  width: 100%; /* Ensure full width clickability */
+  width: 100%;
 }
 
 body.satasupe-body .side-menu a:hover {
-  color: #fff;
-  background-color: #a83f39;
+  color: #111;
+  background-color: #05d9e8;
   text-decoration: none;
-  padding-left: 5px; /* Slight movement */
+  padding-left: 5px;
+  box-shadow: 0 0 10px rgba(5, 217, 232, 0.5);
 }
 
 body.satasupe-body .side-menu .submenu {
@@ -1230,10 +1358,10 @@ body.satasupe-body .side-menu .submenu li {
 
 /* Hamburger Menu for Satasupe */
 body.satasupe-body .hamburger-menu {
-  background-color: #a83f39;
-  border: 2px solid #fff;
+  background-color: #111;
+  border: 1px solid #05d9e8;
   border-radius: 0;
-  box-shadow: 2px 2px 0 #000;
+  box-shadow: 0 0 5px rgba(5, 217, 232, 0.5);
 }
 
 body.satasupe-body .hamburger-menu span {
@@ -1243,5 +1371,5 @@ body.satasupe-body .hamburger-menu span {
 
 /* Mobile Menu Overlay */
 body.satasupe-body .side-menu.is-open {
-  border-right: 4px double #a83f39;
+  border-right: 2px solid #05d9e8;
 }

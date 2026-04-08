@@ -10,6 +10,10 @@
     selectedId: null,
     dirty: false,
     query: "",
+    searchField: "all",
+    sortMode: "updatedAt",
+    page: 1,
+    pageSize: 10,
   };
 
   const el = {
@@ -36,11 +40,40 @@
     historyBody: document.getElementById("historyBody"),
     hobbiesInput: document.getElementById("field-hobbies"),
     randomLikeAgeButton: document.getElementById("randomLikeAgeButton"),
+    randomNpcAgeButton: document.getElementById("randomNpcAgeButton"),
+    npcAgePresetSelect: document.getElementById("npcAgePresetSelect"),
     openHobbyPickerButton: document.getElementById("openHobbyPickerButton"),
     hobbyDiceGridToggle: document.getElementById("hobbyDiceGridToggle"),
     hobbyPickerPanel: document.getElementById("hobbyPickerPanel"),
     hobbyPickerList: document.getElementById("hobbyPickerList"),
+    enemySearchField: document.getElementById("enemySearchField"),
+    sortByIdButton: document.getElementById("sortByIdButton"),
+    sortByTimeButton: document.getElementById("sortByTimeButton"),
+    sortByDangerButton: document.getElementById("sortByDangerButton"),
+    sortByKarmaButton: document.getElementById("sortByKarmaButton"),
+    sortByAuthorButton: document.getElementById("sortByAuthorButton"),
+    enemyPageSizeInput: document.getElementById("enemyPageSizeInput"),
+    enemyShowAllButton: document.getElementById("enemyShowAllButton"),
+    enemyShowTenButton: document.getElementById("enemyShowTenButton"),
+    enemyPagerInfo: document.getElementById("enemyListPager"),
+    enemyPrevButton: document.getElementById("enemyPrevButton"),
+    enemyNextButton: document.getElementById("enemyNextButton"),
   };
+
+  let draggingRowState = { kind: "", index: -1 };
+
+  function formatShortDate(dateStr) {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const r = String(d.getDate()).padStart(2, "0");
+    const h = String(d.getHours()).padStart(2, "0");
+    const i = String(d.getMinutes()).padStart(2, "0");
+    const s = String(d.getSeconds()).padStart(2, "0");
+    return `${y}/${m}/${r} ${h}:${i}:${s}`;
+  }
 
   const body = document.body;
   if (!body || !body.classList.contains("satasupe-enemies-page")) return;
@@ -101,6 +134,14 @@
     "バランスが取れてる",
   ];
   const LIKE_DETAIL_OPTIONS = ["年下", "同い年", "年上"];
+  const NPC_AGE_CHART = [
+    { key: "child", label: "幼年", base: 6, dice: 2 },
+    { key: "boy", label: "少年", base: 10, dice: 2 },
+    { key: "young", label: "青年", base: 15, dice: 3 },
+    { key: "middle", label: "中年", base: 25, dice: 4 },
+    { key: "mature", label: "壮年", base: 40, dice: 5 },
+    { key: "old", label: "老人", base: 60, dice: 6 },
+  ];
 
   function nowText() {
     const d = new Date();
@@ -129,6 +170,33 @@
     return String(values[i] || "");
   }
 
+  function normalizeSexValue(value) {
+    const s = String(value == null ? "" : value).trim();
+    if (s === "男" || s === "男性") return "男";
+    if (s === "女" || s === "女性") return "女";
+    return "？";
+  }
+
+  function rollNpcAgeByPreset(presetKey) {
+    const key = String(presetKey || "random").trim();
+    let rule = null;
+    if (key === "random") {
+      const tableIndex = randInt(0, NPC_AGE_CHART.length - 1);
+      rule = NPC_AGE_CHART[tableIndex] || NPC_AGE_CHART[2];
+    } else {
+      rule = NPC_AGE_CHART.find((x) => String(x.key) === key) || null;
+      if (!rule) {
+        const fallbackIndex = randInt(0, NPC_AGE_CHART.length - 1);
+        rule = NPC_AGE_CHART[fallbackIndex] || NPC_AGE_CHART[2];
+      }
+    }
+    let add = 0;
+    for (let i = 0; i < Number(rule.dice) || 0; i += 1) {
+      add += randInt(1, 6);
+    }
+    return (Number(rule.base) || 0) + add;
+  }
+
   function createSheetTemplate() {
     return {
       id: `tmp-${uid()}`,
@@ -139,7 +207,7 @@
       updatedAt: nowText(),
       base: {
         homeland: "",
-        sex: "",
+        sex: "？",
         age: "",
         style: "",
         team: "",
@@ -183,7 +251,8 @@
       history: [],
       memo: "",
       meta: {
-        danger: 1,
+        danger: 0,
+        dangerLevel: "0",
         karmaValue: 7,
         reaction: "中立",
         size: "M",
@@ -193,6 +262,11 @@
         likeDetail: "年上",
         garbageTable: "ガラクタ表",
         expConv: 0,
+        karmaCount: 0,
+        priceCount: 0,
+        powerBase: 3,
+        powerRemain: 3,
+        languages: "",
       },
     };
   }
@@ -221,32 +295,95 @@
     if (!sheet || typeof sheet !== "object") return;
     if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
     const karmaRows = Array.isArray(sheet.karma) ? sheet.karma : [];
-    const karmaCount = karmaRows.filter((row) =>
-      String((row && row.talent) || "").trim(),
-    ).length;
-    const priceCount = karmaRows.filter((row) =>
-      String((row && row.price) || "").trim(),
-    ).length;
+    const karmaCount = karmaRows.filter((row) => {
+      const kind = String((row && row.kind) || "").trim();
+      if (kind === "異能") return true;
+      return String((row && row.talent) || "").trim();
+    }).length;
+    const priceCount = karmaRows.filter((row) => {
+      const kind = String((row && row.kind) || "").trim();
+      if (kind === "代償") return true;
+      return String((row && row.price) || "").trim();
+    }).length;
     sheet.meta.karmaCount = karmaCount;
     sheet.meta.priceCount = priceCount;
-    sheet.meta.danger = Math.max(1, karmaCount + priceCount);
+
     sheet.meta.expConv = calcExpConvFromAbility(sheet.ability || {});
+
+    // 戦闘力計算
+    const a = sheet.ability || {};
+    const combat = Number(a.combat) || 1;
+    const body = Number(a.body) || 1;
+    const pBase = combat * 2 + body;
+    sheet.meta.powerBase = pBase;
+    sheet.meta.powerRemain =
+      pBase -
+      (Number(a.powerInit) || 0) -
+      (Number(a.powerAtk) || 0) -
+      (Number(a.powerDes) || 0);
+  }
+
+  function updateMetricStyles(sheet) {
+    if (!sheet || !el.enemyEditorForm) return;
+    const meta = sheet.meta || {};
+
+    // 危険度スタイル
+    const dangerNodes = el.enemyEditorForm.querySelectorAll(
+      '[data-field="meta.danger"]',
+    );
+    const dRaw = Number(meta.danger);
+    const dVal = Number.isFinite(dRaw) ? Math.max(0, Math.trunc(dRaw)) : 0;
+    meta.danger = dVal;
+    dangerNodes.forEach((node) => {
+      if (dVal >= 20) {
+        node.setAttribute("data-danger-band", "abyss");
+      } else if (dVal >= 10) {
+        node.setAttribute("data-danger-band", "danger");
+      } else {
+        node.setAttribute("data-danger-band", "grad");
+        node.setAttribute("data-danger-step", String(Math.min(9, dVal)));
+      }
+    });
+
+    // 性業値スタイル
+    const karmaNodes = el.enemyEditorForm.querySelectorAll(
+      '[data-field="meta.karmaValue"]',
+    );
+    const kRaw = Number(meta.karmaValue);
+    const kVal = Number.isFinite(kRaw)
+      ? Math.max(1, Math.min(13, Math.trunc(kRaw)))
+      : 7;
+    meta.karmaValue = kVal;
+    karmaNodes.forEach((node) => {
+      node.setAttribute("data-karma-value", String(kVal));
+      if (kVal <= 3) {
+        node.setAttribute("data-karma-band", "hot");
+      } else if (kVal >= 11) {
+        node.setAttribute("data-karma-band", "ice");
+      } else {
+        node.setAttribute("data-karma-band", "neutral");
+      }
+    });
   }
 
   function renderDerivedFields(sheet) {
     if (!sheet || !el.enemyEditorForm) return;
-    const applyNumber = (fieldPath, fallback = 0) => {
+    const applyValue = (fieldPath, fallback = "") => {
       const node = el.enemyEditorForm.querySelector(
         `[data-field="${fieldPath}"]`,
       );
       if (!node) return;
       const v = getByPath(sheet, fieldPath);
-      node.value = String(Number(v) || fallback);
+      node.value = v == null || v === "" ? String(fallback) : String(v);
     };
-    applyNumber("meta.expConv", 0);
-    applyNumber("meta.karmaCount", 0);
-    applyNumber("meta.priceCount", 0);
-    applyNumber("meta.danger", 1);
+    applyValue("meta.expConv", 0);
+    applyValue("meta.karmaCount", 0);
+    applyValue("meta.priceCount", 0);
+    applyValue("meta.danger", 0);
+    applyValue("meta.powerBase", 2);
+    applyValue("meta.powerRemain", 0);
+
+    updateMetricStyles(sheet);
   }
 
   function normalizeHobbyValues(rawText) {
@@ -397,9 +534,8 @@
 
   function createKarmaRow() {
     return {
+      kind: "",
       name: "",
-      talent: "",
-      price: "",
       use: "",
       target: "",
       judge: "",
@@ -456,7 +592,7 @@
     const base = normalizeApiUrl(getConfiguredApiUrl());
     if (!base) throw new Error("API URLが未設定");
     const url = new URL(base);
-    url.searchParams.set("tool", "nechronica");
+    url.searchParams.set("tool", "satasupe");
     url.searchParams.set("action", action);
     Object.entries(params || {}).forEach(([k, v]) => {
       if (v == null) return;
@@ -528,7 +664,7 @@
       ID: String(sheet.id || "").trim(),
       author,
       name: String(sheet.name || "").trim() || "無題",
-      class_type: "サタスペ",
+      class_type: String(sheet.meta.category || "サタスペ"),
       is_public: true,
       memo: String(sheet.memo || ""),
       data: {
@@ -561,7 +697,7 @@
 
   async function loadFromDb() {
     const author = getRememberedAuthor();
-    const url = buildApiUrl("listNechronicaEnemies", { author });
+    const url = buildApiUrl("listSatasupeEnemies", { author });
     const response = await fetchApiJson(url);
     const all = Array.isArray(response.data) ? response.data : [];
     const targets = all.filter((enemy) => {
@@ -590,16 +726,20 @@
     const payload = toApiEnemy(sheet);
     if (payload.author) rememberAuthor(payload.author);
 
-    const response = await fetchApiJson(buildApiUrl("saveNechronicaEnemy"), {
+    console.log("saveCurrentToDb: starting fetch...", {
+      url: buildApiUrl("saveSatasupeEnemy"),
+    });
+    const response = await fetchApiJson(buildApiUrl("saveSatasupeEnemy"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({
-        tool: "nechronica",
-        action: "saveNechronicaEnemy",
+        tool: "satasupe",
+        action: "saveSatasupeEnemy",
         author: payload.author,
         enemy: payload,
       }),
     });
+    console.log("saveCurrentToDb: fetch completed.", response);
 
     const saved = fromApiEnemy(response.data || payload);
     const idx = state.sheets.findIndex(
@@ -649,31 +789,147 @@
     const q = String(state.query || "")
       .trim()
       .toLowerCase();
-    const targets = state.sheets
-      .filter((s) => {
-        if (!q) return true;
-        const hay =
-          `${s.name || ""} ${s.author || ""} ${s.id || ""}`.toLowerCase();
-        return hay.includes(q);
-      })
-      .sort((a, b) =>
-        String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")),
-      );
+    const field = state.searchField || "all";
+
+    let targets = state.sheets.filter((s) => {
+      if (!q) return true;
+      if (field === "id")
+        return String(s.id || "")
+          .toLowerCase()
+          .includes(q);
+      if (field === "name")
+        return String(s.name || "")
+          .toLowerCase()
+          .includes(q);
+      if (field === "author")
+        return String(s.author || "")
+          .toLowerCase()
+          .includes(q);
+      const hay =
+        `${s.name || ""} ${s.author || ""} ${s.id || ""} ${s.meta?.category || ""}`.toLowerCase();
+      return hay.includes(q);
+    });
+
+    // ソート
+    targets.sort((a, b) => {
+      const mode = state.sortMode || "updatedAt";
+      if (mode === "id")
+        return String(a.id || "").localeCompare(String(b.id || ""));
+      if (mode === "author")
+        return String(a.author || "").localeCompare(String(b.author || ""));
+      if (mode === "danger") {
+        const da = toInt(a.meta?.danger, 0);
+        const db = toInt(b.meta?.danger, 0);
+        return (
+          db - da ||
+          String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""))
+        );
+      }
+      if (mode === "karmaCount") {
+        const ka = (a.karma || []).length;
+        const kb = (b.karma || []).length;
+        return (
+          kb - ka ||
+          String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""))
+        );
+      }
+      return String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""));
+    });
+
+    // ページング
+    const totalCount = targets.length;
+    let size = state.pageSize || 0;
+    if (size <= 0) size = totalCount || 1;
+    const maxPage = Math.max(1, Math.ceil(totalCount / size));
+    if (state.page > maxPage) state.page = maxPage;
+    const start = (state.page - 1) * size;
+    const visibleTargets = targets.slice(start, start + size);
 
     el.enemyList.innerHTML = "";
-    targets.forEach((sheet) => {
+    visibleTargets.forEach((sheet) => {
+      const danger = toInt(sheet.meta?.danger, 0);
+      const karmaCount = (sheet.karma || []).length;
+      const iconUrl = sheet.icon_url || "";
+      const classType = sheet.class_type || sheet.meta?.category || "サタスペ";
+      const silhouetteClass = `is-class-${classType}`;
+
       const li = document.createElement("li");
       li.className = "enemy-list-item";
       if (String(sheet.id) === String(state.selectedId))
         li.classList.add("is-active");
+
       li.innerHTML = `
-        <button type="button" class="enemy-list-btn" data-id="${sheet.id}">
-          <strong>${sheet.name || "（名称未設定）"}</strong>
-          <span class="enemy-list-meta">${sheet.author || "作者未設定"}</span>
+        <button type="button" class="enemy-list-card ${silhouetteClass}" data-id="${sheet.id}">
+          <div class="enemy-list-row">
+            <div class="enemy-list-side-left">
+              <div class="enemy-danger-badge">
+                <span class="danger-label">危険度</span>
+                <span class="danger-value">${danger}</span>
+              </div>
+              <div class="enemy-list-icon-wrap">
+                ${iconUrl ? `<img src="${iconUrl}" alt="">` : `<i class="fa-solid fa-user-ninja"></i>`}
+              </div>
+            </div>
+            <div class="enemy-list-content-main">
+              <div class="enemy-list-upper-info">
+                <span class="enemy-list-name">${sheet.name || "（名称未設定）"}</span>
+                <span class="enemy-list-karma-tag">異能数 ${karmaCount}</span>
+              </div>
+              <div class="enemy-list-lower-info">
+                <span>作者：${sheet.author || "公式"}</span>
+                <span>ID：${sheet.id}</span>
+              </div>
+            </div>
+            <div class="enemy-list-side-right-group">
+              <div class="enemy-list-meta-column">
+                <span class="enemy-list-class-tag">${classType}</span>
+                <span class="enemy-list-time-tag">${formatShortDate(sheet.updatedAt)}</span>
+              </div>
+              <div class="enemy-list-btns-row">
+                <div class="list-side-btn is-load" data-id="${sheet.id}" title="編集">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span>編集</span>
+                </div>
+                <div class="list-side-btn is-output" data-id="${sheet.id}" title="出力">
+                  <i class="fa-solid fa-file-export"></i>
+                  <span>出力</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </button>
       `;
       el.enemyList.appendChild(li);
     });
+
+    // ページ情報更新
+    if (el.enemyPagerInfo) {
+      if (totalCount === 0) {
+        el.enemyPagerInfo.textContent = "見つかりませんでした";
+      } else {
+        const end = Math.min(start + size, totalCount);
+        el.enemyPagerInfo.textContent = `${totalCount}件中 ${start + 1}〜${end}件を表示中`;
+      }
+    }
+    if (el.enemyPrevButton) el.enemyPrevButton.disabled = state.page <= 1;
+    if (el.enemyNextButton) el.enemyNextButton.disabled = state.page >= maxPage;
+
+    // ソートボタンのアクティブ表示
+    updateSortButtons();
+  }
+
+  function updateSortButtons() {
+    const mode = state.sortMode;
+    if (el.sortByIdButton)
+      el.sortByIdButton.classList.toggle("is-active", mode === "id");
+    if (el.sortByTimeButton)
+      el.sortByTimeButton.classList.toggle("is-active", mode === "updatedAt");
+    if (el.sortByDangerButton)
+      el.sortByDangerButton.classList.toggle("is-active", mode === "danger");
+    if (el.sortByKarmaButton)
+      el.sortByKarmaButton.classList.toggle("is-active", mode === "karmaCount");
+    if (el.sortByAuthorButton)
+      el.sortByAuthorButton.classList.toggle("is-active", mode === "author");
   }
 
   function applyRandomLikeProfile(sheet) {
@@ -686,6 +942,19 @@
     sheet.updatedAt = nowText();
   }
 
+  function applyRandomNpcProfile(sheet, presetKey) {
+    if (!sheet) return;
+    if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
+    if (!sheet.base || typeof sheet.base !== "object") sheet.base = {};
+    const key = String(presetKey || "random").trim();
+    sheet.base.age =
+      key === "random" ? randInt(1, 100) : rollNpcAgeByPreset(key);
+    sheet.base.sex = pickRandom(["男", "女", "？"]);
+    sheet.meta.likeType = pickRandom(LIKE_TYPE_OPTIONS);
+    sheet.meta.likeDetail = pickRandom(LIKE_DETAIL_OPTIONS);
+    sheet.updatedAt = nowText();
+  }
+
   function fillForm(sheet) {
     if (!sheet || !el.enemyEditorForm) return;
     recomputeDerivedFields(sheet);
@@ -694,6 +963,14 @@
       const path = node.getAttribute("data-field");
       if (!path) return;
       const v = getByPath(sheet, path);
+      if (path === "base.sex" && (v == null || String(v) === "")) {
+        node.value = "？";
+        return;
+      }
+      if (path === "base.sex") {
+        node.value = normalizeSexValue(v);
+        return;
+      }
       node.value = v == null ? "" : String(v);
     });
   }
@@ -705,7 +982,13 @@
       const path = node.getAttribute("data-field");
       if (!path) return;
       let v = node.value;
-      if (node.type === "number" && v !== "") v = Number(v);
+      if (path === "base.sex") v = normalizeSexValue(v);
+      if (node.type === "number" && v !== "") {
+        v = Number(v);
+        if (path === "meta.danger" && Number.isFinite(v)) v = Math.max(0, v);
+        if (path === "meta.karmaValue" && Number.isFinite(v))
+          v = Math.max(1, Math.min(13, v));
+      }
       setByPath(sheet, path, v);
     });
     recomputeDerivedFields(sheet);
@@ -717,6 +1000,28 @@
     return `<input type="${type}" data-row-field="${path}" value="${String(value == null ? "" : value).replace(/"/g, "&quot;")}">`;
   }
 
+  function tableRowActionCell() {
+    return `<div class="row-action-wrap"><span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span><button type="button" class="delete-btn" data-row-remove="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div>`;
+  }
+
+  function moveRowByDrag(kind, fromIndex, toIndex) {
+    const sheet = getSelected();
+    if (!sheet) return;
+    const list = sheet[kind];
+    if (!Array.isArray(list)) return;
+    if (!Number.isFinite(fromIndex) || !Number.isFinite(toIndex)) return;
+    if (fromIndex < 0 || toIndex < 0) return;
+    if (fromIndex >= list.length || toIndex >= list.length) return;
+    if (fromIndex === toIndex) return;
+    const [moved] = list.splice(fromIndex, 1);
+    list.splice(toIndex, 0, moved);
+    recomputeDerivedFields(sheet);
+    renderDerivedFields(sheet);
+    sheet.updatedAt = nowText();
+    markDirty();
+    renderEditor();
+  }
+
   function renderWeapons(sheet) {
     if (!el.weaponsBody) return;
     el.weaponsBody.innerHTML = "";
@@ -725,13 +1030,12 @@
       tr.setAttribute("data-row-kind", "weapons");
       tr.setAttribute("data-row-index", String(index));
       tr.innerHTML = `
-        <td>${tableCellInput(row.place, "place")}</td>
         <td>${tableCellInput(row.name, "name")}</td>
         <td>${tableCellInput(row.aim, "aim")}</td>
         <td>${tableCellInput(row.damage, "damage")}</td>
         <td>${tableCellInput(row.range, "range")}</td>
         <td>${tableCellInput(row.notes, "notes")}</td>
-        <td><button type="button" class="small-square-btn is-danger" data-row-remove="1">×</button></td>
+        <td>${tableRowActionCell()}</td>
       `;
       el.weaponsBody.appendChild(tr);
     });
@@ -745,12 +1049,11 @@
       tr.setAttribute("data-row-kind", "outfits");
       tr.setAttribute("data-row-index", String(index));
       tr.innerHTML = `
-        <td>${tableCellInput(row.place, "place")}</td>
         <td>${tableCellInput(row.name, "name")}</td>
         <td>${tableCellInput(row.use, "use")}</td>
         <td>${tableCellInput(row.effect, "effect")}</td>
         <td>${tableCellInput(row.notes, "notes")}</td>
-        <td><button type="button" class="small-square-btn is-danger" data-row-remove="1">×</button></td>
+        <td>${tableRowActionCell()}</td>
       `;
       el.outfitsBody.appendChild(tr);
     });
@@ -769,7 +1072,7 @@
         <td>${tableCellInput(row.frame, "frame")}</td>
         <td>${tableCellInput(row.burden, "burden")}</td>
         <td>${tableCellInput(row.notes, "notes")}</td>
-        <td><button type="button" class="small-square-btn is-danger" data-row-remove="1">×</button></td>
+        <td>${tableRowActionCell()}</td>
       `;
       el.vehiclesBody.appendChild(tr);
     });
@@ -783,14 +1086,13 @@
       tr.setAttribute("data-row-kind", "karma");
       tr.setAttribute("data-row-index", String(index));
       tr.innerHTML = `
+        <td>${tableCellInput(row.kind, "kind")}</td>
         <td>${tableCellInput(row.name, "name")}</td>
-        <td>${tableCellInput(row.talent, "talent")}</td>
-        <td>${tableCellInput(row.price, "price")}</td>
         <td>${tableCellInput(row.use, "use")}</td>
         <td>${tableCellInput(row.target, "target")}</td>
         <td>${tableCellInput(row.judge, "judge")}</td>
         <td>${tableCellInput(row.effect, "effect")}</td>
-        <td><button type="button" class="small-square-btn is-danger" data-row-remove="1">×</button></td>
+        <td>${tableRowActionCell()}</td>
       `;
       el.karmaBody.appendChild(tr);
     });
@@ -821,6 +1123,7 @@
     const sheet = getSelected();
     if (!sheet) return;
     fillForm(sheet);
+    renderDerivedFields(sheet);
     renderWeapons(sheet);
     renderOutfits(sheet);
     renderVehicles(sheet);
@@ -950,10 +1253,18 @@
       .map((k) => normalizeText(k.name))
       .filter(Boolean);
     const talents = (sheet.karma || [])
-      .map((k) => normalizeText(k.talent))
+      .map((k) => {
+        const kind = normalizeText(k.kind);
+        if (kind === "異能") return normalizeText(k.name);
+        return normalizeText(k.talent);
+      })
       .filter(Boolean);
     const prices = (sheet.karma || [])
-      .map((k) => normalizeText(k.price))
+      .map((k) => {
+        const kind = normalizeText(k.kind);
+        if (kind === "代償") return normalizeText(k.name);
+        return normalizeText(k.price);
+      })
       .filter(Boolean);
 
     const weaponLines = (sheet.weapons || [])
@@ -973,7 +1284,7 @@
       "───",
       `【名前】${normalizeText(sheet.name) || "無題"}`,
       normalizeText(meta.quote),
-      `危険度：${toInt(meta.danger, 1)}　反応：${normalizeText(meta.reaction) || "中立"}　サイズ：${normalizeText(meta.size) || "M"}`,
+      `危険度：${toInt(meta.danger, 0)}　反応：${normalizeText(meta.reaction) || "中立"}　サイズ：${normalizeText(meta.size) || "M"}`,
       `${normalizeText(base.sex)}　${normalizeText(base.age)}歳　好み：${normalizeText(base.likes)}`,
       `【犯罪】${toInt(ability.crime, 1)}【生活】${toInt(ability.life, 1)}【恋愛】${toInt(ability.love, 1)}【教養】${toInt(ability.culture, 1)}【戦闘】${toInt(ability.combat, 1)}`,
       `【肉体】${toInt(ability.body, 1)}【精神】${toInt(ability.mind, 1)}`,
@@ -1016,16 +1327,20 @@
 
     commands.push("@異能・代償");
     (sheet.karma || []).forEach((k) => {
+      const kind = normalizeText(k.kind);
       const name = normalizeText(k.name);
       const use = normalizeText(k.use) || "常駐";
       const target = normalizeText(k.target) || "自分";
       const judge = normalizeText(k.judge) || "なし";
       const effect = normalizeText(k.effect);
-      if (name) commands.push(`【${name}】${use}・${target}・${judge}`);
+      if (name)
+        commands.push(
+          `【${kind ? `${kind}:` : ""}${name}】${use}・${target}・${judge}`,
+        );
       if (effect) commands.push(effect);
-      const talent = normalizeText(k.talent);
+      const talent = kind === "異能" ? name : normalizeText(k.talent);
       if (talent) commands.push(`${talent}`);
-      const price = normalizeText(k.price);
+      const price = kind === "代償" ? name : normalizeText(k.price);
       if (price) commands.push(`${price}`);
     });
 
@@ -1171,10 +1486,102 @@
         renderList();
       });
     }
+    if (el.enemySearchField) {
+      el.enemySearchField.addEventListener("change", (e) => {
+        state.searchField = e.target.value;
+        renderList();
+      });
+    }
+
+    const setSort = (mode) => {
+      state.sortMode = mode;
+      renderList();
+    };
+    if (el.sortByIdButton)
+      el.sortByIdButton.addEventListener("click", () => setSort("id"));
+    if (el.sortByTimeButton)
+      el.sortByTimeButton.addEventListener("click", () => setSort("updatedAt"));
+    if (el.sortByDangerButton)
+      el.sortByDangerButton.addEventListener("click", () => setSort("danger"));
+    if (el.sortByKarmaButton)
+      el.sortByKarmaButton.addEventListener("click", () =>
+        setSort("karmaCount"),
+      );
+    if (el.sortByAuthorButton)
+      el.sortByAuthorButton.addEventListener("click", () => setSort("author"));
+
+    if (el.enemyPageSizeInput) {
+      el.enemyPageSizeInput.addEventListener("change", (e) => {
+        state.pageSize = Number(e.target.value);
+        state.page = 1;
+        renderList();
+      });
+    }
+    if (el.enemyShowAllButton) {
+      el.enemyShowAllButton.addEventListener("click", () => {
+        state.pageSize = 0;
+        state.page = 1;
+        if (el.enemyPageSizeInput) el.enemyPageSizeInput.value = "0";
+        renderList();
+      });
+    }
+    if (el.enemyShowTenButton) {
+      el.enemyShowTenButton.addEventListener("click", () => {
+        state.pageSize = 10;
+        state.page = 1;
+        if (el.enemyPageSizeInput) el.enemyPageSizeInput.value = "10";
+        renderList();
+      });
+    }
+    if (el.enemyPrevButton) {
+      el.enemyPrevButton.addEventListener("click", () => {
+        if (state.page > 1) {
+          state.page--;
+          renderList();
+        }
+      });
+    }
+    if (el.enemyNextButton) {
+      el.enemyNextButton.addEventListener("click", () => {
+        state.page++;
+        renderList();
+      });
+    }
 
     if (el.enemyList) {
-      el.enemyList.addEventListener("click", (e) => {
-        const btn = e.target.closest(".enemy-list-btn");
+      el.enemyList.addEventListener("click", async (e) => {
+        const target = e.target;
+
+        // 複製・出力ボタン
+        const outputBtn = target.closest(".is-output");
+        if (outputBtn) {
+          e.stopPropagation();
+          const id = outputBtn.getAttribute("data-id");
+          const targetSheet = state.sheets.find(
+            (s) => String(s.id) === String(id),
+          );
+          if (targetSheet) {
+            const copied = deepClone(targetSheet);
+            copied.id = `tmp-${uid()}`;
+            copied.name = `${copied.name || "無題"}（コピー）`;
+            copied.createdAt = nowText();
+            copied.updatedAt = nowText();
+            state.sheets.unshift(copied);
+            state.selectedId = copied.id;
+            markDirty();
+            renderAll();
+            try {
+              setStatus("出力中…"); // 内部的には複製だが、ラベルを合わせる
+              await saveCurrentToDb();
+            } catch (err) {
+              console.error(err);
+              setStatus("出力失敗");
+            }
+          }
+          return;
+        }
+
+        const btn = target.closest(".enemy-list-card");
         if (!btn) return;
         const id = btn.getAttribute("data-id");
         if (!id) return;
@@ -1211,6 +1618,9 @@
           v !== ""
         ) {
           v = Number(v);
+          if (field === "meta.danger" && Number.isFinite(v)) v = Math.max(0, v);
+          if (field === "meta.karmaValue" && Number.isFinite(v))
+            v = Math.max(1, Math.min(13, v));
         }
         setByPath(sheet, field, v);
         if (field === "author") rememberAuthor(v);
@@ -1228,6 +1638,58 @@
         if (removeBtn) {
           removeRowFromEvent(removeBtn);
         }
+      });
+
+      el.enemyEditorForm.addEventListener("dragstart", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const dragHandle = target.closest(".drag-hint");
+        if (!dragHandle) return;
+        const tr = dragHandle.closest("tr[data-row-kind][data-row-index]");
+        if (!(tr instanceof HTMLTableRowElement)) return;
+        const kind = tr.getAttribute("data-row-kind") || "";
+        if (!["weapons", "outfits", "vehicles", "karma"].includes(kind)) return;
+        const index = Number(tr.getAttribute("data-row-index"));
+        if (!Number.isFinite(index)) return;
+        draggingRowState = { kind, index };
+        tr.classList.add("is-row-dragging");
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", `${kind}:${index}`);
+        }
+      });
+
+      el.enemyEditorForm.addEventListener("dragover", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const tr = target.closest("tr[data-row-kind][data-row-index]");
+        if (!(tr instanceof HTMLTableRowElement)) return;
+        const kind = tr.getAttribute("data-row-kind") || "";
+        if (!["weapons", "outfits", "vehicles", "karma"].includes(kind)) return;
+        if (!draggingRowState.kind || draggingRowState.kind !== kind) return;
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+      });
+
+      el.enemyEditorForm.addEventListener("drop", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const tr = target.closest("tr[data-row-kind][data-row-index]");
+        if (!(tr instanceof HTMLTableRowElement)) return;
+        const kind = tr.getAttribute("data-row-kind") || "";
+        const toIndex = Number(tr.getAttribute("data-row-index"));
+        if (!kind || !Number.isFinite(toIndex)) return;
+        if (draggingRowState.kind !== kind) return;
+        event.preventDefault();
+        moveRowByDrag(kind, draggingRowState.index, toIndex);
+        draggingRowState = { kind: "", index: -1 };
+      });
+
+      el.enemyEditorForm.addEventListener("dragend", () => {
+        draggingRowState = { kind: "", index: -1 };
+        el.enemyEditorForm
+          .querySelectorAll("tr.is-row-dragging")
+          .forEach((row) => row.classList.remove("is-row-dragging"));
       });
     }
 
@@ -1275,6 +1737,20 @@
       });
     }
 
+    if (el.randomNpcAgeButton) {
+      el.randomNpcAgeButton.addEventListener("click", () => {
+        const sheet = getSelected();
+        if (!sheet) return;
+        const preset = el.npcAgePresetSelect
+          ? String(el.npcAgePresetSelect.value || "random")
+          : "random";
+        applyRandomNpcProfile(sheet, preset);
+        fillForm(sheet);
+        markDirty();
+        renderList();
+      });
+    }
+
     if (el.newEnemyButton) {
       el.newEnemyButton.addEventListener("click", () => {
         const sheet = createSheetTemplate();
@@ -1289,12 +1765,13 @@
 
     if (el.saveEnemyButton) {
       el.saveEnemyButton.addEventListener("click", async () => {
+        console.log("Save button clicked");
         try {
           setStatus("保存中…");
           await saveCurrentToDb();
           renderAll();
         } catch (error) {
-          console.error(error);
+          console.error("Save error:", error);
           setStatus("保存失敗");
           alert("DB保存に失敗しました: " + error.message);
         }

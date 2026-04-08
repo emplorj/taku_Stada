@@ -1,241 +1,39 @@
-## 役割
+カテゴリーを追加
 
-You are a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.
-日本語で応対してほしい！
+危険度　反応　サイズ
+カテゴリー　ドロップ表
+セリフの下に、
+って感じの表形式にする
 
-## 出たエラー
+## カテゴリー
 
-## 要望
+一般人
+迷惑
+チンピラ
+刺客
+戦場の狼
+獣
+超級英雄
+都市伝説
 
-カードジェネレーター 要望書（最小パッチ）
+# コマのjson例
 
-目的
-・プレビューと出力の見た目を一致させる（WYSIWYG）
-・DB 列名「オーバーレイ画像 URL」に統一して上絵を正しく読む
-・キラ（APNG）を上に重ねた保存ができるようにする
-・小さな不具合の修正（未定義関数／ドラッグ判定）
-・最低限の文字列エスケープで表示崩れ/XSS を回避
+以下のデータをもとに、読み込みの機構を作る
+その後、データベースに以下のデータを追加してみる
+ネクロニカの奴でなんか一括で送信できるやつが合ったと思う
 
-対象ファイル
-・card_generator.html
-・css/card_generator.css
-・js/card_generator.js
+## サラリーマン
 
-1. card_generator.html の修正
-・</main> の直前に閉じタグを追加（プレビュー DOM を正しく閉じる）
-追加する 2 行：
-</div> <!-- /#card-container -->
-</div> <!-- /#preview-area -->
+{"kind":"character","data":{"name":"サラリーマン","memo":"\n───\n【名前】サラリーマン\n「こんな会社、辞めてやるッ！」\n危険度：1　反応：中立　サイズ：M　ガラクタ表\n♀　79歳　好み：知的な年下\n【犯罪】1【生活】3【恋愛】3【教養】3【戦闘】2\n【肉体】4【精神】4\n【性業値】7\n【反応力】3【攻撃力】2【破壊力】3\n\n趣味：飲食、健康、ヒマツブシ\n\n異能：【通報】/【不眠不休】\n代償：【借金大王】\n\n◆装備\n通勤カバン（命7、ダ2、格闘・マヒ、必殺13）\n武器なし（命6、ダ〔破壊力〕-1、格闘、マヒ、必殺13）","initiative":3,"status":[{"label":"肉体点","value":10,"max":10},{"label":"精神点","value":10,"max":10},{"label":"サイフ","value":2,"max":2}],"params":[{"label":"犯罪","value":"1"},{"label":"生活","value":"3"},{"label":"恋愛","value":"3"},{"label":"教養","value":"3"},{"label":"戦闘","value":"2"},{"label":"肉体","value":"4"},{"label":"精神","value":"4"},{"label":"反応力","value":"3"},{"label":"攻撃力","value":"2"},{"label":"破壊力","value":"3"},{"label":"性業値","value":"7"}],"commands":"@基本\nSR{性業値} 性業値判定\n({犯罪})R>=X[,1,13] 犯罪判定\n({生活})R>=X[,1,13] 生活判定\n({恋愛})R>=X[,1,13] 恋愛判定\n({教養})R>=X[,1,13] 教養判定\n({戦闘})R>=X[,1,13] 戦闘判定\n({肉体})R>=X[,1,13] 肉体判定\n({精神})R>=X[,1,13] 精神判定\n@異能・代償\n【通報】常駐・自分・〔犯罪〕そのエリアの治安\nこのキャラクターを殺したキャラクターは検挙され、「臭い飯」表を振ることになる。ただし、殺したキャラクターかその仲間が上記の判定を行えば、検挙迄のターンを成功度の分だけ遅延することが出来る。シナリオが終了した場合、「臭い飯表」を振らなくても良い\n【不眠不休】常駐・自分・なし\n【不眠不休】の使用者は、「無理」によるペナルティーを受けない。\n【借金大王】常駐・自分・なし\n〔サイフ〕の上限が1点減少する。\n@汎用\n({肉体})R>=X[,1,13] セーブ判定\n({肉体})R>=X[1,2,13] 跳ぶ\n({肉体})R>=7[1,1,13] BT(酒)\n@武器\n2R>=7[,1,13] 通勤カバン\n2R>=6[,1,13] 武器なし\n@各種表\nTAGT 情報タグ決定表\nFumbleT 命中判定ファンブル表\nFatalT 14番表\nFatalT 致命傷表\nFatalVT 乗物致命傷表\nRomanceFT ロマンスファンブル表\nAccidentT ケチャップアクシデント表\nGeneralAT 汎用アクシデント表\nAfterT その後表\nKusaiMT 臭い飯表\nEnterT 登場表\nBudTT バッドトリップ表\nGetgT ガラクタ表\nGetzT 実用品表\nGetnT 値打ち物表\nGetkT 奇天烈表\nCrimeIET 犯罪イベント表\nLifeIET 生活イベント表\nLoveIET 恋愛イベント表\nCultureIET 教養イベント表\nCombatIET 戦闘イベント表\nCrimeIHT 犯罪ハプニング表\nLifeIHT 生活ハプニング表\nLoveIHT 恋愛ハプニング表\nCultureIHT 教養ハプニング表\nCombatIHT 戦闘ハプニング表\nMinamiRET ミナミ遭遇表\nChinatownRET 中華街遭遇表\nWarshipLandRET 軍艦島遭遇表\nCivicCenterRET 官庁街遭遇表\nDowntownRET 十三遭遇表\nShaokinRET 沙京遭遇表\nLoveLoveRET らぶらぶ遭遇表\nAjitoRET アジト遭遇表\nJigokuSpaRET 地獄湯遭遇表\nJailHouseRET JAIL HOUSE遭遇表\nTreatmentIT 治療イベント表\nCollegeIT 大学イベント表"}}
 
-2. css/card_generator.css の修正
-   ・「画像出力時のズレ補正」セクションを無効化（プレビューと出力差の原因）
-   以下のブロックをコメントアウトまたは削除：
-   .is-rendering-output #effect-display { ... }
-   .is-rendering-output #effect-display .paren-fix { ... }
-   .is-rendering-output #effect-display .char-kern { ... }
+## 三下
 
-3. js/card_generator.js の修正（WYSIWYG と機能追加）
-   3-1) downloadCard() の一時クラス付与をやめる
-   ・document.body.classList.add('is-rendering-output') と remove を削除（またはコメントアウト）
+{"kind":"character","data":{"name":"三下","memo":"\n───\n【名前】三下\n危険度：2　反応：懐疑　サイズ：M　ガラクタ表\n♀　47歳　好み：バランスが取れてる同い年\n【犯罪】3【生活】2【恋愛】1【教養】2【戦闘】3\n【肉体】4【精神】4\n【性業値】7\n【反応力】3【攻撃力】6【破壊力】1\n\n趣味：アダルト、飲食\n\n異能：【群れ】/【死んだ振り】\n代償：【弱虫】\n\n◆装備\nトヨトミピストル（命8、ダ4、射撃、サタスペ、必殺12）","initiative":3,"status":[{"label":"肉体点","value":10,"max":10},{"label":"精神点","value":10,"max":10},{"label":"サイフ","value":2,"max":2}],"params":[{"label":"犯罪","value":"3"},{"label":"生活","value":"2"},{"label":"恋愛","value":"1"},{"label":"教養","value":"2"},{"label":"戦闘","value":"3"},{"label":"肉体","value":"4"},{"label":"精神","value":"4"},{"label":"反応力","value":"3"},{"label":"攻撃力","value":"6"},{"label":"破壊力","value":"1"},{"label":"性業値","value":"7"}],"commands":"@基本\nSR{性業値} 性業値判定\n({犯罪})R>=X[,1,13] 犯罪判定\n({生活})R>=X[,1,13] 生活判定\n({恋愛})R>=X[,1,13] 恋愛判定\n({教養})R>=X[,1,13] 教養判定\n({戦闘})R>=X[,1,13] 戦闘判定\n({肉体})R>=X[,1,13] 肉体判定\n({精神})R>=X[,1,13] 精神判定\n@異能・代償\n【群れ】常駐・自分・なし\nこのキャラクターは「跳ぶ」を組み合わせていないセーブ判定を行うとき、サイコロを振らず自動的に成功度が1となる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。また、命中判定を行うとき、サイコロを振らず自動的に成功度を1にすることができる。\n【死んだ振り】支援・自分・〔犯罪〕7\n上記の判定に成功すればあ、何者も【死んだ振り】使用者を攻撃目標に選べなくなる。ただし、爆発物、散弾などの攻撃範囲にいた場合、ダメージを受ける。この効果は、【死んだ振り】使用者が、何か自発的に行動するまで持続する。\n【弱虫】常駐・自分・なし\n〔肉体点〕に1点でもダメージを受けると、モラル判定を行わなければいけない（【修羅場】を修得しているキャラクターが、この代償を修得すると、重傷になったとき、通常通りにサイコロを振ってモラル判定を行わなければならなくなる）。\n@汎用\n({肉体})R>=X[,1,13] セーブ判定\n({肉体})R>=X[1,2,13] 跳ぶ\n({肉体})R>=7[1,1,13] BT(酒)\n@武器\n6R>=8[,2,12] トヨトミピストル\n@各種表\nTAGT 情報タグ決定表\nFumbleT 命中判定ファンブル表\nFatalT 14番表\nFatalT 致命傷表\nFatalVT 乗物致命傷表\nRomanceFT ロマンスファンブル表\nAccidentT ケチャップアクシデント表\nGeneralAT 汎用アクシデント表\nAfterT その後表\nKusaiMT 臭い飯表\nEnterT 登場表\nBudTT バッドトリップ表\nGetgT ガラクタ表\nGetzT 実用品表\nGetnT 値打ち物表\nGetkT 奇天烈表\nCrimeIET 犯罪イベント表\nLifeIET 生活イベント表\nLoveIET 恋愛イベント表\nCultureIET 教養イベント表\nCombatIET 戦闘イベント表\nCrimeIHT 犯罪ハプニング表\nLifeIHT 生活ハプニング表\nLoveIHT 恋愛ハプニング表\nCultureIHT 教養ハプニング表\nCombatIHT 戦闘ハプニング表\nMinamiRET ミナミ遭遇表\nChinatownRET 中華街遭遇表\nWarshipLandRET 軍艦島遭遇表\nCivicCenterRET 官庁街遭遇表\nDowntownRET 十三遭遇表\nShaokinRET 沙京遭遇表\nLoveLoveRET らぶらぶ遭遇表\nAjitoRET アジト遭遇表\nJigokuSpaRET 地獄湯遭遇表\nJailHouseRET JAIL HOUSE遭遇表\nTreatmentIT 治療イベント表\nCollegeIT 大学イベント表"}}
 
-3-2) DB 列「オーバーレイ画像 URL」対応（旧互換は残す）
-・関数 updatePreviewFromData の上絵 URL 取得を以下に置換
-let overlayImageUrl =
-data["オーバーレイ画像 URL"] ||
-data["上絵画像 URL"] ||
-data.overlayImageUrl ||
-"";
+## デモ行進
 
-・関数 renderCardPreview 内の上絵 URL 取得も同様に置換
-let overlayImageUrl =
-cardData["オーバーレイ画像 URL"] ||
-cardData["上絵画像 URL"] ||
-"";
+{"kind":"character","data":{"name":"デモ行進","memo":"\n───\n【名前】デモ行進\n「造反有理ィ！」\n危険度：3　反応：敵対　サイズ：M　ガラクタ表\n♀　26歳　好み：ダークな同い年\n【犯罪】3【生活】3【恋愛】3【教養】3【戦闘】3\n【肉体】3【精神】3\n【性業値】6\n【反応力】4【攻撃力】4【破壊力】1\n\n趣味：アラサガシ、ヒマツブシ、マニア\n\n異能：【追跡】/【道路封鎖】\n代償：【正当防衛】\n\n◆装備\nトヨトミピストル（命8、ダ4、射撃、サタスペ、必殺12）\nゲバルト棒（命8、ダ1、格闘、必殺13）","initiative":4,"status":[{"label":"肉体点","value":10,"max":10},{"label":"精神点","value":10,"max":10},{"label":"サイフ","value":3,"max":3}],"params":[{"label":"犯罪","value":"3"},{"label":"生活","value":"3"},{"label":"恋愛","value":"3"},{"label":"教養","value":"3"},{"label":"戦闘","value":"3"},{"label":"肉体","value":"3"},{"label":"精神","value":"3"},{"label":"反応力","value":"4"},{"label":"攻撃力","value":"4"},{"label":"破壊力","value":"1"},{"label":"性業値","value":"6"}],"commands":"@基本\nSR{性業値} 性業値判定\n({犯罪})R>=X[,1,13] 犯罪判定\n({生活})R>=X[,1,13] 生活判定\n({恋愛})R>=X[,1,13] 恋愛判定\n({教養})R>=X[,1,13] 教養判定\n({戦闘})R>=X[,1,13] 戦闘判定\n({肉体})R>=X[,1,13] 肉体判定\n({精神})R>=X[,1,13] 精神判定\n@異能・代償\n【追跡】常駐・自分・なし\n対象の行動に割り込んで使用できる。対象からは見えず、しかし対象を見ることが出来る場所にいることが出来る。この効果は、新たに対象にアクションを起こすか、セッション終了まで継続する。\n【道路封鎖】割り込み・単体・〔教養〕そのエリアの治安\n計画フェイズに対象が移動したときに割り込んで使用できる。上記の判定に成功すれば、その移動を無効化できる。\n【正当防衛】常駐・自分・〔性業値〕激\n上記の判定に成功しない限り、自分に攻撃したことのあるキャラクター以外に攻撃が出来ない。\n@汎用\n({肉体})R>=X[,1,13] セーブ判定\n({肉体})R>=X[1,2,13] 跳ぶ\n({肉体})R>=7[1,1,13] BT(酒)\n@武器\n4R>=8[,2,12] トヨトミピストル\n4R>=8[,1,13] ゲバルト棒\n@各種表\nTAGT 情報タグ決定表\nFumbleT 命中判定ファンブル表\nFatalT 14番表\nFatalT 致命傷表\nFatalVT 乗物致命傷表\nRomanceFT ロマンスファンブル表\nAccidentT ケチャップアクシデント表\nGeneralAT 汎用アクシデント表\nAfterT その後表\nKusaiMT 臭い飯表\nEnterT 登場表\nBudTT バッドトリップ表\nGetgT ガラクタ表\nGetzT 実用品表\nGetnT 値打ち物表\nGetkT 奇天烈表\nCrimeIET 犯罪イベント表\nLifeIET 生活イベント表\nLoveIET 恋愛イベント表\nCultureIET 教養イベント表\nCombatIET 戦闘イベント表\nCrimeIHT 犯罪ハプニング表\nLifeIHT 生活ハプニング表\nLoveIHT 恋愛ハプニング表\nCultureIHT 教養ハプニング表\nCombatIHT 戦闘ハプニング表\nMinamiRET ミナミ遭遇表\nChinatownRET 中華街遭遇表\nWarshipLandRET 軍艦島遭遇表\nCivicCenterRET 官庁街遭遇表\nDowntownRET 十三遭遇表\nShaokinRET 沙京遭遇表\nLoveLoveRET らぶらぶ遭遇表\nAjitoRET アジト遭遇表\nJigokuSpaRET 地獄湯遭遇表\nJailHouseRET JAIL HOUSE遭遇表\nTreatmentIT 治療イベント表\nCollegeIT 大学イベント表"}}
 
-3-3) sparkle（キラ）を DB へ送る
-・handleDatabaseSave 内の cardData に 1 行追加
-sparkle: sparkleCheckbox.checked,
+## 罪狩
 
-3-4) 未定義関数の補完
-・どこかのユーティリティ付近に追加
-function updateImageTransform(){
-updateCardImageTransform();
-updateOverlayImageTransform();
-}
-
-3-5) オーバーレイ画像のドラッグ判定安定化（fitDirection 設定）
-・関数 setupOverlayImageForDrag を次で置き換え
-function setupOverlayImageForDrag() {
-overlayImageState = { x: 0, y: 0, scale: 1 };
-const cw = overlayImageContainer.offsetWidth;
-const ch = overlayImageContainer.offsetHeight;
-const iw = overlayImage.naturalWidth;
-const ih = overlayImage.naturalHeight;
-if (!iw || !ih) return;
-
-const imgAspect = iw / ih;
-const contAspect = cw / ch;
-
-if (imgAspect > contAspect) {
-const s = cw / iw; // 幅フィット
-overlayImage.style.width = `${cw}px`;
-overlayImage.style.height = `${ih * s}px`;
-overlayImageFitDirection = "landscape";
-} else {
-const s = ch / ih; // 高さフィット
-overlayImage.style.height = `${ch}px`;
-overlayImage.style.width = `${iw * s}px`;
-overlayImageFitDirection = "portrait";
-}
-
-overlayImageState.x = 0;
-overlayImageState.y = 0;
-updateOverlayImageTransform();
-updateDraggableCursor();
-}
-
-3-6) キラ APNG 重ね保存の実装（提供 APNG を合成）
-・冒頭の定数群の近くに追加
-const SPARKLE_APNG_PATH = "Card_asset/sparkle_overlay.apng";
-
-・ファイル末尾あたりに 2 関数を追加
-async function generateSparkleApng() {
-const blob = await createSparkleApngBlob();
-if (!blob) throw new Error("APNG 生成に失敗しました。");
-const a = document.createElement("a");
-const fileName = `${(cardNameInput.value || "custom_card").replace(/[()`/\\?%\*:|"<>]/g,"")}.png`;
-a.download = fileName;
-a.href = URL.createObjectURL(blob);
-a.click();
-URL.revokeObjectURL(a.href);
-}
-
-async function createSparkleApngBlob() {
-const wasSparkleVisible = sparkleOverlayImage.style.display !== "none";
-sparkleOverlayImage.style.display = "none";
-await Promise.all([waitForCardImages(), document.fonts.ready]);
-
-const baseCanvas = await html2canvas(cardContainer, {
-backgroundColor: null,
-useCORS: true,
-scale: 1
-});
-const W = baseCanvas.width, H = baseCanvas.height;
-
-const resp = await fetch(SPARKLE_APNG_PATH, { cache: "no-cache" });
-if (!resp.ok) throw new Error("キラ APNG の読み込みに失敗しました");
-const buf = await resp.arrayBuffer();
-const apng = UPNG.decode(buf);
-const rgbaFrames = UPNG.toRGBA8(apng);
-const delays = (apng.frames || []).map(f => Math.max(1, f.delay|0));
-
-const work = document.createElement("canvas");
-work.width = W; work.height = H;
-const ctx = work.getContext("2d");
-const outFrames = [];
-const outDelays = [];
-
-const fw = apng.width, fh = apng.height;
-const fx = Math.round((W - fw) / 2);
-const fy = Math.round((H - fh) / 2);
-
-for (let i = 0; i < rgbaFrames.length; i++) {
-ctx.clearRect(0, 0, W, H);
-ctx.drawImage(baseCanvas, 0, 0);
-
-    const fcan = document.createElement("canvas");
-    fcan.width = fw; fcan.height = fh;
-    const fctx = fcan.getContext("2d");
-    const imgData = new ImageData(new Uint8ClampedArray(rgbaFrames[i]), fw, fh);
-    fctx.putImageData(imgData, 0, 0);
-
-    ctx.save();
-    ctx.globalCompositeOperation = "lighter";
-    ctx.drawImage(fcan, fx, fy);
-    ctx.restore();
-
-    const id = ctx.getImageData(0, 0, W, H);
-    outFrames.push(id.data.buffer);
-    outDelays.push(delays[i] || 6);
-
-}
-
-const apngBlob = new Blob([UPNG.encode(outFrames, W, H, 0, outDelays)], { type: "image/png" });
-
-if (wasSparkleVisible) sparkleOverlayImage.style.display = "block";
-return apngBlob;
-}
-
-3-7) 最低限の文字列エスケープ（表示崩れ/XSS 回避）
-・ユーティリティとして追加
-function escapeHtml(s){
-return (s ?? "").replace(/[&<>"']/g, c =>
-({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])
-);
-}
-
-・関数 updateCardName を次の形に差し替え
-function updateCardName(text) {
-const segments = (text ?? "").split("`");
-  const htmlParts = segments.map((segment, index) => {
-    if (index % 2 === 1) {
-      const m = segment.match(/(.+?)\((.+)\)/);
-      if (m) return `<ruby><rb>${escapeHtml(m[1])}</rb><rt>${escapeHtml(m[2])}</rt></ruby>`;
-    }
-    return `<span class="no-ruby">${escapeHtml(segment)}</span>`;
-  });
-  const finalHtml = htmlParts.join("\u200B");
-  cardNameContent.classList.toggle("is-plain-text-only", !finalHtml.includes("<ruby>"));
-  cardNameContent.innerHTML = `<span class="scaler">${finalHtml}</span>`;
-  requestAnimationFrame(() => {
-    const scalerEl = cardNameContent.querySelector(".scaler");
-    if (!scalerEl) return;
-    const availableWidth = cardNameContent.clientWidth;
-    const trueTextWidth = scalerEl.scrollWidth;
-    scalerEl.style.transform = (trueTextWidth > availableWidth)
-      ? `scaleX(${availableWidth / trueTextWidth})` : "none";
-});
-}
-
-・関数 updateCardNameForPreview も同様に差し替え
-function updateCardNameForPreview(text, contentEl) {
-const segments = (text ?? "").split("`");
-  const htmlParts = segments.map((segment, index) => {
-    if (index % 2 === 1) {
-      const m = segment.match(/(.+?)\((.+)\)/);
-      if (m) return `<ruby><rb>${escapeHtml(m[1])}</rb><rt>${escapeHtml(m[2])}</rt></ruby>`;
-    }
-    return `<span class="no-ruby">${escapeHtml(segment)}</span>`;
-  });
-  const finalHtml = htmlParts.join("\u200B");
-  contentEl.classList.toggle("is-plain-text-only", !finalHtml.includes("<ruby>"));
-  contentEl.innerHTML = `<span class="scaler">${finalHtml}</span>`;
-  requestAnimationFrame(() => {
-    const scalerEl = contentEl.querySelector(".scaler");
-    if (!scalerEl) return;
-    const availableWidth = contentEl.clientWidth;
-    const trueTextWidth = scalerEl.scrollWidth;
-    scalerEl.style.transform = (trueTextWidth > availableWidth)
-      ? `scaleX(${availableWidth / trueTextWidth})` : "none";
-});
-}
-
-・関数 updatePreview の effect/flavor 代入をエスケープしてからに変更
-const safeEffect = escapeHtml(replacePunctuation(effectInput.value));
-effectDisplay.innerHTML = addSpacingToChars(safeEffect);
-
-const safeFlavor = escapeHtml(replacePunctuation(flavorInput.value.trim()));
-let el = flavorDisplay.querySelector(".inner-text");
-if (!el) { flavorDisplay.innerHTML = '<div class="inner-text"></div>'; el = flavorDisplay.querySelector(".inner-text"); }
-el.innerHTML = safeFlavor.replace(/\n/g, "<br>");
-
-4. アセットの確認
-   ・Card_asset/sparkle_overlay.png （提供 APNG をこのパスと名称で置く）
-
-5. 動作確認
-   ・通常保存でプレビューと出力が一致すること
-   ・キラ ON で APNG が生成されること（拡張子 png の APNG）
-   ・DB の「オーバーレイ画像 URL」で上絵が反映されること
-   ・DB 登録時にキラが true で保存されること
-
-以上
+{"kind":"character","data":{"name":"罪狩","memo":"\n───\n【名前】罪狩\n危険度：5　反応：憎悪　サイズ：M　実用品表\n♀　55歳　好み：お金持ちな年上\n【犯罪】5【生活】3【恋愛】3【教養】3【戦闘】7\n【肉体】6【精神】6\n【性業値】6\n【反応力】8【攻撃力】7【破壊力】5\n\n趣味：アラサガシ、おせっかい、サビシガリヤ\n\n異能：【超人】/【黙れ！】/【修羅場】/【仁義なき戦い】/【逆境】\n代償：【最愛の弱点】/【守るべき者】/【悪夢】/【乾いた人生】\n\n◆装備\nクライムバスター（命9、ダ7、格闘、必殺12）","initiative":8,"status":[{"label":"肉体点","value":16,"max":16},{"label":"精神点","value":16,"max":16},{"label":"サイフ","value":3,"max":3}],"params":[{"label":"犯罪","value":"5"},{"label":"生活","value":"3"},{"label":"恋愛","value":"3"},{"label":"教養","value":"3"},{"label":"戦闘","value":"7"},{"label":"肉体","value":"6"},{"label":"精神","value":"6"},{"label":"反応力","value":"8"},{"label":"攻撃力","value":"7"},{"label":"破壊力","value":"5"},{"label":"性業値","value":"6"}],"commands":"@基本\nSR{性業値} 性業値判定\n({犯罪})R>=X[,1,13] 犯罪判定\n({生活})R>=X[,1,13] 生活判定\n({恋愛})R>=X[,1,13] 恋愛判定\n({教養})R>=X[,1,13] 教養判定\n({戦闘})R>=X[,1,13] 戦闘判定\n({肉体})R>=X[,1,13] 肉体判定\n({精神})R>=X[,1,13] 精神判定\n@異能・代償\n【超人】常駐・自分・なし\nこのキャラクターの(肉体点)の最大値は10+(〔肉体)、(精神点)の最大値は10+(精神)の値となる。そして、【超人】は常にスターである。\n【黙れ！】割り込み・単体・なし\n誰かが常駐以外の盟約異能を使ったとき割り込んで使用できる。その盟約異能1つを無効化する。\n【修羅場】常駐・自分・なし\nモラル判定が必要になったとき、その判定に自動的に成功することができる。また、重傷の間は、自分の命中判定の難易度から-1することができる。\n【仁義なき戦い】割り込み・その場にいる全員・\n〔精神点〕1d6点を消費すればこの異能を使うことができる。相手が何か宣言した時に割り込んで使用する。血戦を開始させることができる、【仁義なき戦い】を持っていないキャラクターは、1ラウンド目は補助行動や割り込み行動を含め、何も行動できない。すでに血戦が始まっている場合、この異能は使用できない。\n【逆境】常駐・自分・なし\nチームの仲間や自分の恋人のキャラクター1人が行動不能になる度に、あらゆる判定の難易度が-1される。この効果は1ターンの間持続する。\n【最愛の弱点】常駐・自分の恋人・なし\nチーム内の誰かが、情報収集の判定でファンブルしたとき、この代償を修得した者の恋人が1体死亡する（複数いる場合、ランダムに決定）。ただし、上記の判定に成功すれば、その効果を無効にできる。\n【守るべき者】常駐・自分・なし\n〔アジト〕に《居候》を書き込む。スペックはモンスターの「一般人」の中から自由に選ぶこと。この《居候》がダメージを受け、〔肉体点〕が重症になると、所有者の異能すべてが使えなくなる。また、その《居候》が死亡すると、【守るべき者】と任意の用心棒の異能1種類が未修得の状態になる。\n【悪夢】常駐・自分・〔性業値〕激、律\n睡眠をするたびに上記の判定を行う事。「迷」になると〔精神点〕を回復することができない。\n【乾いた人生】終了時・自分・なし\nセッション終了時に経験点を支払っても、トリコを常備化できない。\n@汎用\n({肉体})R>=X[,1,13] セーブ判定\n({肉体})R>=X[1,2,13] 跳ぶ\n({肉体})R>=7[1,1,13] BT(酒)\n@武器\n7R>=9[,1,12] クライムバスター\n@各種表\nTAGT 情報タグ決定表\nFumbleT 命中判定ファンブル表\nFatalT 14番表\nFatalT 致命傷表\nFatalVT 乗物致命傷表\nRomanceFT ロマンスファンブル表\nAccidentT ケチャップアクシデント表\nGeneralAT 汎用アクシデント表\nAfterT その後表\nKusaiMT 臭い飯表\nEnterT 登場表\nBudTT バッドトリップ表\nGetgT ガラクタ表\nGetzT 実用品表\nGetnT 値打ち物表\nGetkT 奇天烈表\nCrimeIET 犯罪イベント表\nLifeIET 生活イベント表\nLoveIET 恋愛イベント表\nCultureIET 教養イベント表\nCombatIET 戦闘イベント表\nCrimeIHT 犯罪ハプニング表\nLifeIHT 生活ハプニング表\nLoveIHT 恋愛ハプニング表\nCultureIHT 教養ハプニング表\nCombatIHT 戦闘ハプニング表\nMinamiRET ミナミ遭遇表\nChinatownRET 中華街遭遇表\nWarshipLandRET 軍艦島遭遇表\nCivicCenterRET 官庁街遭遇表\nDowntownRET 十三遭遇表\nShaokinRET 沙京遭遇表\nLoveLoveRET らぶらぶ遭遇表\nAjitoRET アジト遭遇表\nJigokuSpaRET 地獄湯遭遇表\nJailHouseRET JAIL HOUSE遭遇表\nTreatmentIT 治療イベント表\nCollegeIT 大学イベント表"}}

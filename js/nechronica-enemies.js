@@ -372,68 +372,38 @@ function scheduleSummaryRenders(options = {}) {
 
 function setSaveStatus(kind, text) {
   const message = String(text || "").trim();
-  if (!el.saveStatusText) return;
-  el.saveStatusText.textContent = message;
-  el.saveStatusText.classList.remove(
-    "is-idle",
-    "is-saving",
-    "is-ok",
-    "is-error",
-  );
-  if (kind === "saving") {
-    el.saveStatusText.classList.add("is-saving");
-  } else if (kind === "ok") {
-    el.saveStatusText.classList.add("is-ok");
-  } else if (kind === "error") {
-    el.saveStatusText.classList.add("is-error");
-  } else {
-    el.saveStatusText.classList.add("is-idle");
+  
+  // 画面上のテキスト更新（要素があれば）
+  if (el.saveStatusText) {
+    el.saveStatusText.textContent = message;
+    el.saveStatusText.classList.remove("is-idle", "is-saving", "is-ok", "is-error");
+    if (kind === "saving") el.saveStatusText.classList.add("is-saving");
+    else if (kind === "ok") el.saveStatusText.classList.add("is-ok");
+    else if (kind === "error") el.saveStatusText.classList.add("is-error");
+    else el.saveStatusText.classList.add("is-idle");
   }
 
-  if (!message) return;
-  if (kind !== "ok" && kind !== "error") return;
+  // ログ出力
+  if (kind === "error") console.error(`[nechronica] ${message}`);
+  else console.info(`[nechronica] ${message}`);
 
-  showToast(message, kind === "error" ? "error" : "info");
+  // トースト通知（完了・エラーのみ）
+  if (!message) return;
+  if (kind === "ok" || kind === "error") {
+    showToast(message, kind === "error" ? "error" : "info");
+  }
 }
 
 function showToast(message, kind = "info") {
   const shared = getNechronicaShared();
-  if (shared && typeof shared.showToast === "function") {
-    shared.showToast(message, {
-      kind,
-      id: "copyToast",
-      className: "copy-toast",
-      errorClass: "is-error",
-      showClass: "is-show",
-      duration: 1400,
-    });
-    return;
-  }
-  const text = String(message || "").trim();
-  if (!text) return;
-
-  let toast = document.getElementById("copyToast");
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.id = "copyToast";
-    toast.className = "copy-toast";
-    document.body.appendChild(toast);
-  }
-  // 既存DOMに同ID要素がある場合でも、通知用スタイルを強制適用する
-  toast.className = "copy-toast";
-  toast.textContent = text;
-  toast.classList.remove("is-error", "is-show");
-  if (kind === "error") {
-    toast.classList.add("is-error");
-  }
-  // reflow
-  void toast.offsetWidth;
-  toast.classList.add("is-show");
-
-  if (saveToastTimer) clearTimeout(saveToastTimer);
-  saveToastTimer = setTimeout(() => {
-    toast.classList.remove("is-show");
-  }, 1400);
+  shared.showToast(message, {
+    kind,
+    id: "copyToast",
+    className: "copy-toast",
+    errorClass: "is-error",
+    showClass: "is-show",
+    duration: 1800,
+  });
 }
 
 function showKomaJsonCopySuccessToast() {
@@ -4156,7 +4126,7 @@ function setupEvents() {
 
     setSaveStatus("saving", "削除中...");
     try {
-      const url = buildApiUrl("delete", { id: enemy.ID });
+      const url = buildApiUrl("deleteNechronicaEnemy", { id: enemy.ID });
       await fetchApiJson(url);
 
       state.enemies = state.enemies.filter(
@@ -4521,17 +4491,24 @@ async function boot() {
     : null;
 
   if (lastEnemy && String(lastEnemy.ID) !== String(state.selectedId)) {
-    const restore = await showRestoreDialog(lastEnemy);
-    if (restore) {
+    const shouldAskRestore =
+      hasUnsavedChanges || localUnsavedEnemyIds.has(String(lastEnemy.ID || ""));
+    if (!shouldAskRestore) {
       state.selectedId = lastEnemy.ID;
       saveLastSelectedId(lastEnemy.ID);
     } else {
-      // 復元しない場合は新規作成
-      const fresh = createEnemyTemplate();
-      state.enemies.unshift(normalizeEnemy(fresh));
-      localUnsavedEnemyIds.add(String(fresh.ID || ""));
-      state.selectedId = fresh.ID;
-      saveLastSelectedId(fresh.ID);
+      const restore = await showRestoreDialog(lastEnemy);
+      if (restore) {
+        state.selectedId = lastEnemy.ID;
+        saveLastSelectedId(lastEnemy.ID);
+      } else {
+        // 復元しない場合は新規作成
+        const fresh = createEnemyTemplate();
+        state.enemies.unshift(normalizeEnemy(fresh));
+        localUnsavedEnemyIds.add(String(fresh.ID || ""));
+        state.selectedId = fresh.ID;
+        saveLastSelectedId(fresh.ID);
+      }
     }
   } else if (!state.selectedId) {
     // 記憶がない・対象がない場合で、まだ未選択なら新規作成

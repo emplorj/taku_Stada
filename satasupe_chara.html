@@ -98,7 +98,10 @@
               <input type="number" id="culture-rank-input" min="0" max="6" value="0" oninput="updateLanguage()"
                 class="asian-input small">
             </div>
-            <div class="result-area dark-bg mini-text"><span id="language-result">---</span></div>
+            <div class="result-area dark-bg mini-text language-result-area" style="flex-grow: 1; display: flex; align-items: center; justify-content: center;"><span id="language-result">---</span></div>
+            <div class="box-footer" style="visibility: hidden;">
+              <small>-</small><button class="small-square-btn" disabled><i class="fas fa-redo"></i>再</button>
+            </div>
           </div>
           <!-- 5. アジト (移動・コンパクト化) -->
           <div class="paper-box compact-box">
