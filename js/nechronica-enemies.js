@@ -372,11 +372,16 @@ function scheduleSummaryRenders(options = {}) {
 
 function setSaveStatus(kind, text) {
   const message = String(text || "").trim();
-  
+
   // 画面上のテキスト更新（要素があれば）
   if (el.saveStatusText) {
     el.saveStatusText.textContent = message;
-    el.saveStatusText.classList.remove("is-idle", "is-saving", "is-ok", "is-error");
+    el.saveStatusText.classList.remove(
+      "is-idle",
+      "is-saving",
+      "is-ok",
+      "is-error",
+    );
     if (kind === "saving") el.saveStatusText.classList.add("is-saving");
     else if (kind === "ok") el.saveStatusText.classList.add("is-ok");
     else if (kind === "error") el.saveStatusText.classList.add("is-error");
@@ -4280,8 +4285,10 @@ function setupEvents() {
         enemy.time = nowIsoLocal();
         scheduleSaveToDb();
         renderAll();
+        showToast("コマJSONをインポートした", "info");
         return true;
       } catch (_e) {
+        showToast("JSONの解析に失敗しました", "error");
         alert("JSONの解析に失敗しました");
         return false;
       }

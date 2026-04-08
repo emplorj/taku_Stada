@@ -557,6 +557,7 @@
 }
 
 .list-side-btn {
+  box-sizing: border-box;
   width: 40px;
   height: 40px;
   padding: 2px 0 4px 0;
@@ -573,7 +574,7 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .list-side-btn i {
@@ -582,14 +583,15 @@
 }
 
 .list-side-btn.is-load {
-  background: linear-gradient(135deg, #a83f39 0%, #7a2d29 100%);
+  background: linear-gradient(135deg, #7b1d2a 0%, #4a121e 100%);
   color: #fff;
-  border: 1px solid #c24b43;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  border: 1px solid #9d2535;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .list-side-btn.is-load:hover {
-  background: linear-gradient(135deg, #c24b43 0%, #8c352f 100%);
+  background: linear-gradient(135deg, #9d2535 0%, #611827 100%);
+  box-shadow: 0 0 12px rgba(157, 37, 53, 0.6);
   transform: translateY(-1px);
 }
 
@@ -980,11 +982,12 @@
   display: inline-block;
   font-size: 0.82rem;
   line-height: 1;
-  opacity: 0.72;
   user-select: none;
   cursor: grab;
   padding: 0;
   margin: 0;
+  color: #5a4a3a;
+  text-shadow: none;
 }
 
 .drag-hint:active {
@@ -1006,6 +1009,10 @@ tr.is-row-dragging {
   cursor: pointer;
   list-style: none;
   margin-bottom: 10px;
+}
+
+.enemy-list-collapsible > summary::after {
+  content: none;
 }
 
 .enemy-list-collapsible > summary::-webkit-details-marker {
@@ -1067,48 +1074,110 @@ tr.is-row-dragging {
 
 .enemy-sort-row {
   display: flex;
+  gap: 0.4rem;
   align-items: center;
-  gap: 6px;
   flex-wrap: wrap;
-  margin: 8px 0;
+  margin-top: 0.35rem;
 }
 
 .sort-chip {
-  border: 1px solid #9d7a56;
-  background: linear-gradient(180deg, #f7efdf 0%, #e3d2b4 100%);
-  color: #3b2b1c;
-  border-radius: 999px;
-  padding: 2px 10px;
+  border: 1px solid var(--sheet-border);
+  background: #1c181b;
+  color: #d8cfbf;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
   font-size: 0.78rem;
-  font-weight: 700;
   cursor: pointer;
+}
+
+.sort-chip:hover {
+  border-color: #7f6d58;
+  background: #2a2325;
+}
+
+.sort-chip.is-active {
+  border-color: #8d3746;
+  background: #3a1821;
+  color: #f4e7d8;
 }
 
 .enemy-list-controls {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-left: auto;
+  gap: 0.4rem;
+  color: #d8cfbf;
+  font-size: 0.78rem;
 }
 
 .enemy-page-size-input {
-  width: 4.6em;
-  min-width: 4.6em;
-  text-align: right;
+  border: 1px solid var(--sheet-border);
+  background: #1c181b;
+  color: #d8cfbf;
+  border-radius: 4px;
+  padding: 0.22rem 0.5rem;
+  font-size: 0.78rem;
+  width: 5.2rem;
+}
+
+.enemy-page-size-input:focus {
+  outline: none;
+  border-color: #8d3746;
 }
 
 .enemy-show-all-btn {
-  border: 1px solid #a58a69;
-  background: #f2e6d1;
+  border: 1px solid var(--sheet-border);
+  background: #1c181b;
+  color: #d8cfbf;
   border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 0.72rem;
+  padding: 0.22rem 0.5rem;
+  font-size: 0.76rem;
   cursor: pointer;
 }
 
+.enemy-show-all-btn:hover {
+  border-color: #7f6d58;
+  background: #2a2325;
+}
+
 .enemy-list-pager {
-  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-top: 0.55rem;
+}
+
+.enemy-sort-row .enemy-list-controls {
+  margin-left: auto;
+}
+
+.enemy-list-pager-inline {
+  margin-top: 0;
+}
+
+.enemy-list-pager-info {
+  color: #cfc5b8;
+  font-size: 0.8rem;
+}
+
+.pager-btn {
+  border: 1px solid var(--sheet-border);
+  background: #1c181b;
+  color: #d8cfbf;
+  border-radius: 4px;
+  padding: 0.22rem 0.55rem;
   font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.pager-btn:hover {
+  border-color: #7f6d58;
+  background: #2a2325;
+}
+
+.pager-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .enemy-search-row {
@@ -1251,6 +1320,9 @@ tr.is-row-dragging {
   gap: 4px;
   font-size: 1rem;
   font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
 }
 
 .karma-count-inline input {
@@ -1260,6 +1332,29 @@ tr.is-row-dragging {
   padding: 4px 6px;
   font-size: 12px;
   text-align: right;
+}
+
+.karma-count-inline label:nth-child(1) input {
+  background: linear-gradient(180deg, #fafdff 0%, #eaf8ff 100%);
+  border-color: #91d6e3;
+  color: #2f6f7c;
+}
+
+.karma-count-inline label:nth-child(2) input {
+  background: linear-gradient(180deg, #fffdfd 0%, #fff1f5 100%);
+  border-color: #e8b8c1;
+  color: #9b4f5d;
+}
+
+/* 効果: 複数行スイッチ */
+#karmaEffectLineModeSelect.switch {
+  background: #6f6a66;
+  border: 1px solid #9b9188;
+}
+
+#karmaEffectLineModeSelect.switch:checked {
+  background: linear-gradient(180deg, #67d7ea 0%, #4fc1d8 100%);
+  border-color: #8fdde9;
 }
 
 .personal-memo-block {
@@ -1304,11 +1399,7 @@ tr.is-row-dragging {
   overflow: hidden;
 }
 
-.sort-chip.is-active {
-  background: #a83f39;
-  border-color: #a83f39;
-  color: #fff;
-}
+/* sort-chip.is-active は上部で nechronica 準拠定義 */
 
 .tail-block-header {
   background: #2f2a28;
@@ -2155,6 +2246,56 @@ input[type="number"]::-webkit-inner-spin-button {
   color: #5b4632;
 }
 
+.karma-combined-cell {
+  display: grid;
+  grid-template-columns: 5.6em 1fr 1fr;
+  gap: 4px;
+}
+
+.karma-combined-cell > select,
+.karma-combined-cell > input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#karmaTable textarea[data-row-field="effect"] {
+  width: 100%;
+  min-height: 2.8em;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+/* カルマ行の種別着色（異能=プラス / 代償=マイナス） */
+#karmaTable tbody tr.karma-row-is-talent td {
+  background: linear-gradient(180deg, #eefcff 0%, #dff6ff 100%);
+}
+
+#karmaTable tbody tr.karma-row-is-price td {
+  background: linear-gradient(180deg, #fff3f5 0%, #ffe5ea 100%);
+}
+
+#karmaTable tbody tr.karma-row-is-talent .karma-kind-select {
+  border-color: #7cc9da;
+}
+
+#karmaTable tbody tr.karma-row-is-price .karma-kind-select {
+  border-color: #e2a1ad;
+}
+
+#karmaTable tbody tr.karma-row-is-talent input,
+#karmaTable tbody tr.karma-row-is-talent select {
+  background: linear-gradient(180deg, #fafdff 0%, #eaf8ff 100%);
+  border-color: #91d6e3;
+  color: #2f6f7c;
+}
+
+#karmaTable tbody tr.karma-row-is-price input,
+#karmaTable tbody tr.karma-row-is-price select {
+  background: linear-gradient(180deg, #fffdfd 0%, #fff1f5 100%);
+  border-color: #e8b8c1;
+  color: #9b4f5d;
+}
+
 .hobby-grid-btn {
   min-height: 30px;
   padding: 3px 4px;
@@ -2535,7 +2676,71 @@ textarea::placeholder {
   border-color: rgba(255, 170, 170, 0.7);
 }
 
-@media (max-width: 1240px) {
+.restore-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 12, 0.75);
+  backdrop-filter: blur(3px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.restore-dialog {
+  background: var(--sheet-bg);
+  border: 2px solid var(--sheet-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: #dfd9ce;
+}
+
+.restore-dialog-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 1rem 0;
+  color: #f5f0e5;
+}
+
+.restore-dialog-enemy {
+  margin: 0 0 1.5rem 0;
+  padding: 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.restore-dialog-name {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffdbe4;
+}
+
+.restore-dialog-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.restore-dialog-actions button {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 0.95rem;
+}
+
+.restore-dialog-actions .is-secondary {
+  background: #2a2528;
+  color: #ccc;
+  border-color: #555;
+}
+
+@media (max-width: 1400px) {
   .satasupe-layout {
     grid-template-columns: 1fr;
   }
@@ -2578,83 +2783,151 @@ textarea::placeholder {
     gap: 8px;
   }
 
-  .status-personal-table,
-  .status-personal-table tbody,
-  .status-personal-table tr,
-  .status-personal-table th,
-  .status-personal-table td {
+  /* =========================================
+     スマホ用のステータステーブル再構築（2列リスト化）
+     ※ 下部の「趣味・メモ」テーブル（.status-tail-table）は除外
+     ========================================= */
+  .status-personal-table:not(.status-tail-table) {
+    display: grid !important;
+    grid-template-columns: 5.5em 1fr !important; /* ラベルの幅 */
+    gap: 1px;
+    background: var(--sp-border, #4a3630);
+    border: 1px solid var(--sp-border, #4a3630);
+    border-radius: 4px;
+    width: 100% !important;
+    margin-bottom: 12px;
+  }
+
+  .status-personal-table:not(.status-tail-table) colgroup {
+    display: none;
+  }
+
+  .status-personal-table:not(.status-tail-table) > tbody,
+  .status-personal-table:not(.status-tail-table) > tbody > tr {
+    display: contents !important;
+  }
+
+  .status-personal-table:not(.status-tail-table) > tbody > tr > th,
+  .status-personal-table:not(.status-tail-table) > tbody > tr > td {
+    display: flex !important;
+    align-items: center;
+    width: auto !important;
+    margin: 0 !important;
+    border: none !important;
+    padding: 6px 8px !important;
+  }
+
+  .status-personal-table:not(.status-tail-table) > tbody > tr > th {
+    grid-column: 1 / 2 !important;
+    background: #181311 !important;
+    color: var(--sp-accent-main, #d67a1f) !important;
+    font-size: 0.9rem;
+    justify-content: flex-start;
+  }
+
+  .status-personal-table:not(.status-tail-table) > tbody > tr > td {
+    grid-column: 2 / 3 !important;
+    background: var(--sp-bg-panel, #1a1615) !important;
+    min-width: 0;
+  }
+
+  .status-personal-table:not(.status-tail-table) input,
+  .status-personal-table:not(.status-tail-table) select {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* =========================================
+     下部の「趣味・好嫌・メモ」テーブル専用スマホ調整
+     ========================================= */
+  .status-tail-table {
+    display: block;
+    width: 100%;
+  }
+  .status-tail-table > colgroup {
+    display: none;
+  }
+  .status-tail-table > tbody,
+  .status-tail-table > tbody > tr {
+    display: block;
+    width: 100%;
+  }
+  .status-tail-table > tbody > tr > td,
+  .status-tail-table > tbody > tr > th {
     display: block;
     width: 100% !important;
     box-sizing: border-box;
   }
 
-  .status-personal-table > tbody > tr {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    border-bottom: 2px solid #8f7d66;
+  /* 「好」「嫌」をスマホ向けに2行のグリッドに整頓 */
+  .status-tail-table .likes-inline-table-row {
+    display: grid !important;
+    grid-template-columns: 2.5em 1fr !important;
+    gap: 8px 6px !important;
+    padding: 8px !important;
+    background: var(--sp-bg-panel, #1a1615) !important;
+    border: none !important;
+    border-top: 1px solid var(--sp-border, #4a3630) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  .status-personal-table > tbody > tr > th,
-  .status-personal-table > tbody > tr > td {
-    border: none;
+  .status-tail-table .likes-inline-table-row > th.likes-mini-head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
     width: 100% !important;
   }
 
-  .status-personal-table > tbody > tr > th {
-    text-align: left;
-    background: #3c2a1e;
-    border-bottom: 1px solid #6b513d;
-    padding: 6px 8px;
+  /* デスクトップ側の 40% 指定を打ち破るための完全一致セレクタ */
+  .status-tail-table .likes-inline-table-row > td.likes-input-cell {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  .status-personal-table > tbody > tr > td {
-    padding: 8px;
-    background: #f8f2e6;
+  .status-tail-table .likes-inline-table-row > td.likes-input-cell > input {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
-
-  /* Compact Rows: Reaction/Size/Drop, Sex/Age, Alliance/Hierarchy */
-  /* Reaction & Size share a line */
-  .status-personal-table > tbody > tr:nth-child(5) > th:nth-child(1),
-  .status-personal-table > tbody > tr:nth-child(5) > th:nth-child(3) {
-    width: 20% !important;
-    padding: 6px 4px;
-    font-size: 0.9em;
-  }
-  .status-personal-table > tbody > tr:nth-child(5) > td:nth-child(2),
-  .status-personal-table > tbody > tr:nth-child(5) > td:nth-child(4) {
-    width: 30% !important;
-  }
-
-  /* Drop table, Sex, Age, Alliance, Hierarchy */
-  .status-personal-table > tbody > tr:nth-child(5) > th:nth-child(5),
-  .status-personal-table > tbody > tr:nth-child(7) > th,
-  .status-personal-table > tbody > tr:nth-child(11) > th {
-    width: 28% !important;
-  }
-
-  .status-personal-table > tbody > tr:nth-child(5) > td:nth-child(6),
-  .status-personal-table > tbody > tr:nth-child(7) > td,
-  .status-personal-table > tbody > tr:nth-child(11) > td {
-    width: 72% !important;
-  }
-
-  /* Compact Likes / Dislikes */
-  .status-personal-table > tbody > tr.likes-inline-table-row > th {
-    width: 15% !important;
-    text-align: center;
-    padding: 6px 4px;
-  }
-  .status-personal-table > tbody > tr.likes-inline-table-row > td {
-    width: 35% !important;
-  }
-
-  .sex-compact-cell {
-    width: 75% !important;
-  }
-
+  /* =========================================
+     複雑だった横並び要素（年齢、性別、好みなど）の調整
+     ========================================= */
   .preference-inline-wrap {
-    grid-template-columns: 1fr 0.65fr;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .preference-inline-wrap > select {
+    flex: 1 1 calc(50% - 3px);
+  }
+
+  .languages-row-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .languages-row-wrap > input {
+    flex: 1 1 100%;
+  }
+
+  .languages-row-wrap > .small-square-btn {
+    flex: 0 0 auto;
+    width: auto !important;
   }
 
   .random-like-age-controls {
@@ -2668,18 +2941,18 @@ textarea::placeholder {
 
   /* Compact Language */
   [data-field="meta.languages"] {
-    font-size: 0.68rem;
-    letter-spacing: -0.03em;
+    font-size: 0.82rem;
+    letter-spacing: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: clip;
     height: 1.7rem;
-    padding: 1px 3px;
+    padding: 2px 4px;
   }
   #toggleLanguageManualButton {
-    min-width: 1.7em;
-    padding: 0 3px;
-    font-size: 0.68em;
+    min-width: 2.2em;
+    padding: 0 6px;
+    font-size: 0.8em;
   }
 
   /* Stack Environment/Ability values vertically in cell */
@@ -2696,12 +2969,12 @@ textarea::placeholder {
   .status-env-table td.ten-cell input,
   .status-aptitude-table td.ten-cell input,
   .status-combat-table td.ten-cell input {
-    width: 2.2em;
+    width: 2.6em;
     max-width: 100%;
     margin: 0;
     display: block;
-    min-height: 1.4rem;
-    padding: 2px;
+    min-height: 1.55rem;
+    padding: 2px 3px;
     font-size: 0.9rem;
     text-align: right;
   }
@@ -2714,9 +2987,9 @@ textarea::placeholder {
   }
   .combat-base-box,
   .combat-remain-box {
-    width: 2.6em !important;
+    width: 2.9em !important;
     min-width: 0 !important;
-    padding: 1px !important;
+    padding: 2px !important;
     font-size: 0.95em;
     text-align: right;
   }
@@ -2732,13 +3005,13 @@ textarea::placeholder {
   .asian-table th,
   .asian-table td {
     padding: 3px 4px;
-    font-size: 0.8rem;
+    font-size: 0.88rem;
   }
 
   .asian-table input,
   .asian-table select {
     padding: 2px 3px !important;
-    font-size: 0.82rem !important;
+    font-size: 0.88rem !important;
     min-height: 1.6rem;
   }
 

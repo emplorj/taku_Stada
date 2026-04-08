@@ -175,7 +175,7 @@
 
                     <tr>
                       <th class="th-compact-label">性別</th>
-                      <td colspan="3">
+                      <td colspan="2">
                         <select data-field="base.sex">
                           <option value="男">男</option>
                           <option value="女">女</option>
@@ -183,7 +183,7 @@
                         </select>
                       </td>
                       <th class="th-compact-label">年齢</th>
-                      <td colspan="3">
+                      <td colspan="4">
                         <div class="languages-row-wrap">
                           <select id="npcAgePresetSelect" aria-label="年齢ランダム候補">
                             <option value="random">ランダム（1〜100）</option>
@@ -384,13 +384,15 @@
                     <label>代償数<input type="number" data-field="meta.priceCount" class="readonly-derived-box"
                         readonly></label>
                   </div>
+                  <label class="action-meta-field" style="min-width: 9em;">複数行
+                    <input id="karmaEffectLineModeSelect" class="switch" type="checkbox" aria-label="効果を複数行で入力">
+                  </label>
                   <button id="addKarmaButton" type="button" class="small-square-btn">行追加</button>
                 </div>
                 <div class="table-wrap">
                   <table class="asian-table" id="karmaTable">
                     <colgroup>
-                      <col style="width: 11%;">
-                      <col style="width: 19%;">
+                      <col style="width: 30%;">
                       <col style="width: 9%;">
                       <col style="width: 10%;">
                       <col style="width: 10%;">
@@ -399,7 +401,7 @@
                     </colgroup>
                     <thead>
                       <tr>
-                        <th colspan="2">カルマ</th>
+                        <th>カルマ</th>
                         <th>使用</th>
                         <th>対象</th>
                         <th>判定</th>
@@ -526,7 +528,11 @@
                 title="0を入れて全部表示にする">0（全部）</button>
               <button id="enemyShowTenButton" type="button" class="enemy-show-all-btn" title="10件表示に戻す">10</button>
             </div>
-            <div id="enemyListPager" class="enemy-list-pager enemy-list-pager-inline" aria-live="polite"></div>
+            <div id="enemyListPager" class="enemy-list-pager enemy-list-pager-inline" aria-live="polite">
+              <button id="enemyPrevButton" type="button" class="pager-btn">前へ</button>
+              <span class="enemy-list-pager-info" id="enemyPagerInfo"></span>
+              <button id="enemyNextButton" type="button" class="pager-btn">次へ</button>
+            </div>
           </div>
           <div class="enemy-search-row" aria-label="エネミー一覧検索">
             <div class="search-input-group">
@@ -550,6 +556,39 @@
   <footer>
     <p>© 2025 卓スタダ</p>
   </footer>
+
+  <datalist id="karmaCategoryList">
+    <option value="汎用"></option>
+    <option value="モンスター"></option>
+    <option value="リーダー"></option>
+    <option value="参謀"></option>
+    <option value="技術屋"></option>
+    <option value="荒事屋"></option>
+    <option value="マネージャー"></option>
+    <option value="道化師"></option>
+    <option value="親分"></option>
+    <option value="闇商人"></option>
+    <option value="殺し屋"></option>
+    <option value="用心棒"></option>
+    <option value="色事師"></option>
+    <option value="ペテン師"></option>
+    <option value="泥棒"></option>
+    <option value="走り屋"></option>
+    <option value="情報屋"></option>
+    <option value="裏職人"></option>
+    <option value="キジルシ"></option>
+    <option value="ダメ人間"></option>
+    <option value="新人"></option>
+    <option value="バッドカルマ"></option>
+    <option value="地獄組"></option>
+    <option value="大幇"></option>
+    <option value="沙京流氓"></option>
+    <option value="コンビナート"></option>
+    <option value="大阪市警"></option>
+    <option value="独立盟約"></option>
+    <option value="禍々師"></option>
+    <option value="奥義"></option>
+  </datalist>
 
   <script src="js/common.js"></script>
   <script src="js/nechronica-shared.js"></script>
