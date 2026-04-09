@@ -2153,9 +2153,9 @@ function getDataNC(html, url, img, opt, additionalPalette) {
     if (!names[i] || names[i].includes("Power_id")) continue;
     const normalizedRange = String(ranges[i] || "").replace(/~/g, "～");
     const normalizedMemo = String(memos[i] || "")
-      .replace(/[\r\n]+/g, " ")
+      .replace(/[\r\n]+/g, "\\n")
       .trim();
-    const txt = `【${names[i]}】《${convertTim(timings[i])}/${costs[i] || ""}/${normalizedRange}》${normalizedMemo ? ` ${normalizedMemo}` : ""}`;
+    const txt = `【${names[i]}】《${convertTim(timings[i])}/${costs[i] || ""}/${normalizedRange}》${normalizedMemo ? `\\n${normalizedMemo}` : ""}`;
     const pos = String(positions[i] || "");
     if (["1", "2", "3"].includes(pos)) bui[0].push(`🟩${txt}`);
     else if (pos === "4") bui[1].push(`⭕${txt}`);
@@ -2307,16 +2307,20 @@ function chapareSata(satasupeData) {
     const t = (k && k.talent) || {};
     const p = (k && k.price) || {};
     if (t.name) {
+      const effectStr = t.effect
+        ? `\\n${String(t.effect).replace(/\r?\n/g, "\\n")}`
+        : "";
       lines.push(
-        `${fmtKarmaName(t.name)}${t.use || "常駐"}・${t.target || "自分"}・${t.judge || "なし"}`,
+        `${fmtKarmaName(t.name)}${t.use || "常駐"}・${t.target || "自分"}・${t.judge || "なし"}${effectStr}`,
       );
-      if (t.effect) lines.push(String(t.effect));
     }
     if (p.name) {
+      const effectStr = p.effect
+        ? `\\n${String(p.effect).replace(/\r?\n/g, "\\n")}`
+        : "";
       lines.push(
-        `${fmtKarmaName(p.name)}${p.use || "常駐"}・${p.target || "自分"}・${p.judge || "なし"}`,
+        `${fmtKarmaName(p.name)}${p.use || "常駐"}・${p.target || "自分"}・${p.judge || "なし"}${effectStr}`,
       );
-      if (p.effect) lines.push(String(p.effect));
     }
   });
 
