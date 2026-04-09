@@ -44,7 +44,17 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "ExcelsiorSans";
+  src: url("../fonts/ExcelsiorSans.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
+  --font-latin-ui:
+    "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
   --color-coc: #93c47d; /* CoC */
   --color-coc-secret: #6aa84f; /* CoC-㊙ */
   --color-sw: #ea9999;
@@ -91,6 +101,17 @@ body {
 a {
   color: #87cefa;
   text-decoration: underline; /* ★ この行を追加 */
+}
+
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+.numeric-font,
+.updated-at,
+.enemy-list-time-tag {
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ==========================================================================

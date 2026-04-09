@@ -17,6 +17,7 @@
     page: 1,
     pageSize: 10,
   };
+  const localUnsavedSheetIds = new Set();
 
   const el = {
     enemyList: document.getElementById("enemyList"),
@@ -49,6 +50,7 @@
     hobbyDiceGridToggle: document.getElementById("hobbyDiceGridToggle"),
     hobbyPickerPanel: document.getElementById("hobbyPickerPanel"),
     hobbyPickerList: document.getElementById("hobbyPickerList"),
+    hobbyBaseCount: document.getElementById("hobbyBaseCount"),
     karmaEffectLineModeSelect: document.getElementById(
       "karmaEffectLineModeSelect",
     ),
@@ -140,6 +142,25 @@
     "bg-green",
     "bg-purple",
   ];
+  const HOBBY_COLOR_CLASS_BY_NAME = (() => {
+    const map = new Map();
+    const addFromTable = (table) => {
+      if (!Array.isArray(table)) return;
+      table.forEach((row, rIndex) => {
+        const colorClass =
+          HOBBY_COLOR_CLASSES[rIndex % HOBBY_COLOR_CLASSES.length];
+        if (!Array.isArray(row)) return;
+        row.forEach((name) => {
+          const key = String(name || "").trim();
+          if (!key || map.has(key)) return;
+          map.set(key, colorClass);
+        });
+      });
+    };
+    addFromTable(HOBBY_GRID_6);
+    addFromTable(HOBBY_GRID_5);
+    return map;
+  })();
   const LIKE_TYPE_OPTIONS = [
     "ダークな",
     "お金持ちな",
@@ -268,9 +289,9 @@
         comfortable: 10,
         security: 10,
       },
-      weapons: [],
-      outfits: [],
-      vehicles: [],
+      weapons: [createWeaponRow()],
+      outfits: [createOutfitRow()],
+      vehicles: [createVehicleRow()],
       karma: [],
       history: [],
       memo: "",
@@ -358,15 +379,10 @@
     const dRaw = Number(meta.danger);
     const dVal = Number.isFinite(dRaw) ? Math.max(0, Math.trunc(dRaw)) : 0;
     meta.danger = dVal;
+    const dangerStyle = getDangerVisualStyle(dVal);
     dangerNodes.forEach((node) => {
-      if (dVal >= 20) {
-        node.setAttribute("data-danger-band", "abyss");
-      } else if (dVal >= 10) {
-        node.setAttribute("data-danger-band", "danger");
-      } else {
-        node.setAttribute("data-danger-band", "grad");
-        node.setAttribute("data-danger-step", String(Math.min(9, dVal)));
-      }
+      node.setAttribute("data-danger-band", dangerStyle.band);
+      node.setAttribute("data-danger-step", String(dangerStyle.step));
     });
 
     // 性業値スタイル
@@ -388,6 +404,19 @@
         node.setAttribute("data-karma-band", "neutral");
       }
     });
+  }
+
+  function getDangerVisualStyle(rawDanger) {
+    const dVal = Number.isFinite(Number(rawDanger))
+      ? Math.max(0, Math.trunc(Number(rawDanger)))
+      : 0;
+    if (dVal >= 20) {
+      return { band: "abyss", step: 9 };
+    }
+    if (dVal >= 10) {
+      return { band: "danger", step: 9 };
+    }
+    return { band: "grad", step: Math.min(9, dVal) };
   }
 
   function renderDerivedFields(sheet) {
@@ -415,6 +444,29 @@
       .split(/[\n,、\s]+/)
       .map((v) => String(v || "").trim())
       .filter(Boolean);
+  }
+
+  function calcHobbyBaseCount(sheet) {
+    const ability = (sheet && sheet.ability) || {};
+    const life = toInt(ability.life, 1);
+    const culture = toInt(ability.culture, 1);
+    return Math.max(1, Math.ceil((life + culture) / 2));
+  }
+
+  function updateHobbyBaseCountDisplay() {
+    if (!(el.hobbyBaseCount instanceof HTMLInputElement)) return;
+    const sheet = getSelected();
+    const baseCount = calcHobbyBaseCount(sheet);
+    const selectedCount = normalizeHobbyValues(
+      (el.hobbiesInput && el.hobbiesInput.value) || "",
+    ).length;
+    el.hobbyBaseCount.value = `${selectedCount}/${baseCount}`;
+  }
+
+  function getHobbyColorClass(name) {
+    const key = String(name || "").trim();
+    if (!key) return "";
+    return HOBBY_COLOR_CLASS_BY_NAME.get(key) || "";
   }
 
   function closeHobbyPicker() {
@@ -532,10 +584,12 @@
     el.hobbyChips.innerHTML = "";
     values.forEach((name) => {
       const chip = document.createElement("span");
-      chip.className = "hobby-input-chip";
+      const colorClass = getHobbyColorClass(name);
+      chip.className = `hobby-input-chip${colorClass ? ` ${colorClass}` : ""}`;
       chip.textContent = name;
       el.hobbyChips.appendChild(chip);
     });
+    updateHobbyBaseCountDisplay();
   }
 
   function createWeaponRow() {
@@ -611,6 +665,75 @@
       showClass: "is-show",
       duration: 1800,
     });
+  }
+
+  function message(key, params = {}) {
+    const shared =
+      typeof window !== "undefined" && window && window.NechronicaShared
+        ? window.NechronicaShared
+        : null;
+    if (shared && typeof shared.getMessage === "function") {
+      return shared.getMessage(key, params);
+    }
+    // フォールバック（shared 未読込時）
+    const fallback = {
+      komaJsonCopySuccess:
+        "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
+      clipboardCopyFailedConsole: "コピー失敗。コンソールに出力する",
+      saveRequestSending: "保存要求を送信中…",
+      saveAsInProgress: "別名保存中…",
+      saveCompleted: "保存完了 {time}",
+      saveAsPrompt: "別名保存する名前を入力してください",
+      saveAsNameRequired: "保存名を入力してください",
+    };
+    const template =
+      Object.prototype.hasOwnProperty.call(fallback, key) &&
+      typeof fallback[key] === "string"
+        ? fallback[key]
+        : String(key || "");
+    return template.replace(/\{(\w+)\}/g, (_m, token) => {
+      const value = params ? params[token] : "";
+      return value == null ? "" : String(value);
+    });
+  }
+
+  function showKomaJsonCopySuccessToast() {
+    showToast(message("komaJsonCopySuccess"), "info");
+  }
+
+  function requestSaveAsName(currentName = "") {
+    const shared =
+      typeof window !== "undefined" && window && window.NechronicaShared
+        ? window.NechronicaShared
+        : null;
+    if (shared && typeof shared.requestSaveAsName === "function") {
+      return shared.requestSaveAsName(currentName);
+    }
+    while (true) {
+      const raw = window.prompt(
+        message("saveAsPrompt"),
+        String(currentName || "").trim(),
+      );
+      if (raw == null) return null;
+      const name = String(raw || "").trim();
+      if (name) return name;
+      window.alert(message("saveAsNameRequired"));
+    }
+  }
+
+  function setSaveButtonLabelBySheet(sheet) {
+    const isNew =
+      !!sheet && localUnsavedSheetIds.has(String((sheet && sheet.id) || ""));
+    const label = isNew ? "新規保存" : "上書き保存";
+    if (!(el.saveEnemyButton instanceof HTMLButtonElement)) return;
+    const icon = el.saveEnemyButton.querySelector("i");
+    if (icon) {
+      el.saveEnemyButton.innerHTML = `<i class="${icon.className}"></i> ${escapeHtml(label)}`;
+    } else {
+      el.saveEnemyButton.textContent = label;
+    }
+    el.saveEnemyButton.title = label;
+    el.saveEnemyButton.setAttribute("aria-label", label);
   }
 
   function setStatus(text, kind = "idle") {
@@ -722,9 +845,7 @@
       dialog.setAttribute("aria-labelledby", "restore-dialog-title");
 
       const nameText = String((sheet && sheet.name) || "（名称未設定）");
-      const classText = String(
-        (sheet && sheet.meta && sheet.meta.category) || "サタスペ",
-      );
+      const classText = getSheetCategory(sheet);
 
       dialog.innerHTML = `
         <p id="restore-dialog-title" class="restore-dialog-title">前回の続きを開きますか？</p>
@@ -795,7 +916,7 @@
       ID: String(sheet.id || "").trim(),
       author,
       name: String(sheet.name || "").trim() || "無題",
-      class_type: String(sheet.meta.category || "サタスペ"),
+      class_type: getSheetCategory(sheet),
       is_public: true,
       memo: String(sheet.memo || ""),
       data: {
@@ -818,6 +939,11 @@
     sheet.author = String((enemy && enemy.author) || sheet.author || "").trim();
     sheet.name = String((enemy && enemy.name) || sheet.name || "").trim();
     sheet.memo = String((enemy && enemy.memo) || sheet.memo || "");
+    if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
+    const categoryFromApi = String((enemy && enemy.class_type) || "").trim();
+    if (!String(sheet.meta.category || "").trim() && categoryFromApi) {
+      sheet.meta.category = categoryFromApi;
+    }
     sheet.updatedAt = String(
       (enemy && enemy.time) || sheet.updatedAt || nowText(),
     );
@@ -840,6 +966,7 @@
       return classType === "サタスペ" || system === "satasupe";
     });
     state.sheets = targets.map((enemy) => fromApiEnemy(enemy));
+    localUnsavedSheetIds.clear();
     state.selectedId = state.sheets[0] ? state.sheets[0].id : null;
     state.dirty = false;
   }
@@ -866,6 +993,7 @@
     });
     console.log("saveCurrentToDb: fetch completed.", response);
 
+    const beforeId = String(sheet.id || "");
     const saved = fromApiEnemy(response.data || payload);
     const idx = state.sheets.findIndex(
       (s) => String(s.id) === String(sheet.id),
@@ -876,9 +1004,17 @@
       state.sheets.unshift(saved);
     }
     state.selectedId = saved.id;
+    localUnsavedSheetIds.delete(beforeId);
+    localUnsavedSheetIds.delete(String(saved.id || ""));
     state.dirty = false;
     saveStorage();
-    setStatus("保存済み(DB)", "ok");
+    setSaveButtonLabelBySheet(saved);
+    setStatus(
+      message("saveCompleted", {
+        time: formatShortDate(saved.updatedAt || saved.createdAt || nowText()),
+      }),
+      "ok",
+    );
   }
 
   function getSelected() {
@@ -886,6 +1022,16 @@
       state.sheets.find((x) => String(x.id) === String(state.selectedId)) ||
       null
     );
+  }
+
+  function getSheetCategory(sheet) {
+    const fromMeta = String(
+      sheet && sheet.meta ? sheet.meta.category || "" : "",
+    ).trim();
+    if (fromMeta) return fromMeta;
+    const fromClassType = String((sheet && sheet.class_type) || "").trim();
+    if (fromClassType) return fromClassType;
+    return "サタスペ";
   }
 
   function setByPath(obj, path, value) {
@@ -980,9 +1126,10 @@
     el.enemyList.innerHTML = "";
     visibleTargets.forEach((sheet) => {
       const danger = toInt(sheet.meta?.danger, 0);
+      const dangerStyle = getDangerVisualStyle(danger);
       const karmaCount = (sheet.karma || []).length;
       const iconUrl = sheet.icon_url || "";
-      const classType = sheet.class_type || sheet.meta?.category || "サタスペ";
+      const classType = getSheetCategory(sheet);
       const silhouetteClass = `is-class-${classType}`;
 
       const li = document.createElement("li");
@@ -994,7 +1141,7 @@
         <button type="button" class="enemy-list-card ${silhouetteClass}" data-id="${sheet.id}">
           <div class="enemy-list-row">
             <div class="enemy-list-side-left">
-              <div class="enemy-danger-badge">
+              <div class="enemy-danger-badge" data-danger-band="${dangerStyle.band}" data-danger-step="${dangerStyle.step}">
                 <span class="danger-label">危険度</span>
                 <span class="danger-value">${danger}</span>
               </div>
@@ -1099,6 +1246,7 @@
 
   function fillForm(sheet) {
     if (!sheet || !el.enemyEditorForm) return;
+    setSaveButtonLabelBySheet(sheet);
     recomputeDerivedFields(sheet);
     const fields = el.enemyEditorForm.querySelectorAll("[data-field]");
     fields.forEach((node) => {
@@ -1804,7 +1952,10 @@
     imported
       .slice()
       .reverse()
-      .forEach((sheet) => state.sheets.unshift(sheet));
+      .forEach((sheet) => {
+        state.sheets.unshift(sheet);
+        localUnsavedSheetIds.add(String(sheet.id || ""));
+      });
     state.selectedId = imported[0] ? imported[0].id : state.selectedId;
     markDirty();
     renderAll();
@@ -1819,6 +1970,8 @@
         if (idx >= 0) state.sheets[idx] = saved;
         if (String(state.selectedId) === String(sheet.id))
           state.selectedId = saved.id;
+        localUnsavedSheetIds.delete(String(sheet.id || ""));
+        localUnsavedSheetIds.delete(String(saved.id || ""));
         okCount += 1;
       } catch (err) {
         console.error(err);
@@ -1848,18 +2001,13 @@
     const sheet = getSelected();
     if (!sheet) return;
     readFormToSheet(sheet);
-    const text = JSON.stringify(buildKomaCharacterJson(sheet));
+    const out = buildKomaCharacterJson(sheet);
+    const text = JSON.stringify(out);
     writeClipboardText(text)
-      .then(() => setStatus("コマJSONをコピー", "info"))
+      .then(() => showKomaJsonCopySuccessToast())
       .catch(() => {
-        const blob = new Blob([text], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `satasupe-koma-${sheet.id}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        setStatus("コマJSONを保存", "info");
+        showToast(message("clipboardCopyFailedConsole"), "error");
+        console.log(out);
       });
   }
 
@@ -1981,6 +2129,7 @@
             copied.createdAt = nowText();
             copied.updatedAt = nowText();
             state.sheets.unshift(copied);
+            localUnsavedSheetIds.add(String(copied.id || ""));
             state.selectedId = copied.id;
             markDirty();
             renderAll();
@@ -2041,6 +2190,9 @@
         if (field === "meta.hobbies") renderHobbyChips();
         recomputeDerivedFields(sheet);
         renderDerivedFields(sheet);
+        if (field === "ability.life" || field === "ability.culture") {
+          updateHobbyBaseCountDisplay();
+        }
         sheet.updatedAt = nowText();
         markDirty();
         renderList();
@@ -2172,6 +2324,7 @@
         sheet.name = "新規エネミー";
         sheet.author = getRememberedAuthor();
         state.sheets.unshift(sheet);
+        localUnsavedSheetIds.add(String(sheet.id || ""));
         state.selectedId = sheet.id;
         markDirty();
         renderAll();
@@ -2182,7 +2335,7 @@
       el.saveEnemyButton.addEventListener("click", async () => {
         console.log("Save button clicked");
         try {
-          setStatus("保存中…");
+          setStatus(message("saveRequestSending"));
           await saveCurrentToDb();
           renderAll();
         } catch (error) {
@@ -2198,17 +2351,20 @@
         const sheet = getSelected();
         if (!sheet) return;
         readFormToSheet(sheet);
+        const saveAsName = requestSaveAsName(sheet.name || "");
+        if (saveAsName == null) return;
         const copied = deepClone(sheet);
         copied.id = getNextSequentialId();
-        copied.name = `${copied.name || "無題"}（コピー）`;
+        copied.name = saveAsName;
         copied.createdAt = nowText();
         copied.updatedAt = nowText();
         state.sheets.unshift(copied);
+        localUnsavedSheetIds.add(String(copied.id || ""));
         state.selectedId = copied.id;
         markDirty();
         renderAll();
         try {
-          setStatus("保存中…");
+          setStatus(message("saveAsInProgress"));
           await saveCurrentToDb();
           renderAll();
         } catch (error) {
@@ -2230,6 +2386,7 @@
         state.sheets = state.sheets.filter(
           (s) => String(s.id) !== String(sheet.id),
         );
+        localUnsavedSheetIds.delete(String(sheet.id || ""));
         state.selectedId = state.sheets[0] ? state.sheets[0].id : null;
         ensureSelected();
         markDirty();
@@ -2304,6 +2461,7 @@
         event.preventDefault();
         const selected = getSelected();
         if (!selected) return;
+        setStatus(message("saveRequestSending"));
         saveCurrentToDb()
           .then(() => renderAll())
           .catch((error) => {
@@ -2338,6 +2496,7 @@
         fresh.name = "新規エネミー";
         fresh.author = getRememberedAuthor();
         state.sheets.unshift(fresh);
+        localUnsavedSheetIds.add(String(fresh.id || ""));
         state.selectedId = fresh.id;
         markDirty();
       }

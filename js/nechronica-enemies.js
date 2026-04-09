@@ -47,8 +47,6 @@ const NC_AUTHOR_STORAGE_KEY = "nechronicaEnemiesAuthor";
 const NC_API_STORAGE_KEY = "nechronicaEnemiesApiUrl";
 const NC_LAST_SELECTED_ID_KEY = "nechronicaEnemiesLastSelectedId";
 const NC_SUMMARY_LAYOUT_STORAGE_KEY = "nechronicaEnemiesSummaryLayoutV1";
-const KOMA_JSON_COPY_SUCCESS_MESSAGE =
-  "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！";
 const DEFAULT_NECHRONICA_GAS_WEB_APP_URL =
   "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
 let saveDebounceTimer = null;
@@ -412,7 +410,51 @@ function showToast(message, kind = "info") {
 }
 
 function showKomaJsonCopySuccessToast() {
-  showToast(KOMA_JSON_COPY_SUCCESS_MESSAGE, "info");
+  showToast(message("komaJsonCopySuccess"), "info");
+}
+
+function message(key, params = {}) {
+  const shared = getNechronicaShared();
+  if (shared && typeof shared.getMessage === "function") {
+    return shared.getMessage(key, params);
+  }
+  // フォールバック（shared 未読込時）
+  const fallback = {
+    komaJsonCopySuccess:
+      "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
+    clipboardCopyFailedConsole: "コピー失敗。コンソールに出力する",
+    saveRequestSending: "保存要求を送信中…",
+    saveAsInProgress: "別名保存中…",
+    saveCompleted: "保存完了 {time}",
+    saveAsPrompt: "別名保存する名前を入力してください",
+    saveAsNameRequired: "保存名を入力してください",
+  };
+  const template =
+    Object.prototype.hasOwnProperty.call(fallback, key) &&
+    typeof fallback[key] === "string"
+      ? fallback[key]
+      : String(key || "");
+  return template.replace(/\{(\w+)\}/g, (_m, token) => {
+    const value = params ? params[token] : "";
+    return value == null ? "" : String(value);
+  });
+}
+
+function requestSaveAsName(currentName = "") {
+  const shared = getNechronicaShared();
+  if (shared && typeof shared.requestSaveAsName === "function") {
+    return shared.requestSaveAsName(currentName);
+  }
+  while (true) {
+    const raw = window.prompt(
+      message("saveAsPrompt"),
+      String(currentName || "").trim(),
+    );
+    if (raw == null) return null;
+    const name = String(raw || "").trim();
+    if (name) return name;
+    window.alert(message("saveAsNameRequired"));
+  }
 }
 
 async function writeClipboardText(text) {
@@ -1185,7 +1227,9 @@ function saveToStorage() {
       }
       setSaveStatus(
         "ok",
-        `保存完了 ${formatDateTimeDisplay((saved && saved.time) || nowIsoLocal())}`,
+        message("saveCompleted", {
+          time: formatDateTimeDisplay((saved && saved.time) || nowIsoLocal()),
+        }),
       );
       localUnsavedEnemyIds.delete(beforeId);
       localUnsavedEnemyIds.delete(String(current.ID || ""));
@@ -1384,7 +1428,7 @@ function renderEnemyList() {
           }, 1500);
         }
       } catch (_e) {
-        showToast("コピー失敗。コンソールに出力する", "error");
+        showToast(message("clipboardCopyFailedConsole"), "error");
         console.log(copyData);
       }
     });
@@ -3221,7 +3265,7 @@ function handleSummaryTableClick(event) {
         showToast("コマ状態をコピーした", "info");
       })
       .catch(() => {
-        showToast("コピー失敗。コンソールに出力する", "error");
+        showToast(message("clipboardCopyFailedConsole"), "error");
         console.log(text);
       });
     return;
@@ -3266,7 +3310,7 @@ function handleSummaryTableClick(event) {
         showKomaJsonCopySuccessToast();
       })
       .catch(() => {
-        showToast("コピー失敗。コンソールに出力する", "error");
+        showToast(message("clipboardCopyFailedConsole"), "error");
         console.log(text);
       });
     return;
@@ -3791,7 +3835,7 @@ function bindTableEvents() {
           showToast("選択行をコピーした", "info");
         })
         .catch(() => {
-          showToast("コピー失敗。コンソールに出力する", "error");
+          showToast(message("clipboardCopyFailedConsole"), "error");
           console.log(line);
         });
       return;
@@ -3990,7 +4034,7 @@ function setupEvents() {
           showToast("基本/強化/寵愛をコピーした", "info");
         })
         .catch(() => {
-          showToast("コピー失敗。コンソールに出力する", "error");
+          showToast(message("clipboardCopyFailedConsole"), "error");
           console.log(text);
         });
     });
@@ -4155,10 +4199,12 @@ function setupEvents() {
     upsertCurrentEnemyFromForm();
     const current = getSelectedEnemy();
     if (!current) return;
+    const saveAsName = requestSaveAsName(current.name || "");
+    if (saveAsName == null) return;
 
     const duplicated = JSON.parse(JSON.stringify(current));
     duplicated.ID = getNextId();
-    duplicated.name = duplicated.name + "（コピー）";
+    duplicated.name = saveAsName;
     duplicated.time = nowIsoLocal();
 
     state.enemies.unshift(duplicated);
@@ -4166,14 +4212,14 @@ function setupEvents() {
     state.selectedId = duplicated.ID;
     saveLastSelectedId(duplicated.ID);
     renderAll();
-    setSaveStatus("saving", "別名保存中…");
+    setSaveStatus("saving", message("saveAsInProgress"));
     saveToStorage();
   };
   bindClick(el.saveAsEnemyButtonBottom, handleSaveAsEnemy);
 
   const handleSaveEnemy = () => {
     upsertCurrentEnemyFromForm();
-    setSaveStatus("saving", "保存要求を送信中…");
+    setSaveStatus("saving", message("saveRequestSending"));
     saveToStorage();
     renderAll();
   };
@@ -4241,7 +4287,7 @@ function setupEvents() {
           showToast("選択中エネミーJSONをコピーした", "info");
         })
         .catch(() => {
-          showToast("コピー失敗。コンソールに出力する", "error");
+          showToast(message("clipboardCopyFailedConsole"), "error");
           console.log(pretty);
         });
     });
@@ -4259,7 +4305,7 @@ function setupEvents() {
           showKomaJsonCopySuccessToast();
         })
         .catch(() => {
-          showToast("コピー失敗。コンソールに出力する", "error");
+          showToast(message("clipboardCopyFailedConsole"), "error");
           console.log(pretty);
         });
     });

@@ -1,6 +1,16 @@
 (function attachNechronicaShared(globalScope) {
   const REPEATABLE_TIMINGS = new Set(["オート", "アクション"]);
   const toastTimers = new Map();
+  const MESSAGE_TEMPLATES = Object.freeze({
+    komaJsonCopySuccess:
+      "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
+    clipboardCopyFailedConsole: "コピー失敗。コンソールに出力する",
+    saveRequestSending: "保存要求を送信中…",
+    saveAsInProgress: "別名保存中…",
+    saveCompleted: "保存完了 {time}",
+    saveAsPrompt: "別名保存する名前を入力してください",
+    saveAsNameRequired: "保存名を入力してください",
+  });
 
   function normalizeTimingText(timing) {
     return String(timing || "").trim();
@@ -72,7 +82,7 @@
     toast.textContent = text;
     toast.className = className; // クラスをリセット
     if (kind === "error") toast.classList.add(errorClass);
-    
+
     toast.classList.add(showClass);
 
     const prevTimer = toastTimers.get(id);
@@ -82,8 +92,41 @@
       toast.classList.remove(showClass);
       toastTimers.delete(id);
     }, duration);
-    
+
     toastTimers.set(id, timer);
+  }
+
+  function getMessage(key, params = {}) {
+    const template = MESSAGE_TEMPLATES[key];
+    if (typeof template !== "string") return String(key || "");
+    return template.replace(/\{(\w+)\}/g, (_m, token) => {
+      const value = params ? params[token] : "";
+      return value == null ? "" : String(value);
+    });
+  }
+
+  function requestSaveAsName(currentName = "", opts = {}) {
+    if (typeof window === "undefined" || typeof window.prompt !== "function") {
+      return null;
+    }
+    const promptText =
+      String((opts && opts.promptText) || getMessage("saveAsPrompt")).trim() ||
+      "別名保存する名前を入力してください";
+    let defaultName = String(
+      (opts && opts.defaultName) != null
+        ? opts.defaultName
+        : String(currentName || "").trim(),
+    );
+    while (true) {
+      const raw = window.prompt(promptText, defaultName);
+      if (raw == null) return null;
+      const name = String(raw || "").trim();
+      if (name) return name;
+      if (typeof window.alert === "function") {
+        window.alert(getMessage("saveAsNameRequired"));
+      }
+      defaultName = "";
+    }
   }
 
   function resolveReportCheckedOnDamageTransition(
@@ -117,6 +160,8 @@
     canUseUsedStatusForManeuver,
     writeClipboardText,
     showToast,
+    getMessage,
+    requestSaveAsName,
     resolveReportCheckedOnDamageTransition,
     saveFile,
   };

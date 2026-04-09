@@ -1,5 +1,5 @@
 .satasupe-enemies-page {
-  --satasupe-accent: #d67a1f;
+  --satasupe-orange: #f39a00;
 }
 
 /* --------------------------------------------------------------------------
@@ -56,7 +56,7 @@
 
 .satasupe-header h1 {
   margin: 0 0 4px;
-  color: var(--satasupe-accent);
+  color: var(--satasupe-orange);
 }
 
 .satasupe-header p {
@@ -120,25 +120,17 @@
   line-height: 1;
 }
 
-.status-head-metrics input {
-  width: 2.8em;
-  max-width: 2.8em;
-  min-height: 1.95rem;
+.status-head-metrics input,
+.status-head-metrics .metric-karma input {
+  width: 1.6em;
+  max-width: 1.6em;
+  min-height: 1.75em;
   padding: 1px 4px;
-  font-size: 1.02rem;
-  font-weight: 700;
+  font-size: 1.5rem;
 }
 
 .status-head-metrics .metric-karma {
   margin-left: 2px;
-}
-
-.status-head-metrics .metric-karma input {
-  width: 3.1em;
-  max-width: 3.1em;
-  font-weight: 800;
-  border-color: #7b4b2f;
-  padding: 1px 4px;
 }
 
 .status-head-metrics .metric-karma input[data-karma-band="hot"] {
@@ -237,88 +229,101 @@
   color: #f5f9ff;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="0"] {
-  background: #f8f2e6;
-  border-color: #8f7d66;
-  color: #2b2522;
+  background: #ffffff !important;
+  border-color: #8f7d66 !important;
+  color: #2b2522 !important;
 }
 
-.status-head-metrics
+.status-sheet input[data-field="meta.danger"] {
+  font-family:
+    "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: 400;
+  font-size: 1.08rem;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="1"] {
-  background: #faecde;
-  border-color: #a88763;
-  color: #3a2a1b;
+  background: #fff1ee !important;
+  border-color: #cfb0aa !important;
+  color: #2b2522 !important;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="2"] {
-  background: #fbe2cf;
-  border-color: #b97a55;
-  color: #432617;
+  background: #ffe3de !important;
+  border-color: #d7a39a !important;
+  color: #2b2522 !important;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="3"] {
-  background: #f9d3bc;
-  border-color: #c56f4c;
-  color: #4a2416;
+  background: #ffd2cc !important;
+  border-color: #dd9489 !important;
+  color: #2b2522 !important;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="4"] {
-  background: #f6c2a6;
-  border-color: #c96243;
-  color: #521f14;
+  background: #ffbeb7 !important;
+  border-color: #e28579 !important;
+  color: #2b2522 !important;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="5"] {
-  background: #f2ad90;
-  border-color: #ca583b;
-  color: #5a1d13;
+  background: #ffa9a0 !important;
+  border-color: #e17366 !important;
+  color: #2b2522 !important;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="6"] {
-  background: #eb9378;
-  border-color: #c84c34;
-  color: #611911;
+  background: #ff9288 !important;
+  border-color: #dc5f52 !important;
+  color: #2b2522 !important;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="7"] {
-  background: #e07563;
-  border-color: #bf3f2e;
-  color: #fff2ec;
+  background: #f8786f !important;
+  border-color: #d44f43 !important;
+  color: #fff6f4 !important;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="8"] {
-  background: #cf574d;
-  border-color: #ab3328;
-  color: #fff3ee;
+  background: #e95a53 !important;
+  border-color: #c13f36 !important;
+  color: #fff6f4 !important;
 }
 
-.status-head-metrics
+.status-sheet
   input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="9"] {
-  background: #bc3f3f;
-  border-color: #962627;
-  color: #fff4f1;
+  background: #d93d3a !important;
+  border-color: #af2f2d !important;
+  color: #fff7f6 !important;
 }
 
-.status-head-metrics
-  input[data-field="meta.danger"][data-danger-band="danger"] {
-  background: #d00000;
-  border-color: #8b0000;
-  color: #fff6f6;
+.status-sheet input[data-field="meta.danger"][data-danger-band="danger"] {
+  background: linear-gradient(180deg, #c9252f, #8e1118) !important;
+  border-color: #ff6f7b !important;
+  color: #ffecec !important;
+  box-shadow: 0 0 10px rgba(214, 33, 43, 0.35);
 }
 
-.status-head-metrics input[data-field="meta.danger"][data-danger-band="abyss"] {
-  background: #050505;
-  border-color: #b9963a;
-  color: #ffd86b;
-  font-weight: 900;
+.status-sheet input[data-field="meta.danger"][data-danger-band="abyss"] {
+  background: linear-gradient(180deg, #2a0d12, #070305) !important;
+  border-color: #8a3b6c !important;
+  color: #ffd8ef !important;
+  box-shadow: 0 0 12px rgba(148, 36, 109, 0.35);
+  font-weight: 700;
 }
 
 .enemy-list {
@@ -423,22 +428,83 @@
   border: 1px solid #665244;
   border-radius: 5px;
   background: #3b2b1c;
-  color: #d9c8ae;
-  font-weight: 800;
-  line-height: 1.1;
+  color: #e9e5df;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .danger-label {
-  font-size: 0.54rem;
-  opacity: 0.75;
-  margin-bottom: 2px;
+  font-size: 0.64rem;
 }
 
 .danger-value {
-  font-size: 1.15rem;
-  font-family: inherit;
+  font-size: 2rem;
+  font-family:
+    "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="0"] {
+  background: #3b2b1c;
+  border-color: #665244;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="1"] {
+  background: #4b301f;
+  border-color: #7d6149;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="2"] {
+  background: #5b3521;
+  border-color: #956e4d;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="3"] {
+  background: #6a3922;
+  border-color: #aa764d;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="4"] {
+  background: #783d22;
+  border-color: #be7d4c;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="5"] {
+  background: #864021;
+  border-color: #cf804a;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="6"] {
+  background: #933f21;
+  border-color: #da7a47;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="7"] {
+  background: #a13a24;
+  border-color: #de6f47;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="8"] {
+  background: #ad3328;
+  border-color: #de614b;
+}
+
+.enemy-danger-badge[data-danger-band="grad"][data-danger-step="9"] {
+  background: #b62c2d;
+  border-color: #dc5450;
+}
+
+.enemy-danger-badge[data-danger-band="danger"] {
+  background: linear-gradient(180deg, #c9252f, #8e1118);
+  border-color: #ff6f7b;
+  box-shadow: 0 0 10px rgba(214, 33, 43, 0.35);
+}
+
+.enemy-danger-badge[data-danger-band="abyss"] {
+  background: linear-gradient(180deg, #2a0d12, #070305);
+  border-color: #8a3b6c;
+  box-shadow: 0 0 12px rgba(148, 36, 109, 0.35);
 }
 
 .enemy-list-icon-wrap {
@@ -543,7 +609,7 @@
 }
 
 .enemy-list-time-tag {
-  font-size: 0.68rem;
+  font-size: 1rem;
   color: #7d6b5d;
   white-space: nowrap;
   line-height: 1;
@@ -865,12 +931,12 @@
 .action-btn:hover,
 .small-square-btn:hover {
   background: linear-gradient(180deg, #fff4ea 0%, #ffd9b6 100%);
-  border-color: var(--satasupe-accent);
+  border-color: var(--satasupe-orange);
   color: #25180d;
 }
 
 .action-btn.is-main {
-  border-color: var(--satasupe-accent);
+  border-color: var(--satasupe-orange);
   background: linear-gradient(180deg, #fff6ef 0%, #ffd8bb 100%);
   color: #4a2400;
 }
@@ -1060,7 +1126,12 @@ tr.is-row-dragging {
   text-shadow:
     0 1px 1px rgba(0, 0, 0, 0.5),
     0 0 8px rgba(123, 29, 42, 0.35);
-  background: linear-gradient(90deg, #2b0f16 0%, #4a121e 42%, #1f191d 100%);
+  background: linear-gradient(
+    90deg,
+    #000000 0%,
+    #151515 62%,
+    var(--satasupe-orange) 100%
+  );
   border: none;
   border-radius: 8px 0 0 8px;
   width: calc(100% + 20px);
@@ -1330,7 +1401,7 @@ tr.is-row-dragging {
   max-width: 2.8em;
   min-height: 1.8rem;
   padding: 4px 6px;
-  font-size: 12px;
+  font-size: 1rem;
   text-align: right;
 }
 
@@ -1353,8 +1424,8 @@ tr.is-row-dragging {
 }
 
 #karmaEffectLineModeSelect.switch:checked {
-  background: linear-gradient(180deg, #67d7ea 0%, #4fc1d8 100%);
-  border-color: #8fdde9;
+  background: linear-gradient(180deg, #18df29 0%, #00c910 100%);
+  border-color: #84e28b;
 }
 
 .personal-memo-block {
@@ -1843,7 +1914,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .status-env-table td.ten-cell,
 .status-aptitude-table td.ten-cell,
 .status-combat-table td.ten-cell {
-  padding: 1px;
+  padding: 1px 8px;
   background: #1a1615;
 }
 
@@ -2038,12 +2109,17 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .hobby-base-count-wrap input {
-  width: 44px;
+  width: 56px;
   height: 22px;
   border: 1px solid #777;
   border-radius: 2px;
   background: #f7f7f7;
   color: #111;
+  font-family:
+    "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.02rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
   text-align: center;
   padding: 0;
 }
@@ -3403,7 +3479,7 @@ textarea::placeholder {
   /* 危険度: 0-9 グラデ / 10+ ヤバめ / 20+ 超ヤバめ */
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="0"] {
     background: #f8f2e6;
     border-color: #8f7d66;
@@ -3411,7 +3487,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="1"] {
     background: #f7e5d3;
     border-color: #ab8262;
@@ -3419,7 +3495,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="2"] {
     background: #f6d8bf;
     border-color: #b77755;
@@ -3427,7 +3503,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="3"] {
     background: #f4c8a9;
     border-color: #c16a48;
@@ -3435,7 +3511,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="4"] {
     background: #f1b28f;
     border-color: #c65f3f;
@@ -3443,7 +3519,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="5"] {
     background: #ec9374;
     border-color: #c14f35;
@@ -3451,7 +3527,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="6"] {
     background: #e3725f;
     border-color: #ba412f;
@@ -3459,7 +3535,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="7"] {
     background: #d9534d;
     border-color: #ab322d;
@@ -3467,7 +3543,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="8"] {
     background: #cb3e43;
     border-color: #99252b;
@@ -3475,7 +3551,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="grad"][data-danger-step="9"] {
     background: #b92d36;
     border-color: #851b24;
@@ -3483,7 +3559,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="danger"] {
     background: #930014;
     border-color: #5f000c;
@@ -3492,7 +3568,7 @@ textarea::placeholder {
   }
   .satasupe-enemies-page
     .editor-pane
-    .status-head-metrics
+    .status-sheet
     input[data-field="meta.danger"][data-danger-band="abyss"] {
     background: #240006;
     border-color: #ff2a4d;
