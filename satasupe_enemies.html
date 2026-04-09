@@ -186,6 +186,7 @@
                       <td colspan="4">
                         <div class="languages-row-wrap">
                           <select id="npcAgePresetSelect" aria-label="年齢ランダム候補">
+                            <option value="fixed">固定</option>
                             <option value="random">ランダム（1〜100）</option>
                             <option value="child">幼年（6+2D6）</option>
                             <option value="boy">少年（10+2D6）</option>
@@ -226,7 +227,7 @@
                       <th>言語</th>
                       <td colspan="7">
                         <div class="languages-row-wrap">
-                          <input type="text" data-field="meta.languages" list="languagePresetList" readonly
+                          <input type="text" data-field="meta.languages" list="languagePresetList"
                             placeholder="教養に応じた候補を表示" title="教養に応じた候補を表示。手動モードで上書き可能。">
                           <button id="toggleLanguageManualButton" type="button" class="small-square-btn">手動</button>
                         </div>

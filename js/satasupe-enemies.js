@@ -66,6 +66,9 @@
     enemyPagerInfo: document.getElementById("enemyPagerInfo"),
     enemyPrevButton: document.getElementById("enemyPrevButton"),
     enemyNextButton: document.getElementById("enemyNextButton"),
+    fieldAuthor: document.getElementById("field-author"),
+    fieldIsPublic: document.getElementById("field-is-public"),
+    fieldIsPublicText: document.getElementById("field-is-public-text"),
   };
 
   let draggingRowState = { kind: "", index: -1 };
@@ -169,6 +172,18 @@
     "ワイルドな",
     "バランスが取れてる",
   ];
+  const ZERO_FLOOR_FIELDS = new Set([
+    "ability.crime",
+    "ability.life",
+    "ability.love",
+    "ability.culture",
+    "ability.combat",
+    "ability.body",
+    "ability.mind",
+    "ability.powerInit",
+    "ability.powerAtk",
+    "ability.powerDes",
+  ]);
   const LIKE_DETAIL_OPTIONS = ["年下", "同い年", "年上"];
   const NPC_AGE_CHART = [
     { key: "child", label: "幼年", base: 6, dice: 2 },
@@ -246,6 +261,7 @@
     return {
       id: getNextSequentialId(),
       author: "",
+      is_public: true,
       name: "",
       nameKana: "",
       createdAt: nowText(),
@@ -912,12 +928,15 @@
 
   function toApiEnemy(sheet) {
     const author = String(sheet.author || "").trim() || getRememberedAuthor();
+    const categoryForStorage = String(
+      (sheet && sheet.meta && sheet.meta.category) || "",
+    ).trim();
     return {
       ID: String(sheet.id || "").trim(),
       author,
       name: String(sheet.name || "").trim() || "無題",
-      class_type: getSheetCategory(sheet),
-      is_public: true,
+      class_type: categoryForStorage,
+      is_public: !!sheet.is_public,
       memo: String(sheet.memo || ""),
       data: {
         system: "satasupe",
@@ -937,6 +956,7 @@
         : createSheetTemplate();
     sheet.id = String((enemy && enemy.ID) || sheet.id || "").trim();
     sheet.author = String((enemy && enemy.author) || sheet.author || "").trim();
+    sheet.is_public = !!(enemy && enemy.is_public);
     sheet.name = String((enemy && enemy.name) || sheet.name || "").trim();
     sheet.memo = String((enemy && enemy.memo) || sheet.memo || "");
     if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
@@ -1063,6 +1083,8 @@
     const field = state.searchField || "all";
 
     let targets = state.sheets.filter((s) => {
+      const id = String((s && s.id) || "");
+      if (localUnsavedSheetIds.has(id)) return false;
       if (!q) return true;
       if (field === "id")
         return String(s.id || "")
@@ -1130,6 +1152,8 @@
       const karmaCount = (sheet.karma || []).length;
       const iconUrl = sheet.icon_url || "";
       const classType = getSheetCategory(sheet);
+      const authorText = String((sheet && sheet.author) || "").trim();
+      const authorLine = authorText ? `<span>作者：${authorText}</span>` : "";
       const silhouetteClass = `is-class-${classType}`;
 
       const li = document.createElement("li");
@@ -1155,7 +1179,7 @@
                 <span class="enemy-list-karma-tag">異能数 ${karmaCount}</span>
               </div>
               <div class="enemy-list-lower-info">
-                <span>作者：${sheet.author || "公式"}</span>
+                ${authorLine}
                 <span>ID：${sheet.id}</span>
               </div>
             </div>
@@ -1236,12 +1260,25 @@
     if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
     if (!sheet.base || typeof sheet.base !== "object") sheet.base = {};
     const key = String(presetKey || "random").trim();
+    if (key === "fixed") {
+      sheet.updatedAt = nowText();
+      return;
+    }
     sheet.base.age =
       key === "random" ? randInt(1, 100) : rollNpcAgeByPreset(key);
     sheet.base.sex = pickRandom(["男", "女", "？"]);
     sheet.meta.likeType = pickRandom(LIKE_TYPE_OPTIONS);
     sheet.meta.likeDetail = pickRandom(LIKE_DETAIL_OPTIONS);
     sheet.updatedAt = nowText();
+  }
+
+  function syncNpcAgePresetUi() {
+    if (!el.npcAgePresetSelect || !el.randomNpcAgeButton) return;
+    const preset = String(el.npcAgePresetSelect.value || "random").trim();
+    const isFixed = preset === "fixed";
+    el.randomNpcAgeButton.hidden = false;
+    el.randomNpcAgeButton.disabled = isFixed;
+    el.randomNpcAgeButton.classList.toggle("is-disabled-visual", isFixed);
   }
 
   function fillForm(sheet) {
@@ -1263,6 +1300,16 @@
       }
       node.value = v == null ? "" : String(v);
     });
+    if (el.fieldAuthor) {
+      el.fieldAuthor.value = String(sheet.author || "");
+    }
+    if (el.fieldIsPublic) {
+      el.fieldIsPublic.checked = !!sheet.is_public;
+    }
+    if (el.fieldIsPublicText) {
+      el.fieldIsPublicText.textContent = sheet.is_public ? "公開" : "非公開";
+    }
+    syncNpcAgePresetUi();
     renderHobbyChips();
   }
 
@@ -1276,12 +1323,24 @@
       if (path === "base.sex") v = normalizeSexValue(v);
       if (node.type === "number" && v !== "") {
         v = Number(v);
+        if (ZERO_FLOOR_FIELDS.has(path) && Number.isFinite(v))
+          v = Math.max(0, v);
         if (path === "meta.danger" && Number.isFinite(v)) v = Math.max(0, v);
         if (path === "meta.karmaValue" && Number.isFinite(v))
           v = Math.max(1, Math.min(13, v));
       }
       setByPath(sheet, path, v);
     });
+    if (el.fieldAuthor) {
+      sheet.author = String(el.fieldAuthor.value || "").trim();
+      if (sheet.author) rememberAuthor(sheet.author);
+    }
+    if (el.fieldIsPublic) {
+      sheet.is_public = !!el.fieldIsPublic.checked;
+    }
+    if (el.fieldIsPublicText) {
+      el.fieldIsPublicText.textContent = sheet.is_public ? "公開" : "非公開";
+    }
     recomputeDerivedFields(sheet);
     renderDerivedFields(sheet);
     sheet.updatedAt = nowText();
@@ -2114,33 +2173,15 @@
       el.enemyList.addEventListener("click", async (e) => {
         const target = e.target;
 
-        // 複製・出力ボタン
+        // 出力ボタン（コピー作成ではなくコマ出力）
         const outputBtn = target.closest(".is-output");
         if (outputBtn) {
           e.stopPropagation();
           const id = outputBtn.getAttribute("data-id");
-          const targetSheet = state.sheets.find(
-            (s) => String(s.id) === String(id),
-          );
-          if (targetSheet) {
-            const copied = deepClone(targetSheet);
-            copied.id = getNextSequentialId();
-            copied.name = `${copied.name || "無題"}（コピー）`;
-            copied.createdAt = nowText();
-            copied.updatedAt = nowText();
-            state.sheets.unshift(copied);
-            localUnsavedSheetIds.add(String(copied.id || ""));
-            state.selectedId = copied.id;
-            markDirty();
-            renderAll();
-            try {
-              setStatus("出力中…"); // 内部的には複製だが、ラベルを合わせる
-              await saveCurrentToDb();
-            } catch (err) {
-              console.error(err);
-              setStatus("出力失敗", "error");
-            }
-          }
+          if (!id) return;
+          state.selectedId = id;
+          renderAll();
+          exportKomaJson();
           return;
         }
 
@@ -2181,9 +2222,12 @@
           v !== ""
         ) {
           v = Number(v);
+          if (ZERO_FLOOR_FIELDS.has(field) && Number.isFinite(v))
+            v = Math.max(0, v);
           if (field === "meta.danger" && Number.isFinite(v)) v = Math.max(0, v);
           if (field === "meta.karmaValue" && Number.isFinite(v))
             v = Math.max(1, Math.min(13, v));
+          if (Number.isFinite(v)) target.value = String(v);
         }
         setByPath(sheet, field, v);
         if (field === "author") rememberAuthor(v);
@@ -2260,6 +2304,37 @@
       });
     }
 
+    if (el.fieldAuthor) {
+      el.fieldAuthor.addEventListener("input", (e) => {
+        const sheet = getSelected();
+        if (!sheet) return;
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        sheet.author = String(target.value || "").trim();
+        if (sheet.author) rememberAuthor(sheet.author);
+        sheet.updatedAt = nowText();
+        markDirty();
+        renderList();
+      });
+    }
+
+    if (el.fieldIsPublic) {
+      el.fieldIsPublic.addEventListener("change", (e) => {
+        const sheet = getSelected();
+        if (!sheet) return;
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        sheet.is_public = !!target.checked;
+        if (el.fieldIsPublicText) {
+          el.fieldIsPublicText.textContent = sheet.is_public
+            ? "公開"
+            : "非公開";
+        }
+        sheet.updatedAt = nowText();
+        markDirty();
+      });
+    }
+
     if (el.openHobbyPickerButton && el.hobbyPickerPanel) {
       el.openHobbyPickerButton.addEventListener("click", (event) => {
         event.preventDefault();
@@ -2311,10 +2386,17 @@
         const preset = el.npcAgePresetSelect
           ? String(el.npcAgePresetSelect.value || "random")
           : "random";
+        if (preset === "fixed") return;
         applyRandomNpcProfile(sheet, preset);
         fillForm(sheet);
         markDirty();
         renderList();
+      });
+    }
+
+    if (el.npcAgePresetSelect) {
+      el.npcAgePresetSelect.addEventListener("change", () => {
+        syncNpcAgePresetUi();
       });
     }
 
