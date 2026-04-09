@@ -95,7 +95,7 @@ function createSheetTemplate() {
       quote: "",
       hobbies: "",
       likeType: "",
-      likeDetail: "年上",
+      likeDetail: "",
       garbageTable: "ガラクタ表",
       expConv: 0,
       karmaCount: 0,
@@ -103,7 +103,7 @@ function createSheetTemplate() {
       powerBase: 3,
       powerRemain: 3,
       languages: "",
-      category: "サタスペ",
+      category: "一般人",
     },
   };
 }

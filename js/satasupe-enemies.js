@@ -69,6 +69,9 @@
     fieldAuthor: document.getElementById("field-author"),
     fieldIsPublic: document.getElementById("field-is-public"),
     fieldIsPublicText: document.getElementById("field-is-public-text"),
+    toggleLanguageManualButton: document.getElementById(
+      "toggleLanguageManualButton",
+    ),
   };
 
   let draggingRowState = { kind: "", index: -1 };
@@ -193,6 +196,16 @@
     { key: "mature", label: "壮年", base: 40, dice: 5 },
     { key: "old", label: "老人", base: 60, dice: 6 },
   ];
+  const LANGUAGE_PRESET_BY_CULTURE = [
+    "オオサカベンと母国語の会話のみ",
+    "母国語の読み書き＆オオサカベンの会話のみ",
+    "母国語＆オオサカベン",
+    "母国語＆オオサカベン＆1か国語",
+    "母国語＆オオサカベン＆2か国語",
+    "母国語＆オオサカベン＆3か国語",
+    "世界中の言語を操る",
+    "未知の言語の読み書き会話も可能",
+  ];
 
   function nowText() {
     const d = new Date();
@@ -316,11 +329,12 @@
         dangerLevel: "0",
         karmaValue: 7,
         reaction: "中立",
-        size: "M",
+        size: "中",
+        category: "",
         quote: "",
         hobbies: "",
         likeType: "",
-        likeDetail: "年上",
+        likeDetail: "",
         garbageTable: "ガラクタ表",
         expConv: 0,
         karmaCount: 0,
@@ -328,8 +342,50 @@
         powerBase: 3,
         powerRemain: 3,
         languages: "",
+        languageManual: false,
       },
     };
+  }
+
+  function stripOuterBrackets(text) {
+    let t = normalizeText(text);
+    while (t.startsWith("【") && t.endsWith("】") && t.length >= 2) {
+      t = t.slice(1, -1).trim();
+    }
+    return t;
+  }
+
+  function ensureBracketed(text) {
+    const t = stripOuterBrackets(text);
+    return t ? `【${t}】` : "";
+  }
+
+  function getLanguagePresetByCulture(cultureRaw) {
+    const c = toInt(cultureRaw, 1);
+    const idx = Math.max(
+      0,
+      Math.min(LANGUAGE_PRESET_BY_CULTURE.length - 1, c - 1),
+    );
+    return LANGUAGE_PRESET_BY_CULTURE[idx] || LANGUAGE_PRESET_BY_CULTURE[0];
+  }
+
+  function syncLanguageUiFromSheet(sheet) {
+    const field = el.enemyEditorForm
+      ? el.enemyEditorForm.querySelector('[data-field="meta.languages"]')
+      : null;
+    const btn = el.toggleLanguageManualButton;
+    if (!field || !(field instanceof HTMLInputElement) || !sheet) return;
+    if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
+    const isManual = !!sheet.meta.languageManual;
+    field.readOnly = !isManual;
+    if (!isManual) {
+      sheet.meta.languages = getLanguagePresetByCulture(sheet.ability?.culture);
+      field.value = sheet.meta.languages;
+    }
+    if (btn) {
+      btn.textContent = isManual ? "自動" : "手動";
+      btn.setAttribute("aria-pressed", isManual ? "true" : "false");
+    }
   }
 
   function pickExp(table, value) {
@@ -849,6 +905,35 @@
     }
   }
 
+  function isFreshBlankSheetForRestore(sheet) {
+    if (!sheet || typeof sheet !== "object") return true;
+    const name = String(sheet.name || "").trim();
+    const quote = normalizeText(sheet.meta && sheet.meta.quote);
+    const memo = normalizeText(sheet.memo);
+    const hobbies = normalizeText(sheet.meta && sheet.meta.hobbies);
+    const hasKarma = Array.isArray(sheet.karma) && sheet.karma.length > 0;
+    const hasWeapon = Array.isArray(sheet.weapons)
+      ? sheet.weapons.some((w) => normalizeText(w && w.name))
+      : false;
+    const hasOutfit = Array.isArray(sheet.outfits)
+      ? sheet.outfits.some((o) => normalizeText(o && o.name))
+      : false;
+    const hasVehicle = Array.isArray(sheet.vehicles)
+      ? sheet.vehicles.some((v) => normalizeText(v && v.name))
+      : false;
+    const isDefaultName = name === "" || name === "新規エネミー";
+    return (
+      isDefaultName &&
+      !quote &&
+      !memo &&
+      !hobbies &&
+      !hasKarma &&
+      !hasWeapon &&
+      !hasOutfit &&
+      !hasVehicle
+    );
+  }
+
   function showRestoreDialog(sheet) {
     return new Promise((resolve) => {
       const overlay = document.createElement("div");
@@ -1162,7 +1247,7 @@
         li.classList.add("is-active");
 
       li.innerHTML = `
-        <button type="button" class="enemy-list-card ${silhouetteClass}" data-id="${sheet.id}">
+        <div class="enemy-list-card ${silhouetteClass}" data-id="${sheet.id}">
           <div class="enemy-list-row">
             <div class="enemy-list-side-left">
               <div class="enemy-danger-badge" data-danger-band="${dangerStyle.band}" data-danger-step="${dangerStyle.step}">
@@ -1189,16 +1274,16 @@
                 <span class="enemy-list-time-tag">${formatShortDate(sheet.updatedAt)}</span>
               </div>
               <div class="enemy-list-btns-row">
-                <div class="list-side-btn is-load" data-id="${sheet.id}" title="編集">
+                <button type="button" class="list-side-btn is-load" data-id="${sheet.id}" title="編集">
                   <i class="fa-solid fa-pen-to-square"></i><br>編集
-                </div>
-                <div class="list-side-btn is-output" data-id="${sheet.id}" title="出力">
+                </button>
+                <button type="button" class="list-side-btn is-output" data-id="${sheet.id}" title="出力">
                   <i class="fa-solid fa-file-export"></i><br>出力
-                </div>
+                </button>
               </div>
             </div>
           </div>
-        </button>
+        </div>
       `;
       el.enemyList.appendChild(li);
     });
@@ -1309,12 +1394,14 @@
     if (el.fieldIsPublicText) {
       el.fieldIsPublicText.textContent = sheet.is_public ? "公開" : "非公開";
     }
+    syncLanguageUiFromSheet(sheet);
     syncNpcAgePresetUi();
     renderHobbyChips();
   }
 
-  function readFormToSheet(sheet) {
+  function readFormToSheet(sheet, options = {}) {
     if (!sheet || !el.enemyEditorForm) return;
+    const silent = !!(options && options.silent);
     const fields = el.enemyEditorForm.querySelectorAll("[data-field]");
     fields.forEach((node) => {
       const path = node.getAttribute("data-field");
@@ -1342,8 +1429,10 @@
       el.fieldIsPublicText.textContent = sheet.is_public ? "公開" : "非公開";
     }
     recomputeDerivedFields(sheet);
-    renderDerivedFields(sheet);
-    sheet.updatedAt = nowText();
+    if (!silent) {
+      renderDerivedFields(sheet);
+      sheet.updatedAt = nowText();
+    }
   }
 
   function tableCellInput(value, path, type = "text") {
@@ -1618,8 +1707,6 @@
     const base = sheet.base || {};
     const ability = sheet.ability || {};
     const meta = sheet.meta || {};
-    const condition = sheet.condition || {};
-    const home = sheet.home || {};
 
     const hobbies = normalizeText(meta.hobbies)
       ? normalizeText(meta.hobbies)
@@ -1646,14 +1733,40 @@
       })
       .filter(Boolean);
 
+    const quoteRaw = normalizeText(meta.quote);
+    const quoteText = (() => {
+      if (!quoteRaw) return "";
+      if (quoteRaw.startsWith("「") && quoteRaw.endsWith("」")) return quoteRaw;
+      return `「${quoteRaw}」`;
+    })();
+
     const weaponLines = (sheet.weapons || [])
       .map((w) => {
         const name = normalizeText(w.name) || "武器なし";
         const aim = normalizeText(w.aim) || "-";
         const damage = normalizeText(w.damage) || "-";
-        const notes = normalizeText(w.notes);
-        const special = notes ? `、${notes}` : "";
-        return `${name}（命${aim}、ダ${damage}${special}）`;
+        const fields = [normalizeText(w.range), normalizeText(w.notes)].filter(
+          Boolean,
+        );
+        let specialEffect = "";
+        let fatal = "";
+        fields.forEach((f) => {
+          const fatalNum = f.match(/必殺\s*(\d+)|^(\d+)$/);
+          if (!fatal && fatalNum) {
+            const n = fatalNum[1] || fatalNum[2];
+            fatal = `必殺${n}`;
+            return;
+          }
+          if (!fatal && /^必殺/.test(f)) {
+            const n = f.match(/\d+/);
+            fatal = n ? `必殺${n[0]}` : f;
+            return;
+          }
+          if (!specialEffect) specialEffect = f;
+        });
+        const tails = [specialEffect, fatal].filter(Boolean).join("、");
+        const suffix = tails ? `、${tails}` : "";
+        return `${name}（命${aim}、ダ${damage}${suffix}）`;
       })
       .filter(Boolean)
       .join("\n");
@@ -1662,9 +1775,9 @@
       "",
       "───",
       `【名前】${normalizeText(sheet.name) || "無題"}`,
-      normalizeText(meta.quote),
+      quoteText,
       `危険度：${toInt(meta.danger, 0)}　反応：${normalizeText(meta.reaction) || "中立"}　サイズ：${normalizeText(meta.size) || "M"}`,
-      `${normalizeText(base.sex)}　${normalizeText(base.age)}歳　好み：${normalizeText(base.likes)}`,
+      `${normalizeText(base.sex)}　${normalizeText(base.age) || "？"}歳　好み：${normalizeText(base.likes) || `${normalizeText(meta.likeType)}${normalizeText(meta.likeDetail)}` || "？"}`,
       `【犯罪】${toInt(ability.crime, 1)}【生活】${toInt(ability.life, 1)}【恋愛】${toInt(ability.love, 1)}【教養】${toInt(ability.culture, 1)}【戦闘】${toInt(ability.combat, 1)}`,
       `【肉体】${toInt(ability.body, 1)}【精神】${toInt(ability.mind, 1)}`,
       `【性業値】${toInt(meta.karmaValue, 7)}`,
@@ -1672,12 +1785,24 @@
       "",
       hobbies ? `趣味：${hobbies}` : "",
       "",
-      talents.length ? `異能：${talents.join("/")}` : "",
-      prices.length ? `代償：${prices.join("/")}` : "",
-      karmaNames.length ? `カルマ：${karmaNames.join("、")}` : "",
-      "",
-      `状態：BP${toInt(condition.bp, 10)} / MP${toInt(condition.mp, 10)} / 財布${toInt(condition.wallet, 10)}`,
-      `アジト：${normalizeText(home.place)}（快適度${toInt(home.comfortable, 10)} / セキュリティ${toInt(home.security, 10)}）`,
+      talents.length
+        ? `異能：${talents
+            .map((x) => ensureBracketed(x))
+            .filter(Boolean)
+            .join("/")}`
+        : "",
+      prices.length
+        ? `代償：${prices
+            .map((x) => ensureBracketed(x))
+            .filter(Boolean)
+            .join("/")}`
+        : "",
+      karmaNames.length && !talents.length && !prices.length
+        ? `カルマ：${karmaNames
+            .map((x) => ensureBracketed(x))
+            .filter(Boolean)
+            .join("、")}`
+        : "",
       "",
       "◆装備",
       weaponLines,
@@ -1690,19 +1815,17 @@
   }
 
   function buildKomaCommands(sheet) {
-    const ability = sheet.ability || {};
-    const meta = sheet.meta || {};
     const commands = [];
 
     commands.push("@基本");
     commands.push(`SR{性業値} 性業値判定`);
-    commands.push(`(${toInt(ability.crime, 1)})R>=X[,1,13] 犯罪判定`);
-    commands.push(`(${toInt(ability.life, 1)})R>=X[,1,13] 生活判定`);
-    commands.push(`(${toInt(ability.love, 1)})R>=X[,1,13] 恋愛判定`);
-    commands.push(`(${toInt(ability.culture, 1)})R>=X[,1,13] 教養判定`);
-    commands.push(`(${toInt(ability.combat, 1)})R>=X[,1,13] 戦闘判定`);
-    commands.push(`(${toInt(ability.body, 1)})R>=X[,1,13] 肉体判定`);
-    commands.push(`(${toInt(ability.mind, 1)})R>=X[,1,13] 精神判定`);
+    commands.push(`({犯罪})R>=X[,1,13] 犯罪判定`);
+    commands.push(`({生活})R>=X[,1,13] 生活判定`);
+    commands.push(`({恋愛})R>=X[,1,13] 恋愛判定`);
+    commands.push(`({教養})R>=X[,1,13] 教養判定`);
+    commands.push(`({戦闘})R>=X[,1,13] 戦闘判定`);
+    commands.push(`({肉体})R>=X[,1,13] 肉体判定`);
+    commands.push(`({精神})R>=X[,1,13] 精神判定`);
 
     commands.push("@異能・代償");
     (sheet.karma || []).forEach((k) => {
@@ -1712,27 +1835,19 @@
       const target = normalizeText(k.target) || "自分";
       const judge = normalizeText(k.judge) || "なし";
       const effect = normalizeText(k.effect);
-      if (name)
-        commands.push(
-          `【${kind ? `${kind}:` : ""}${name}】${use}・${target}・${judge}`,
-        );
+      if (name) commands.push(`【${name}】${use}・${target}・${judge}`);
       if (effect) commands.push(effect);
-      const talent = kind === "異能" ? name : normalizeText(k.talent);
-      if (talent) commands.push(`${talent}`);
-      const price = kind === "代償" ? name : normalizeText(k.price);
-      if (price) commands.push(`${price}`);
     });
 
     commands.push("@汎用");
-    commands.push(`(${toInt(ability.body, 1)})R>=X[,1,13] セーブ判定`);
-    commands.push(`(${toInt(ability.body, 1)})R>=X[1,2,13] 跳ぶ`);
+    commands.push(`({肉体})R>=X[,1,13] セーブ判定`);
+    commands.push(`({肉体})R>=X[1,2,13] 跳ぶ`);
 
     commands.push("@武器");
     (sheet.weapons || []).forEach((w) => {
       const name = normalizeText(w.name) || "武器";
       const aim = normalizeText(w.aim) || "X";
-      const dice = toDiceExpr(w.damage);
-      commands.push(`(${dice})R>=${aim}[,1,13] ${name}`);
+      commands.push(`({攻撃力})R>=${aim}[,1,13] ${name}`);
     });
 
     commands.push("@各種表");
@@ -2056,10 +2171,16 @@
     area.remove();
   }
 
-  function exportKomaJson() {
-    const sheet = getSelected();
-    if (!sheet) return;
-    readFormToSheet(sheet);
+  function exportKomaJson(sourceSheet = null) {
+    let sheet = null;
+    if (sourceSheet && typeof sourceSheet === "object") {
+      sheet = deepClone(sourceSheet);
+    } else {
+      const selected = getSelected();
+      if (!selected) return;
+      sheet = deepClone(selected);
+      readFormToSheet(sheet, { silent: true });
+    }
     const out = buildKomaCharacterJson(sheet);
     const text = JSON.stringify(out);
     writeClipboardText(text)
@@ -2179,18 +2300,27 @@
           e.stopPropagation();
           const id = outputBtn.getAttribute("data-id");
           if (!id) return;
-          state.selectedId = id;
-          renderAll();
-          exportKomaJson();
+          const targetSheet = state.sheets.find(
+            (s) => String(s.id) === String(id),
+          );
+          if (!targetSheet) return;
+          const snapshot = deepClone(targetSheet);
+          if (String(id) === String(state.selectedId)) {
+            readFormToSheet(snapshot, { silent: true });
+          }
+          exportKomaJson(snapshot);
           return;
         }
 
-        const btn = target.closest(".enemy-list-card");
-        if (!btn) return;
-        const id = btn.getAttribute("data-id");
-        if (!id) return;
-        state.selectedId = id;
-        renderAll();
+        const loadBtn = target.closest(".is-load");
+        if (loadBtn) {
+          e.stopPropagation();
+          const id = loadBtn.getAttribute("data-id");
+          if (!id) return;
+          state.selectedId = id;
+          renderAll();
+          return;
+        }
       });
     }
 
@@ -2232,6 +2362,16 @@
         setByPath(sheet, field, v);
         if (field === "author") rememberAuthor(v);
         if (field === "meta.hobbies") renderHobbyChips();
+        if (
+          field === "ability.culture" &&
+          sheet.meta &&
+          !sheet.meta.languageManual
+        ) {
+          sheet.meta.languages = getLanguagePresetByCulture(
+            sheet.ability?.culture,
+          );
+          syncLanguageUiFromSheet(sheet);
+        }
         recomputeDerivedFields(sheet);
         renderDerivedFields(sheet);
         if (field === "ability.life" || field === "ability.culture") {
@@ -2400,10 +2540,21 @@
       });
     }
 
+    if (el.toggleLanguageManualButton) {
+      el.toggleLanguageManualButton.addEventListener("click", () => {
+        const sheet = getSelected();
+        if (!sheet) return;
+        if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
+        sheet.meta.languageManual = !sheet.meta.languageManual;
+        syncLanguageUiFromSheet(sheet);
+        sheet.updatedAt = nowText();
+        markDirty();
+      });
+    }
+
     if (el.newEnemyButton) {
       el.newEnemyButton.addEventListener("click", () => {
         const sheet = createSheetTemplate();
-        sheet.name = "新規エネミー";
         sheet.author = getRememberedAuthor();
         state.sheets.unshift(sheet);
         localUnsavedSheetIds.add(String(sheet.id || ""));
@@ -2563,19 +2714,40 @@
       loadStorage();
     }
 
-    // 既存データがある場合は、前回データを開くか新規で開くかを毎回確認
+    // 前回復元ダイアログは「保存後未変更」または「新規白紙」では表示しない
     if (state.sheets.length) {
       const lastId = getLastSelectedId();
       const lastSheet = lastId
         ? state.sheets.find((s) => String(s.id) === String(lastId))
         : null;
-      const preferred = lastSheet || state.sheets[0];
-      const restore = await showRestoreDialog(preferred);
-      if (restore) {
-        state.selectedId = preferred ? preferred.id : state.selectedId;
-      } else {
+      if (lastId && !lastSheet) {
         const fresh = createSheetTemplate();
-        fresh.name = "新規エネミー";
+        fresh.author = getRememberedAuthor();
+        state.sheets.unshift(fresh);
+        localUnsavedSheetIds.add(String(fresh.id || ""));
+        state.selectedId = fresh.id;
+        markDirty();
+      }
+      const preferred = lastSheet || state.sheets[0];
+      const shouldShowRestoreDialog =
+        !!lastSheet && state.dirty && !isFreshBlankSheetForRestore(preferred);
+      if (shouldShowRestoreDialog) {
+        const restore = await showRestoreDialog(preferred);
+        if (restore) {
+          state.selectedId = preferred ? preferred.id : state.selectedId;
+        } else {
+          const fresh = createSheetTemplate();
+          fresh.author = getRememberedAuthor();
+          state.sheets.unshift(fresh);
+          localUnsavedSheetIds.add(String(fresh.id || ""));
+          state.selectedId = fresh.id;
+          markDirty();
+        }
+      } else {
+        state.selectedId = preferred ? preferred.id : state.selectedId;
+      }
+      if (!state.selectedId) {
+        const fresh = createSheetTemplate();
         fresh.author = getRememberedAuthor();
         state.sheets.unshift(fresh);
         localUnsavedSheetIds.add(String(fresh.id || ""));
