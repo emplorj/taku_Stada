@@ -35,6 +35,7 @@
     addOutfitButton: document.getElementById("addOutfitButton"),
     addVehicleButton: document.getElementById("addVehicleButton"),
     addKarmaButton: document.getElementById("addKarmaButton"),
+    addKarmaPairButton: document.getElementById("addKarmaPairButton"),
     addHistoryButton: document.getElementById("addHistoryButton"),
     weaponsBody: document.getElementById("weaponsBody"),
     outfitsBody: document.getElementById("outfitsBody"),
@@ -97,7 +98,11 @@
       .replace(/\"/g, "&quot;")
       .replace(/'/g, "&#39;");
   }
-
+  function autoResizeTextarea(textarea) {
+    if (!textarea || textarea.tagName.toLowerCase() !== "textarea") return;
+    textarea.style.height = "auto"; // 一旦リセットして高さを再計算できるようにする
+    textarea.style.height = textarea.scrollHeight + "px"; // 中身の高さに合わせる
+  }
   const body = document.body;
   if (!body || !body.classList.contains("satasupe-enemies-page")) return;
 
@@ -148,6 +153,95 @@
     "bg-green",
     "bg-purple",
   ];
+  const MONSTER_KARMA_PRESET_BY_CATEGORY = {
+    一般人: {
+      name: "【通報】",
+      use: "常駐",
+      target: "自分",
+      judge: "〔犯罪〕そのエリアの治安",
+      effect:
+        "このキャラクターを殺したキャラクターは検挙され、「臭い飯」表を振ることになる。ただし、殺したキャラクターかその仲間が上記の判定を行えば、検挙迄のターンを成功度の分だけ遅延することが出来る。シナリオが終了した場合、「臭い飯表」を振らなくても良い",
+    },
+    迷惑: {
+      name: "【追跡】",
+      use: "常駐",
+      target: "自分",
+      judge: "なし",
+      effect:
+        "対象の行動に割り込んで使用できる。対象からは見えず、しかし対象を見ることが出来る場所にいることが出来る。この効果は、新たに対象にアクションを起こすか、セッション終了まで継続する。",
+    },
+    チンピラ: {
+      name: "【群れ】",
+      use: "常駐",
+      target: "自分",
+      judge: "なし",
+      effect:
+        "このキャラクターは「跳ぶ」を組み合わせていないセーブ判定を行うとき、サイコロを振らず自動的に成功度が1となる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。また、命中判定を行うとき、サイコロを振らず自動的に成功度を1にすることができる。",
+    },
+    刺客: {
+      name: "【歴戦】",
+      use: "常駐",
+      target: "自分",
+      judge: "なし",
+      effect:
+        "血戦中、移動を行ってないラウンドは、(精神点)を1D6点消費すれば、セーブ判定を行う代わりに、自分の〔肉体〕と同じ値だけダメージを減少することができる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。",
+    },
+    戦場の狼: {
+      name: "【歴戦】",
+      use: "常駐",
+      target: "自分",
+      judge: "なし",
+      effect:
+        "血戦中、移動を行ってないラウンドは、(精神点)を1D6点消費すれば、セーブ判定を行う代わりに、自分の〔肉体〕と同じ値だけダメージを減少することができる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。",
+    },
+    獣: {
+      name: "【野生】",
+      use: "常駐",
+      target: "自分",
+      judge: "なし",
+      effect:
+        "このキャラクターの攻撃によって、〔肉体点〕が0になったキャラクターは、致命傷表を振らず、必ず死亡する。",
+    },
+    超級英雄: {
+      name: "【超人】",
+      use: "常駐",
+      target: "自分",
+      judge: "なし",
+      effect:
+        "このキャラクターの(肉体点)の最大値は10+(〔肉体)、(精神点)の最大値は10+(精神)の値となる。そして、【超人】は常にスターである。",
+    },
+    都市伝説: {
+      name: "【非現実の恐怖】",
+      use: "常駐",
+      target: "自分",
+      judge: "【精神】難易度9",
+      effect:
+        "そのゲーム中、このキャラクターと同じモンスター名のキャラクターを初めて見たキャラクターは【精神】で難易度9の判定を行う。失敗したキャラクターは、〔精神点〕を1D6点失う",
+    },
+  };
+
+  function applyMonsterKarmaPresetByCategory(sheet, category) {
+    if (!sheet) return;
+    if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
+    if (!Array.isArray(sheet.karma) || sheet.karma.length === 0) {
+      sheet.karma = [createKarmaRow()];
+    }
+
+    const preset = MONSTER_KARMA_PRESET_BY_CATEGORY[category];
+    if (!preset) return;
+
+    let row =
+      sheet.karma.find((r) => String((r && r.kind) || "").trim() === "異能") ||
+      sheet.karma[0];
+
+    row.kind = "異能";
+    row.category = category;
+    row.name = preset.name;
+    row.use = preset.use;
+    row.target = preset.target;
+    row.judge = preset.judge;
+    row.effect = preset.effect;
+  }
   const HOBBY_COLOR_CLASS_BY_NAME = (() => {
     const map = new Map();
     const addFromTable = (table) => {
@@ -321,7 +415,7 @@
       weapons: [createWeaponRow()],
       outfits: [createOutfitRow()],
       vehicles: [createVehicleRow()],
-      karma: [],
+      karma: [createKarmaRow()],
       history: [],
       memo: "",
       meta: {
@@ -356,7 +450,13 @@
   }
 
   function ensureBracketed(text) {
-    const t = stripOuterBrackets(text);
+    let t = String(text || "").trim();
+
+    // 外側の【】を全部剥がす
+    while (t.startsWith("【") && t.endsWith("】")) {
+      t = t.slice(1, -1).trim();
+    }
+
     return t ? `【${t}】` : "";
   }
 
@@ -390,8 +490,11 @@
 
   function pickExp(table, value) {
     const n = Number(value);
-    if (!Number.isFinite(n)) return 0;
-    const idx = Math.max(0, Math.min(table.length - 1, Math.trunc(n)));
+    // サタスペの能力値は最低1。1未満の不正な値は0とする
+    if (!Number.isFinite(n) || n < 1) return 0;
+
+    // 入力値 n から -1 をして、0始まりの配列のインデックスに合わせる
+    const idx = Math.max(0, Math.min(table.length - 1, Math.trunc(n) - 1));
     return Number(table[idx] || 0);
   }
 
@@ -527,12 +630,21 @@
 
   function updateHobbyBaseCountDisplay() {
     if (!(el.hobbyBaseCount instanceof HTMLInputElement)) return;
+
     const sheet = getSelected();
     const baseCount = calcHobbyBaseCount(sheet);
     const selectedCount = normalizeHobbyValues(
       (el.hobbiesInput && el.hobbiesInput.value) || "",
     ).length;
-    el.hobbyBaseCount.value = `${selectedCount}/${baseCount}`;
+
+    el.hobbyBaseCount.value = `${selectedCount} / ${baseCount}`;
+
+    // ここ追加
+    el.hobbyBaseCount.classList.remove("is-over");
+
+    if (selectedCount > baseCount) {
+      el.hobbyBaseCount.classList.add("is-over");
+    }
   }
 
   function getHobbyColorClass(name) {
@@ -569,11 +681,11 @@
       el.hobbyPickerList.appendChild(firstRollTitle);
 
       const catLabels = [
-        "1.ｻﾌﾞｶﾙ系",
-        "2.ｱｰﾄ系",
-        "3.ﾏｼﾞﾒ系",
+        "1.サブカル系",
+        "2.アート系",
+        "3.マジメ系",
         "4.休日系",
-        "5.ｲﾔｼ系",
+        "5.イヤシ系",
         "6.風俗系",
       ];
       for (let c = 0; c < 6; c += 1) {
@@ -1569,6 +1681,12 @@
       `;
       el.karmaBody.appendChild(tr);
     });
+    if (isMultiLine) {
+      const textareas = el.karmaBody.querySelectorAll(
+        'textarea[data-row-field="effect"]',
+      );
+      textareas.forEach((ta) => autoResizeTextarea(ta));
+    }
   }
 
   function renderHistory(sheet) {
@@ -1829,14 +1947,21 @@
 
     commands.push("@異能・代償");
     (sheet.karma || []).forEach((k) => {
-      const kind = normalizeText(k.kind);
       const name = normalizeText(k.name);
       const use = normalizeText(k.use) || "常駐";
       const target = normalizeText(k.target) || "自分";
       const judge = normalizeText(k.judge) || "なし";
       const effect = normalizeText(k.effect);
-      if (name) commands.push(`【${name}】${use}・${target}・${judge}`);
-      if (effect) commands.push(effect);
+
+      if (name) {
+        let line = `【${stripOuterBrackets(name)}】${use}・${target}・${judge}`;
+
+        if (effect) {
+          line += `\\n${effect}`;
+        }
+
+        commands.push(line);
+      }
     });
 
     commands.push("@汎用");
@@ -2173,7 +2298,14 @@
 
   function exportKomaJson(sourceSheet = null) {
     let sheet = null;
-    if (sourceSheet && typeof sourceSheet === "object") {
+
+    const isSheetLike =
+      sourceSheet &&
+      typeof sourceSheet === "object" &&
+      !("target" in sourceSheet) &&
+      !("currentTarget" in sourceSheet);
+
+    if (isSheetLike) {
       sheet = deepClone(sourceSheet);
     } else {
       const selected = getSelected();
@@ -2181,6 +2313,7 @@
       sheet = deepClone(selected);
       readFormToSheet(sheet, { silent: true });
     }
+
     const out = buildKomaCharacterJson(sheet);
     const text = JSON.stringify(out);
     writeClipboardText(text)
@@ -2336,6 +2469,10 @@
         )
           return;
         if (target.hasAttribute("data-row-field")) {
+          // ★もし入力されたのがテキストエリアなら、高さを再計算する
+          if (target.tagName.toLowerCase() === "textarea") {
+            autoResizeTextarea(target);
+          }
           handleRowInput(target);
           return;
         }
@@ -2359,7 +2496,13 @@
             v = Math.max(1, Math.min(13, v));
           if (Number.isFinite(v)) target.value = String(v);
         }
+
+        // ▼▼▼ 追加①：カテゴリが書き換わる前の値を記憶しておく ▼▼▼
+        const oldCategory =
+          sheet.meta && sheet.meta.category ? sheet.meta.category : "";
+
         setByPath(sheet, field, v);
+
         if (field === "author") rememberAuthor(v);
         if (field === "meta.hobbies") renderHobbyChips();
         if (
@@ -2372,6 +2515,35 @@
           );
           syncLanguageUiFromSheet(sheet);
         }
+
+        // ▼▼▼ 先ほどの追加を消して、追加②：行を増やさない「差し替え」処理に変更 ▼▼▼
+        if (field === "meta.category") {
+          const newCategory = v;
+          if (Array.isArray(sheet.karma) && sheet.karma.length > 0) {
+            let matchCount = 0;
+            // まず、変更前のカテゴリ名と一致する行があれば、新しいカテゴリ名に差し替える
+            sheet.karma.forEach((row) => {
+              if (oldCategory && row.category === oldCategory) {
+                if (field === "meta.category") {
+                  applyMonsterKarmaPresetByCategory(sheet, v);
+                  renderKarma(sheet);
+                }
+                matchCount++;
+              }
+            });
+            // 一致する行がなかった場合で、かつ「カルマが1行しかない」または「1行目のカテゴリが空」なら、その行を差し替え
+            if (matchCount === 0) {
+              const firstRow = sheet.karma[0];
+              if (sheet.karma.length === 1 || !firstRow.category) {
+                firstRow.category = newCategory;
+                if (!firstRow.kind) firstRow.kind = "異能";
+              }
+            }
+          }
+          renderKarma(sheet); // 表だけ再描画
+        }
+        // ▲▲▲ ここまで追加 ▲▲▲
+
         recomputeDerivedFields(sheet);
         renderDerivedFields(sheet);
         if (field === "ability.life" || field === "ability.culture") {
@@ -2632,7 +2804,7 @@
     }
 
     if (el.exportKomaJsonButton) {
-      el.exportKomaJsonButton.addEventListener("click", exportKomaJson);
+      el.exportKomaJsonButton.addEventListener("click", () => exportKomaJson());
     }
 
     if (el.importJsonInput) {
@@ -2677,6 +2849,30 @@
       el.addVehicleButton.addEventListener("click", () => addRow("vehicles"));
     if (el.addKarmaButton)
       el.addKarmaButton.addEventListener("click", () => addRow("karma"));
+
+    // ↓↓↓ここから追加↓↓↓
+    if (el.addKarmaPairButton) {
+      el.addKarmaPairButton.addEventListener("click", () => {
+        const sheet = getSelected();
+        if (!sheet) return;
+
+        // 異能の行を作成
+        const abilityRow = createKarmaRow();
+        abilityRow.kind = "異能";
+
+        // 代償の行を作成
+        const priceRow = createKarmaRow();
+        priceRow.kind = "代償";
+
+        sheet.karma.push(abilityRow, priceRow);
+
+        recomputeDerivedFields(sheet);
+        renderDerivedFields(sheet);
+        sheet.updatedAt = nowText();
+        markDirty();
+        renderEditor();
+      });
+    }
 
     if (el.karmaEffectLineModeSelect) {
       el.karmaEffectLineModeSelect.addEventListener("change", () => {

@@ -124,7 +124,7 @@
 .status-head-metrics .metric-karma input {
   width: 1.6em;
   max-width: 1.6em;
-  min-height: 1.75em;
+  min-height: 1.5em;
   padding: 1px 4px;
   font-size: 1.5rem;
 }
@@ -325,30 +325,23 @@
   box-shadow: 0 0 12px rgba(148, 36, 109, 0.35);
   font-weight: 700;
 }
-
 .enemy-list {
   list-style: none;
   margin: 10px 0 0;
   padding: 0;
   display: grid;
-  gap: 6px;
+  gap: 0.6rem;
   max-height: 42vh;
-  overflow: auto;
+  overflow-x: hidden; /* ★横スクロールを隠す */
+  overflow-y: auto; /* ★縦スクロールだけ許可 */
 }
 
 .enemy-list-item {
   margin: 0;
 }
 
-.enemy-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.6rem;
-}
-
 .enemy-list-card {
+  box-sizing: border-box; /* ★パディングによるはみ出しを防ぐ */
   width: 100%;
   text-align: left;
   border: 1px solid #9d7a56;
@@ -387,19 +380,6 @@
   z-index: 0;
   transform: translateY(-50%) rotate(-10deg);
   filter: sepia(1) saturate(2) hue-rotate(-20deg);
-}
-
-.enemy-list-card.is-class-ミニヨン::before,
-.enemy-list-card.is-class-Servant::before {
-  background-image: url("../img/nc/Servant.png");
-}
-.enemy-list-card.is-class-ホラー::before,
-.enemy-list-card.is-class-Horror::before {
-  background-image: url("../img/nc/Horror.png");
-}
-.enemy-list-card.is-class-レギオン::before,
-.enemy-list-card.is-class-Region::before {
-  background-image: url("../img/nc/Region.png");
 }
 
 .enemy-list-row {
@@ -2369,7 +2349,8 @@ input[type="number"]::-webkit-inner-spin-button {
 #karmaTable textarea[data-row-field="effect"] {
   width: 100%;
   min-height: 2.8em;
-  resize: vertical;
+  resize: none; /* ★手動リサイズをオフ */
+  overflow: hidden; /* ★はみ出たスクロールバーを隠す */
   box-sizing: border-box;
 }
 
@@ -2403,7 +2384,13 @@ input[type="number"]::-webkit-inner-spin-button {
   border-color: #e8b8c1;
   color: #9b4f5d;
 }
-
+#hobbyBaseCount.is-over {
+  background: #5a1a1a;
+  border-color: #c94a4a;
+  color: #ffecec;
+  box-shadow: 0 0 6px rgba(200, 60, 60, 0.4);
+  font-weight: 700;
+}
 .hobby-grid-btn {
   min-height: 30px;
   padding: 3px 4px;
@@ -3267,24 +3254,6 @@ textarea::placeholder {
     background: #181311;
     color: var(--sp-accent-main);
     border-color: var(--sp-accent-sub);
-  }
-
-  .satasupe-enemies-page .editor-pane .status-personal-table td,
-  .satasupe-enemies-page .editor-pane .status-ability-table td,
-  .satasupe-enemies-page .editor-pane .status-aptitude-table td,
-  .satasupe-enemies-page .editor-pane .data-table td,
-  .satasupe-enemies-page .editor-pane .asian-table td,
-  .satasupe-enemies-page .editor-pane .status-personal-table label,
-  .satasupe-enemies-page .editor-pane .status-personal-table span,
-  .satasupe-enemies-page .editor-pane .status-ability-table label,
-  .satasupe-enemies-page .editor-pane .status-ability-table span,
-  .satasupe-enemies-page .editor-pane .status-tail-table label,
-  .satasupe-enemies-page .editor-pane .status-tail-table span,
-  .satasupe-enemies-page .editor-pane .data-block p,
-  .satasupe-enemies-page .editor-pane .data-block small,
-  .satasupe-enemies-page .editor-pane .data-block li,
-  .satasupe-enemies-page .editor-pane .data-block h4 {
-    color: var(--sp-text-on-dark);
   }
 
   .satasupe-enemies-page .editor-pane .hobby-base-count-wrap label,
