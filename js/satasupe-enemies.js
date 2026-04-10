@@ -1086,7 +1086,7 @@
       ID: String(sheet.id || "").trim(),
       author,
       name: String(sheet.name || "").trim() || "無題",
-      class_type: categoryForStorage,
+      category: categoryForStorage,
       is_public: !!sheet.is_public,
       memo: String(sheet.memo || ""),
       data: {
@@ -1111,7 +1111,7 @@
     sheet.name = String((enemy && enemy.name) || sheet.name || "").trim();
     sheet.memo = String((enemy && enemy.memo) || sheet.memo || "");
     if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
-    const categoryFromApi = String((enemy && enemy.class_type) || "").trim();
+    const categoryFromApi = String((enemy && enemy.category) || "").trim();
     if (!String(sheet.meta.category || "").trim() && categoryFromApi) {
       sheet.meta.category = categoryFromApi;
     }
@@ -1129,7 +1129,7 @@
     const response = await fetchApiJson(url);
     const all = Array.isArray(response.data) ? response.data : [];
     const targets = all.filter((enemy) => {
-      const classType = String((enemy && enemy.class_type) || "").trim();
+      const classType = String((enemy && enemy.category) || "").trim();
       const system =
         enemy && enemy.data && typeof enemy.data === "object"
           ? String(enemy.data.system || "").trim()
@@ -1200,9 +1200,9 @@
       sheet && sheet.meta ? sheet.meta.category || "" : "",
     ).trim();
     if (fromMeta) return fromMeta;
-    const fromClassType = String((sheet && sheet.class_type) || "").trim();
+    const fromClassType = String((sheet && sheet.category) || "").trim();
     if (fromClassType) return fromClassType;
-    return "サタスペ";
+    return "";
   }
 
   function setByPath(obj, path, value) {
