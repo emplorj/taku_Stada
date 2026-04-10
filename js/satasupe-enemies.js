@@ -100,8 +100,8 @@
   }
   function autoResizeTextarea(textarea) {
     if (!textarea || textarea.tagName.toLowerCase() !== "textarea") return;
-    textarea.style.height = "auto"; // 一旦リセットして高さを再計算できるようにする
-    textarea.style.height = textarea.scrollHeight + "px"; // 中身の高さに合わせる
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
   }
   const body = document.body;
   if (!body || !body.classList.contains("satasupe-enemies-page")) return;
@@ -397,15 +397,11 @@
         powerAtk: 1,
         powerDes: 1,
       },
+      // 不要なステータス(san, cthulhu, trauma, addiction, prisoner)は初期値から除外
       condition: {
         bp: 10,
         mp: 10,
         wallet: 10,
-        san: 0,
-        cthulhu: 0,
-        trauma: "",
-        addiction: "",
-        prisoner: "",
       },
       home: {
         place: "",
@@ -451,12 +447,9 @@
 
   function ensureBracketed(text) {
     let t = String(text || "").trim();
-
-    // 外側の【】を全部剥がす
     while (t.startsWith("【") && t.endsWith("】")) {
       t = t.slice(1, -1).trim();
     }
-
     return t ? `【${t}】` : "";
   }
 
@@ -490,10 +483,7 @@
 
   function pickExp(table, value) {
     const n = Number(value);
-    // サタスペの能力値は最低1。1未満の不正な値は0とする
     if (!Number.isFinite(n) || n < 1) return 0;
-
-    // 入力値 n から -1 をして、0始まりの配列のインデックスに合わせる
     const idx = Math.max(0, Math.min(table.length - 1, Math.trunc(n) - 1));
     return Number(table[idx] || 0);
   }
@@ -530,7 +520,6 @@
 
     sheet.meta.expConv = calcExpConvFromAbility(sheet.ability || {});
 
-    // 戦闘力計算
     const a = sheet.ability || {};
     const combat = Number(a.combat) || 1;
     const body = Number(a.body) || 1;
@@ -547,7 +536,6 @@
     if (!sheet || !el.enemyEditorForm) return;
     const meta = sheet.meta || {};
 
-    // 危険度スタイル
     const dangerNodes = el.enemyEditorForm.querySelectorAll(
       '[data-field="meta.danger"]',
     );
@@ -560,7 +548,6 @@
       node.setAttribute("data-danger-step", String(dangerStyle.step));
     });
 
-    // 性業値スタイル
     const karmaNodes = el.enemyEditorForm.querySelectorAll(
       '[data-field="meta.karmaValue"]',
     );
@@ -638,10 +625,7 @@
     ).length;
 
     el.hobbyBaseCount.value = `${selectedCount} / ${baseCount}`;
-
-    // ここ追加
     el.hobbyBaseCount.classList.remove("is-over");
-
     if (selectedCount > baseCount) {
       el.hobbyBaseCount.classList.add("is-over");
     }
@@ -777,34 +761,15 @@
   }
 
   function createWeaponRow() {
-    return {
-      place: "",
-      name: "",
-      aim: "",
-      damage: "",
-      range: "",
-      notes: "",
-    };
+    return { place: "", name: "", aim: "", damage: "", range: "", notes: "" };
   }
 
   function createOutfitRow() {
-    return {
-      place: "",
-      name: "",
-      use: "",
-      effect: "",
-      notes: "",
-    };
+    return { place: "", name: "", use: "", effect: "", notes: "" };
   }
 
   function createVehicleRow() {
-    return {
-      name: "",
-      speed: "",
-      frame: "",
-      burden: "",
-      notes: "",
-    };
+    return { name: "", speed: "", frame: "", burden: "", notes: "" };
   }
 
   function createKarmaRow() {
@@ -859,7 +824,6 @@
     if (shared && typeof shared.getMessage === "function") {
       return shared.getMessage(key, params);
     }
-    // フォールバック（shared 未読込時）
     const fallback = {
       komaJsonCopySuccess:
         "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
@@ -937,18 +901,14 @@
     if (apiFromQuery) {
       try {
         localStorage.setItem(API_STORAGE_KEY, String(apiFromQuery));
-      } catch (_e) {
-        // ignore
-      }
+      } catch (_e) {}
       return String(apiFromQuery).trim();
     }
     try {
       const fromStorage = localStorage.getItem(API_STORAGE_KEY) || "";
       const trimmed = String(fromStorage).trim();
       if (trimmed) return trimmed;
-    } catch (_e) {
-      // ignore
-    }
+    } catch (_e) {}
     return DEFAULT_GAS_WEB_APP_URL;
   }
 
@@ -992,9 +952,7 @@
   function rememberAuthor(name) {
     try {
       localStorage.setItem(AUTHOR_STORAGE_KEY, String(name || "").trim());
-    } catch (_e) {
-      // ignore
-    }
+    } catch (_e) {}
   }
 
   function saveLastSelectedId(id) {
@@ -1004,9 +962,7 @@
       } else {
         localStorage.removeItem(LAST_SELECTED_ID_KEY);
       }
-    } catch (_e) {
-      // ignore
-    }
+    } catch (_e) {}
   }
 
   function getLastSelectedId() {
@@ -1118,9 +1074,7 @@
       if (parsed && Array.isArray(parsed.sheets)) {
         state.sheets = parsed.sheets;
       }
-    } catch (_e) {
-      // ignore
-    }
+    } catch (_e) {}
   }
 
   function toApiEnemy(sheet) {
@@ -1300,7 +1254,6 @@
       return hay.includes(q);
     });
 
-    // ソート
     targets.sort((a, b) => {
       const mode = state.sortMode || "updatedAt";
       const dir = state.sortDir === "asc" ? 1 : -1;
@@ -1333,7 +1286,6 @@
       );
     });
 
-    // ページング
     const totalCount = targets.length;
     let size = state.pageSize || 0;
     if (size <= 0) size = totalCount || 1;
@@ -1400,7 +1352,6 @@
       el.enemyList.appendChild(li);
     });
 
-    // ページ情報更新
     if (el.enemyPagerInfo) {
       if (totalCount === 0) {
         el.enemyPagerInfo.textContent = "見つかりませんでした";
@@ -1412,7 +1363,6 @@
     if (el.enemyPrevButton) el.enemyPrevButton.disabled = state.page <= 1;
     if (el.enemyNextButton) el.enemyNextButton.disabled = state.page >= maxPage;
 
-    // ソートボタンのアクティブ表示
     updateSortButtons();
   }
 
@@ -1860,7 +1810,8 @@
 
     const weaponLines = (sheet.weapons || [])
       .map((w) => {
-        const name = normalizeText(w.name) || "武器なし";
+        const name = normalizeText(w.name);
+        if (!name) return "";
         const aim = normalizeText(w.aim) || "-";
         const damage = normalizeText(w.damage) || "-";
         const fields = [normalizeText(w.range), normalizeText(w.notes)].filter(
@@ -1889,13 +1840,79 @@
       .filter(Boolean)
       .join("\n");
 
+    const outfitLines = (sheet.outfits || [])
+      .map((o) => {
+        const name = normalizeText(o.name);
+        if (!name) return "";
+        const details = [
+          normalizeText(o.use),
+          normalizeText(o.effect),
+          normalizeText(o.notes),
+        ]
+          .filter(Boolean)
+          .join("：");
+        return details ? `${name}（${details}）` : name;
+      })
+      .filter(Boolean)
+      .join("\n");
+
+    const vehicleLines = (sheet.vehicles || [])
+      .map((v) => {
+        const name = normalizeText(v.name);
+        if (!name) return "";
+        const specs = [];
+        if (normalizeText(v.speed)) specs.push(`ス${normalizeText(v.speed)}`);
+        if (normalizeText(v.frame)) specs.push(`車${normalizeText(v.frame)}`);
+        if (normalizeText(v.burden)) specs.push(`荷${normalizeText(v.burden)}`);
+        if (normalizeText(v.notes)) specs.push(normalizeText(v.notes));
+        const specText = specs.length > 0 ? `（${specs.join("、")}）` : "";
+        return `${name}${specText}`;
+      })
+      .filter(Boolean)
+      .join("\n");
+
+    // 二重カッコ防止のため、先頭と末尾の「」があれば剥がす
+    const nickname = normalizeText(base.nickname)
+      .replace(/^「|」$/g, "")
+      .trim();
+    const nameStr = normalizeText(sheet.name) || "無題";
+    const fullName = nickname ? `「${nickname}」${nameStr}` : nameStr;
+
+    const bgInfo = [
+      normalizeText(base.homeland)
+        ? `国籍：${normalizeText(base.homeland)}`
+        : "",
+      normalizeText(base.alliance)
+        ? `盟約：${normalizeText(base.alliance)}`
+        : "",
+      normalizeText(base.hierarchy)
+        ? `階級：${normalizeText(base.hierarchy)}`
+        : "",
+      normalizeText(base.surface)
+        ? `表の顔：${normalizeText(base.surface)}`
+        : "",
+      normalizeText(base.style) ? `スタイル：${normalizeText(base.style)}` : "",
+      normalizeText(base.team) ? `チーム：${normalizeText(base.team)}` : "",
+    ]
+      .filter(Boolean)
+      .join("　");
+
     const lines = [
       "",
       "───",
-      `【名前】${normalizeText(sheet.name) || "無題"}`,
+      `【名前】${fullName}`,
       quoteText,
-      `危険度：${toInt(meta.danger, 0)}　反応：${normalizeText(meta.reaction) || "中立"}　サイズ：${normalizeText(meta.size) || "M"}`,
-      `${normalizeText(base.sex)}　${normalizeText(base.age) || "？"}歳　好み：${normalizeText(base.likes) || `${normalizeText(meta.likeType)}${normalizeText(meta.likeDetail)}` || "？"}`,
+      `${normalizeText(meta.category) ? `カテゴリー：${normalizeText(meta.category)}　` : ""}危険度：${toInt(meta.danger, 0)}　反応：${normalizeText(meta.reaction) || "中立"}　サイズ：${normalizeText(meta.size) || "M"}`,
+      normalizeText(meta.garbageTable)
+        ? `ドロップ表：${normalizeText(meta.garbageTable)}`
+        : "",
+      `${normalizeText(base.sex)}　${normalizeText(base.age) || "？"}歳　好み：${`${normalizeText(meta.likeType)}${normalizeText(meta.likeDetail)}` || "？"}`,
+      normalizeText(base.likes) || normalizeText(base.dislikes)
+        ? `好：${normalizeText(base.likes) || "なし"}　嫌：${normalizeText(base.dislikes) || "なし"}`
+        : "",
+      normalizeText(meta.languages)
+        ? `言語：${normalizeText(meta.languages)}`
+        : "",
       `【犯罪】${toInt(ability.crime, 1)}【生活】${toInt(ability.life, 1)}【恋愛】${toInt(ability.love, 1)}【教養】${toInt(ability.culture, 1)}【戦闘】${toInt(ability.combat, 1)}`,
       `【肉体】${toInt(ability.body, 1)}【精神】${toInt(ability.mind, 1)}`,
       `【性業値】${toInt(meta.karmaValue, 7)}`,
@@ -1922,8 +1939,11 @@
             .join("、")}`
         : "",
       "",
-      "◆装備",
-      weaponLines,
+      weaponLines ? `◆武器\n${weaponLines}` : "",
+      outfitLines ? `◆アイテム\n${outfitLines}` : "",
+      vehicleLines ? `◆乗物\n${vehicleLines}` : "",
+      "",
+      bgInfo,
       normalizeText(sheet.memo),
     ];
 
@@ -1955,11 +1975,9 @@
 
       if (name) {
         let line = `【${stripOuterBrackets(name)}】${use}・${target}・${judge}`;
-
         if (effect) {
           line += `\\n${effect}`;
         }
-
         commands.push(line);
       }
     });
@@ -1975,12 +1993,58 @@
       commands.push(`({攻撃力})R>=${aim}[,1,13] ${name}`);
     });
 
+    const dropTableMap = {
+      ガラクタ表: "GetgT ガラクタ表",
+      実用品表: "GetzT 実用品表",
+      値打ち物表: "GetnT 値打ち物表",
+      奇天烈表: "GetkT 奇天烈表",
+    };
+
     commands.push("@各種表");
-    commands.push("TAGT 情報タグ決定表");
-    commands.push("FumbleT 命中判定ファンブル表");
-    commands.push("FatalT 致命傷表");
-    commands.push("KusaiMT 臭い飯表");
-    commands.push("GetgT ガラクタ表");
+    const tableCommands = [
+      "TAGT 情報タグ決定表",
+      "FumbleT 命中判定ファンブル表",
+      "FatalT 14番表",
+      "FatalT 致命傷表",
+      "FatalVT 乗物致命傷表",
+      "RomanceFT ロマンスファンブル表",
+      "AccidentT ケチャップアクシデント表",
+      "GeneralAT 汎用アクシデント表",
+      "KusaiMT 臭い飯表",
+      "EnterT 登場表",
+    ];
+
+    const gt = normalizeText(sheet.meta?.garbageTable);
+    if (gt && dropTableMap[gt]) {
+      tableCommands.push(dropTableMap[gt]);
+    }
+
+    tableCommands.push(
+      "CrimeIET 犯罪イベント表",
+      "LifeIET 生活イベント表",
+      "LoveIET 恋愛イベント表",
+      "CultureIET 教養イベント表",
+      "CombatIET 戦闘イベント表",
+      "CrimeIHT 犯罪ハプニング表",
+      "LifeIHT 生活ハプニング表",
+      "LoveIHT 恋愛ハプニング表",
+      "CultureIHT 教養ハプニング表",
+      "CombatIHT 戦闘ハプニング表",
+      "MinamiRET ミナミ遭遇表",
+      "ChinatownRET 中華街遭遇表",
+      "WarshipLandRET 軍艦島遭遇表",
+      "CivicCenterRET 官庁街遭遇表",
+      "DowntownRET 十三遭遇表",
+      "ShaokinRET 沙京遭遇表",
+      "LoveLoveRET らぶらぶ遭遇表",
+      "AjitoRET アジト遭遇表",
+      "JigokuSpaRET 地獄湯遭遇表",
+      "JailHouseRET JAIL HOUSE遭遇表",
+      "TreatmentIT 治療イベント表",
+      "CollegeIT 大学イベント表",
+    );
+
+    tableCommands.forEach((c) => commands.push(c));
 
     return commands.join("\n");
   }
@@ -2001,12 +2065,16 @@
       ),
     );
 
+    const pageUrl =
+      window.location.origin + window.location.pathname + "?id=" + sheet.id;
+
     return {
       kind: "character",
       data: {
         name: normalizeText(sheet.name) || "無題",
         memo: buildKomaMemo(sheet),
         initiative: toInt(ability.powerInit, 1),
+        externalUrl: pageUrl,
         status: [
           {
             label: "肉体点",
@@ -2052,16 +2120,13 @@
     let m;
     while ((m = re.exec(text))) starts.push(m.index);
 
-    // 完全一致JSON(単体)も受ける
     if (!starts.length) {
       try {
         const single = JSON.parse(text);
         if (single && single.kind === "character" && single.data) {
           return [single];
         }
-      } catch (_e) {
-        // ignore
-      }
+      } catch (_e) {}
       return [];
     }
 
@@ -2102,9 +2167,7 @@
         if (parsed && parsed.kind === "character" && parsed.data) {
           results.push(parsed);
         }
-      } catch (_e) {
-        // ignore broken chunk
-      }
+      } catch (_e) {}
     });
 
     return results;
@@ -2175,6 +2238,15 @@
       } else {
         sheet.meta.likeType = textLike;
       }
+    }
+
+    const likesMatch = memo.match(/好\s*[：:]\s*([^\s　]+)/);
+    if (likesMatch && likesMatch[1] !== "なし") {
+      sheet.base.likes = likesMatch[1];
+    }
+    const dislikesMatch = memo.match(/嫌\s*[：:]\s*([^\s　\n\r]+)/);
+    if (dislikesMatch && dislikesMatch[1] !== "なし") {
+      sheet.base.dislikes = dislikesMatch[1];
     }
   }
 
@@ -2427,7 +2499,6 @@
       el.enemyList.addEventListener("click", async (e) => {
         const target = e.target;
 
-        // 出力ボタン（コピー作成ではなくコマ出力）
         const outputBtn = target.closest(".is-output");
         if (outputBtn) {
           e.stopPropagation();
@@ -2469,7 +2540,6 @@
         )
           return;
         if (target.hasAttribute("data-row-field")) {
-          // ★もし入力されたのがテキストエリアなら、高さを再計算する
           if (target.tagName.toLowerCase() === "textarea") {
             autoResizeTextarea(target);
           }
@@ -2497,7 +2567,6 @@
           if (Number.isFinite(v)) target.value = String(v);
         }
 
-        // ▼▼▼ 追加①：カテゴリが書き換わる前の値を記憶しておく ▼▼▼
         const oldCategory =
           sheet.meta && sheet.meta.category ? sheet.meta.category : "";
 
@@ -2516,12 +2585,10 @@
           syncLanguageUiFromSheet(sheet);
         }
 
-        // ▼▼▼ 先ほどの追加を消して、追加②：行を増やさない「差し替え」処理に変更 ▼▼▼
         if (field === "meta.category") {
           const newCategory = v;
           if (Array.isArray(sheet.karma) && sheet.karma.length > 0) {
             let matchCount = 0;
-            // まず、変更前のカテゴリ名と一致する行があれば、新しいカテゴリ名に差し替える
             sheet.karma.forEach((row) => {
               if (oldCategory && row.category === oldCategory) {
                 if (field === "meta.category") {
@@ -2531,7 +2598,6 @@
                 matchCount++;
               }
             });
-            // 一致する行がなかった場合で、かつ「カルマが1行しかない」または「1行目のカテゴリが空」なら、その行を差し替え
             if (matchCount === 0) {
               const firstRow = sheet.karma[0];
               if (sheet.karma.length === 1 || !firstRow.category) {
@@ -2540,9 +2606,8 @@
               }
             }
           }
-          renderKarma(sheet); // 表だけ再描画
+          renderKarma(sheet);
         }
-        // ▲▲▲ ここまで追加 ▲▲▲
 
         recomputeDerivedFields(sheet);
         renderDerivedFields(sheet);
@@ -2850,17 +2915,14 @@
     if (el.addKarmaButton)
       el.addKarmaButton.addEventListener("click", () => addRow("karma"));
 
-    // ↓↓↓ここから追加↓↓↓
     if (el.addKarmaPairButton) {
       el.addKarmaPairButton.addEventListener("click", () => {
         const sheet = getSelected();
         if (!sheet) return;
 
-        // 異能の行を作成
         const abilityRow = createKarmaRow();
         abilityRow.kind = "異能";
 
-        // 代償の行を作成
         const priceRow = createKarmaRow();
         priceRow.kind = "代償";
 
@@ -2910,28 +2972,35 @@
       loadStorage();
     }
 
-    // 前回復元ダイアログは「保存後未変更」または「新規白紙」では表示しない
+    // -------------------------------------------------------------
+    // URLからの共有ロード処理
+    // -------------------------------------------------------------
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetId = urlParams.get("id");
+
     if (state.sheets.length) {
-      const lastId = getLastSelectedId();
-      const lastSheet = lastId
-        ? state.sheets.find((s) => String(s.id) === String(lastId))
-        : null;
-      if (lastId && !lastSheet) {
-        const fresh = createSheetTemplate();
-        fresh.author = getRememberedAuthor();
-        state.sheets.unshift(fresh);
-        localUnsavedSheetIds.add(String(fresh.id || ""));
-        state.selectedId = fresh.id;
-        markDirty();
-      }
-      const preferred = lastSheet || state.sheets[0];
-      const shouldShowRestoreDialog =
-        !!lastSheet && state.dirty && !isFreshBlankSheetForRestore(preferred);
-      if (shouldShowRestoreDialog) {
-        const restore = await showRestoreDialog(preferred);
-        if (restore) {
-          state.selectedId = preferred ? preferred.id : state.selectedId;
+      if (targetId) {
+        const found = state.sheets.find(
+          (s) => String(s.id) === String(targetId),
+        );
+        if (found) {
+          state.selectedId = found.id;
         } else {
+          window.alert(
+            "指定されたエネミーが見つかりません。\n削除されているか、非公開に設定されています。\n作者に「公開」してもらうよう頼んでください！",
+          );
+          const fallbackId = getLastSelectedId();
+          const lastSheet = fallbackId
+            ? state.sheets.find((s) => String(s.id) === String(fallbackId))
+            : null;
+          state.selectedId = lastSheet ? lastSheet.id : state.sheets[0].id;
+        }
+      } else {
+        const lastId = getLastSelectedId();
+        const lastSheet = lastId
+          ? state.sheets.find((s) => String(s.id) === String(lastId))
+          : null;
+        if (lastId && !lastSheet) {
           const fresh = createSheetTemplate();
           fresh.author = getRememberedAuthor();
           state.sheets.unshift(fresh);
@@ -2939,9 +3008,26 @@
           state.selectedId = fresh.id;
           markDirty();
         }
-      } else {
-        state.selectedId = preferred ? preferred.id : state.selectedId;
+        const preferred = lastSheet || state.sheets[0];
+        const shouldShowRestoreDialog =
+          !!lastSheet && state.dirty && !isFreshBlankSheetForRestore(preferred);
+        if (shouldShowRestoreDialog) {
+          const restore = await showRestoreDialog(preferred);
+          if (restore) {
+            state.selectedId = preferred ? preferred.id : state.selectedId;
+          } else {
+            const fresh = createSheetTemplate();
+            fresh.author = getRememberedAuthor();
+            state.sheets.unshift(fresh);
+            localUnsavedSheetIds.add(String(fresh.id || ""));
+            state.selectedId = fresh.id;
+            markDirty();
+          }
+        } else {
+          state.selectedId = preferred ? preferred.id : state.selectedId;
+        }
       }
+
       if (!state.selectedId) {
         const fresh = createSheetTemplate();
         fresh.author = getRememberedAuthor();
@@ -2950,6 +3036,18 @@
         state.selectedId = fresh.id;
         markDirty();
       }
+    } else {
+      if (targetId) {
+        window.alert(
+          "指定されたエネミーが見つかりません。\n削除されているか、非公開に設定されています。\n作者に「公開」してもらうよう頼んでください！",
+        );
+      }
+      const fresh = createSheetTemplate();
+      fresh.author = getRememberedAuthor();
+      state.sheets.unshift(fresh);
+      localUnsavedSheetIds.add(String(fresh.id || ""));
+      state.selectedId = fresh.id;
+      markDirty();
     }
 
     ensureSelected();
