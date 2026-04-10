@@ -397,7 +397,6 @@
         powerAtk: 1,
         powerDes: 1,
       },
-      // 不要なステータス(san, cthulhu, trauma, addiction, prisoner)は初期値から除外
       condition: {
         bp: 10,
         mp: 10,
@@ -1082,16 +1081,34 @@
     const categoryForStorage = String(
       (sheet && sheet.meta && sheet.meta.category) || "",
     ).trim();
+
+    // -------------------------------------------------------------
+    // ▼ 保存時にJSONから外側のデータを削って軽量化する
+    // -------------------------------------------------------------
+    const cleanSheet = deepClone(sheet);
+    delete cleanSheet.id;
+    delete cleanSheet.author;
+    delete cleanSheet.name;
+    delete cleanSheet.is_public;
+    delete cleanSheet.memo;
+    delete cleanSheet.createdAt;
+    delete cleanSheet.updatedAt;
+
+    if (cleanSheet.meta) {
+      delete cleanSheet.meta.category;
+    }
+    // -------------------------------------------------------------
+
     return {
       ID: String(sheet.id || "").trim(),
       author,
       name: String(sheet.name || "").trim() || "無題",
-      category: categoryForStorage,
+      category: categoryForStorage, // DB側のカラム名に合わせて送信
       is_public: !!sheet.is_public,
       memo: String(sheet.memo || ""),
       data: {
         system: "satasupe",
-        sheet,
+        sheet: cleanSheet,
       },
       icon_url: "",
       time: nowText(),
@@ -1105,20 +1122,31 @@
       data && data.sheet && typeof data.sheet === "object"
         ? deepClone(data.sheet)
         : createSheetTemplate();
+
+    // -------------------------------------------------------------
+    // ▼ 読み込み時に外側のデータをJSONの中に復元する
+    // -------------------------------------------------------------
     sheet.id = String((enemy && enemy.ID) || sheet.id || "").trim();
     sheet.author = String((enemy && enemy.author) || sheet.author || "").trim();
     sheet.is_public = !!(enemy && enemy.is_public);
     sheet.name = String((enemy && enemy.name) || sheet.name || "").trim();
     sheet.memo = String((enemy && enemy.memo) || sheet.memo || "");
+
     if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
-    const categoryFromApi = String((enemy && enemy.category) || "").trim();
+    // 古いデータの class_type と新しい category に対応
+    const categoryFromApi = String(
+      (enemy && enemy.category) || (enemy && enemy.class_type) || "",
+    ).trim();
     if (!String(sheet.meta.category || "").trim() && categoryFromApi) {
       sheet.meta.category = categoryFromApi;
     }
+
     sheet.updatedAt = String(
       (enemy && enemy.time) || sheet.updatedAt || nowText(),
     );
     if (!sheet.createdAt) sheet.createdAt = sheet.updatedAt;
+    // -------------------------------------------------------------
+
     recomputeDerivedFields(sheet);
     return sheet;
   }
@@ -1129,7 +1157,10 @@
     const response = await fetchApiJson(url);
     const all = Array.isArray(response.data) ? response.data : [];
     const targets = all.filter((enemy) => {
-      const classType = String((enemy && enemy.category) || "").trim();
+      // 古い class_type と 新しい category に対応
+      const classType = String(
+        (enemy && enemy.category) || (enemy && enemy.class_type) || "",
+      ).trim();
       const system =
         enemy && enemy.data && typeof enemy.data === "object"
           ? String(enemy.data.system || "").trim()
@@ -1200,7 +1231,10 @@
       sheet && sheet.meta ? sheet.meta.category || "" : "",
     ).trim();
     if (fromMeta) return fromMeta;
-    const fromClassType = String((sheet && sheet.category) || "").trim();
+    // フォールバック
+    const fromClassType = String(
+      (sheet && sheet.category) || (sheet && sheet.class_type) || "",
+    ).trim();
     if (fromClassType) return fromClassType;
     return "";
   }
@@ -1761,20 +1795,12 @@
     return String(value == null ? "" : value).trim();
   }
 
-  function toDiceExpr(damageText) {
-    const raw = normalizeText(damageText);
-    if (!raw) return "1";
-    const m = raw.match(/\d+/);
-    if (m) return String(Number(m[0]));
-    if (raw.includes("〔破壊力〕") || raw.includes("{破壊力}"))
-      return "{破壊力}";
-    return "1";
-  }
-
   function buildKomaMemo(sheet) {
     const base = sheet.base || {};
     const ability = sheet.ability || {};
     const meta = sheet.meta || {};
+    const condition = sheet.condition || {};
+    const home = sheet.home || {};
 
     const hobbies = normalizeText(meta.hobbies)
       ? normalizeText(meta.hobbies)
@@ -1871,7 +1897,6 @@
       .filter(Boolean)
       .join("\n");
 
-    // 二重カッコ防止のため、先頭と末尾の「」があれば剥がす
     const nickname = normalizeText(base.nickname)
       .replace(/^「|」$/g, "")
       .trim();
@@ -1896,6 +1921,10 @@
     ]
       .filter(Boolean)
       .join("　");
+
+    const homeInfo = normalizeText(home.place)
+      ? `アジト：${normalizeText(home.place)}（快${toInt(home.comfortable, 10)}/セ${toInt(home.security, 10)}）`
+      : "";
 
     const lines = [
       "",
@@ -1944,6 +1973,7 @@
       vehicleLines ? `◆乗物\n${vehicleLines}` : "",
       "",
       bgInfo,
+      homeInfo,
       normalizeText(sheet.memo),
     ];
 
@@ -2010,8 +2040,10 @@
       "RomanceFT ロマンスファンブル表",
       "AccidentT ケチャップアクシデント表",
       "GeneralAT 汎用アクシデント表",
+      "AfterT その後表",
       "KusaiMT 臭い飯表",
       "EnterT 登場表",
+      "BudTT バッドトリップ表",
     ];
 
     const gt = normalizeText(sheet.meta?.garbageTable);
@@ -2257,7 +2289,7 @@
     next.author = getRememberedAuthor();
     next.name = normalizeText(data.name) || "新規エネミー";
     next.memo = String(data.memo || "");
-    next.meta.category = "サタスペ";
+    next.meta.category = "";
 
     const p = parseNumericParamMap(data.params);
     next.ability.crime = toInt(p["犯罪"], next.ability.crime);
@@ -2972,9 +3004,6 @@
       loadStorage();
     }
 
-    // -------------------------------------------------------------
-    // URLからの共有ロード処理
-    // -------------------------------------------------------------
     const urlParams = new URLSearchParams(window.location.search);
     const targetId = urlParams.get("id");
 
