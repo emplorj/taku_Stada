@@ -312,17 +312,8 @@
     return `${y}/${m}/${day} ${h}:${min}:${s}`;
   }
 
-  function uid() {
-    return `${Date.now()}${Math.floor(Math.random() * 1000)}`;
-  }
-
   function getNextSequentialId() {
-    const nums = (state.sheets || [])
-      .map((s) => Number(String((s && s.id) || "").trim()))
-      .filter((n) => Number.isFinite(n) && n >= 1)
-      .map((n) => Math.trunc(n));
-    const max = nums.length ? Math.max(...nums) : 0;
-    return String(max + 1);
+    return `new-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
 
   function randInt(min, max) {
@@ -365,7 +356,7 @@
   }
 
   function createSheetTemplate() {
-    return {
+    const sheet = {
       id: getNextSequentialId(),
       author: "",
       is_public: true,
@@ -434,6 +425,8 @@
         languageManual: false,
       },
     };
+    sheet._originalString = JSON.stringify(sheet);
+    return sheet;
   }
 
   function stripOuterBrackets(text) {
@@ -848,29 +841,10 @@
     showToast(message("komaJsonCopySuccess"), "info");
   }
 
-  function requestSaveAsName(currentName = "") {
-    const shared =
-      typeof window !== "undefined" && window && window.NechronicaShared
-        ? window.NechronicaShared
-        : null;
-    if (shared && typeof shared.requestSaveAsName === "function") {
-      return shared.requestSaveAsName(currentName);
-    }
-    while (true) {
-      const raw = window.prompt(
-        message("saveAsPrompt"),
-        String(currentName || "").trim(),
-      );
-      if (raw == null) return null;
-      const name = String(raw || "").trim();
-      if (name) return name;
-      window.alert(message("saveAsNameRequired"));
-    }
-  }
-
   function setSaveButtonLabelBySheet(sheet) {
+    const idStr = String((sheet && sheet.id) || "");
     const isNew =
-      !!sheet && localUnsavedSheetIds.has(String((sheet && sheet.id) || ""));
+      !!sheet && (localUnsavedSheetIds.has(idStr) || idStr.startsWith("new-"));
     const label = isNew ? "新規保存" : "上書き保存";
     if (!(el.saveEnemyButton instanceof HTMLButtonElement)) return;
     const icon = el.saveEnemyButton.querySelector("i");
@@ -1078,13 +1052,14 @@
 
   function toApiEnemy(sheet) {
     const author = String(sheet.author || "").trim() || getRememberedAuthor();
-    const categoryForStorage = String(
+
+    let categoryForStorage = String(
       (sheet && sheet.meta && sheet.meta.category) || "",
     ).trim();
+    if (categoryForStorage === "undefined" || categoryForStorage === "null") {
+      categoryForStorage = "";
+    }
 
-    // -------------------------------------------------------------
-    // ▼ 保存時にJSONから外側のデータを削って軽量化する
-    // -------------------------------------------------------------
     const cleanSheet = deepClone(sheet);
     delete cleanSheet.id;
     delete cleanSheet.author;
@@ -1093,17 +1068,17 @@
     delete cleanSheet.memo;
     delete cleanSheet.createdAt;
     delete cleanSheet.updatedAt;
+    delete cleanSheet._originalString;
 
     if (cleanSheet.meta) {
       delete cleanSheet.meta.category;
     }
-    // -------------------------------------------------------------
 
     return {
       ID: String(sheet.id || "").trim(),
       author,
       name: String(sheet.name || "").trim() || "無題",
-      category: categoryForStorage, // DB側のカラム名に合わせて送信
+      category: categoryForStorage,
       is_public: !!sheet.is_public,
       memo: String(sheet.memo || ""),
       data: {
@@ -1123,9 +1098,6 @@
         ? deepClone(data.sheet)
         : createSheetTemplate();
 
-    // -------------------------------------------------------------
-    // ▼ 読み込み時に外側のデータをJSONの中に復元する
-    // -------------------------------------------------------------
     sheet.id = String((enemy && enemy.ID) || sheet.id || "").trim();
     sheet.author = String((enemy && enemy.author) || sheet.author || "").trim();
     sheet.is_public = !!(enemy && enemy.is_public);
@@ -1133,10 +1105,13 @@
     sheet.memo = String((enemy && enemy.memo) || sheet.memo || "");
 
     if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
-    // 古いデータの class_type と新しい category に対応
-    const categoryFromApi = String(
+
+    let categoryFromApi = String(
       (enemy && enemy.category) || (enemy && enemy.class_type) || "",
     ).trim();
+    if (categoryFromApi === "undefined" || categoryFromApi === "null") {
+      categoryFromApi = "";
+    }
     if (!String(sheet.meta.category || "").trim() && categoryFromApi) {
       sheet.meta.category = categoryFromApi;
     }
@@ -1145,9 +1120,9 @@
       (enemy && enemy.time) || sheet.updatedAt || nowText(),
     );
     if (!sheet.createdAt) sheet.createdAt = sheet.updatedAt;
-    // -------------------------------------------------------------
 
     recomputeDerivedFields(sheet);
+    sheet._originalString = JSON.stringify(sheet);
     return sheet;
   }
 
@@ -1157,7 +1132,6 @@
     const response = await fetchApiJson(url);
     const all = Array.isArray(response.data) ? response.data : [];
     const targets = all.filter((enemy) => {
-      // 古い class_type と 新しい category に対応
       const classType = String(
         (enemy && enemy.category) || (enemy && enemy.class_type) || "",
       ).trim();
@@ -1176,13 +1150,13 @@
   async function saveCurrentToDb() {
     const sheet = getSelected();
     if (!sheet) return;
+
+    const beforeId = String(sheet.id || "");
+
     readFormToSheet(sheet);
     const payload = toApiEnemy(sheet);
     if (payload.author) rememberAuthor(payload.author);
 
-    console.log("saveCurrentToDb: starting fetch...", {
-      url: buildApiUrl("saveSatasupeEnemy"),
-    });
     const response = await fetchApiJson(buildApiUrl("saveSatasupeEnemy"), {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
@@ -1193,24 +1167,22 @@
         enemy: payload,
       }),
     });
-    console.log("saveCurrentToDb: fetch completed.", response);
 
-    const beforeId = String(sheet.id || "");
     const saved = fromApiEnemy(response.data || payload);
-    const idx = state.sheets.findIndex(
-      (s) => String(s.id) === String(sheet.id),
-    );
+    sheet.id = saved.id;
+
+    const idx = state.sheets.findIndex((s) => String(s.id) === beforeId);
     if (idx >= 0) {
       state.sheets[idx] = saved;
     } else {
       state.sheets.unshift(saved);
     }
+
     state.selectedId = saved.id;
     localUnsavedSheetIds.delete(beforeId);
     localUnsavedSheetIds.delete(String(saved.id || ""));
     state.dirty = false;
     saveStorage();
-    setSaveButtonLabelBySheet(saved);
     setStatus(
       message("saveCompleted", {
         time: formatShortDate(saved.updatedAt || saved.createdAt || nowText()),
@@ -1230,12 +1202,17 @@
     const fromMeta = String(
       sheet && sheet.meta ? sheet.meta.category || "" : "",
     ).trim();
-    if (fromMeta) return fromMeta;
-    // フォールバック
+    if (fromMeta && fromMeta !== "undefined" && fromMeta !== "null")
+      return fromMeta;
     const fromClassType = String(
       (sheet && sheet.category) || (sheet && sheet.class_type) || "",
     ).trim();
-    if (fromClassType) return fromClassType;
+    if (
+      fromClassType &&
+      fromClassType !== "undefined" &&
+      fromClassType !== "null"
+    )
+      return fromClassType;
     return "";
   }
 
@@ -1773,14 +1750,19 @@
   function exportCurrentJson() {
     const sheet = getSelected();
     if (!sheet) return;
-    readFormToSheet(sheet);
-    const blob = new Blob([JSON.stringify(sheet, null, 2)], {
+
+    // 出力用にクローンを作成し、現在のフォーム内容を反映（元データを不用意に更新しないため）
+    const exportSheet = deepClone(sheet);
+    readFormToSheet(exportSheet, { silent: true });
+    delete exportSheet._originalString;
+
+    const blob = new Blob([JSON.stringify(exportSheet, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `satasupe-enemy-${sheet.id}.json`;
+    a.download = `satasupe-enemy-${exportSheet.id}.json`;
     a.click();
     URL.revokeObjectURL(url);
     setStatus("JSON出力完了");
@@ -2417,6 +2399,7 @@
       sheet = deepClone(selected);
       readFormToSheet(sheet, { silent: true });
     }
+    delete sheet._originalString;
 
     const out = buildKomaCharacterJson(sheet);
     const text = JSON.stringify(out);
@@ -2438,6 +2421,7 @@
         merged.id = getNextSequentialId();
         merged.createdAt = nowText();
         merged.updatedAt = nowText();
+        merged._originalString = JSON.stringify(merged);
         state.sheets.unshift(merged);
         state.selectedId = merged.id;
         markDirty();
@@ -2447,6 +2431,18 @@
       }
     };
     reader.readAsText(file, "utf-8");
+  }
+
+  // ★ 追加：保存時のローディング（グルグル）UI切り替え関数
+  function setButtonLoadingState(button, isLoading, originalHtml) {
+    if (!button) return;
+    if (isLoading) {
+      button.disabled = true;
+      button.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 保存中...`;
+    } else {
+      button.disabled = false;
+      button.innerHTML = originalHtml;
+    }
   }
 
   function bindEvents() {
@@ -2833,46 +2829,87 @@
       });
     }
 
+    // ★ 上書き保存のイベントリスナー（UIグルグル対応）
     if (el.saveEnemyButton) {
       el.saveEnemyButton.addEventListener("click", async () => {
-        console.log("Save button clicked");
+        if (el.saveEnemyButton.disabled) return;
+        const originalHtml = el.saveEnemyButton.innerHTML;
+
         try {
+          setButtonLoadingState(el.saveEnemyButton, true, originalHtml);
           setStatus(message("saveRequestSending"));
+
           await saveCurrentToDb();
           renderAll();
         } catch (error) {
           console.error("Save error:", error);
           setStatus("保存失敗", "error");
           alert("DB保存に失敗しました: " + error.message);
+        } finally {
+          // 保存成功したら表示を「上書き保存」に更新するため setSaveButtonLabelBySheet に任せる
+          const savedSheet = getSelected();
+          if (savedSheet) {
+            el.saveEnemyButton.disabled = false;
+            setSaveButtonLabelBySheet(savedSheet);
+          } else {
+            setButtonLoadingState(el.saveEnemyButton, false, originalHtml);
+          }
         }
       });
     }
 
+    // ★ 別名保存のイベントリスナー（ダイアログ撤廃 ＆ UIグルグル対応）
     if (el.saveAsEnemyButton) {
       el.saveAsEnemyButton.addEventListener("click", async () => {
+        if (el.saveAsEnemyButton.disabled) return;
         const sheet = getSelected();
         if (!sheet) return;
-        readFormToSheet(sheet);
-        const saveAsName = requestSaveAsName(sheet.name || "");
-        if (saveAsName == null) return;
-        const copied = deepClone(sheet);
-        copied.id = getNextSequentialId();
-        copied.name = saveAsName;
-        copied.createdAt = nowText();
-        copied.updatedAt = nowText();
-        state.sheets.unshift(copied);
-        localUnsavedSheetIds.add(String(copied.id || ""));
-        state.selectedId = copied.id;
-        markDirty();
-        renderAll();
+
+        const originalHtml = el.saveAsEnemyButton.innerHTML;
+
         try {
+          setButtonLoadingState(el.saveAsEnemyButton, true, originalHtml);
           setStatus(message("saveAsInProgress"));
+
+          // 現在のフォーム入力内容は「コピー先」のためのものとして扱う
+          const copied = deepClone(sheet);
+          readFormToSheet(copied, { silent: true });
+
+          // ★ポップアップによる名前の質問は廃止し、そのままの名前でコピーする
+          // （変更したい場合は、フォームで名前を書き換えてからボタンを押す想定）
+
+          // 元のシートの変更を取り消す (スナップショットから復元する)
+          if (sheet._originalString) {
+            try {
+              const original = JSON.parse(sheet._originalString);
+              Object.keys(sheet).forEach((k) => delete sheet[k]);
+              Object.assign(sheet, original);
+              sheet._originalString = JSON.stringify(sheet); // スナップショットを再設定
+            } catch (e) {
+              console.error("元データの復元に失敗しました", e);
+            }
+          }
+
+          copied.id = getNextSequentialId();
+          // copied.name = saveAsName; // 削除（そのままの名前を使う）
+          copied.createdAt = nowText();
+          copied.updatedAt = nowText();
+          delete copied._originalString;
+
+          state.sheets.unshift(copied);
+          localUnsavedSheetIds.add(String(copied.id || ""));
+          state.selectedId = copied.id;
+          markDirty();
+          renderAll();
+
           await saveCurrentToDb();
           renderAll();
         } catch (error) {
           console.error(error);
           setStatus("保存失敗", "error");
           alert("複製保存に失敗しました: " + error.message);
+        } finally {
+          setButtonLoadingState(el.saveAsEnemyButton, false, originalHtml);
         }
       });
     }
@@ -2982,15 +3019,10 @@
       const key = String(event.key || "").toLowerCase();
       if ((event.ctrlKey || event.metaKey) && key === "s") {
         event.preventDefault();
-        const selected = getSelected();
-        if (!selected) return;
-        setStatus(message("saveRequestSending"));
-        saveCurrentToDb()
-          .then(() => renderAll())
-          .catch((error) => {
-            console.error(error);
-            setStatus("保存失敗", "error");
-          });
+        // ★ Ctrl+Sでの保存時もボタンのローディング処理を走らせるため click() を発火
+        if (el.saveEnemyButton && !el.saveEnemyButton.disabled) {
+          el.saveEnemyButton.click();
+        }
       }
     });
   }
