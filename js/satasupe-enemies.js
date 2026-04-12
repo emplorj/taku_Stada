@@ -1708,6 +1708,14 @@
     const list = sheet[kind];
     if (!Array.isArray(list) || !list[index]) return;
     list[index][field] = target.value;
+
+    // ★ 修正：カルマの種別(kind)が変更されたとき、即座に背景色クラスを更新する
+    if (kind === "karma" && field === "kind") {
+      tr.classList.remove("karma-row-is-talent", "karma-row-is-price");
+      if (target.value === "異能") tr.classList.add("karma-row-is-talent");
+      if (target.value === "代償") tr.classList.add("karma-row-is-price");
+    }
+
     recomputeDerivedFields(sheet);
     renderDerivedFields(sheet);
     sheet.updatedAt = nowText();
@@ -1791,23 +1799,23 @@
           .join("、")
       : "";
 
-    const karmaNames = (sheet.karma || [])
-      .map((k) => normalizeText(k.name))
-      .filter(Boolean);
-    const talents = (sheet.karma || [])
-      .map((k) => {
-        const kind = normalizeText(k.kind);
-        if (kind === "異能") return normalizeText(k.name);
-        return normalizeText(k.talent);
-      })
-      .filter(Boolean);
-    const prices = (sheet.karma || [])
-      .map((k) => {
-        const kind = normalizeText(k.kind);
-        if (kind === "代償") return normalizeText(k.name);
-        return normalizeText(k.price);
-      })
-      .filter(Boolean);
+    // ★ 異能、代償、それ以外（未選択など）のカルマを分類して全部拾う
+    const talents = [];
+    const prices = [];
+    const otherKarmas = [];
+
+    (sheet.karma || []).forEach((k) => {
+      const name = normalizeText(k.name);
+      if (!name) return;
+      const kind = normalizeText(k.kind);
+      if (kind === "異能") {
+        talents.push(name);
+      } else if (kind === "代償") {
+        prices.push(name);
+      } else {
+        otherKarmas.push(name);
+      }
+    });
 
     const quoteRaw = normalizeText(meta.quote);
     const quoteText = (() => {
@@ -1908,6 +1916,7 @@
       ? `アジト：${normalizeText(home.place)}（快${toInt(home.comfortable, 10)}/セ${toInt(home.security, 10)}）`
       : "";
 
+    // ★ 修正：カッコ同士の間に / を入れないように join("") に変更
     const lines = [
       "",
       "───",
@@ -1932,22 +1941,13 @@
       hobbies ? `趣味：${hobbies}` : "",
       "",
       talents.length
-        ? `異能：${talents
-            .map((x) => ensureBracketed(x))
-            .filter(Boolean)
-            .join("/")}`
+        ? `異能：${talents.map((x) => ensureBracketed(x)).join("")}`
         : "",
       prices.length
-        ? `代償：${prices
-            .map((x) => ensureBracketed(x))
-            .filter(Boolean)
-            .join("/")}`
+        ? `代償：${prices.map((x) => ensureBracketed(x)).join("")}`
         : "",
-      karmaNames.length && !talents.length && !prices.length
-        ? `カルマ：${karmaNames
-            .map((x) => ensureBracketed(x))
-            .filter(Boolean)
-            .join("、")}`
+      otherKarmas.length
+        ? `カルマ：${otherKarmas.map((x) => ensureBracketed(x)).join("")}`
         : "",
       "",
       weaponLines ? `◆武器\n${weaponLines}` : "",
