@@ -35,6 +35,8 @@
     addOutfitButton: document.getElementById("addOutfitButton"),
     addVehicleButton: document.getElementById("addVehicleButton"),
     addKarmaButton: document.getElementById("addKarmaButton"),
+    addKarmaTalentButton: document.getElementById("addKarmaTalentButton"),
+    addKarmaPriceButton: document.getElementById("addKarmaPriceButton"),
     addKarmaPairButton: document.getElementById("addKarmaPairButton"),
     addHistoryButton: document.getElementById("addHistoryButton"),
     weaponsBody: document.getElementById("weaponsBody"),
@@ -61,6 +63,7 @@
     sortByDangerButton: document.getElementById("sortByDangerButton"),
     sortByKarmaButton: document.getElementById("sortByKarmaButton"),
     sortByAuthorButton: document.getElementById("sortByAuthorButton"),
+    sortByCategoryButton: document.getElementById("sortByCategoryButton"),
     enemyPageSizeInput: document.getElementById("enemyPageSizeInput"),
     enemyShowAllButton: document.getElementById("enemyShowAllButton"),
     enemyShowTenButton: document.getElementById("enemyShowTenButton"),
@@ -155,92 +158,234 @@
   ];
   const MONSTER_KARMA_PRESET_BY_CATEGORY = {
     一般人: {
-      name: "【通報】",
-      use: "常駐",
-      target: "自分",
-      judge: "〔犯罪〕そのエリアの治安",
-      effect:
-        "このキャラクターを殺したキャラクターは検挙され、「臭い飯」表を振ることになる。ただし、殺したキャラクターかその仲間が上記の判定を行えば、検挙迄のターンを成功度の分だけ遅延することが出来る。シナリオが終了した場合、「臭い飯表」を振らなくても良い",
+      talent: {
+        name: "【通報】",
+        use: "常駐",
+        target: "自分",
+        judge: "〔犯罪〕そのエリアの治安",
+        effect:
+          "このキャラクターを殺したキャラクターは検挙され、「臭い飯」表を振ることになる。ただし、殺したキャラクターかその仲間が上記の判定を行えば、検挙迄のターンを成功度の分だけ遅延することが出来る。シナリオが終了した場合、「臭い飯表」を振らなくても良い",
+      },
     },
     迷惑: {
-      name: "【追跡】",
-      use: "常駐",
-      target: "自分",
-      judge: "なし",
-      effect:
-        "対象の行動に割り込んで使用できる。対象からは見えず、しかし対象を見ることが出来る場所にいることが出来る。この効果は、新たに対象にアクションを起こすか、セッション終了まで継続する。",
+      talent: {
+        name: "【追跡】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "対象の行動に割り込んで使用できる。対象からは見えず、しかし対象を見ることが出来る場所にいることが出来る。この効果は、新たに対象にアクションを起こすか、セッション終了まで継続する。",
+      },
     },
     チンピラ: {
-      name: "【群れ】",
-      use: "常駐",
-      target: "自分",
-      judge: "なし",
-      effect:
-        "このキャラクターは「跳ぶ」を組み合わせていないセーブ判定を行うとき、サイコロを振らず自動的に成功度が1となる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。また、命中判定を行うとき、サイコロを振らず自動的に成功度を1にすることができる。",
+      talent: {
+        name: "【群れ】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "このキャラクターは「跳ぶ」を組み合わせていないセーブ判定を行うとき、サイコロを振らず自動的に成功度が1となる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。また、命中判定を行うとき、サイコロを振らず自動的に成功度を1にすることができる。",
+      },
     },
     刺客: {
-      name: "【歴戦】",
-      use: "常駐",
-      target: "自分",
-      judge: "なし",
-      effect:
-        "血戦中、移動を行ってないラウンドは、(精神点)を1D6点消費すれば、セーブ判定を行う代わりに、自分の〔肉体〕と同じ値だけダメージを減少することができる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。",
+      talent: {
+        name: "【歴戦】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "血戦中、移動を行ってないラウンドは、(精神点)を1D6点消費すれば、セーブ判定を行う代わりに、自分の〔肉体〕と同じ値だけダメージを減少することができる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。",
+      },
     },
     戦場の狼: {
-      name: "【歴戦】",
-      use: "常駐",
-      target: "自分",
-      judge: "なし",
-      effect:
-        "血戦中、移動を行ってないラウンドは、(精神点)を1D6点消費すれば、セーブ判定を行う代わりに、自分の〔肉体〕と同じ値だけダメージを減少することができる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。",
+      talent: {
+        name: "【歴戦】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "血戦中、移動を行ってないラウンドは、(精神点)を1D6点消費すれば、セーブ判定を行う代わりに、自分の〔肉体〕と同じ値だけダメージを減少することができる。ただし、「必殺」で発生した10点のダメージに、この異能を使用することはできない。",
+      },
     },
     獣: {
-      name: "【野生】",
-      use: "常駐",
-      target: "自分",
-      judge: "なし",
-      effect:
-        "このキャラクターの攻撃によって、〔肉体点〕が0になったキャラクターは、致命傷表を振らず、必ず死亡する。",
+      talent: {
+        name: "【野生】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "このキャラクターの攻撃によって、〔肉体点〕が0になったキャラクターは、致命傷表を振らず、必ず死亡する。",
+      },
     },
     超級英雄: {
-      name: "【超人】",
-      use: "常駐",
-      target: "自分",
-      judge: "なし",
-      effect:
-        "このキャラクターの(肉体点)の最大値は10+(〔肉体)、(精神点)の最大値は10+(精神)の値となる。そして、【超人】は常にスターである。",
+      talent: {
+        name: "【超人】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "このキャラクターの(肉体点)の最大値は10+(〔肉体)、(精神点)の最大値は10+(精神)の値となる。そして、【超人】は常にスターである。",
+      },
     },
     都市伝説: {
-      name: "【非現実の恐怖】",
-      use: "常駐",
-      target: "自分",
-      judge: "【精神】難易度9",
-      effect:
-        "そのゲーム中、このキャラクターと同じモンスター名のキャラクターを初めて見たキャラクターは【精神】で難易度9の判定を行う。失敗したキャラクターは、〔精神点〕を1D6点失う",
+      talent: {
+        name: "【非現実の恐怖】",
+        use: "常駐",
+        target: "自分",
+        judge: "【精神】難易度9",
+        effect:
+          "そのゲーム中、このキャラクターと同じモンスター名のキャラクターを初めて見たキャラクターは【精神】で難易度9の判定を行う。失敗したキャラクターは、〔精神点〕を1D6点失う",
+      },
+    },
+    リーダー: {
+      talent: {
+        name: "【チームワーク】",
+        use: "補助",
+        target: "自分",
+        judge: "〔性業値〕",
+        effect:
+          "行為判定の時に使用する。使用者と選ばれたキャラクターは〔性業値〕判定を行い、同じ結果が出た人数だけ、組み合わせた判定の難易度を減少させる。ただし、誰か一人でも「迷」を出すと、その判定はファンブルとなる。",
+      },
+      price: {
+        name: "【使命】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "セッション終了時に、ミッションをクリアできていない場合、トラウマを1点受ける。ミッションの成否は、DDが決定する。",
+      },
+    },
+    参謀: {
+      talent: {
+        name: "【応援】",
+        use: "割り込み",
+        target: "自分以外の単体",
+        judge: "なし",
+        effect:
+          "誰かの判定に割り込んで使用する。その判定の難易度を-1する。【応援】で割り込んで判定が失敗すると、使用者の〔精神点〕が1点減少する。",
+      },
+      price: {
+        name: "【胃痛】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect: "チームの仲間がファンブルするたびに〔精神点〕が1点減少する。",
+      },
+    },
+    技術屋: {
+      talent: {
+        name: "【意地】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "【意地】を修得したときに、〔環境値〕の中から好きなものを1種類選ぶ。その〔環境値〕を使った行為判定を行うとき、難易度がその〔環境値〕+7点以下であれば、サイコロを振る代わりに〔精神点〕を3点消費して、自動的に成功度1を獲得することができる（6点以上消費しても成功度2以上にはならない）。",
+      },
+      price: {
+        name: "【誇り】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "【意地】で選んだ環境値の行為判定に失敗したとき、〔精神点〕が1点減少する。",
+      },
+    },
+    荒事屋: {
+      talent: {
+        name: "【修羅場】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "モラル判定が必要になったとき、その判定に自動的に成功することができる。また、重傷の間は、自分の命中判定の難易度から-1することができる。",
+      },
+      price: {
+        name: "【弱肉強食】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "〔戦闘〕の値が自分未満のキャラクターに対するロマンスや交渉の判定は成功度から-1される。また、彼らの反応は最初から一段階悪くなる。",
+      },
+    },
+    マネージャー: {
+      talent: {
+        name: "【やりくり】",
+        use: "支援",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "買い物をするとき、〔サイフ〕を1点消費する代わりに、〔精神点〕を1d6点消費することでそのアイテムを買うことができる。【やりくり】を使って買い物した場合、おつりをもらうことはできない。",
+      },
+      price: {
+        name: "【守銭奴】",
+        use: "終了時",
+        target: "自分",
+        judge: "なし",
+        effect:
+          "セッション終了時に〔サイフ〕が1点でも減少していると、トラウマを1点受ける。",
+      },
+    },
+    道化師: {
+      talent: {
+        name: "【邪魔】",
+        use: "割り込み",
+        target: "単体",
+        judge: "なし",
+        effect:
+          "誰かの判定に割り込んで使用する。その判定の難易度を+1する。【邪魔】で割り込んで判定が成功すると、使用者の〔精神点〕が1点減少する。",
+      },
+      price: {
+        name: "【疫病神】",
+        use: "常駐",
+        target: "自分",
+        judge: "なし",
+        effect: "ファンブル率が1上昇する。",
+      },
     },
   };
 
   function applyMonsterKarmaPresetByCategory(sheet, category) {
     if (!sheet) return;
     if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
-    if (!Array.isArray(sheet.karma) || sheet.karma.length === 0) {
-      sheet.karma = [createKarmaRow()];
-    }
+    if (!Array.isArray(sheet.karma)) sheet.karma = [];
 
     const preset = MONSTER_KARMA_PRESET_BY_CATEGORY[category];
     if (!preset) return;
 
-    let row =
-      sheet.karma.find((r) => String((r && r.kind) || "").trim() === "異能") ||
-      sheet.karma[0];
+    // 「未編集の状態のプリセット行」のみを削除（フィルタリング）する
+    // これにより、ユーザーが少しでも書き換えた行はリストに残る
+    sheet.karma = sheet.karma.filter((row) => !isCategoryPresetRow(row));
 
-    row.kind = "異能";
-    row.category = category;
-    row.name = preset.name;
-    row.use = preset.use;
-    row.target = preset.target;
-    row.judge = preset.judge;
-    row.effect = preset.effect;
+    const newRows = [];
+    if (preset.talent) {
+      const talentRow = createKarmaRow();
+      talentRow._isCategoryKarmaRow = true;
+      talentRow.kind = "異能";
+      talentRow.category = category;
+      talentRow.name = preset.talent.name;
+      talentRow.use = preset.talent.use;
+      talentRow.target = preset.talent.target;
+      talentRow.judge = preset.talent.judge;
+      talentRow.effect = preset.talent.effect;
+      newRows.push(talentRow);
+    }
+
+    if (preset.price) {
+      const priceRow = createKarmaRow();
+      priceRow._isCategoryKarmaRow = true;
+      priceRow.kind = "代償";
+      priceRow.category = category;
+      priceRow.name = preset.price.name;
+      priceRow.use = preset.price.use;
+      priceRow.target = preset.price.target;
+      priceRow.judge = preset.price.judge;
+      priceRow.effect = preset.price.effect;
+      newRows.push(priceRow);
+    }
+
+    // 新しいプリセットを一番上に、残った（編集済みを含む）行をその下に結合
+    sheet.karma = [...newRows, ...sheet.karma];
   }
   const HOBBY_COLOR_CLASS_BY_NAME = (() => {
     const map = new Map();
@@ -401,7 +546,7 @@
       weapons: [createWeaponRow()],
       outfits: [createOutfitRow()],
       vehicles: [createVehicleRow()],
-      karma: [createKarmaRow()],
+      karma: [],
       history: [],
       memo: "",
       meta: {
@@ -410,7 +555,7 @@
         karmaValue: 7,
         reaction: "中立",
         size: "中",
-        category: "",
+        category: "一般人",
         quote: "",
         hobbies: "",
         likeType: "",
@@ -425,6 +570,7 @@
         languageManual: false,
       },
     };
+    applyMonsterKarmaPresetByCategory(sheet, sheet.meta.category);
     sheet._originalString = JSON.stringify(sheet);
     return sheet;
   }
@@ -773,7 +919,34 @@
       target: "",
       judge: "",
       effect: "",
+      _isCategoryKarmaRow: false,
     };
+  }
+
+  function isCategoryPresetRow(row) {
+    if (!row || typeof row !== "object") return false;
+
+    // 以前は _isCategoryKarmaRow フラグだけで判定していましたが、
+    // 内容がプリセットと一致しているか（＝編集されていないか）を厳密にチェックします
+    const kind = String(row.kind || "").trim();
+    const category = String(row.category || "").trim();
+    const name = String(row.name || "").trim();
+    const effect = String(row.effect || "").trim(); // 効果文もチェック対象に含める
+
+    const preset = MONSTER_KARMA_PRESET_BY_CATEGORY[category];
+    if (!preset) return false;
+
+    // 異能プリセットとの一致確認
+    if (kind === "異能" && preset.talent && preset.talent.name === name) {
+      // 効果文まで一致していれば「未編集のプリセット」とみなす
+      if (preset.talent.effect === effect) return true;
+    }
+    // 代償プリセットとの一致確認
+    if (kind === "代償" && preset.price && preset.price.name === name) {
+      if (preset.price.effect === effect) return true;
+    }
+
+    return false;
   }
 
   function createHistoryRow() {
@@ -1292,6 +1465,34 @@
           String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""))
         );
       }
+      if (mode === "category") {
+        const categoryOrder = [
+          "一般人",
+          "迷惑",
+          "チンピラ",
+          "刺客",
+          "戦場の狼",
+          "獣",
+          "超級英雄",
+          "都市伝説",
+          "リーダー",
+          "参謀",
+          "技術屋",
+          "荒事屋",
+          "マネージャー",
+          "道化師",
+        ];
+        const ca = String(a.meta?.category || "").trim();
+        const cb = String(b.meta?.category || "").trim();
+        const ia = categoryOrder.indexOf(ca);
+        const ib = categoryOrder.indexOf(cb);
+        const ea = ia === -1 ? 999 : ia;
+        const eb = ib === -1 ? 999 : ib;
+        return (
+          (ea - eb) * dir ||
+          String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""))
+        );
+      }
       return (
         String(a.updatedAt || "").localeCompare(String(b.updatedAt || "")) * dir
       );
@@ -1385,6 +1586,7 @@
       [el.sortByDangerButton, "danger", "危険度"],
       [el.sortByKarmaButton, "karmaCount", "異能数"],
       [el.sortByAuthorButton, "author", "作者"],
+      [el.sortByCategoryButton, "category", "分類"],
     ];
 
     map.forEach(([btn, key, fallbackLabel]) => {
@@ -1535,12 +1737,11 @@
     return `
       <div class="karma-combined-cell">
         <select data-row-field="kind" class="karma-kind-select">
-          <option value="" ${kind === "" ? "selected" : ""}>-</option>
           <option value="異能" ${kind === "異能" ? "selected" : ""}>異能</option>
           <option value="代償" ${kind === "代償" ? "selected" : ""}>代償</option>
         </select>
         <input type="text" data-row-field="category" value="${category}" placeholder="カテゴリ" list="karmaCategoryList">
-        <input type="text" data-row-field="name" value="${name}" placeholder="異能名/代償名">
+        <input type="text" data-row-field="name" value="${name}" placeholder="カルマ名">
       </div>
     `;
   }
@@ -1746,8 +1947,27 @@
     if (kind === "weapons") sheet.weapons.push(createWeaponRow());
     if (kind === "outfits") sheet.outfits.push(createOutfitRow());
     if (kind === "vehicles") sheet.vehicles.push(createVehicleRow());
-    if (kind === "karma") sheet.karma.push(createKarmaRow());
+    if (kind === "karma") {
+      const row = createKarmaRow();
+      if (sheet.meta && sheet.meta.category) row.category = sheet.meta.category;
+      sheet.karma.push(row);
+    }
     if (kind === "history") sheet.history.push(createHistoryRow());
+    recomputeDerivedFields(sheet);
+    renderDerivedFields(sheet);
+    sheet.updatedAt = nowText();
+    markDirty();
+    renderEditor();
+  }
+
+  function addKarmaKindRow(kindValue) {
+    const sheet = getSelected();
+    if (!sheet) return;
+    const row = createKarmaRow();
+    row.kind = kindValue;
+    row.category = ""; // 空欄で開始
+    sheet.karma.push(row);
+
     recomputeDerivedFields(sheet);
     renderDerivedFields(sheet);
     sheet.updatedAt = nowText();
@@ -1947,7 +2167,7 @@
         ? `代償：${prices.map((x) => ensureBracketed(x)).join("")}`
         : "",
       otherKarmas.length
-        ? `カルマ：${otherKarmas.map((x) => ensureBracketed(x)).join("")}`
+        ? `${otherKarmas.map((x) => ensureBracketed(x)).join("")}`
         : "",
       "",
       weaponLines ? `◆武器\n${weaponLines}` : "",
@@ -2484,6 +2704,10 @@
       );
     if (el.sortByAuthorButton)
       el.sortByAuthorButton.addEventListener("click", () => setSort("author"));
+    if (el.sortByCategoryButton)
+      el.sortByCategoryButton.addEventListener("click", () =>
+        setSort("category"),
+      );
 
     if (el.enemyPageSizeInput) {
       el.enemyPageSizeInput.addEventListener("change", (e) => {
@@ -2616,19 +2840,15 @@
         if (field === "meta.category") {
           const newCategory = v;
           if (Array.isArray(sheet.karma) && sheet.karma.length > 0) {
-            let matchCount = 0;
-            sheet.karma.forEach((row) => {
-              if (oldCategory && row.category === oldCategory) {
-                if (field === "meta.category") {
-                  applyMonsterKarmaPresetByCategory(sheet, v);
-                  renderKarma(sheet);
-                }
-                matchCount++;
-              }
-            });
-            if (matchCount === 0) {
+            const hasOldCategory = !!sheet.karma.find(
+              (row) => oldCategory && row.category === oldCategory,
+            );
+            if (hasOldCategory) {
+              applyMonsterKarmaPresetByCategory(sheet, newCategory);
+              renderKarma(sheet);
+            } else {
               const firstRow = sheet.karma[0];
-              if (sheet.karma.length === 1 || !firstRow.category) {
+              if (sheet.karma.length === 1 && !firstRow.category) {
                 firstRow.category = newCategory;
                 if (!firstRow.kind) firstRow.kind = "異能";
               }
@@ -2983,18 +3203,31 @@
       el.addVehicleButton.addEventListener("click", () => addRow("vehicles"));
     if (el.addKarmaButton)
       el.addKarmaButton.addEventListener("click", () => addRow("karma"));
+    if (el.addKarmaTalentButton)
+      el.addKarmaTalentButton.addEventListener("click", () =>
+        addKarmaKindRow("異能"),
+      );
+    if (el.addKarmaPriceButton)
+      el.addKarmaPriceButton.addEventListener("click", () =>
+        addKarmaKindRow("代償"),
+      );
 
     if (el.addKarmaPairButton) {
       el.addKarmaPairButton.addEventListener("click", () => {
         const sheet = getSelected();
         if (!sheet) return;
 
+        // 異能の行を作成（カテゴリは空にする）
         const abilityRow = createKarmaRow();
         abilityRow.kind = "異能";
+        abilityRow.category = ""; // 自動コピーを削除
 
+        // 代償の行を作成（カテゴリは空にする）
         const priceRow = createKarmaRow();
         priceRow.kind = "代償";
+        priceRow.category = ""; // 自動コピーを削除
 
+        // シートのカルマリストの末尾に追加
         sheet.karma.push(abilityRow, priceRow);
 
         recomputeDerivedFields(sheet);

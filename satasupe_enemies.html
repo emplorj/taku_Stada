@@ -24,7 +24,6 @@
   <main class="main-content satasupe-enemies-main">
     <header class="satasupe-header">
       <h1>サタスペ エネミーシート管理</h1>
-
     </header>
 
     <section class="satasupe-layout">
@@ -39,6 +38,7 @@
                 class="fa-solid fa-rotate-right"></i> DB再読込</button>
           </div>
           <div class="action-bar-right">
+            <span id="saveStatusText" class="save-status-text">未保存</span>
             <button id="saveAsEnemyButton" type="button" class="action-btn is-main"><i class="fa-solid fa-copy"></i>
               別名保存</button>
             <button id="saveEnemyButton" type="button" class="action-btn is-main"><i
@@ -150,15 +150,24 @@
                       <th class="th-compact-label">カテゴリー</th>
                       <td colspan="3">
                         <select data-field="meta.category">
-                          <option value="">（なし）</option>
-                          <option value="一般人">一般人</option>
-                          <option value="迷惑">迷惑</option>
-                          <option value="チンピラ">チンピラ</option>
-                          <option value="刺客">刺客</option>
-                          <option value="戦場の狼">戦場の狼</option>
-                          <option value="獣">獣</option>
-                          <option value="超級英雄">超級英雄</option>
-                          <option value="都市伝説">都市伝説</option>
+                          <optgroup label="モンスター">
+                            <option value="一般人">一般人</option>
+                            <option value="迷惑">迷惑</option>
+                            <option value="チンピラ">チンピラ</option>
+                            <option value="刺客">刺客</option>
+                            <option value="戦場の狼">戦場の狼</option>
+                            <option value="獣">獣</option>
+                            <option value="超級英雄">超級英雄</option>
+                            <option value="都市伝説">都市伝説</option>
+                          </optgroup>
+                          <optgroup label="亜侠">
+                            <option value="リーダー">リーダー</option>
+                            <option value="参謀">参謀</option>
+                            <option value="技術屋">技術屋</option>
+                            <option value="荒事屋">荒事屋</option>
+                            <option value="マネージャー">マネージャー</option>
+                            <option value="道化師">道化師</option>
+                          </optgroup>
                         </select>
                       </td>
                       <th class="th-compact-label">ドロップ表</th>
@@ -368,10 +377,8 @@
                         </div>
                       </td>
                     </tr>
-                    </tr>
                   </tbody>
                 </table>
-
               </div>
             </section>
 
@@ -388,11 +395,12 @@
                   <label class="action-meta-field" style="min-width: 9em;">複数行
                     <input id="karmaEffectLineModeSelect" class="switch" type="checkbox" aria-label="効果を複数行で入力">
                   </label>
-                  <!-- ↓ここに追加↓ -->
+                  <button id="addKarmaTalentButton" type="button" class="small-square-btn karma-add-talent-btn"
+                    title="異能を追加します">異能追加</button>
+                  <button id="addKarmaPriceButton" type="button" class="small-square-btn karma-add-price-btn"
+                    title="代償を追加します">代償追加</button>
                   <button id="addKarmaPairButton" type="button" class="small-square-btn"
                     title="異能と代償をセットで追加します">ペア追加</button>
-                  <!-- ↑ここまで↑ -->
-                  <button id="addKarmaButton" type="button" class="small-square-btn">行追加</button>
                 </div>
                 <div class="table-wrap">
                   <table class="asian-table" id="karmaTable">
@@ -525,6 +533,7 @@
             <button id="sortByDangerButton" type="button" class="sort-chip">危険度</button>
             <button id="sortByKarmaButton" type="button" class="sort-chip">異能数</button>
             <button id="sortByAuthorButton" type="button" class="sort-chip">作者</button>
+            <button id="sortByCategoryButton" type="button" class="sort-chip">分類</button>
             <div class="enemy-list-controls" aria-label="エネミー表示件数">
               <label for="enemyPageSizeInput">表示件数</label>
               <input id="enemyPageSizeInput" class="enemy-page-size-input" type="number" min="0" step="1" value="10"
@@ -555,8 +564,6 @@
       </details>
     </section>
   </main>
-
-
 
   <footer>
     <p>© 2025 卓スタダ</p>

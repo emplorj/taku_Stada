@@ -2384,6 +2384,28 @@ input[type="number"]::-webkit-inner-spin-button {
   border-color: #e8b8c1;
   color: #9b4f5d;
 }
+/* 新設：カルマ追加ボタン（異能=青系、代償=赤系） */
+.karma-add-talent-btn {
+  background: linear-gradient(180deg, #eefcff 0%, #dff6ff 100%) !important;
+  color: #2f6f7c !important;
+  border-color: #91d6e3 !important;
+}
+
+.karma-add-talent-btn:hover {
+  background: linear-gradient(180deg, #dff6ff 0%, #cceeff 100%) !important;
+  border-color: #7cc9da !important;
+}
+
+.karma-add-price-btn {
+  background: linear-gradient(180deg, #fff3f5 0%, #ffe5ea 100%) !important;
+  color: #9b4f5d !important;
+  border-color: #e8b8c1 !important;
+}
+
+.karma-add-price-btn:hover {
+  background: linear-gradient(180deg, #ffe5ea 0%, #ffd0d9 100%) !important;
+  border-color: #e2a1ad !important;
+}
 #hobbyBaseCount.is-over {
   background: #5a1a1a;
   border-color: #c94a4a;
@@ -3583,4 +3605,27 @@ textarea::placeholder {
     box-shadow: 0 0 12px rgba(255, 36, 78, 0.55);
     font-weight: 900;
   }
+}
+
+/* 新設：カルマ追加ボタン（異能=青系、代償=赤系） */
+.karma-add-talent-btn {
+  background: linear-gradient(180deg, #eefcff 0%, #dff6ff 100%) !important;
+  color: #2f6f7c !important;
+  border-color: #91d6e3 !important;
+}
+
+.karma-add-talent-btn:hover {
+  background: linear-gradient(180deg, #dff6ff 0%, #cceeff 100%) !important;
+  border-color: #7cc9da !important;
+}
+
+.karma-add-price-btn {
+  background: linear-gradient(180deg, #fff3f5 0%, #ffe5ea 100%) !important;
+  color: #9b4f5d !important;
+  border-color: #e8b8c1 !important;
+}
+
+.karma-add-price-btn:hover {
+  background: linear-gradient(180deg, #ffe5ea 0%, #ffd0d9 100%) !important;
+  border-color: #e2a1ad !important;
 }
