@@ -425,6 +425,12 @@ function message(key, params = {}) {
     clipboardCopyFailedConsole: "コピー失敗。コンソールに出力する",
     saveRequestSending: "保存要求を送信中…",
     saveAsInProgress: "別名保存中…",
+    saveAsSameNameBlocked:
+      "ちょっと待て！別名保存なのに同じ名前だ。先に名前を変えてくれ。",
+    saveAsSameNameConfirm:
+      "別名保存なのに同じ名前だけど保存しちゃっていい？\n1: そのまま保存\n2: やめる\n3: （コピー）を付けて保存",
+    saveAsSameNameChoiceInvalid:
+      "入力がわからない。1（そのまま保存）/2（やめる）/3（コピー名で保存）で選んでくれ。",
     saveCompleted: "保存完了 {time}",
     saveAsPrompt: "別名保存する名前を入力してください",
     saveAsNameRequired: "保存名を入力してください",
@@ -455,6 +461,40 @@ function requestSaveAsName(currentName = "") {
     if (name) return name;
     window.alert(message("saveAsNameRequired"));
   }
+}
+
+async function requestSaveAsSameNameAction(currentName = "") {
+  const shared = getNechronicaShared();
+  if (shared && typeof shared.requestSaveAsSameNameAction === "function") {
+    return await shared.requestSaveAsSameNameAction(currentName);
+  }
+  while (true) {
+    const raw = window.prompt(message("saveAsSameNameConfirm"), "2");
+    if (raw == null) return "cancel";
+    const choice = String(raw || "")
+      .trim()
+      .toLowerCase();
+    if (choice === "1" || choice === "save" || choice === "そのまま保存") {
+      return "save";
+    }
+    if (choice === "2" || choice === "cancel" || choice === "やめる") {
+      return "cancel";
+    }
+    if (
+      choice === "3" ||
+      choice === "copy" ||
+      choice === "コピー" ||
+      choice === "コピー名で保存"
+    ) {
+      return "copy";
+    }
+    window.alert(message("saveAsSameNameChoiceInvalid"));
+  }
+}
+
+function buildCopiedName(name) {
+  const base = String(name || "").trim();
+  return `${base}（コピー）`;
 }
 
 async function writeClipboardText(text) {
@@ -4195,12 +4235,24 @@ function setupEvents() {
   bindClick(el.deleteEnemyButton, handleDeleteEnemy);
   bindClick(el.deleteEnemyButtonBottom, handleDeleteEnemy);
 
-  const handleSaveAsEnemy = () => {
-    upsertCurrentEnemyFromForm();
+  const handleSaveAsEnemy = async () => {
     const current = getSelectedEnemy();
     if (!current) return;
-    const saveAsName = requestSaveAsName(current.name || "");
-    if (saveAsName == null) return;
+    const sourceName = String(current.name || "").trim();
+    upsertCurrentEnemyFromForm();
+    let saveAsName = String((current && current.name) || "").trim();
+    if (saveAsName === sourceName) {
+      const action = await requestSaveAsSameNameAction(saveAsName);
+      if (action === "cancel") {
+        setSaveStatus("idle", "別名保存を中止");
+        return;
+      }
+      if (action === "copy") {
+        saveAsName = buildCopiedName(saveAsName);
+        current.name = saveAsName;
+        if (el.fields.name) el.fields.name.value = saveAsName;
+      }
+    }
 
     const duplicated = JSON.parse(JSON.stringify(current));
     duplicated.ID = getNextId();

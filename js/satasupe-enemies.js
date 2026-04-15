@@ -995,6 +995,12 @@
       clipboardCopyFailedConsole: "コピー失敗。コンソールに出力する",
       saveRequestSending: "保存要求を送信中…",
       saveAsInProgress: "別名保存中…",
+      saveAsSameNameBlocked:
+        "ちょっと待て！別名保存なのに同じ名前だ。先に名前を変えてくれ。",
+      saveAsSameNameConfirm:
+        "別名保存なのに同じ名前だけど保存しちゃっていい？\n1: そのまま保存\n2: やめる\n3: （コピー）を付けて保存",
+      saveAsSameNameChoiceInvalid:
+        "入力がわからない。1（そのまま保存）/2（やめる）/3（コピー名で保存）で選んでくれ。",
       saveCompleted: "保存完了 {time}",
       saveAsPrompt: "別名保存する名前を入力してください",
       saveAsNameRequired: "保存名を入力してください",
@@ -1012,6 +1018,43 @@
 
   function showKomaJsonCopySuccessToast() {
     showToast(message("komaJsonCopySuccess"), "info");
+  }
+
+  async function requestSaveAsSameNameAction(currentName = "") {
+    const shared =
+      typeof window !== "undefined" && window && window.NechronicaShared
+        ? window.NechronicaShared
+        : null;
+    if (shared && typeof shared.requestSaveAsSameNameAction === "function") {
+      return await shared.requestSaveAsSameNameAction(currentName);
+    }
+    while (true) {
+      const raw = window.prompt(message("saveAsSameNameConfirm"), "2");
+      if (raw == null) return "cancel";
+      const choice = String(raw || "")
+        .trim()
+        .toLowerCase();
+      if (choice === "1" || choice === "save" || choice === "そのまま保存") {
+        return "save";
+      }
+      if (choice === "2" || choice === "cancel" || choice === "やめる") {
+        return "cancel";
+      }
+      if (
+        choice === "3" ||
+        choice === "copy" ||
+        choice === "コピー" ||
+        choice === "コピー名で保存"
+      ) {
+        return "copy";
+      }
+      window.alert(message("saveAsSameNameChoiceInvalid"));
+    }
+  }
+
+  function buildCopiedName(name) {
+    const base = String(name || "").trim();
+    return `${base}（コピー）`;
   }
 
   function setSaveButtonLabelBySheet(sheet) {
@@ -3084,6 +3127,7 @@
         if (el.saveAsEnemyButton.disabled) return;
         const sheet = getSelected();
         if (!sheet) return;
+        const sourceName = String(sheet.name || "").trim();
 
         const originalHtml = el.saveAsEnemyButton.innerHTML;
 
@@ -3094,6 +3138,22 @@
           // 現在のフォーム入力内容は「コピー先」のためのものとして扱う
           const copied = deepClone(sheet);
           readFormToSheet(copied, { silent: true });
+          let duplicatedName = String(copied.name || "").trim();
+          if (duplicatedName === sourceName) {
+            const action = await requestSaveAsSameNameAction(duplicatedName);
+            if (action === "cancel") {
+              setStatus("別名保存を中止", "info");
+              return;
+            }
+            if (action === "copy") {
+              duplicatedName = buildCopiedName(duplicatedName);
+              copied.name = duplicatedName;
+              const nameInput = document.getElementById("field-name");
+              if (nameInput instanceof HTMLInputElement) {
+                nameInput.value = duplicatedName;
+              }
+            }
+          }
 
           // ★ポップアップによる名前の質問は廃止し、そのままの名前でコピーする
           // （変更したい場合は、フォームで名前を書き換えてからボタンを押す想定）

@@ -56,6 +56,10 @@ let toastTimer = null;
 let progressTimer = null;
 let nechronicaEditorState = null;
 let lastRawOutputText = "";
+const MESSAGE_FALLBACK = {
+  komaJsonCopySuccess:
+    "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
+};
 const DEFAULT_NECHRONICA_KAKERA_TEMPLATE =
   "【記憶のカケラ：初期】\n" +
   "「テキスト」\n" +
@@ -133,7 +137,34 @@ function getNechronicaShared() {
       if (prev === damageToken && next !== damageToken) return false;
       return !!currentChecked;
     },
+    getMessage: (key, params = {}) => {
+      const template =
+        Object.prototype.hasOwnProperty.call(MESSAGE_FALLBACK, key) &&
+        typeof MESSAGE_FALLBACK[key] === "string"
+          ? MESSAGE_FALLBACK[key]
+          : String(key || "");
+      return template.replace(/\{(\w+)\}/g, (_m, token) => {
+        const value = params ? params[token] : "";
+        return value == null ? "" : String(value);
+      });
+    },
   };
+}
+
+function message(key, params = {}) {
+  const shared = getNechronicaShared();
+  if (shared && typeof shared.getMessage === "function") {
+    return shared.getMessage(key, params);
+  }
+  const template =
+    Object.prototype.hasOwnProperty.call(MESSAGE_FALLBACK, key) &&
+    typeof MESSAGE_FALLBACK[key] === "string"
+      ? MESSAGE_FALLBACK[key]
+      : String(key || "");
+  return template.replace(/\{(\w+)\}/g, (_m, token) => {
+    const value = params ? params[token] : "";
+    return value == null ? "" : String(value);
+  });
 }
 
 function quoteKakeraTokensFromLine(line) {
@@ -409,12 +440,7 @@ copyButton.addEventListener("click", () => {
   }
   navigator.clipboard
     .writeText(txt)
-    .then(() =>
-      showToast(
-        "コピーした！ これをココフォリアに持って行ってペーストだ！",
-        "info",
-      ),
-    )
+    .then(() => showToast(message("komaJsonCopySuccess"), "info"))
     .catch((err) => {
       showToast("コピーに失敗したようだ… ブラウザの権限を確認しろ！", "error");
       console.error("Clipboard copy failed: ", err);
