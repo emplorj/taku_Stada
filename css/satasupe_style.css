@@ -4,8 +4,8 @@
   --sp-bg-main: #2f2a28;
   --sp-bg-panel: #1a1615;
   --sp-bg-deep: #120f0e;
-  --sp-text-main: #e0d5c1;
-  --sp-text-sub: #b9ab92;
+  --sp-text-main: #f1e8d8;
+  --sp-text-sub: #d2c3aa;
   --sp-neon-main: #d67a1f;
   --sp-neon-sub: #a83f39;
   --sp-neon-cyber: #05d9e8;
@@ -160,8 +160,8 @@ body.menu-open .layout-container {
   color: var(--sp-neon-main);
   margin: 0;
   text-shadow:
-    0 0 12px rgba(214, 122, 31, 0.65),
-    2px 2px 0 #000;
+    0 0 4px rgba(214, 122, 31, 0.35),
+    1px 1px 0 #000;
   letter-spacing: 2px;
 }
 
@@ -257,7 +257,7 @@ body.menu-open .layout-container {
   font-size: 1.2rem;
   color: var(--sp-neon-main);
   line-height: 1.5;
-  text-shadow: 0 0 8px rgba(214, 122, 31, 0.55);
+  text-shadow: 0 0 3px rgba(214, 122, 31, 0.3);
 }
 /* 2. 見出しの中にある一括ボタン専用のスタイル */
 .btn-header-batch {
@@ -270,7 +270,7 @@ body.menu-open .layout-container {
 .kanji-num {
   color: var(--sp-neon-sub);
   margin-right: 5px;
-  text-shadow: 0 0 8px rgba(168, 63, 57, 0.6);
+  text-shadow: 0 0 3px rgba(168, 63, 57, 0.35);
 }
 .box-footer {
   margin-top: auto;
@@ -347,7 +347,7 @@ body.menu-open .layout-container {
   transform: translate(-1px, -1px);
   box-shadow:
     3px 3px 0 #000,
-    0 0 14px rgba(214, 122, 31, 0.55);
+    0 0 8px rgba(214, 122, 31, 0.35);
 }
 .stamp-btn:active {
   transform: translate(1px, 1px);
@@ -376,7 +376,7 @@ body.menu-open .layout-container {
   color: #120f0e;
   box-shadow:
     2px 2px 0 #000,
-    0 0 10px rgba(168, 63, 57, 0.55);
+    0 0 6px rgba(168, 63, 57, 0.35);
 }
 
 .label-btn {
@@ -404,7 +404,7 @@ body.menu-open .layout-container {
   transform: translateY(-1px);
   box-shadow:
     2px 2px 0 #000,
-    0 0 10px rgba(214, 122, 31, 0.5);
+    0 0 6px rgba(214, 122, 31, 0.32);
 }
 .label-btn:active {
   transform: translateY(1px);
@@ -433,7 +433,7 @@ body.menu-open .layout-container {
   top: -2px;
   padding: 0;
   text-shadow:
-    0 0 10px rgba(214, 122, 31, 0.7),
+    0 0 4px rgba(214, 122, 31, 0.4),
     1px 1px 0 #000;
 }
 .result-row.mini {
@@ -466,8 +466,8 @@ body.menu-open .layout-container {
   border-bottom: 2px solid var(--sp-neon-sub);
   display: inline-block;
   line-height: 1.4;
-  color: var(--sp-neon-sub);
-  text-shadow: 0 0 6px rgba(168, 63, 57, 0.55);
+  color: #f3dfc4;
+  text-shadow: 0 0 2px rgba(168, 63, 57, 0.25);
 }
 .result-area.dark-bg {
   background: rgba(12, 10, 10, 0.85);
@@ -478,7 +478,7 @@ body.menu-open .layout-container {
   font-size: 0.9rem;
   border-radius: 3px;
   box-shadow: inset 0 0 10px rgba(168, 63, 57, 0.15);
-  text-shadow: 0 0 3px rgba(214, 122, 31, 0.35);
+  text-shadow: none;
 }
 
 /* Tooltip */
@@ -690,7 +690,8 @@ body.menu-open .layout-container {
   padding: 4px;
   text-align: center;
   font-size: 0.75rem;
-  color: #e0e0e0;
+  color: #f5f1e8;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.55);
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -701,31 +702,31 @@ body.menu-open .layout-container {
   background-color: #1a1a20;
   color: #05d9e8;
   font-weight: bold;
-  text-shadow: 0 0 3px rgba(5, 217, 232, 0.5);
+  text-shadow: 0 0 1px rgba(5, 217, 232, 0.25);
 }
 .bg-pink {
-  background: rgba(255, 0, 204, 0.15);
-  border: 1px solid rgba(255, 0, 204, 0.3);
+  background: rgba(255, 0, 204, 0.28);
+  border: 1px solid rgba(255, 0, 204, 0.5);
 }
 .bg-blue {
-  background: rgba(0, 153, 255, 0.15);
-  border: 1px solid rgba(0, 153, 255, 0.3);
+  background: rgba(0, 153, 255, 0.28);
+  border: 1px solid rgba(0, 153, 255, 0.5);
 }
 .bg-gray {
-  background: rgba(102, 102, 102, 0.15);
-  border: 1px solid rgba(136, 136, 136, 0.3);
+  background: rgba(102, 102, 102, 0.32);
+  border: 1px solid rgba(176, 176, 176, 0.45);
 }
 .bg-yellow {
-  background: rgba(255, 204, 0, 0.15);
-  border: 1px solid rgba(255, 204, 0, 0.3);
+  background: rgba(255, 204, 0, 0.28);
+  border: 1px solid rgba(255, 204, 0, 0.5);
 }
 .bg-green {
-  background: rgba(51, 204, 51, 0.15);
-  border: 1px solid rgba(51, 204, 51, 0.3);
+  background: rgba(51, 204, 51, 0.28);
+  border: 1px solid rgba(51, 204, 51, 0.5);
 }
 .bg-purple {
-  background: rgba(153, 51, 255, 0.15);
-  border: 1px solid rgba(153, 51, 255, 0.3);
+  background: rgba(153, 51, 255, 0.28);
+  border: 1px solid rgba(153, 51, 255, 0.5);
 }
 
 /* Otakara */
@@ -1321,7 +1322,7 @@ body.satasupe-body .side-menu .submenu-trigger {
   font-size: 0.85rem;
   font-weight: bold;
   color: #f9c80e;
-  text-shadow: 0 0 3px rgba(249, 200, 14, 0.5);
+  text-shadow: none;
   padding: 4px 0 2px;
   display: block;
 }

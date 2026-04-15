@@ -830,7 +830,7 @@
       sideHead.className = "hobby-grid-side-header";
       sideHead.style.gridColumn = "1";
       sideHead.style.gridRow = "3 / span 6";
-      sideHead.textContent = "2回目のサイコロ";
+      sideHead.textContent = "２回目のサイコロ";
       el.hobbyPickerList.appendChild(sideHead);
     }
 

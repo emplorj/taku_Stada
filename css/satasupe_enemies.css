@@ -2087,15 +2087,24 @@ input[type="number"]::-webkit-inner-spin-button {
   width: fit-content;
   min-width: min(520px, calc(100vw - 24px));
   max-width: calc(100vw - 24px);
-  border: 1px solid #9a8972;
-  border-radius: 6px;
-  background: #fff8eb;
-  padding: 6px;
+  border: 1px solid #6f5b43;
+  border-radius: 10px;
+  background:
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(255, 214, 147, 0.14),
+      transparent 45%
+    ),
+    linear-gradient(180deg, #231a15 0%, #17100d 100%);
+  color: #f7ead7;
+  padding: 8px;
   max-height: min(70vh, 460px);
   overflow-x: auto;
   overflow-y: auto;
   z-index: 50;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 16px 30px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 218, 160, 0.12);
 }
 
 .hobby-picker-toggle {
@@ -2104,7 +2113,7 @@ input[type="number"]::-webkit-inner-spin-button {
   gap: 6px;
   margin: 0 0 8px;
   font-size: 12px;
-  color: #4a3523;
+  color: #f1d8b9;
   white-space: nowrap;
 }
 
@@ -2143,7 +2152,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .hobby-manual-details > summary {
   cursor: pointer;
   font-size: 12px;
-  color: #5a4630;
+  color: #e8c79f;
   user-select: none;
 }
 
@@ -2203,9 +2212,9 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .hobby-grid-meta-cell {
-  border: 1px solid #555;
-  background: #333;
-  color: #fff;
+  border: 1px solid #5b4c3b;
+  background: linear-gradient(180deg, #413629 0%, #2a221a 100%);
+  color: #f7e5cc;
   min-height: 28px;
   display: inline-flex;
   align-items: center;
@@ -2232,9 +2241,9 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .hobby-grid-header-cell {
-  border: 1px solid #555;
-  background: #333;
-  color: #fff;
+  border: 1px solid #66543f;
+  background: linear-gradient(180deg, #463728 0%, #2f261d 100%);
+  color: #ffeacc;
   border-radius: 4px;
   min-height: 30px;
   display: inline-flex;
@@ -2256,9 +2265,9 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .hobby-grid-side-header {
-  border: 1px solid #555;
-  background: #333;
-  color: #fff;
+  border: 1px solid #66543f;
+  background: linear-gradient(180deg, #493a2a 0%, #2f261d 100%);
+  color: #ffeacc;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   display: inline-flex;
@@ -2276,34 +2285,81 @@ input[type="number"]::-webkit-inner-spin-button {
   border-color: #8a8a8a !important;
   cursor: not-allowed;
   filter: grayscale(0.55);
+  transform: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.hobby-picker-item.is-disabled-cell::after {
+  display: none !important;
 }
 
 .hobby-picker-item {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   margin: 0;
-  border: 1px solid #b09d84;
+  border: 1px solid #8e7860;
   border-radius: 6px;
-  background: #fffdf6;
-  color: #2f2418;
+  background: var(--hobby-base-bg, #2d241b);
+  color: #f8efe2;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.45);
   padding: 5px 8px;
   white-space: nowrap;
+  overflow: hidden;
   cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .hobby-choice-box:hover {
-  border-color: #9d6a2d;
-  background: #ffe7c8;
+  border-color: #d39f58;
+  background: #ffe4bc;
+  box-shadow: 0 0 0 1px rgba(255, 192, 106, 0.38);
+  transform: translateY(-1px);
 }
 
 .hobby-choice-box.is-selected {
+  position: relative;
   border-color: var(--hobby-accent, #7f4f16);
-  outline: 2px solid var(--hobby-accent, #7f4f16);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.46) 0%,
+      rgba(255, 255, 255, 0.3) 100%
+    ),
+    var(--hobby-base-bg, #3b2f24);
+  outline: 2px solid
+    color-mix(in srgb, var(--hobby-accent, #7f4f16) 85%, #fff 15%);
   outline-offset: -2px;
-  filter: saturate(1.08) brightness(0.98);
+  padding-right: 8px;
+  filter: saturate(1.35) brightness(1.16);
+  box-shadow:
+    inset 0 0 0 999px rgba(255, 255, 255, 0.08),
+    inset 0 0 0 2px
+      color-mix(in srgb, var(--hobby-accent, #7f4f16) 75%, #fff 25%),
+    inset 0 -4px 0
+      color-mix(in srgb, var(--hobby-accent, #7f4f16) 82%, #111 18%),
+    0 0 0 2px rgba(255, 232, 198, 0.55),
+    0 0 14px color-mix(in srgb, var(--hobby-accent, #7f4f16) 60%, transparent);
+  transform: translateY(-1px) scale(1.02);
   font-weight: 700;
+  text-shadow: 0 0 6px
+    color-mix(in srgb, var(--hobby-accent, #7f4f16) 45%, transparent);
+}
+
+.hobby-choice-box.is-selected::after {
+  content: none;
+}
+
+.hobby-picker-item:focus-visible {
+  outline: 2px solid #ffd9a0;
+  outline-offset: -1px;
 }
 
 .hobby-input-chips {
@@ -2425,63 +2481,75 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .hobby-picker-item.bg-pink {
-  --hobby-accent: #b24a98;
-  background: #ffccff;
+  --hobby-accent: #ff00cc;
+  --hobby-base-bg: rgba(255, 0, 204, 0.24);
+  background: var(--hobby-base-bg);
+  border-color: rgba(255, 0, 204, 0.3);
 }
 
 .hobby-picker-item.bg-blue {
-  --hobby-accent: #357ea6;
-  background: #ccffff;
+  --hobby-accent: #0099ff;
+  --hobby-base-bg: rgba(0, 153, 255, 0.24);
+  background: var(--hobby-base-bg);
+  border-color: rgba(0, 153, 255, 0.3);
 }
 
 .hobby-picker-item.bg-gray {
-  --hobby-accent: #6e6e6e;
-  background: #e0e0e0;
+  --hobby-accent: #888888;
+  --hobby-base-bg: rgba(102, 102, 102, 0.22);
+  background: var(--hobby-base-bg);
+  border-color: rgba(136, 136, 136, 0.3);
 }
 
 .hobby-picker-item.bg-yellow {
-  --hobby-accent: #9a8a2f;
-  background: #ffffcc;
+  --hobby-accent: #ffcc00;
+  --hobby-base-bg: rgba(255, 204, 0, 0.24);
+  background: var(--hobby-base-bg);
+  border-color: rgba(255, 204, 0, 0.3);
 }
 
 .hobby-picker-item.bg-green {
-  --hobby-accent: #4f8f4f;
-  background: #ccffcc;
+  --hobby-accent: #33cc33;
+  --hobby-base-bg: rgba(51, 204, 51, 0.24);
+  background: var(--hobby-base-bg);
+  border-color: rgba(51, 204, 51, 0.3);
 }
 
 .hobby-picker-item.bg-purple {
-  --hobby-accent: #7d58b3;
-  background: #e6ccff;
+  --hobby-accent: #9933ff;
+  --hobby-base-bg: rgba(153, 51, 255, 0.24);
+  background: var(--hobby-base-bg);
+  border-color: rgba(153, 51, 255, 0.3);
 }
 
 .hobby-input-chip.bg-pink {
-  border-color: #b24a98;
-  background: #ffccff;
+  border-color: #ff3ecf;
+  background: #ffc6f3;
 }
 
 .hobby-input-chip.bg-blue {
-  border-color: #357ea6;
-  background: #ccffff;
+  border-color: #00b7ff;
+  background: #c9f6ff;
 }
 
 .hobby-input-chip.bg-gray {
-  border-color: #6e6e6e;
-  background: #e0e0e0;
+  border-color: #8e96a3;
+  background: #eceff4;
 }
 
 .hobby-input-chip.bg-yellow {
-  border-color: #9a8a2f;
-  background: #ffffcc;
+  border-color: #d2b200;
+  background: #fff7b0;
 }
 
 .hobby-input-chip.bg-green {
-  border-color: #4f8f4f;
-  background: #ccffcc;
+  border-color: #2fbf50;
+  background: #c8ffd4;
 }
 
 .hobby-input-chip.bg-purple {
-  border-color: #7d58b3;
-  background: #e6ccff;
+  border-color: #8f5dff;
+  background: #e7d5ff;
 }
 
 .status-mini-grid {
