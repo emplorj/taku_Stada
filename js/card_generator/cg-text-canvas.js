@@ -5,6 +5,28 @@
 
   const { layoutText } = window.CG_TEXT_LAYOUT;
 
+  const getGlyphSpacingAdjust = (style, ch, width) => {
+    const font = style?.font || "";
+    const isKlee = /Klee One/i.test(font);
+    if (!isKlee) return { drawOffsetX: 0, advanceExtra: 0 };
+
+    // Klee One の半角クォートは左右サイドベアリングの見え方が偏るため、
+    // 「描画位置を左へ + 進み幅を少し増やす」を同時に行って見た目の字間を均す。
+    if (ch === '"') {
+      return {
+        drawOffsetX: -8,
+        advanceExtra: 2,
+      };
+    }
+    if (ch === "'") {
+      return {
+        drawOffsetX: -8,
+        advanceExtra: 2,
+      };
+    }
+    return { drawOffsetX: 0, advanceExtra: 0 };
+  };
+
   const drawTokens = (ctx, line, x, y, opts, style) => {
     let cursor = x;
     const hasStroke = !!style?.strokeColor && (style?.strokeWidth || 0) > 0;
@@ -17,12 +39,18 @@
             : 0;
       const chars = Array.from(token.text);
       for (const ch of chars) {
-        if (hasStroke) {
-          ctx.strokeText(ch, cursor, y);
-        }
-        ctx.fillText(ch, cursor, y);
         const w = ctx.measureText(ch).width;
-        cursor += w + tracking;
+        const { drawOffsetX, advanceExtra } = getGlyphSpacingAdjust(
+          style,
+          ch,
+          w,
+        );
+        const drawX = cursor + drawOffsetX;
+        if (hasStroke) {
+          ctx.strokeText(ch, drawX, y);
+        }
+        ctx.fillText(ch, drawX, y);
+        cursor += w + tracking + advanceExtra;
       }
     }
   };
@@ -76,7 +104,11 @@
           : ctx.textAlign === "center"
             ? rect.x + (rect.width - lineWidth) / 2
             : rect.x;
-      drawTokens(ctx, line, startX, y, layoutOptions, style);
+      // サブピクセル座標だと小さい句読点/濁点が欠けて見えることがあるため、
+      // 描画座標をピクセルに寄せて安定化する。
+      const alignedX = Math.round(startX * 2) / 2;
+      const alignedY = Math.round(y);
+      drawTokens(ctx, line, alignedX, alignedY, layoutOptions, style);
       y += layout.lineHeight;
       if (y > rect.y + rect.height) break;
     }

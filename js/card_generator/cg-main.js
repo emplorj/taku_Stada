@@ -44,6 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
       MAIN.populateSelects();
       DB.setupColorFilterButtons();
       DB.restoreAuthorNames();
+      if (typeof RENDERER.bindFontRerenderEvents === "function") {
+        RENDERER.bindFontRerenderEvents();
+      }
       updatePreview();
       // 初回入力を待たずに、フォント読込完了後の再描画を保証する
       if (typeof RENDERER.requestPreviewRerenderAfterFonts === "function") {

@@ -18,6 +18,7 @@
     _fontRepaintScheduled: false,
     _fontWatchTimer: null,
     _fontWatchTries: 0,
+    _fontEventsBound: false,
 
     areTextFontsReady: () => {
       if (!document.fonts?.check) return true;
@@ -63,6 +64,25 @@
           requestAnimationFrame(() => RENDERER.updatePreview());
         }
       }, 200);
+    },
+
+    bindFontRerenderEvents: () => {
+      if (RENDERER._fontEventsBound) return;
+      RENDERER._fontEventsBound = true;
+
+      if (document.fonts?.addEventListener) {
+        const rerender = () => {
+          requestAnimationFrame(() => RENDERER.updatePreview());
+        };
+        document.fonts.addEventListener("loadingdone", rerender);
+        document.fonts.addEventListener("loadingerror", rerender);
+      }
+
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(() => {
+          requestAnimationFrame(() => RENDERER.updatePreview());
+        });
+      }
     },
 
     updateThemeColor: (details) => {
