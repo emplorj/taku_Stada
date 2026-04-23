@@ -45,6 +45,13 @@ document.addEventListener("DOMContentLoaded", () => {
       DB.setupColorFilterButtons();
       DB.restoreAuthorNames();
       updatePreview();
+      // 初回入力を待たずに、フォント読込完了後の再描画を保証する
+      if (typeof RENDERER.requestPreviewRerenderAfterFonts === "function") {
+        RENDERER.requestPreviewRerenderAfterFonts();
+      }
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(() => updatePreview());
+      }
       MAIN.resetImage();
       scalePreview();
       MAIN.handleBatchSectionCollapse();
@@ -53,6 +60,17 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     setupEventListeners: () => {
+      let previewUpdateTimer = null;
+      const schedulePreviewUpdate = () => {
+        if (previewUpdateTimer) {
+          clearTimeout(previewUpdateTimer);
+        }
+        previewUpdateTimer = setTimeout(() => {
+          previewUpdateTimer = null;
+          updatePreview();
+        }, 60);
+      };
+
       const controls = [
         UI.cardColorSelect,
         UI.cardTypeSelect,
@@ -65,7 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
       controls.forEach((el) => {
         el.addEventListener("change", updatePreview);
         if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-          el.addEventListener("input", updatePreview);
+          // 改行入力時の連続再レイアウトで体感フリーズしないように、
+          // テキスト入力系は軽くデバウンスして描画負荷を平準化する
+          const onInput =
+            el.tagName === "TEXTAREA" ? schedulePreviewUpdate : updatePreview;
+          el.addEventListener("input", onInput);
         }
       });
 

@@ -16,6 +16,8 @@
     ],
     _fontLoadPromise: null,
     _fontRepaintScheduled: false,
+    _fontWatchTimer: null,
+    _fontWatchTries: 0,
 
     areTextFontsReady: () => {
       if (!document.fonts?.check) return true;
@@ -46,6 +48,21 @@
           RENDERER.updatePreview();
         });
       });
+
+      // Typekitのフォントは後からfont-faceが登録される場合があるため、
+      // 初回チェックで未準備でも短時間だけ監視して再描画を保証する。
+      if (RENDERER._fontWatchTimer) return;
+      RENDERER._fontWatchTries = 0;
+      RENDERER._fontWatchTimer = setInterval(() => {
+        RENDERER._fontWatchTries += 1;
+        const ready = RENDERER.areTextFontsReady();
+        const reachedLimit = RENDERER._fontWatchTries >= 25; // 約5秒
+        if (ready || reachedLimit) {
+          clearInterval(RENDERER._fontWatchTimer);
+          RENDERER._fontWatchTimer = null;
+          requestAnimationFrame(() => RENDERER.updatePreview());
+        }
+      }, 200);
     },
 
     updateThemeColor: (details) => {
