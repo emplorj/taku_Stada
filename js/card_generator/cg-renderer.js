@@ -298,8 +298,9 @@
 
       RENDERER.updateCardName(UI.cardNameInput.value);
 
-      const effectText = replacePunctuation(UI.effectInput.value.trim());
-      const flavorText = replacePunctuation(UI.flavorInput.value.trim());
+      // .trim() は先頭・末尾の \n を消してしまうため使わない（layoutText 側で処理）
+      const effectText = replacePunctuation(UI.effectInput.value);
+      const flavorText = replacePunctuation(UI.flavorInput.value);
       const speakerText = replacePunctuation(
         UI.flavorSpeakerInput.value.trim(),
       );
