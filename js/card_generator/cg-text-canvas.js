@@ -58,7 +58,16 @@
   const isFontReady = (font) => {
     if (!font) return true;
     if (!document.fonts?.check) return true;
-    return document.fonts.check(font);
+
+    // `document.fonts.check("... primary, fallback")` だと
+    // fallbackが利用可能なだけでtrueになることがあるため、
+    // 先頭フォントだけを抽出して判定する。
+    const normalized = String(font).trim();
+    const firstFamilyPart = normalized.includes(",")
+      ? normalized.split(",")[0].trim()
+      : normalized;
+
+    return document.fonts.check(firstFamilyPart);
   };
 
   const drawBlock = (ctx, text, rect, style, layoutOptions) => {
