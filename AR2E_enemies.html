@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>アリアンロッド エネミーシート管理</title>
+  <meta property="og:title" content="アリアンロッド エネミーシート管理 - 卓スタダ">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Yuji+Syuku&family=Kosugi+Maru&family=RocknRoll+One&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/AR2E_enemies.css">
+</head>
+
+<body class="ar2e-enemies-page">
+  <div id="header-placeholder"></div>
+
+  <main class="main-content ar2e-enemies-main">
+    <header class="ar2e-header">
+      <h1>アリアンロッド エネミーシート管理</h1>
+    </header>
+
+    <section class="ar2e-layout">
+      <section class="editor-pane">
+
+        <!-- アクションバー -->
+        <section class="editor-action-bar">
+          <div class="action-bar-left">
+            <button id="newEnemyButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-file"></i>
+              新規白紙</button>
+            <button id="deleteEnemyButton" type="button" class="action-btn is-danger"><i
+                class="fa-solid fa-trash-can"></i> 削除</button>
+            <button id="reloadEnemyListButton" type="button" class="action-btn is-sub"><i
+                class="fa-solid fa-rotate-right"></i> DB再読込</button>
+          </div>
+          <div class="action-bar-right">
+            <span id="saveStatusText" class="save-status-text">未保存</span>
+            <button id="saveAsEnemyButton" type="button" class="action-btn is-main"><i class="fa-solid fa-copy"></i>
+              別名保存</button>
+            <button id="saveEnemyButton" type="button" class="action-btn is-main"><i
+                class="fa-solid fa-cloud-arrow-up"></i> 上書き保存</button>
+            <button id="exportAllJsonButton" type="button" class="action-btn is-sub" title="全エネミーを一括でJSON書き出しします">
+              <i class="fa-solid fa-file-zipper"></i> 全件一括出力</button>
+            <button id="exportKomaJsonButton" type="button" class="action-btn is-sub"><i
+                class="fa-solid fa-dice-d20"></i> コマ出力</button>
+            <div class="import-json-inline">
+              <input id="importJsonInput" type="text" placeholder='{"name":"..."}' aria-label="エネミーJSONを貼り付けて読込">
+            </div>
+            <div class="action-bar-meta" aria-label="メタ情報">
+              <label class="action-meta-field">作者
+                <input id="field-author" type="text" data-field="author" placeholder="名無し">
+              </label>
+              <label class="action-meta-field is-icon">アイコンURL
+                <input id="field-icon-url" type="url" data-field="meta.imageUrl" placeholder="https://...">
+              </label>
+              <!-- 0+2D 表記スイッチ -->
+              <label class="public-switch-label">
+                <span class="public-switch-wrap">
+                  <input id="toggleDiceFormat" class="switch" type="checkbox">
+                  <span class="public-switch-text">0+2D表記</span>
+                </span>
+              </label>
+              <!-- 公開スイッチ -->
+              <label class="public-switch-label">
+                <span class="public-switch-wrap">
+                  <input id="field-is-public" class="switch" type="checkbox" checked>
+                  <span class="public-switch-text" id="field-is-public-text">公開</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <form id="enemyEditorForm" class="editor-form" autocomplete="off">
+          <input id="field-id" type="hidden" data-field="id">
+
+          <div class="top-two-col">
+            <!-- 左カラム：基本情報・ステータス -->
+            <div class="left-column-stack">
+              <section class="data-block">
+                <div class="block-head">
+                  <h3>基本情報</h3>
+                  <label class="enemy-type-inline">種別
+                    <select id="enemyTypeSelect" data-field="enemyType">
+                      <option value="general">一般</option>
+                      <option value="mob">モブ</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="basic-info-group">
+                  <label class="info-item item-name">
+                    <span class="info-label">名前</span>
+                    <input type="text" data-field="name" required placeholder="エネミー名">
+                  </label>
+                  <label class="info-item item-lv">
+                    <span class="info-label">Lv</span>
+                    <input type="number" data-field="level" placeholder="1">
+                  </label>
+                  <label class="info-item item-class">
+                    <span class="info-label">分類</span>
+                    <input type="text" data-field="classification" list="ar2eClassificationList" placeholder="人間, 魔族など">
+                  </label>
+                  <div class="info-item item-attr">
+                    <span class="info-label">属性</span>
+                    <div class="attr-cell">
+                      <input id="field-attribute" type="hidden" data-field="attribute" value="-">
+                      <div class="attribute-select-box" aria-label="属性選択">
+                        <div class="attribute-select-group" id="attributeSelectGroup">
+                          <select id="attributePrimarySelect" class="attribute-select">
+                            <option value="-">-</option>
+                            <option value="地">地</option>
+                            <option value="水">水</option>
+                            <option value="火">火</option>
+                            <option value="風">風</option>
+                            <option value="光">光</option>
+                            <option value="闇">闇</option>
+                            <option value="特殊">特殊</option>
+                          </select>
+                          <div id="attributeDivider" class="select-divider" hidden></div>
+                          <select id="attributeSecondarySelect" class="attribute-select" hidden>
+                            <option value="">なし</option>
+                            <option value="地">地</option>
+                            <option value="水">水</option>
+                            <option value="火">火</option>
+                            <option value="風">風</option>
+                            <option value="光">光</option>
+                            <option value="闇">闇</option>
+                            <option value="特殊">特殊</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 戦闘値 -->
+                <div class="combat-two-col-cell">
+                  <div class="combat-two-row-grid">
+                    <div class="combat-row">
+                      <label class="combat-inline-item"><span>HP</span><input type="number" data-field="hp"></label>
+                      <label class="combat-inline-item"><span>MP</span><input type="number" data-field="mp"></label>
+                      <label class="combat-inline-item"><span>行動値</span><input type="number"
+                          data-field="initiative"></label>
+                      <label class="combat-inline-item"><span>移動値</span><input type="number" data-field="movement"
+                          placeholder="20"></label>
+                    </div>
+                    <div class="combat-row combat-row-defenses">
+                      <label class="combat-inline-item is-dice">
+                        <span>回避</span>
+                        <input type="hidden" data-field="evadeDice" value="2D+0">
+                        <span class="dice-mini-editor" aria-label="回避ダイス式">
+                          <input id="evadeDiceCount" type="number" min="0" max="9" step="1" value="2"
+                            class="dice-count-input">
+                          <span class="dice-mark numeric-font">D</span>
+                          <span class="dice-plus-mark numeric-font">+</span>
+                          <input id="evadeDicePlus" type="number" min="0" max="9" step="1" value="" placeholder="0"
+                            class="dice-plus-input">
+                        </span>
+                      </label>
+                      <label class="combat-inline-item"><span>物理防御</span><input type="number"
+                          data-field="physDef"></label>
+                      <label class="combat-inline-item"><span>魔法防御</span><input type="number"
+                          data-field="magicDef"></label>
+                      <label class="combat-inline-item"><span>識別値</span><input type="number"
+                          data-field="identification"></label>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="data-block">
+                <div class="block-head">
+                  <h3>メモ</h3>
+                </div>
+                <label><textarea data-field="memo" rows="5" placeholder="ここにメモ"></textarea></label>
+              </section>
+            </div>
+
+            <!-- 右カラム：能力値・ドロップ品・解説 -->
+            <div class="right-column-stack">
+              <section class="data-block">
+                <div class="block-head">
+                  <h3 id="abilityBlockTitle">能力値</h3>
+                </div>
+                <div id="generalAbilityBlock" class="ar2e-grid grid-col-7 ability-use-grid">
+                  <label class="ability-use-row">
+                    <span class="ability-label-name">筋力</span>
+                    <input type="number" data-field="str" class="num-ability-val" placeholder="18">
+                    <input type="text" data-derived="str" class="readonly-derived-box num-ability-bonus" readonly
+                      value="6">
+                  </label>
+                  <label class="ability-use-row">
+                    <span class="ability-label-name">器用</span>
+                    <input type="number" data-field="dex" class="num-ability-val" placeholder="18">
+                    <input type="text" data-derived="dex" class="readonly-derived-box num-ability-bonus" readonly
+                      value="6">
+                  </label>
+                  <label class="ability-use-row">
+                    <span class="ability-label-name">敏捷</span>
+                    <input type="number" data-field="agi" class="num-ability-val" placeholder="18">
+                    <input type="text" data-derived="agi" class="readonly-derived-box num-ability-bonus" readonly
+                      value="6">
+                  </label>
+                  <label class="ability-use-row">
+                    <span class="ability-label-name">知力</span>
+                    <input type="number" data-field="int" class="num-ability-val" placeholder="18">
+                    <input type="text" data-derived="int" class="readonly-derived-box num-ability-bonus" readonly
+                      value="6">
+                  </label>
+                  <label class="ability-use-row">
+                    <span class="ability-label-name">感知</span>
+                    <input type="number" data-field="sen" class="num-ability-val" placeholder="18">
+                    <input type="text" data-derived="sen" class="readonly-derived-box num-ability-bonus" readonly
+                      value="6">
+                  </label>
+                  <label class="ability-use-row">
+                    <span class="ability-label-name">精神</span>
+                    <input type="number" data-field="mnd" class="num-ability-val" placeholder="18">
+                    <input type="text" data-derived="mnd" class="readonly-derived-box num-ability-bonus" readonly
+                      value="6">
+                  </label>
+                  <label class="ability-use-row">
+                    <span class="ability-label-name">幸運</span>
+                    <input type="number" data-field="luk" class="num-ability-val" placeholder="18">
+                    <input type="text" data-derived="luk" class="readonly-derived-box num-ability-bonus" readonly
+                      value="6">
+                  </label>
+                </div>
+
+                <div id="mobJudgeBlock" class="ar2e-grid grid-col-2 mob-judge-grid" hidden>
+                  <label class="combat-inline-item is-dice"><span>アクション</span>
+                    <input type="hidden" data-field="mobActionJudge" value="2D+0">
+                    <span class="dice-mini-editor" aria-label="アクション判定式">
+                      <input id="mobActionDiceCount" type="number" min="0" max="9" step="1" value="2"
+                        class="dice-count-input">
+                      <span class="dice-mark numeric-font">D</span>
+                      <span class="dice-plus-mark numeric-font">+</span>
+                      <input id="mobActionDicePlus" type="number" min="0" max="9" step="1" value="" placeholder="0"
+                        class="dice-plus-input">
+                    </span>
+                  </label>
+                  <label class="combat-inline-item is-dice"><span>リアクション</span>
+                    <input type="hidden" data-field="mobReactionJudge" value="2D+0">
+                    <span class="dice-mini-editor" aria-label="リアクション判定式">
+                      <input id="mobReactionDiceCount" type="number" min="0" max="9" step="1" value="2"
+                        class="dice-count-input">
+                      <span class="dice-mark numeric-font">D</span>
+                      <span class="dice-plus-mark numeric-font">+</span>
+                      <input id="mobReactionDicePlus" type="number" min="0" max="9" step="1" value="" placeholder="0"
+                        class="dice-plus-input">
+                    </span>
+                  </label>
+                </div>
+              </section>
+
+              <section class="data-block">
+                <div class="block-head">
+                  <h3>ドロップ品</h3>
+                  <button id="addDropItemBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i>
+                    行追加</button>
+                </div>
+                <div class="table-wrap">
+                  <table class="asian-table" id="dropItemsTable">
+                    <colgroup>
+                      <col style="width: 12%;">
+                      <col style="width: 12%;">
+                      <col style="width: 36%;">
+                      <col style="width: 18%;">
+                      <col style="width: 14%;">
+                      <col style="width: 28px;">
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th>出目小</th>
+                        <th>出目大</th>
+                        <th>名前</th>
+                        <th>単価</th>
+                        <th>個数</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="dropItemsBody"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <!-- 攻撃方法 -->
+          <section class="data-block full-width">
+            <div class="block-head">
+              <h3>攻撃方法</h3>
+              <button id="addAttackMethodBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i>
+                行追加</button>
+            </div>
+            <div class="table-wrap">
+              <table class="asian-table" id="attackMethodsTable">
+                <colgroup>
+                  <col style="width: 16%;">
+                  <col style="width: 10%;">
+                  <col style="width: 10%;">
+                  <col style="width: 14%;">
+                  <col style="width: 14%;">
+                  <col style="width: 10%;">
+                  <col style="width: 22%;">
+                  <col style="width: 28px;">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>名前</th>
+                    <th>対象</th>
+                    <th>射程</th>
+                    <th>命中</th>
+                    <th>ダメージ</th>
+                    <th>属性</th>
+                    <th>効果</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="attackMethodsBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- 所持スキル -->
+          <section class="data-block full-width">
+            <div class="block-head">
+              <h3>所持スキル</h3>
+              <button id="addSkillBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i>
+                スキル追加</button>
+            </div>
+            <div class="table-wrap">
+              <table class="asian-table" id="skillsTable">
+                <colgroup>
+                  <col style="width: 24px;"> <!-- 秘 -->
+                  <col style="width: 14%;"> <!-- 名前 -->
+                  <col style="width: 3.5rem;"><!-- SL -->
+                  <col style="width: 11%;"> <!-- タイミング -->
+                  <col style="width: 5.5em;"> <!-- 判定 -->
+                  <col style="width: 8%;"> <!-- 対象 -->
+                  <col style="width: 5.5em;"> <!-- 射程 -->
+                  <col style="width: 4rem;"> <!-- コスト -->
+                  <col style="width: 9%;"> <!-- 命中 -->
+                  <col style="width: 9%;"> <!-- ダメージ -->
+                  <col style="width: 23%;"> <!-- 効果 -->
+                  <col style="width: 28px;"> <!-- 削除 -->
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th title="非公開">秘</th>
+                    <th>名前</th>
+                    <th>SL</th>
+                    <th>タイミング</th>
+                    <th>判定</th>
+                    <th>対象</th>
+                    <th>射程</th>
+                    <th>コスト</th>
+                    <th class="th-compact-label">命中</th>
+                    <th class="th-compact-label">ダメージ</th>
+                    <th>効果</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="skillsBody">
+                  <!-- JSで動的に行を追加 -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ペースト用テキストのプレビュー（自動生成） -->
+            <div style="margin-top: 10px;">
+              <label><span id="chatPreviewLabel">チャットパレットプレビュー（自動生成）</span>
+                <textarea id="chat-palette-preview" rows="4" readonly class="readonly-derived-box"
+                  style="font-family: monospace; white-space: pre;"></textarea>
+              </label>
+            </div>
+
+            <datalist id="ar2eTimingList">
+              <option value="パッシブ"></option>
+              <option value="メジャーアクション"></option>
+              <option value="マイナーアクション"></option>
+              <option value="ムーブアクション"></option>
+              <option value="フリーアクション"></option>
+              <option value="レガシーアクション"></option>
+              <option value="リアクション"></option>
+              <option value="防御中1回"></option>
+              <option value="セットアッププロセス"></option>
+              <option value="クリンナッププロセス"></option>
+              <option value="イニシアチブプロセス"></option>
+              <option value="ダメージロールの直前"></option>
+              <option value="ダメージロールの直後"></option>
+              <option value="判定の直前"></option>
+              <option value="判定の直後"></option>
+              <option value="戦闘不能"></option>
+              <option value="その他"></option>
+            </datalist>
+
+            <datalist id="ar2eTargetList">
+              <option value="自身"></option>
+              <option value="単体"></option>
+              <option value="範囲"></option>
+              <option value="範囲(選択)"></option>
+              <option value="場面"></option>
+              <option value="場面(選択)"></option>
+              <option value="その他"></option>
+            </datalist>
+
+            <datalist id="ar2eAttributeList">
+              <option value="白兵(物理)"></option>
+              <option value="射撃"></option>
+              <option value="火"></option>
+              <option value="水"></option>
+              <option value="風"></option>
+              <option value="地"></option>
+              <option value="光"></option>
+              <option value="闇"></option>
+              <option value="幻"></option>
+              <option value="貫通"></option>
+            </datalist>
+
+            <datalist id="ar2eElementList">
+              <option value="地"></option>
+              <option value="水"></option>
+              <option value="火"></option>
+              <option value="風"></option>
+              <option value="光"></option>
+              <option value="闇"></option>
+              <option value="特殊"></option>
+            </datalist>
+
+            <datalist id="ar2eRangeList">
+              <option value="至近"></option>
+              <option value="10m"></option>
+              <option value="20m"></option>
+              <option value="30m"></option>
+              <option value="武器"></option>
+              <option value="視界"></option>
+              <option value="シーン"></option>
+              <option value="効果参照"></option>
+            </datalist>
+          </section>
+
+          <!-- 解説 -->
+          <section class="data-block full-width">
+            <div class="block-head">
+              <h3>解説</h3>
+            </div>
+            <label><textarea data-field="description" rows="4" placeholder="ここに解説"></textarea></label>
+          </section>
+
+          <datalist id="ar2eClassificationList">
+            <option value="植物"></option>
+            <option value="動物"></option>
+            <option value="動物(ギルマン)"></option>
+            <option value="人間"></option>
+            <option value="人間(エルダナーン)"></option>
+            <option value="人間(フィルボル)"></option>
+            <option value="人間(ネヴァーフ)"></option>
+            <option value="人間/神"></option>
+            <option value="妖精"></option>
+            <option value="妖魔"></option>
+            <option value="妖魔(フォモール)"></option>
+            <option value="妖魔(ヴァンパイア)"></option>
+            <option value="妖魔(トロウル)"></option>
+            <option value="妖魔(ゴブリン)"></option>
+            <option value="妖魔(バグベア)"></option>
+            <option value="妖魔(オウガ)"></option>
+            <option value="アンデッド"></option>
+            <option value="精霊"></option>
+            <option value="人造生物"></option>
+            <option value="機械"></option>
+            <option value="魔獣"></option>
+            <option value="霊獣"></option>
+            <option value="巨人"></option>
+            <option value="竜"></option>
+            <option value="下位魔族"></option>
+            <option value="中位魔族"></option>
+            <option value="上位魔族"></option>
+            <option value="その他"></option>
+          </datalist>
+
+        </form>
+      </section>
+
+      <details class="enemy-list-collapsible" open>
+        <summary>
+          <h2 class="enemy-list-title">みんなのエネミー</h2>
+        </summary>
+        <div class="enemy-list-pane">
+          <div class="list-head">
+            <h2>エネミー一覧</h2>
+          </div>
+          <div class="enemy-sort-row" id="enemySortRow" aria-label="エネミー一覧ソート">
+            <button id="sortByIdButton" type="button" class="sort-chip">ID順</button>
+            <button id="sortByTimeButton" type="button" class="sort-chip">更新順</button>
+            <button id="sortByLevelButton" type="button" class="sort-chip">Lv順</button>
+            <button id="sortByAuthorButton" type="button" class="sort-chip">作者</button>
+            <button id="sortByClassButton" type="button" class="sort-chip">分類</button>
+            <div class="enemy-list-controls" aria-label="エネミー表示件数">
+              <label for="enemyPageSizeInput">表示件数</label>
+              <input id="enemyPageSizeInput" class="enemy-page-size-input" type="number" min="0" step="1" value="10"
+                inputmode="numeric" aria-label="表示件数（空欄は10、0で全部）">
+              <button id="enemyShowAllButton" type="button" class="enemy-show-all-btn"
+                title="0を入れて全部表示にする">0（全部）</button>
+              <button id="enemyShowTenButton" type="button" class="enemy-show-all-btn" title="10件表示に戻す">10</button>
+            </div>
+            <div id="enemyListPager" class="enemy-list-pager enemy-list-pager-inline" aria-live="polite">
+              <button id="enemyPrevButton" type="button" class="pager-btn">前へ</button>
+              <span class="enemy-list-pager-info" id="enemyPagerInfo"></span>
+              <button id="enemyNextButton" type="button" class="pager-btn">次へ</button>
+            </div>
+          </div>
+          <div class="enemy-search-row" aria-label="エネミー一覧検索">
+            <div class="search-input-group">
+              <select id="enemySearchField" class="enemy-search-field-select">
+                <option value="all">ごちゃ混ぜ</option>
+                <option value="name">名前</option>
+                <option value="author">作者</option>
+                <option value="id">ID</option>
+              </select>
+              <input id="enemySearchInput" class="asian-input enemy-search-input" type="text" placeholder="検索...">
+            </div>
+          </div>
+          <ul id="enemyList" class="enemy-list"></ul>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 卓スタダ</p>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/enemies-shared.js"></script>
+  <script src="js/AR2E-enemies.js"></script>
+</body>
+
+</html>

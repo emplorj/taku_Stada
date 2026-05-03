@@ -1,0 +1,1077 @@
+.ar2e-enemies-page {
+  /* 共通設定で定義されているアリアンロッドカラー */
+  --ar-accent: #ffd966; 
+}
+
+/* hidden属性をdisplay:gridなどで打ち消さないよう@layer外で定義 */
+.ar2e-enemies-page[hidden] { display: none !important; }
+
+/* ==========================================================================
+   Theme Override Layer (AR2E)
+   ========================================================================== */
+@layer ar2e-theme {
+  .ar2e-enemies-page {
+    /* ベースとなる色をダークブルー系に */
+    --ar-bg-page: #0f1219;
+    --ar-bg-panel: #1a1e2b;
+    --ar-bg-field-edit: #232938;
+    --ar-bg-field-readonly: #171b26;
+    --ar-text-on-dark: #e2e8f0;
+    --ar-text-on-light: #f8fafc;
+    --ar-accent-main: #ffd966;  /* ゴールド */
+    --ar-accent-sub: #4f80ff;   /* ブルー */
+    --ar-border: #3b4b6b;
+  }
+
+  .ar2e-enemies-page .main-content {
+    color: var(--ar-text-on-dark);
+  }
+
+  /* コンテナクエリで全体のレイアウトを制御 */
+  .ar2e-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: start;
+    container-type: inline-size;
+    container-name: mainlayout;
+    min-width: 0;
+  }
+
+  .ar2e-enemies-page .ar2e-header h1 {
+    color: var(--ar-accent-main);
+    text-shadow: 0 0 8px rgba(255, 217, 102, 0.4), 2px 2px 0px #000;
+    font-family: "RocknRoll One", sans-serif;
+    border-bottom: 2px solid var(--ar-border);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  /* パネル背景 */
+  .ar2e-enemies-page .editor-pane {
+    border: 1px solid var(--ar-border);
+    border-radius: 6px;
+    padding: 12px;
+    background: var(--ar-bg-panel);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.45);
+    min-width: 0;
+  }
+
+  /* =============== アクションバー =============== */
+  .ar2e-enemies-page .editor-action-bar {
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0.8rem 1rem;
+    margin-bottom: 10px;
+    background:
+      linear-gradient(135deg, rgba(18, 28, 56, 0.9), rgba(20, 36, 72, 0.9)),
+      repeating-linear-gradient(
+        90deg,
+        rgba(79, 128, 255, 0.08) 0 2px,
+        rgba(9, 15, 30, 0.08) 2px 6px
+      );
+    border: 1px solid var(--ar-accent-sub);
+    border-radius: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    white-space: normal;
+    gap: 0.55rem;
+    box-shadow: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ar-accent-sub) transparent;
+  }
+
+  /* 幅が狭い時はアクションバーの間隔を詰める */
+  @container mainlayout (max-width: 1400px) {
+    .ar2e-enemies-page .editor-action-bar {
+      row-gap: 0.45rem;
+      flex-wrap: wrap;
+      overflow-x: visible;
+      white-space: normal;
+    }
+
+    .ar2e-enemies-page .action-bar-left,
+    .ar2e-enemies-page .action-bar-right,
+    .ar2e-enemies-page .action-bar-meta {
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .ar2e-enemies-page .action-bar-right {
+      margin-left: 0;
+    }
+
+    .ar2e-enemies-page #importJsonInput,
+    .ar2e-enemies-page .action-meta-field > input,
+    .ar2e-enemies-page .action-meta-field.is-icon > input {
+      width: auto;
+    }
+
+    .ar2e-enemies-page #importJsonInput {
+      width: 4.5rem;
+    }
+
+    .ar2e-enemies-page #field-author {
+      width: 9rem;
+      min-width: 8rem;
+    }
+
+    .ar2e-enemies-page .action-bar-right {
+      margin-left: 0;
+    }
+  }
+
+  /* 極端に狭い時はさらに段分けを許容（基本は1行優先のまま） */
+  @container mainlayout (max-width: 760px) {
+    .ar2e-enemies-page .editor-action-bar {
+      row-gap: 0.5rem;
+      column-gap: 0.4rem;
+    }
+
+    .ar2e-enemies-page .action-bar-left,
+    .ar2e-enemies-page .action-bar-right {
+      flex: 1 1 100%;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .ar2e-enemies-page .action-bar-right {
+      justify-content: flex-start;
+      align-content: flex-start;
+    }
+
+    .ar2e-enemies-page .action-bar-meta {
+      width: 100%;
+      flex: 1 1 100%;
+      flex-wrap: wrap;
+      row-gap: 0.25rem;
+      justify-content: flex-start;
+    }
+
+    .ar2e-enemies-page .action-meta-field {
+      flex: 1 1 10rem;
+    }
+
+    .ar2e-enemies-page .public-switch-label {
+      flex: 0 1 auto;
+    }
+
+    .ar2e-enemies-page #importJsonInput {
+      min-width: 4rem;
+      width: 4rem;
+    }
+  }
+
+  .ar2e-enemies-page .editor-action-bar::-webkit-scrollbar {
+    height: 6px;
+  }
+  .ar2e-enemies-page .editor-action-bar::-webkit-scrollbar-thumb {
+    background-color: var(--ar-accent-sub);
+    border-radius: 3px;
+  }
+
+  .ar2e-enemies-page .action-bar-left,
+  .ar2e-enemies-page .action-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .ar2e-enemies-page .action-bar-right {
+    margin-left: auto; /* 幅に余裕があれば右に寄せる */
+    min-width: 0;
+    flex: 1 1 28rem;
+    justify-content: flex-end;
+  }
+
+  .ar2e-enemies-page .import-json-inline {
+    min-width: 0;
+    flex: 0 1 6rem;
+  }
+
+  .ar2e-enemies-page #importJsonInput {
+    width: 100%;
+    min-width: 0;
+    max-width: 6rem;
+    height: 2.1rem;
+    flex: 0 1 auto;
+    border: 1px solid #a78763;
+    border-radius: 4px;
+    padding: 0.35rem 0.5rem;
+    background: rgb(255, 253, 248);
+    color: #3b2b1c;
+  }
+
+  /* 広めの画面では固定幅を解除して、横幅に合わせて伸縮
+     ※ side-menu分で実効幅が減るため、1200pxではなく1000pxから有効化 */
+  @container mainlayout (min-width: 1000px) {
+    .ar2e-enemies-page .editor-action-bar {
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      overflow-x: auto;
+      gap: 0.75rem;
+    }
+
+    .ar2e-enemies-page .action-bar-left {
+      flex: 0 1 auto;
+      flex-wrap: nowrap;
+    }
+
+    .ar2e-enemies-page .action-bar-right {
+      flex: 1 1 auto;
+      min-width: 0;
+      justify-content: flex-end;
+      flex-wrap: nowrap;
+      gap: 0.65rem;
+    }
+
+    .ar2e-enemies-page .import-json-inline {
+      flex: 0 0 3.8rem;
+      max-width: 3.8rem;
+    }
+
+    .ar2e-enemies-page #importJsonInput {
+      width: 3.8rem;
+    }
+
+    .ar2e-enemies-page .action-bar-meta {
+      flex: 1 1 24rem;
+      justify-content: flex-end;
+      min-width: 0;
+      flex-wrap: nowrap;
+    }
+
+    .ar2e-enemies-page .action-meta-field > input {
+      width: clamp(7rem, 9vw, 12rem);
+    }
+
+    .ar2e-enemies-page .action-meta-field.is-icon > input {
+      width: clamp(8rem, 11vw, 14rem);
+    }
+
+    .ar2e-enemies-page #field-author {
+      width: 18%;
+      min-width: 5.6rem;
+      max-width: 7rem;
+      flex: 0 1 18%;
+    }
+
+    .ar2e-enemies-page #field-icon-url {
+      width: 22%;
+      min-width: 6rem;
+      max-width: 9rem;
+      flex: 1 1 22%;
+    }
+  }
+
+  /* 共通CSSの .main-content min-width:320px がレイアウトを押し広げるため上書き */
+  .ar2e-enemies-page .main-content.ar2e-enemies-main {
+    min-width: 0;
+  }
+
+  .ar2e-enemies-page #importJsonInput:focus {
+    outline: none;
+    border-color: #d1a85c;
+    box-shadow: 0 0 0 2px rgba(209, 168, 92, 0.25);
+    background: #fffaf0;
+  }
+
+  .ar2e-enemies-page .action-bar-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: 0;
+    flex-wrap: wrap;
+    min-width: 0;
+    flex: 1 1 22rem;
+    justify-content: flex-end;
+  }
+
+  .ar2e-enemies-page .save-status-text {
+    display: inline-block;
+    min-width: 3.2em;
+    text-align: center;
+    margin-right: 0.1rem;
+  }
+
+  .ar2e-enemies-page .action-meta-field {
+    display: inline-flex;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 7.2rem;
+    white-space: nowrap;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #d6e4ff;
+  }
+
+  .ar2e-enemies-page .action-meta-field > input {
+    width: 8.2rem;
+    min-width: 0;
+    height: 1.8rem;
+    flex: 0 1 auto;
+    border-bottom-width: 1px;
+  }
+
+  .ar2e-enemies-page .action-meta-field.is-icon > input {
+    width: 7rem;
+  }
+
+  .ar2e-enemies-page #field-author {
+    width: auto;
+    min-width: 7.8rem;
+    flex: 1 1 10rem;
+  }
+
+  .ar2e-enemies-page .public-switch-label {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+  }
+  .ar2e-enemies-page .public-switch-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #d6e4ff;
+    font-weight: bold;
+  }
+
+  .ar2e-enemies-page .enemy-type-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #d6e4ff;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .ar2e-enemies-page .enemy-type-inline select {
+    width: 7.5rem;
+  }
+
+  /* 基本情報ヘッダー */
+  .ar2e-enemies-page .left-column-stack > .data-block:first-child > .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .ar2e-enemies-page .left-column-stack > .data-block:first-child > .block-head .enemy-type-inline:first-of-type {
+    margin-left: auto;
+  }
+
+  .ar2e-enemies-page .editor-action-bar .action-btn {
+    min-height: 2.1rem;
+    height: 2.1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    line-height: 1;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  /* データブロック */
+  .ar2e-enemies-page .data-block {
+    margin-top: 6px;
+    border: 1px solid var(--ar-border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    background: linear-gradient(180deg, rgba(30, 36, 52, 0.8) 0%, rgba(20, 24, 34, 0.8) 100%);
+  }
+
+
+  .ar2e-enemies-page .data-block > .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid var(--ar-accent-sub);
+    padding-bottom: 3px;
+    margin-bottom: 6px;
+  }
+
+  .ar2e-enemies-page .data-block > .block-head h3 {
+    margin: 0;
+    color: var(--ar-accent-main);
+    text-shadow: 0 0 6px rgba(255, 217, 102, 0.3);
+    font-family: "RocknRoll One", sans-serif;
+    flex: 1;
+  }
+
+  /* グリッドレイアウト */
+  .ar2e-grid {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .ar2e-grid[hidden] { display: none !important; }
+
+  .grid-col-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-col-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+
+  .ability-use-grid { gap: 4px; }
+  
+  /* 能力値：突き抜け防止のためスクロール許可 */
+  #generalAbilityBlock.ability-use-grid { 
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    overflow-x: auto;
+    padding-bottom: 4px; 
+  }
+
+  .ability-use-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-align: center;
+    min-width: 2.5rem;
+  }
+
+  .ability-label-name {
+    font-size: 1.02rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    line-height: 1.2;
+    font-family: var(--ar-num-font);
+  }
+
+  /* 数値表示を一元化 */
+  .ar2e-enemies-page {
+    --ar-num-font: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  }
+
+  .ar2e-enemies-page input[type="number"],
+  .ar2e-enemies-page input[type="date"],
+  .ar2e-enemies-page input[type="time"],
+  .ar2e-enemies-page input[type="datetime-local"],
+  .ar2e-enemies-page .numeric-font,
+  .ar2e-enemies-page .updated-at,
+  .ar2e-enemies-page .enemy-list-time-tag {
+    font-family: var(--ar-num-font);
+    text-align: right;
+  }
+
+  .ar2e-enemies-page .dice-mini-editor input[type="number"],
+  .ar2e-enemies-page #skillsTable .dice-mini-editor input[type="number"],
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor input[type="number"] {
+    text-align: right;
+  }
+
+  .ar2e-enemies-page .numeric-font {
+    font-family: var(--ar-num-font) !important;
+    font-size: 1.12rem !important;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  .ar2e-enemies-page .info-table th,
+  .ar2e-enemies-page #dropItemsTable th {
+    font-family: var(--ar-num-font);
+    font-size: 1.02rem;
+  }
+
+  /* 実数値入力 */
+  .ar2e-enemies-page .num-ability-val {
+    width: 100%;
+    text-align: right;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    padding: 3px 4px;
+  }
+  .ar2e-enemies-page .num-ability-val::-webkit-outer-spin-button,
+  .ar2e-enemies-page .num-ability-val::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* ボーナス表示 */
+  .ar2e-enemies-page .num-ability-bonus {
+    width: 100%;
+    text-align: right;
+    padding: 3px 4px;
+    font-size: inherit;
+    font-weight: bold;
+    color: var(--ar-accent-main);
+    background: var(--ar-bg-field-readonly);
+    border-color: #334155;
+    border-bottom-width: 1px;
+  }
+
+  .mob-judge-grid { gap: 6px; }
+
+  .ar2e-enemies-page #enemyTypeSelect { max-width: 10rem; }
+
+  /* 能力値欄はスピナー非表示化 */
+  .ar2e-enemies-page .ability-use-inline input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .ar2e-enemies-page .ability-use-inline input[type="number"]::-webkit-outer-spin-button,
+  .ar2e-enemies-page .ability-use-inline input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .ar2e-enemies-page input[data-field="attribute"] {
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+  }
+  .ar2e-enemies-page input[data-field="attribute"][data-attr-theme="earth"] { background: #2d3a26; border-color: #7ca46a; color: #eaf5e1; }
+  .ar2e-enemies-page input[data-field="attribute"][data-attr-theme="water"] { background: #21364d; border-color: #67a8e5; color: #e6f3ff; }
+  .ar2e-enemies-page input[data-field="attribute"][data-attr-theme="fire"] { background: #4a2623; border-color: #e07a63; color: #ffeae5; }
+  .ar2e-enemies-page input[data-field="attribute"][data-attr-theme="wind"] { background: #1f3e3a; border-color: #6ed3b0; color: #e7fff6; }
+  .ar2e-enemies-page input[data-field="attribute"][data-attr-theme="light"] { background: #4b4321; border-color: #f2d26e; color: #fff9e5; }
+  .ar2e-enemies-page input[data-field="attribute"][data-attr-theme="dark"] { background: #2b213c; border-color: #b08fe7; color: #f2eaff; }
+  .ar2e-enemies-page input[data-field="attribute"][data-attr-theme="special"] { background: #3c2a3f; border-color: #d08de0; color: #fdefff; }
+
+  /* 属性の2属性UI */
+  .attribute-select-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .attribute-select-group {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #4b5563;
+    border-bottom: 2px solid var(--ar-accent-sub);
+    border-radius: 4px;
+    background: var(--ar-bg-field-edit);
+    height: 1.8rem;
+    padding: 0;
+    overflow: hidden;
+    width: 7.5rem;
+    transition: width 0.2s;
+  }
+
+  .attribute-select-group select {
+    border: none !important;
+    border-bottom: none !important;
+    background: transparent !important;
+    color: var(--ar-text-on-light);
+    height: 100%;
+    padding: 0 4px;
+    outline: none !important;
+    box-shadow: none !important;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .attribute-select-group select:focus {
+    background: #2b3347 !important;
+  }
+
+  .attribute-select-group .select-divider {
+    width: 1px;
+    height: 60%;
+    background: #4b5563;
+    margin: 0;
+  }
+
+  /* 2カラムレイアウト（PC用） */
+  .top-two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(240px, 4fr);
+    gap: 10px;
+    align-items: start;
+  }
+  
+  /* 領域が900px以下になったら1カラム化 (コンテナクエリ) */
+  @container mainlayout (max-width: 900px) {
+    .top-two-col {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .left-column-stack {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    min-width: 0;
+    container-type: inline-size;
+    container-name: leftcol;
+  }
+  .right-column-stack {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    min-width: 0;
+  }
+  .right-column-stack .data-block { overflow: hidden; }
+  .left-column-stack .data-block { min-width: 0; overflow: hidden; }
+
+  #dropItemsTable th,
+  #dropItemsTable td { padding: 3px; }
+  #dropItemsTable input { padding: 4px 5px; }
+
+  #dropItemsTable input[data-drop-key="quantity"] {
+    width: 100%;
+    min-width: 2em;
+    text-align: right;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  #dropItemsTable input[data-drop-key="quantity"]::-webkit-outer-spin-button,
+  #dropItemsTable input[data-drop-key="quantity"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* ========================================
+     基本情報・戦闘値 (Flexbox / Grid) 間延び防止
+     ======================================== */
+  .basic-info-group {
+    display: flex;
+    flex-wrap: wrap; /* 狭い時は自然に改行して突き抜け防止 */
+    gap: 10px 16px;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .info-item {
+    display: flex;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .info-item .info-label {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    font-weight: normal;
+  }
+  
+  .item-name { flex: 1 1 200px; } /* 名前は広く取る */
+  .item-lv { flex: 0 0 auto; }
+  .item-lv input { width: 4.5rem; text-align: right; } /* SL 2桁想定 */
+  .item-class { flex: 1 1 150px; }
+  .item-attr { flex: 0 0 auto; }
+
+  /* 分類入力欄の突き抜け防止 */
+  .ar2e-enemies-page input[data-field="classification"] {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ar2e-enemies-page .combat-two-col-cell { padding-top: 6px; }
+  
+  .ar2e-enemies-page .combat-row {
+    display: grid;
+    /* デフォルト4列で縦ラインを整列。 */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px 16px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  /* 左カラムが600px以下に縮んだら、自動で2列（スマホ等）に切り替え */
+  @container leftcol (max-width: 600px) {
+    .ar2e-enemies-page .combat-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .ar2e-enemies-page .combat-inline-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .ar2e-enemies-page .combat-inline-item > span {
+    white-space: nowrap;
+    text-align: right;
+    width: 4.5em; /* ラベルの幅を統一して縦ラインを綺麗に揃える */
+    color: #94a3b8;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+
+  .ar2e-enemies-page .combat-inline-item > input,
+  .ar2e-enemies-page .combat-inline-item .dice-mini-editor {
+    width: 100%;
+    max-width: 4.5rem; /* 入力欄が間延びするのを防ぐ */
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .ar2e-enemies-page .combat-inline-item.is-dice .dice-mini-editor {
+    max-width: 8rem; /* ダイスは幅が必要なため少し広め */
+  }
+  
+  /* スピナーを消す */
+  .ar2e-enemies-page .combat-inline-item > input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .ar2e-enemies-page .combat-inline-item > input[type="number"]::-webkit-outer-spin-button,
+  .ar2e-enemies-page .combat-inline-item > input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .ar2e-enemies-page input[data-field="hp"],
+  .ar2e-enemies-page input[data-field="mp"],
+  .ar2e-enemies-page input[data-field="physDef"],
+  .ar2e-enemies-page input[data-field="magicDef"],
+  .ar2e-enemies-page input[data-field="identification"],
+  .ar2e-enemies-page input[data-field="initiative"],
+  .ar2e-enemies-page input[data-field="movement"],
+  .ar2e-enemies-page input[data-field="evadeDice"] {
+    text-align: right;
+  }
+
+  .dice-mini-editor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    white-space: nowrap;
+  }
+  .dice-mini-editor .dice-mark,
+  .dice-mini-editor .dice-plus-mark {
+    line-height: 1.8rem;
+    display: inline-flex;
+    align-items: center;
+    height: 1.8rem;
+  }
+  .dice-mini-editor input[type="number"] {
+    min-width: 0;
+    max-width: 3.5rem; /* 間延び防止 */
+    width: 100%;
+    flex: 1 1 0;
+    box-sizing: border-box;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    height: 1.8rem;
+  }
+
+  .dice-mini-editor .dice-count-input { order: 1; }
+  .dice-mini-editor .dice-mark { order: 2; }
+  .dice-mini-editor .dice-plus-mark { order: 3; }
+  .dice-mini-editor .dice-plus-input { order: 4; }
+
+  body.is-dice-reverse .dice-mini-editor .dice-plus-input { order: 1; }
+  body.is-dice-reverse .dice-mini-editor .dice-plus-mark { order: 2; }
+  body.is-dice-reverse .dice-mini-editor .dice-count-input { order: 3; }
+  body.is-dice-reverse .dice-mini-editor .dice-mark { order: 4; }
+
+  .ar2e-enemies-page label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+
+  .ar2e-enemies-page input,
+  .ar2e-enemies-page select,
+  .ar2e-enemies-page textarea {
+    background: var(--ar-bg-field-edit);
+    color: var(--ar-text-on-light);
+    border: 1px solid #4b5563;
+    border-bottom: 1px solid rgba(255, 217, 102, 0.75);
+    padding: 4px 6px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .ar2e-enemies-page input:focus,
+  .ar2e-enemies-page textarea:focus {
+    outline: none;
+    border-color: var(--ar-accent-main);
+    box-shadow: 0 0 6px rgba(255, 217, 102, 0.3);
+    background: var(--ar-bg-field-edit);
+  }
+
+  .ar2e-enemies-page input[readonly],
+  .ar2e-enemies-page textarea[readonly] {
+    background: var(--ar-bg-field-readonly);
+    color: #94a3b8;
+    border-color: #334155;
+    border-bottom: 1px solid #334155;
+    cursor: not-allowed;
+  }
+
+  .ar2e-enemies-page .action-btn,
+  .ar2e-enemies-page .small-square-btn {
+    background: #1e2432;
+    color: var(--ar-accent-main);
+    border: 1px solid var(--ar-accent-main);
+    box-shadow: 2px 2px 0 #000;
+    transition: all 0.15s ease;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .ar2e-enemies-page .action-btn:hover,
+  .ar2e-enemies-page .small-square-btn:hover {
+    background: #2d3748;
+    color: #fff;
+    border-color: #fde047;
+    box-shadow: 2px 2px 0 #000, 0 0 8px rgba(255, 217, 102, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .ar2e-enemies-page .asian-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--ar-bg-panel);
+  }
+  .ar2e-enemies-page .asian-table th,
+  .ar2e-enemies-page .asian-table td {
+    border: 1px solid var(--ar-border);
+    padding: 4px;
+    vertical-align: middle;
+  }
+  .ar2e-enemies-page .asian-table th {
+    background: #111827;
+    color: var(--ar-accent-main);
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  .ar2e-enemies-page .asian-table td input,
+  .ar2e-enemies-page .asian-table td textarea {
+    border-bottom: 1px solid rgba(255, 217, 102, 0.75);
+    font-size: 0.85rem;
+  }
+
+  /* 攻撃方法の属性欄・ダイス欄は通常時は共通色、選択時に黄色へ */
+  .ar2e-enemies-page #attackMethodsTable td input[data-atk-key="attribute"],
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor input[type="number"],
+  .ar2e-enemies-page #skillsTable .dice-mini-editor input[type="number"] {
+    border-bottom: 1px solid #4b5563;
+  }
+
+  .ar2e-enemies-page #attackMethodsTable td input[data-atk-key="attribute"]:focus,
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor input[type="number"]:focus,
+  .ar2e-enemies-page #skillsTable .dice-mini-editor input[type="number"]:focus {
+    border-bottom: 2px solid var(--ar-accent-main) !important;
+  }
+  .ar2e-enemies-page .asian-table td input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0 auto;
+    display: block;
+    accent-color: var(--ar-accent-main);
+    cursor: pointer;
+  }
+
+  .ar2e-enemies-page #skillsBody input[data-key="attribute"][data-skill-attr-theme="earth"] { background: #2d3a26; border-color: #7ca46a; color: #eaf5e1; }
+  .ar2e-enemies-page #skillsBody input[data-key="attribute"][data-skill-attr-theme="water"] { background: #21364d; border-color: #67a8e5; color: #e6f3ff; }
+  .ar2e-enemies-page #skillsBody input[data-key="attribute"][data-skill-attr-theme="fire"]  { background: #4a2623; border-color: #e07a63; color: #ffeae5; }
+  .ar2e-enemies-page #skillsBody input[data-key="attribute"][data-skill-attr-theme="wind"]  { background: #1f3e3a; border-color: #6ed3b0; color: #e7fff6; }
+  .ar2e-enemies-page #skillsBody input[data-key="attribute"][data-skill-attr-theme="light"] { background: #4b4321; border-color: #f2d26e; color: #fff9e5; }
+  .ar2e-enemies-page #skillsBody input[data-key="attribute"][data-skill-attr-theme="dark"]  { background: #2b213c; border-color: #b08fe7; color: #f2eaff; }
+
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="earth"] td { background: rgba(45, 58, 38, 0.35); }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="water"] td { background: rgba(33, 54, 77, 0.35); }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="fire"] td  { background: rgba(74, 38, 35, 0.35); }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="wind"] td  { background: rgba(31, 62, 58, 0.35); }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="light"] td { background: rgba(75, 67, 33, 0.35); }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="dark"] td  { background: rgba(43, 33, 60, 0.35); }
+
+  .ar2e-enemies-page #skillsBody .skill-secret-toggle.is-secret-on {
+    accent-color: #7c3aed;
+    filter: drop-shadow(0 0 4px rgba(124, 58, 237, 0.6));
+  }
+  .ar2e-enemies-page #skillsBody tr.is-secret-row td {
+    box-shadow: inset 0 0 0 9999px rgba(124, 58, 237, 0.08);
+  }
+
+  .ar2e-enemies-page .delete-btn {
+    width: 1.4rem;
+    height: 1.4rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--ar-border);
+    background-color: #b91c1c;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .ar2e-enemies-page .delete-btn:hover { background-color: #dc2626; }
+
+  .ar2e-enemies-page .enemy-list-collapsible { border: none; border-radius: 0; box-shadow: none; }
+  .ar2e-enemies-page .enemy-list-collapsible > summary { position: relative; cursor: pointer; list-style: none; margin-bottom: 10px; }
+  .ar2e-enemies-page .enemy-list-collapsible > summary::after,
+  .ar2e-enemies-page .enemy-list-collapsible > summary::-webkit-details-marker { display: none; }
+  .ar2e-enemies-page .enemy-list-collapsible > summary::before {
+    content: "\25B6"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); transition: transform 0.2s ease;
+    width: 20px; height: 20px; line-height: 20px; text-align: center; font-size: 1rem; color: #ddd; z-index: 3; pointer-events: none;
+  }
+  .ar2e-enemies-page .enemy-list-collapsible[open] > summary::before { transform: translateY(-50%) rotate(90deg); }
+  .ar2e-enemies-page .enemy-list-collapsible .enemy-list-pane { border-top: none; padding-top: 0.4rem; }
+
+  .ar2e-enemies-page .enemy-list-title {
+    display: flex; align-items: center; margin: 0; padding-top: 10px; padding-bottom: 0; padding-left: 40px; padding-right: 0;
+    min-height: 0; color: var(--ar-accent-main); text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5), 0 0 8px rgba(79, 128, 255, 0.35);
+    background: linear-gradient(90deg, #1f2433 0%, #2f3d58 42%, #1a1e2b 100%); border: none; border-radius: 8px 0 0 8px;
+    width: calc(100% + 20px); margin-right: -20px; box-sizing: border-box; position: relative; z-index: 1; overflow: visible;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
+  }
+
+  .enemy-list-pane {
+    border: 1px solid var(--ar-border); border-top: none; border-radius: 0 0 6px 6px; padding: 12px; background: var(--ar-bg-panel);
+  }
+
+  .list-head, .enemy-sort-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .enemy-list-controls { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex-wrap: nowrap; }
+  .enemy-search-row { margin-top: 8px; }
+  .search-input-group { display: flex; width: 100%; }
+  .enemy-search-field-select { min-width: 7rem; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  .enemy-search-input { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .sort-chip, .pager-btn, .enemy-show-all-btn {
+    border: 1px solid var(--ar-border); background: #1e2432; color: var(--ar-text-on-light); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;
+  }
+  .ar2e-enemies-page #exportKomaJsonButton { border-color: var(--ar-accent-sub); background: linear-gradient(180deg, #253149 0%, #1c273a 100%); color: #dbe7ff; }
+  .ar2e-enemies-page #exportKomaJsonButton:hover { border-color: #7aa6ff; background: linear-gradient(180deg, #2d3d5f 0%, #23324d 100%); color: #ffffff; box-shadow: 2px 2px 0 #000, 0 0 8px rgba(79, 128, 255, 0.4); }
+  .enemy-page-size-input { width: 4.8rem; padding: 0.22rem 0.5rem; font-size: 0.78rem; }
+  .enemy-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 0.6rem; max-height: 42vh; overflow-x: hidden; overflow-y: auto; }
+
+  /* コンテナクエリのセットアップ (テーブル用) */
+  .data-block.full-width {
+    container-type: inline-size;
+    container-name: tablecontainer;
+  }
+
+  /* ==========================================================================
+     Responsive (Container Queries: テーブルのカード型への切り替え)
+     ========================================================================== */
+  @container tablecontainer (max-width: 1400px) {
+    /* スキルテーブル カード型レイアウト化 */
+    .ar2e-enemies-page #skillsTable thead,
+    .ar2e-enemies-page #attackMethodsTable thead { display: none; }
+
+    .ar2e-enemies-page #skillsTable, .ar2e-enemies-page #skillsTable tbody,
+    .ar2e-enemies-page #attackMethodsTable, .ar2e-enemies-page #attackMethodsTable tbody { display: block; }
+    
+    .ar2e-enemies-page #skillsTable tr {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-bottom: 8px;
+      padding: 8px 44px 8px 8px; /* 右上の削除ボタンのスペース確保 */
+      background: var(--ar-bg-panel);
+      border: 1px solid var(--ar-border);
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .ar2e-enemies-page #attackMethodsTable tr {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-bottom: 8px;
+      padding: 8px 44px 8px 8px;
+      background: var(--ar-bg-panel);
+      border: 1px solid var(--ar-border);
+      border-radius: 4px;
+      position: relative;
+    }
+
+    /* 各セルのラベル表示設定 */
+    .ar2e-enemies-page #skillsTable td,
+    .ar2e-enemies-page #attackMethodsTable td {
+      border: none;
+      padding: 0;
+      border-bottom: none !important;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .ar2e-enemies-page #skillsTable td > input,
+    .ar2e-enemies-page #skillsTable td > textarea,
+    .ar2e-enemies-page #attackMethodsTable td > input,
+    .ar2e-enemies-page #attackMethodsTable td > textarea { width: 100%; }
+
+    .ar2e-enemies-page #skillsTable td::before,
+    .ar2e-enemies-page #attackMethodsTable td::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+
+    /* ラベルが空の場合は非表示 */
+    .ar2e-enemies-page #skillsTable td:not([data-label])::before,
+    .ar2e-enemies-page #skillsTable td[data-label=""]::before,
+    .ar2e-enemies-page #attackMethodsTable td:not([data-label])::before,
+    .ar2e-enemies-page #attackMethodsTable td[data-label=""]::before {
+      display: none;
+    }
+
+    /* ゴミ箱は常に右上絶対配置 */
+    .ar2e-enemies-page #skillsTable td:nth-child(12),
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(8) {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      margin: 0;
+      align-items: center;
+      justify-content: center;
+      width: auto !important;
+    }
+
+    /* スキルテーブル 幅設定 */
+    .ar2e-enemies-page #skillsTable td:nth-child(1) { width: 24px; align-items: center; justify-content: center; } /* 秘 */
+    .ar2e-enemies-page #skillsTable td:nth-child(2) { flex: 1 1 120px; min-width: 0; } /* 名前 */
+    .ar2e-enemies-page #skillsTable td:nth-child(3) { width: min(4.5rem, 100%); flex: 0 1 4.5rem; min-width: 0; } /* SL */
+    .ar2e-enemies-page #skillsTable td:nth-child(4) { flex: 1 1 100px; min-width: 0; } /* タイミング */
+    .ar2e-enemies-page #skillsTable td:nth-child(5) { flex: 1 1 120px; min-width: 0; } /* 判定 */
+
+    .ar2e-enemies-page #skillsTable td:nth-child(6) { flex: 1 1 80px; min-width: 0; } /* 対象 */
+    .ar2e-enemies-page #skillsTable td:nth-child(7) { width: min(5.5rem, 100%); flex: 0 1 5.5rem; min-width: 0; } /* 射程 */
+    .ar2e-enemies-page #skillsTable td:nth-child(8) { width: min(4.5rem, 100%); flex: 0 1 4.5rem; min-width: 0; } /* コスト */
+    .ar2e-enemies-page #skillsTable td:nth-child(9) { flex: 1 1 100px; max-width: 140px; min-width: 0; } /* 命中 */
+    .ar2e-enemies-page #skillsTable td:nth-child(10) { flex: 1 1 100px; max-width: 140px; min-width: 0; } /* ダメージ */
+
+    .ar2e-enemies-page #skillsTable td:nth-child(11) { width: 100%; margin-top: 4px; } /* 効果 */
+
+    /* 攻撃方法テーブル 幅設定 */
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(1) { flex: 1 1 120px; min-width: 0; } /* 名前 */
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(2) { flex: 1 1 80px; min-width: 0; } /* 対象 */
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(3) { width: min(5.5rem, 100%); flex: 0 1 5.5rem; min-width: 0; } /* 射程 */
+
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(4) { flex: 1 1 100px; max-width: 140px; min-width: 0; } /* 命中 */
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(5) { flex: 1 1 100px; max-width: 140px; min-width: 0; } /* ダメージ */
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(6) { flex: 1 1 100px; min-width: 0; } /* 属性 */
+    
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(7) { width: 100%; margin-top:4px; } /* 効果 */
+  }
+
+  /* テーブル以外 (ドロップ品など) 横スクロールフォールバック */
+  @media (max-width: 600px) {
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #dropItemsTable { min-width: 360px; }
+    #dropItemsTable th, #dropItemsTable td { padding: 2px; font-size: 0.75rem; }
+    #dropItemsTable input { padding: 3px; font-size: 0.8rem; }
+    #dropItemsTable input[data-drop-key="quantity"] { min-width: 2.2em; }
+  }
+}
