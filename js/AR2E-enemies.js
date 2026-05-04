@@ -80,13 +80,22 @@
   const skillMasterByName = new Map();
   const skillExpandByName = new Map();
 
-  const ABILITY_KEYS =["str", "dex", "agi", "int", "sen", "mnd", "luk"];
-  const shared =
-    (typeof window !== "undefined" && window.NechronicaShared) || {};
+  const ABILITY_KEYS = ["str", "dex", "agi", "int", "sen", "mnd", "luk"];
+
+  function getEnemiesShared() {
+    return (
+      (typeof window !== "undefined" &&
+        (window.EnemiesShared || window.NechronicaShared)) ||
+      {}
+    );
+  }
+
+  const shared = getEnemiesShared();
 
   function requestSaveAsName(currentName = "") {
-    if (typeof shared.requestSaveAsName === "function") {
-      return shared.requestSaveAsName(currentName);
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.requestSaveAsName === "function") {
+      return sharedApi.requestSaveAsName(currentName);
     }
     const v = window.prompt(
       "別名保存する名前を入力してください",
@@ -96,13 +105,21 @@
   }
 
   async function requestSaveAsSameNameAction(currentName = "") {
-    if (typeof shared.requestSaveAsSameNameAction === "function") {
-      return shared.requestSaveAsSameNameAction(currentName);
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.requestSaveAsSameNameAction === "function") {
+      return sharedApi.requestSaveAsSameNameAction(currentName);
     }
     return "save";
   }
 
   function buildCopiedName(name) {
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.buildCopiedName === "function") {
+      return sharedApi.buildCopiedName(name, {
+        fallbackName: "無題",
+        idempotent: true,
+      });
+    }
     const raw = String(name || "").trim() || "無題";
     return raw.includes("（コピー）") ? raw : `${raw}（コピー）`;
   }
@@ -157,46 +174,38 @@
   }
 
   function nowText() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    const h = String(d.getHours()).padStart(2, "0");
-    const i = String(d.getMinutes()).padStart(2, "0");
-    const s = String(d.getSeconds()).padStart(2, "0");
-    return `${y}/${m}/${day} ${h}:${i}:${s}`;
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.nowText === "function"
+      ? sharedApi.nowText()
+      : new Date().toLocaleString("ja-JP");
   }
 
   function formatShortDate(value) {
-    const s = String(value || "").trim();
-    if (!s) return "-";
-    const m = s.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?/);
-    if (m) {
-      const yyyy = m[1];
-      const mm = String(m[2]).padStart(2, "0");
-      const dd = String(m[3]).padStart(2, "0");
-      const hh = String(m[4] || "00").padStart(2, "0");
-      const mi = String(m[5] || "00").padStart(2, "0");
-      return `${yyyy}/${mm}/${dd} ${hh}:${mi}:00`;
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.formatDateTime === "function") {
+      return sharedApi.formatDateTime(value, {
+        emptyValue: "-",
+        fallbackRawOnInvalid: true,
+        defaultSeconds: "00",
+        ignoreInputSeconds: true,
+      });
     }
-
-    const d = new Date(s);
-    if (Number.isNaN(d.getTime())) return s;
-    const yyyy = String(d.getFullYear());
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mi = String(d.getMinutes()).padStart(2, "0");
-    const ss = String(d.getSeconds()).padStart(2, "0");
-    return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
+    const s = String(value || "").trim();
+    return s || "-";
   }
 
   function deepClone(v) {
-    return JSON.parse(JSON.stringify(v));
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.deepClone === "function"
+      ? sharedApi.deepClone(v)
+      : JSON.parse(JSON.stringify(v));
   }
 
   function normalizeApiUrl(url) {
-    return String(url || "").replace(/\/+$/, "");
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.normalizeApiUrl === "function"
+      ? sharedApi.normalizeApiUrl(url)
+      : String(url || "").replace(/\/+$/, "");
   }
 
   function getConfiguredApiUrl() {
@@ -217,6 +226,15 @@
   }
 
   function buildApiUrl(action, params = {}) {
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.buildApiUrl === "function") {
+      return sharedApi.buildApiUrl({
+        baseUrl: getConfiguredApiUrl(),
+        tool: "ar2e",
+        action,
+        params,
+      });
+    }
     const base = normalizeApiUrl(getConfiguredApiUrl());
     if (!base) throw new Error("API URLが未設定");
     const url = new URL(base);
@@ -232,6 +250,10 @@
   }
 
   async function fetchApiJson(url, init = null) {
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.fetchApiJson === "function") {
+      return sharedApi.fetchApiJson(url, init);
+    }
     const res = await fetch(url, init || undefined);
     const data = await res.json().catch(() => null);
     if (!res.ok) {
@@ -245,8 +267,9 @@
   }
 
   function getRememberedAuthor() {
-    if (typeof shared.getRememberedAuthorFromStorage === "function") {
-      return shared.getRememberedAuthorFromStorage(AUTHOR_STORAGE_KEY);
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.getRememberedAuthorFromStorage === "function") {
+      return sharedApi.getRememberedAuthorFromStorage(AUTHOR_STORAGE_KEY);
     }
     try {
       return String(localStorage.getItem(AUTHOR_STORAGE_KEY) || "").trim();
@@ -256,8 +279,9 @@
   }
 
   function rememberAuthor(name) {
-    if (typeof shared.rememberAuthorToStorage === "function") {
-      shared.rememberAuthorToStorage(AUTHOR_STORAGE_KEY, name);
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.rememberAuthorToStorage === "function") {
+      sharedApi.rememberAuthorToStorage(AUTHOR_STORAGE_KEY, name);
       return;
     }
     try {
@@ -266,6 +290,11 @@
   }
 
   function saveLastSelectedId(id) {
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.saveLastSelectedIdToStorage === "function") {
+      sharedApi.saveLastSelectedIdToStorage(LAST_SELECTED_ID_KEY, id);
+      return;
+    }
     try {
       if (id) localStorage.setItem(LAST_SELECTED_ID_KEY, String(id));
       else localStorage.removeItem(LAST_SELECTED_ID_KEY);
@@ -273,6 +302,10 @@
   }
 
   function getLastSelectedId() {
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.getLastSelectedIdFromStorage === "function") {
+      return sharedApi.getLastSelectedIdFromStorage(LAST_SELECTED_ID_KEY);
+    }
     try {
       return String(localStorage.getItem(LAST_SELECTED_ID_KEY) || "").trim();
     } catch (_e) {
@@ -347,34 +380,25 @@
   }
 
   function getByPath(obj, path) {
-    const segs = String(path || "").split(".");
-    let cur = obj;
-    for (let i = 0; i < segs.length; i += 1) {
-      if (cur == null) return "";
-      cur = cur[segs[i]];
-    }
-    return cur == null ? "" : cur;
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.getByPath === "function"
+      ? sharedApi.getByPath(obj, path, "")
+      : "";
   }
 
   function setByPath(obj, path, value) {
-    const segs = String(path || "").split(".");
-    let cur = obj;
-    for (let i = 0; i < segs.length - 1; i += 1) {
-      const k = segs[i];
-      if (!cur[k] || typeof cur[k] !== "object") cur[k] = {};
-      cur = cur[k];
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.setByPath === "function") {
+      sharedApi.setByPath(obj, path, value);
     }
-    cur[segs[segs.length - 1]] = value;
   }
 
   function moveRowByIndex(list, fromIndex, toIndex) {
-    if (!Array.isArray(list)) return false;
-    if (fromIndex === toIndex) return false;
-    if (fromIndex < 0 || toIndex < 0) return false;
-    if (fromIndex >= list.length || toIndex >= list.length) return false;
-    const [row] = list.splice(fromIndex, 1);
-    list.splice(toIndex, 0, row);
-    return true;
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.moveRowByIndex === "function") {
+      return sharedApi.moveRowByIndex(list, fromIndex, toIndex);
+    }
+    return false;
   }
 
   function createEnemyTemplate(options = {}) {
@@ -1676,12 +1700,10 @@
 
   function escapeHtml(str) {
     if (!str) return "";
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.escapeHtml === "function"
+      ? sharedApi.escapeHtml(str)
+      : String(str);
   }
 
   function bindEvents() {

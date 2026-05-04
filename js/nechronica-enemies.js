@@ -168,20 +168,16 @@ const el = {
 };
 
 function nowIsoLocal() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const h = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  const s = String(d.getSeconds()).padStart(2, "0");
-  return `${y}/${m}/${day} ${h}:${min}:${s}`;
+  const sharedApi = getEnemiesShared();
+  return typeof sharedApi.nowIsoLocal === "function"
+    ? sharedApi.nowIsoLocal()
+    : new Date().toLocaleString("ja-JP");
 }
 
 function getRememberedAuthor() {
-  const shared = getNechronicaShared();
-  if (shared && typeof shared.getRememberedAuthorFromStorage === "function") {
-    return shared.getRememberedAuthorFromStorage(NC_AUTHOR_STORAGE_KEY, {
+  const sharedApi = getEnemiesShared();
+  if (sharedApi && typeof sharedApi.getRememberedAuthorFromStorage === "function") {
+    return sharedApi.getRememberedAuthorFromStorage(NC_AUTHOR_STORAGE_KEY, {
       forbidSystem: true,
     });
   }
@@ -194,9 +190,9 @@ function getRememberedAuthor() {
 }
 
 function rememberAuthor(name) {
-  const shared = getNechronicaShared();
-  if (shared && typeof shared.rememberAuthorToStorage === "function") {
-    shared.rememberAuthorToStorage(NC_AUTHOR_STORAGE_KEY, name);
+  const sharedApi = getEnemiesShared();
+  if (sharedApi && typeof sharedApi.rememberAuthorToStorage === "function") {
+    sharedApi.rememberAuthorToStorage(NC_AUTHOR_STORAGE_KEY, name);
     return;
   }
   try {
@@ -290,10 +286,22 @@ function getConfiguredNechronicaApiUrl() {
 }
 
 function normalizeApiUrl(url) {
-  return String(url || "").replace(/\/+$/, "");
+  const sharedApi = getEnemiesShared();
+  return typeof sharedApi.normalizeApiUrl === "function"
+    ? sharedApi.normalizeApiUrl(url)
+    : String(url || "").replace(/\/+$/, "");
 }
 
 function buildApiUrl(action, params = {}) {
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.buildApiUrl === "function") {
+    return sharedApi.buildApiUrl({
+      baseUrl: getConfiguredNechronicaApiUrl(),
+      tool: "nechronica",
+      action,
+      params,
+    });
+  }
   const base = normalizeApiUrl(getConfiguredNechronicaApiUrl());
   if (!base) throw new Error("API URLが未設定");
   const url = new URL(base);
@@ -309,6 +317,10 @@ function buildApiUrl(action, params = {}) {
 }
 
 async function fetchApiJson(url, init = null) {
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.fetchApiJson === "function") {
+    return sharedApi.fetchApiJson(url, init);
+  }
   const res = await fetch(url, init || undefined);
   const data = await res.json().catch(() => null);
   if (!res.ok) {
@@ -409,8 +421,9 @@ function setSaveStatus(kind, text) {
 }
 
 function showToast(message, kind = "info") {
-  const shared = getNechronicaShared();
-  shared.showToast(message, {
+  const sharedApi = getEnemiesShared();
+  if (!sharedApi || typeof sharedApi.showToast !== "function") return;
+  sharedApi.showToast(message, {
     kind,
     id: "copyToast",
     className: "copy-toast",
@@ -425,91 +438,43 @@ function showKomaJsonCopySuccessToast() {
 }
 
 function message(key, params = {}) {
-  const shared = getNechronicaShared();
-  if (shared && typeof shared.getMessage === "function") {
-    return shared.getMessage(key, params);
+  const sharedApi = getEnemiesShared();
+  if (sharedApi && typeof sharedApi.getMessage === "function") {
+    return sharedApi.getMessage(key, params);
   }
-  // フォールバック（shared 未読込時）
-  const fallback = {
-    komaJsonCopySuccess:
-      "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
-    clipboardCopyFailedConsole: "コピー失敗。コンソールに出力する",
-    saveRequestSending: "保存要求を送信中…",
-    saveAsInProgress: "別名保存中…",
-    saveAsSameNameBlocked:
-      "ちょっと待て！別名保存なのに同じ名前だ。先に名前を変えてくれ。",
-    saveAsSameNameConfirm:
-      "別名保存なのに同じ名前だけど保存しちゃっていい？\n1: そのまま保存\n2: やめる\n3: （コピー）を付けて保存",
-    saveAsSameNameChoiceInvalid:
-      "入力がわからない。1（そのまま保存）/2（やめる）/3（コピー名で保存）で選んでくれ。",
-    saveCompleted: "保存完了 {time}",
-    saveAsPrompt: "別名保存する名前を入力してください",
-    saveAsNameRequired: "保存名を入力してください",
-  };
-  const template =
-    Object.prototype.hasOwnProperty.call(fallback, key) &&
-    typeof fallback[key] === "string"
-      ? fallback[key]
-      : String(key || "");
-  return template.replace(/\{(\w+)\}/g, (_m, token) => {
-    const value = params ? params[token] : "";
-    return value == null ? "" : String(value);
-  });
+  return String(key || "");
 }
 
 function requestSaveAsName(currentName = "") {
-  const shared = getNechronicaShared();
-  if (shared && typeof shared.requestSaveAsName === "function") {
-    return shared.requestSaveAsName(currentName);
+  const sharedApi = getEnemiesShared();
+  if (sharedApi && typeof sharedApi.requestSaveAsName === "function") {
+    return sharedApi.requestSaveAsName(currentName);
   }
-  while (true) {
-    const raw = window.prompt(
-      message("saveAsPrompt"),
-      String(currentName || "").trim(),
-    );
-    if (raw == null) return null;
-    const name = String(raw || "").trim();
-    if (name) return name;
-    window.alert(message("saveAsNameRequired"));
-  }
+  return null;
 }
 
 async function requestSaveAsSameNameAction(currentName = "") {
-  const shared = getNechronicaShared();
-  if (shared && typeof shared.requestSaveAsSameNameAction === "function") {
-    return await shared.requestSaveAsSameNameAction(currentName);
+  const sharedApi = getEnemiesShared();
+  if (sharedApi && typeof sharedApi.requestSaveAsSameNameAction === "function") {
+    return await sharedApi.requestSaveAsSameNameAction(currentName);
   }
-  while (true) {
-    const raw = window.prompt(message("saveAsSameNameConfirm"), "2");
-    if (raw == null) return "cancel";
-    const choice = String(raw || "")
-      .trim()
-      .toLowerCase();
-    if (choice === "1" || choice === "save" || choice === "そのまま保存") {
-      return "save";
-    }
-    if (choice === "2" || choice === "cancel" || choice === "やめる") {
-      return "cancel";
-    }
-    if (
-      choice === "3" ||
-      choice === "copy" ||
-      choice === "コピー" ||
-      choice === "コピー名で保存"
-    ) {
-      return "copy";
-    }
-    window.alert(message("saveAsSameNameChoiceInvalid"));
-  }
+  return "cancel";
 }
 
 function buildCopiedName(name) {
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.buildCopiedName === "function") {
+    return sharedApi.buildCopiedName(name);
+  }
   const base = String(name || "").trim();
   return `${base}（コピー）`;
 }
 
 async function writeClipboardText(text) {
-  await getNechronicaShared().writeClipboardText(text);
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.writeClipboardText === "function") {
+    await sharedApi.writeClipboardText(text);
+  }
 }
 
 function setSaveButtonLabelByEnemy(enemy) {
@@ -532,16 +497,16 @@ function setSaveButtonLabelByEnemy(enemy) {
 }
 
 function formatDateTimeDisplay(isoLike) {
-  const raw = String(isoLike || "").trim();
-  const d = raw ? new Date(raw) : new Date();
-  if (Number.isNaN(d.getTime())) return "-";
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const h = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  const s = String(d.getSeconds()).padStart(2, "0");
-  return `${y}/${m}/${day} ${h}:${min}:${s}`;
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.formatDateTime === "function") {
+    return sharedApi.formatDateTime(isoLike, {
+      useNowWhenEmpty: true,
+      emptyValue: "-",
+      invalidValue: "-",
+      fallbackRawOnInvalid: false,
+    });
+  }
+  return String(isoLike || "-");
 }
 
 function createEmptyManeuver() {
@@ -591,13 +556,13 @@ function getManeuverStatusClass(status) {
   return "status-safe";
 }
 
-function getNechronicaShared() {
-  const shared =
-    typeof window !== "undefined" && window && window.NechronicaShared
-      ? window.NechronicaShared
+function getEnemiesShared() {
+  const sharedApi =
+    typeof window !== "undefined" && window
+      ? window.EnemiesShared || window.NechronicaShared
       : null;
-  if (shared && typeof shared.isRepeatableTiming === "function") {
-    return shared;
+  if (sharedApi && typeof sharedApi.isRepeatableTiming === "function") {
+    return sharedApi;
   }
   return {
     isRepeatableTiming: (timing) => {
@@ -628,32 +593,8 @@ function getNechronicaShared() {
       document.body.removeChild(ta);
       if (!ok) throw new Error("clipboard unavailable");
     },
-    showToast: (message, opts = {}) => {
-      const text = String(message || "").trim();
-      if (!text) return;
-      const id = String(opts.id || "copyToast");
-      const className = String(opts.className || "copy-toast");
-      let toast = document.getElementById(id);
-      if (!toast) {
-        toast = document.createElement("div");
-        toast.id = id;
-        toast.className = className;
-        document.body.appendChild(toast);
-      }
-      toast.className = className;
-      toast.textContent = text;
-      toast.classList.remove("is-error", "is-show");
-      if ((opts && opts.kind) === "error") toast.classList.add("is-error");
-      void toast.offsetWidth;
-      toast.classList.add("is-show");
-      if (saveToastTimer) clearTimeout(saveToastTimer);
-      saveToastTimer = setTimeout(
-        () => {
-          toast.classList.remove("is-show");
-        },
-        Number(opts.duration) > 0 ? Number(opts.duration) : 1400,
-      );
-    },
+    showToast: () => {},
+    getMessage: (key) => String(key || ""),
     resolveReportCheckedOnDamageTransition: (
       prevStatus,
       nextStatus,
@@ -670,11 +611,11 @@ function getNechronicaShared() {
 }
 
 function isRepeatableTiming(timing) {
-  return !!getNechronicaShared().isRepeatableTiming(timing);
+  return !!getEnemiesShared().isRepeatableTiming(timing);
 }
 
 function canUseUsedStatusForManeuver(maneuver) {
-  const shared = getNechronicaShared();
+  const shared = getEnemiesShared();
   if (typeof shared.canUseUsedStatusForManeuver === "function") {
     return !!shared.canUseUsedStatusForManeuver(maneuver);
   }
@@ -3423,7 +3364,7 @@ function handleSummaryDamageInput(event) {
     current.status =
       s === "損傷" ? "損傷" : allowUsed && s === "使用" ? "使用" : "無事";
     current.reportChecked =
-      getNechronicaShared().resolveReportCheckedOnDamageTransition(
+      getEnemiesShared().resolveReportCheckedOnDamageTransition(
         prevStatus,
         current.status,
         current.reportChecked,
@@ -3978,12 +3919,10 @@ function bindTableEvents() {
 }
 
 function escapeHtml(v) {
-  return String(v)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+  const sharedApi = getEnemiesShared();
+  return typeof sharedApi.escapeHtml === "function"
+    ? sharedApi.escapeHtml(v)
+    : String(v == null ? "" : v);
 }
 
 function setupEvents() {
@@ -4519,18 +4458,24 @@ function setupEvents() {
 // ===== 前回選択エネミーの保存・復元 =====
 
 function saveLastSelectedId(id) {
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.saveLastSelectedIdToStorage === "function") {
+    sharedApi.saveLastSelectedIdToStorage(NC_LAST_SELECTED_ID_KEY, id);
+    return;
+  }
   try {
-    if (id) {
-      localStorage.setItem(NC_LAST_SELECTED_ID_KEY, String(id));
-    } else {
-      localStorage.removeItem(NC_LAST_SELECTED_ID_KEY);
-    }
+    if (id) localStorage.setItem(NC_LAST_SELECTED_ID_KEY, String(id));
+    else localStorage.removeItem(NC_LAST_SELECTED_ID_KEY);
   } catch (_e) {
     // ignore
   }
 }
 
 function getLastSelectedId() {
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.getLastSelectedIdFromStorage === "function") {
+    return sharedApi.getLastSelectedIdFromStorage(NC_LAST_SELECTED_ID_KEY);
+  }
   try {
     return String(localStorage.getItem(NC_LAST_SELECTED_ID_KEY) || "").trim();
   } catch (_e) {

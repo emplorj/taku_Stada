@@ -21,6 +21,81 @@
     saveAsNameRequired: "保存名を入力してください",
   });
 
+  function pad2(value) {
+    return String(value).padStart(2, "0");
+  }
+
+  function toFiniteInteger(value, fallback = 0) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.trunc(n);
+  }
+
+  function clampInteger(value, min, max, fallback = 0) {
+    const n = toFiniteInteger(value, fallback);
+    return Math.min(max, Math.max(min, n));
+  }
+
+  function nowText() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = pad2(d.getMonth() + 1);
+    const day = pad2(d.getDate());
+    const h = pad2(d.getHours());
+    const i = pad2(d.getMinutes());
+    const s = pad2(d.getSeconds());
+    return `${y}/${m}/${day} ${h}:${i}:${s}`;
+  }
+
+  function nowIsoLocal() {
+    return nowText();
+  }
+
+  function formatDateParts(date) {
+    const y = date.getFullYear();
+    const m = pad2(date.getMonth() + 1);
+    const day = pad2(date.getDate());
+    const h = pad2(date.getHours());
+    const i = pad2(date.getMinutes());
+    const s = pad2(date.getSeconds());
+    return `${y}/${m}/${day} ${h}:${i}:${s}`;
+  }
+
+  function formatDateTime(value, options = {}) {
+    const {
+      emptyValue = "-",
+      invalidValue = "-",
+      fallbackRawOnInvalid = true,
+      useNowWhenEmpty = false,
+      defaultSeconds = "00",
+      ignoreInputSeconds = false,
+    } = options || {};
+
+    const raw = String(value || "").trim();
+    if (!raw) {
+      return useNowWhenEmpty ? formatDateParts(new Date()) : String(emptyValue);
+    }
+
+    const m = raw.match(
+      /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/,
+    );
+    if (m) {
+      const yyyy = m[1];
+      const mm = pad2(m[2]);
+      const dd = pad2(m[3]);
+      const hh = pad2(m[4] || "00");
+      const mi = pad2(m[5] || "00");
+      const ss = pad2(ignoreInputSeconds ? defaultSeconds : m[6] || defaultSeconds);
+      return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
+    }
+
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) {
+      return fallbackRawOnInvalid ? raw : String(invalidValue);
+    }
+    return formatDateParts(d);
+  }
+
   function normalizeTimingText(timing) {
     return String(timing || "").trim();
   }
@@ -35,6 +110,93 @@
 
   function canUseUsedStatusForManeuver(maneuver) {
     return canUseUsedStatusForTiming(maneuver && maneuver.timing);
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function autoResizeTextarea(textarea) {
+    if (!textarea || String(textarea.tagName || "").toLowerCase() !== "textarea") {
+      return;
+    }
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }
+
+  function deepClone(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function normalizeApiUrl(url) {
+    return String(url || "").replace(/\/+$/, "");
+  }
+
+  function buildApiUrl({ baseUrl, tool, action, params = {} } = {}) {
+    const base = normalizeApiUrl(baseUrl);
+    if (!base) throw new Error("API URLが未設定");
+    const url = new URL(base);
+    if (tool != null && String(tool).trim()) {
+      url.searchParams.set("tool", String(tool).trim());
+    }
+    url.searchParams.set("action", action);
+    Object.entries(params || {}).forEach(([key, value]) => {
+      if (value == null) return;
+      const s = String(value).trim();
+      if (!s) return;
+      url.searchParams.set(key, s);
+    });
+    return url.toString();
+  }
+
+  async function fetchApiJson(url, init = null) {
+    const res = await fetch(url, init || undefined);
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      const msg = data && data.message ? data.message : `APIエラー (HTTP ${res.status})`;
+      throw new Error(msg);
+    }
+    if (!data || data.status === "error") {
+      throw new Error((data && data.message) || "API応答が不正");
+    }
+    return data;
+  }
+
+  function getByPath(obj, path, defaultValue = "") {
+    const segs = String(path || "").split(".");
+    let cur = obj;
+    for (let i = 0; i < segs.length; i += 1) {
+      if (cur == null) return defaultValue;
+      cur = cur[segs[i]];
+    }
+    return cur == null ? defaultValue : cur;
+  }
+
+  function setByPath(obj, path, value) {
+    const segs = String(path || "").split(".").filter((seg) => seg !== "");
+    if (!obj || !segs.length) return;
+    let cur = obj;
+    for (let i = 0; i < segs.length - 1; i += 1) {
+      const key = segs[i];
+      if (!cur[key] || typeof cur[key] !== "object") cur[key] = {};
+      cur = cur[key];
+    }
+    cur[segs[segs.length - 1]] = value;
+  }
+
+  function moveRowByIndex(list, fromIndex, toIndex) {
+    if (!Array.isArray(list)) return false;
+    if (fromIndex === toIndex) return false;
+    if (fromIndex < 0 || toIndex < 0) return false;
+    if (fromIndex >= list.length || toIndex >= list.length) return false;
+    const [row] = list.splice(fromIndex, 1);
+    list.splice(toIndex, 0, row);
+    return true;
   }
 
   async function writeClipboardText(text) {
@@ -84,12 +246,12 @@
       document.body.appendChild(toast);
     }
 
-    // すでに表示中の場合は一度クラスを消して再表示（アニメーションのリセット）
     toast.classList.remove(showClass);
-    void toast.offsetWidth; // reflow
+    void toast.offsetWidth;
 
     toast.textContent = text;
-    toast.className = className; // クラスをリセット
+    toast.className = className;
+    toast.classList.remove(errorClass, showClass);
     if (kind === "error") toast.classList.add(errorClass);
 
     toast.classList.add(showClass);
@@ -100,7 +262,7 @@
     const timer = setTimeout(() => {
       toast.classList.remove(showClass);
       toastTimers.delete(id);
-    }, duration);
+    }, Number(duration) > 0 ? Number(duration) : 1800);
 
     toastTimers.set(id, timer);
   }
@@ -345,6 +507,18 @@
     }
   }
 
+  function buildCopiedName(name, options = {}) {
+    const {
+      fallbackName = "",
+      idempotent = false,
+      suffix = "（コピー）",
+    } = options || {};
+    const raw = String(name || "").trim();
+    const base = raw || String(fallbackName || "").trim();
+    if (idempotent && base.includes(suffix)) return base;
+    return `${base}${suffix}`;
+  }
+
   function resolveReportCheckedOnDamageTransition(
     prevStatus,
     nextStatus,
@@ -380,6 +554,25 @@
     } catch (_e) {}
   }
 
+  function saveLastSelectedIdToStorage(storageKey, id) {
+    const key = String(storageKey || "").trim();
+    if (!key) return;
+    try {
+      if (id) localStorage.setItem(key, String(id));
+      else localStorage.removeItem(key);
+    } catch (_e) {}
+  }
+
+  function getLastSelectedIdFromStorage(storageKey) {
+    const key = String(storageKey || "").trim();
+    if (!key) return "";
+    try {
+      return String(localStorage.getItem(key) || "").trim();
+    } catch (_e) {
+      return "";
+    }
+  }
+
   function canViewEnemyByVisibility({
     isPublic,
     enemyAuthor,
@@ -413,26 +606,53 @@
     URL.revokeObjectURL(url);
   }
 
-  const shared = {
+  function getShared() {
+    return globalScope.EnemiesShared || globalScope.NechronicaShared || sharedApi;
+  }
+
+  const sharedApi = {
+    pad2,
+    toFiniteInteger,
+    clampInteger,
+    nowText,
+    nowIsoLocal,
+    formatDateTime,
     normalizeTimingText,
     isRepeatableTiming,
     canUseUsedStatusForTiming,
     canUseUsedStatusForManeuver,
+    escapeHtml,
+    autoResizeTextarea,
+    deepClone,
+    normalizeApiUrl,
+    buildApiUrl,
+    fetchApiJson,
+    getByPath,
+    setByPath,
+    moveRowByIndex,
     writeClipboardText,
     showToast,
     getMessage,
     requestSaveAsName,
     requestSaveAsSameNameAction,
+    buildCopiedName,
     resolveReportCheckedOnDamageTransition,
     canViewEnemyByVisibility,
     getRememberedAuthorFromStorage,
     rememberAuthorToStorage,
+    saveLastSelectedIdToStorage,
+    getLastSelectedIdFromStorage,
     saveFile,
+    getShared,
   };
 
-  globalScope.NechronicaShared = Object.assign(
+  const merged = Object.assign(
     {},
     globalScope.NechronicaShared || {},
-    shared,
+    globalScope.EnemiesShared || {},
+    sharedApi,
   );
+
+  globalScope.EnemiesShared = merged;
+  globalScope.NechronicaShared = merged;
 })(typeof window !== "undefined" ? window : globalThis);
