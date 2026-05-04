@@ -2,13 +2,17 @@
   const REPEATABLE_TIMINGS = new Set(["オート", "アクション"]);
   const toastTimers = new Map();
   const MESSAGE_TEMPLATES = Object.freeze({
-    komaJsonCopySuccess: "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
+    komaJsonCopySuccess:
+      "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
     clipboardCopyFailedConsole: "コピー失敗。コンソールに出力する",
     saveRequestSending: "保存要求を送信中…",
     saveAsInProgress: "別名保存中…",
-    saveAsSameNameBlocked: "ちょっと待て！別名保存なのに同じ名前だ。先に名前を変えてくれ。",
-    saveAsSameNameConfirm: "別名保存なのに同じ名前だけど保存しちゃっていい？\n1: そのまま保存\n2: やめる\n3: （コピー）を付けて保存",
-    saveAsSameNameChoiceInvalid: "入力がわからない。1（そのまま保存）/2（やめる）/3（コピー名で保存）で選んでくれ。",
+    saveAsSameNameBlocked:
+      "ちょっと待て！別名保存なのに同じ名前だ。先に名前を変えてくれ。",
+    saveAsSameNameConfirm:
+      "別名保存なのに同じ名前だけど保存しちゃっていい？\n1: そのまま保存\n2: やめる\n3: （コピー）を付けて保存",
+    saveAsSameNameChoiceInvalid:
+      "入力がわからない。1（そのまま保存）/2（やめる）/3（コピー名で保存）で選んでくれ。",
     saveAsSameNameOptionSave: "そのまま保存",
     saveAsSameNameOptionCancel: "やめる",
     saveAsSameNameOptionCopy: "（コピー）を付けて保存",
@@ -17,221 +21,34 @@
     saveAsNameRequired: "保存名を入力してください",
   });
 
-  // --- Utility ---
-  function nowText() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    const h = String(d.getHours()).padStart(2, "0");
-    const i = String(d.getMinutes()).padStart(2, "0");
-    const s = String(d.getSeconds()).padStart(2, "0");
-    return `${y}/${m}/${day} ${h}:${i}:${s}`;
+  function normalizeTimingText(timing) {
+    return String(timing || "").trim();
   }
 
-  function formatShortDate(value) {
-    const s = String(value || "").trim();
-    if (!s) return "-";
-    const m = s.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
-    if (m) {
-      const hh = String(m[4] || "00").padStart(2, "0");
-      const mi = String(m[5] || "00").padStart(2, "0");
-      const ss = m[6] ? `:${String(m[6]).padStart(2, "0")}` : "";
-      return `${m[1]}/${String(m[2]).padStart(2, "0")}/${String(m[3]).padStart(2, "0")} ${hh}:${mi}${ss}`;
-    }
-    const d = new Date(s);
-    if (Number.isNaN(d.getTime())) return s;
-    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+  function isRepeatableTiming(timing) {
+    return REPEATABLE_TIMINGS.has(normalizeTimingText(timing));
   }
 
-  function escapeHtml(str) {
-    return String(str == null ? "" : str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+  function canUseUsedStatusForTiming(timing) {
+    return !isRepeatableTiming(timing);
   }
 
-  function deepClone(obj) {
-    if (obj == null) return obj;
-    return JSON.parse(JSON.stringify(obj));
+  function canUseUsedStatusForManeuver(maneuver) {
+    return canUseUsedStatusForTiming(maneuver && maneuver.timing);
   }
-
-  function toInt(value, fallback = 0) {
-    const n = Number(String(value == null ? "" : value).trim());
-    return Number.isFinite(n) ? Math.trunc(n) : fallback;
-  }
-
-  // --- API / Network ---
-  const DEFAULT_GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
-
-  function getConfiguredApiUrl(storageKey) {
-    const params = new URLSearchParams(window.location.search);
-    const apiFromQuery = params.get("ncApi") || params.get("gasApi");
-    if (apiFromQuery) {
-      try { localStorage.setItem(storageKey, String(apiFromQuery)); } catch (_e) {}
-      return String(apiFromQuery).trim();
-    }
-    try {
-      const fromStorage = localStorage.getItem(storageKey) || "";
-      if (fromStorage.trim()) return fromStorage.trim();
-    } catch (_e) {}
-    return DEFAULT_GAS_WEB_APP_URL;
-  }
-
-  function buildApiUrl(storageKey, toolName, action, params = {}) {
-    const base = getConfiguredApiUrl(storageKey).replace(/\/+$/, "");
-    if (!base) throw new Error("API URLが未設定");
-    const url = new URL(base);
-    url.searchParams.set("tool", toolName);
-    url.searchParams.set("action", action);
-    Object.entries(params).forEach(([k, v]) => {
-      if (v != null && String(v).trim()) url.searchParams.set(k, String(v).trim());
-    });
-    return url.toString();
-  }
-
-  async function fetchApiJson(url, init = null) {
-    const res = await fetch(url, init || undefined);
-    const data = await res.json().catch(() => null);
-    if (!res.ok) throw new Error((data && data.message) ? data.message : `APIエラー (HTTP ${res.status})`);
-    if (!data || data.status === "error") throw new Error((data && data.message) || "API応答が不正");
-    return data;
-  }
-
-  // --- UI Components ---
-  function showRestoreDialog(nameText, classText) {
-    return new Promise((resolve) => {
-      const overlay = document.createElement("div");
-      overlay.className = "restore-dialog-overlay";
-      const dialog = document.createElement("div");
-      dialog.className = "restore-dialog";
-      dialog.setAttribute("role", "dialog");
-      
-      const classLabel = classText ? `<span class="restore-dialog-class">${escapeHtml(classText)}</span>` : "";
-      dialog.innerHTML = `
-        <p class="restore-dialog-title">前回の続きを開きますか？</p>
-        <p class="restore-dialog-enemy">
-          <span class="restore-dialog-name">${escapeHtml(nameText || "（名称未設定）")}</span>
-          ${classLabel}
-        </p>
-        <div class="restore-dialog-actions">
-          <button id="restoreDialogYes" class="small-square-btn">続きを開く</button>
-          <button id="restoreDialogNo" class="small-square-btn is-secondary">新規で開く</button>
-        </div>
-      `;
-      overlay.appendChild(dialog);
-      document.body.appendChild(overlay);
-
-      const done = (res) => { overlay.remove(); resolve(res); };
-      const yesBtn = dialog.querySelector("#restoreDialogYes");
-      if (yesBtn) yesBtn.addEventListener("click", () => done(true));
-      dialog.querySelector("#restoreDialogNo")?.addEventListener("click", () => done(false));
-      overlay.addEventListener("click", (e) => { if (e.target === overlay) done(false); });
-      document.addEventListener("keydown", function onKey(e) {
-        if (e.key === "Escape") {
-          document.removeEventListener("keydown", onKey);
-          done(false);
-        }
-      });
-      if (yesBtn) yesBtn.focus();
-    });
-  }
-
-  // --- Table Drag & Drop ---
-  function moveArrayElement(list, fromIndex, toIndex) {
-    if (!Array.isArray(list) || fromIndex === toIndex) return false;
-    if (fromIndex < 0 || toIndex < 0 || fromIndex >= list.length || toIndex >= list.length) return false;
-    const [moved] = list.splice(fromIndex, 1);
-    list.splice(toIndex, 0, moved);
-    return true;
-  }
-
-  function bindTableDragAndDrop(containerElement, options = {}) {
-    if (!containerElement) return;
-    const {
-      rowSelector = "tr",
-      handleSelector = ".drag-hint",
-      indexAttr = "data-index",
-      dragClass = "is-dragging",
-      dragOverClass = "is-drag-over",
-      onDrop
-    } = options;
-
-    let draggingIndex = -1;
-
-    containerElement.addEventListener("dragstart", (e) => {
-      const handle = e.target.closest(handleSelector);
-      if (!handle) return;
-      if (e.target.closest("input, textarea, select, button, [contenteditable='true']")) {
-        if (e.dataTransfer) e.dataTransfer.effectAllowed = "none";
-        e.preventDefault();
-        return;
-      }
-      const tr = handle.closest(rowSelector);
-      if (!tr) return;
-      draggingIndex = Number(tr.getAttribute(indexAttr));
-      if (Number.isNaN(draggingIndex) || draggingIndex < 0) {
-        draggingIndex = -1;
-        return;
-      }
-      
-      tr.classList.add(dragClass);
-      if (e.dataTransfer) {
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", String(draggingIndex));
-        if (typeof e.dataTransfer.setDragImage === "function") {
-          e.dataTransfer.setDragImage(tr, 24, 12);
-        }
-      }
-    });
-
-    containerElement.addEventListener("dragover", (e) => {
-      if (draggingIndex < 0) return;
-      const tr = e.target.closest(rowSelector);
-      if (!tr) return;
-      e.preventDefault();
-      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
-      tr.classList.add(dragOverClass);
-    });
-
-    containerElement.addEventListener("dragleave", (e) => {
-      const tr = e.target.closest(rowSelector);
-      if (tr) tr.classList.remove(dragOverClass);
-    });
-
-    containerElement.addEventListener("drop", (e) => {
-      const tr = e.target.closest(rowSelector);
-      if (!tr || draggingIndex < 0) return;
-      e.preventDefault();
-      tr.classList.remove(dragOverClass);
-      
-      const toIndex = Number(tr.getAttribute(indexAttr));
-      if (!Number.isNaN(toIndex) && toIndex >= 0 && draggingIndex !== toIndex) {
-        if (typeof onDrop === "function") onDrop(draggingIndex, toIndex);
-      }
-      draggingIndex = -1;
-    });
-
-    containerElement.addEventListener("dragend", () => {
-      draggingIndex = -1;
-      containerElement.querySelectorAll(`.${dragClass}`).forEach(n => n.classList.remove(dragClass));
-      containerElement.querySelectorAll(`.${dragOverClass}`).forEach(n => n.classList.remove(dragOverClass));
-    });
-  }
-
-  // --- Original Nechronica Specific ---
-  function normalizeTimingText(timing) { return String(timing || "").trim(); }
-  function isRepeatableTiming(timing) { return REPEATABLE_TIMINGS.has(normalizeTimingText(timing)); }
-  function canUseUsedStatusForTiming(timing) { return !isRepeatableTiming(timing); }
-  function canUseUsedStatusForManeuver(maneuver) { return canUseUsedStatusForTiming(maneuver && maneuver.timing); }
 
   async function writeClipboardText(text) {
     const value = String(text == null ? "" : text);
-    if (typeof navigator !== "undefined" && navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    if (
+      typeof navigator !== "undefined" &&
+      navigator.clipboard &&
+      typeof navigator.clipboard.writeText === "function"
+    ) {
       await navigator.clipboard.writeText(value);
       return;
+    }
+    if (typeof document === "undefined") {
+      throw new Error("clipboard unavailable");
     }
     const ta = document.createElement("textarea");
     ta.value = value;
@@ -249,7 +66,16 @@
     if (typeof document === "undefined") return;
     const text = String(message || "").trim();
     if (!text) return;
-    const { id = "copyToast", className = "copy-toast", kind = "info", errorClass = "is-error", showClass = "is-show", duration = 1800 } = opts || {};
+
+    const {
+      id = "copyToast",
+      className = "copy-toast",
+      kind = "info",
+      errorClass = "is-error",
+      showClass = "is-show",
+      duration = 1800,
+    } = opts || {};
+
     let toast = document.getElementById(id);
     if (!toast) {
       toast = document.createElement("div");
@@ -257,15 +83,25 @@
       toast.className = className;
       document.body.appendChild(toast);
     }
+
+    // すでに表示中の場合は一度クラスを消して再表示（アニメーションのリセット）
     toast.classList.remove(showClass);
-    void toast.offsetWidth;
+    void toast.offsetWidth; // reflow
+
     toast.textContent = text;
-    toast.className = className;
+    toast.className = className; // クラスをリセット
     if (kind === "error") toast.classList.add(errorClass);
+
     toast.classList.add(showClass);
+
     const prevTimer = toastTimers.get(id);
     if (prevTimer) clearTimeout(prevTimer);
-    const timer = setTimeout(() => { toast.classList.remove(showClass); toastTimers.delete(id); }, duration);
+
+    const timer = setTimeout(() => {
+      toast.classList.remove(showClass);
+      toastTimers.delete(id);
+    }, duration);
+
     toastTimers.set(id, timer);
   }
 
@@ -279,33 +115,242 @@
   }
 
   function requestSaveAsName(currentName = "", opts = {}) {
-    if (typeof window === "undefined" || typeof window.prompt !== "function") return null;
-    const promptText = String((opts && opts.promptText) || getMessage("saveAsPrompt")).trim() || "別名保存する名前を入力してください";
-    let defaultName = String((opts && opts.defaultName) != null ? opts.defaultName : String(currentName || "").trim());
+    if (typeof window === "undefined" || typeof window.prompt !== "function") {
+      return null;
+    }
+    const promptText =
+      String((opts && opts.promptText) || getMessage("saveAsPrompt")).trim() ||
+      "別名保存する名前を入力してください";
+    let defaultName = String(
+      (opts && opts.defaultName) != null
+        ? opts.defaultName
+        : String(currentName || "").trim(),
+    );
     while (true) {
       const raw = window.prompt(promptText, defaultName);
       if (raw == null) return null;
       const name = String(raw || "").trim();
       if (name) return name;
-      if (typeof window.alert === "function") window.alert(getMessage("saveAsNameRequired"));
+      if (typeof window.alert === "function") {
+        window.alert(getMessage("saveAsNameRequired"));
+      }
       defaultName = "";
     }
   }
 
+  function ensureSharedChoiceModalStyle() {
+    if (typeof document === "undefined") return;
+    if (document.getElementById("sharedChoiceModalStyle")) return;
+    const style = document.createElement("style");
+    style.id = "sharedChoiceModalStyle";
+    style.textContent = `
+      .shared-choice-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.58);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 11000;
+        padding: 16px;
+      }
+      .shared-choice-modal {
+        width: min(560px, calc(100vw - 24px));
+        border-radius: 12px;
+        background: #191b22;
+        color: #f3f4f8;
+        border: 1px solid rgba(255,255,255,0.16);
+        box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+        padding: 16px;
+      }
+      .shared-choice-modal-title {
+        margin: 0 0 8px;
+        font-size: 1.05rem;
+        font-weight: 700;
+      }
+      .shared-choice-modal-message {
+        margin: 0;
+        color: #d8dcef;
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+      .shared-choice-modal-actions {
+        margin-top: 14px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .shared-choice-modal-btn {
+        appearance: none;
+        border: 1px solid rgba(255,255,255,0.25);
+        background: #2a2f3d;
+        color: #f3f4f8;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font: inherit;
+        cursor: pointer;
+      }
+      .shared-choice-modal-btn:hover {
+        filter: brightness(1.1);
+      }
+      .shared-choice-modal-btn.is-main {
+        background: #3f6cff;
+        border-color: #5f85ff;
+      }
+      .shared-choice-modal-btn.is-sub {
+        background: #2f5b4b;
+        border-color: #4f8f77;
+      }
+      .shared-choice-modal-btn.is-muted {
+        background: #2a2f3d;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function openChoiceModal({
+    title = "確認",
+    message = "",
+    choices = [],
+    cancelValue = "cancel",
+  } = {}) {
+    if (typeof document === "undefined") {
+      return Promise.resolve(cancelValue);
+    }
+    ensureSharedChoiceModalStyle();
+    return new Promise((resolve) => {
+      const overlay = document.createElement("div");
+      overlay.className = "shared-choice-modal-overlay";
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+
+      const box = document.createElement("div");
+      box.className = "shared-choice-modal";
+
+      const h = document.createElement("h3");
+      h.className = "shared-choice-modal-title";
+      h.textContent = String(title || "確認");
+
+      const p = document.createElement("p");
+      p.className = "shared-choice-modal-message";
+      p.textContent = String(message || "");
+
+      const actions = document.createElement("div");
+      actions.className = "shared-choice-modal-actions";
+
+      const done = (value) => {
+        document.removeEventListener("keydown", onEsc, true);
+        overlay.remove();
+        resolve(value);
+      };
+
+      const onEsc = (event) => {
+        if (event.key !== "Escape") return;
+        event.preventDefault();
+        done(cancelValue);
+      };
+
+      document.addEventListener("keydown", onEsc, true);
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) done(cancelValue);
+      });
+
+      choices.forEach((choice, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className =
+          `shared-choice-modal-btn ${choice && choice.className ? choice.className : ""}`.trim();
+        btn.textContent = String((choice && choice.label) || "選択");
+        btn.addEventListener("click", () =>
+          done((choice && choice.value) || cancelValue),
+        );
+        actions.appendChild(btn);
+        if (idx === 0) {
+          setTimeout(() => {
+            try {
+              btn.focus();
+            } catch (_e) {}
+          }, 0);
+        }
+      });
+
+      box.appendChild(h);
+      box.appendChild(p);
+      box.appendChild(actions);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+    });
+  }
+
   async function requestSaveAsSameNameAction(_currentName = "", opts = {}) {
-    const promptText = String((opts && opts.promptText) || getMessage("saveAsSameNameConfirm")) || "別名保存なのに同じ名前だけど保存しちゃっていい？";
+    if (typeof document !== "undefined") {
+      const text = String(
+        (opts && opts.promptText) || getMessage("saveAsSameNameConfirm"),
+      );
+      return openChoiceModal({
+        title: "別名保存の確認",
+        message: text,
+        cancelValue: "cancel",
+        choices: [
+          {
+            value: "save",
+            label: getMessage("saveAsSameNameOptionSave"),
+            className: "is-main",
+          },
+          {
+            value: "cancel",
+            label: getMessage("saveAsSameNameOptionCancel"),
+            className: "is-muted",
+          },
+          {
+            value: "copy",
+            label: getMessage("saveAsSameNameOptionCopy"),
+            className: "is-sub",
+          },
+        ],
+      });
+    }
+    if (typeof window === "undefined" || typeof window.prompt !== "function") {
+      return "cancel";
+    }
+    const promptText =
+      String(
+        (opts && opts.promptText) || getMessage("saveAsSameNameConfirm"),
+      ) || "別名保存なのに同じ名前だけど保存しちゃっていい？";
+    const defaultChoice = String((opts && opts.defaultChoice) || "2");
     while (true) {
-      const raw = window.prompt(promptText, "2");
+      const raw = window.prompt(promptText, defaultChoice);
       if (raw == null) return "cancel";
-      const choice = String(raw || "").trim().toLowerCase();
-      if (choice === "1" || choice === "save" || choice === "そのまま保存") return "save";
-      if (choice === "2" || choice === "cancel" || choice === "やめる") return "cancel";
-      if (choice === "3" || choice === "copy" || choice === "コピー" || choice === "コピー名で保存") return "copy";
-      window.alert(getMessage("saveAsSameNameChoiceInvalid"));
+      const choice = String(raw || "")
+        .trim()
+        .toLowerCase();
+      if (choice === "1" || choice === "save" || choice === "そのまま保存") {
+        return "save";
+      }
+      if (choice === "2" || choice === "cancel" || choice === "やめる") {
+        return "cancel";
+      }
+      if (
+        choice === "3" ||
+        choice === "copy" ||
+        choice === "コピー" ||
+        choice === "コピー名で保存"
+      ) {
+        return "copy";
+      }
+      if (typeof window.alert === "function") {
+        window.alert(getMessage("saveAsSameNameChoiceInvalid"));
+      }
     }
   }
 
-  function resolveReportCheckedOnDamageTransition(prevStatus, nextStatus, currentChecked, damageToken) {
+  function resolveReportCheckedOnDamageTransition(
+    prevStatus,
+    nextStatus,
+    currentChecked,
+    damageToken,
+  ) {
     const damaged = String(damageToken || "損傷");
     const prev = String(prevStatus || "");
     const next = String(nextStatus || "");
@@ -322,20 +367,39 @@
       const v = String(localStorage.getItem(key) || "").trim();
       if (forbidSystem && v === "system") return "";
       return v;
-    } catch (_e) { return ""; }
+    } catch (_e) {
+      return "";
+    }
   }
 
   function rememberAuthorToStorage(storageKey, name) {
     const key = String(storageKey || "").trim();
     if (!key) return;
-    try { localStorage.setItem(key, String(name || "").trim()); } catch (_e) {}
+    try {
+      localStorage.setItem(key, String(name || "").trim());
+    } catch (_e) {}
   }
 
-  function canViewEnemyByVisibility({ isPublic, enemyAuthor, myAuthor, enemyId = "", selectedId = "", allowSelectedFallback = false } = {}) {
+  function canViewEnemyByVisibility({
+    isPublic,
+    enemyAuthor,
+    myAuthor,
+    enemyId = "",
+    selectedId = "",
+    allowSelectedFallback = false,
+  } = {}) {
     if (isPublic === true) return true;
-    const mine = String(myAuthor || "").trim() !== "" && String(enemyAuthor || "") === String(myAuthor || "");
+    const mine =
+      String(myAuthor || "").trim() !== "" &&
+      String(enemyAuthor || "") === String(myAuthor || "");
     if (mine) return true;
-    if (allowSelectedFallback && String(enemyId || "") !== "" && String(enemyId || "") === String(selectedId || "")) return true;
+    if (
+      allowSelectedFallback &&
+      String(enemyId || "") !== "" &&
+      String(enemyId || "") === String(selectedId || "")
+    ) {
+      return true;
+    }
     return false;
   }
 
@@ -350,7 +414,6 @@
   }
 
   const shared = {
-    // Nechronica Core
     normalizeTimingText,
     isRepeatableTiming,
     canUseUsedStatusForTiming,
@@ -365,20 +428,11 @@
     getRememberedAuthorFromStorage,
     rememberAuthorToStorage,
     saveFile,
-    // Universal Core
-    nowText,
-    formatShortDate,
-    escapeHtml,
-    deepClone,
-    toInt,
-    getConfiguredApiUrl,
-    buildApiUrl,
-    fetchApiJson,
-    showRestoreDialog,
-    moveArrayElement,
-    bindTableDragAndDrop
   };
 
-  globalScope.EnemiesShared = Object.assign({}, globalScope.EnemiesShared || {}, shared);
-  globalScope.NechronicaShared = globalScope.EnemiesShared; // 互換性維持
+  globalScope.NechronicaShared = Object.assign(
+    {},
+    globalScope.NechronicaShared || {},
+    shared,
+  );
 })(typeof window !== "undefined" ? window : globalThis);
