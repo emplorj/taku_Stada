@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
-  <title>ネクロニカ 手駒管理</title>
-  <meta property="og:title" content="ネクロニカ 手駒管理 - 卓スタダ">
+  <title>ネクロニカ 手駒ツール</title>
+  <meta property="og:title" content="ネクロニカ 手駒ツール - 卓スタダ">
   <meta property="og:description" content="nechronica_enemies シート向けの一覧・詳細編集UI（Web側モック）">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -18,7 +18,7 @@
 
   <main class="main-content nechronica-main">
     <header class="nechronica-header">
-      <h1>ネクロニカ 手駒管理</h1>
+      <h1>ネクロニカ 手駒ツール</h1>
       <p class="subtitle">一覧表示 + 詳細編集（DB保存）</p>
     </header>
 
@@ -33,16 +33,18 @@
       <section class="editor-pane" id="editorTabPanel" role="tabpanel" aria-labelledby="editorTabButton">
         <div class="pane-header">
           <h2>詳細編集</h2>
-          <div class="koma-json-actions">
-            <button id="exportKomaJsonButton" type="button" class="small-square-btn"><i
-                class="fa-solid fa-dice-d20"></i>
-              コマ出力</button>
-            <div class="koma-import-inline">
-              <input id="komaJsonInput" type="text" placeholder='{"kind":"character","data":{"name":"……'
-                aria-label="ココフォリア駒JSONを貼り付けてインポート">
-            </div>
-            <p class="koma-import-help">※ココフォリアの駒JSONを貼り付けると、現在の手駒へインポートされます。</p>
-          </div>
+        </div>
+
+        <!-- コマ連携アクション行 -->
+        <div class="koma-action-row">
+          <button id="exportKomaJsonButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-dice-d20"></i>
+            コマ出力</button>
+          <label class="koma-import-inline" for="komaJsonInput">
+            <span class="import-json-label"><i class="fa-solid fa-file-import"></i> 駒インポート</span>
+            <input id="komaJsonInput" type="text" placeholder='{"kind":"character","data":{"name":"……"'
+              aria-label="ココフォリア駒JSONを貼り付けてインポート">
+          </label>
+          <span class="koma-import-help">※ココフォリアの駒JSONを貼り付けると、現在の手駒へインポートされます。</span>
         </div>
 
         <section class="editor-action-bar">
@@ -63,8 +65,8 @@
             <div class="action-bar-meta" aria-label="メタ情報">
               <label class="action-meta-field"><span class="field-label">作者</span><input id="field-author" type="text"
                   placeholder="例: エンJ"></label>
-              <label class="action-meta-field is-icon"><span class="field-label">アイコンURL</span><input
-                  id="field-icon-url" type="url" placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
+              <label class="action-meta-field is-icon"><span class="field-label">立ち絵URL</span><input id="field-icon-url"
+                  type="url" placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
               <label class="public-switch-label">
                 <span class="public-switch-wrap">
                   <input id="field-is-public" class="switch" type="checkbox" checked>

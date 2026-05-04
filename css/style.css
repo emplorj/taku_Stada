@@ -180,7 +180,7 @@ h1 {
   padding-left: 0 !important;
 }
 .menu-logo {
-  max-width: 100%;
+  max-width: 82%;
   height: auto;
 }
 
@@ -334,8 +334,8 @@ nav.side-menu li {
   display: block; /* クリック範囲を広げる */
   display: flex; /* 1. Flexboxを有効にして、中の要素（アイコンとテキスト）を横並びに */
   align-items: center; /* 2. アイコンとテキストを垂直方向の中央に揃える */
-  padding: 2px 5px; /* 縦のパディングを少し戻す */
-  line-height: 1.2; /* 行間を少し広げる */
+  padding: 1px 5px; /* 縦方向を少し詰める */
+  line-height: 1.15; /* 行間をやや圧縮 */
 }
 .menu-icon {
   height: 1.2em; /* 高さを文字サイズに合わせる (お好みで調整) */
@@ -1522,10 +1522,10 @@ body.no-scroll {
   font-size: 1em; /* ヘッダーのフォントサイズを1emに */
 
   /* 文字位置と背景色の調整 */
-  padding-top: 6px; /* 文字を下にずらす */
-  padding-bottom: 3px;
+  padding-top: 4px;
+  padding-bottom: 2px;
   background-color: #244065; /* ホバー色(#3498db)と区別するための暗めの青 */
-  margin-bottom: 2px;
+  margin-bottom: 1px;
   border-radius: 4px;
 }
 
@@ -1575,6 +1575,8 @@ body.no-scroll {
 .side-menu .submenu li a {
   font-size: 0.9em; /* サブメニューのフォントサイズを0.9emに */
   color: #9ab5d9;
+  padding-top: 1px;
+  padding-bottom: 1px;
 }
 /* ==========================================================================
    22. Swiper スライダー調整 (CoC_Q&A.html)

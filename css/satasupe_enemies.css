@@ -693,6 +693,32 @@
   flex-wrap: wrap;
 }
 
+.koma-action-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.8rem;
+  margin-bottom: 0.6rem;
+  padding: 0.4rem 0.6rem;
+  background: linear-gradient(180deg, #302016 0%, #1e130d 100%);
+  border: 1px solid #7d5a3c;
+  border-radius: 4px;
+}
+
+.koma-import-help {
+  font-size: 0.68rem;
+  color: #a49688;
+  margin: 0;
+  white-space: nowrap;
+}
+
+@container mainlayout (max-width: 1000px) {
+  .koma-import-help {
+    flex: 1 1 100%;
+    white-space: normal;
+  }
+}
+
 .editor-action-bar {
   justify-content: flex-start;
   padding: 0.8rem 1rem;
@@ -837,8 +863,16 @@
 
 .import-json-inline {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
+  gap: 0.35rem;
+}
+
+.import-json-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #cfb384;
+  white-space: nowrap;
 }
 
 #importJsonInput {

@@ -1298,7 +1298,6 @@
       is_public: !!sheet.is_public,
       memo: String(sheet.memo || ""),
       data: {
-        system: "satasupe",
         sheet: cleanSheet,
       },
       icon_url: "",
@@ -1351,11 +1350,7 @@
       const classType = String(
         (enemy && enemy.category) || (enemy && enemy.class_type) || "",
       ).trim();
-      const system =
-        enemy && enemy.data && typeof enemy.data === "object"
-          ? String(enemy.data.system || "").trim()
-          : "";
-      return classType === "サタスペ" || system === "satasupe";
+      return classType === "サタスペ";
     });
     state.sheets = targets.map((enemy) => fromApiEnemy(enemy));
     localUnsavedSheetIds.clear();

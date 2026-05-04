@@ -2,6 +2,8 @@
   const AUTHOR_STORAGE_KEY = "ar2eEnemiesAuthor";
   const API_STORAGE_KEY = "ar2eEnemiesApiUrl";
   const LAST_SELECTED_ID_KEY = "ar2eEnemiesLastSelectedId";
+  const DRAFT_STORAGE_KEY = "ar2eEnemiesDraft";
+  const DRAFT_PROMPTED_KEY = "ar2eEnemiesDraftPrompted";
   const DEFAULT_GAS_WEB_APP_URL =
     "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
 
@@ -52,6 +54,8 @@
     newEnemyButton: document.getElementById("newEnemyButton"),
     saveEnemyButton: document.getElementById("saveEnemyButton"),
     saveAsEnemyButton: document.getElementById("saveAsEnemyButton"),
+    exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
+    komaExportModeSelect: document.getElementById("komaExportModeSelect"),
     deleteEnemyButton: document.getElementById("deleteEnemyButton"),
     reloadEnemyListButton: document.getElementById("reloadEnemyListButton"),
     importJsonInput: document.getElementById("importJsonInput"),
@@ -69,9 +73,52 @@
     enemyPrevButton: document.getElementById("enemyPrevButton"),
     enemyNextButton: document.getElementById("enemyNextButton"),
     enemyPagerInfo: document.getElementById("enemyPagerInfo"),
+    ar2eSkillNameList: document.getElementById("ar2eSkillNameList"),
   };
 
+  const skillNameMaster = [];
+  const skillMasterByName = new Map();
+  const skillExpandByName = new Map();
+
   const ABILITY_KEYS =["str", "dex", "agi", "int", "sen", "mnd", "luk"];
+  const shared =
+    (typeof window !== "undefined" && window.NechronicaShared) || {};
+
+  function requestSaveAsName(currentName = "") {
+    if (typeof shared.requestSaveAsName === "function") {
+      return shared.requestSaveAsName(currentName);
+    }
+    const v = window.prompt(
+      "別名保存する名前を入力してください",
+      String(currentName || "").trim(),
+    );
+    return v == null ? null : String(v).trim();
+  }
+
+  async function requestSaveAsSameNameAction(currentName = "") {
+    if (typeof shared.requestSaveAsSameNameAction === "function") {
+      return shared.requestSaveAsSameNameAction(currentName);
+    }
+    return "save";
+  }
+
+  function buildCopiedName(name) {
+    const raw = String(name || "").trim() || "無題";
+    return raw.includes("（コピー）") ? raw : `${raw}（コピー）`;
+  }
+
+  function isUnsavedEnemy(enemy) {
+    if (!enemy) return true;
+    const id = String(enemy.ID || "");
+    return !id || id.startsWith("new_") || id.startsWith("tmp-") || localUnsavedEnemyIds.has(id);
+  }
+
+  function setSaveButtonLabelByEnemy(enemy) {
+    if (!el.saveEnemyButton) return;
+    const icon = '<i class="fa-solid fa-cloud-arrow-up"></i>';
+    const text = isUnsavedEnemy(enemy) ? "新規保存" : "上書き保存";
+    el.saveEnemyButton.innerHTML = `${icon} ${text}`;
+  }
 
   function applyNumericFontClasses() {
     const targets = document.querySelectorAll([
@@ -205,6 +252,60 @@
   function markDirty() {
     state.dirty = true;
     setStatus("未保存");
+    saveDraftSnapshotFromCurrent();
+  }
+
+  function clearDraftSnapshot() {
+    try {
+      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+      sessionStorage.removeItem(DRAFT_PROMPTED_KEY);
+    } catch (_e) {}
+  }
+
+  function saveDraftSnapshotFromCurrent() {
+    try {
+      const current = getSelectedEnemy();
+      if (!current) return;
+      readFormToCurrentEnemy();
+      const payload = {
+        selectedId: String(current.ID || ""),
+        enemy: deepClone(current),
+        savedAt: Date.now(),
+      };
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+      sessionStorage.removeItem(DRAFT_PROMPTED_KEY);
+    } catch (_e) {}
+  }
+
+  function restoreDraftIfNeededOnce() {
+    try {
+      const prompted = sessionStorage.getItem(DRAFT_PROMPTED_KEY);
+      if (prompted === "1") return;
+
+      const raw = sessionStorage.getItem(DRAFT_STORAGE_KEY) || "";
+      if (!raw) return;
+      sessionStorage.setItem(DRAFT_PROMPTED_KEY, "1");
+
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || !parsed.enemy) return;
+
+      const ok = window.confirm("さっきやってたやつまた戻す？");
+      if (!ok) return;
+
+      const restored = parsed.enemy;
+      const rid = String(restored.ID || parsed.selectedId || `tmp_${Date.now()}`);
+      restored.ID = rid;
+
+      const idx = state.enemies.findIndex((x) => String(x.ID) === rid);
+      if (idx >= 0) state.enemies[idx] = restored;
+      else state.enemies.unshift(restored);
+
+      state.selectedId = rid;
+      fillFormFromEnemy(restored);
+      state.dirty = true;
+      setStatus("未保存（復元）");
+      renderEnemyList();
+    } catch (_e) {}
   }
 
   function getByPath(obj, path) {
@@ -228,7 +329,18 @@
     cur[segs[segs.length - 1]] = value;
   }
 
-  function createEnemyTemplate() {
+  function moveRowByIndex(list, fromIndex, toIndex) {
+    if (!Array.isArray(list)) return false;
+    if (fromIndex === toIndex) return false;
+    if (fromIndex < 0 || toIndex < 0) return false;
+    if (fromIndex >= list.length || toIndex >= list.length) return false;
+    const [row] = list.splice(fromIndex, 1);
+    list.splice(toIndex, 0, row);
+    return true;
+  }
+
+  function createEnemyTemplate(options = {}) {
+    const { auto = false } = options || {};
     return {
       ID: `new_${Date.now()}`,
       author: getRememberedAuthor(),
@@ -236,9 +348,10 @@
       class_type: "general",
       is_public: true,
       memo: "",
-      data: { system: "ar2e", sheet: {} },
+      data: { sheet: {} },
       icon_url: "",
       time: nowText(),
+      _autoTemplate: !!auto,
     };
   }
 
@@ -265,7 +378,6 @@
     current.memo = String(sheet.memo || "");
     current.icon_url = String(getByPath(sheet, "meta.imageUrl") || "").trim();
     current.data = {
-      system: "ar2e",
       sheet,
       skills: deepClone(state.skills),
       dropItems: deepClone(state.dropItems),
@@ -288,12 +400,20 @@
       if (key === "memo") value = enemy.memo || value;
       if (key === "meta.imageUrl") value = enemy.icon_url || value;
       if (key === "isPublic") value = enemy.is_public;
+
+      // 保存データに値がない場合は、HTML側の初期値（value属性）を優先する
+      if (value == null || value === "") {
+        const attrVal = node.getAttribute("value");
+        if (attrVal != null) value = attrVal;
+      }
+
       if (node.type === "checkbox") node.checked = !!value;
       else node.value = value == null ? "" : String(value);
     });
     if (el.fieldIsPublicText) {
       el.fieldIsPublicText.textContent = enemy.is_public ? "公開" : "非公開";
     }
+    setSaveButtonLabelByEnemy(enemy);
     state.skills = Array.isArray(enemy?.data?.skills) ? deepClone(enemy.data.skills) : [createEmptySkill()];
     state.dropItems = Array.isArray(enemy?.data?.dropItems) ? deepClone(enemy.data.dropItems) : [createEmptyDropItem()];
     state.attackMethods = Array.isArray(enemy?.data?.attackMethods)
@@ -308,6 +428,7 @@
     renderAttackMethods();
     state.dirty = false;
     setStatus("保存済み");
+    clearDraftSnapshot();
     saveLastSelectedId(enemy.ID);
   }
 
@@ -320,7 +441,7 @@
       class_type: String(e.class_type || "general").trim() || "general",
       is_public: !!e.is_public,
       memo: String(e.memo || ""),
-      data: e.data && typeof e.data === "object" ? e.data : { system: "ar2e", sheet: {} },
+      data: e.data && typeof e.data === "object" ? e.data : { sheet: {} },
       icon_url: String(e.icon_url || "").trim(),
       time: String(e.time || nowText()),
     };
@@ -335,7 +456,7 @@
       class_type: ["general", "mob"].includes(String(e.class_type || "")) ? String(e.class_type) : "general",
       is_public: !!e.is_public,
       memo: String(e.memo || ""),
-      data: e.data && typeof e.data === "object" ? e.data : { system: "ar2e", sheet: {} },
+      data: e.data && typeof e.data === "object" ? e.data : { sheet: {} },
       icon_url: String(e.icon_url || "").trim(),
       time: String(e.time || nowText()),
     };
@@ -352,10 +473,9 @@
     if (!el.enemyList) return;
     const q = String(state.search || "").trim().toLowerCase();
     const field = String(state.searchField || "all");
-    const mine = getRememberedAuthor();
     let list = state.enemies.filter((e) => {
-      const isMine = mine && String(e.author || "") === mine;
-      if (!e.is_public && !isMine) return false;
+      if (isUnsavedEnemy(e)) return false;
+      if (!e.is_public) return false;
       if (!q) return true;
       const targets = {
         id: String(e.ID || "").toLowerCase(),
@@ -422,7 +542,7 @@
     const rows = Array.isArray(response.data) ? response.data : [];
     state.enemies = rows.map(fromApiEnemy);
     if (!state.enemies.length) {
-      const fresh = createEnemyTemplate();
+      const fresh = createEnemyTemplate({ auto: true });
       state.enemies = [fresh];
       localUnsavedEnemyIds.add(String(fresh.ID));
     }
@@ -430,8 +550,10 @@
     state.selectedId = state.enemies.some((e) => String(e.ID) === lastId)
       ? lastId
       : state.enemies[0].ID;
-    fillFormFromEnemy(getSelectedEnemy());
+    const selected = getSelectedEnemy();
+    fillFormFromEnemy(selected);
     renderEnemyList();
+    setStatus(isUnsavedEnemy(selected) ? "未保存" : "保存済み");
   }
 
   async function saveCurrentToDb() {
@@ -470,7 +592,7 @@
     state.enemies = state.enemies.filter((e) => String(e.ID) !== String(current.ID));
     localUnsavedEnemyIds.delete(String(current.ID));
     if (!state.enemies.length) {
-      const fresh = createEnemyTemplate();
+      const fresh = createEnemyTemplate({ auto: true });
       state.enemies = [fresh];
       localUnsavedEnemyIds.add(String(fresh.ID));
     }
@@ -481,7 +603,7 @@
 
   function createNewEnemy() {
     readFormToCurrentEnemy();
-    const fresh = createEnemyTemplate();
+    const fresh = createEnemyTemplate({ auto: false });
     state.enemies.unshift(fresh);
     localUnsavedEnemyIds.add(String(fresh.ID));
     state.selectedId = fresh.ID;
@@ -554,10 +676,270 @@
       target: "",
       range: "",
       cost: "",
-      hitDice: "",
-      damageDice: "",
+      hitDice: "2D",
+      damageDice: "2D+0",
       effect: ""
     };
+  }
+
+  function normalizeSkillName(rawName) {
+    let name = String(rawName == null ? "" : rawName).trim();
+    if (!name) return "";
+    name = name.replace(/^《+|》+$/g, "").trim();
+    name = name.replace(/^[<＜]+|[>＞]+$/g, "").trim();
+    name = name.replace(/[\s　]+Lv(?:\[[^\]]*\])?$/i, "").trim();
+    if (name === "ニ回行動") name = "二回行動";
+    return name;
+  }
+
+  function formatSkillNameWithBrackets(rawName) {
+    const core = normalizeSkillName(rawName);
+    return core ? `《${core}》` : "";
+  }
+
+  function normalizeSkillNameAndLevel(skill) {
+    if (!skill || typeof skill !== "object") return;
+    const raw = String(skill.name == null ? "" : skill.name);
+    const hasLvSuffix = /[\s　]+Lv(?:\[[^\]]*\])?$/i.test(raw.trim());
+    if (hasLvSuffix && String(skill.sl || "").trim() === "") {
+      skill.sl = "1";
+    }
+  }
+
+  function parseSkillLevelCapFromName(rawName) {
+    const raw = String(rawName || "").trim();
+    if (!raw) return null;
+    const lvRange = raw.match(/Lv\s*\[\s*1\s*-\s*(\d+)\s*\]/i);
+    if (lvRange) return Math.max(1, toInt(lvRange[1], 1));
+    if (/\bLv\b/i.test(raw)) return null;
+    return 1;
+  }
+
+  function normalizeSkillMasterEntry(raw) {
+    if (!raw) return null;
+    if (typeof raw === "string") {
+      const name = normalizeSkillName(raw);
+      return name ? { name } : null;
+    }
+    if (typeof raw !== "object") return null;
+    const name = normalizeSkillName(raw.name || raw.skillName || raw.title || "");
+    if (!name) return null;
+    const out = { name };
+    const fields = ["timing", "judge", "target", "range", "cost", "hitDice", "damageDice", "effect", "attribute"];
+    fields.forEach((k) => {
+      const v = raw[k];
+      if (v != null && String(v).trim() !== "") out[k] = String(v).trim();
+    });
+    if (raw.slMax != null && String(raw.slMax).trim() !== "") {
+      const n = toInt(raw.slMax, 0);
+      if (n > 0) out.slMax = n;
+    }
+    return out;
+  }
+
+  function applySkillNameMaster(entries) {
+    const normalizedEntries = (Array.isArray(entries) ? entries : [])
+      .map((row) => normalizeSkillMasterEntry(row))
+      .filter(Boolean);
+
+    skillMasterByName.clear();
+    normalizedEntries.forEach((entry) => {
+      if (!skillMasterByName.has(entry.name)) {
+        skillMasterByName.set(entry.name, entry);
+      }
+    });
+
+    const unique = Array.from(skillMasterByName.values())
+      .map((entry) => formatSkillNameWithBrackets(entry.name))
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b, "ja"));
+    skillNameMaster.splice(0, skillNameMaster.length, ...unique);
+    if (!el.ar2eSkillNameList) return;
+    el.ar2eSkillNameList.innerHTML = "";
+    skillNameMaster.forEach((name) => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      el.ar2eSkillNameList.appendChild(opt);
+    });
+  }
+
+  function parseCSV(text) {
+    const rows = [];
+    let row = [""];
+    let inQuote = false;
+    let i = 0;
+    for (let j = 0; j < text.length; j++) {
+      const char = text[j];
+      const next = text[j + 1];
+      if (inQuote && char === '"' && next === '"') {
+        row[i] += '"';
+        j++;
+      } else if (char === '"') {
+        inQuote = !inQuote;
+      } else if (char === "," && !inQuote) {
+        row[++i] = "";
+      } else if (char === "\n" && !inQuote) {
+        rows.push(row);
+        row = [""];
+        i = 0;
+      } else if (char !== "\r") {
+        row[i] += char;
+      }
+    }
+    if (row.length > 1 || row[0] !== "") rows.push(row);
+    return rows;
+  }
+
+  async function loadSkillNameMaster() {
+    if (!el.ar2eSkillNameList) return;
+
+    try {
+      const csvRes = await fetch("./AR2E_skillinfo.csv", { cache: "no-store" });
+      if (csvRes.ok) {
+        const text = await csvRes.text();
+        const rows = parseCSV(text);
+        const entries = [];
+        skillExpandByName.clear();
+        let inSuperMasterSection = false;
+        const blacklist = new Set(["HP", "MP", "SL", "SL+1", "SL*2", "SL×2", "P382", "CL", "CL+1"]);
+
+        const header = (rows[0] || []).map((v) => String(v || "").trim());
+        const findCol = (label) => header.findIndex((h) => h === label);
+        const col = {
+          name: findCol("名前"),
+          lv: findCol("Lv"),
+          timing: findCol("タイミング"),
+          effect: findCol("効果"),
+          cost: findCol("コスト"),
+          hit: findCol("命中(ダイス数)"),
+          damage: findCol("ダメージ(ダイス数)"),
+          range: findCol("射程"),
+          target: findCol("範囲"),
+          attribute: findCol("属性")
+        };
+        const pick = (cols, idx) => (idx >= 0 ? String(cols[idx] || "").trim() : "");
+        const toDiceFormula = (raw) => {
+          const v = String(raw || "").trim();
+          if (!v) return "";
+          if (/^\d+D(?:\+\d+)?$/i.test(v)) return v.toUpperCase();
+          if (/^\d+$/.test(v)) return `2D+${v}`;
+          return "";
+        };
+        const parseLvByColumn = (lvRaw, nameRaw) => {
+          const v = String(lvRaw || "").trim();
+          if (/^\[\s*1\s*-\s*(\d+)\s*\]$/i.test(v)) {
+            const m = v.match(/^\[\s*1\s*-\s*(\d+)\s*\]$/i);
+            return Math.max(1, toInt(m && m[1], 1));
+          }
+          if (/^TRUE$/i.test(v)) return null;
+          if (/^FALSE$/i.test(v)) return 1;
+          return parseSkillLevelCapFromName(nameRaw);
+        };
+
+        rows.forEach((cols, rowIndex) => {
+          if (rowIndex === 0) return; // Skip header row
+
+          const firstCol = String(cols[0] || "").trim();
+          if (firstCol.includes("スーパーマスター用")) {
+            inSuperMasterSection = true;
+            return;
+          }
+          if (inSuperMasterSection && firstCol === "クラス") return;
+          if (inSuperMasterSection) {
+            const superName = String(cols[1] || "").trim();
+            if (!superName) return;
+            const key = normalizeSkillName(superName);
+            if (!key) return;
+            const packed = cols.map((c) => String(c || "")).join("\n");
+            const breakdown = [];
+            const matches = packed.matchAll(/[《<＜]([^》>＞]+)[》>＞]/g);
+            for (const m of matches) {
+              const n = normalizeSkillName(m[1]);
+              if (n) breakdown.push(n);
+            }
+            if (breakdown.length) {
+              skillExpandByName.set(key, Array.from(new Set(breakdown)));
+            }
+            return;
+          }
+
+          // Extract all 《...》 from all columns (sub-skills)
+          cols.forEach(col => {
+            const matches = col.matchAll(/[《<＜]([^》>＞]+)[》>＞]/g);
+            for (const m of matches) {
+              const n = m[1].replace(/[\s　]+Lv(?:\[[^\]]*\])?$/i, "").trim();
+              if (n && !blacklist.has(n) && !/^[P0-9\-*+/]+$/.test(n)) {
+                entries.push({ name: `《${n}》` });
+              }
+            }
+          });
+
+          // Main skill row processing
+          const nameRaw = pick(cols, col.name >= 0 ? col.name : 1);
+          if (!nameRaw || nameRaw === "名前" || nameRaw === "内訳" || nameRaw.startsWith("スーパーマスター用")) return;
+
+          const n = nameRaw.replace(/《+|》+/g, "").replace(/[\s　]+Lv(?:\[[^\]]*\])?$/i, "").trim();
+          if (!n || blacklist.has(n) || /^[P0-9\-*+/]+$/.test(n)) return;
+
+          entries.push({
+            name: `《${n}》`,
+            timing: pick(cols, col.timing),
+            effect: pick(cols, col.effect),
+            cost: pick(cols, col.cost),
+            judge: "",
+            hitDice: toDiceFormula(pick(cols, col.hit)),
+            damageDice: toDiceFormula(pick(cols, col.damage)),
+            range: pick(cols, col.range),
+            target: pick(cols, col.target),
+            attribute: pick(cols, col.attribute),
+            slMax: parseLvByColumn(pick(cols, col.lv), nameRaw)
+          });
+        });
+
+        if (entries.length) {
+          applySkillNameMaster(entries);
+          return;
+        }
+      }
+    } catch (_e) {
+      console.error("Failed to load skill CSV:", _e);
+    }
+
+    applySkillNameMaster([]);
+  }
+
+  function applySkillMasterToSkill(skill, options = {}) {
+    if (!skill || typeof skill !== "object") return;
+    const force = !!options.force;
+    const name = normalizeSkillName(skill.name || "");
+    if (!name) return;
+    const master = skillMasterByName.get(name);
+    if (!master) return;
+    const fillIfEmpty = (key) => {
+      if (!(key in master)) return;
+      if (!force && String(skill[key] || "").trim() !== "") return;
+      skill[key] = master[key];
+    };
+    ["timing", "judge", "target", "range", "cost", "hitDice", "damageDice", "effect", "attribute"].forEach(fillIfEmpty);
+    if (master.slMax != null && !Number.isNaN(Number(master.slMax))) {
+      skill.slMax = Number(master.slMax);
+    }
+  }
+
+  function expandSkillByMasterName(nameRaw) {
+    const key = normalizeSkillName(nameRaw);
+    if (!key) return;
+    const list = skillExpandByName.get(key);
+    if (!Array.isArray(list) || !list.length) return;
+    const exists = new Set(state.skills.map((s) => normalizeSkillName(s && s.name ? s.name : "")).filter(Boolean));
+    list.forEach((skillName) => {
+      if (!skillName || exists.has(skillName)) return;
+      const row = createEmptySkill();
+      row.name = skillName;
+      applySkillMasterToSkill(row);
+      state.skills.push(row);
+      exists.add(skillName);
+    });
   }
 
   function createEmptyDropItem() {
@@ -599,8 +981,8 @@
         <td style="text-align:center;" data-label="">
           <input type="checkbox" data-key="isSecret" ${skill.isSecret ? "checked" : ""}>
         </td>
-        <td data-label="名前"><input type="text" data-key="name" value="${escapeHtml(skill.name)}" placeholder="名称"></td>
-        <td data-label="SL"><input type="number" data-key="sl" value="${escapeHtml(skill.sl)}" placeholder="1"></td>
+        <td data-label="名前"><input type="text" data-key="name" value="${escapeHtml(skill.name)}" placeholder="名称" list="ar2eSkillNameList"></td>
+        <td data-label="SL"><input type="number" data-key="sl" value="${escapeHtml(skill.sl)}" placeholder="1" ${skill.slMax ? `max="${escapeHtml(skill.slMax)}"` : ""}></td>
         <td data-label="タイミング"><input type="text" data-key="timing" value="${escapeHtml(skill.timing)}" placeholder="メジャー等" list="ar2eTimingList"></td>
         <td data-label="判定"><input type="text" data-key="judge" value="${escapeHtml(skill.judge)}" placeholder="自動成功"></td>
         <td data-label="対象"><input type="text" data-key="target" value="${escapeHtml(skill.target)}" list="ar2eTargetList" placeholder="単体"></td>
@@ -626,7 +1008,11 @@
         </td>
         <td data-label="効果"><input type="text" data-key="effect" value="${escapeHtml(skill.effect)}" placeholder="効果"></td>
         <td style="text-align:center;" data-label="">
-          <button type="button" class="delete-btn" title="削除"><i class="fa-solid fa-trash"></i></button>
+          <div class="row-action-wrap">
+            <button type="button" class="copy-row-btn" data-copy-kind="skill-line" data-index="${index}" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy"></i></button>
+            <button type="button" class="delete-btn" data-remove-kind="skills" data-index="${index}" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
+            <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
+          </div>
         </td>
       `;
       el.skillsBody.appendChild(tr);
@@ -653,14 +1039,22 @@
     state.dropItems.forEach((item, index) => {
       const tr = document.createElement("tr");
       tr.setAttribute("data-drop-index", index);
+      const qty = Number(item.quantity);
+      const unit = Number(String(item.unitPrice || "").replace(/[^0-9.-]/g, ""));
+      const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
       tr.innerHTML = `
         <td><input type="number" data-drop-key="min" value="${escapeHtml(item.min)}" placeholder="1"></td>
         <td><input type="number" data-drop-key="max" value="${escapeHtml(item.max)}" placeholder="5"></td>
         <td><input type="text" data-drop-key="name" value="${escapeHtml(item.name)}" placeholder="アイテム名"></td>
         <td><input type="text" data-drop-key="unitPrice" value="${escapeHtml(item.unitPrice)}" placeholder="100G"></td>
         <td><input type="number" data-drop-key="quantity" value="${escapeHtml(item.quantity || "1")}" min="1" step="1" class="num-2"></td>
-        <td style="text-align:center;">
-          <button type="button" class="delete-btn" data-drop-delete="1" title="削除"><i class="fa-solid fa-trash"></i></button>
+        <td><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2"></td>
+        <td style="text-align:center; white-space: nowrap;">
+          <div class="row-action-wrap">
+            <button type="button" class="copy-row-btn" data-copy-kind="drop-line" data-drop-copy="1" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy"></i></button>
+            <button type="button" class="delete-btn" data-remove-kind="dropItems" data-drop-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
+            <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
+          </div>
         </td>
       `;
       el.dropItemsBody.appendChild(tr);
@@ -701,7 +1095,13 @@
         </td>
         <td data-label="属性"><input type="text" data-atk-key="attribute" value="${escapeHtml(atk.attribute)}" list="ar2eAttributeList" placeholder="属性"></td>
         <td data-label="効果"><input type="text" data-atk-key="effect" value="${escapeHtml(atk.effect)}" placeholder="効果"></td>
-        <td style="text-align:center;" data-label=""><button type="button" class="delete-btn" data-atk-delete="1" title="削除"><i class="fa-solid fa-trash"></i></button></td>
+        <td style="text-align:center;" data-label="">
+          <div class="row-action-wrap">
+            <button type="button" class="copy-row-btn" data-copy-kind="attack-line" data-atk-copy="1" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy"></i></button>
+            <button type="button" class="delete-btn" data-remove-kind="attackMethods" data-atk-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
+            <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
+          </div>
+        </td>
       `;
       el.attackMethodsBody.appendChild(tr);
     });
@@ -814,6 +1214,142 @@
     return input ? String(input.value || "").trim() : "";
   }
 
+  function toInt(value, fallback = 0) {
+    const n = Number(String(value == null ? "" : value).trim());
+    return Number.isFinite(n) ? Math.trunc(n) : fallback;
+  }
+
+  function buildKomaCommandsForCurrentEnemy() {
+    const enemyType = el.enemyTypeSelect ? String(el.enemyTypeSelect.value || "general") : "general";
+    if (enemyType === "general") {
+      const labels = {
+        str: "筋力",
+        dex: "器用",
+        agi: "敏捷",
+        int: "知力",
+        sen: "感知",
+        mnd: "精神",
+        luk: "幸運",
+      };
+      return ABILITY_KEYS.map((key) => {
+        const baseInput = document.querySelector(`input[data-field="${key}"]`);
+        const derivedInput = document.querySelector(`input[data-derived="${key}"]`);
+        const base = baseInput ? String(baseInput.value || "0").trim() || "0" : "0";
+        const derived = derivedInput ? String(derivedInput.value || "0").trim() || "0" : "0";
+        return `${labels[key] || key} ${base} (判定値:${derived})`;
+      }).join("\n");
+    }
+
+    const evadeDice = formatDiceText(getFieldValue("evadeDice") || "2D+0");
+    const actionDice = formatDiceText(getFieldValue("mobActionJudge") || "2D+0");
+    const reactionDice = formatDiceText(getFieldValue("mobReactionJudge") || "2D+0");
+    const lines = [
+      `${evadeDice} 回避`,
+      `${actionDice} アクション判定`,
+      `${reactionDice} リアクション判定`,
+    ];
+
+    state.skills.forEach((skill) => {
+      const name = String(skill && skill.name ? skill.name : "").trim();
+      if (!name) return;
+      const hitDice = String(skill.hitDice || "").trim();
+      const damageDice = String(skill.damageDice || "").trim();
+      if (hitDice && hitDice !== "0D+0" && hitDice !== "0D") {
+        lines.push(`${formatDiceText(hitDice)} ${name} 命中`);
+      }
+      if (damageDice && damageDice !== "0D+0" && damageDice !== "0D") {
+        lines.push(`${formatDiceText(damageDice)} ${name} ダメージ`);
+      }
+    });
+
+    return lines.join("\n");
+  }
+
+  function buildKomaMemoByMode(mode) {
+    if (mode === "pre_identify") {
+      return "\n\n───\n---エネミー識別を使用してください---";
+    }
+    const lines = [];
+    state.skills.forEach((skill) => {
+      const name = String(skill && skill.name ? skill.name : "").trim();
+      if (!name) return;
+      const timing = String(skill.timing || "").trim();
+      const effect = String(skill.effect || "").trim();
+      const hitDice = String(skill.hitDice || "").trim();
+      const damageDice = String(skill.damageDice || "").trim();
+      const target = String(skill.target || "").trim();
+      const judge = String(skill.judge || "").trim();
+      const range = String(skill.range || "").trim();
+      const parts = [];
+      if (hitDice || damageDice || target || judge || range) {
+        parts.push(`${hitDice || "-"}/${damageDice || "-"}`);
+        parts.push(target || "-");
+        parts.push(judge || "-");
+        parts.push(range || "-");
+      }
+      const bracket = parts.length ? ` [${parts.join("/")}]` : "";
+      lines.push(`『${name}』(${timing || "パッシブ"}) ${effect}${bracket}`.trim());
+    });
+    const baseMemo = String(getFieldValue("memo") || "").trim();
+    const skillMemo = lines.join(" \n");
+    if (!baseMemo && !skillMemo) return "";
+    return `\n\n───\n${skillMemo}${baseMemo ? `\n${baseMemo}` : ""}`;
+  }
+
+  function buildKomaParamsByMode(mode) {
+    const level = getFieldValue("level");
+    const identification = getFieldValue("identification");
+    const movement = getFieldValue("movement");
+    const physDef = getFieldValue("physDef");
+    const magicDef = getFieldValue("magicDef");
+    const params = [
+      { label: "レベル", value: String(level || "") },
+      { label: "識別値", value: String(identification || "") },
+    ];
+    if (mode !== "post_identify") {
+      params.push({ label: "物理防御", value: String(physDef || "") });
+      params.push({ label: "魔法防御", value: String(magicDef || "") });
+    }
+    params.push({ label: "移動値", value: String(movement || "") });
+    return params;
+  }
+
+  function buildKomaCharacterJson(mode = "pre_identify") {
+    const name = String(getFieldValue("name") || "").trim() || "無題";
+    const hp = String(getFieldValue("hp") || "").trim() || "0";
+    const mp = String(getFieldValue("mp") || "").trim() || "0";
+    const initiative = toInt(getFieldValue("initiative"), 0);
+    return {
+      kind: "character",
+      data: {
+        name,
+        memo: buildKomaMemoByMode(mode),
+        initiative,
+        status: [
+          { label: "HP", value: hp, max: hp },
+          { label: "MP", value: mp, max: mp },
+        ],
+        params: buildKomaParamsByMode(mode),
+        commands: buildKomaCommandsForCurrentEnemy(),
+        ...(mode === "pre_identify" ? { secret: true } : {}),
+      },
+    };
+  }
+
+  async function exportKomaJsonByCurrentMode() {
+    const mode = el.komaExportModeSelect ? String(el.komaExportModeSelect.value || "pre_identify") : "pre_identify";
+    const jsonObj = buildKomaCharacterJson(mode);
+    const text = JSON.stringify(jsonObj);
+    if (typeof shared.writeClipboardText === "function") {
+      await shared.writeClipboardText(text);
+      if (typeof shared.showToast === "function") {
+        shared.showToast("コマJSONをコピーしました", { id: "ar2eKomaToast" });
+      }
+      return;
+    }
+    window.prompt("コマJSON（コピーしてください）", text);
+  }
+
   function updateAbilityDerived() {
     ABILITY_KEYS.forEach((key) => {
       const baseInput = document.querySelector(`input[data-field="${key}"]`);
@@ -918,6 +1454,10 @@
   }
 
   function bindEvents() {
+    document.querySelectorAll('input[data-derived]').forEach((node) => {
+      node.tabIndex = -1;
+    });
+
     // 行追加ボタン
     if (el.addSkillBtn) {
       el.addSkillBtn.addEventListener("click", () => {
@@ -928,6 +1468,49 @@
 
     // テーブル内の入力監視（即時反映）
     if (el.skillsBody) {
+      let draggingSkillIndex = -1;
+      el.skillsBody.addEventListener("dragstart", (e) => {
+        const handle = e.target.closest(".drag-hint");
+        if (!handle) return;
+        const tr = handle.closest("tr[data-index]");
+        if (!tr) return;
+        draggingSkillIndex = Number(tr.getAttribute("data-index"));
+        tr.classList.add("is-dragging");
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", String(draggingSkillIndex));
+          e.dataTransfer.setDragImage(tr, 24, 12);
+        }
+      });
+      el.skillsBody.addEventListener("dragover", (e) => {
+        if (draggingSkillIndex < 0) return;
+        const tr = e.target.closest("tr[data-index]");
+        if (!tr) return;
+        e.preventDefault();
+        tr.classList.add("is-drag-over");
+      });
+      el.skillsBody.addEventListener("dragleave", (e) => {
+        const tr = e.target.closest("tr[data-index]");
+        if (tr) tr.classList.remove("is-drag-over");
+      });
+      el.skillsBody.addEventListener("drop", (e) => {
+        const tr = e.target.closest("tr[data-index]");
+        if (!tr || draggingSkillIndex < 0) return;
+        e.preventDefault();
+        tr.classList.remove("is-drag-over");
+        const toIndex = Number(tr.getAttribute("data-index"));
+        if (moveRowByIndex(state.skills, draggingSkillIndex, toIndex)) {
+          renderSkills();
+          markDirty();
+        }
+        draggingSkillIndex = -1;
+      });
+      el.skillsBody.addEventListener("dragend", () => {
+        draggingSkillIndex = -1;
+        el.skillsBody.querySelectorAll("tr.is-dragging").forEach((row) => row.classList.remove("is-dragging"));
+        el.skillsBody.querySelectorAll("tr.is-drag-over").forEach((row) => row.classList.remove("is-drag-over"));
+      });
+
       el.skillsBody.addEventListener("input", (e) => {
         const target = e.target;
         const tr = target.closest("tr");
@@ -959,6 +1542,8 @@
             state.skills[index][key] = target.value;
           }
 
+          if (key === "name") return;
+
           if (key === "isSecret") {
             const isSecret = !!state.skills[index].isSecret;
             target.classList.toggle("is-secret-on", isSecret);
@@ -971,20 +1556,94 @@
         }
       });
 
+      el.skillsBody.addEventListener("change", (e) => {
+        const target = e.target;
+        const tr = target.closest("tr");
+        if (!tr) return;
+        const index = Number(tr.getAttribute("data-index"));
+        const key = target.getAttribute("data-key");
+        if (key !== "name" || !state.skills[index]) return;
+        state.skills[index].name = target.value;
+        normalizeSkillNameAndLevel(state.skills[index]);
+        applySkillMasterToSkill(state.skills[index], { force: true });
+        expandSkillByMasterName(state.skills[index].name);
+        renderSkills();
+        markDirty();
+      });
+
       // 削除ボタン
       el.skillsBody.addEventListener("click", (e) => {
-        const btn = e.target.closest(".delete-btn");
+        const copyBtn = e.target.closest("button[data-copy-kind='skill-line']");
+        if (copyBtn) {
+          const tr = copyBtn.closest("tr");
+          if (!tr) return;
+          const index = Number(tr.getAttribute("data-index"));
+          const src = state.skills[index];
+          if (!src) return;
+          const copied = deepClone(src);
+          copied.id = `skill_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+          state.skills.splice(index + 1, 0, copied);
+          renderSkills();
+          markDirty();
+          return;
+        }
+
+        const btn = e.target.closest("button[data-remove-kind='skills']");
         if (!btn) return;
         const tr = btn.closest("tr");
         if (!tr) return;
         const index = Number(tr.getAttribute("data-index"));
-        
+
         state.skills.splice(index, 1);
         renderSkills();
+        markDirty();
       });
     }
 
     if (el.dropItemsBody) {
+      let draggingDropIndex = -1;
+      el.dropItemsBody.addEventListener("dragstart", (e) => {
+        const handle = e.target.closest(".drag-hint");
+        if (!handle) return;
+        const tr = handle.closest("tr[data-drop-index]");
+        if (!tr) return;
+        draggingDropIndex = Number(tr.getAttribute("data-drop-index"));
+        tr.classList.add("is-dragging");
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", String(draggingDropIndex));
+          e.dataTransfer.setDragImage(tr, 24, 12);
+        }
+      });
+      el.dropItemsBody.addEventListener("dragover", (e) => {
+        if (draggingDropIndex < 0) return;
+        const tr = e.target.closest("tr[data-drop-index]");
+        if (!tr) return;
+        e.preventDefault();
+        tr.classList.add("is-drag-over");
+      });
+      el.dropItemsBody.addEventListener("dragleave", (e) => {
+        const tr = e.target.closest("tr[data-drop-index]");
+        if (tr) tr.classList.remove("is-drag-over");
+      });
+      el.dropItemsBody.addEventListener("drop", (e) => {
+        const tr = e.target.closest("tr[data-drop-index]");
+        if (!tr || draggingDropIndex < 0) return;
+        e.preventDefault();
+        tr.classList.remove("is-drag-over");
+        const toIndex = Number(tr.getAttribute("data-drop-index"));
+        if (moveRowByIndex(state.dropItems, draggingDropIndex, toIndex)) {
+          renderDropItems();
+          markDirty();
+        }
+        draggingDropIndex = -1;
+      });
+      el.dropItemsBody.addEventListener("dragend", () => {
+        draggingDropIndex = -1;
+        el.dropItemsBody.querySelectorAll("tr.is-dragging").forEach((row) => row.classList.remove("is-dragging"));
+        el.dropItemsBody.querySelectorAll("tr.is-drag-over").forEach((row) => row.classList.remove("is-drag-over"));
+      });
+
       el.dropItemsBody.addEventListener("input", (e) => {
         const target = e.target;
         const tr = target.closest("tr");
@@ -993,10 +1652,38 @@
         const key = target.getAttribute("data-drop-key");
         if (key && state.dropItems[index]) {
           state.dropItems[index][key] = target.value;
+
+          const qty = Number(state.dropItems[index].quantity);
+          const unit = Number(String(state.dropItems[index].unitPrice || "").replace(/[^0-9.-]/g, ""));
+          const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
+          const totalInput = tr.querySelector('td:nth-child(6) input[readonly]');
+          if (totalInput) {
+            totalInput.value = lineTotal === "" ? "" : String(lineTotal);
+          }
+          markDirty();
         }
       });
 
       el.dropItemsBody.addEventListener("click", (e) => {
+        const copyBtn = e.target.closest("button[data-drop-copy]");
+        if (copyBtn) {
+          const tr = copyBtn.closest("tr");
+          if (!tr) return;
+          const index = Number(tr.getAttribute("data-drop-index"));
+          const src = state.dropItems[index];
+          if (!src) return;
+          state.dropItems.splice(index + 1, 0, {
+            min: src.min,
+            max: src.max,
+            name: src.name,
+            unitPrice: src.unitPrice,
+            quantity: src.quantity,
+          });
+          renderDropItems();
+          markDirty();
+          return;
+        }
+
         const btn = e.target.closest("button[data-drop-delete]");
         if (!btn) return;
         const tr = btn.closest("tr");
@@ -1004,6 +1691,7 @@
         const index = Number(tr.getAttribute("data-drop-index"));
         state.dropItems.splice(index, 1);
         renderDropItems();
+        markDirty();
       });
     }
 
@@ -1011,10 +1699,54 @@
       el.addDropItemBtn.addEventListener("click", () => {
         state.dropItems.push(createEmptyDropItem());
         renderDropItems();
+        markDirty();
       });
     }
 
     if (el.attackMethodsBody) {
+      let draggingAtkIndex = -1;
+      el.attackMethodsBody.addEventListener("dragstart", (e) => {
+        const handle = e.target.closest(".drag-hint");
+        if (!handle) return;
+        const tr = handle.closest("tr[data-atk-index]");
+        if (!tr) return;
+        draggingAtkIndex = Number(tr.getAttribute("data-atk-index"));
+        tr.classList.add("is-dragging");
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", String(draggingAtkIndex));
+          e.dataTransfer.setDragImage(tr, 24, 12);
+        }
+      });
+      el.attackMethodsBody.addEventListener("dragover", (e) => {
+        if (draggingAtkIndex < 0) return;
+        const tr = e.target.closest("tr[data-atk-index]");
+        if (!tr) return;
+        e.preventDefault();
+        tr.classList.add("is-drag-over");
+      });
+      el.attackMethodsBody.addEventListener("dragleave", (e) => {
+        const tr = e.target.closest("tr[data-atk-index]");
+        if (tr) tr.classList.remove("is-drag-over");
+      });
+      el.attackMethodsBody.addEventListener("drop", (e) => {
+        const tr = e.target.closest("tr[data-atk-index]");
+        if (!tr || draggingAtkIndex < 0) return;
+        e.preventDefault();
+        tr.classList.remove("is-drag-over");
+        const toIndex = Number(tr.getAttribute("data-atk-index"));
+        if (moveRowByIndex(state.attackMethods, draggingAtkIndex, toIndex)) {
+          renderAttackMethods();
+          markDirty();
+        }
+        draggingAtkIndex = -1;
+      });
+      el.attackMethodsBody.addEventListener("dragend", () => {
+        draggingAtkIndex = -1;
+        el.attackMethodsBody.querySelectorAll("tr.is-dragging").forEach((row) => row.classList.remove("is-dragging"));
+        el.attackMethodsBody.querySelectorAll("tr.is-drag-over").forEach((row) => row.classList.remove("is-drag-over"));
+      });
+
       el.attackMethodsBody.addEventListener("input", (e) => {
         const target = e.target;
         const tr = target.closest("tr");
@@ -1043,6 +1775,19 @@
       });
 
       el.attackMethodsBody.addEventListener("click", (e) => {
+        const copyBtn = e.target.closest("button[data-copy-kind='attack-line']");
+        if (copyBtn) {
+          const tr = copyBtn.closest("tr");
+          if (!tr) return;
+          const index = Number(tr.getAttribute("data-atk-index"));
+          const src = state.attackMethods[index];
+          if (!src) return;
+          state.attackMethods.splice(index + 1, 0, deepClone(src));
+          renderAttackMethods();
+          markDirty();
+          return;
+        }
+
         const btn = e.target.closest("button[data-atk-delete]");
         if (!btn) return;
         const tr = btn.closest("tr");
@@ -1050,6 +1795,7 @@
         const index = Number(tr.getAttribute("data-atk-index"));
         state.attackMethods.splice(index, 1);
         renderAttackMethods();
+        markDirty();
       });
     }
 
@@ -1102,6 +1848,25 @@
 
     // フォーム全体での入力監視（ダイス変更時にチャパレを更新するため）
     if (el.form) {
+      el.form.addEventListener("keydown", (e) => {
+        if (e.key !== "Tab" || e.altKey || e.ctrlKey || e.metaKey) return;
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (!target.classList.contains("num-ability-val")) return;
+
+        const abilityInputs = Array.from(el.form.querySelectorAll("input.num-ability-val"));
+        const currentIndex = abilityInputs.indexOf(target);
+        if (currentIndex < 0) return;
+
+        const nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
+        const nextTarget = abilityInputs[nextIndex];
+        if (!nextTarget) return;
+
+        e.preventDefault();
+        nextTarget.focus();
+        nextTarget.select();
+      });
+
       el.form.addEventListener("input", (e) => {
         const target = e.target;
         const field = target.getAttribute("data-field");
@@ -1130,9 +1895,11 @@
     if (el.saveEnemyButton) {
       el.saveEnemyButton.addEventListener("click", async () => {
         try {
-          setStatus("保存中…");
+          const current = getSelectedEnemy();
+          const isNew = isUnsavedEnemy(current);
+          setStatus(isNew ? "新規保存中…" : "保存中…");
           await saveCurrentToDb();
-          setStatus("保存済み");
+          setStatus(isNew ? "新規保存完了" : "保存済み");
         } catch (e) {
           setStatus(`保存失敗: ${e.message || "error"}`);
         }
@@ -1142,8 +1909,21 @@
       el.saveAsEnemyButton.addEventListener("click", async () => {
         const current = getSelectedEnemy();
         if (!current) return;
-        const name = window.prompt("別名保存する名前を入力してください", String(current.name || "").trim());
+        let name = String(current.name || "").trim();
+        if (!name) {
+          name = requestSaveAsName("") || "";
+        }
+        name = String(name || "").trim();
         if (!name) return;
+
+        if (name === String(current.name || "").trim()) {
+          const sameNameAction = await requestSaveAsSameNameAction(name);
+          if (sameNameAction === "cancel") return;
+          if (sameNameAction === "copy") {
+            name = buildCopiedName(name);
+          }
+        }
+
         readFormToCurrentEnemy();
         const copied = deepClone(current);
         copied.ID = `new_${Date.now()}`;
@@ -1152,9 +1932,9 @@
         state.enemies.unshift(copied);
         state.selectedId = copied.ID;
         try {
-          setStatus("別名保存中…");
+          setStatus("新規保存中…");
           await saveCurrentToDb();
-          setStatus("保存済み");
+          setStatus("新規保存完了");
         } catch (e) {
           setStatus(`保存失敗: ${e.message || "error"}`);
         }
@@ -1172,12 +1952,32 @@
     }
     if (el.reloadEnemyListButton) {
       el.reloadEnemyListButton.addEventListener("click", async () => {
+        const selected = getSelectedEnemy();
+        if (selected) {
+          readFormToCurrentEnemy();
+        }
+        if (state.dirty) {
+          const targetName = String((selected && selected.name) || "").trim() || "編集中データ";
+          const ok = window.confirm(`「${targetName}」を再読込しますか？\n未保存の変更は失われます。`);
+          if (!ok) return;
+        }
         try {
           setStatus("読込中…");
           await loadFromDb();
           setStatus("読込完了");
         } catch (e) {
           setStatus(`読込失敗: ${e.message || "error"}`);
+        }
+      });
+    }
+    if (el.exportKomaJsonButton) {
+      el.exportKomaJsonButton.addEventListener("click", async () => {
+        try {
+          readFormToCurrentEnemy();
+          await exportKomaJsonByCurrentMode();
+          setStatus("コマJSON出力完了");
+        } catch (e) {
+          setStatus(`コマJSON出力失敗: ${e.message || "error"}`);
         }
       });
     }
@@ -1256,14 +2056,155 @@
           const parsed = JSON.parse(raw);
           const current = getSelectedEnemy();
           if (!current) return;
-          const merged = fromApiEnemy({ ...current, ...parsed, data: parsed.data || current.data });
+
+          let merged;
+          // ココフォリアの駒JSON形式の場合
+          if (parsed.kind === "character" && parsed.data) {
+            merged = deepClone(current);
+            if (!merged.data) merged.data = { sheet: {}, skills: [], dropItems: [], attackMethods: [] };
+            if (!merged.data.sheet) merged.data.sheet = {};
+            
+            const d = parsed.data;
+            if (d.name) merged.name = d.name;
+            if (d.initiative !== undefined) merged.data.sheet.initiative = d.initiative;
+            
+            if (Array.isArray(d.status)) {
+              d.status.forEach(st => {
+                if (st.label === "HP") merged.data.sheet.hp = st.value;
+                if (st.label === "MP") merged.data.sheet.mp = st.value;
+              });
+            }
+            if (Array.isArray(d.params)) {
+              d.params.forEach(p => {
+                let val = String(p.value || "");
+                // 「能力値の 18/6 は18を保存 6は自動入力部分」
+                if (val.includes("/")) {
+                  val = val.split("/")[0].trim();
+                }
+                if (p.label === "レベル") merged.data.sheet.level = val;
+                if (p.label === "識別値") merged.data.sheet.identification = val;
+                if (p.label === "物理防御" || p.label === "物理防御力") merged.data.sheet.physDef = val;
+                if (p.label === "魔法防御" || p.label === "魔法防御力") merged.data.sheet.magicDef = val;
+                if (p.label === "移動値" || p.label === "移動") merged.data.sheet.movement = val;
+                if (p.label === "筋力") merged.data.sheet.str = val;
+                if (p.label === "器用") merged.data.sheet.dex = val;
+                if (p.label === "敏捷") merged.data.sheet.agi = val;
+                if (p.label === "知力") merged.data.sheet.int = val;
+                if (p.label === "感知") merged.data.sheet.sen = val;
+                if (p.label === "精神") merged.data.sheet.mnd = val;
+                if (p.label === "幸運") merged.data.sheet.luk = val;
+              });
+            }
+
+            // Commands parsing
+            const cmdHitDice = {};
+            const cmdDmgDice = {};
+            if (d.commands) {
+              const lines = String(d.commands).split("\n");
+              lines.forEach(line => {
+                const match = line.trim().match(/^([0-9D\+\-]+)\s+(.*)$/i);
+                if (match) {
+                  let dice = match[1];
+                  const namePart = match[2];
+                  const rMatch = dice.match(/^(\d+)\+(\d+)D$/i);
+                  if (rMatch) dice = `${rMatch[2]}D+${rMatch[1]}`;
+                  
+                  if (namePart === "回避") merged.data.sheet.evadeDice = dice;
+                  else if (namePart === "アクション判定") {
+                    merged.data.sheet.mobActionJudge = dice;
+                    merged.data.sheet.enemyType = "mob";
+                    merged.class_type = "mob";
+                  }
+                  else if (namePart === "リアクション判定") {
+                    merged.data.sheet.mobReactionJudge = dice;
+                    merged.data.sheet.enemyType = "mob";
+                    merged.class_type = "mob";
+                  }
+                  else if (namePart.endsWith(" 命中")) {
+                    cmdHitDice[namePart.replace(/ 命中$/, "").trim()] = dice;
+                  }
+                  else if (namePart.endsWith(" ダメージ")) {
+                    cmdDmgDice[namePart.replace(/ ダメージ$/, "").trim()] = dice;
+                  }
+                }
+              });
+            }
+
+            // Memo parsing
+            if (d.memo) {
+              const parts = d.memo.split(/───|---エネミー識別を使用してください---/);
+              if (parts.length > 1) {
+                const skillText = parts[parts.length - 1].trim();
+                const skillLines = skillText.split("\n");
+                
+                const baseMemoLines = [];
+                if (parts[0].trim()) baseMemoLines.push(parts[0].trim());
+                
+                merged.data.skills = [];
+                
+                skillLines.forEach(line => {
+                  let lineText = line.trim();
+                  let bracketText = "";
+                  const bMatch = lineText.match(/(.*?)\s*\[([^\]]+)\]$/);
+                  if (bMatch && bMatch[2].includes("/")) {
+                    lineText = bMatch[1];
+                    bracketText = bMatch[2];
+                  }
+                  
+                  const sMatch = lineText.match(/^『(.+?)』\((.*?)\)\s*(.*)$/);
+                  if (sMatch) {
+                    const sName = sMatch[1].trim();
+                    const s = {
+                      id: `skill_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+                      name: "《" + sName + "》",
+                      timing: sMatch[2].trim(),
+                      effect: sMatch[3].trim(),
+                      hitDice: cmdHitDice[sName] || "",
+                      damageDice: cmdDmgDice[sName] || "",
+                      target: "",
+                      judge: "",
+                      range: "",
+                      cost: "",
+                      sl: "",
+                      isSecret: false
+                    };
+                    
+                    if (bracketText) {
+                      const bParts = bracketText.split(/[\s/]+/).filter(Boolean);
+                      if (bParts.length >= 5) {
+                        if (!s.hitDice && bParts[0] !== "-") s.hitDice = bParts[0];
+                        if (!s.damageDice && bParts[1] !== "-") s.damageDice = bParts[1];
+                        if (bParts[2] !== "-") s.target = bParts[2];
+                        if (bParts[3] !== "-") s.judge = bParts[3];
+                        if (bParts[4] !== "-") s.range = bParts[4];
+                      }
+                    }
+                    merged.data.skills.push(s);
+                  } else {
+                    if (line.trim()) baseMemoLines.push(line.trim());
+                  }
+                });
+                merged.memo = baseMemoLines.join("\n");
+              } else {
+                merged.memo = d.memo.trim();
+              }
+            }
+          } else {
+            // DB形式など直接のマージフォールバック
+            merged = fromApiEnemy({ ...current, ...parsed, data: parsed.data || current.data });
+          }
+
           const idx = state.enemies.findIndex((x) => String(x.ID) === String(current.ID));
           if (idx >= 0) state.enemies[idx] = merged;
           fillFormFromEnemy(merged);
+          // ココフォリアからのインポート後は算出値を再計算
+          updateAbilityDerived();
           markDirty();
           renderEnemyList();
+          el.importJsonInput.value = ""; // 読み込み後にクリア
+          setStatus("JSONインポート完了", "ok");
         } catch (e) {
-          setStatus(`JSON読込失敗: ${e.message || "error"}`);
+          setStatus(`JSON読込失敗: ${e.message || "error"}`, "error");
         }
       });
     }
@@ -1272,16 +2213,17 @@
   // 初期起動処理
   async function init() {
     bindEvents();
+    await loadSkillNameMaster();
     bindDiceMiniEditor("evadeDice", "evadeDiceCount", "evadeDicePlus");
     bindDiceMiniEditor("mobActionJudge", "mobActionDiceCount", "mobActionDicePlus");
     bindDiceMiniEditor("mobReactionJudge", "mobReactionDiceCount", "mobReactionDicePlus");
     applyNumericFontClasses();
     try {
       await loadFromDb();
+      restoreDraftIfNeededOnce();
     } catch (_e) {
-      const fresh = createEnemyTemplate();
+      const fresh = createEnemyTemplate({ auto: true });
       fresh.data = {
-        system: "ar2e",
         sheet: { enemyType: "general", isPublic: true, author: getRememberedAuthor() },
         skills: [createEmptySkill(), createEmptySkill(), createEmptySkill()],
         dropItems: [createEmptyDropItem(), createEmptyDropItem()],
@@ -1291,8 +2233,16 @@
       state.selectedId = fresh.ID;
       localUnsavedEnemyIds.add(String(fresh.ID));
       fillFormFromEnemy(fresh);
+      restoreDraftIfNeededOnce();
       renderEnemyList();
     }
+
+    window.addEventListener("beforeunload", (event) => {
+      if (!state.dirty) return;
+      saveDraftSnapshotFromCurrent();
+      event.preventDefault();
+      event.returnValue = "";
+    });
   }
 
   document.addEventListener("DOMContentLoaded", init);

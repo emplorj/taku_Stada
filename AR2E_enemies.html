@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
-  <title>アリアンロッド エネミーシート管理</title>
-  <meta property="og:title" content="アリアンロッド エネミーシート管理 - 卓スタダ">
+  <title>アリアンロッド エネミーシート</title>
+  <meta property="og:title" content="アリアンロッド エネミーシート - 卓スタダ">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link
@@ -20,11 +20,37 @@
 
   <main class="main-content ar2e-enemies-main">
     <header class="ar2e-header">
-      <h1>アリアンロッド エネミーシート管理</h1>
+      <h1>アリアンロッド エネミーシート</h1>
     </header>
 
     <section class="ar2e-layout">
       <section class="editor-pane">
+
+        <!-- コマ連携アクション行 -->
+        <div class="koma-action-row">
+          <button id="exportKomaJsonButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-dice-d20"></i>
+            コマ出力</button>
+          <label class="koma-mode-inline" for="komaExportModeSelect">
+            <span class="koma-mode-label">モード</span>
+            <select id="komaExportModeSelect" class="koma-mode-select" aria-label="コマ出力モード">
+              <option value="pre_identify">識別前</option>
+              <option value="post_identify">識別後</option>
+              <option value="defense_open">防御判明</option>
+            </select>
+          </label>
+          <label class="public-switch-label">
+            <span class="public-switch-wrap">
+              <input id="toggleDiceFormat" class="switch" type="checkbox">
+              <span class="public-switch-text">0+2D表記</span>
+            </span>
+          </label>
+          <label class="import-json-inline" for="importJsonInput">
+            <span class="import-json-label"><i class="fa-solid fa-file-import"></i> 駒インポート</span>
+            <input id="importJsonInput" type="text" placeholder='{"kind":"character","data":{"name":"……"'
+              aria-label="ココフォリア駒JSONを貼り付けてインポート">
+          </label>
+          <span class="koma-import-help">※ココフォリアの駒JSONを貼り付けると、現在のエネミーへインポートされます。</span>
+        </div>
 
         <!-- アクションバー -->
         <section class="editor-action-bar">
@@ -42,33 +68,18 @@
               別名保存</button>
             <button id="saveEnemyButton" type="button" class="action-btn is-main"><i
                 class="fa-solid fa-cloud-arrow-up"></i> 上書き保存</button>
-            <button id="exportAllJsonButton" type="button" class="action-btn is-sub" title="全エネミーを一括でJSON書き出しします">
-              <i class="fa-solid fa-file-zipper"></i> 全件一括出力</button>
-            <button id="exportKomaJsonButton" type="button" class="action-btn is-sub"><i
-                class="fa-solid fa-dice-d20"></i> コマ出力</button>
-            <div class="import-json-inline">
-              <input id="importJsonInput" type="text" placeholder='{"name":"..."}' aria-label="エネミーJSONを貼り付けて読込">
-            </div>
+            <label class="public-switch-label">
+              <span class="public-switch-wrap">
+                <input id="field-is-public" class="switch" type="checkbox" checked data-field="isPublic">
+                <span class="public-switch-text" id="field-is-public-text">公開</span>
+              </span>
+            </label>
             <div class="action-bar-meta" aria-label="メタ情報">
               <label class="action-meta-field">作者
                 <input id="field-author" type="text" data-field="author" placeholder="名無し">
               </label>
-              <label class="action-meta-field is-icon">アイコンURL
+              <label class="action-meta-field is-icon">立ち絵URL
                 <input id="field-icon-url" type="url" data-field="meta.imageUrl" placeholder="https://...">
-              </label>
-              <!-- 0+2D 表記スイッチ -->
-              <label class="public-switch-label">
-                <span class="public-switch-wrap">
-                  <input id="toggleDiceFormat" class="switch" type="checkbox">
-                  <span class="public-switch-text">0+2D表記</span>
-                </span>
-              </label>
-              <!-- 公開スイッチ -->
-              <label class="public-switch-label">
-                <span class="public-switch-wrap">
-                  <input id="field-is-public" class="switch" type="checkbox" checked>
-                  <span class="public-switch-text" id="field-is-public-text">公開</span>
-                </span>
               </label>
             </div>
           </div>
@@ -148,6 +159,8 @@
                           placeholder="20"></label>
                     </div>
                     <div class="combat-row combat-row-defenses">
+                      <label class="combat-inline-item"><span>識別値</span><input type="number"
+                          data-field="identification"></label>
                       <label class="combat-inline-item is-dice">
                         <span>回避</span>
                         <input type="hidden" data-field="evadeDice" value="2D+0">
@@ -164,8 +177,6 @@
                           data-field="physDef"></label>
                       <label class="combat-inline-item"><span>魔法防御</span><input type="number"
                           data-field="magicDef"></label>
-                      <label class="combat-inline-item"><span>識別値</span><input type="number"
-                          data-field="identification"></label>
                     </div>
                   </div>
                 </div>
@@ -185,48 +196,89 @@
                 <div class="block-head">
                   <h3 id="abilityBlockTitle">能力値</h3>
                 </div>
-                <div id="generalAbilityBlock" class="ar2e-grid grid-col-7 ability-use-grid">
+                <div id="generalAbilityBlock" class="ar2e-grid ability-use-grid">
+                  <div class="ability-use-row labels-col" aria-hidden="true">
+                    <span class="ability-label-name">&nbsp;</span>
+                    <span class="ability-inline-field label-text">基本値</span>
+                    <span class="ability-inline-field label-text">ボーナス</span>
+                    <span class="ability-inline-field label-text">ダイス</span>
+                  </div>
                   <label class="ability-use-row">
                     <span class="ability-label-name">筋力</span>
-                    <input type="number" data-field="str" class="num-ability-val" placeholder="18">
-                    <input type="text" data-derived="str" class="readonly-derived-box num-ability-bonus" readonly
-                      value="6">
+                    <span class="ability-inline-field"><input type="number" data-field="str" class="num-ability-val"
+                        placeholder="18"></span>
+                    <span class="ability-inline-field"><input type="text" data-derived="str"
+                        class="readonly-derived-box num-ability-bonus" readonly value="6"></span>
+                    <span class="ability-inline-field ability-dice-inline" aria-label="筋力ダイス">
+                      <input type="number" data-field="strDice" class="ability-dice-input num-ability-val numeric-font"
+                        min="0" max="9" step="1" value="2"><span class="ability-dice-suffix">D</span>
+                    </span>
                   </label>
                   <label class="ability-use-row">
                     <span class="ability-label-name">器用</span>
-                    <input type="number" data-field="dex" class="num-ability-val" placeholder="18">
-                    <input type="text" data-derived="dex" class="readonly-derived-box num-ability-bonus" readonly
-                      value="6">
+                    <span class="ability-inline-field"><input type="number" data-field="dex" class="num-ability-val"
+                        placeholder="18"></span>
+                    <span class="ability-inline-field"><input type="text" data-derived="dex"
+                        class="readonly-derived-box num-ability-bonus" readonly value="6"></span>
+                    <span class="ability-inline-field ability-dice-inline" aria-label="器用ダイス">
+                      <input type="number" data-field="dexDice" class="ability-dice-input num-ability-val numeric-font"
+                        min="0" max="9" step="1" value="2"><span class="ability-dice-suffix">D</span>
+                    </span>
                   </label>
                   <label class="ability-use-row">
                     <span class="ability-label-name">敏捷</span>
-                    <input type="number" data-field="agi" class="num-ability-val" placeholder="18">
-                    <input type="text" data-derived="agi" class="readonly-derived-box num-ability-bonus" readonly
-                      value="6">
+                    <span class="ability-inline-field"><input type="number" data-field="agi" class="num-ability-val"
+                        placeholder="18"></span>
+                    <span class="ability-inline-field"><input type="text" data-derived="agi"
+                        class="readonly-derived-box num-ability-bonus" readonly value="6"></span>
+                    <span class="ability-inline-field ability-dice-inline" aria-label="敏捷ダイス">
+                      <input type="number" data-field="agiDice" class="ability-dice-input num-ability-val numeric-font"
+                        min="0" max="9" step="1" value="2"><span class="ability-dice-suffix">D</span>
+                    </span>
                   </label>
                   <label class="ability-use-row">
                     <span class="ability-label-name">知力</span>
-                    <input type="number" data-field="int" class="num-ability-val" placeholder="18">
-                    <input type="text" data-derived="int" class="readonly-derived-box num-ability-bonus" readonly
-                      value="6">
+                    <span class="ability-inline-field"><input type="number" data-field="int" class="num-ability-val"
+                        placeholder="18"></span>
+                    <span class="ability-inline-field"><input type="text" data-derived="int"
+                        class="readonly-derived-box num-ability-bonus" readonly value="6"></span>
+                    <span class="ability-inline-field ability-dice-inline" aria-label="知力ダイス">
+                      <input type="number" data-field="intDice" class="ability-dice-input num-ability-val numeric-font"
+                        min="0" max="9" step="1" value="2"><span class="ability-dice-suffix">D</span>
+                    </span>
                   </label>
                   <label class="ability-use-row">
                     <span class="ability-label-name">感知</span>
-                    <input type="number" data-field="sen" class="num-ability-val" placeholder="18">
-                    <input type="text" data-derived="sen" class="readonly-derived-box num-ability-bonus" readonly
-                      value="6">
+                    <span class="ability-inline-field"><input type="number" data-field="sen" class="num-ability-val"
+                        placeholder="18"></span>
+                    <span class="ability-inline-field"><input type="text" data-derived="sen"
+                        class="readonly-derived-box num-ability-bonus" readonly value="6"></span>
+                    <span class="ability-inline-field ability-dice-inline" aria-label="感知ダイス">
+                      <input type="number" data-field="senDice" class="ability-dice-input num-ability-val numeric-font"
+                        min="0" max="9" step="1" value="2"><span class="ability-dice-suffix">D</span>
+                    </span>
                   </label>
                   <label class="ability-use-row">
                     <span class="ability-label-name">精神</span>
-                    <input type="number" data-field="mnd" class="num-ability-val" placeholder="18">
-                    <input type="text" data-derived="mnd" class="readonly-derived-box num-ability-bonus" readonly
-                      value="6">
+                    <span class="ability-inline-field"><input type="number" data-field="mnd" class="num-ability-val"
+                        placeholder="18"></span>
+                    <span class="ability-inline-field"><input type="text" data-derived="mnd"
+                        class="readonly-derived-box num-ability-bonus" readonly value="6"></span>
+                    <span class="ability-inline-field ability-dice-inline" aria-label="精神ダイス">
+                      <input type="number" data-field="mndDice" class="ability-dice-input num-ability-val numeric-font"
+                        min="0" max="9" step="1" value="2"><span class="ability-dice-suffix">D</span>
+                    </span>
                   </label>
                   <label class="ability-use-row">
                     <span class="ability-label-name">幸運</span>
-                    <input type="number" data-field="luk" class="num-ability-val" placeholder="18">
-                    <input type="text" data-derived="luk" class="readonly-derived-box num-ability-bonus" readonly
-                      value="6">
+                    <span class="ability-inline-field"><input type="number" data-field="luk" class="num-ability-val"
+                        placeholder="18"></span>
+                    <span class="ability-inline-field"><input type="text" data-derived="luk"
+                        class="readonly-derived-box num-ability-bonus" readonly value="6"></span>
+                    <span class="ability-inline-field ability-dice-inline" aria-label="幸運ダイス">
+                      <input type="number" data-field="lukDice" class="ability-dice-input num-ability-val numeric-font"
+                        min="0" max="9" step="1" value="2"><span class="ability-dice-suffix">D</span>
+                    </span>
                   </label>
                 </div>
 
@@ -267,10 +319,11 @@
                     <colgroup>
                       <col style="width: 12%;">
                       <col style="width: 12%;">
-                      <col style="width: 36%;">
+                      <col style="width: 30%;">
                       <col style="width: 18%;">
-                      <col style="width: 14%;">
-                      <col style="width: 28px;">
+                      <col style="width: 12%;">
+                      <col style="width: 10%;">
+                      <col style="width: 72px;">
                     </colgroup>
                     <thead>
                       <tr>
@@ -279,6 +332,7 @@
                         <th>名前</th>
                         <th>単価</th>
                         <th>個数</th>
+                        <th>総計</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -441,6 +495,7 @@
               <option value="シーン"></option>
               <option value="効果参照"></option>
             </datalist>
+            <datalist id="ar2eSkillNameList"></datalist>
           </section>
 
           <!-- 解説 -->
