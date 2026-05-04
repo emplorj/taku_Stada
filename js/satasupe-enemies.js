@@ -1131,6 +1131,11 @@
   }
 
   function getRememberedAuthor() {
+    const shared =
+      (typeof window !== "undefined" && window.NechronicaShared) || {};
+    if (typeof shared.getRememberedAuthorFromStorage === "function") {
+      return shared.getRememberedAuthorFromStorage(AUTHOR_STORAGE_KEY);
+    }
     try {
       return String(localStorage.getItem(AUTHOR_STORAGE_KEY) || "").trim();
     } catch (_e) {
@@ -1139,6 +1144,12 @@
   }
 
   function rememberAuthor(name) {
+    const shared =
+      (typeof window !== "undefined" && window.NechronicaShared) || {};
+    if (typeof shared.rememberAuthorToStorage === "function") {
+      shared.rememberAuthorToStorage(AUTHOR_STORAGE_KEY, name);
+      return;
+    }
     try {
       localStorage.setItem(AUTHOR_STORAGE_KEY, String(name || "").trim());
     } catch (_e) {}
@@ -1346,12 +1357,13 @@
     const url = buildApiUrl("listSatasupeEnemies", { author });
     const response = await fetchApiJson(url);
     const all = Array.isArray(response.data) ? response.data : [];
-    const targets = all.filter((enemy) => {
+    const tagged = all.filter((enemy) => {
       const classType = String(
         (enemy && enemy.category) || (enemy && enemy.class_type) || "",
       ).trim();
       return classType === "サタスペ";
     });
+    const targets = tagged.length ? tagged : all;
     state.sheets = targets.map((enemy) => fromApiEnemy(enemy));
     localUnsavedSheetIds.clear();
     state.selectedId = state.sheets[0] ? state.sheets[0].id : null;
@@ -1454,10 +1466,25 @@
       .trim()
       .toLowerCase();
     const field = state.searchField || "all";
+    const myAuthor = getRememberedAuthor();
+    const shared =
+      (typeof window !== "undefined" && window.NechronicaShared) || {};
 
     let targets = state.sheets.filter((s) => {
       const id = String((s && s.id) || "");
       if (localUnsavedSheetIds.has(id)) return false;
+      const canView =
+        typeof shared.canViewEnemyByVisibility === "function"
+          ? shared.canViewEnemyByVisibility({
+              isPublic: !!s.is_public,
+              enemyAuthor: s.author,
+              myAuthor,
+            })
+          : !!s.is_public ||
+            (myAuthor && String((s && s.author) || "") === String(myAuthor));
+      if (!canView) {
+        return false;
+      }
       if (!q) return true;
       if (field === "id")
         return String(s.id || "")

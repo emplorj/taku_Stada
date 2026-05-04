@@ -179,6 +179,12 @@ function nowIsoLocal() {
 }
 
 function getRememberedAuthor() {
+  const shared = getNechronicaShared();
+  if (shared && typeof shared.getRememberedAuthorFromStorage === "function") {
+    return shared.getRememberedAuthorFromStorage(NC_AUTHOR_STORAGE_KEY, {
+      forbidSystem: true,
+    });
+  }
   try {
     const v = String(localStorage.getItem(NC_AUTHOR_STORAGE_KEY) || "").trim();
     return v === "system" ? "" : v;
@@ -188,6 +194,11 @@ function getRememberedAuthor() {
 }
 
 function rememberAuthor(name) {
+  const shared = getNechronicaShared();
+  if (shared && typeof shared.rememberAuthorToStorage === "function") {
+    shared.rememberAuthorToStorage(NC_AUTHOR_STORAGE_KEY, name);
+    return;
+  }
   try {
     localStorage.setItem(NC_AUTHOR_STORAGE_KEY, String(name || "").trim());
   } catch (_e) {

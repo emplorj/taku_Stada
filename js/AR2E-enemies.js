@@ -139,9 +139,7 @@
       'input[data-drop-key="unitPrice"]',
       '.dice-mini-editor input[type="number"]',
       '.dice-mini-editor .dice-mark',
-      '.dice-mini-editor .dice-plus-mark',
-      '.updated-at',
-      '.enemy-list-time-tag'
+      '.dice-mini-editor .dice-plus-mark'
     ].join(','));
     targets.forEach((node) => node.classList.add('numeric-font'));
   }
@@ -150,6 +148,12 @@
     const n = Number(v);
     if (!Number.isFinite(n)) return fallback;
     return Math.min(9, Math.max(0, Math.trunc(n)));
+  }
+
+  function clampDiceValue(v, fallback = 0) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.min(999, Math.max(0, Math.trunc(n)));
   }
 
   function nowText() {
@@ -161,6 +165,30 @@
     const i = String(d.getMinutes()).padStart(2, "0");
     const s = String(d.getSeconds()).padStart(2, "0");
     return `${y}/${m}/${day} ${h}:${i}:${s}`;
+  }
+
+  function formatShortDate(value) {
+    const s = String(value || "").trim();
+    if (!s) return "-";
+    const m = s.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?/);
+    if (m) {
+      const yyyy = m[1];
+      const mm = String(m[2]).padStart(2, "0");
+      const dd = String(m[3]).padStart(2, "0");
+      const hh = String(m[4] || "00").padStart(2, "0");
+      const mi = String(m[5] || "00").padStart(2, "0");
+      return `${yyyy}/${mm}/${dd} ${hh}:${mi}:00`;
+    }
+
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return s;
+    const yyyy = String(d.getFullYear());
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    const ss = String(d.getSeconds()).padStart(2, "0");
+    return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
   }
 
   function deepClone(v) {
@@ -217,6 +245,9 @@
   }
 
   function getRememberedAuthor() {
+    if (typeof shared.getRememberedAuthorFromStorage === "function") {
+      return shared.getRememberedAuthorFromStorage(AUTHOR_STORAGE_KEY);
+    }
     try {
       return String(localStorage.getItem(AUTHOR_STORAGE_KEY) || "").trim();
     } catch (_e) {
@@ -225,6 +256,10 @@
   }
 
   function rememberAuthor(name) {
+    if (typeof shared.rememberAuthorToStorage === "function") {
+      shared.rememberAuthorToStorage(AUTHOR_STORAGE_KEY, name);
+      return;
+    }
     try {
       localStorage.setItem(AUTHOR_STORAGE_KEY, String(name || "").trim());
     } catch (_e) {}
@@ -289,8 +324,11 @@
       const parsed = JSON.parse(raw);
       if (!parsed || typeof parsed !== "object" || !parsed.enemy) return;
 
-      const ok = window.confirm("さっきやってたやつまた戻す？");
-      if (!ok) return;
+      const ok = window.confirm("前回の未保存編集を復元しますか？\n\n「いいえ」を押すと新規白紙を作成します。");
+      if (!ok) {
+        createNewEnemy();
+        return;
+      }
 
       const restored = parsed.enemy;
       const rid = String(restored.ID || parsed.selectedId || `tmp_${Date.now()}`);
@@ -371,7 +409,7 @@
       else value = node.value;
       setByPath(sheet, key, value);
     });
-    current.author = String(sheet.author || "").trim();
+    current.author = String(sheet.author || "").trim() || getRememberedAuthor();
     current.name = String(sheet.name || "").trim();
     current.class_type = String(sheet.enemyType || "general").trim() || "general";
     current.is_public = !!sheet.isPublic;
@@ -434,9 +472,10 @@
 
   function toApiEnemy(enemy) {
     const e = deepClone(enemy);
+    const author = String(e.author || "").trim() || getRememberedAuthor();
     return {
       ID: String(e.ID || "").trim(),
-      author: String(e.author || "").trim(),
+      author,
       name: String(e.name || "").trim() || "無題",
       class_type: String(e.class_type || "general").trim() || "general",
       is_public: !!e.is_public,
@@ -449,12 +488,20 @@
 
   function fromApiEnemy(enemy) {
     const e = enemy && typeof enemy === "object" ? deepClone(enemy) : createEnemyTemplate();
+    const sheet = e.data && e.data.sheet && typeof e.data.sheet === "object" ? e.data.sheet : {};
+    const author = String(e.author || sheet.author || "").trim();
+    const rawIsPublic = e.is_public ?? sheet.isPublic;
+    const isPublic =
+      rawIsPublic === true ||
+      rawIsPublic === 1 ||
+      rawIsPublic === "1" ||
+      String(rawIsPublic).toLowerCase() === "true";
     return {
       ID: String(e.ID || `new_${Date.now()}`),
-      author: String(e.author || "").trim(),
+      author,
       name: String(e.name || "").trim(),
       class_type: ["general", "mob"].includes(String(e.class_type || "")) ? String(e.class_type) : "general",
-      is_public: !!e.is_public,
+      is_public: isPublic,
       memo: String(e.memo || ""),
       data: e.data && typeof e.data === "object" ? e.data : { sheet: {} },
       icon_url: String(e.icon_url || "").trim(),
@@ -473,9 +520,23 @@
     if (!el.enemyList) return;
     const q = String(state.search || "").trim().toLowerCase();
     const field = String(state.searchField || "all");
+    const myAuthor = getRememberedAuthor();
     let list = state.enemies.filter((e) => {
       if (isUnsavedEnemy(e)) return false;
-      if (!e.is_public) return false;
+
+      const canView =
+        typeof shared.canViewEnemyByVisibility === "function"
+          ? shared.canViewEnemyByVisibility({
+              isPublic: !!e.is_public,
+              enemyAuthor: e.author,
+              myAuthor,
+            })
+          : !!e.is_public ||
+            (myAuthor && String(e.author || "") === String(myAuthor));
+      if (!canView) {
+        return false;
+      }
+      
       if (!q) return true;
       const targets = {
         id: String(e.ID || "").toLowerCase(),
@@ -511,19 +572,97 @@
 
     el.enemyList.innerHTML = "";
     pageItems.forEach((enemy) => {
+      const sheet = enemy?.data?.sheet || {};
+      const name = String(enemy.name || "（名称未設定）");
+      const classType = String(enemy.class_type || "general");
+      const enemyTypeLabel = classType === "mob" ? "モブ" : "一般";
+      const author = String(enemy.author || "").trim();
+      const idText = String(enemy.ID || "-");
+      const level = Number(getByPath(sheet, "level") || 0);
+      const levelText = Number.isFinite(level) && level > 0 ? `Lv ${level}` : "Lv -";
+      const timeText = formatShortDate(enemy.time);
+      const iconUrl = String(enemy.icon_url || "").trim();
+      const classification = String(getByPath(sheet, "classification") || "-").trim() || "-";
+      const attribute = String(getByPath(sheet, "attribute") || "-").trim() || "-";
+      const hp = getByPath(sheet, "hp") || 0;
+      const initiative = getByPath(sheet, "initiative") || 0;
+
       const li = document.createElement("li");
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "enemy-list-item-btn";
-      btn.textContent = `${enemy.name || "(no name)"} / ${enemy.class_type || "general"} / ${enemy.author || "-"}`;
-      btn.addEventListener("click", () => {
-        readFormToCurrentEnemy();
+      li.className = "enemy-list-item";
+      if (String(enemy.ID) === String(state.selectedId)) li.classList.add("is-active");
+
+      const classificationIcon = getClassificationIcon(classification);
+      const attrHtml = renderAttributeChips(attribute);
+      const levelStyle = getLevelBadgeStyle(level);
+
+      li.innerHTML = `
+        <div class="enemy-list-card" data-id="${escapeHtml(idText)}" data-enemy-type="${classType}">
+          <i class="fa-solid ${classificationIcon} enemy-list-bg-icon" aria-hidden="true"></i>
+          <span class="enemy-list-row">
+            <span class="enemy-list-side-left">
+              <span class="enemy-level-badge ${levelStyle.class}" style="${levelStyle.style}">
+                <span class="level-label">Lv</span>
+                <span class="level-value">${escapeHtml(String(levelText).replace(/^Lv\s*/, ""))}</span>
+              </span>
+              <span class="enemy-list-icon-wrap">
+                ${iconUrl ? `<img src="${escapeHtml(iconUrl)}" alt="">` : `<i class="fa-solid fa-dragon" aria-hidden="true"></i>`}
+              </span>
+            </span>
+            <span class="enemy-list-content-main">
+              <span class="enemy-list-upper-info">
+                <span class="enemy-list-name">${escapeHtml(name)}</span>
+                <span class="enemy-list-meta-tags">
+                  ${attrHtml}
+                  <span class="enemy-list-meta-tag is-stat">HP ${escapeHtml(String(hp))}</span>
+                  <span class="enemy-list-meta-tag is-stat">行動 ${escapeHtml(String(initiative))}</span>
+                </span>
+              </span>
+              <span class="enemy-list-lower-info">
+                <span>ID：${escapeHtml(idText)}</span>
+                ${author ? `<span>作者：${escapeHtml(author)}</span>` : ""}
+              </span>
+            </span>
+            <span class="enemy-list-side-right-group">
+              <span class="enemy-list-meta-column">
+                <span class="enemy-list-badge-row">
+                  <span class="enemy-list-class-tag">${escapeHtml(classification)}</span>
+                  <span class="enemy-list-meta-tag is-type is-${classType}">${escapeHtml(enemyTypeLabel)}</span>
+                </span>
+                <span class="enemy-list-time-tag">${escapeHtml(timeText)}</span>
+              </span>
+              <span class="enemy-list-btns-row">
+                <button type="button" class="list-side-btn is-load" data-id="${escapeHtml(idText)}" title="編集">
+                  <i class="fa-solid fa-pen-to-square"></i><br>編集
+                </button>
+                <button type="button" class="list-side-btn is-output" data-id="${escapeHtml(idText)}" title="出力">
+                  <i class="fa-solid fa-file-export"></i><br>出力
+                </button>
+              </span>
+            </span>
+          </span>
+        </div>
+      `;
+
+      li.querySelector(".list-side-btn.is-load")?.addEventListener("click", () => {
+        if (!confirmLoadEnemyOrCreateNew(enemy)) return;
         state.selectedId = enemy.ID;
         fillFormFromEnemy(enemy);
         renderEnemyList();
       });
-      if (String(enemy.ID) === String(state.selectedId)) btn.style.outline = "2px solid #ffd966";
-      li.appendChild(btn);
+
+      li.querySelector(".list-side-btn.is-output")?.addEventListener("click", async () => {
+        try {
+          if (!confirmLoadEnemyOrCreateNew(enemy)) return;
+          state.selectedId = enemy.ID;
+          fillFormFromEnemy(enemy);
+          await exportKomaJsonByCurrentMode();
+          setStatus("コマJSON出力完了");
+          renderEnemyList();
+        } catch (error) {
+          setStatus(error.message || "コマJSON出力に失敗", true);
+        }
+      });
+
       el.enemyList.appendChild(li);
     });
 
@@ -535,6 +674,81 @@
     if (el.enemyPrevButton) el.enemyPrevButton.disabled = state.page <= 1;
     if (el.enemyNextButton) el.enemyNextButton.disabled = state.page >= totalPages;
   }
+
+  function getLevelBadgeStyle(level) {
+    if (level >= 50) {
+      return { class: "is-legend", style: "" };
+    }
+    
+    let r, g, b;
+    let textColor = "#f1f5f9"; // 最初から白系
+
+    if (level <= 15) {
+      // 緑 (#93c47d) -> 黄色 (#ffd666)
+      const ratio = Math.max(0, (level - 1) / 14);
+      r = Math.round(0x93 + (0xff - 0x93) * ratio);
+      g = Math.round(0xc4 + (0xd6 - 0xc4) * ratio);
+      b = Math.round(0x7d + (0x66 - 0x7d) * ratio);
+    } else if (level <= 35) {
+      // 黄色 (#ffd666) -> 赤 (#cc0000)
+      const ratio = (level - 15) / 20;
+      r = Math.round(0xff + (0xcc - 0xff) * ratio);
+      g = Math.round(0xd6 + (0x00 - 0xd6) * ratio);
+      b = Math.round(0x66 + (0x00 - 0x66) * ratio);
+    } else {
+      // 赤固定
+      r = 0xcc; g = 0x00; b = 0x00;
+      textColor = "#ffffff";
+    }
+
+    return {
+      class: "",
+      style: `background-color: rgb(${r},${g},${b}); color: ${textColor}; border-color: rgba(0,0,0,0.2);`
+    };
+  }
+
+
+  function getClassificationIcon(classification) {
+    const c = String(classification || "");
+    if (c.includes("竜")) return "fa-dragon";
+    if (c.includes("人間")) return "fa-user-shield";
+    if (c.includes("動物")) return "fa-paw";
+    if (c.includes("植物")) return "fa-leaf";
+    if (c.includes("精霊")) return "fa-wind";
+    if (c.includes("妖精")) return "fa-sparkles";
+    if (c.includes("妖魔")) return "fa-skull";
+    if (c.includes("魔族")) return "fa-demon";
+    if (c.includes("アンデッド")) return "fa-ghost";
+    if (c.includes("人造")) return "fa-robot";
+    if (c.includes("機械")) return "fa-gear";
+    if (c.includes("魔獣")) return "fa-spaghetti-monster-flying";
+    if (c.includes("霊獣")) return "fa-cat";
+    if (c.includes("巨人")) return "fa-mountain";
+    return "fa-shield-halved";
+  }
+
+  function renderAttributeChips(attrStr) {
+    const s = String(attrStr || "-");
+    if (s === "-" || !s) return "";
+    
+    // 区切り文字（/ , ・ スペースなど）で分割
+    const parts = s.split(/[\/\s・,，]+/).filter(Boolean);
+    if (!parts.length) return "";
+
+    return parts.map(p => {
+      let cls = "is-none";
+      if (p.includes("火")) cls = "is-fire";
+      else if (p.includes("水")) cls = "is-water";
+      else if (p.includes("風")) cls = "is-wind";
+      else if (p.includes("地")) cls = "is-earth";
+      else if (p.includes("光")) cls = "is-light";
+      else if (p.includes("闇")) cls = "is-dark";
+      else if (p.includes("物理") || p.includes("白兵") || p.includes("射撃")) cls = "is-phys";
+
+      return `<span class="attr-chip ${cls}">${escapeHtml(p)}</span>`;
+    }).join("");
+  }
+
 
   async function loadFromDb() {
     const author = getRememberedAuthor();
@@ -602,13 +816,28 @@
   }
 
   function createNewEnemy() {
-    readFormToCurrentEnemy();
     const fresh = createEnemyTemplate({ auto: false });
     state.enemies.unshift(fresh);
     localUnsavedEnemyIds.add(String(fresh.ID));
     state.selectedId = fresh.ID;
     fillFormFromEnemy(fresh);
     renderEnemyList();
+    setStatus("新規白紙を作成");
+  }
+
+  function confirmLoadEnemyOrCreateNew(targetEnemy) {
+    const current = getSelectedEnemy();
+    const switching = String(current?.ID || "") !== String(targetEnemy?.ID || "");
+    if (!switching || !state.dirty) return true;
+    const targetName = String(targetEnemy?.name || "").trim() || "（名称未設定）";
+    const ok = window.confirm(
+      `未保存の編集があります。\n「${targetName}」を読み込みますか？\n\n「いいえ」を押すと新規白紙を作成します。`,
+    );
+    if (!ok) {
+      createNewEnemy();
+      return false;
+    }
+    return true;
   }
 
   function parseDiceFormula(raw, fallbackCount = 2) {
@@ -616,7 +845,7 @@
     const bare = text.match(/^(\d+)\s*[dD]$/i);
     if (bare) {
       return {
-        count: clampDigit(bare[1], fallbackCount),
+        count: clampDiceValue(bare[1], fallbackCount),
         plus: ""
       };
     }
@@ -625,16 +854,16 @@
     
     const p = Number(m[2]);
     return {
-      count: clampDigit(m[1], fallbackCount),
-      plus: (p === 0) ? "" : clampDigit(m[2], 0)
+      count: clampDiceValue(m[1], fallbackCount),
+      plus: (p === 0) ? "" : clampDiceValue(m[2], 0)
     };
   }
 
   function setDiceFormula(field, count, plus) {
     const hidden = document.querySelector(`input[data-field="${field}"]`);
     if (!hidden) return;
-    const c = clampDigit(count, 2);
-    const p = plus === "" ? "" : clampDigit(plus, 0);
+    const c = clampDiceValue(count, 2);
+    const p = plus === "" ? "" : clampDiceValue(plus, 0);
     if (p === "" || p === 0) {
       hidden.value = `${c}D+0`; // 保存値としては+0を残す（表示時は空になる）
     } else {
@@ -957,6 +1186,8 @@
     return {
       id: `atk_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
       name: "",
+      weaponKind: "",
+      weaponPart: "",
       target: "",
       range: "",
       hitDice: "2D",
@@ -991,19 +1222,19 @@
         <td data-label="命中">
           <input type="hidden" data-key="hitDice" value="${escapeHtml(skill.hitDice || "2D+0")}">
           <span class="dice-mini-editor in-table" aria-label="命中ダイス式">
-            <input type="number" data-dice-key="hitDice" data-dice-part="count" min="0" max="9" step="1" value="${hit.count}" class="dice-count-input">
+            <input type="number" data-dice-key="hitDice" data-dice-part="count" min="0" step="1" value="${hit.count}" class="dice-count-input">
             <span class="dice-mark numeric-font">D</span>
             <span class="dice-plus-mark numeric-font">+</span>
-            <input type="number" data-dice-key="hitDice" data-dice-part="plus" min="0" max="9" step="1" value="${hit.plus}" placeholder="0" class="dice-plus-input">
+            <input type="number" data-dice-key="hitDice" data-dice-part="plus" min="0" step="1" value="${hit.plus}" placeholder="0" class="dice-plus-input">
           </span>
         </td>
         <td data-label="ダメージ">
           <input type="hidden" data-key="damageDice" value="${escapeHtml(skill.damageDice || "2D+0")}">
           <span class="dice-mini-editor in-table" aria-label="ダメージダイス式">
-            <input type="number" data-dice-key="damageDice" data-dice-part="count" min="0" max="9" step="1" value="${dmg.count}" class="dice-count-input">
+            <input type="number" data-dice-key="damageDice" data-dice-part="count" min="0" step="1" value="${dmg.count}" class="dice-count-input">
             <span class="dice-mark numeric-font">D</span>
             <span class="dice-plus-mark numeric-font">+</span>
-            <input type="number" data-dice-key="damageDice" data-dice-part="plus" min="0" max="9" step="1" value="${dmg.plus}" placeholder="0" class="dice-plus-input">
+            <input type="number" data-dice-key="damageDice" data-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="dice-plus-input">
           </span>
         </td>
         <td data-label="効果"><input type="text" data-key="effect" value="${escapeHtml(skill.effect)}" placeholder="効果"></td>
@@ -1075,22 +1306,24 @@
 
       tr.innerHTML = `
         <td data-label="名前"><input type="text" data-atk-key="name" value="${escapeHtml(atk.name)}" placeholder="攻撃名"></td>
+        <td data-label="種別"><input type="text" data-atk-key="weaponKind" value="${escapeHtml(atk.weaponKind || "")}" list="ar2eWeaponKindList" placeholder="格闘" class="atk-kind-input"></td>
+        <td data-label="部位"><input type="text" data-atk-key="weaponPart" value="${escapeHtml(atk.weaponPart || "")}" list="ar2eWeaponPartList" placeholder="片" class="atk-part-input"></td>
         <td data-label="対象"><input type="text" data-atk-key="target" value="${escapeHtml(atk.target)}" list="ar2eTargetList" placeholder="単体"></td>
         <td data-label="射程"><input type="text" data-atk-key="range" value="${escapeHtml(atk.range)}" list="ar2eRangeList" placeholder="至近"></td>
         <td data-label="命中">
           <span class="dice-mini-editor in-table" aria-label="攻撃命中式">
-            <input type="number" data-atk-dice-key="hitDice" data-atk-dice-part="count" min="0" max="9" step="1" value="${hit.count}" class="numeric-font dice-count-input">
+            <input type="number" data-atk-dice-key="hitDice" data-atk-dice-part="count" min="0" step="1" value="${hit.count}" class="numeric-font dice-count-input">
             <span class="dice-mark numeric-font">D</span>
             <span class="dice-plus-mark numeric-font">+</span>
-            <input type="number" data-atk-dice-key="hitDice" data-atk-dice-part="plus" min="0" max="9" step="1" value="${hit.plus}" placeholder="0" class="numeric-font dice-plus-input">
+            <input type="number" data-atk-dice-key="hitDice" data-atk-dice-part="plus" min="0" step="1" value="${hit.plus}" placeholder="0" class="numeric-font dice-plus-input">
           </span>
         </td>
         <td data-label="ダメージ">
           <span class="dice-mini-editor in-table" aria-label="攻撃ダメージ式">
-            <input type="number" data-atk-dice-key="damageDice" data-atk-dice-part="count" min="0" max="9" step="1" value="${dmg.count}" class="numeric-font dice-count-input">
+            <input type="number" data-atk-dice-key="damageDice" data-atk-dice-part="count" min="0" step="1" value="${dmg.count}" class="numeric-font dice-count-input">
             <span class="dice-mark numeric-font">D</span>
             <span class="dice-plus-mark numeric-font">+</span>
-            <input type="number" data-atk-dice-key="damageDice" data-atk-dice-part="plus" min="0" max="9" step="1" value="${dmg.plus}" placeholder="0" class="numeric-font dice-plus-input">
+            <input type="number" data-atk-dice-key="damageDice" data-atk-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="numeric-font dice-plus-input">
           </span>
         </td>
         <td data-label="属性"><input type="text" data-atk-key="attribute" value="${escapeHtml(atk.attribute)}" list="ar2eAttributeList" placeholder="属性"></td>
@@ -1117,9 +1350,7 @@
       el.abilityBlockTitle.textContent = type === "mob" ? "判定" : "能力値";
     }
     if (el.chatPreviewLabel) {
-      el.chatPreviewLabel.textContent = type === "general"
-        ? "能力値プレビュー（自動生成）"
-        : "チャットパレットプレビュー（自動生成）";
+      el.chatPreviewLabel.textContent = "チャットパレットプレビュー（自動生成）";
     }
   }
 
@@ -1523,9 +1754,9 @@
           const countInput = tr.querySelector(`input[data-dice-key="${diceKey}"][data-dice-part="count"]`);
           const plusInput = tr.querySelector(`input[data-dice-key="${diceKey}"][data-dice-part="plus"]`);
           if (countInput && plusInput) {
-            const count = clampDigit(countInput.value, 2);
+            const count = clampDiceValue(countInput.value, 2);
             const plusRaw = String(plusInput.value || "").trim();
-            const plus = plusRaw === "" ? "" : clampDigit(plusRaw, 0);
+            const plus = plusRaw === "" ? "" : clampDiceValue(plusRaw, 0);
             const formula = plus === "" ? `${count}D+0` : `${count}D+${plus}`;
             state.skills[index][diceKey] = formula;
             const hidden = tr.querySelector(`input[data-key="${diceKey}"]`);
@@ -1760,9 +1991,9 @@
           const countInput = tr.querySelector(`input[data-atk-dice-key="${diceKey}"][data-atk-dice-part="count"]`);
           const plusInput = tr.querySelector(`input[data-atk-dice-key="${diceKey}"][data-atk-dice-part="plus"]`);
           if (countInput && plusInput) {
-            const count = clampDigit(countInput.value, 2);
+            const count = clampDiceValue(countInput.value, 2);
             const plusRaw = String(plusInput.value || "").trim();
-            const plus = plusRaw === "" ? "" : clampDigit(plusRaw, 0);
+            const plus = plusRaw === "" ? "" : clampDiceValue(plusRaw, 0);
             const formula = plus === "" ? `${count}D+0` : `${count}D+${plus}`;
             state.attackMethods[index][diceKey] = formula;
           }
@@ -1953,13 +2184,19 @@
     if (el.reloadEnemyListButton) {
       el.reloadEnemyListButton.addEventListener("click", async () => {
         const selected = getSelectedEnemy();
-        if (selected) {
-          readFormToCurrentEnemy();
-        }
         if (state.dirty) {
           const targetName = String((selected && selected.name) || "").trim() || "編集中データ";
-          const ok = window.confirm(`「${targetName}」を再読込しますか？\n未保存の変更は失われます。`);
-          if (!ok) return;
+          const ok = window.confirm(
+            `「${targetName}」をDBから再読込しますか？\n未保存の変更は失われます。\n\n「いいえ」を押すと新規白紙を作成します。`,
+          );
+          if (!ok) {
+            createNewEnemy();
+            return;
+          }
+        }
+
+        if (selected) {
+          readFormToCurrentEnemy();
         }
         try {
           setStatus("読込中…");
@@ -2221,7 +2458,10 @@
     try {
       await loadFromDb();
       restoreDraftIfNeededOnce();
-    } catch (_e) {
+    } catch (e) {
+      console.error("[AR2E] Failed to load from DB:", e);
+      setStatus(`DB読込失敗: ${e.message || "error"}`, "error");
+      
       const fresh = createEnemyTemplate({ auto: true });
       fresh.data = {
         sheet: { enemyType: "general", isPublic: true, author: getRememberedAuthor() },
