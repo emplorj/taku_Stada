@@ -45,6 +45,7 @@
     attributePrimarySelect: document.getElementById("attributePrimarySelect"),
     attributeSecondarySelect: document.getElementById("attributeSecondarySelect"),
     toggleDiceFormat: document.getElementById("toggleDiceFormat"),
+    toggleEffectMultiline: document.getElementById("toggleEffectMultiline"),
     fieldId: document.getElementById("field-id"),
     fieldAuthor: document.getElementById("field-author"),
     fieldIconUrl: document.getElementById("field-icon-url"),
@@ -433,6 +434,20 @@
       else value = node.value;
       setByPath(sheet, key, value);
     });
+
+    // AR2E_enemies.html では作者・立ち絵URL・公開設定が form の外側の
+    // editor-action-bar に置かれているため、form 内の data-field 走査だけでは
+    // 保存値に入らない。保存時は明示的に action bar 側の値も取り込む。
+    if (el.fieldAuthor) {
+      setByPath(sheet, "author", el.fieldAuthor.value);
+    }
+    if (el.fieldIconUrl) {
+      setByPath(sheet, "meta.imageUrl", el.fieldIconUrl.value);
+    }
+    if (el.fieldIsPublic) {
+      setByPath(sheet, "isPublic", !!el.fieldIsPublic.checked);
+    }
+
     current.author = String(sheet.author || "").trim() || getRememberedAuthor();
     current.name = String(sheet.name || "").trim();
     current.class_type = String(sheet.enemyType || "general").trim() || "general";
@@ -472,6 +487,16 @@
       if (node.type === "checkbox") node.checked = !!value;
       else node.value = value == null ? "" : String(value);
     });
+    // AR2E のメタ欄は form の外側にあるため、fill 時も明示的に同期する。
+    if (el.fieldAuthor) {
+      el.fieldAuthor.value = enemy.author || getByPath(sheet, "author") || "";
+    }
+    if (el.fieldIconUrl) {
+      el.fieldIconUrl.value = enemy.icon_url || getByPath(sheet, "meta.imageUrl") || "";
+    }
+    if (el.fieldIsPublic) {
+      el.fieldIsPublic.checked = !!enemy.is_public;
+    }
     if (el.fieldIsPublicText) {
       el.fieldIsPublicText.textContent = enemy.is_public ? "公開" : "非公開";
     }
@@ -931,6 +956,7 @@
       cost: "",
       hitDice: "2D",
       damageDice: "2D+0",
+      attribute: "",
       effect: ""
     };
   }
@@ -1206,6 +1232,19 @@
     };
   }
 
+  function toDropRollNumber(value) {
+    const n = Number(String(value == null ? "" : value).replace(/[^0-9.-]/g, ""));
+    return Number.isFinite(n) ? Math.trunc(n) : null;
+  }
+
+  function getNextDropMinByInsertIndex(insertIndex) {
+    const prev = state.dropItems[Math.max(0, insertIndex - 1)] || null;
+    if (!prev) return "";
+    const prevMax = toDropRollNumber(prev.max);
+    if (!Number.isFinite(prevMax)) return "";
+    return String(prevMax + 1);
+  }
+
   function createEmptyAttackMethod() {
     return {
       id: `atk_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
@@ -1224,10 +1263,15 @@
   function renderSkills() {
     if (!el.skillsBody) return;
     el.skillsBody.innerHTML = "";
+    const isEffectMultiline = !!(el.toggleEffectMultiline && el.toggleEffectMultiline.checked);
 
     state.skills.forEach((skill, index) => {
       const tr = document.createElement("tr");
       tr.setAttribute("data-index", index);
+      const skillAttrTheme = normalizeAttributeTheme(skill.attribute);
+      if (skillAttrTheme) {
+        tr.setAttribute("data-skill-row-theme", skillAttrTheme);
+      }
       
       const hit = parseDiceFormula(skill.hitDice, 2);
       const dmg = parseDiceFormula(skill.damageDice, 2);
@@ -1261,7 +1305,11 @@
             <input type="number" data-dice-key="damageDice" data-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="dice-plus-input">
           </span>
         </td>
-        <td data-label="効果"><input type="text" data-key="effect" value="${escapeHtml(skill.effect)}" placeholder="効果"></td>
+        <td data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="火(魔)" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
+        <td data-label="効果">${isEffectMultiline
+          ? `<textarea data-key="effect" placeholder="効果" rows="2">${escapeHtml(skill.effect)}</textarea>`
+          : `<input type="text" data-key="effect" value="${escapeHtml(skill.effect)}" placeholder="効果">`
+        }</td>
         <td style="text-align:center;" data-label="">
           <div class="row-action-wrap">
             <button type="button" class="copy-row-btn" data-copy-kind="skill-line" data-index="${index}" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy"></i></button>
@@ -1321,10 +1369,15 @@
   function renderAttackMethods() {
     if (!el.attackMethodsBody) return;
     el.attackMethodsBody.innerHTML = "";
+    const isEffectMultiline = !!(el.toggleEffectMultiline && el.toggleEffectMultiline.checked);
 
     state.attackMethods.forEach((atk, index) => {
       const tr = document.createElement("tr");
       tr.setAttribute("data-atk-index", index);
+      const atkAttrTheme = normalizeAttributeTheme(atk.attribute);
+      if (atkAttrTheme) {
+        tr.setAttribute("data-atk-row-theme", atkAttrTheme);
+      }
       const hit = parseDiceFormula(atk.hitDice, 2);
       const dmg = parseDiceFormula(atk.damageDice, 2);
 
@@ -1350,8 +1403,11 @@
             <input type="number" data-atk-dice-key="damageDice" data-atk-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="numeric-font dice-plus-input">
           </span>
         </td>
-        <td data-label="属性"><input type="text" data-atk-key="attribute" value="${escapeHtml(atk.attribute)}" list="ar2eAttributeList" placeholder="属性"></td>
-        <td data-label="効果"><input type="text" data-atk-key="effect" value="${escapeHtml(atk.effect)}" placeholder="効果"></td>
+        <td data-label="属性"><input type="text" data-atk-key="attribute" value="${escapeHtml(atk.attribute)}" list="ar2eAttributeList" placeholder="属性" ${atkAttrTheme ? `data-atk-attr-theme="${atkAttrTheme}"` : ""}></td>
+        <td data-label="効果">${isEffectMultiline
+          ? `<textarea data-atk-key="effect" placeholder="効果" rows="2">${escapeHtml(atk.effect)}</textarea>`
+          : `<input type="text" data-atk-key="effect" value="${escapeHtml(atk.effect)}" placeholder="効果">`
+        }</td>
         <td style="text-align:center;" data-label="">
           <div class="row-action-wrap">
             <button type="button" class="copy-row-btn" data-copy-kind="attack-line" data-atk-copy="1" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy"></i></button>
@@ -1396,27 +1452,141 @@
     return raw;
   }
 
+  function normalizeSkillNameForKoma(rawName) {
+    const text = String(rawName || "").trim();
+    if (!text) return "";
+    const hasLeft = text.startsWith("《");
+    const hasRight = text.endsWith("》");
+    if (hasLeft && hasRight) return text;
+    return `《${text}》`;
+  }
+
+  function buildSkillHeadlineForKoma(skill) {
+    const baseName = normalizeSkillNameForKoma(skill && skill.name);
+    if (!baseName) return "";
+    const slRaw = String((skill && skill.sl) == null ? "" : skill.sl).trim();
+    if (!slRaw) return baseName;
+    const slNum = toInt(slRaw, 0);
+    if (Number.isFinite(slNum) && slNum > 0) {
+      return `${baseName}Lv${slNum}`;
+    }
+    return `${baseName}Lv${slRaw}`;
+  }
+
+  function buildAttackLineForKoma(atk) {
+    if (!atk) return "";
+    const name = String(atk.name || "").trim();
+    if (!name) return "";
+    const kind = String(atk.weaponKind || "").trim();
+    const part = String(atk.weaponPart || "").trim();
+    const kindPart = kind || part ? `(${kind || "-"}/${part || "-"})` : "";
+    const hit = formatDiceText(String(atk.hitDice || "").trim() || "2D+0");
+    const dmg = formatDiceText(String(atk.damageDice || "").trim() || "2D+0");
+    const attr = String(atk.attribute || "").trim() || "-";
+    const range = String(atk.range || "").trim() || "-";
+    return `${name}${kindPart ? ` ${kindPart}` : ""} ${hit}/${dmg}/${attr}/${range}`.trim();
+  }
+
+  function buildAttackHitCommandForKoma(atk) {
+    if (!atk) return "";
+    const name = String(atk.name || "").trim();
+    if (!name) return "";
+    const kind = String(atk.weaponKind || "").trim();
+    const part = String(atk.weaponPart || "").trim();
+    const kindPart = kind || part ? `(${kind || "-"}/${part || "-"})` : "";
+    const attr = String(atk.attribute || "").trim() || "-";
+    const range = String(atk.range || "").trim() || "-";
+    const hit = formatDiceText(String(atk.hitDice || "").trim() || "2D+0");
+    return `${hit} ${name}${kindPart ? ` ${kindPart}` : ""} ${attr}/${range} 命中`;
+  }
+
+  function buildAttackContextLabelForKoma(atk) {
+    if (!atk) return "";
+    const name = String(atk.name || "").trim();
+    if (!name) return "";
+    const kind = String(atk.weaponKind || "").trim();
+    const part = String(atk.weaponPart || "").trim();
+    const kindPart = kind || part ? `(${kind || "-"}/${part || "-"})` : "";
+    const attr = String(atk.attribute || "").trim() || "-";
+    const range = String(atk.range || "").trim() || "-";
+    return `${name}${kindPart ? ` ${kindPart}` : ""} ${attr}/${range}`;
+  }
+
+  function isDefaultSkillDiceForPassive(rawDice) {
+    const text = String(rawDice || "").trim().toUpperCase();
+    return text === "2D" || text === "2D+0";
+  }
+
+  function shouldEmitSkillDiceCommand(skill, rawDice) {
+    const dice = String(rawDice || "").trim();
+    if (!dice || dice === "0D" || dice === "0D+0") return false;
+    const timing = String(skill && skill.timing ? skill.timing : "").trim();
+    if (timing === "パッシブ" && isDefaultSkillDiceForPassive(dice)) return false;
+    return true;
+  }
+
+  function buildAbilityJudgeCommandLines() {
+    const labels = {
+      str: "筋力",
+      dex: "器用",
+      agi: "敏捷",
+      int: "知力",
+      sen: "感知",
+      mnd: "精神",
+      luk: "幸運",
+    };
+    return ABILITY_KEYS.map((key) => {
+      const derivedInput = document.querySelector(`input[data-derived="${key}"]`);
+      const diceInput = document.querySelector(`input[data-field="${key}Dice"]`);
+      const plus = derivedInput ? String(derivedInput.value || "0").trim() || "0" : "0";
+      const count = diceInput ? String(diceInput.value || "2").trim() || "2" : "2";
+      return `${formatDiceText(`${count}D+${plus}`)} ${labels[key] || key}`;
+    });
+  }
+
   function updateChatPalettePreview() {
     if (!el.chatPreview) return;
 
     const enemyType = el.enemyTypeSelect ? el.enemyTypeSelect.value : "general";
     if (enemyType === "general") {
-      const labels = {
-        str: "筋力",
-        dex: "器用",
-        agi: "敏捷",
-        int: "知力",
-        sen: "感知",
-        mnd: "精神",
-        luk: "幸運"
-      };
+      const lines = [
+        `${formatDiceText(getFieldValue("evadeDice") || "2D+0")} 回避`,
+        ...buildAbilityJudgeCommandLines(),
+      ];
 
-      const lines = ABILITY_KEYS.map((key) => {
-        const baseInput = document.querySelector(`input[data-field="${key}"]`);
-        const derivedInput = document.querySelector(`input[data-derived="${key}"]`);
-        const base = baseInput ? String(baseInput.value || "0").trim() || "0" : "0";
-        const derived = derivedInput ? String(derivedInput.value || "0").trim() || "0" : "0";
-        return `${labels[key] || key} ${base} (判定値:${derived})`;
+      state.attackMethods.forEach((atk) => {
+        const hitLine = buildAttackHitCommandForKoma(atk);
+        if (hitLine) lines.push(hitLine);
+        const dmg = String(atk && atk.damageDice ? atk.damageDice : "").trim();
+        if (dmg && dmg !== "0D+0" && dmg !== "0D") {
+          const atkContext = buildAttackContextLabelForKoma(atk);
+          if (atkContext) lines.push(`${formatDiceText(dmg)} ${atkContext} ダメージ`);
+        }
+      });
+
+      lines.push("");
+
+      state.skills.forEach((skill) => {
+        const skillHead = buildSkillHeadlineForKoma(skill);
+        if (!skillHead) return;
+        const hitDice = String(skill.hitDice || "").trim();
+        const damageDice = String(skill.damageDice || "").trim();
+        if (shouldEmitSkillDiceCommand(skill, hitDice)) {
+          lines.push(`${formatDiceText(hitDice)} ${skillHead} 命中`);
+        }
+        if (shouldEmitSkillDiceCommand(skill, damageDice)) {
+          lines.push(`${formatDiceText(damageDice)} ${skillHead} ダメージ`);
+        }
+      });
+
+      lines.push("");
+
+      state.skills.forEach((skill) => {
+        const skillHead = buildSkillHeadlineForKoma(skill);
+        if (!skillHead) return;
+        const timing = String(skill.timing || "").trim();
+        const effect = String(skill.effect || "").trim();
+        lines.push(`${skillHead} (${timing || "パッシブ"}) ${effect}`.trim());
       });
 
       el.chatPreview.value = lines.join("\n");
@@ -1477,22 +1647,15 @@
   function buildKomaCommandsForCurrentEnemy() {
     const enemyType = el.enemyTypeSelect ? String(el.enemyTypeSelect.value || "general") : "general";
     if (enemyType === "general") {
-      const labels = {
-        str: "筋力",
-        dex: "器用",
-        agi: "敏捷",
-        int: "知力",
-        sen: "感知",
-        mnd: "精神",
-        luk: "幸運",
-      };
-      return ABILITY_KEYS.map((key) => {
-        const baseInput = document.querySelector(`input[data-field="${key}"]`);
-        const derivedInput = document.querySelector(`input[data-derived="${key}"]`);
-        const base = baseInput ? String(baseInput.value || "0").trim() || "0" : "0";
-        const derived = derivedInput ? String(derivedInput.value || "0").trim() || "0" : "0";
-        return `${labels[key] || key} ${base} (判定値:${derived})`;
-      }).join("\n");
+      const lines = [
+        `${formatDiceText(getFieldValue("evadeDice") || "2D+0")} 回避`,
+        ...buildAbilityJudgeCommandLines(),
+      ];
+      state.attackMethods.forEach((atk) => {
+        const hitLine = buildAttackHitCommandForKoma(atk);
+        if (hitLine) lines.push(hitLine);
+      });
+      return lines.join("\n");
     }
 
     const evadeDice = formatDiceText(getFieldValue("evadeDice") || "2D+0");
@@ -1505,16 +1668,21 @@
     ];
 
     state.skills.forEach((skill) => {
-      const name = String(skill && skill.name ? skill.name : "").trim();
-      if (!name) return;
+      const skillHead = buildSkillHeadlineForKoma(skill);
+      if (!skillHead) return;
       const hitDice = String(skill.hitDice || "").trim();
       const damageDice = String(skill.damageDice || "").trim();
-      if (hitDice && hitDice !== "0D+0" && hitDice !== "0D") {
-        lines.push(`${formatDiceText(hitDice)} ${name} 命中`);
+      if (shouldEmitSkillDiceCommand(skill, hitDice)) {
+        lines.push(`${formatDiceText(hitDice)} ${skillHead} 命中`);
       }
-      if (damageDice && damageDice !== "0D+0" && damageDice !== "0D") {
-        lines.push(`${formatDiceText(damageDice)} ${name} ダメージ`);
+      if (shouldEmitSkillDiceCommand(skill, damageDice)) {
+        lines.push(`${formatDiceText(damageDice)} ${skillHead} ダメージ`);
       }
+    });
+
+    state.attackMethods.forEach((atk) => {
+      const atkLine = buildAttackLineForKoma(atk);
+      if (atkLine) lines.push(atkLine);
     });
 
     return lines.join("\n");
@@ -1526,8 +1694,8 @@
     }
     const lines = [];
     state.skills.forEach((skill) => {
-      const name = String(skill && skill.name ? skill.name : "").trim();
-      if (!name) return;
+      const skillHead = buildSkillHeadlineForKoma(skill);
+      if (!skillHead) return;
       const timing = String(skill.timing || "").trim();
       const effect = String(skill.effect || "").trim();
       const hitDice = String(skill.hitDice || "").trim();
@@ -1543,7 +1711,12 @@
         parts.push(range || "-");
       }
       const bracket = parts.length ? ` [${parts.join("/")}]` : "";
-      lines.push(`『${name}』(${timing || "パッシブ"}) ${effect}${bracket}`.trim());
+      lines.push(`${skillHead} (${timing || "パッシブ"}) ${effect}${bracket}`.trim());
+    });
+
+    state.attackMethods.forEach((atk) => {
+      const atkLine = buildAttackLineForKoma(atk);
+      if (atkLine) lines.push(atkLine);
     });
     const baseMemo = String(getFieldValue("memo") || "").trim();
     const skillMemo = lines.join(" \n");
@@ -1619,15 +1792,20 @@
   }
 
   function normalizeAttributeTheme(value) {
-    const text = String(value || "");
-    if (text.includes("地")) return "earth";
-    if (text.includes("水")) return "water";
-    if (text.includes("火")) return "fire";
-    if (text.includes("風")) return "wind";
-    if (text.includes("光")) return "light";
-    if (text.includes("闇")) return "dark";
-    if (text.includes("特殊")) return "special";
-    return "";
+    const text = String(value || "").replace(/なし/g, "").replace(/-/g, "");
+    const themes = [];
+    // 順序を固定してクラス名を生成 (火-水 など)
+    if (text.includes("火")) themes.push("fire");
+    if (text.includes("水")) themes.push("water");
+    if (text.includes("風")) themes.push("wind");
+    if (text.includes("地")) themes.push("earth");
+    if (text.includes("光")) themes.push("light");
+    if (text.includes("闇")) themes.push("dark");
+    if (text.includes("特殊")) themes.push("special");
+    
+    if (themes.length === 0) return "";
+    // 2つ以上ある場合は連結
+    return themes.join("-");
   }
 
   function parseAttributePair(rawValue) {
@@ -1685,13 +1863,49 @@
 
   function updateAttributeTheme() {
     const attributeInput = document.querySelector('input[data-field="attribute"]');
-    if (!attributeInput) return;
-    const theme = normalizeAttributeTheme(attributeInput.value);
-    if (theme) {
-      attributeInput.setAttribute("data-attr-theme", theme);
-    } else {
-      attributeInput.removeAttribute("data-attr-theme");
+    const attributeSelectGroup = el.attributeSelectGroup || document.getElementById("attributeSelectGroup");
+    const editorPane = document.querySelector(".editor-pane");
+    const basicInfoBlock = document.querySelector(".left-column-stack > .data-block:first-child");
+
+    const allBlocks = Array.from(document.querySelectorAll(".editor-pane .data-block"));
+    const targets = [attributeSelectGroup, editorPane, ...allBlocks];
+    const colorMap = {
+      "fire":    { hex: "#ef4444", rgb: "239, 68, 68" },
+      "water":   { hex: "#3b82f6", rgb: "59, 130, 246" },
+      "wind":    { hex: "#22c55e", rgb: "34, 197, 94" },
+      "earth":   { hex: "#d97706", rgb: "217, 119, 6" },
+      "light":   { hex: "#facc15", rgb: "250, 204, 21" },
+      "dark":    { hex: "#8b5cf6", rgb: "139, 92, 246" },
+      "special": { hex: "#06b6d4", rgb: "6, 182, 212" }
+    };
+
+    if (!attributeInput || !attributeInput.value || attributeInput.value === "-") {
+      targets.forEach(node => {
+        if (node) {
+          node.removeAttribute("data-attr-theme");
+          node.style.removeProperty("--attr-clr-1");
+          node.style.removeProperty("--attr-clr-2");
+          node.style.removeProperty("--attr-rgb-1");
+          node.style.removeProperty("--attr-rgb-2");
+        }
+      });
+      return;
     }
+
+    const theme = normalizeAttributeTheme(attributeInput.value);
+    const themes = theme.split("-");
+    const c1 = colorMap[themes[0]] || { hex: "transparent", rgb: "0,0,0" };
+    const c2 = colorMap[themes[1]] || c1;
+
+    targets.forEach(node => {
+      if (node) {
+        node.setAttribute("data-attr-theme", theme);
+        node.style.setProperty("--attr-clr-1", c1.hex);
+        node.style.setProperty("--attr-clr-2", c2.hex);
+        node.style.setProperty("--attr-rgb-1", c1.rgb);
+        node.style.setProperty("--attr-rgb-2", c2.rgb);
+      }
+    });
   }
 
   // =======================================================
@@ -1793,6 +2007,17 @@
             state.skills[index][key] = target.checked;
           } else {
             state.skills[index][key] = target.value;
+          }
+
+          if (key === "attribute") {
+            const theme = normalizeAttributeTheme(target.value);
+            if (theme) {
+              target.setAttribute("data-skill-attr-theme", theme);
+              tr.setAttribute("data-skill-row-theme", theme);
+            } else {
+              target.removeAttribute("data-skill-attr-theme");
+              tr.removeAttribute("data-skill-row-theme");
+            }
           }
 
           if (key === "name") return;
@@ -1925,8 +2150,9 @@
           const index = Number(tr.getAttribute("data-drop-index"));
           const src = state.dropItems[index];
           if (!src) return;
-          state.dropItems.splice(index + 1, 0, {
-            min: src.min,
+          const insertIndex = Math.max(0, index);
+          state.dropItems.splice(insertIndex, 0, {
+            min: getNextDropMinByInsertIndex(insertIndex),
             max: src.max,
             name: src.name,
             unitPrice: src.unitPrice,
@@ -1950,7 +2176,10 @@
 
     if (el.addDropItemBtn) {
       el.addDropItemBtn.addEventListener("click", () => {
-        state.dropItems.push(createEmptyDropItem());
+        const insertIndex = state.dropItems.length;
+        const row = createEmptyDropItem();
+        row.min = getNextDropMinByInsertIndex(insertIndex);
+        state.dropItems.push(row);
         renderDropItems();
         markDirty();
       });
@@ -2024,6 +2253,16 @@
 
         if (key) {
           state.attackMethods[index][key] = target.value;
+          if (key === "attribute") {
+            const theme = normalizeAttributeTheme(target.value);
+            if (theme) {
+              target.setAttribute("data-atk-attr-theme", theme);
+              tr.setAttribute("data-atk-row-theme", theme);
+            } else {
+              target.removeAttribute("data-atk-attr-theme");
+              tr.removeAttribute("data-atk-row-theme");
+            }
+          }
         }
       });
 
@@ -2099,6 +2338,14 @@
       });
     }
 
+    if (el.toggleEffectMultiline) {
+      el.toggleEffectMultiline.addEventListener("change", () => {
+        renderSkills();
+        renderAttackMethods();
+        markDirty();
+      });
+    }
+
     // フォーム全体での入力監視（ダイス変更時にチャパレを更新するため）
     if (el.form) {
       el.form.addEventListener("keydown", (e) => {
@@ -2143,6 +2390,27 @@
         markDirty();
       });
     }
+
+    const bindOutsideFormMetaInput = (node, onChange) => {
+      if (!node || !el.form || el.form.contains(node)) return;
+      node.addEventListener("input", onChange);
+      node.addEventListener("change", onChange);
+    };
+
+    bindOutsideFormMetaInput(el.fieldAuthor, (e) => {
+      rememberAuthor(e.target && e.target.value ? e.target.value : "");
+      markDirty();
+    });
+    bindOutsideFormMetaInput(el.fieldIconUrl, () => {
+      markDirty();
+    });
+    bindOutsideFormMetaInput(el.fieldIsPublic, (e) => {
+      const checked = !!(e.target && e.target.checked);
+      if (el.fieldIsPublicText) {
+        el.fieldIsPublicText.textContent = checked ? "公開" : "非公開";
+      }
+      markDirty();
+    });
 
     if (el.newEnemyButton) el.newEnemyButton.addEventListener("click", createNewEnemy);
     if (el.saveEnemyButton) {

@@ -12,6 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Yuji+Syuku&family=Kosugi+Maru&family=RocknRoll+One&display=swap"
     rel="stylesheet">
+
   <link rel="stylesheet" href="css/AR2E_enemies.css">
 </head>
 
@@ -79,7 +80,8 @@
                 <input id="field-author" type="text" data-field="author" placeholder="名無し">
               </label>
               <label class="action-meta-field is-icon">立ち絵URL
-                <input id="field-icon-url" type="url" data-field="meta.imageUrl" placeholder="https://...">
+                <input id="field-icon-url" type="url" data-field="meta.imageUrl"
+                  placeholder="https://storage.ccfolia-cdn…">
               </label>
             </div>
           </div>
@@ -132,7 +134,7 @@
                           </select>
                           <div id="attributeDivider" class="select-divider" hidden></div>
                           <select id="attributeSecondarySelect" class="attribute-select" hidden>
-                            <option value="">なし</option>
+                            <option value="">-</option>
                             <option value="地">地</option>
                             <option value="水">水</option>
                             <option value="火">火</option>
@@ -150,32 +152,34 @@
                 <!-- 戦闘値 -->
                 <div class="combat-two-col-cell">
                   <div class="combat-two-row-grid">
-                    <div class="combat-row">
+                    <div class="combat-row combat-row-toplabel">
                       <label class="combat-inline-item"><span>HP</span><input type="number" data-field="hp"></label>
                       <label class="combat-inline-item"><span>MP</span><input type="number" data-field="mp"></label>
                       <label class="combat-inline-item"><span>行動値</span><input type="number"
                           data-field="initiative"></label>
                       <label class="combat-inline-item"><span>移動値</span><input type="number" data-field="movement"
                           placeholder="20"></label>
-                    </div>
-                    <div class="combat-row combat-row-defenses">
                       <label class="combat-inline-item"><span>識別値</span><input type="number"
                           data-field="identification"></label>
-                      <label class="combat-inline-item is-dice">
-                        <span>回避</span>
-                        <input type="hidden" data-field="evadeDice" value="2D+0">
-                        <span class="dice-mini-editor" aria-label="回避ダイス式">
-                          <input id="evadeDiceCount" type="number" min="0" step="1" value="2" class="dice-count-input">
-                          <span class="dice-mark numeric-font">D</span>
-                          <span class="dice-plus-mark numeric-font">+</span>
-                          <input id="evadeDicePlus" type="number" min="0" step="1" value="" placeholder="0"
-                            class="dice-plus-input">
-                        </span>
-                      </label>
-                      <label class="combat-inline-item"><span>物理防御</span><input type="number"
-                          data-field="physDef"></label>
-                      <label class="combat-inline-item"><span>魔法防御</span><input type="number"
-                          data-field="magicDef"></label>
+
+                      <div class="combat-defense-group" aria-label="防御セクション">
+                        <label class="combat-inline-item is-dice">
+                          <span>回避</span>
+                          <input type="hidden" data-field="evadeDice" value="2D+0">
+                          <span class="dice-mini-editor" aria-label="回避ダイス式">
+                            <input id="evadeDiceCount" type="number" min="0" step="1" value="2"
+                              class="dice-count-input">
+                            <span class="dice-mark numeric-font">D</span>
+                            <span class="dice-plus-mark numeric-font">+</span>
+                            <input id="evadeDicePlus" type="number" min="0" step="1" value="" placeholder="0"
+                              class="dice-plus-input">
+                          </span>
+                        </label>
+                        <label class="combat-inline-item"><span>物理防御</span><input type="number"
+                            data-field="physDef"></label>
+                        <label class="combat-inline-item"><span>魔法防御</span><input type="number"
+                            data-field="magicDef"></label>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -183,9 +187,9 @@
 
               <section class="data-block">
                 <div class="block-head">
-                  <h3>メモ</h3>
+                  <h3>メモ・解説</h3>
                 </div>
-                <label><textarea data-field="memo" rows="5" placeholder="ここにメモ"></textarea></label>
+                <label><textarea data-field="memo" rows="7" placeholder="ここにメモ"></textarea></label>
               </section>
             </div>
 
@@ -345,20 +349,26 @@
           <section class="data-block full-width">
             <div class="block-head">
               <h3>攻撃方法</h3>
+              <label class="public-switch-label" for="toggleEffectMultiline">
+                <span class="public-switch-wrap">
+                  <input id="toggleEffectMultiline" class="switch" type="checkbox">
+                  <span class="public-switch-text">効果複数行</span>
+                </span>
+              </label>
               <button id="addAttackMethodBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i>
                 行追加</button>
             </div>
             <div class="table-wrap">
               <table class="asian-table" id="attackMethodsTable">
                 <colgroup>
-                  <col style="width: auto; min-width: 9rem;"> <!-- 名前 -->
-                  <col style="width: 5.2rem;"> <!-- 種別 -->
-                  <col style="width: 3.5rem;"> <!-- 部位 -->
-                  <col style="width: 4.5rem;"> <!-- 対象 -->
-                  <col style="width: 4.5rem;"> <!-- 射程 -->
-                  <col style="width: 6.2rem;"> <!-- 命中 -->
-                  <col style="width: 6.2rem;"> <!-- ダメージ -->
-                  <col style="width: 5.2rem;"> <!-- 属性 -->
+                  <col style="width: auto; min-width: 7rem;"> <!-- 名前（やや狭め） -->
+                  <col style="width: 5.8rem;"> <!-- 種別（拡張） -->
+                  <col style="width: 4.2rem;"> <!-- 部位（拡張） -->
+                  <col style="width: 5.2rem;"> <!-- 対象（拡張） -->
+                  <col style="width: 5.2rem;"> <!-- 射程（拡張） -->
+                  <col style="width: 6.8rem;"> <!-- 命中（拡張） -->
+                  <col style="width: 6.8rem;"> <!-- ダメージ（拡張） -->
+                  <col style="width: 7.2rem;"> <!-- 属性（重点拡張） -->
                   <col style="width: auto; min-width: 10rem;"> <!-- 効果 -->
                   <col style="width: 5.5rem;"> <!-- 操作 -->
                 </colgroup>
@@ -399,9 +409,10 @@
                   <col style="width: 8%;"> <!-- 対象 -->
                   <col style="width: 5.5em;"> <!-- 射程 -->
                   <col style="width: 4rem;"> <!-- コスト -->
-                  <col style="width: 9%;"> <!-- 命中 -->
-                  <col style="width: 9%;"> <!-- ダメージ -->
-                  <col style="width: 23%;"> <!-- 効果 -->
+                  <col style="width: 8.5%;"> <!-- 命中 -->
+                  <col style="width: 8.5%;"> <!-- ダメージ -->
+                  <col style="width: 6.2%; min-width: 5.8rem;"> <!-- 属性（やや狭め・白兵(物理)は入る） -->
+                  <col style="width: 20.8%;"> <!-- 効果 -->
                   <col style="width: 28px;"> <!-- 削除 -->
                 </colgroup>
                 <thead>
@@ -416,6 +427,7 @@
                     <th>コスト</th>
                     <th class="th-compact-label">命中</th>
                     <th class="th-compact-label">ダメージ</th>
+                    <th>属性</th>
                     <th>効果</th>
                     <th></th>
                   </tr>
@@ -522,14 +534,6 @@
               <option value="両"></option>
             </datalist>
             <datalist id="ar2eSkillNameList"></datalist>
-          </section>
-
-          <!-- 解説 -->
-          <section class="data-block full-width">
-            <div class="block-head">
-              <h3>解説</h3>
-            </div>
-            <label><textarea data-field="description" rows="4" placeholder="ここに解説"></textarea></label>
           </section>
 
           <datalist id="ar2eClassificationList">

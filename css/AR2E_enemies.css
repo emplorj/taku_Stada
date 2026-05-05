@@ -1,7 +1,9 @@
+--- START OF FILE AR2E_enemies.css ---
+
 .ar2e-enemies-page {
   /* 共通設定で定義されているアリアンロッドカラー */
-  --ar-accent: #ffd966; 
-  --ar-num-size: 1.12rem;
+  --ar-accent: #ffd966;
+  --ar-num-size: 1.15rem;
 }
 
 /* hidden属性をdisplay:gridなどで打ち消さないよう@layer外で定義 */
@@ -269,7 +271,7 @@
     width: auto;
     min-width: 4.8em;
     max-width: 6em;
-    height: 2.1rem;
+    height: 2.2rem;
     padding: 0.2rem 1.2rem 0.2rem 0.4rem;
   }
 
@@ -284,7 +286,7 @@
   .ar2e-enemies-page #importJsonInput {
     width: 12rem;
     min-width: 0;
-    height: 1.8rem;
+    height: 2.2rem;
     border: 1px solid #a78763;
     border-radius: 4px;
     padding: 0.2rem 0.4rem;
@@ -339,7 +341,7 @@
     }
 
     .ar2e-enemies-page .action-meta-field.is-icon > input {
-      width: clamp(5rem, 8vw, 6.4rem);
+      width: clamp(6rem, 14vw, 14rem);
     }
 
     .ar2e-enemies-page #field-author {
@@ -350,10 +352,9 @@
     }
 
     .ar2e-enemies-page #field-icon-url {
-      width: 16%;
-      min-width: 4.8rem;
-      max-width: 6.2rem;
-      flex: 0 1 16%;
+      min-width: 5.2rem;
+      max-width: 16rem;
+      flex: 1 1 18%;
     }
   }
 
@@ -449,13 +450,15 @@
   .ar2e-enemies-page .action-meta-field > input {
     width: 8.2rem;
     min-width: 0;
-    height: 1.8rem;
+    height: 2.2rem;
     flex: 0 1 auto;
     border-bottom-width: 1px;
   }
 
   .ar2e-enemies-page .action-meta-field.is-icon > input {
-    width: 5.4rem;
+    width: clamp(6rem, 14vw, 14rem);
+    min-width: 5.2rem;
+    flex: 1 1 10rem;
   }
 
   .ar2e-enemies-page #field-author {
@@ -476,6 +479,12 @@
     font-size: 0.8rem;
     color: #d6e4ff;
     font-weight: bold;
+  }
+  .ar2e-enemies-page .public-switch-label,
+  .ar2e-enemies-page .public-switch-wrap,
+  .ar2e-enemies-page .public-switch-wrap .public-switch-text,
+  .ar2e-enemies-page input.switch {
+    cursor: pointer;
   }
 
   .ar2e-enemies-page .enemy-type-inline {
@@ -530,7 +539,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    border-bottom: 1px solid var(--ar-accent-sub);
+    border-bottom: 1px solid var(--attr-clr-1, var(--ar-accent-sub));
     padding-bottom: 3px;
     margin-bottom: 6px;
   }
@@ -570,8 +579,8 @@
   
   /* 能力値：1列目にラベル、2-8列目に各能力値 */
   #generalAbilityBlock.ability-use-grid { 
-    grid-template-columns: auto repeat(7, minmax(0, 1fr));
-    overflow-x: auto;
+    grid-template-columns: 3.2rem repeat(7, minmax(2.05rem, 1fr));
+    overflow-x: visible;
     padding-bottom: 4px; 
     align-items: end;
   }
@@ -586,7 +595,7 @@
   .labels-col .label-text {
     font-size: 0.72rem;
     color: #94a3b8;
-    height: 28px; /* inputの高さに合わせる */
+    height: 35px; /* inputの高さに合わせる */
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -601,7 +610,7 @@
     align-items: center;
     gap: 3px;
     text-align: center;
-    min-width: 2.5rem;
+    min-width: 0;
   }
 
   .ability-label-name {
@@ -625,7 +634,7 @@
 
   .ability-inline-field {
     width: 100%;
-    height: 28px;
+    height: 35px; /* しっかり縦幅をとる */
     display: flex;
     align-items: center;
   }
@@ -653,6 +662,11 @@
   /* 数値表示を一元化 */
   .ar2e-enemies-page {
     --ar-num-font: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    --ar-num-size: 1.15rem; /* linter/読み込み順対策として再定義 */
+  }
+
+  .ar2e-enemies-page input[type="number"] {
+    font-size: var(--ar-num-size); /* 数値は大きく！ */
   }
 
   .ar2e-enemies-page input[type="number"],
@@ -671,7 +685,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 1.4rem;
+    height: 1.6rem;
     padding: 0 0.5rem;
     border: 1px solid #4d6187;
     border-radius: 3px;
@@ -691,7 +705,7 @@
     border-radius: 2px;
     font-size: 0.68rem;
     min-width: 0;
-    height: 1.4rem;
+    height: 1.6rem;
   }
   .ar2e-enemies-page .enemy-list-meta-tag.is-stat {
     background: rgba(15, 23, 42, 0.6);
@@ -703,7 +717,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 1.4rem;
+    height: 1.6rem;
     padding: 0 0.4rem;
     border-radius: 3px;
     font-size: 0.68rem;
@@ -731,7 +745,6 @@
   }
 
   .ar2e-enemies-page .numeric-font {
-    font-family: var(--ar-num-font);
     font-size: var(--ar-num-size);
     font-weight: 500;
     font-variant-numeric: tabular-nums;
@@ -746,6 +759,7 @@
   /* 実数値入力 */
   .ar2e-enemies-page .num-ability-val {
     width: 100%;
+    min-width: 0;
     text-align: right;
     padding: 3px 4px;
     font-size: var(--ar-num-size);
@@ -754,13 +768,186 @@
   /* ボーナス表示 */
   .ar2e-enemies-page .num-ability-bonus {
     width: 100%;
+    min-width: 0;
     text-align: right;
     padding: 3px 4px;
     font-weight: 500;
-    color: var(--ar-accent-main);
+    color: #94a3b8;
     background: var(--ar-bg-field-readonly);
-    border-color: #334155;
-    border-bottom-width: 1px;
+    border: 1px solid #334155;
+    border-bottom: 1px solid #334155;
+    border-radius: 4px;
+    cursor: not-allowed;
+  }
+      /* ==========================================================================
+     Attribute Theme System (Premium Design)
+     ========================================================================== */
+  .ar2e-enemies-page {
+    /* Attribute Colors */
+    --clr-fire: #ef4444;
+    --clr-water: #3b82f6;
+    --clr-wind: #22c55e;
+    --clr-earth: #d97706;
+    --clr-light: #facc15;
+    --clr-dark: #8b5cf6;
+    --clr-special: #06b6d4;
+    --clr-none: #64748b;
+  }
+
+  /* Base Attribute Styling for Select Group */
+  .ar2e-enemies-page .attribute-select-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 2px 4px;
+    background: var(--ar-bg-field-edit);
+    border: 1px solid var(--ar-border);
+    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  .ar2e-enemies-page .attribute-select-group::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+  }
+
+  .ar2e-enemies-page .attribute-select-group[data-attr-theme] {
+    border-width: 1px;
+  }
+
+  /* Individual Theme Definitions */
+  [data-attr-theme*="fire"]    { --theme-rgb: 239, 68, 68;   --theme-clr: var(--clr-fire); }
+  [data-attr-theme*="water"]   { --theme-rgb: 59, 130, 246;  --theme-clr: var(--clr-water); }
+  [data-attr-theme*="wind"]    { --theme-rgb: 34, 197, 94;   --theme-clr: var(--clr-wind); }
+  [data-attr-theme*="earth"]   { --theme-rgb: 217, 119, 6;   --theme-clr: var(--clr-earth); }
+  [data-attr-theme*="light"]   { --theme-rgb: 250, 204, 21;  --theme-clr: var(--clr-light); }
+  [data-attr-theme*="dark"]    { --theme-rgb: 139, 92, 246;  --theme-clr: var(--clr-dark); }
+  [data-attr-theme*="special"] { --theme-rgb: 6, 182, 212;   --theme-clr: var(--clr-special); }
+
+  /* Container & Area Themes */
+  /* Overall Subtle Tint for the entire pane */
+  .editor-pane[data-attr-theme] {
+    background: linear-gradient(180deg, 
+      rgba(var(--attr-rgb-1), 0.08) 0%, 
+      rgba(var(--attr-rgb-2), 0.03) 10%, 
+      var(--ar-bg-panel) 30%
+    );
+  }
+
+  /* Specific background for the Basic Info block */
+  .data-block[data-attr-theme] {
+    border-color: rgba(var(--attr-rgb-1), 0.8);
+    background: linear-gradient(135deg, 
+      rgba(var(--attr-rgb-1), 0.4) 0%, 
+      rgba(var(--attr-rgb-2), 0.2) 100%
+    ), var(--ar-bg-panel) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .attribute-select-group[data-attr-theme] {
+    background: linear-gradient(135deg, var(--attr-clr-1), var(--attr-clr-2));
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  
+  .attribute-select-group[data-attr-theme] .attribute-select {
+    background: transparent !important;
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    font-weight: 800;
+  }
+
+  /* Themed Interactive Elements */
+  .editor-pane[data-attr-theme] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(:read-only):not([readonly]),
+  .editor-pane[data-attr-theme] textarea:not(:read-only):not([readonly]),
+  .editor-pane[data-attr-theme] select:not(:disabled) {
+    border-bottom-color: var(--attr-clr-1) !important;
+  }
+  .editor-pane[data-attr-theme] input:not(:read-only):not([readonly]):focus,
+  .editor-pane[data-attr-theme] textarea:not(:read-only):not([readonly]):focus,
+  .editor-pane[data-attr-theme] select:not(:disabled):focus {
+    border-bottom-color: var(--attr-clr-1) !important;
+    box-shadow: 0 0 8px rgba(var(--attr-rgb-1), 0.4) !important;
+  }
+
+  /* Fix dropdown colors (white on white) */
+  .attribute-select option {
+    background-color: var(--ar-bg-panel);
+    color: var(--ar-text-on-dark);
+  }
+  
+  /* Divider style in the group */
+  .attribute-select-group .select-divider {
+    width: 1px;
+    height: 1.2rem;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 0 2px;
+  }
+
+  /* Row level themes for Skills and Attack Methods */
+  tr[data-skill-row-theme],
+  tr[data-atk-row-theme] {
+    --row-theme-rgb: 100, 116, 139; /* Default */
+    transition: all 0.3s ease;
+  }
+
+  /* Row level themes - Defined in reverse order of normalizeAttributeTheme priority 
+     to ensure the FIRST match (usually primary) is the one that sets the color */
+  tr[data-skill-row-theme*="special"], tr[data-atk-row-theme*="special"] { --row-theme-rgb: 6, 182, 212; }
+  tr[data-skill-row-theme*="dark"], tr[data-atk-row-theme*="dark"] { --row-theme-rgb: 139, 92, 246; }
+  tr[data-skill-row-theme*="light"], tr[data-atk-row-theme*="light"] { --row-theme-rgb: 250, 204, 21; }
+  tr[data-skill-row-theme*="earth"], tr[data-atk-row-theme*="earth"] { --row-theme-rgb: 217, 119, 6; }
+  tr[data-skill-row-theme*="wind"], tr[data-atk-row-theme*="wind"] { --row-theme-rgb: 34, 197, 94; }
+  tr[data-skill-row-theme*="water"], tr[data-atk-row-theme*="water"] { --row-theme-rgb: 59, 130, 246; }
+  tr[data-skill-row-theme*="fire"], tr[data-atk-row-theme*="fire"] { --row-theme-rgb: 239, 68, 68; }
+
+  tr[data-skill-row-theme],
+  tr[data-atk-row-theme] {
+    background: linear-gradient(to right, 
+      rgba(var(--row-theme-rgb), 0.4) 0%, 
+      rgba(var(--row-theme-rgb), 0.15) 30%, 
+      rgba(var(--row-theme-rgb), 0.05) 70%,
+      transparent 100%
+    ) !important;
+  }
+  
+  /* Hover effect for themed rows */
+  tr[data-skill-row-theme]:hover,
+  tr[data-atk-row-theme]:hover {
+    background: linear-gradient(to right, 
+      rgba(var(--row-theme-rgb), 0.35) 0%, 
+      rgba(var(--row-theme-rgb), 0.12) 40%, 
+      transparent 100%
+    ) !important;
+  }
+
+  /* Multi-attribute rows */
+  tr[data-skill-row-theme*="-"] td:first-child,
+  tr[data-atk-row-theme*="-"] td:first-child {
+    border-left: 4px solid var(--theme-clr, rgba(var(--row-theme-rgb), 0.8));
+  }
+
+  /* Attribute input specific styling */
+  .ar2e-enemies-page input[data-key="attribute"],
+  .ar2e-enemies-page input[data-atk-key="attribute"] {
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+  
+  .ar2e-enemies-page input[data-key="attribute"][data-skill-attr-theme],
+  .ar2e-enemies-page input[data-atk-key="attribute"][data-atk-attr-theme] {
+    background: rgba(var(--row-theme-rgb), 0.15);
+    border-color: rgba(var(--row-theme-rgb), 0.6);
+    color: #fff;
+  }
+
+  .ar2e-enemies-page #generalAbilityBlock .ability-dice-input {
+    min-width: 0;
   }
 
   .ar2e-enemies-page #dropItemsTable tr.drop-total-row td {
@@ -772,6 +959,10 @@
     text-align: right;
     background: var(--ar-bg-field-readonly);
     color: #cbd5e1;
+    border: 1px solid #334155;
+    border-bottom: 1px solid #334155;
+    border-radius: 4px;
+    padding: 4px 5px;
     cursor: default;
   }
 
@@ -805,7 +996,7 @@
     border-bottom: 2px solid var(--ar-accent-sub);
     border-radius: 4px;
     background: var(--ar-bg-field-edit);
-    height: 1.8rem;
+    height: 2.2rem;
     padding: 0;
     overflow: hidden;
     width: 7.5rem;
@@ -872,12 +1063,33 @@
   #dropItemsTable td { padding: 3px; }
   #dropItemsTable input { padding: 4px 5px; }
 
-  #dropItemsTable input[data-drop-key="quantity"] {
+  #dropItemsTable input[data-drop-key="min"] {
     width: 100%;
-    min-width: 2em;
+    min-width: 0;
     text-align: right;
     -moz-appearance: textfield;
     appearance: textfield;
+  }
+
+  #dropItemsTable td:nth-child(5) {
+    width: 3.1em;
+  }
+
+  #dropItemsTable td:nth-child(4),
+  #dropItemsTable td:nth-child(6) {
+    min-width: 4.6em;
+  }
+
+  #dropItemsTable input[data-drop-key="quantity"] {
+    width: 100%;
+    min-width: 0;
+    text-align: right;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  #dropItemsTable td:nth-child(6) input[readonly] {
+    width: 100%;
+    min-width: 4.2em;
   }
   #dropItemsTable input[data-drop-key="quantity"]::-webkit-outer-spin-button,
   #dropItemsTable input[data-drop-key="quantity"]::-webkit-inner-spin-button {
@@ -910,8 +1122,8 @@
     font-weight: normal;
   }
   
-  .item-name { flex: 1 1 auto; max-width: 360px; min-width: 0; }
-  .item-lv { flex: 0 0 4rem; }
+  .item-name { flex: 1 1 auto; max-width: 300px; min-width: 0; }
+  .item-lv { flex: 0 0 3.8rem; }
   .item-lv input {
     width: 100%;
     text-align: center;
@@ -920,8 +1132,8 @@
     font-variant-numeric: tabular-nums;
     padding-inline: 4px;
   }
-  .item-class { flex: 1 1 auto; max-width: 200px; min-width: 0; }
-  .item-attr { flex: 0 0 120px; } /* 属性欄は絶対に縮ませない */
+  .item-class { flex: 1 1 auto; max-width: 180px; min-width: 0; }
+  .item-attr { flex: 0 0 148px; } /* 属性欄を広げる */
   
   .item-attr .attr-cell,
   .item-attr .attribute-select-box {
@@ -932,7 +1144,7 @@
   .item-attr .attribute-select-group {
     width: 100%;
     display: flex;
-    gap: 2px;
+    gap: 0;
   }
   .item-attr .attribute-select {
     min-width: 0;
@@ -954,10 +1166,10 @@
       font-size: 0.78rem;
     }
 
-    .item-name { flex: 1 1 auto; max-width: 260px; min-width: 0; }
-    .item-lv { flex: 0 0 4.2rem; }
-    .item-class { flex: 1 1 auto; max-width: 180px; min-width: 0; }
-    .item-attr { flex: 0 0 110px; }
+    .item-name { flex: 1 1 auto; max-width: 220px; min-width: 0; }
+    .item-lv { flex: 0 0 3.8rem; }
+    .item-class { flex: 1 1 auto; max-width: 145px; min-width: 0; }
+    .item-attr { flex: 0 0 132px; }
 
     .item-lv input {
       width: 1.8em;
@@ -979,26 +1191,39 @@
   }
 
   .ar2e-enemies-page .combat-row {
-    display: grid;
-    /* デフォルト4列で縦ラインを整列。 */
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
     align-items: center;
     margin-bottom: 12px;
   }
 
-  /* 左カラムが600px以下に縮んだら、自動で2列（スマホ等）に切り替え */
-  @container leftcol (max-width: 600px) {
-    .ar2e-enemies-page .combat-row {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .ar2e-enemies-page .combat-row > .combat-inline-item {
+    flex: 1 1 7.6rem;
+    min-width: 6.8rem;
+    max-width: 12rem;
+  }
+
+  .ar2e-enemies-page .combat-defense-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    min-width: 0;
+    flex: 1 1 23rem;
+  }
+
+  .ar2e-enemies-page .combat-defense-group > .combat-inline-item {
+    flex: 1 1 6.8rem;
+    min-width: 6.2rem;
+    max-width: 9.2rem;
   }
 
   .ar2e-enemies-page .combat-inline-item {
     display: flex !important;
     flex-direction: row !important;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
     width: 100%;
   }
@@ -1015,12 +1240,71 @@
   .ar2e-enemies-page .combat-inline-item > input,
   .ar2e-enemies-page .combat-inline-item .dice-mini-editor {
     width: 100%;
-    max-width: 4.5rem; /* 入力欄が間延びするのを防ぐ */
+    max-width: 2.45rem; /* 入力欄が間延びするのを防ぐ */
     flex: 1 1 auto;
-    min-width: 0;
+    min-width: 1.9rem;
   }
   .ar2e-enemies-page .combat-inline-item.is-dice .dice-mini-editor {
-    max-width: 8rem; /* ダイスは幅が必要なため少し広め */
+    max-width: 6.5rem; /* 防御セクション内で折返しにくいサイズ */
+    min-width: 5.2rem;
+  }
+
+  /* HP～魔法防御のみ：ラベル上配置（1列化しやすくする） */
+  .ar2e-enemies-page .combat-row-toplabel .combat-inline-item {
+    flex-direction: column !important;
+    align-items: stretch;
+    gap: 3px;
+  }
+
+  .ar2e-enemies-page .combat-row-toplabel .combat-inline-item > span {
+    width: 100%;
+    text-align: left;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .ar2e-enemies-page .combat-row-toplabel .combat-inline-item > input,
+  .ar2e-enemies-page .combat-row-toplabel .combat-inline-item .dice-mini-editor {
+    max-width: 100%;
+  }
+
+  .ar2e-enemies-page .combat-row-toplabel .combat-inline-item > input[type="number"] {
+    max-width: none;
+    min-width: 1.8rem;
+    padding-inline: 3px;
+  }
+
+  .ar2e-enemies-page .combat-row-toplabel .combat-inline-item.is-dice .dice-mini-editor {
+    max-width: none;
+    min-width: 5rem;
+  }
+
+  .ar2e-enemies-page .combat-row-toplabel .combat-row > .combat-inline-item,
+  .ar2e-enemies-page .combat-row-toplabel > .combat-inline-item {
+    flex: 1 1 3.5rem;
+    min-width: 3.2rem;
+    max-width: none;
+  }
+
+  .ar2e-enemies-page .combat-row-toplabel .combat-defense-group {
+    display: flex;
+    flex: 3 1 15rem;
+    min-width: 14rem;
+    gap: 6px 8px;
+    align-items: end;
+  }
+
+  .ar2e-enemies-page .combat-row-toplabel .combat-defense-group > .combat-inline-item {
+    flex: 1 1 4rem;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .ar2e-enemies-page .combat-row-toplabel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    align-items: end;
   }
   
   /* スピナーを消す */
@@ -1054,10 +1338,10 @@
   }
   .dice-mini-editor .dice-mark,
   .dice-mini-editor .dice-plus-mark {
-    line-height: 1.8rem;
+    line-height: 2.2rem;
     display: inline-flex;
     align-items: center;
-    height: 1.8rem;
+    height: 2.2rem;
   }
   .dice-mini-editor input[type="number"] {
     min-width: 0;
@@ -1068,7 +1352,7 @@
     text-align: center;
     padding: 0;
     margin: 0;
-    height: 1.8rem;
+    height: 2.2rem;
   }
 
   .dice-mini-editor .dice-count-input { order: 1; }
@@ -1089,34 +1373,89 @@
     color: #94a3b8;
   }
 
-  .ar2e-enemies-page input,
+  /* 共通の形状設定 */
+  .ar2e-enemies-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
   .ar2e-enemies-page select,
   .ar2e-enemies-page textarea {
+    padding: 5px 4px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 2.2rem;
+    border: 1px solid transparent;
+  }
+
+  /* 通常（編集可能）状態 */
+  .ar2e-enemies-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(:read-only):not([readonly]),
+  .ar2e-enemies-page select:not(:disabled),
+  .ar2e-enemies-page textarea:not(:read-only):not([readonly]) {
     background: var(--ar-bg-field-edit);
     color: var(--ar-text-on-light);
     border: 1px solid #4b5563;
     border-bottom: 1px solid rgba(255, 217, 102, 0.75);
-    padding: 4px 2px;
-    border-radius: 4px;
-    box-sizing: border-box;
-    width: 100%;
   }
 
-  .ar2e-enemies-page input:focus,
-  .ar2e-enemies-page textarea:focus {
+  .ar2e-enemies-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(:read-only):not([readonly]):focus,
+  .ar2e-enemies-page select:not(:disabled):focus,
+  .ar2e-enemies-page textarea:not(:read-only):not([readonly]):focus {
     outline: none;
     border-color: var(--ar-accent-main);
     box-shadow: 0 0 6px rgba(255, 217, 102, 0.3);
     background: var(--ar-bg-field-edit);
   }
 
+  /* Readonly / Disabled 状態 */
+  .ar2e-enemies-page input:read-only,
+  .ar2e-enemies-page textarea:read-only,
   .ar2e-enemies-page input[readonly],
-  .ar2e-enemies-page textarea[readonly] {
+  .ar2e-enemies-page textarea[readonly],
+  .ar2e-enemies-page select:disabled {
     background: var(--ar-bg-field-readonly);
     color: #94a3b8;
-    border-color: #334155;
+    border: 1px solid #334155;
     border-bottom: 1px solid #334155;
     cursor: not-allowed;
+  }
+
+  /* 読取専用カーソル規則と競合するスイッチ類は常にポインターを優先 */
+  .ar2e-enemies-page .public-switch-label,
+  .ar2e-enemies-page .public-switch-wrap,
+  .ar2e-enemies-page .public-switch-wrap .public-switch-text,
+  .ar2e-enemies-page input.switch:not(:disabled):not([readonly]) {
+    cursor: pointer !important;
+  }
+
+  .ar2e-enemies-page textarea[data-field="memo"] {
+    resize: vertical;
+    min-height: 10.5rem;
+    max-width: 100%;
+  }
+
+  /* 効果欄（複数行モード）のスクロールバーはシンプル表示（上下▲▼を出さない） */
+  .ar2e-enemies-page #skillsTable textarea[data-key="effect"],
+  .ar2e-enemies-page #attackMethodsTable textarea[data-atk-key="effect"] {
+    resize: vertical;
+    scrollbar-width: thin;
+    scrollbar-color: #5f739a #1a2233;
+  }
+  .ar2e-enemies-page #skillsTable textarea[data-key="effect"]::-webkit-scrollbar,
+  .ar2e-enemies-page #attackMethodsTable textarea[data-atk-key="effect"]::-webkit-scrollbar {
+    width: 8px;
+  }
+  .ar2e-enemies-page #skillsTable textarea[data-key="effect"]::-webkit-scrollbar-button,
+  .ar2e-enemies-page #attackMethodsTable textarea[data-atk-key="effect"]::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  .ar2e-enemies-page #skillsTable textarea[data-key="effect"]::-webkit-scrollbar-track,
+  .ar2e-enemies-page #attackMethodsTable textarea[data-atk-key="effect"]::-webkit-scrollbar-track {
+    background: #1a2233;
+  }
+  .ar2e-enemies-page #skillsTable textarea[data-key="effect"]::-webkit-scrollbar-thumb,
+  .ar2e-enemies-page #attackMethodsTable textarea[data-atk-key="effect"]::-webkit-scrollbar-thumb {
+    background: #5f739a;
+    border-radius: 999px;
   }
 
   .ar2e-enemies-page .action-btn,
@@ -1162,10 +1501,20 @@
     font-size: 0.85rem;
   }
 
+  .ar2e-enemies-page .asian-table input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .ar2e-enemies-page .asian-table select {
+    min-height: 2rem;
+    padding: 3px 4px;
+  }
+
+  .ar2e-enemies-page .asian-table input[type="number"] {
+    font-size: 1.05rem;
+  }
+
   /* 攻撃方法の属性欄・ダイス欄は通常時は共通色、選択時に黄色へ */
-  .ar2e-enemies-page #attackMethodsTable td input[data-atk-key="attribute"],
-  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor input[type="number"],
-  .ar2e-enemies-page #skillsTable .dice-mini-editor input[type="number"] {
+  .ar2e-enemies-page #attackMethodsTable td input[data-atk-key="attribute"]:not(:read-only):not([readonly]),
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor input[type="number"]:not(:read-only):not([readonly]),
+  .ar2e-enemies-page #skillsTable .dice-mini-editor input[type="number"]:not(:read-only):not([readonly]) {
     border-bottom: 1px solid #4b5563;
   }
 
@@ -1182,9 +1531,9 @@
   }
   
 
-  .ar2e-enemies-page #attackMethodsTable td input[data-atk-key="attribute"]:focus,
-  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor input[type="number"]:focus,
-  .ar2e-enemies-page #skillsTable .dice-mini-editor input[type="number"]:focus {
+  .ar2e-enemies-page #attackMethodsTable td input[data-atk-key="attribute"]:not(:read-only):not([readonly]):focus,
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor input[type="number"]:not(:read-only):not([readonly]):focus,
+  .ar2e-enemies-page #skillsTable .dice-mini-editor input[type="number"]:not(:read-only):not([readonly]):focus {
     border-bottom: 2px solid var(--ar-accent-main) !important;
   }
   .ar2e-enemies-page .asian-table td input[type="checkbox"] {
@@ -1203,12 +1552,55 @@
   .ar2e-enemies-page #skillsBody input[data-key="attribute"][data-skill-attr-theme="light"] { background: #4b4321; border-color: #f2d26e; color: #fff9e5; }
   .ar2e-enemies-page #skillsBody input[data-key="attribute"][data-skill-attr-theme="dark"]  { background: #2b213c; border-color: #b08fe7; color: #f2eaff; }
 
-  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="earth"] td { background: rgba(45, 58, 38, 0.35); }
-  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="water"] td { background: rgba(33, 54, 77, 0.35); }
-  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="fire"] td  { background: rgba(74, 38, 35, 0.35); }
-  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="wind"] td  { background: rgba(31, 62, 58, 0.35); }
-  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="light"] td { background: rgba(75, 67, 33, 0.35); }
-  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="dark"] td  { background: rgba(43, 33, 60, 0.35); }
+  .ar2e-enemies-page #attackMethodsBody input[data-atk-key="attribute"][data-atk-attr-theme="earth"] { background: #2d3a26; border-color: #7ca46a; color: #eaf5e1; }
+  .ar2e-enemies-page #attackMethodsBody input[data-atk-key="attribute"][data-atk-attr-theme="water"] { background: #21364d; border-color: #67a8e5; color: #e6f3ff; }
+  .ar2e-enemies-page #attackMethodsBody input[data-atk-key="attribute"][data-atk-attr-theme="fire"]  { background: #4a2623; border-color: #e07a63; color: #ffeae5; }
+  .ar2e-enemies-page #attackMethodsBody input[data-atk-key="attribute"][data-atk-attr-theme="wind"]  { background: #1f3e3a; border-color: #6ed3b0; color: #e7fff6; }
+  .ar2e-enemies-page #attackMethodsBody input[data-atk-key="attribute"][data-atk-attr-theme="light"] { background: #4b4321; border-color: #f2d26e; color: #fff9e5; }
+  .ar2e-enemies-page #attackMethodsBody input[data-atk-key="attribute"][data-atk-attr-theme="dark"]  { background: #2b213c; border-color: #b08fe7; color: #f2eaff; }
+
+  /* 属性行: 属性セルだけでなく行内テキストボックス全体に色を適用 */
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="earth"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only),
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="earth"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only) { background: rgba(217, 119, 6, 0.22) !important; border-color: rgba(217, 119, 6, 0.68) !important; color: #fff7ed; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="water"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only),
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="water"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only) { background: rgba(59, 130, 246, 0.22) !important; border-color: rgba(59, 130, 246, 0.68) !important; color: #eff6ff; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="fire"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only),
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="fire"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only) { background: rgba(239, 68, 68, 0.22) !important; border-color: rgba(239, 68, 68, 0.68) !important; color: #fff1f2; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="wind"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only),
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="wind"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only) { background: rgba(34, 197, 94, 0.22) !important; border-color: rgba(34, 197, 94, 0.68) !important; color: #f0fdf4; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="light"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only),
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="light"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only) { background: rgba(250, 204, 21, 0.22) !important; border-color: rgba(250, 204, 21, 0.72) !important; color: #fffbea; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="dark"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only),
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="dark"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only) { background: rgba(139, 92, 246, 0.22) !important; border-color: rgba(139, 92, 246, 0.68) !important; color: #f5f3ff; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="special"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only),
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="special"] input:not([type="checkbox"]):not([type="hidden"]):not([readonly]):not(:read-only) { background: rgba(6, 182, 212, 0.22) !important; border-color: rgba(6, 182, 212, 0.72) !important; color: #ecfeff; }
+
+  /* Row Colors (colorMap準拠 + 透明度を落として適用) */
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="earth"] td,
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="earth"] td { background: rgba(217, 119, 6, 0.30) !important; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="water"] td,
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="water"] td { background: rgba(59, 130, 246, 0.30) !important; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="fire"] td,
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="fire"] td  { background: rgba(239, 68, 68, 0.30) !important; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="wind"] td,
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="wind"] td  { background: rgba(34, 197, 94, 0.30) !important; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="light"] td,
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="light"] td { background: rgba(250, 204, 21, 0.30) !important; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="dark"] td,
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="dark"] td  { background: rgba(139, 92, 246, 0.30) !important; }
+  .ar2e-enemies-page #skillsBody tr[data-skill-row-theme="special"] td,
+  .ar2e-enemies-page #attackMethodsBody tr[data-atk-row-theme="special"] td { background: rgba(6, 182, 212, 0.30) !important; }
+
+  .ar2e-enemies-page #attributeSelectGroup[data-attr-theme] {
+    background: linear-gradient(135deg, var(--attr-clr-1), var(--attr-clr-2));
+    border-color: rgba(var(--attr-rgb-1), 0.8);
+  }
+  .ar2e-enemies-page #attributeSelectGroup[data-attr-theme] select {
+    color: #fff;
+    background: transparent !important;
+    text-shadow: 0 1px 2px #000;
+  }
+
 
   .ar2e-enemies-page #skillsBody .skill-secret-toggle.is-secret-on {
     accent-color: #7c3aed;
@@ -1539,7 +1931,7 @@
     color: #fff;
     border-radius: 3px;
     padding: 0 8px;
-    height: 1.4rem;
+    height: 1.6rem;
     line-height: 1;
     text-align: center;
     min-width: 0;
@@ -1750,6 +2142,11 @@
     #dropItemsTable { min-width: 360px; }
     #dropItemsTable th, #dropItemsTable td { padding: 2px; font-size: 0.75rem; }
     #dropItemsTable input { padding: 3px; font-size: 0.8rem; }
-    #dropItemsTable input[data-drop-key="quantity"] { min-width: 2.2em; }
+    #dropItemsTable input[data-drop-key="min"],
+    #dropItemsTable input[data-drop-key="quantity"] { min-width: 0; }
+    #dropItemsTable td:nth-child(5) { width: 2.8em; }
+    #dropItemsTable td:nth-child(4),
+    #dropItemsTable td:nth-child(6) { min-width: 4.2em; }
+    #dropItemsTable td:nth-child(6) input[readonly] { min-width: 4em; }
   }
 }
