@@ -93,6 +93,31 @@
 
   const shared = getEnemiesShared();
 
+  function showToast(message, kind = "info") {
+    const sharedApi = getEnemiesShared();
+    if (!sharedApi || typeof sharedApi.showToast !== "function") return;
+    sharedApi.showToast(message, {
+      kind,
+      id: "copyToast",
+      className: "copy-toast",
+      errorClass: "is-error",
+      showClass: "is-show",
+      duration: 1800,
+    });
+  }
+
+  function message(key, params = {}) {
+    const sharedApi = getEnemiesShared();
+    if (sharedApi && typeof sharedApi.getMessage === "function") {
+      return sharedApi.getMessage(key, params);
+    }
+    return String(key || "");
+  }
+
+  function showKomaJsonCopySuccessToast() {
+    showToast(message("komaJsonCopySuccess"), "info");
+  }
+
   function requestSaveAsName(currentName = "") {
     const sharedApi = getEnemiesShared();
     if (typeof sharedApi.requestSaveAsName === "function") {
@@ -705,7 +730,6 @@
           state.selectedId = enemy.ID;
           fillFormFromEnemy(enemy);
           await exportKomaJsonByCurrentMode();
-          setStatus("コマJSON出力完了");
           renderEnemyList();
         } catch (error) {
           setStatus(error.message || "コマJSON出力に失敗", true);
@@ -1770,9 +1794,7 @@
     const text = JSON.stringify(jsonObj);
     if (typeof shared.writeClipboardText === "function") {
       await shared.writeClipboardText(text);
-      if (typeof shared.showToast === "function") {
-        shared.showToast("コマJSONをコピーしました", { id: "ar2eKomaToast" });
-      }
+      showKomaJsonCopySuccessToast();
       return;
     }
     window.prompt("コマJSON（コピーしてください）", text);
@@ -2502,7 +2524,6 @@
         try {
           readFormToCurrentEnemy();
           await exportKomaJsonByCurrentMode();
-          setStatus("コマJSON出力完了");
         } catch (e) {
           setStatus(`コマJSON出力失敗: ${e.message || "error"}`);
         }

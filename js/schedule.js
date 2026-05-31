@@ -18,6 +18,8 @@ const PRESETS_JSON_URL = "presets.json";
 
 const SHARED_EVENT_CACHE_KEY = "sharedEventDataCache_v2";
 const SHARED_EVENT_CACHE_TTL_MS = 1 * 60 * 1000; // 1分
+const DAYCORD_CACHE_KEY = "daycordScheduleCache_v1";
+const DAYCORD_CACHE_TTL_MS = 10 * 60 * 1000; // 10分
 
 const NAME_ALIASES = {
   vara: "☭",
@@ -220,6 +222,53 @@ function clearSharedEventCache() {
     sessionStorage.removeItem("sharedEventDataReloadHash");
   } catch (error) {
     console.warn("キャッシュ削除に失敗しました:", error);
+  }
+}
+function loadCachedDaycordData({ allowStale = false } = {}) {
+  try {
+    const raw = localStorage.getItem(DAYCORD_CACHE_KEY);
+    if (!raw) return null;
+    const payload = JSON.parse(raw);
+    if (!payload || payload.version !== 1) return null;
+    const cachedAt = payload.cachedAt || 0;
+    const isStale = Date.now() - cachedAt > DAYCORD_CACHE_TTL_MS;
+    if (isStale && !allowStale) return null;
+    return {
+      daycordNames: Array.isArray(payload.daycordNames)
+        ? payload.daycordNames
+        : [],
+      schedule: Array.isArray(payload.schedule) ? payload.schedule : [],
+      participantPresets:
+        payload.participantPresets && typeof payload.participantPresets === "object"
+          ? payload.participantPresets
+          : {},
+      cachedAt,
+      isStale,
+    };
+  } catch (error) {
+    console.warn("デイコードキャッシュの読み込みに失敗しました:", error);
+    return null;
+  }
+}
+function saveCachedDaycordData({ daycordNames, schedule, participantPresets }) {
+  try {
+    const payload = {
+      version: 1,
+      cachedAt: Date.now(),
+      daycordNames,
+      schedule,
+      participantPresets,
+    };
+    localStorage.setItem(DAYCORD_CACHE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("デイコードキャッシュの保存に失敗しました:", error);
+  }
+}
+function clearDaycordCache() {
+  try {
+    localStorage.removeItem(DAYCORD_CACHE_KEY);
+  } catch (error) {
+    console.warn("デイコードキャッシュ削除に失敗しました:", error);
   }
 }
 async function fetchDaycordWithFallback() {
@@ -764,6 +813,54 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     userPresets = {},
     selectedDates = [];
   let showConflictAsStatus = false;
+  const summarySymbols = ["◎", "〇", "△", "□", "✕"];
+  let daycordNameIndexMap = new Map();
+  let scheduleMeta = [];
+  let scenarioDataMap = new Map();
+  const statusClassMap = {
+    "◎": "status-o",
+    〇: "status-maru",
+    "△": "status-sankaku",
+    "✕": "status-batsu",
+    "□": "status-shikaku",
+    "－": "status-hyphen",
+  };
+
+  const getDateKeyFromDisplayDate = (dateText) => {
+    const dateStr = dateText.split("(")[0];
+    const parts = dateStr.split("/");
+    return `${parts[0]}/${String(parts[1]).padStart(2, "0")}/${String(
+      parts[2],
+    ).padStart(2, "0")}`;
+  };
+
+  const getStatusClass = (status) => statusClassMap[status] || "status-hyphen";
+
+  function rebuildDaycordIndexes() {
+    daycordNameIndexMap = new Map(daycordNames.map((name, index) => [name, index]));
+    scheduleMeta = schedule.map((day) => {
+      const dateStr = day.date.split("(")[0];
+      const key = getDateKeyFromDisplayDate(day.date);
+      const eventsOnDay = eventsByDate.get(key) || [];
+      const conflictByName = new Map();
+      eventsOnDay.forEach((event) => {
+        [event.gm, ...(event.participants || [])]
+          .filter(Boolean)
+          .map((name) => getDayCodeName(name))
+          .forEach((name) => {
+            if (!conflictByName.has(name)) conflictByName.set(name, event);
+          });
+      });
+      return {
+        day,
+        dateStr,
+        key,
+        eventsOnDay,
+        conflictByName,
+        hasEvent: eventsOnDay.length > 0,
+      };
+    });
+  }
 
   const updateDisplay = () => {
     renderTable();
@@ -877,6 +974,9 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
   }
 
   function processScenarioData() {
+    if (dom.scenarioSel) {
+      dom.scenarioSel.innerHTML = '<option value="">-- シナリオを選択 --</option>';
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const relevantEvents = allEvents.filter(
@@ -904,6 +1004,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       if (a.hasDate !== b.hasDate) return a.hasDate ? -1 : 1;
       return a.eventName.localeCompare(b.eventName, "ja");
     });
+    scenarioDataMap = new Map(scenarioData.map((data) => [data.eventName, data]));
     const fragment = document.createDocumentFragment();
     scenarioData.forEach((d) => {
       const option = document.createElement("option");
@@ -936,33 +1037,15 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       return;
     }
 
-    const dailyParticipantStatus = [];
-    schedule.forEach((day) => {
-      const statusesForDay = [];
-      selectedNames.forEach((name) => {
-        const nameIndex = daycordNames.indexOf(name);
-        if (nameIndex === -1) {
-          statusesForDay.push("－");
-          return;
-        }
-        const dateStr = day.date.split("(")[0];
-        const parts = dateStr.split("/");
-        const key = `${parts[0]}/${String(parts[1]).padStart(2, "0")}/${String(
-          parts[2],
-        ).padStart(2, "0")}`;
-        const eventsOnDay = eventsByDate.get(key) || [];
-        const participantEvent = eventsOnDay.find((e) =>
-          [e.gm, ...e.participants]
-            .map((p) => getDayCodeName(p))
-            .includes(name),
-        );
-        if (participantEvent) {
-          statusesForDay.push("✕");
-        } else {
-          statusesForDay.push(day.availability[nameIndex] || "－");
-        }
+    const selectedNameIndexes = selectedNames.map((name) =>
+      daycordNameIndexMap.has(name) ? daycordNameIndexMap.get(name) : -1,
+    );
+    const dailyParticipantStatus = scheduleMeta.map(({ day, conflictByName }) => {
+      return selectedNames.map((name, selectedIndex) => {
+        if (conflictByName.has(name)) return "✕";
+        const nameIndex = selectedNameIndexes[selectedIndex];
+        return nameIndex !== -1 ? day.availability[nameIndex] || "－" : "－";
       });
-      dailyParticipantStatus.push(statusesForDay);
     });
 
     const table = document.createElement("table");
@@ -971,9 +1054,8 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     const headerRow = thead.insertRow();
     headerRow.innerHTML = "<th>参加者</th>";
 
-    schedule.forEach((d, dayIndex) => {
+    scheduleMeta.forEach(({ day, dateStr }, dayIndex) => {
       const th = document.createElement("th");
-      const dateStr = d.date.split("(")[0];
       th.dataset.dateCol = dateStr;
 
       let statusesForDay = dailyParticipantStatus[dayIndex];
@@ -1003,7 +1085,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
           <input type="checkbox" class="date-checkbox" data-date="${dateStr}" ${
             selectedDates.includes(dateStr) ? "checked" : ""
           }>
-          <span class="date-text">${formatShortDate(d.date)}</span>
+          <span class="date-text">${formatShortDate(day.date)}</span>
         </label>
       `;
       headerRow.appendChild(th);
@@ -1012,7 +1094,6 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     const tbody = table.createTBody();
     tbody.id = "daycord-tbody";
 
-    const summarySymbols = ["◎", "〇", "△", "□", "✕"];
     summarySymbols.forEach((symbol) => {
       const summaryRow = tbody.insertRow();
       summaryRow.classList.add("summary-row");
@@ -1030,7 +1111,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       const titleCell = summaryRow.insertCell();
       titleCell.innerHTML = `<strong>${symbol}</strong>`;
 
-      schedule.forEach((_, dayIndex) => {
+      scheduleMeta.forEach((_, dayIndex) => {
         const statusesForDay = dailyParticipantStatus[dayIndex];
         const count = statusesForDay.filter((s) => s === symbol).length;
         const cell = summaryRow.insertCell();
@@ -1059,16 +1140,10 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     eventRow.classList.add("event-row");
     const eventTitleCell = eventRow.insertCell();
     eventTitleCell.innerHTML = "<strong>予定</strong>";
-    schedule.forEach((day) => {
+    scheduleMeta.forEach(({ dateStr, eventsOnDay, hasEvent }) => {
       const cell = eventRow.insertCell();
-      const dateStr = day.date.split("(")[0];
       cell.dataset.dateCol = dateStr;
-      const parts = dateStr.split("/");
-      const key = `${parts[0]}/${String(parts[1]).padStart(2, "0")}/${String(
-        parts[2],
-      ).padStart(2, "0")}`;
-      const eventsOnDay = eventsByDate.get(key) || [];
-      if (eventsOnDay.length > 0) cell.classList.add("has-event");
+      if (hasEvent) cell.classList.add("has-event");
       eventsOnDay.forEach((e) => {
         const system = e.system || "";
         const bgColor = COLORS[system] || COLORS["default"];
@@ -1098,8 +1173,8 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       });
     });
 
-    selectedNames.forEach((name) => {
-      const nameIndex = daycordNames.indexOf(name);
+    selectedNames.forEach((name, selectedIndex) => {
+      const nameIndex = selectedNameIndexes[selectedIndex];
       const row = tbody.insertRow();
       row.draggable = true;
       row.dataset.name = name;
@@ -1116,57 +1191,23 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       }
 
       if (nameIndex === -1) {
-        schedule.forEach((day) => {
+        scheduleMeta.forEach(({ hasEvent }) => {
           const cell = row.insertCell();
           const span = document.createElement("span");
           span.className = "daycord-status-tag status-hyphen";
           span.textContent = "－";
           cell.appendChild(span);
-          const dateStr = day.date.split("(")[0];
-          const parts = dateStr.split("/");
-          const key = `${parts[0]}/${String(parts[1]).padStart(
-            2,
-            "0",
-          )}/${String(parts[2]).padStart(2, "0")}`;
-          if ((eventsByDate.get(key) || []).length > 0) {
-            cell.classList.add("has-event");
-          }
+          if (hasEvent) cell.classList.add("has-event");
         });
       } else {
-        schedule.forEach((day) => {
+        scheduleMeta.forEach(({ day, dateStr, hasEvent, conflictByName }) => {
           const cell = row.insertCell();
-          const dateStr = day.date.split("(")[0];
           cell.dataset.dateCol = dateStr;
-          const parts = dateStr.split("/");
-          const key = `${parts[0]}/${String(parts[1]).padStart(
-            2,
-            "0",
-          )}/${String(parts[2]).padStart(2, "0")}`;
-          const eventsOnDay = eventsByDate.get(key) || [];
-          const participantEvent = eventsOnDay.find((e) =>
-            [e.gm, ...e.participants]
-              .map((p) => getDayCodeName(p))
-              .includes(name),
-          );
-          if (eventsOnDay.length > 0) {
-            cell.classList.add("has-event");
-          }
+          const participantEvent = conflictByName.get(name);
+          if (hasEvent) cell.classList.add("has-event");
           const span = document.createElement("span");
           span.className = "daycord-status-tag";
           const originalStatus = day.availability[nameIndex] || "－";
-          const getStatusClass = (status) =>
-            `status-${status.replace(
-              /[◎〇△✕□－]/g,
-              (c) =>
-                ({
-                  "◎": "o",
-                  〇: "maru",
-                  "△": "sankaku",
-                  "✕": "batsu",
-                  "□": "shikaku",
-                  "－": "hyphen",
-                })[c],
-            )}`;
 
           if (participantEvent) {
             cell.classList.add("is-conflicting");
@@ -1201,27 +1242,6 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     });
     dom.tableCont.innerHTML = "";
     dom.tableCont.appendChild(table);
-
-    dom.tableCont.querySelectorAll(".date-checkbox").forEach((checkbox) => {
-      checkbox.addEventListener("change", (e) => {
-        const date = e.target.dataset.date;
-        const headerCell = dom.tableCont.querySelector(
-          `th[data-date-col="${date}"]`,
-        );
-        if (!headerCell) return;
-
-        if (e.target.checked) {
-          if (!selectedDates.includes(date)) {
-            selectedDates.push(date);
-          }
-          headerCell.classList.add("selected-date-cell");
-        } else {
-          selectedDates = selectedDates.filter((d) => d !== date);
-          headerCell.classList.remove("selected-date-cell");
-        }
-        updateSelectedDatesDisplay();
-      });
-    });
 
     selectedDates.forEach((date) => {
       const headerCell = dom.tableCont.querySelector(
@@ -1353,21 +1373,13 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       dakyoOk.push("－");
     }
 
-    const relevantSchedule = schedule.map((day) => {
-      const dateStr = day.date.split("(")[0],
-        parts = dateStr.split("/");
-      const key = `${parts[0]}/${String(parts[1]).padStart(2, "0")}/${String(
-        parts[2],
-      ).padStart(2, "0")}`;
-      const eventsOnDay = eventsByDate.get(key) || [];
-      const relevantAvailability = selectedNames.map((name) => {
-        const participantEvent = eventsOnDay.find((e) =>
-          [e.gm, ...e.participants]
-            .map((p) => getDayCodeName(p))
-            .includes(name),
-        );
-        if (participantEvent) return "✕";
-        const nameIndex = daycordNames.indexOf(name);
+    const selectedNameIndexes = selectedNames.map((name) =>
+      daycordNameIndexMap.has(name) ? daycordNameIndexMap.get(name) : -1,
+    );
+    const relevantSchedule = scheduleMeta.map(({ day, conflictByName }) => {
+      const relevantAvailability = selectedNames.map((name, selectedIndex) => {
+        if (conflictByName.has(name)) return "✕";
+        const nameIndex = selectedNameIndexes[selectedIndex];
         return nameIndex !== -1 ? day.availability[nameIndex] || "－" : "－";
       });
       return { date: day.date, availability: relevantAvailability };
@@ -1394,55 +1406,86 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
     renderAvailabilityResults(dom.resHiru, hiruDates);
   }
 
-  async function fetchAndProcessData() {
-    try {
-      dom.tableCont.innerHTML =
-        '<p class="loading-message"><i class="fa-solid fa-spinner fa-spin"></i> 各種データを読み込み中です...</p>';
-      if (dom.nameSel) dom.nameSel.disabled = true;
-      if (dom.addBtn) dom.addBtn.disabled = true;
-      if (dom.scenarioSel) dom.scenarioSel.disabled = true;
-      if (dom.presetSel) dom.presetSel.disabled = true;
-      if (dom.copySelectedDatesBtn) dom.copySelectedDatesBtn.disabled = true;
+  function setDaycordControlsDisabled(disabled) {
+    if (dom.nameSel) dom.nameSel.disabled = disabled;
+    if (dom.addBtn) dom.addBtn.disabled = disabled;
+    if (dom.scenarioSel) dom.scenarioSel.disabled = disabled;
+    if (dom.presetSel) dom.presetSel.disabled = disabled;
+    if (dom.copySelectedDatesBtn) dom.copySelectedDatesBtn.disabled = disabled;
+  }
 
-      const [daycordResponse, presetResponse] = await Promise.all([
-        fetchDaycordWithFallback(),
-        fetch(PRESETS_JSON_URL)
-          .then((res) => {
-            if (!res.ok) {
-              console.warn(
-                `プリセットファイル (${PRESETS_JSON_URL}) の読み込みに失敗しました: HTTP status ${res.status}`,
-              );
-              return {};
-            }
-            return res.json();
-          })
-          .catch((err) => {
-            console.error(
-              `プリセットファイル (${PRESETS_JSON_URL}) のパースに失敗しました:`,
-              err,
+  function showDaycordLoadingMessage(message) {
+    if (!dom.tableCont) return;
+    dom.tableCont.innerHTML = `<p class="loading-message"><i class="fa-solid fa-spinner fa-spin"></i> ${message}</p>`;
+  }
+
+  function applyDaycordData({
+    daycordNames: names,
+    schedule: nextSchedule,
+    participantPresets: presets,
+  }) {
+    daycordNames = names || [];
+    schedule = nextSchedule || [];
+    participantPresets = presets || {};
+    rebuildDaycordIndexes();
+    loadUserPresets();
+    updatePresetDropdown();
+
+    const sortedNamesForDropdown = [...daycordNames].sort((a, b) =>
+      a.localeCompare(b, "ja"),
+    );
+    const nameFragment = document.createDocumentFragment();
+    sortedNamesForDropdown.forEach((name) => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      nameFragment.appendChild(option);
+    });
+    if (dom.nameSel) {
+      dom.nameSel.innerHTML = '<option value="">-- 名前を選択 --</option>';
+      dom.nameSel.appendChild(nameFragment);
+    }
+    processScenarioData();
+    updateDisplay();
+  }
+
+  async function fetchDaycordDataFromNetwork() {
+    const [daycordResponse, presetResponse] = await Promise.all([
+      fetchDaycordWithFallback(),
+      fetch(PRESETS_JSON_URL)
+        .then((res) => {
+          if (!res.ok) {
+            console.warn(
+              `プリセットファイル (${PRESETS_JSON_URL}) の読み込みに失敗しました: HTTP status ${res.status}`,
             );
             return {};
-          }),
-      ]);
-      participantPresets = presetResponse;
-      loadUserPresets();
-      updatePresetDropdown();
+          }
+          return res.json();
+        })
+        .catch((err) => {
+          console.error(
+            `プリセットファイル (${PRESETS_JSON_URL}) のパースに失敗しました:`,
+            err,
+          );
+          return {};
+        }),
+    ]);
 
-      const htmlText = await daycordResponse.text();
-      const doc = new DOMParser().parseFromString(htmlText, "text/html");
-      const table = doc.querySelector("table.schedule_table");
-      const symbols = ["◎", "〇", "◯", "△", "✕", "□", "－", "×", "▢"];
-      const allowedStatuses = new Set(["◎", "〇", "△", "✕", "□", "－"]);
-      const normalizeStatus = (value) => {
-        const normalized = (value || "")
-          .trim()
-          .replace(/◯/g, "〇")
-          .replace(/×/g, "✕")
-          .replace(/▢/g, "□");
-        return allowedStatuses.has(normalized) ? normalized : "－";
-      };
+    const htmlText = await daycordResponse.text();
+    const doc = new DOMParser().parseFromString(htmlText, "text/html");
+    const table = doc.querySelector("table.schedule_table");
+    const symbols = ["◎", "〇", "◯", "△", "✕", "□", "－", "×", "▢"];
+    const allowedStatuses = new Set(["◎", "〇", "△", "✕", "□", "－"]);
+    const normalizeStatus = (value) => {
+      const normalized = (value || "")
+        .trim()
+        .replace(/◯/g, "〇")
+        .replace(/×/g, "✕")
+        .replace(/▢/g, "□");
+      return allowedStatuses.has(normalized) ? normalized : "－";
+    };
 
-      const parseMarkdownSchedule = (markdownText) => {
+    const parseMarkdownSchedule = (markdownText) => {
         const lines = markdownText
           .split(/\r?\n/)
           .map((line) => line.trim())
@@ -1545,14 +1588,15 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         return { daycordNames: names, rawSchedule };
       };
 
-      let rawSchedule = [];
-      if (table) {
+    let rawSchedule = [];
+    let parsedDaycordNames = [];
+    if (table) {
         const headerRow = table.querySelector("tr#namerow"),
           bodyRows = table.querySelectorAll('tbody tr[id^="row_"]');
         const nameLinks = Array.from(
           headerRow.querySelectorAll("th a.namelink"),
         );
-        daycordNames = nameLinks
+        parsedDaycordNames = nameLinks
           .map((link) => link.textContent.trim())
           .filter((name) => name && !symbols.includes(name));
 
@@ -1562,19 +1606,19 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
           const availability = Array.from(
             row.querySelectorAll("td span.statustag"),
           ).map((span) => normalizeStatus(span.textContent));
-          if (availability.length > daycordNames.length) {
-            availability.length = daycordNames.length;
-          } else if (availability.length < daycordNames.length) {
+          if (availability.length > parsedDaycordNames.length) {
+            availability.length = parsedDaycordNames.length;
+          } else if (availability.length < parsedDaycordNames.length) {
             availability.push(
               ...Array.from(
-                { length: daycordNames.length - availability.length },
+                { length: parsedDaycordNames.length - availability.length },
                 () => "－",
               ),
             );
           }
           return { date, availability };
         });
-      } else {
+    } else {
         const parsed = parseMarkdownSchedule(htmlText);
         if (!parsed) {
           console.error(
@@ -1582,52 +1626,72 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
           );
           throw new Error("デイコードのテーブルが見つかりません。");
         }
-        daycordNames = parsed.daycordNames;
+        parsedDaycordNames = parsed.daycordNames;
         rawSchedule = parsed.rawSchedule;
-      }
+    }
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      schedule = rawSchedule.filter((day) => {
-        const datePart = day.date.split("(")[0];
-        const [year, month, dayOfMonth] = datePart.split("/");
-        if (!year || !month || !dayOfMonth) return false;
-        const scheduleDate = new Date(
-          parseInt(year),
-          parseInt(month) - 1,
-          parseInt(dayOfMonth),
-        );
-        return scheduleDate.getTime() >= today.getTime();
-      });
-
-      const sortedNamesForDropdown = [...daycordNames].sort((a, b) =>
-        a.localeCompare(b, "ja"),
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const filteredSchedule = rawSchedule.filter((day) => {
+      const datePart = day.date.split("(")[0];
+      const [year, month, dayOfMonth] = datePart.split("/");
+      if (!year || !month || !dayOfMonth) return false;
+      const scheduleDate = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(dayOfMonth),
       );
-      const nameFragment = document.createDocumentFragment();
-      sortedNamesForDropdown.forEach((name) => {
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        nameFragment.appendChild(option);
-      });
-      if (dom.nameSel) {
-        dom.nameSel.innerHTML = '<option value="">-- 名前を選択 --</option>';
-        dom.nameSel.appendChild(nameFragment);
+      return scheduleDate.getTime() >= today.getTime();
+    });
+
+    return {
+      daycordNames: parsedDaycordNames,
+      schedule: filteredSchedule,
+      participantPresets: presetResponse,
+    };
+  }
+
+  async function refreshDaycordDataInBackground({
+    hasRenderedCache = false,
+  } = {}) {
+    try {
+      if (!hasRenderedCache) {
+        showDaycordLoadingMessage("デイコードの情報を読み込み中です...");
+        setDaycordControlsDisabled(true);
       }
-      processScenarioData();
-      updateDisplay();
+
+      const freshData = await fetchDaycordDataFromNetwork();
+      saveCachedDaycordData(freshData);
+      applyDaycordData(freshData);
     } catch (err) {
       console.error("データ取得・処理失敗:", err);
-      if (dom.tableCont)
+      const staleCache = loadCachedDaycordData({ allowStale: true });
+      if (staleCache && !hasRenderedCache) {
+        applyDaycordData(staleCache);
+        if (dom.tableCont) {
+          const warning = document.createElement("p");
+          warning.className = "loading-message";
+          warning.textContent = `最新データの取得に失敗したため、保存済みデータを表示しています: ${err.message}`;
+          dom.tableCont.prepend(warning);
+        }
+      } else if (!hasRenderedCache && dom.tableCont) {
         dom.tableCont.innerHTML = `<p>データ取得に失敗しました: ${err.message}</p>`;
+      }
     } finally {
-      if (dom.nameSel) dom.nameSel.disabled = false;
-      if (dom.addBtn) dom.addBtn.disabled = false;
-      if (dom.scenarioSel) dom.scenarioSel.disabled = false;
-      if (dom.presetSel) dom.presetSel.disabled = false;
-      if (dom.copySelectedDatesBtn) dom.copySelectedDatesBtn.disabled = false;
-      if (dom.loadingIndicator) dom.loadingIndicator.style.display = "none";
+      setDaycordControlsDisabled(false);
     }
+  }
+
+  function fetchAndProcessData() {
+    const cached = loadCachedDaycordData();
+    if (cached) {
+      applyDaycordData(cached);
+      refreshDaycordDataInBackground({ hasRenderedCache: true });
+      return;
+    }
+
+    showDaycordLoadingMessage("デイコードの情報を読み込み中です...");
+    refreshDaycordDataInBackground({ hasRenderedCache: false });
   }
 
   if (dom.addBtn)
@@ -1672,6 +1736,20 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
         const nameToRemove = e.target.dataset.name;
         selectedNames = selectedNames.filter((n) => n !== nameToRemove);
         updateDisplay();
+      } else if (e.target.classList.contains("date-checkbox")) {
+        const checkbox = e.target;
+        const date = checkbox.dataset.date;
+        const headerCell = checkbox.closest("th");
+        if (!date || !headerCell) return;
+
+        if (checkbox.checked) {
+          if (!selectedDates.includes(date)) selectedDates.push(date);
+          headerCell.classList.add("selected-date-cell");
+        } else {
+          selectedDates = selectedDates.filter((d) => d !== date);
+          headerCell.classList.remove("selected-date-cell");
+        }
+        updateSelectedDatesDisplay();
       }
     });
   }
@@ -1687,7 +1765,7 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
       }
 
       if (eventName) {
-        const event = scenarioData.find((d) => d.eventName === eventName);
+        const event = scenarioDataMap.get(eventName);
         if (event) {
           const participantsOnSheet = [event.gm, ...event.participants].filter(
             Boolean,
@@ -1739,8 +1817,8 @@ function initializeDaycordFeature({ allEvents, eventsByDate, COLORS }) {
 
   if (dom.includePendingCheckbox)
     dom.includePendingCheckbox.addEventListener("change", () => {
+      renderTable();
       calculateAvailableDates();
-      renderTable(); // テーブルの再描画も行う
     });
   if (dom.continuousDaysInput)
     dom.continuousDaysInput.addEventListener("input", calculateAvailableDates);
@@ -1887,6 +1965,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       refreshBtn.disabled = true;
       refreshBtn.textContent = "更新中...";
       clearSharedEventCache();
+      clearDaycordCache();
       await refreshSharedEventDataInBackground();
       location.reload();
     });
@@ -1902,11 +1981,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       initializeCalendar({ allEvents, eventsByDate, COLORS });
     }
 
+    if (loadingIndicator) loadingIndicator.style.display = "none";
+
     if (document.getElementById("daycord-table-container")) {
       initializeDaycordFeature({ allEvents, eventsByDate, COLORS });
-    } else {
-      // daycord機能がない場合は、ここでインジケーターを消す
-      if (loadingIndicator) loadingIndicator.style.display = "none";
     }
   } catch (error) {
     console.error("ページの初期化中にエラーが発生しました:", error);
