@@ -1483,6 +1483,18 @@
     transform: translateY(-1px);
   }
 
+  .ar2e-enemies-page .action-btn.is-share {
+    background: linear-gradient(180deg, #d99024 0%, #805014 100%);
+    color: #fff7df;
+    border-color: #f6c56c;
+  }
+
+  .ar2e-enemies-page .action-btn.is-share:hover {
+    background: linear-gradient(180deg, #f0a83b 0%, #9b641d 100%);
+    color: #ffffff;
+    border-color: #fde047;
+  }
+
   .ar2e-enemies-page .asian-table {
     width: 100%;
     border-collapse: collapse;

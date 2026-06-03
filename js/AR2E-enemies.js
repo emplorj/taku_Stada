@@ -55,6 +55,7 @@
     newEnemyButton: document.getElementById("newEnemyButton"),
     saveEnemyButton: document.getElementById("saveEnemyButton"),
     saveAsEnemyButton: document.getElementById("saveAsEnemyButton"),
+    shareEnemyButton: document.getElementById("shareEnemyButton"),
     exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
     komaExportModeSelect: document.getElementById("komaExportModeSelect"),
     deleteEnemyButton: document.getElementById("deleteEnemyButton"),
@@ -273,6 +274,48 @@
       url.searchParams.set(k, s);
     });
     return url.toString();
+  }
+
+  function getSharedEnemyIdFromUrl() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return String(params.get("id") || params.get("enemy") || "").trim();
+    } catch (_e) {
+      return "";
+    }
+  }
+
+  function buildEnemyShareUrl(enemyId) {
+    const id = String(enemyId || "").trim();
+    if (!id) return "";
+    const url = new URL(window.location.href);
+    url.searchParams.set("id", id);
+    url.hash = "";
+    return url.toString();
+  }
+
+  function copyTextToClipboard(text) {
+    const value = String(text || "");
+    if (!value) return Promise.reject(new Error("コピーするテキストがありません"));
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      return navigator.clipboard.writeText(value);
+    }
+    return new Promise((resolve, reject) => {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = value;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        ok ? resolve() : reject(new Error("コピーに失敗しました"));
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   async function fetchApiJson(url, init = null) {
@@ -833,14 +876,39 @@
       state.enemies = [fresh];
       localUnsavedEnemyIds.add(String(fresh.ID));
     }
+    const sharedId = getSharedEnemyIdFromUrl();
     const lastId = getLastSelectedId();
-    state.selectedId = state.enemies.some((e) => String(e.ID) === lastId)
-      ? lastId
-      : state.enemies[0].ID;
+    if (sharedId && state.enemies.some((e) => String(e.ID) === sharedId)) {
+      state.selectedId = sharedId;
+    } else {
+      state.selectedId = state.enemies.some((e) => String(e.ID) === lastId)
+        ? lastId
+        : state.enemies[0].ID;
+    }
     const selected = getSelectedEnemy();
     fillFormFromEnemy(selected);
     renderEnemyList();
+    if (sharedId && String(state.selectedId) === sharedId) {
+      setStatus("共有URLから読込", "ok");
+      return;
+    }
     setStatus(isUnsavedEnemy(selected) ? "未保存" : "保存済み");
+  }
+
+  async function shareCurrentEnemy() {
+    const current = getSelectedEnemy();
+    if (!current) return;
+    readFormToCurrentEnemy();
+    if (isUnsavedEnemy(current) || state.dirty) {
+      setStatus("共有URL作成中...", "info");
+      await saveCurrentToDb();
+    }
+    const saved = getSelectedEnemy();
+    const shareUrl = buildEnemyShareUrl(saved && saved.ID);
+    if (!shareUrl) throw new Error("共有URLを生成できませんでした");
+    await copyTextToClipboard(shareUrl);
+    setStatus("共有URLをコピーしました", "ok");
+    showToast("共有URLをコピーしました", "info");
   }
 
   async function saveCurrentToDb() {
@@ -2480,6 +2548,16 @@
           setStatus("新規保存完了");
         } catch (e) {
           setStatus(`保存失敗: ${e.message || "error"}`);
+        }
+      });
+    }
+    if (el.shareEnemyButton) {
+      el.shareEnemyButton.addEventListener("click", async () => {
+        try {
+          await shareCurrentEnemy();
+        } catch (e) {
+          setStatus(`共有失敗: ${e.message || "error"}`, "error");
+          showToast(`共有失敗: ${e.message || "error"}`, "error");
         }
       });
     }
