@@ -15,6 +15,7 @@ const state = {
   enemySortDir: "asc",
   enemyListPageSize: 10,
   enemyListPage: 1,
+  adminMode: false,
 };
 
 const PART_TYPES = ["頭", "腕", "胴", "脚"];
@@ -114,6 +115,7 @@ const el = {
   saveEnemyButton: document.getElementById("saveEnemyButton"),
   saveEnemyButtonBottom: document.getElementById("saveEnemyButtonBottom"),
   saveAsEnemyButtonBottom: document.getElementById("saveAsEnemyButtonBottom"),
+  shareEnemyButtonBottom: document.getElementById("shareEnemyButtonBottom"),
   newEnemyButton: document.getElementById("newEnemyButton"),
   newEnemyButtonBottom: document.getElementById("newEnemyButtonBottom"),
   duplicateEnemyButton: document.getElementById("duplicateEnemyButton"),
@@ -475,6 +477,45 @@ async function writeClipboardText(text) {
   if (typeof sharedApi.writeClipboardText === "function") {
     await sharedApi.writeClipboardText(text);
   }
+}
+
+function getSharedEnemyIdFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return String(params.get("id") || params.get("enemy") || "").trim();
+  } catch (_e) {
+    return "";
+  }
+}
+
+function buildEnemyShareUrl(enemyId) {
+  const id = String(enemyId || "").trim();
+  if (!id) return "";
+  const url = new URL(window.location.href);
+  url.searchParams.set("id", id);
+  url.hash = "";
+  return url.toString();
+}
+
+function tryEnableAdminModeFromImport(raw) {
+  if (String(raw || "").trim() !== "9800") return false;
+  const ok = window.confirm("管理者モードとして、すべての手駒を表示しますか？");
+  if (!ok) return true;
+  state.adminMode = true;
+  state.enemyListPage = 1;
+  setSaveStatus("ok", "管理者モード: 全件表示");
+  if (el.komaJsonInput) el.komaJsonInput.value = "";
+  loadFromStorage()
+    .then(() => {
+      state.enemyListPage = 1;
+      renderAll();
+      setSaveStatus("ok", "管理者モード: 全件表示");
+    })
+    .catch((error) => {
+      console.error("[nechronica] 管理者モード読込失敗:", error);
+      setSaveStatus("error", "管理者モード読込失敗");
+    });
+  return true;
 }
 
 function setSaveButtonLabelByEnemy(enemy) {
@@ -1142,7 +1183,12 @@ function setEnemySort(key) {
 async function loadFromStorage() {
   const author = getRememberedAuthor();
   try {
-    const url = buildApiUrl("listNechronicaEnemies", { author });
+    const url = buildApiUrl(
+      "listNechronicaEnemies",
+      state.adminMode
+        ? { admin: "9800", includePrivate: "1", allAuthors: "1" }
+        : { author },
+    );
     const response = await fetchApiJson(url);
     const list = Array.isArray(response.data) ? response.data : [];
     if (list.length) {
@@ -1244,6 +1290,51 @@ function saveToStorage() {
     });
 }
 
+async function saveSelectedEnemyNow() {
+  const enemy = getSelectedEnemy();
+  if (!enemy) return null;
+  upsertCurrentEnemyFromForm();
+  setSaveStatus("saving", "保存中…");
+  const payload = normalizeEnemy(JSON.parse(JSON.stringify(enemy)));
+  const response = await fetchApiJson(buildApiUrl("saveNechronicaEnemy"), {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      tool: "nechronica",
+      action: "saveNechronicaEnemy",
+      author: getRememberedAuthor(),
+      enemy: payload,
+    }),
+  });
+  const saved = response && response.data ? response.data : payload;
+  const current = getSelectedEnemy();
+  if (!current) return normalizeEnemy(saved);
+  const beforeId = String(current.ID || "");
+  const normalized = normalizeEnemy({ ...current, ...saved });
+  Object.assign(current, normalized);
+  state.selectedId = current.ID;
+  if (el.fields.id) el.fields.id.value = current.ID;
+  localUnsavedEnemyIds.delete(beforeId);
+  localUnsavedEnemyIds.delete(String(current.ID || ""));
+  clearUnsavedChanges();
+  setSaveButtonLabelByEnemy(current);
+  setSaveStatus("ok", "保存完了");
+  renderAll();
+  return current;
+}
+
+async function shareSelectedEnemy() {
+  let enemy = getSelectedEnemy();
+  if (!enemy) return;
+  if (hasUnsavedChanges || localUnsavedEnemyIds.has(String(enemy.ID || ""))) {
+    enemy = await saveSelectedEnemyNow();
+  }
+  const shareUrl = buildEnemyShareUrl(enemy && enemy.ID);
+  if (!shareUrl) throw new Error("共有URLを生成できませんでした");
+  await writeClipboardText(shareUrl);
+  setSaveStatus("ok", "共有URLをコピーしました");
+}
+
 function renderEnemyList() {
   const q = state.search.trim().toLowerCase();
   const searchField = String(state.enemySearchField || "all").trim();
@@ -1251,7 +1342,7 @@ function renderEnemyList() {
   const targets = state.enemies.filter((e) => {
     if (isNoNameServantPlaceholder(e)) return false;
     const isMine = myAuthor && String(e.author || "") === String(myAuthor);
-    if (!e.is_public && !isMine) return false;
+    if (!state.adminMode && !e.is_public && !isMine) return false;
     if (!q) return true;
     const fields = {
       name: String(e.name || "").toLowerCase(),
@@ -4227,6 +4318,14 @@ function setupEvents() {
   };
   bindClick(el.saveEnemyButton, handleSaveEnemy);
   bindClick(el.saveEnemyButtonBottom, handleSaveEnemy);
+  bindClick(el.shareEnemyButtonBottom, async () => {
+    try {
+      await shareSelectedEnemy();
+    } catch (error) {
+      console.error(error);
+      setSaveStatus("error", "共有失敗");
+    }
+  });
   document.addEventListener("keydown", (event) => {
     const key = String(event.key || "").toLowerCase();
     if (!(event.ctrlKey || event.metaKey) || key !== "s") return;
@@ -4323,6 +4422,7 @@ function setupEvents() {
           : (el.komaJsonInput && el.komaJsonInput.value) || "",
       ).trim();
       if (!raw) return false;
+      if (tryEnableAdminModeFromImport(raw)) return true;
       try {
         const parsed = JSON.parse(raw);
         if (!parsed || parsed.kind !== "character" || !parsed.data) {
@@ -4547,6 +4647,18 @@ async function boot() {
 
   // 前回開いていたエネミーの復元確認
   const lastId = getLastSelectedId();
+  const sharedId = getSharedEnemyIdFromUrl();
+  const sharedEnemy = sharedId
+    ? state.enemies.find((e) => String(e.ID) === String(sharedId))
+    : null;
+
+  if (sharedEnemy) {
+    state.selectedId = sharedEnemy.ID;
+    saveLastSelectedId(sharedEnemy.ID);
+    renderAll();
+    setSaveStatus("ok", "共有URLから読込");
+    return;
+  }
   const lastEnemy = lastId
     ? state.enemies.find((e) => String(e.ID) === lastId)
     : null;

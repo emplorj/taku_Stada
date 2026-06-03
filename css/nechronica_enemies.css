@@ -390,7 +390,9 @@ body.nechronica-enemies-page .save-status {
   border-radius: 4px;
   padding: 0.22rem 0.5rem;
   font-size: 0.78rem;
-  width: 5.2rem;
+  width: 2.4em !important;
+  min-width: 0 !important;
+  max-width: 2.4em !important;
 }
 
 .enemy-page-size-input:focus {

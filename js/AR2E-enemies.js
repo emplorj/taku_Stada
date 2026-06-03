@@ -21,6 +21,7 @@
     sortDir: "desc",
     page: 1,
     pageSize: 10,
+    adminMode: false,
   };
   const localUnsavedEnemyIds = new Set();
 
@@ -318,6 +319,28 @@
     });
   }
 
+  function tryEnableAdminModeFromImport(raw) {
+    if (String(raw || "").trim() !== "9800") return false;
+    const ok = window.confirm("管理者モードとして、すべてのエネミーを表示しますか？");
+    if (!ok) return true;
+    state.adminMode = true;
+    state.page = 1;
+    setStatus("管理者モード: 全件表示");
+    showToast("管理者モードで全件表示します", "info");
+    if (el.importJsonInput) el.importJsonInput.value = "";
+    loadFromDb()
+      .then(() => {
+        state.page = 1;
+        renderEnemyList();
+        setStatus("管理者モード: 全件表示");
+      })
+      .catch((error) => {
+        console.error("[AR2E] 管理者モード読込失敗:", error);
+        setStatus(`管理者モード読込失敗: ${error.message || "error"}`);
+      });
+    return true;
+  }
+
   async function fetchApiJson(url, init = null) {
     const sharedApi = getEnemiesShared();
     if (typeof sharedApi.fetchApiJson === "function") {
@@ -520,10 +543,13 @@
     current.name = String(sheet.name || "").trim();
     current.class_type = String(sheet.enemyType || "general").trim() || "general";
     current.is_public = !!sheet.isPublic;
-    current.memo = String(sheet.memo || "");
+    current.memo = stripLegacyDefenseLineFromMemo(sheet.memo, sheet);
     current.icon_url = String(getByPath(sheet, "meta.imageUrl") || "").trim();
     current.data = {
-      sheet,
+      sheet: {
+        ...sheet,
+        memo: current.memo,
+      },
       skills: deepClone(state.skills),
       dropItems: deepClone(state.dropItems),
       attackMethods: deepClone(state.attackMethods),
@@ -626,6 +652,18 @@
     };
   }
 
+  function stripLegacyDefenseLineFromMemo(memo, sheet = {}) {
+    const text = String(memo || "");
+    const physDef = String(getByPath(sheet, "physDef") || "").trim();
+    const magicDef = String(getByPath(sheet, "magicDef") || "").trim();
+    return text.replace(/^\s*(\d+)\s*\/\s*(\d+)\s*(?:\r?\n|$)/, (match, phys, magic) => {
+      if (physDef && magicDef && (String(phys) !== physDef || String(magic) !== magicDef)) {
+        return match;
+      }
+      return "";
+    }).trimStart();
+  }
+
   function normalizePageSize(v) {
     const n = Number(String(v ?? "").trim() || "10");
     if (!Number.isFinite(n)) return 10;
@@ -641,15 +679,15 @@
     let list = state.enemies.filter((e) => {
       if (isUnsavedEnemy(e)) return false;
 
-      const canView =
-        typeof shared.canViewEnemyByVisibility === "function"
+      const canView = state.adminMode ||
+        (typeof shared.canViewEnemyByVisibility === "function"
           ? shared.canViewEnemyByVisibility({
               isPublic: !!e.is_public,
               enemyAuthor: e.author,
               myAuthor,
             })
           : !!e.is_public ||
-            (myAuthor && String(e.author || "") === String(myAuthor));
+            (myAuthor && String(e.author || "") === String(myAuthor)));
       if (!canView) {
         return false;
       }
@@ -868,7 +906,12 @@
 
   async function loadFromDb() {
     const author = getRememberedAuthor();
-    const response = await fetchApiJson(buildApiUrl("listAR2EEnemies", { author }));
+    const response = await fetchApiJson(buildApiUrl(
+      "listAR2EEnemies",
+      state.adminMode
+        ? { admin: "9800", includePrivate: "1", allAuthors: "1" }
+        : { author },
+    ));
     const rows = Array.isArray(response.data) ? response.data : [];
     state.enemies = rows.map(fromApiEnemy);
     if (!state.enemies.length) {
@@ -1576,7 +1619,7 @@
     const dmg = formatDiceText(String(atk.damageDice || "").trim() || "2D+0");
     const attr = String(atk.attribute || "").trim() || "-";
     const range = String(atk.range || "").trim() || "-";
-    return `${name}${kindPart ? ` ${kindPart}` : ""} ${hit}/${dmg}/${attr}/${range}`.trim();
+    return `${name}${kindPart ? ` ${kindPart}` : ""} 命中:${hit} ダメージ:${dmg} 属性:${attr} 射程:${range}`.trim();
   }
 
   function buildAttackHitCommandForKoma(atk) {
@@ -1785,6 +1828,25 @@
       return "\n\n───\n---エネミー識別を使用してください---";
     }
     const lines = [];
+    const classification = String(getFieldValue("classification") || "").trim();
+    const attribute = String(getFieldValue("attribute") || "").trim();
+    const initiative = String(getFieldValue("initiative") || "").trim();
+    const movement = String(getFieldValue("movement") || "").trim();
+    const identification = String(getFieldValue("identification") || "").trim();
+    const physDef = String(getFieldValue("physDef") || "").trim();
+    const magicDef = String(getFieldValue("magicDef") || "").trim();
+    const profileParts = [];
+    if (classification) profileParts.push(`分類:${classification}`);
+    if (attribute) profileParts.push(`属性:${attribute}`);
+    if (initiative) profileParts.push(`行動値:${initiative}`);
+    if (movement) profileParts.push(`移動値:${movement}`);
+    if (identification) profileParts.push(`識別値:${identification}`);
+    if (mode === "defense_open") {
+      if (physDef) profileParts.push(`物理防御:${physDef}`);
+      if (magicDef) profileParts.push(`魔法防御:${magicDef}`);
+    }
+    if (profileParts.length) lines.push(`【基本情報】${profileParts.join(" / ")}`);
+
     state.skills.forEach((skill) => {
       const skillHead = buildSkillHeadlineForKoma(skill);
       if (!skillHead) return;
@@ -1797,12 +1859,13 @@
       const range = String(skill.range || "").trim();
       const parts = [];
       if (hitDice || damageDice || target || judge || range) {
-        parts.push(`${hitDice || "-"}/${damageDice || "-"}`);
-        parts.push(target || "-");
-        parts.push(judge || "-");
-        parts.push(range || "-");
+        if (hitDice) parts.push(`命中:${formatDiceText(hitDice)}`);
+        if (damageDice) parts.push(`ダメージ:${formatDiceText(damageDice)}`);
+        if (target) parts.push(`対象:${target}`);
+        if (judge) parts.push(`判定:${judge}`);
+        if (range) parts.push(`射程:${range}`);
       }
-      const bracket = parts.length ? ` [${parts.join("/")}]` : "";
+      const bracket = parts.length ? ` [${parts.join(" / ")}]` : "";
       lines.push(`${skillHead} (${timing || "パッシブ"}) ${effect}${bracket}`.trim());
     });
 
@@ -1810,7 +1873,10 @@
       const atkLine = buildAttackLineForKoma(atk);
       if (atkLine) lines.push(atkLine);
     });
-    const baseMemo = String(getFieldValue("memo") || "").trim();
+    const baseMemo = stripLegacyDefenseLineFromMemo(getFieldValue("memo"), {
+      physDef,
+      magicDef,
+    }).trim();
     const skillMemo = lines.join(" \n");
     if (!baseMemo && !skillMemo) return "";
     return `\n\n───\n${skillMemo}${baseMemo ? `\n${baseMemo}` : ""}`;
@@ -1839,12 +1905,15 @@
     const hp = String(getFieldValue("hp") || "").trim() || "0";
     const mp = String(getFieldValue("mp") || "").trim() || "0";
     const initiative = toInt(getFieldValue("initiative"), 0);
+    const current = getSelectedEnemy();
+    const externalUrl = mode === "pre_identify" ? "" : buildEnemyShareUrl(current && current.ID);
     return {
       kind: "character",
       data: {
         name,
         memo: buildKomaMemoByMode(mode),
         initiative,
+        ...(externalUrl ? { externalUrl } : {}),
         status: [
           { label: "HP", value: hp, max: hp },
           { label: "MP", value: mp, max: mp },
@@ -1858,6 +1927,11 @@
 
   async function exportKomaJsonByCurrentMode() {
     const mode = el.komaExportModeSelect ? String(el.komaExportModeSelect.value || "pre_identify") : "pre_identify";
+    const current = getSelectedEnemy();
+    if (mode !== "pre_identify" && current && (isUnsavedEnemy(current) || state.dirty)) {
+      setStatus("共有URL付きコマ出力のため保存中...");
+      await saveCurrentToDb();
+    }
     const jsonObj = buildKomaCharacterJson(mode);
     const text = JSON.stringify(jsonObj);
     if (typeof shared.writeClipboardText === "function") {
@@ -2678,6 +2752,7 @@
       el.importJsonInput.addEventListener("change", () => {
         const raw = String(el.importJsonInput.value || "").trim();
         if (!raw) return;
+        if (tryEnableAdminModeFromImport(raw)) return;
         try {
           const parsed = JSON.parse(raw);
           const current = getSelectedEnemy();

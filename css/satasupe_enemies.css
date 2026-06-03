@@ -752,6 +752,11 @@
   row-gap: 0.45rem;
 }
 
+.save-status-text {
+  display: inline-flex;
+  align-items: center;
+}
+
 .action-bar-meta {
   display: inline-flex;
   align-items: center;
@@ -1221,7 +1226,9 @@ tr.is-row-dragging {
   border-radius: 4px;
   padding: 0.22rem 0.5rem;
   font-size: 0.78rem;
-  width: 5.2rem;
+  width: 2.4em !important;
+  min-width: 0 !important;
+  max-width: 2.4em !important;
 }
 
 .enemy-page-size-input:focus {

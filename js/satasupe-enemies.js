@@ -16,6 +16,7 @@
     sortDir: "desc",
     page: 1,
     pageSize: 10,
+    adminMode: false,
   };
   const localUnsavedSheetIds = new Set();
 
@@ -27,6 +28,7 @@
     newEnemyButton: document.getElementById("newEnemyButton"),
     saveEnemyButton: document.getElementById("saveEnemyButton"),
     saveAsEnemyButton: document.getElementById("saveAsEnemyButton"),
+    shareEnemyButton: document.getElementById("shareEnemyButton"),
     deleteEnemyButton: document.getElementById("deleteEnemyButton"),
     exportJsonButton: document.getElementById("exportJsonButton"),
     exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
@@ -1086,6 +1088,51 @@
     return url.toString();
   }
 
+  function buildEnemyShareUrl(enemyId) {
+    const id = String(enemyId || "").trim();
+    if (!id) return "";
+    const url = new URL(window.location.href);
+    url.searchParams.set("id", id);
+    url.hash = "";
+    return url.toString();
+  }
+
+  function tryEnableAdminModeFromImport(raw) {
+    if (String(raw || "").trim() !== "9800") return false;
+    const ok = window.confirm("管理者モードとして、すべてのエネミーを表示しますか？");
+    if (!ok) return true;
+    state.adminMode = true;
+    state.page = 1;
+    setStatus("管理者モード: 全件表示", "info");
+    if (el.importJsonInput) el.importJsonInput.value = "";
+    loadFromDb()
+      .then(() => {
+        state.page = 1;
+        renderAll();
+        setStatus("管理者モード: 全件表示", "info");
+      })
+      .catch((error) => {
+        console.error("[satasupe] 管理者モード読込失敗:", error);
+        setStatus("管理者モード読込失敗", "error");
+      });
+    return true;
+  }
+
+  async function shareCurrentEnemy() {
+    let sheet = getSelected();
+    if (!sheet) return;
+    if (state.dirty || localUnsavedSheetIds.has(String(sheet.id || "")) || String(sheet.id || "").startsWith("new-")) {
+      setStatus("共有URL作成中...");
+      await saveCurrentToDb();
+      sheet = getSelected();
+      renderAll();
+    }
+    const shareUrl = buildEnemyShareUrl(sheet && sheet.id);
+    if (!shareUrl) throw new Error("共有URLを生成できませんでした");
+    await writeClipboardText(shareUrl);
+    setStatus("共有URLをコピーしました", "ok");
+  }
+
   async function fetchApiJson(url, init = null) {
     const sharedApi = getEnemiesShared();
     if (typeof sharedApi.fetchApiJson === "function") {
@@ -1335,7 +1382,12 @@
 
   async function loadFromDb() {
     const author = getRememberedAuthor();
-    const url = buildApiUrl("listSatasupeEnemies", { author });
+    const url = buildApiUrl(
+      "listSatasupeEnemies",
+      state.adminMode
+        ? { admin: "9800", includePrivate: "1", allAuthors: "1" }
+        : { author },
+    );
     const response = await fetchApiJson(url);
     const all = Array.isArray(response.data) ? response.data : [];
     const tagged = all.filter((enemy) => {
@@ -1447,15 +1499,15 @@
     let targets = state.sheets.filter((s) => {
       const id = String((s && s.id) || "");
       if (localUnsavedSheetIds.has(id)) return false;
-      const canView =
-        typeof shared.canViewEnemyByVisibility === "function"
+      const canView = state.adminMode ||
+        (typeof shared.canViewEnemyByVisibility === "function"
           ? shared.canViewEnemyByVisibility({
               isPublic: !!s.is_public,
               enemyAuthor: s.author,
               myAuthor,
             })
           : !!s.is_public ||
-            (myAuthor && String((s && s.author) || "") === String(myAuthor));
+            (myAuthor && String((s && s.author) || "") === String(myAuthor)));
       if (!canView) {
         return false;
       }
@@ -3222,12 +3274,24 @@
       el.exportKomaJsonButton.addEventListener("click", () => exportKomaJson());
     }
 
+    if (el.shareEnemyButton) {
+      el.shareEnemyButton.addEventListener("click", async () => {
+        try {
+          await shareCurrentEnemy();
+        } catch (error) {
+          console.error(error);
+          setStatus("共有失敗", "error");
+        }
+      });
+    }
+
     if (el.importJsonInput) {
       el.importJsonInput.addEventListener("change", (e) => {
         const input = e.target;
         if (!(input instanceof HTMLInputElement)) return;
         const value = String(input.value || "").trim();
         if (!value) return;
+        if (tryEnableAdminModeFromImport(value)) return;
         importKomaJsonText(value)
           .then(() => {
             input.value = "";
@@ -3245,6 +3309,7 @@
         if (!(input instanceof HTMLInputElement)) return;
         const value = String(input.value || "").trim();
         if (!value) return;
+        if (tryEnableAdminModeFromImport(value)) return;
         importKomaJsonText(value)
           .then(() => {
             input.value = "";
