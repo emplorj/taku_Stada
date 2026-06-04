@@ -1103,13 +1103,13 @@
     if (!ok) return true;
     state.adminMode = true;
     state.page = 1;
-    setStatus("管理者モード: 全件表示", "info");
+    setStatus("管理者モード", "info");
     if (el.importJsonInput) el.importJsonInput.value = "";
     loadFromDb()
       .then(() => {
         state.page = 1;
         renderAll();
-        setStatus("管理者モード: 全件表示", "info");
+        setStatus("管理者モード", "info");
       })
       .catch((error) => {
         console.error("[satasupe] 管理者モード読込失敗:", error);

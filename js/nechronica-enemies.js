@@ -503,13 +503,13 @@ function tryEnableAdminModeFromImport(raw) {
   if (!ok) return true;
   state.adminMode = true;
   state.enemyListPage = 1;
-  setSaveStatus("ok", "管理者モード: 全件表示");
+  setSaveStatus("ok", "管理者モード");
   if (el.komaJsonInput) el.komaJsonInput.value = "";
   loadFromStorage()
     .then(() => {
       state.enemyListPage = 1;
       renderAll();
-      setSaveStatus("ok", "管理者モード: 全件表示");
+      setSaveStatus("ok", "管理者モード");
     })
     .catch((error) => {
       console.error("[nechronica] 管理者モード読込失敗:", error);

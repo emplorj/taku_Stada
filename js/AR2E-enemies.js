@@ -325,14 +325,14 @@
     if (!ok) return true;
     state.adminMode = true;
     state.page = 1;
-    setStatus("管理者モード: 全件表示");
-    showToast("管理者モードで全件表示します", "info");
+    setStatus("管理者モード");
+    showToast("管理者モード", "info");
     if (el.importJsonInput) el.importJsonInput.value = "";
     loadFromDb()
       .then(() => {
         state.page = 1;
         renderEnemyList();
-        setStatus("管理者モード: 全件表示");
+        setStatus("管理者モード");
       })
       .catch((error) => {
         console.error("[AR2E] 管理者モード読込失敗:", error);
