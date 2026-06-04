@@ -146,6 +146,7 @@
                             <option value="特殊">特殊</option>
                           </select>
                         </div>
+                        <input id="attributeSpecialText" class="attribute-special-text" type="text" placeholder="特殊属性" hidden>
                       </div>
                     </div>
                   </div>
@@ -441,11 +442,16 @@
             </div>
 
             <!-- ペースト用テキストのプレビュー（自動生成） -->
-            <div style="margin-top: 10px;">
-              <label><span id="chatPreviewLabel">チャットパレットプレビュー（自動生成）</span>
-                <textarea id="chat-palette-preview" rows="4" readonly class="readonly-derived-box"
-                  style="font-family: monospace; white-space: pre;"></textarea>
-              </label>
+            <div class="chat-preview-block">
+              <div class="chat-preview-head">
+                <span id="chatPreviewLabel">チャットパレットプレビュー（自動生成）</span>
+                <button id="copyChatPaletteButton" type="button" class="small-square-btn is-copy-chat"
+                  title="このチャットパレットだけコピー" aria-label="このチャットパレットだけコピー">
+                  <i class="fa-solid fa-copy"></i> チャパレコピー
+                </button>
+              </div>
+              <textarea id="chat-palette-preview" rows="4" readonly class="readonly-derived-box"
+                aria-labelledby="chatPreviewLabel" style="font-family: monospace; white-space: pre;"></textarea>
             </div>
 
             <datalist id="ar2eTimingList">

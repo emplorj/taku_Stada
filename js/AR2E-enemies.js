@@ -24,6 +24,7 @@
     adminMode: false,
   };
   const localUnsavedEnemyIds = new Set();
+  let keepDraftSnapshotOnNextFill = false;
 
   const el = {
     form: document.getElementById("enemyEditorForm"),
@@ -31,6 +32,7 @@
     addSkillBtn: document.getElementById("addSkillBtn"),
     chatPreview: document.getElementById("chat-palette-preview"),
     chatPreviewLabel: document.getElementById("chatPreviewLabel"),
+    copyChatPaletteButton: document.getElementById("copyChatPaletteButton"),
     nameInput: document.querySelector('input[data-field="name"]'),
     enemyTypeSelect: document.getElementById("enemyTypeSelect"),
     abilityBlockTitle: document.getElementById("abilityBlockTitle"),
@@ -45,6 +47,7 @@
     attributeDivider: document.getElementById("attributeDivider"),
     attributePrimarySelect: document.getElementById("attributePrimarySelect"),
     attributeSecondarySelect: document.getElementById("attributeSecondarySelect"),
+    attributeSpecialText: document.getElementById("attributeSpecialText"),
     toggleDiceFormat: document.getElementById("toggleDiceFormat"),
     toggleEffectMultiline: document.getElementById("toggleEffectMultiline"),
     fieldId: document.getElementById("field-id"),
@@ -422,6 +425,14 @@
     } catch (_e) {}
   }
 
+  function hasDraftSnapshot() {
+    try {
+      return !!sessionStorage.getItem(DRAFT_STORAGE_KEY);
+    } catch (_e) {
+      return false;
+    }
+  }
+
   function saveDraftSnapshotFromCurrent() {
     try {
       const current = getSelectedEnemy();
@@ -502,7 +513,10 @@
       class_type: "general",
       is_public: true,
       memo: "",
-      data: { sheet: {} },
+      data: {
+        sheet: { enemyType: "general", attribute: "-/-", isPublic: true, author: getRememberedAuthor() },
+        dropItems: createDefaultDropItems(),
+      },
       icon_url: "",
       time: nowText(),
       _autoTemplate: !!auto,
@@ -609,7 +623,11 @@
     renderAttackMethods();
     state.dirty = false;
     setStatus("保存済み");
-    clearDraftSnapshot();
+    if (keepDraftSnapshotOnNextFill) {
+      keepDraftSnapshotOnNextFill = false;
+    } else {
+      clearDraftSnapshot();
+    }
     saveLastSelectedId(enemy.ID);
   }
 
@@ -904,38 +922,100 @@
   }
 
 
-  async function loadFromDb() {
+  function getEnemyAuthorForCompare(enemy) {
+    if (!enemy || typeof enemy !== "object") return "";
+    const sheet = enemy.data && enemy.data.sheet && typeof enemy.data.sheet === "object" ? enemy.data.sheet : {};
+    return String(enemy.author || sheet.author || "").trim();
+  }
+
+  async function fetchEnemyRowsForList(params) {
+    const response = await fetchApiJson(buildApiUrl("listAR2EEnemies", params));
+    return Array.isArray(response.data) ? response.data : [];
+  }
+
+  async function loadEnemyRowsFromDb() {
     const author = getRememberedAuthor();
-    const response = await fetchApiJson(buildApiUrl(
-      "listAR2EEnemies",
-      state.adminMode
-        ? { admin: "9800", includePrivate: "1", allAuthors: "1" }
-        : { author },
-    ));
-    const rows = Array.isArray(response.data) ? response.data : [];
+    if (!state.adminMode) {
+      return fetchEnemyRowsForList({ author });
+    }
+
+    // 管理者モードではバックエンド側の実装差を吸収するため、
+    // 既存パラメータを優先しつつ、全作者取得用の別名パラメータも段階的に試す。
+    const paramVariants = [
+      { admin: "9800", includePrivate: "1", allAuthors: "1" },
+      { admin: "9800", adminCode: "9800", includePrivate: "1", allAuthors: "1", includeAllAuthors: "1", mode: "admin" },
+      { admin: "9800", includePrivate: "1", allAuthors: "1", author: "*" },
+    ];
+
+    let bestRows = [];
+    for (const params of paramVariants) {
+      try {
+        const rows = await fetchEnemyRowsForList(params);
+        if (rows.length > bestRows.length) bestRows = rows;
+        const hasOtherAuthor = rows.some((row) => {
+          const rowAuthor = getEnemyAuthorForCompare(row);
+          return rowAuthor && author && rowAuthor !== author;
+        });
+        if (hasOtherAuthor) return rows;
+      } catch (error) {
+        console.warn("[AR2E] 管理者モード一覧取得リトライ失敗:", error);
+      }
+    }
+    return bestRows;
+  }
+
+  async function loadFromDb(options = {}) {
+    const { preserveCurrentUnsaved = false, preserveDraftSnapshot = false } = options || {};
+    const currentBeforeLoad = getSelectedEnemy();
+    const shouldPreserveCurrent = preserveCurrentUnsaved && currentBeforeLoad && isUnsavedEnemy(currentBeforeLoad);
+    const wasDirty = !!state.dirty;
+    if (shouldPreserveCurrent) {
+      readFormToCurrentEnemy();
+    }
+
+    const rows = await loadEnemyRowsFromDb();
     state.enemies = rows.map(fromApiEnemy);
-    if (!state.enemies.length) {
+
+    if (shouldPreserveCurrent) {
+      const preserved = deepClone(currentBeforeLoad);
+      const preservedId = String(preserved.ID || `new_${Date.now()}`);
+      preserved.ID = preservedId;
+      state.enemies = state.enemies.filter((e) => String(e.ID || "") !== preservedId);
+      state.enemies.unshift(preserved);
+      localUnsavedEnemyIds.add(preservedId);
+      state.selectedId = preservedId;
+    } else if (!state.enemies.length) {
       const fresh = createEnemyTemplate({ auto: true });
       state.enemies = [fresh];
       localUnsavedEnemyIds.add(String(fresh.ID));
     }
+
     const sharedId = getSharedEnemyIdFromUrl();
-    const lastId = getLastSelectedId();
-    if (sharedId && state.enemies.some((e) => String(e.ID) === sharedId)) {
+    if (!shouldPreserveCurrent && sharedId && state.enemies.some((e) => String(e.ID) === sharedId)) {
       state.selectedId = sharedId;
-    } else {
+    } else if (!shouldPreserveCurrent) {
+      const lastId = getLastSelectedId();
       state.selectedId = state.enemies.some((e) => String(e.ID) === lastId)
         ? lastId
         : state.enemies[0].ID;
     }
+
     const selected = getSelectedEnemy();
+    if (preserveDraftSnapshot) keepDraftSnapshotOnNextFill = true;
     fillFormFromEnemy(selected);
+    if (shouldPreserveCurrent) {
+      state.dirty = wasDirty;
+      setStatus(wasDirty ? "未保存（一覧更新済み）" : "新規白紙（一覧更新済み）");
+      if (wasDirty) saveDraftSnapshotFromCurrent();
+    }
     renderEnemyList();
-    if (sharedId && String(state.selectedId) === sharedId) {
+    if (!shouldPreserveCurrent && sharedId && String(state.selectedId) === sharedId) {
       setStatus("共有URLから読込", "ok");
       return;
     }
-    setStatus(isUnsavedEnemy(selected) ? "未保存" : "保存済み");
+    if (!shouldPreserveCurrent) {
+      setStatus(isUnsavedEnemy(selected) ? "未保存" : "保存済み");
+    }
   }
 
   async function shareCurrentEnemy() {
@@ -1005,8 +1085,10 @@
     localUnsavedEnemyIds.add(String(fresh.ID));
     state.selectedId = fresh.ID;
     fillFormFromEnemy(fresh);
+    state.dirty = true;
+    saveDraftSnapshotFromCurrent();
     renderEnemyList();
-    setStatus("新規白紙を作成");
+    setStatus("未保存（新規白紙）");
   }
 
   function confirmLoadEnemyOrCreateNew(targetEnemy) {
@@ -1367,6 +1449,10 @@
     };
   }
 
+  function createDefaultDropItems() {
+    return [createEmptyDropItem(), createEmptyDropItem()];
+  }
+
   function toDropRollNumber(value) {
     const n = Number(String(value == null ? "" : value).replace(/[^0-9.-]/g, ""));
     return Number.isFinite(n) ? Math.trunc(n) : null;
@@ -1440,14 +1526,15 @@
             <input type="number" data-dice-key="damageDice" data-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="dice-plus-input">
           </span>
         </td>
-        <td data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="火(魔)" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
+        <td data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="火" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
         <td data-label="効果">${isEffectMultiline
           ? `<textarea data-key="effect" placeholder="効果" rows="2">${escapeHtml(skill.effect)}</textarea>`
           : `<input type="text" data-key="effect" value="${escapeHtml(skill.effect)}" placeholder="効果">`
         }</td>
         <td style="text-align:center;" data-label="">
           <div class="row-action-wrap">
-            <button type="button" class="copy-row-btn" data-copy-kind="skill-line" data-index="${index}" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy"></i></button>
+            <button type="button" class="copy-row-btn" data-copy-kind="skill-line" data-index="${index}" title="このスキルのチャットパレットをコピー" aria-label="このスキルのチャットパレットをコピー"><i class="fa-solid fa-clipboard"></i></button>
+            <button type="button" class="clone-row-btn" data-clone-kind="skills" data-index="${index}" title="このスキル行を複製" aria-label="このスキル行を複製"><i class="fa-solid fa-copy"></i></button>
             <button type="button" class="delete-btn" data-remove-kind="skills" data-index="${index}" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
             <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
           </div>
@@ -1489,7 +1576,6 @@
         <td><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2"></td>
         <td style="text-align:center; white-space: nowrap;">
           <div class="row-action-wrap">
-            <button type="button" class="copy-row-btn" data-copy-kind="drop-line" data-drop-copy="1" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy"></i></button>
             <button type="button" class="delete-btn" data-remove-kind="dropItems" data-drop-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
             <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
           </div>
@@ -1545,7 +1631,8 @@
         }</td>
         <td style="text-align:center;" data-label="">
           <div class="row-action-wrap">
-            <button type="button" class="copy-row-btn" data-copy-kind="attack-line" data-atk-copy="1" title="この行をコピー" aria-label="この行をコピー"><i class="fa-solid fa-copy"></i></button>
+            <button type="button" class="copy-row-btn" data-copy-kind="attack-line" data-atk-copy="1" title="この攻撃方法のチャットパレットをコピー" aria-label="この攻撃方法のチャットパレットをコピー"><i class="fa-solid fa-clipboard"></i></button>
+            <button type="button" class="clone-row-btn" data-clone-kind="attackMethods" data-atk-clone="1" title="この攻撃方法行を複製" aria-label="この攻撃方法行を複製"><i class="fa-solid fa-copy"></i></button>
             <button type="button" class="delete-btn" data-remove-kind="attackMethods" data-atk-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
             <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
           </div>
@@ -1618,8 +1705,77 @@
     const hit = formatDiceText(String(atk.hitDice || "").trim() || "2D+0");
     const dmg = formatDiceText(String(atk.damageDice || "").trim() || "2D+0");
     const attr = String(atk.attribute || "").trim() || "-";
+    const target = String(atk.target || "").trim() || "-";
     const range = String(atk.range || "").trim() || "-";
-    return `${name}${kindPart ? ` ${kindPart}` : ""} 命中:${hit} ダメージ:${dmg} 属性:${attr} 射程:${range}`.trim();
+    return `${name}${kindPart ? ` ${kindPart}` : ""} 命中:${hit} ダメージ:${dmg} 属性:${attr} 対象:${target} 射程:${range}`.trim();
+  }
+
+  function formatAttackChantDiceText(raw) {
+    const text = String(raw || "").trim();
+    const m = text.match(/^(\d+)\s*[dD](?:\s*\+\s*(-?\d+))?$/);
+    if (!m) return formatDiceText(text);
+    const dice = `${m[1]}D`;
+    const plus = String(m[2] == null ? "0" : m[2]).trim();
+    if (!plus || plus === "0") return dice;
+    return `${plus}(${dice})`;
+  }
+
+  function normalizeChantDescription(raw) {
+    return String(raw || "")
+      .replace(/\r?\n+/g, " ")
+      .replace(/[ \t　]+/g, " ")
+      .trim();
+  }
+
+  function appendChantDescription(line, rawEffect) {
+    const effect = normalizeChantDescription(rawEffect);
+    if (!line || !effect) return line;
+    return `${line}\\n${effect}`;
+  }
+
+  function buildAttackChantLineForKoma(atk) {
+    if (!atk) return "";
+    const name = String(atk.name || "").trim();
+    if (!name) return "";
+    const kind = String(atk.weaponKind || "").trim();
+    const part = String(atk.weaponPart || "").trim();
+    const kindPart = kind || part ? `(${kind || "-"}/${part || "-"})` : "";
+    const hit = formatAttackChantDiceText(String(atk.hitDice || "").trim() || "2D+0");
+    const dmg = formatAttackChantDiceText(String(atk.damageDice || "").trim() || "2D+0");
+    const attr = String(atk.attribute || "").trim() || "-";
+    const target = String(atk.target || "").trim() || "-";
+    const range = String(atk.range || "").trim() || "-";
+    const line = `${name}${kindPart ? kindPart : ""} ${hit} /${dmg}/${attr}/${target}/${range}`.trim();
+    return appendChantDescription(line, atk.effect);
+  }
+
+  function buildSkillChantLineForKoma(skill) {
+    if (!skill) return "";
+    const skillHead = buildSkillHeadlineForKoma(skill);
+    if (!skillHead) return "";
+    const hitDice = String(skill.hitDice || "").trim();
+    const damageDice = String(skill.damageDice || "").trim();
+    if (!shouldEmitSkillDiceCommand(skill, hitDice) && !shouldEmitSkillDiceCommand(skill, damageDice)) return "";
+    const hit = hitDice ? formatDiceText(hitDice) : "-";
+    const dmg = damageDice ? formatDiceText(damageDice) : "-";
+    const attr = String(skill.attribute || "").trim() || "-";
+    const target = String(skill.target || "").trim() || "-";
+    const range = String(skill.range || "").trim() || "-";
+    const line = `${skillHead} ${hit}/${dmg}/${attr}/${target}/${range}`.trim();
+    return appendChantDescription(line, skill.effect);
+  }
+
+  function buildChantLinesForKoma() {
+    const lines = [];
+    state.attackMethods.forEach((atk) => {
+      const line = buildAttackChantLineForKoma(atk);
+      if (line) lines.push(line);
+    });
+    state.skills.forEach((skill) => {
+      const line = buildSkillChantLineForKoma(skill);
+      if (line) lines.push(line);
+    });
+    return lines;
   }
 
   function buildAttackHitCommandForKoma(atk) {
@@ -1714,6 +1870,11 @@
         }
       });
 
+      const chantLines = buildChantLinesForKoma();
+      if (chantLines.length) {
+        lines.push("", ...chantLines);
+      }
+
       lines.push("");
 
       state.skills.forEach((skill) => {
@@ -1766,6 +1927,11 @@
       chatText += `${infoText}\n\n`;
     });
 
+    const chantLines = buildChantLinesForKoma();
+    if (chantLines.length) {
+      chatText += `${chantLines.join("\n")}\n\n`;
+    }
+
     el.chatPreview.value = chatText.trim();
   }
 
@@ -1790,6 +1956,8 @@
         const hitLine = buildAttackHitCommandForKoma(atk);
         if (hitLine) lines.push(hitLine);
       });
+      const chantLines = buildChantLinesForKoma();
+      if (chantLines.length) lines.push("", ...chantLines);
       return lines.join("\n");
     }
 
@@ -1820,6 +1988,9 @@
       if (atkLine) lines.push(atkLine);
     });
 
+    const chantLines = buildChantLinesForKoma();
+    if (chantLines.length) lines.push("", ...chantLines);
+
     return lines.join("\n");
   }
 
@@ -1846,6 +2017,12 @@
       if (magicDef) profileParts.push(`魔法防御:${magicDef}`);
     }
     if (profileParts.length) lines.push(`【基本情報】${profileParts.join(" / ")}`);
+
+    const chantLines = buildChantLinesForKoma();
+    if (chantLines.length) {
+      lines.push("【詠唱】");
+      chantLines.forEach((line) => lines.push(line));
+    }
 
     state.skills.forEach((skill) => {
       const skillHead = buildSkillHeadlineForKoma(skill);
@@ -1974,12 +2151,12 @@
 
   function parseAttributePair(rawValue) {
     const raw = String(rawValue || "").trim();
+    if (raw === "-/-") return { primary: "-", secondary: "-" };
     if (!raw || raw === "-") return { primary: "-", secondary: "" };
     const values = raw
       .split("/")
       .map((v) => v.trim())
       .filter(Boolean)
-      .filter((v) => v !== "-")
       .slice(0, 2);
     return {
       primary: values[0] || "-",
@@ -1987,27 +2164,51 @@
     };
   }
 
+  function normalizeAttributePart(value) {
+    const text = String(value || "").trim();
+    if (!text || text === "-") return "-";
+    if (text === "特殊") {
+      const special = el.attributeSpecialText ? String(el.attributeSpecialText.value || "").trim() : "";
+      return special || "特殊";
+    }
+    return text;
+  }
+
+  function updateAttributeSpecialInputVisibility() {
+    if (!el.attributeSpecialText || !el.attributePrimarySelect || !el.attributeSecondarySelect) return;
+    const primaryIsSpecial = el.attributePrimarySelect.value === "特殊";
+    const secondaryIsSpecial = el.attributeSecondarySelect.value === "特殊";
+    const usesSpecial = primaryIsSpecial || secondaryIsSpecial;
+    el.attributeSpecialText.hidden = !usesSpecial;
+    el.attributeSelectGroup.classList.toggle("is-special-primary", primaryIsSpecial);
+    el.attributeSelectGroup.classList.toggle("is-special-secondary", secondaryIsSpecial);
+    if (!usesSpecial) el.attributeSpecialText.value = "";
+  }
+
   function updateAttributeFromSelects() {
     if (!el.attributeInput || !el.attributePrimarySelect || !el.attributeSecondarySelect) return;
     const primary = String(el.attributePrimarySelect.value || "-").trim() || "-";
     const secondary = String(el.attributeSecondarySelect.value || "").trim();
+    updateAttributeSpecialInputVisibility();
 
     if (primary === "-") {
-      el.attributeSecondarySelect.value = "";
+      el.attributeSecondarySelect.value = secondary === "-" ? "-" : "";
       el.attributeSecondarySelect.hidden = true;
       if (el.attributeDivider) el.attributeDivider.hidden = true;
-      el.attributeInput.value = "-";
+      el.attributeInput.value = secondary === "-" ? "-/-" : "-";
       updateAttributeTheme();
       return;
     }
 
-    el.attributeSecondarySelect.hidden = false;
-    if (el.attributeDivider) el.attributeDivider.hidden = false;
+    el.attributeSecondarySelect.hidden = primary === "特殊";
+    if (el.attributeDivider) el.attributeDivider.hidden = primary === "特殊";
 
+    const primaryValue = normalizeAttributePart(primary);
+    const secondaryValue = normalizeAttributePart(secondary);
     if (secondary && secondary !== primary) {
-      el.attributeInput.value = `${primary}/${secondary}`;
+      el.attributeInput.value = `${primaryValue}/${secondaryValue}`;
     } else {
-      el.attributeInput.value = primary;
+      el.attributeInput.value = primaryValue;
     }
     updateAttributeTheme();
   }
@@ -2017,11 +2218,12 @@
     const parsed = parseAttributePair(el.attributeInput.value);
     el.attributePrimarySelect.value = parsed.primary;
     el.attributeSecondarySelect.value = parsed.secondary;
-    
+
     el.attributeSecondarySelect.hidden = parsed.primary === "-";
     if (el.attributeDivider) {
       el.attributeDivider.hidden = parsed.primary === "-";
     }
+    updateAttributeSpecialInputVisibility();
     updateAttributeFromSelects();
   }
 
@@ -2222,11 +2424,30 @@
           const index = Number(tr.getAttribute("data-index"));
           const src = state.skills[index];
           if (!src) return;
-          const copied = deepClone(src);
-          copied.id = `skill_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-          state.skills.splice(index + 1, 0, copied);
+          const line = buildSkillChantLineForKoma(src);
+          if (!line) {
+            showToast("コピーするスキルチャットパレットがありません", "error");
+            return;
+          }
+          copyTextToClipboard(line)
+            .then(() => showToast("このスキルのチャットパレットをコピーしました", "info"))
+            .catch((error) => showToast(error.message || "コピーに失敗しました", "error"));
+          return;
+        }
+
+        const cloneBtn = e.target.closest("button[data-clone-kind='skills']");
+        if (cloneBtn) {
+          const tr = cloneBtn.closest("tr");
+          if (!tr) return;
+          const index = Number(tr.getAttribute("data-index"));
+          const src = state.skills[index];
+          if (!src) return;
+          const duplicated = deepClone(src);
+          duplicated.id = `skill_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+          state.skills.splice(index + 1, 0, duplicated);
           renderSkills();
           markDirty();
+          showToast("スキル行を複製しました", "info");
           return;
         }
 
@@ -2307,25 +2528,6 @@
       });
 
       el.dropItemsBody.addEventListener("click", (e) => {
-        const copyBtn = e.target.closest("button[data-drop-copy]");
-        if (copyBtn) {
-          const tr = copyBtn.closest("tr");
-          if (!tr) return;
-          const index = Number(tr.getAttribute("data-drop-index"));
-          const src = state.dropItems[index];
-          if (!src) return;
-          const insertIndex = Math.max(0, index);
-          state.dropItems.splice(insertIndex, 0, {
-            min: getNextDropMinByInsertIndex(insertIndex),
-            max: src.max,
-            name: src.name,
-            unitPrice: src.unitPrice,
-            quantity: src.quantity,
-          });
-          renderDropItems();
-          markDirty();
-          return;
-        }
 
         const btn = e.target.closest("button[data-drop-delete]");
         if (!btn) return;
@@ -2438,9 +2640,30 @@
           const index = Number(tr.getAttribute("data-atk-index"));
           const src = state.attackMethods[index];
           if (!src) return;
-          state.attackMethods.splice(index + 1, 0, deepClone(src));
+          const line = buildAttackChantLineForKoma(src);
+          if (!line) {
+            showToast("コピーする攻撃チャットパレットがありません", "error");
+            return;
+          }
+          copyTextToClipboard(line)
+            .then(() => showToast("この攻撃方法のチャットパレットをコピーしました", "info"))
+            .catch((error) => showToast(error.message || "コピーに失敗しました", "error"));
+          return;
+        }
+
+        const cloneBtn = e.target.closest("button[data-atk-clone]");
+        if (cloneBtn) {
+          const tr = cloneBtn.closest("tr");
+          if (!tr) return;
+          const index = Number(tr.getAttribute("data-atk-index"));
+          const src = state.attackMethods[index];
+          if (!src) return;
+          const duplicated = deepClone(src);
+          duplicated.id = `atk_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+          state.attackMethods.splice(index + 1, 0, duplicated);
           renderAttackMethods();
           markDirty();
+          showToast("攻撃方法行を複製しました", "info");
           return;
         }
 
@@ -2480,9 +2703,9 @@
           if (el.attributeDivider) el.attributeDivider.hidden = true;
         } else {
           if (el.attributeSecondarySelect) {
-            el.attributeSecondarySelect.hidden = false;
+            el.attributeSecondarySelect.hidden = primary === "特殊";
           }
-          if (el.attributeDivider) el.attributeDivider.hidden = false;
+          if (el.attributeDivider) el.attributeDivider.hidden = primary === "特殊";
         }
         updateAttributeFromSelects();
       });
@@ -2491,6 +2714,26 @@
     if (el.attributeSecondarySelect) {
       el.attributeSecondarySelect.addEventListener("change", () => {
         updateAttributeFromSelects();
+      });
+    }
+
+    if (el.attributeSpecialText) {
+      el.attributeSpecialText.addEventListener("input", () => {
+        updateAttributeFromSelects();
+      });
+    }
+
+    if (el.copyChatPaletteButton) {
+      el.copyChatPaletteButton.addEventListener("click", async () => {
+        try {
+          updateChatPalettePreview();
+          const text = el.chatPreview ? String(el.chatPreview.value || "").trim() : "";
+          if (!text) throw new Error("コピーするチャットパレットがありません");
+          await copyTextToClipboard(text);
+          showToast("チャットパレットをコピーしました", "info");
+        } catch (error) {
+          showToast(error.message || "チャットパレットのコピーに失敗しました", "error");
+        }
       });
     }
 
@@ -2648,15 +2891,21 @@
     if (el.reloadEnemyListButton) {
       el.reloadEnemyListButton.addEventListener("click", async () => {
         const selected = getSelectedEnemy();
-        if (state.dirty) {
+        const selectedIsUnsaved = selected && isUnsavedEnemy(selected);
+        let preserveCurrentUnsaved = false;
+
+        if (selectedIsUnsaved) {
+          const ok = window.confirm(
+            "現在の新規白紙を残したまま、DB一覧だけ更新しますか？\n\n「OK」：新規白紙を表示したまま一覧更新\n「キャンセル」：更新しない",
+          );
+          if (!ok) return;
+          preserveCurrentUnsaved = true;
+        } else if (state.dirty) {
           const targetName = String((selected && selected.name) || "").trim() || "編集中データ";
           const ok = window.confirm(
-            `「${targetName}」をDBから再読込しますか？\n未保存の変更は失われます。\n\n「いいえ」を押すと新規白紙を作成します。`,
+            `「${targetName}」をDBから再読込しますか？\n未保存の変更は失われます。\n\n「キャンセル」を押すと更新しません。`,
           );
-          if (!ok) {
-            createNewEnemy();
-            return;
-          }
+          if (!ok) return;
         }
 
         if (selected) {
@@ -2664,8 +2913,8 @@
         }
         try {
           setStatus("読込中…");
-          await loadFromDb();
-          setStatus("読込完了");
+          await loadFromDb({ preserveCurrentUnsaved });
+          if (!preserveCurrentUnsaved) setStatus("読込完了");
         } catch (e) {
           setStatus(`読込失敗: ${e.message || "error"}`);
         }
@@ -2920,7 +3169,7 @@
     bindDiceMiniEditor("mobReactionJudge", "mobReactionDiceCount", "mobReactionDicePlus");
     applyNumericFontClasses();
     try {
-      await loadFromDb();
+      await loadFromDb({ preserveDraftSnapshot: hasDraftSnapshot() });
       restoreDraftIfNeededOnce();
     } catch (e) {
       console.error("[AR2E] Failed to load from DB:", e);
@@ -2928,9 +3177,9 @@
       
       const fresh = createEnemyTemplate({ auto: true });
       fresh.data = {
-        sheet: { enemyType: "general", isPublic: true, author: getRememberedAuthor() },
+        sheet: { enemyType: "general", attribute: "-/-", isPublic: true, author: getRememberedAuthor() },
         skills: [createEmptySkill(), createEmptySkill(), createEmptySkill()],
-        dropItems: [createEmptyDropItem(), createEmptyDropItem()],
+        dropItems: createDefaultDropItems(),
         attackMethods: [createEmptyAttackMethod()],
       };
       state.enemies = [fresh];
@@ -2942,7 +3191,11 @@
     }
 
     window.addEventListener("beforeunload", (event) => {
-      if (!state.dirty) return;
+      const current = getSelectedEnemy();
+      const shouldConfirmUnload =
+        !!state.dirty ||
+        (!!current && isUnsavedEnemy(current) && !current._autoTemplate);
+      if (!shouldConfirmUnload) return;
       saveDraftSnapshotFromCurrent();
       event.preventDefault();
       event.returnValue = "";
