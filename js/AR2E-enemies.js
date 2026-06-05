@@ -933,6 +933,95 @@
     return Array.isArray(response.data) ? response.data : [];
   }
 
+
+  function extractEnemyFromApiResponse(data, targetId = "") {
+    const id = String(targetId || "").trim();
+    if (!data) return null;
+    const rows = Array.isArray(data)
+      ? data
+      : Array.isArray(data.data)
+        ? data.data
+        : data.data && typeof data.data === "object"
+          ? [data.data]
+          : typeof data === "object"
+            ? [data]
+            : [];
+    if (!rows.length) return null;
+    if (!id) return rows[0];
+    return rows.find((row) => String(row && row.ID || "") === id) || rows[0] || null;
+  }
+
+  async function fetchSharedEnemyById(sharedId) {
+    const id = String(sharedId || "").trim();
+    if (!id) return null;
+
+    // GAS/Spreadsheet は応答が遅くなりやすい。共有URLでは直列リトライを避け、
+    // 対応している可能性が高い個別取得系を並列で投げ、最初に一致したものを使う。
+    const variants = [
+      { action: "getAR2EEnemy", params: { id } },
+      { action: "loadAR2EEnemy", params: { id } },
+      { action: "readAR2EEnemy", params: { id } },
+      { action: "listAR2EEnemies", params: { id, enemyId: id, sharedId: id } },
+    ];
+
+    const tasks = variants.map((variant) =>
+      fetchApiJson(buildApiUrl(variant.action, variant.params))
+        .then((response) => {
+          const found = extractEnemyFromApiResponse(response, id);
+          return found && String(found.ID || "") === id ? found : null;
+        })
+        .catch((error) => {
+          console.warn("[AR2E] 共有URLの個別読込失敗:", variant.action, error);
+          return null;
+        })
+    );
+
+    return new Promise((resolve) => {
+      let pending = tasks.length;
+      tasks.forEach((task) => {
+        task.then((found) => {
+          if (found) {
+            resolve(found);
+            return;
+          }
+          pending -= 1;
+          if (pending <= 0) resolve(null);
+        });
+      });
+    });
+  }
+
+  async function waitForSharedEnemyCandidate(sharedId, sharedEnemyPromise, rowsPromise) {
+    const id = String(sharedId || "").trim();
+    if (!id) return null;
+
+    const candidates = [
+      sharedEnemyPromise.then((row) => row || null).catch(() => null),
+      rowsPromise
+        .then((rows) => {
+          const found = Array.isArray(rows)
+            ? rows.find((row) => String(row && row.ID || "") === id)
+            : null;
+          return found || null;
+        })
+        .catch(() => null),
+    ];
+
+    return new Promise((resolve) => {
+      let pending = candidates.length;
+      candidates.forEach((candidate) => {
+        candidate.then((found) => {
+          if (found) {
+            resolve(found);
+            return;
+          }
+          pending -= 1;
+          if (pending <= 0) resolve(null);
+        });
+      });
+    });
+  }
+
   async function loadEnemyRowsFromDb() {
     const author = getRememberedAuthor();
     if (!state.adminMode) {
@@ -969,12 +1058,41 @@
     const currentBeforeLoad = getSelectedEnemy();
     const shouldPreserveCurrent = preserveCurrentUnsaved && currentBeforeLoad && isUnsavedEnemy(currentBeforeLoad);
     const wasDirty = !!state.dirty;
+    const sharedId = getSharedEnemyIdFromUrl();
+    let sharedEnemy = null;
+
+    let rowsPromise = null;
+    let rawSharedEnemyPromise = null;
+
     if (shouldPreserveCurrent) {
       readFormToCurrentEnemy();
+      rowsPromise = loadEnemyRowsFromDb();
+    } else if (sharedId) {
+      setStatus("共有URLから読込中...");
+      // 共有URLでは、個別取得と一覧取得を並列化する。
+      // 個別取得APIが未対応でも、一覧取得側で対象IDが見つかり次第フォームへ反映する。
+      rawSharedEnemyPromise = fetchSharedEnemyById(sharedId);
+      rowsPromise = loadEnemyRowsFromDb();
+      const rawSharedEnemy = await waitForSharedEnemyCandidate(sharedId, rawSharedEnemyPromise, rowsPromise);
+      if (rawSharedEnemy) {
+        sharedEnemy = fromApiEnemy(rawSharedEnemy);
+        state.enemies = [sharedEnemy];
+        state.selectedId = sharedEnemy.ID;
+        if (preserveDraftSnapshot) keepDraftSnapshotOnNextFill = true;
+        fillFormFromEnemy(sharedEnemy);
+        renderEnemyList();
+        setStatus("共有URLから読込", "ok");
+      }
+    } else {
+      rowsPromise = loadEnemyRowsFromDb();
     }
 
-    const rows = await loadEnemyRowsFromDb();
+    const rows = await rowsPromise;
     state.enemies = rows.map(fromApiEnemy);
+
+    if (sharedEnemy && !state.enemies.some((e) => String(e.ID || "") === String(sharedEnemy.ID || ""))) {
+      state.enemies.unshift(sharedEnemy);
+    }
 
     if (shouldPreserveCurrent) {
       const preserved = deepClone(currentBeforeLoad);
@@ -990,7 +1108,6 @@
       localUnsavedEnemyIds.add(String(fresh.ID));
     }
 
-    const sharedId = getSharedEnemyIdFromUrl();
     if (!shouldPreserveCurrent && sharedId && state.enemies.some((e) => String(e.ID) === sharedId)) {
       state.selectedId = sharedId;
     } else if (!shouldPreserveCurrent) {
@@ -1526,7 +1643,7 @@
             <input type="number" data-dice-key="damageDice" data-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="dice-plus-input">
           </span>
         </td>
-        <td data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="火" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
+        <td data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="火(魔)" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
         <td data-label="効果">${isEffectMultiline
           ? `<textarea data-key="effect" placeholder="効果" rows="2">${escapeHtml(skill.effect)}</textarea>`
           : `<input type="text" data-key="effect" value="${escapeHtml(skill.effect)}" placeholder="効果">`
