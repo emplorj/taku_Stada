@@ -27,6 +27,24 @@
     <section class="ar2e-layout">
       <section class="editor-pane">
 
+
+        <!-- 閲覧モード -->
+        <section id="enemyViewPane" class="enemy-view-pane" hidden aria-live="polite">
+          <div class="enemy-view-toolbar">
+            <div class="enemy-view-stage-group" role="group" aria-label="表示段階">
+              <button type="button" class="enemy-view-stage-btn is-active" data-view-stage="pre_identify">識別前</button>
+              <button type="button" class="enemy-view-stage-btn" data-view-stage="post_identify">識別後</button>
+              <button type="button" class="enemy-view-stage-btn" data-view-stage="defense_open">防御判明</button>
+              <button type="button" class="enemy-view-stage-btn" data-view-stage="gm">GM表示</button>
+            </div>
+            <div class="enemy-view-toolbar-actions">
+              <button id="viewCopyChatPaletteButton" type="button" class="small-square-btn"><i class="fa-solid fa-copy"></i> チャパレコピー</button>
+              <button id="viewEditModeButton" type="button" class="small-square-btn"><i class="fa-solid fa-pen-to-square"></i> 編集</button>
+            </div>
+          </div>
+          <article id="enemyViewContent" class="enemy-view-content"></article>
+        </section>
+
         <!-- コマ連携アクション行 -->
         <div class="koma-action-row">
           <button id="exportKomaJsonButton" type="button" class="action-btn is-sub"><i class="fa-solid fa-dice-d20"></i>
@@ -67,6 +85,8 @@
             <span id="saveStatusText" class="save-status-text">未保存</span>
             <button id="shareEnemyButton" type="button" class="action-btn is-main" title="現在のエネミーの共有URLをコピー"><i
                 class="fa-solid fa-share-nodes"></i> 共有</button>
+            <button id="openEnemyViewButton" type="button" class="action-btn is-sub" title="閲覧用画面を表示"><i
+                class="fa-solid fa-eye"></i> 閲覧</button>
             <button id="saveAsEnemyButton" type="button" class="action-btn is-main"><i class="fa-solid fa-copy"></i>
               別名保存</button>
             <button id="saveEnemyButton" type="button" class="action-btn is-main"><i
@@ -184,6 +204,34 @@
                             data-field="magicDef"></label>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div class="resource-mini-block">
+                  <div class="mini-block-head">
+                    <span>追加リソース</span>
+                    <button id="addResourceBtn" type="button" class="small-square-btn is-mini"><i class="fa-solid fa-plus"></i> 追加</button>
+                  </div>
+                  <div class="table-wrap resource-table-wrap">
+                    <table class="asian-table mini-resource-table" id="resourcesTable">
+                      <colgroup>
+                        <col style="width: 8.8rem;">
+                        <col style="width: 3.6rem;">
+                        <col style="width: 3.6rem;">
+                        <col style="width: auto;">
+                        <col style="width: 3.2rem;">
+                      </colgroup>
+                      <thead>
+                        <tr>
+                          <th>名称</th>
+                          <th>現在</th>
+                          <th>最大</th>
+                          <th>メモ</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="resourcesBody"></tbody>
+                    </table>
                   </div>
                 </div>
               </section>
@@ -316,22 +364,32 @@
               <section class="data-block">
                 <div class="block-head">
                   <h3>ドロップ品</h3>
-                  <button id="addDropItemBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i>
-                    行追加</button>
+                  <div class="block-head-actions">
+                    <label class="public-switch-label is-view-drop-switch" title="閲覧用画面にもドロップ品を表示">
+                      <span class="public-switch-wrap">
+                        <input id="field-show-drops-in-view" class="switch" type="checkbox" checked>
+                        <span class="public-switch-text">閲覧表示</span>
+                      </span>
+                    </label>
+                    <button id="addExDropItemBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i> EX追加</button>
+                    <button id="addDropItemBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i> 行追加</button>
+                  </div>
                 </div>
                 <div class="table-wrap">
                   <table class="asian-table" id="dropItemsTable">
                     <colgroup>
-                      <col style="width: 12%;">
-                      <col style="width: 12%;">
-                      <col style="width: 30%;">
-                      <col style="width: 18%;">
-                      <col style="width: 12%;">
-                      <col style="width: 10%;">
-                      <col style="width: 72px;">
+                      <col style="width: 1.35rem;">
+                      <col style="width: 3.3rem;">
+                      <col style="width: 3.3rem;">
+                      <col style="width: auto;">
+                      <col style="width: 5.0rem;">
+                      <col style="width: 3.3rem;">
+                      <col style="width: 5.4rem;">
+                      <col style="width: 2.6rem;">
                     </colgroup>
                     <thead>
                       <tr>
+                        <th></th>
                         <th>出目小</th>
                         <th>出目大</th>
                         <th>名前</th>
@@ -364,6 +422,7 @@
             <div class="table-wrap">
               <table class="asian-table" id="attackMethodsTable">
                 <colgroup>
+                  <col style="width: 2rem;"> <!-- 並べ替え -->
                   <col style="width: auto; min-width: 7rem;"> <!-- 名前（やや狭め） -->
                   <col style="width: 5.8rem;"> <!-- 種別（拡張） -->
                   <col style="width: 4.2rem;"> <!-- 部位（拡張） -->
@@ -377,6 +436,7 @@
                 </colgroup>
                 <thead>
                   <tr>
+                    <th></th>
                     <th>名前</th>
                     <th>種別</th>
                     <th>部位</th>
@@ -398,12 +458,15 @@
           <section class="data-block full-width">
             <div class="block-head">
               <h3>所持スキル</h3>
-              <button id="addSkillBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i>
-                スキル追加</button>
+              <div class="block-head-actions">
+                <button id="skillDisplayModeButton" type="button" class="small-square-btn"><i class="fa-solid fa-list"></i> 一覧表示</button>
+                <button id="addSkillBtn" type="button" class="small-square-btn"><i class="fa-solid fa-plus"></i> スキル追加</button>
+              </div>
             </div>
             <div class="table-wrap">
               <table class="asian-table" id="skillsTable">
                 <colgroup>
+                  <col style="width: 2rem;"> <!-- 並べ替え -->
                   <col style="width: 24px;"> <!-- 秘 -->
                   <col style="width: 14%;"> <!-- 名前 -->
                   <col style="width: 3.5rem;"><!-- SL -->
@@ -420,6 +483,7 @@
                 </colgroup>
                 <thead>
                   <tr>
+                    <th></th>
                     <th title="非公開">秘</th>
                     <th>名前</th>
                     <th>SL</th>
@@ -440,6 +504,9 @@
                 </tbody>
               </table>
             </div>
+            <div class="skill-display-area" hidden>
+              <div id="skillSummaryList" class="skill-summary-list" aria-label="所持スキル一覧表示"></div>
+            </div>
 
             <!-- ペースト用テキストのプレビュー（自動生成） -->
             <div class="chat-preview-block">
@@ -450,6 +517,7 @@
                   <i class="fa-solid fa-copy"></i> チャパレコピー
                 </button>
               </div>
+              <div id="chatPreviewLines" class="chat-preview-lines" hidden></div>
               <textarea id="chat-palette-preview" rows="4" readonly class="readonly-derived-box"
                 aria-labelledby="chatPreviewLabel" style="font-family: monospace; white-space: pre;"></textarea>
             </div>

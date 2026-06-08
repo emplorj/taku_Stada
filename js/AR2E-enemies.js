@@ -10,8 +10,10 @@
   // アリアンロッド用のエネミーデータ状態
   const state = {
     skills: [],
+    exDropItems: [],
     dropItems: [],
     attackMethods: [],
+    resources: [],
     enemies: [],
     selectedId: null,
     dirty: false,
@@ -22,6 +24,8 @@
     page: 1,
     pageSize: 10,
     adminMode: false,
+    viewStage: "pre_identify",
+    viewMode: false,
   };
   const localUnsavedEnemyIds = new Set();
   let keepDraftSnapshotOnNextFill = false;
@@ -30,16 +34,28 @@
     form: document.getElementById("enemyEditorForm"),
     skillsBody: document.getElementById("skillsBody"),
     addSkillBtn: document.getElementById("addSkillBtn"),
+    skillDisplayModeButton: document.getElementById("skillDisplayModeButton"),
+    skillSummaryList: document.getElementById("skillSummaryList"),
     chatPreview: document.getElementById("chat-palette-preview"),
+    chatPreviewLines: document.getElementById("chatPreviewLines"),
     chatPreviewLabel: document.getElementById("chatPreviewLabel"),
     copyChatPaletteButton: document.getElementById("copyChatPaletteButton"),
+    enemyViewPane: document.getElementById("enemyViewPane"),
+    enemyViewContent: document.getElementById("enemyViewContent"),
+    viewCopyChatPaletteButton: document.getElementById("viewCopyChatPaletteButton"),
+    viewEditModeButton: document.getElementById("viewEditModeButton"),
+    openEnemyViewButton: document.getElementById("openEnemyViewButton"),
     nameInput: document.querySelector('input[data-field="name"]'),
     enemyTypeSelect: document.getElementById("enemyTypeSelect"),
     abilityBlockTitle: document.getElementById("abilityBlockTitle"),
     generalAbilityBlock: document.getElementById("generalAbilityBlock"),
     mobJudgeBlock: document.getElementById("mobJudgeBlock"),
+    exDropItemsBody: document.getElementById("exDropItemsBody"),
+    addExDropItemBtn: document.getElementById("addExDropItemBtn"),
     dropItemsBody: document.getElementById("dropItemsBody"),
     addDropItemBtn: document.getElementById("addDropItemBtn"),
+    resourcesBody: document.getElementById("resourcesBody"),
+    addResourceBtn: document.getElementById("addResourceBtn"),
     attackMethodsBody: document.getElementById("attackMethodsBody"),
     addAttackMethodBtn: document.getElementById("addAttackMethodBtn"),
     attributeInput: document.getElementById("field-attribute"),
@@ -55,6 +71,7 @@
     fieldIconUrl: document.getElementById("field-icon-url"),
     fieldIsPublic: document.getElementById("field-is-public"),
     fieldIsPublicText: document.getElementById("field-is-public-text"),
+    fieldShowDropsInView: document.getElementById("field-show-drops-in-view"),
     saveStatusText: document.getElementById("saveStatusText"),
     newEnemyButton: document.getElementById("newEnemyButton"),
     saveEnemyButton: document.getElementById("saveEnemyButton"),
@@ -97,6 +114,25 @@
   }
 
   const shared = getEnemiesShared();
+
+
+  function getUrlMode() {
+    try {
+      return String(new URLSearchParams(window.location.search).get("mode") || "").trim().toLowerCase();
+    } catch (_e) {
+      return "";
+    }
+  }
+
+  function shouldStartInViewMode() {
+    return !!getSharedEnemyIdFromUrl() && getUrlMode() !== "edit";
+  }
+
+  function setPageMode() {
+    state.viewMode = shouldStartInViewMode();
+    document.body.classList.toggle("is-enemy-view-mode", !!state.viewMode);
+    if (el.enemyViewPane) el.enemyViewPane.hidden = !state.viewMode;
+  }
 
   function showToast(message, kind = "info") {
     const sharedApi = getEnemiesShared();
@@ -416,6 +452,7 @@
     state.dirty = true;
     setStatus("未保存");
     saveDraftSnapshotFromCurrent();
+    renderEnemyView();
   }
 
   function clearDraftSnapshot() {
@@ -514,8 +551,10 @@
       is_public: true,
       memo: "",
       data: {
-        sheet: { enemyType: "general", attribute: "-/-", isPublic: true, author: getRememberedAuthor() },
+        sheet: { enemyType: "general", attribute: "-/-", isPublic: true, showDropItemsInView: true, author: getRememberedAuthor() },
+        exDropItems: [createEmptyExDropItem()],
         dropItems: createDefaultDropItems(),
+        resources: [],
       },
       icon_url: "",
       time: nowText(),
@@ -552,6 +591,9 @@
     if (el.fieldIsPublic) {
       setByPath(sheet, "isPublic", !!el.fieldIsPublic.checked);
     }
+    if (el.fieldShowDropsInView) {
+      setByPath(sheet, "showDropItemsInView", !!el.fieldShowDropsInView.checked);
+    }
 
     current.author = String(sheet.author || "").trim() || getRememberedAuthor();
     current.name = String(sheet.name || "").trim();
@@ -565,8 +607,10 @@
         memo: current.memo,
       },
       skills: deepClone(state.skills),
+      exDropItems: deepClone(state.exDropItems),
       dropItems: deepClone(state.dropItems),
       attackMethods: deepClone(state.attackMethods),
+      resources: deepClone(state.resources),
     };
     current.time = nowText();
   }
@@ -585,6 +629,7 @@
       if (key === "memo") value = enemy.memo || value;
       if (key === "meta.imageUrl") value = enemy.icon_url || value;
       if (key === "isPublic") value = enemy.is_public;
+      if (key === "showDropItemsInView" && (value == null || value === "")) value = true;
 
       // 保存データに値がない場合は、HTML側の初期値（value属性）を優先する
       if (value == null || value === "") {
@@ -608,19 +653,30 @@
     if (el.fieldIsPublicText) {
       el.fieldIsPublicText.textContent = enemy.is_public ? "公開" : "非公開";
     }
+    if (el.fieldShowDropsInView) {
+      const rawShowDrops = getByPath(sheet, "showDropItemsInView");
+      el.fieldShowDropsInView.checked = rawShowDrops == null || rawShowDrops === "" ? true : !!rawShowDrops;
+    }
     setSaveButtonLabelByEnemy(enemy);
     state.skills = Array.isArray(enemy?.data?.skills) ? deepClone(enemy.data.skills) : [createEmptySkill()];
-    state.dropItems = Array.isArray(enemy?.data?.dropItems) ? deepClone(enemy.data.dropItems) : [createEmptyDropItem()];
+    state.exDropItems = Array.isArray(enemy?.data?.exDropItems)
+      ? deepClone(enemy.data.exDropItems)
+      : [];
+    state.dropItems = Array.isArray(enemy?.data?.dropItems) ? deepClone(enemy.data.dropItems) : createDefaultDropItems();
     state.attackMethods = Array.isArray(enemy?.data?.attackMethods)
       ? deepClone(enemy.data.attackMethods)
       : [createEmptyAttackMethod()];
+    state.resources = Array.isArray(enemy?.data?.resources) ? deepClone(enemy.data.resources) : [];
 
     syncAttributeSelectsFromInput();
     updateEnemyTypeView();
     updateAbilityDerived();
     renderSkills();
+    renderExDropItems();
     renderDropItems();
     renderAttackMethods();
+    renderResources();
+    renderEnemyView();
     state.dirty = false;
     setStatus("保存済み");
     if (keepDraftSnapshotOnNextFill) {
@@ -1555,6 +1611,27 @@
     });
   }
 
+
+  function createEmptyExDropItem() {
+    return {
+      id: `exdrop_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      name: "",
+      unitPrice: "",
+      quantity: "1",
+      memo: ""
+    };
+  }
+
+  function createEmptyResource() {
+    return {
+      id: `res_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      name: "",
+      current: "",
+      max: "",
+      memo: ""
+    };
+  }
+
   function createEmptyDropItem() {
     return {
       id: `drop_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
@@ -1615,7 +1692,8 @@
       const dmg = parseDiceFormula(skill.damageDice, 2);
 
       tr.innerHTML = `
-        <td style="text-align:center;" data-label="">
+        <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="この行をドラッグで並べ替え">⠿</span></td>
+        <td style="text-align:center;" data-label="秘">
           <input type="checkbox" data-key="isSecret" ${skill.isSecret ? "checked" : ""}>
         </td>
         <td data-label="名前"><input type="text" data-key="name" value="${escapeHtml(skill.name)}" placeholder="名称" list="ar2eSkillNameList"></td>
@@ -1653,7 +1731,6 @@
             <button type="button" class="copy-row-btn" data-copy-kind="skill-line" data-index="${index}" title="このスキルのチャットパレットをコピー" aria-label="このスキルのチャットパレットをコピー"><i class="fa-solid fa-clipboard"></i></button>
             <button type="button" class="clone-row-btn" data-clone-kind="skills" data-index="${index}" title="このスキル行を複製" aria-label="このスキル行を複製"><i class="fa-solid fa-copy"></i></button>
             <button type="button" class="delete-btn" data-remove-kind="skills" data-index="${index}" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
-            <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
           </div>
         </td>
       `;
@@ -1671,20 +1748,94 @@
     });
 
     applyNumericFontClasses();
+    renderSkillSummaryList();
     updateChatPalettePreview();
+  }
+
+  function renderSkillSummaryList() {
+    if (!el.skillSummaryList) return;
+    el.skillSummaryList.innerHTML = "";
+    const visibleSkills = state.skills.filter((skill) => skill && !skill.isSecret && String(skill.name || "").trim());
+    if (!visibleSkills.length) {
+      const empty = document.createElement("div");
+      empty.className = "skill-summary-empty";
+      empty.textContent = "公開表示できるスキルがありません。";
+      el.skillSummaryList.appendChild(empty);
+      return;
+    }
+    visibleSkills.forEach((skill) => {
+      const item = document.createElement("article");
+      item.className = "skill-summary-card";
+      const title = buildSkillHeadlineForKoma(skill) || String(skill.name || "").trim();
+      const metaParts = [];
+      if (skill.timing) metaParts.push(skill.timing);
+      if (skill.judge) metaParts.push(`判定:${skill.judge}`);
+      if (skill.target) metaParts.push(`対象:${skill.target}`);
+      if (skill.range) metaParts.push(`射程:${skill.range}`);
+      if (skill.cost) metaParts.push(`コスト:${skill.cost}`);
+      if (skill.attribute) metaParts.push(`属性:${skill.attribute}`);
+      const effect = String(skill.effect || "").trim();
+      item.innerHTML = `
+        <div class="skill-summary-title">${escapeHtml(title)}</div>
+        ${metaParts.length ? `<div class="skill-summary-meta">${escapeHtml(metaParts.join(" / "))}</div>` : ""}
+        ${effect ? `<div class="skill-summary-effect">${escapeHtml(effect)}</div>` : ""}
+      `;
+      el.skillSummaryList.appendChild(item);
+    });
+  }
+
+  function renderExDropItems() {
+    // EXドロップは通常ドロップ表の先頭に統合表示する。
+    // 旧HTML互換のため関数は残すが、描画本体は renderDropItems() に集約する。
+    applyNumericFontClasses();
   }
 
   function renderDropItems() {
     if (!el.dropItemsBody) return;
     el.dropItemsBody.innerHTML = "";
 
+    if (!Array.isArray(state.exDropItems)) state.exDropItems = [];
+    if (state.exDropItems.length > 1) state.exDropItems = state.exDropItems.slice(0, 1);
+    if (el.addExDropItemBtn) {
+      const hasExDrop = state.exDropItems.length >= 1;
+      el.addExDropItemBtn.disabled = hasExDrop;
+      el.addExDropItemBtn.title = hasExDrop ? "EXドロップは1枠のみです" : "EXドロップを追加";
+      el.addExDropItemBtn.classList.toggle("is-disabled", hasExDrop);
+    }
+
+    state.exDropItems.forEach((item, index) => {
+      const tr = document.createElement("tr");
+      tr.className = "drop-row-ex";
+      tr.setAttribute("data-drop-kind", "ex");
+      tr.setAttribute("data-ex-drop-index", index);
+      const qty = Number(item.quantity);
+      const unit = Number(String(item.unitPrice || "").replace(/[^0-9.-]/g, ""));
+      const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
+      tr.innerHTML = `
+        <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="このEXドロップ行をドラッグで並べ替え">⠿</span></td>
+        <td colspan="2" class="drop-ex-label-cell" data-label="出目"><span class="drop-ex-label"><span class="drop-ex-label-full">EXドロップ</span><span class="drop-ex-label-short">EX</span></span></td>
+        <td><input type="text" data-ex-drop-key="name" value="${escapeHtml(item.name || "")}" placeholder="EXドロップ名"></td>
+        <td><input type="text" data-ex-drop-key="unitPrice" value="${escapeHtml(item.unitPrice || "")}" placeholder="1000G"></td>
+        <td><input type="number" data-ex-drop-key="quantity" value="${escapeHtml(item.quantity || "1")}" min="1" step="1" class="num-2"></td>
+        <td><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2"></td>
+        <td style="text-align:center; white-space: nowrap;">
+          <div class="row-action-wrap">
+            <button type="button" class="delete-btn" data-ex-drop-delete="1" title="EXドロップを削除" aria-label="EXドロップを削除"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      `;
+      el.dropItemsBody.appendChild(tr);
+    });
+
     state.dropItems.forEach((item, index) => {
       const tr = document.createElement("tr");
+      tr.setAttribute("data-drop-kind", "normal");
       tr.setAttribute("data-drop-index", index);
       const qty = Number(item.quantity);
       const unit = Number(String(item.unitPrice || "").replace(/[^0-9.-]/g, ""));
       const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
       tr.innerHTML = `
+        <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="このドロップ行をドラッグで並べ替え">⠿</span></td>
         <td><input type="number" data-drop-key="min" value="${escapeHtml(item.min)}" placeholder="1"></td>
         <td><input type="number" data-drop-key="max" value="${escapeHtml(item.max)}" placeholder="5"></td>
         <td><input type="text" data-drop-key="name" value="${escapeHtml(item.name)}" placeholder="アイテム名"></td>
@@ -1693,8 +1844,7 @@
         <td><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2"></td>
         <td style="text-align:center; white-space: nowrap;">
           <div class="row-action-wrap">
-            <button type="button" class="delete-btn" data-remove-kind="dropItems" data-drop-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
-            <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
+            <button type="button" class="delete-btn" data-remove-kind="dropItems" data-drop-delete="1" title="ドロップ品を削除" aria-label="ドロップ品を削除"><i class="fa-solid fa-trash"></i></button>
           </div>
         </td>
       `;
@@ -1720,6 +1870,7 @@
       const dmg = parseDiceFormula(atk.damageDice, 2);
 
       tr.innerHTML = `
+        <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="この行をドラッグで並べ替え">⠿</span></td>
         <td data-label="名前"><input type="text" data-atk-key="name" value="${escapeHtml(atk.name)}" placeholder="攻撃名"></td>
         <td data-label="種別"><input type="text" data-atk-key="weaponKind" value="${escapeHtml(atk.weaponKind || "")}" list="ar2eWeaponKindList" placeholder="格闘" class="atk-kind-input"></td>
         <td data-label="部位"><input type="text" data-atk-key="weaponPart" value="${escapeHtml(atk.weaponPart || "")}" list="ar2eWeaponPartList" placeholder="片" class="atk-part-input"></td>
@@ -1751,13 +1902,31 @@
             <button type="button" class="copy-row-btn" data-copy-kind="attack-line" data-atk-copy="1" title="この攻撃方法のチャットパレットをコピー" aria-label="この攻撃方法のチャットパレットをコピー"><i class="fa-solid fa-clipboard"></i></button>
             <button type="button" class="clone-row-btn" data-clone-kind="attackMethods" data-atk-clone="1" title="この攻撃方法行を複製" aria-label="この攻撃方法行を複製"><i class="fa-solid fa-copy"></i></button>
             <button type="button" class="delete-btn" data-remove-kind="attackMethods" data-atk-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
-            <span class="drag-hint" draggable="true" aria-hidden="true" title="この行はドラッグで並べ替えできます">⠿</span>
           </div>
         </td>
       `;
       el.attackMethodsBody.appendChild(tr);
     });
 
+    applyNumericFontClasses();
+    updateChatPalettePreview();
+  }
+
+  function renderResources() {
+    if (!el.resourcesBody) return;
+    el.resourcesBody.innerHTML = "";
+    state.resources.forEach((res, index) => {
+      const tr = document.createElement("tr");
+      tr.setAttribute("data-resource-index", index);
+      tr.innerHTML = `
+        <td><input type="text" data-resource-key="name" value="${escapeHtml(res.name || "")}" placeholder="フェイト / ヘイト等"></td>
+        <td><input type="number" data-resource-key="current" value="${escapeHtml(res.current || "")}" placeholder="0" class="num-2"></td>
+        <td><input type="number" data-resource-key="max" value="${escapeHtml(res.max || "")}" placeholder="0" class="num-2"></td>
+        <td><input type="text" data-resource-key="memo" value="${escapeHtml(res.memo || "")}" placeholder="用途メモ"></td>
+        <td style="text-align:center; white-space: nowrap;"><div class="row-action-wrap"><button type="button" class="delete-btn" data-resource-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button></div></td>
+      `;
+      el.resourcesBody.appendChild(tr);
+    });
     applyNumericFontClasses();
   }
 
@@ -1952,6 +2121,42 @@
     });
   }
 
+  function renderChatPreviewLineList(rawText) {
+    if (!el.chatPreviewLines) return;
+    el.chatPreviewLines.innerHTML = "";
+    const lines = String(rawText || "").split(/\n/).filter((line) => String(line || "").trim());
+    if (!lines.length) {
+      el.chatPreviewLines.hidden = true;
+      return;
+    }
+    el.chatPreviewLines.hidden = false;
+    lines.forEach((line) => {
+      const row = document.createElement("div");
+      row.className = "chat-preview-line-row";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "chat-line-copy-btn";
+      button.innerHTML = '<i class="fa-solid fa-copy"></i><span>コピー</span>';
+      button.addEventListener("click", () => {
+        copyTextToClipboard(line)
+          .then(() => showToast("1行コピーしました", "info"))
+          .catch((error) => showToast(error.message || "コピーに失敗しました", "error"));
+      });
+      const code = document.createElement("code");
+      code.textContent = line;
+      row.appendChild(button);
+      row.appendChild(code);
+      el.chatPreviewLines.appendChild(row);
+    });
+  }
+
+  function setChatPreviewText(rawText) {
+    if (!el.chatPreview) return;
+    const text = String(rawText || "");
+    el.chatPreview.value = text;
+    renderChatPreviewLineList(text);
+  }
+
   function updateChatPalettePreview() {
     if (!el.chatPreview) return;
 
@@ -2049,7 +2254,8 @@
       chatText += `${chantLines.join("\n")}\n\n`;
     }
 
-    el.chatPreview.value = chatText.trim();
+    setChatPreviewText(chatText.trim());
+    renderEnemyView();
   }
 
   function getFieldValue(fieldKey) {
@@ -2391,6 +2597,249 @@
     });
   }
 
+
+
+  // =======================================================
+  // 閲覧モード
+  // =======================================================
+
+  const VIEW_MASK = ["▆", "▚", "█", "▙", "▄", "▜", "▃", "▟", "▇", "▂", "▞", "▛"];
+  const ABILITY_LABELS = { str: "筋力", dex: "器用", agi: "敏捷", int: "知力", sen: "感知", mnd: "精神", luk: "幸運" };
+
+  function maskText(size = 8) {
+    const n = Math.max(2, Math.min(28, Number(size) || 8));
+    let out = "";
+    for (let i = 0; i < n; i += 1) out += VIEW_MASK[i % VIEW_MASK.length];
+    return out;
+  }
+
+  function isViewStagePre() { return state.viewStage === "pre_identify"; }
+  function isViewStagePost() { return state.viewStage === "post_identify"; }
+  function isViewStageDefenseOpen() { return state.viewStage === "defense_open" || state.viewStage === "gm"; }
+  function isViewStageGm() { return state.viewStage === "gm"; }
+
+  function viewValue(value, fallback = "-") {
+    const s = String(value == null ? "" : value).trim();
+    return s || fallback;
+  }
+
+  function maybeMask(value, shouldMask, size = 6) {
+    return shouldMask ? `<span class="view-mask">${maskText(size)}</span>` : escapeHtml(viewValue(value));
+  }
+
+  function chip(label, cls = "") {
+    const text = String(label == null ? "" : label).trim();
+    if (!text || text === "-") return `<span class="view-chip is-muted">-</span>`;
+    return `<span class="view-chip ${cls}">${escapeHtml(text)}</span>`;
+  }
+
+  function chipsFromText(raw, baseCls = "") {
+    const text = String(raw || "").trim();
+    if (!text || text === "-") return chip("-", baseCls);
+    return text.split(/[\/\s・,，]+/).filter(Boolean).map((x) => chip(x, baseCls)).join("");
+  }
+
+  function attributeChipsForView(raw) {
+    const text = String(raw || "-").trim();
+    if (!text || text === "-") return chip("-", "is-muted");
+    return text.split(/[\/\s・,，]+/).filter(Boolean).map((p) => {
+      let cls = "is-muted";
+      if (p.includes("火")) cls = "is-fire";
+      else if (p.includes("水")) cls = "is-water";
+      else if (p.includes("風")) cls = "is-wind";
+      else if (p.includes("地")) cls = "is-earth";
+      else if (p.includes("光")) cls = "is-light";
+      else if (p.includes("闇")) cls = "is-dark";
+      else if (p.includes("特殊")) cls = "is-special";
+      else if (p.includes("物理") || p.includes("白兵") || p.includes("射撃")) cls = "is-phys";
+      return chip(p, cls);
+    }).join("");
+  }
+
+  function abilityFormulaForView(key, sheet) {
+    const base = toInt(getByPath(sheet, key), 0);
+    const dice = toInt(getByPath(sheet, `${key}Dice`), 2);
+    const bonus = Math.floor(Math.max(0, base) / 3);
+    return `${dice}D+${bonus}（基本値${base || 0}）`;
+  }
+
+  function abilityFormulaHtmlForView(key, sheet) {
+    const base = toInt(getByPath(sheet, key), 0);
+    const dice = toInt(getByPath(sheet, `${key}Dice`), 2);
+    const bonus = Math.floor(Math.max(0, base) / 3);
+    return `${escapeHtml(`${dice}D+${bonus}`)}<span class="view-ability-base">（<small>基本値</small>${escapeHtml(String(base || 0))}）</span>`;
+  }
+
+  function renderViewStageButtons() {
+    document.querySelectorAll(".enemy-view-stage-btn[data-view-stage]").forEach((btn) => {
+      btn.classList.toggle("is-active", String(btn.dataset.viewStage) === String(state.viewStage));
+    });
+  }
+
+  function buildViewAttackCards() {
+    const maskAll = isViewStagePre();
+    const list = Array.isArray(state.attackMethods) ? state.attackMethods : [];
+    if (!list.length) return `<div class="view-empty-card">攻撃方法なし</div>`;
+    return list.map((atk) => {
+      const name = String(atk.name || "").trim() || "攻撃";
+      const kind = String(atk.weaponKind || "").trim();
+      const part = String(atk.weaponPart || "").trim();
+      const kindPart = kind || part ? `<span class="view-attack-sub">[${escapeHtml(kind || "-")}/${escapeHtml(part || "-")}]</span>` : "";
+      if (maskAll) {
+        return `<article class="view-attack-card is-masked">
+          <div class="view-attack-main"><h4><span class="view-mask">${maskText(8)}</span></h4><span class="view-mask">${maskText(14)}</span></div>
+          <div class="view-attack-meta"><span class="view-mask">${maskText(20)}</span></div>
+        </article>`;
+      }
+      const chips = `${attributeChipsForView(atk.attribute || "-")}${chip(`対象:${atk.target || "-"}`)}${chip(`射程:${atk.range || "-"}`)}`;
+      const effect = String(atk.effect || "").trim();
+      return `<article class="view-attack-card">
+        <div class="view-attack-main">
+          <h4>${escapeHtml(name)} ${kindPart}</h4>
+          <div class="view-attack-formulas"><span>命中 ${escapeHtml(formatDiceText(atk.hitDice || "2D+0"))}</span><span>ダメージ ${escapeHtml(formatDiceText(atk.damageDice || "2D+0"))}</span></div>
+        </div>
+        <div class="view-attack-meta">${chips}</div>
+        ${effect ? `<p>${escapeHtml(effect)}</p>` : ""}
+      </article>`;
+    }).join("");
+  }
+
+  function buildViewSkillCards() {
+    const maskAll = isViewStagePre();
+    const list = Array.isArray(state.skills) ? state.skills : [];
+    if (!list.length) return `<div class="view-empty-card">スキルなし</div>`;
+    return list.map((skill) => {
+      const secret = !!skill.isSecret;
+      const masked = maskAll || (secret && !isViewStageGm());
+      if (masked) {
+        return `<article class="view-skill-card is-masked">
+          <h4>《${maskText(8)}》</h4>
+          <div class="view-skill-tags">${chip("未識別", "is-secret")}</div>
+          <p class="view-mask-lines"><span>${maskText(18)}</span><span>　${maskText(22)}</span><span>　${maskText(16)}</span></p>
+        </article>`;
+      }
+      const head = buildSkillHeadlineForKoma(skill) || escapeHtml(skill.name || "スキル");
+      const tags = [];
+      if (skill.timing) tags.push(chip(`タイミング:${skill.timing}`, "is-timing"));
+      if (skill.judge) tags.push(chip(`判定:${skill.judge}`));
+      if (skill.target) tags.push(chip(`対象:${skill.target}`));
+      if (skill.range) tags.push(chip(`射程:${skill.range}`));
+      if (skill.cost) tags.push(chip(`コスト:${skill.cost}`));
+      if (skill.attribute) tags.push(`<span class="view-chip-label">属性:</span>${attributeChipsForView(skill.attribute)}`);
+      const hit = String(skill.hitDice || "").trim();
+      const dmg = String(skill.damageDice || "").trim();
+      const diceLine = (hit || dmg) ? `<div class="view-skill-dice">${hit ? `命中 ${escapeHtml(formatDiceText(hit))}` : ""}${hit && dmg ? " / " : ""}${dmg ? `ダメージ ${escapeHtml(formatDiceText(dmg))}` : ""}</div>` : "";
+      return `<article class="view-skill-card">
+        <h4>${escapeHtml(head)}</h4>
+        ${tags.length ? `<div class="view-skill-tags">${tags.join("")}</div>` : ""}
+        ${diceLine}
+        ${String(skill.effect || "").trim() ? `<p>${escapeHtml(skill.effect)}</p>` : ""}
+      </article>`;
+    }).join("");
+  }
+
+  function formatViewDropItemText(item) {
+    const name = viewValue(item && item.name, "-");
+    const unitRaw = viewValue(item && item.unitPrice, "0");
+    const qty = viewValue(item && item.quantity, "1");
+    const unit = /G\s*$/i.test(String(unitRaw)) ? String(unitRaw) : `${unitRaw}G`;
+    return `${escapeHtml(name)} ${escapeHtml(qty)}個（${escapeHtml(unit)}）`;
+  }
+
+  function buildViewDropRows(sheet) {
+    const show = getByPath(sheet, "showDropItemsInView");
+    if (!(show == null || show === "" ? true : !!show)) return "";
+    if (isViewStagePre()) return "";
+    const rows = [];
+    (Array.isArray(state.exDropItems) ? state.exDropItems : []).forEach((item) => {
+      if (!String(item && (item.name || item.unitPrice || item.quantity) || "").trim()) return;
+      rows.push(`<tr><th>EXドロップ</th><td>${formatViewDropItemText(item)}</td></tr>`);
+    });
+    (Array.isArray(state.dropItems) ? state.dropItems : []).forEach((item) => {
+      const min = viewValue(item.min, "-");
+      const max = viewValue(item.max, "");
+      const range = max ? `${min}〜${max}` : `${min}〜`;
+      rows.push(`<tr><th>${escapeHtml(range)}</th><td>${formatViewDropItemText(item)}</td></tr>`);
+    });
+    if (!rows.length) return "";
+    return `<section class="enemy-view-block"><h3>ドロップ品</h3><table class="enemy-view-table is-drop-simple"><tbody>${rows.join("")}</tbody></table></section>`;
+  }
+
+  function calcDropTotal(item) {
+    const qty = Number(item && item.quantity);
+    const unit = Number(String(item && item.unitPrice || "").replace(/[^0-9.-]/g, ""));
+    if (!Number.isFinite(qty) || !Number.isFinite(unit)) return 0;
+    return Math.trunc(qty * unit);
+  }
+
+  function buildViewResources() {
+    const rows = (Array.isArray(state.resources) ? state.resources : []).filter((r) => String(r.name || r.current || r.max || r.memo || "").trim()).map((r) => `<tr><td class="view-name-cell">${escapeHtml(r.name || "-")}</td><td>${escapeHtml(r.current || "-")}</td><td>${escapeHtml(r.max || "-")}</td><td class="view-name-cell">${escapeHtml(r.memo || "")}</td></tr>`);
+    if (!rows.length) return "";
+    return `<section class="enemy-view-block"><h3>追加リソース</h3><table class="enemy-view-table is-resource"><thead><tr><th>名称</th><th>現在</th><th>最大</th><th>メモ</th></tr></thead><tbody>${rows.join("")}</tbody></table></section>`;
+  }
+
+  function renderEnemyView() {
+    if (!el.enemyViewContent) return;
+    renderViewStageButtons();
+    const current = getSelectedEnemy();
+    const sheet = (current && current.data && current.data.sheet) || {};
+    const name = viewValue(current && current.name || getByPath(sheet, "name"), "名称未設定");
+    const iconUrl = viewValue(current && current.icon_url || getByPath(sheet, "meta.imageUrl"), "");
+    const classification = viewValue(getByPath(sheet, "classification"), "-");
+    const attr = viewValue(getByPath(sheet, "attribute"), "-");
+    const level = viewValue(getByPath(sheet, "level"), "-");
+    const memo = viewValue(current && current.memo || getByPath(sheet, "memo"), "");
+    const defenseMasked = !isViewStageDefenseOpen();
+    const preMasked = isViewStagePre();
+    const abilities = ABILITY_KEYS.map((key) => `<div class="enemy-view-ability-pill"><b>${ABILITY_LABELS[key]}</b><span>${preMasked ? `<span class="view-mask">${maskText(6)}</span>` : abilityFormulaHtmlForView(key, sheet)}</span></div>`).join("");
+    const statSummary = `
+      <div class="enemy-view-stat-grid is-hero-stats">
+        <div><b>HP</b><span>${maybeMask(getByPath(sheet, "hp"), preMasked, 5)}</span></div>
+        <div><b>MP</b><span>${maybeMask(getByPath(sheet, "mp"), preMasked, 5)}</span></div>
+        <div><b>行動値</b><span>${maybeMask(getByPath(sheet, "initiative"), false, 3)}</span></div>
+        <div><b>移動値</b><span>${maybeMask(getByPath(sheet, "movement"), preMasked, 4)}</span></div>
+        <div><b>回避</b><span>${maybeMask(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), defenseMasked, 5)}</span></div>
+        <div><b>物防</b><span>${maybeMask(getByPath(sheet, "physDef"), defenseMasked, 3)}</span></div>
+        <div><b>魔防</b><span>${maybeMask(getByPath(sheet, "magicDef"), defenseMasked, 3)}</span></div>
+      </div>`;
+    el.enemyViewContent.innerHTML = `
+      <section class="enemy-view-hero">
+        ${iconUrl ? `<div class="enemy-view-image"><img src="${escapeHtml(iconUrl)}" alt=""></div>` : `<div class="enemy-view-image is-empty"><i class="fa-solid ${getClassificationIcon(classification)}"></i></div>`}
+        <div class="enemy-view-titlebox">
+          <h2>${escapeHtml(name)}</h2>
+          <dl class="enemy-view-profile-table is-with-summary">
+            <div><dt>分類</dt><dd>${escapeHtml(classification)}</dd></div>
+            <div><dt>属性</dt><dd class="view-profile-chips">${attributeChipsForView(attr)}</dd></div>
+            <div><dt>レベル</dt><dd><span class="enemy-view-level-inline">${escapeHtml(level)}</span></dd></div>
+            <div><dt>識別値</dt><dd>${escapeHtml(viewValue(getByPath(sheet, "identification"), "-"))}</dd></div>
+            <div><dt>HP</dt><dd>${maybeMask(getByPath(sheet, "hp"), preMasked, 5)}</dd></div>
+            <div><dt>MP</dt><dd>${maybeMask(getByPath(sheet, "mp"), preMasked, 5)}</dd></div>
+            <div><dt>行動値</dt><dd>${maybeMask(getByPath(sheet, "initiative"), false, 3)}</dd></div>
+            <div><dt>移動値</dt><dd>${maybeMask(getByPath(sheet, "movement"), preMasked, 4)}</dd></div>
+            <div><dt>回避</dt><dd>${maybeMask(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), defenseMasked, 5)}</dd></div>
+            <div><dt>物防</dt><dd>${maybeMask(getByPath(sheet, "physDef"), defenseMasked, 3)}</dd></div>
+            <div><dt>魔防</dt><dd>${maybeMask(getByPath(sheet, "magicDef"), defenseMasked, 3)}</dd></div>
+          </dl>
+          <div class="enemy-view-hero-subblock">
+            <h3>能力値</h3>
+            <div class="enemy-view-ability-row">${abilities}</div>
+          </div>
+        </div>
+      </section>
+      <section class="enemy-view-block">
+        <h3>攻撃方法</h3>
+        <div class="enemy-view-attacks">${buildViewAttackCards()}</div>
+      </section>
+      <section class="enemy-view-block">
+        <h3>所持スキル</h3>
+        <div class="enemy-view-skills">${buildViewSkillCards()}</div>
+      </section>
+      ${memo ? `<section class="enemy-view-block"><h3>解説</h3><div class="enemy-view-memo">${escapeHtml(memo)}</div></section>` : ""}
+      ${buildViewDropRows(sheet)}
+      ${buildViewResources()}
+    `;
+  }
+
   // =======================================================
   // ユーティリティ・イベントバインド
   // =======================================================
@@ -2404,6 +2853,61 @@
   }
 
   function bindEvents() {
+    setPageMode();
+    if (el.fieldShowDropsInView) {
+      el.fieldShowDropsInView.addEventListener("change", () => {
+        const current = getSelectedEnemy();
+        if (current) readFormToCurrentEnemy();
+        markDirty();
+      });
+    }
+    document.querySelectorAll(".enemy-view-stage-btn[data-view-stage]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.viewStage = String(btn.dataset.viewStage || "pre_identify");
+        renderEnemyView();
+      });
+    });
+    if (el.openEnemyViewButton) {
+      el.openEnemyViewButton.addEventListener("click", async () => {
+        try {
+          const current = getSelectedEnemy();
+          if (current) readFormToCurrentEnemy();
+          let id = String((current && current.ID) || getSharedEnemyIdFromUrl() || "").trim();
+          if (!id || isUnsavedEnemy(current) || state.dirty) {
+            const ok = window.confirm("閲覧用画面を表示するには保存が必要です。保存してから表示しますか？");
+            if (!ok) return;
+            await saveCurrentToDb();
+            const saved = getSelectedEnemy();
+            id = String((saved && saved.ID) || "").trim();
+          }
+          const url = new URL(window.location.href);
+          url.searchParams.delete("mode");
+          if (id) url.searchParams.set("id", id);
+          window.location.href = url.toString();
+        } catch (error) {
+          console.error("[AR2E] 閲覧画面への移動に失敗:", error);
+          setStatus(`閲覧画面への移動に失敗: ${error.message || "error"}`);
+        }
+      });
+    }
+    if (el.viewEditModeButton) {
+      el.viewEditModeButton.addEventListener("click", () => {
+        const current = getSelectedEnemy();
+        const url = new URL(window.location.href);
+        url.searchParams.set("mode", "edit");
+        const id = String((current && current.ID) || getSharedEnemyIdFromUrl() || "").trim();
+        if (id) url.searchParams.set("id", id);
+        window.location.href = url.toString();
+      });
+    }
+    if (el.viewCopyChatPaletteButton) {
+      el.viewCopyChatPaletteButton.addEventListener("click", async () => {
+        const text = el.chatPreview ? String(el.chatPreview.value || "") : buildKomaCommandsForCurrentEnemy().join("\n");
+        if (!text.trim()) return;
+        await copyTextToClipboard(text);
+        showToast("チャットパレットをコピーしました", "info");
+      });
+    }
     document.querySelectorAll('input[data-derived]').forEach((node) => {
       node.tabIndex = -1;
     });
@@ -2580,78 +3084,200 @@
       });
     }
 
-    if (el.dropItemsBody) {
-      let draggingDropIndex = -1;
-      el.dropItemsBody.addEventListener("dragstart", (e) => {
+    if (el.exDropItemsBody) {
+      let draggingExDropIndex = -1;
+      el.exDropItemsBody.addEventListener("dragstart", (e) => {
         const handle = e.target.closest(".drag-hint");
         if (!handle) return;
-        const tr = handle.closest("tr[data-drop-index]");
+        const tr = handle.closest("tr[data-ex-drop-index]");
         if (!tr) return;
-        draggingDropIndex = Number(tr.getAttribute("data-drop-index"));
+        draggingExDropIndex = Number(tr.getAttribute("data-ex-drop-index"));
         tr.classList.add("is-dragging");
         if (e.dataTransfer) {
           e.dataTransfer.effectAllowed = "move";
-          e.dataTransfer.setData("text/plain", String(draggingDropIndex));
+          e.dataTransfer.setData("text/plain", String(draggingExDropIndex));
+          e.dataTransfer.setDragImage(tr, 24, 12);
+        }
+      });
+      el.exDropItemsBody.addEventListener("dragover", (e) => {
+        if (draggingExDropIndex < 0) return;
+        const tr = e.target.closest("tr[data-ex-drop-index]");
+        if (!tr) return;
+        e.preventDefault();
+        tr.classList.add("is-drag-over");
+      });
+      el.exDropItemsBody.addEventListener("dragleave", (e) => {
+        const tr = e.target.closest("tr[data-ex-drop-index]");
+        if (tr) tr.classList.remove("is-drag-over");
+      });
+      el.exDropItemsBody.addEventListener("drop", (e) => {
+        const tr = e.target.closest("tr[data-ex-drop-index]");
+        if (!tr || draggingExDropIndex < 0) return;
+        e.preventDefault();
+        tr.classList.remove("is-drag-over");
+        const toIndex = Number(tr.getAttribute("data-ex-drop-index"));
+        if (moveRowByIndex(state.exDropItems, draggingExDropIndex, toIndex)) {
+          renderExDropItems();
+          markDirty();
+        }
+        draggingExDropIndex = -1;
+      });
+      el.exDropItemsBody.addEventListener("dragend", () => {
+        draggingExDropIndex = -1;
+        el.exDropItemsBody.querySelectorAll("tr.is-dragging").forEach((row) => row.classList.remove("is-dragging"));
+        el.exDropItemsBody.querySelectorAll("tr.is-drag-over").forEach((row) => row.classList.remove("is-drag-over"));
+      });
+      el.exDropItemsBody.addEventListener("input", (e) => {
+        const target = e.target;
+        const tr = target.closest("tr");
+        if (!tr) return;
+        const index = Number(tr.getAttribute("data-ex-drop-index"));
+        const key = target.getAttribute("data-ex-drop-key");
+        if (key && state.exDropItems[index]) {
+          state.exDropItems[index][key] = target.value;
+          const qty = Number(state.exDropItems[index].quantity);
+          const unit = Number(String(state.exDropItems[index].unitPrice || "").replace(/[^0-9.-]/g, ""));
+          const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
+          const totalInput = tr.querySelector('td:nth-child(5) input[readonly]');
+          if (totalInput) totalInput.value = lineTotal === "" ? "" : String(lineTotal);
+          markDirty();
+        }
+      });
+      el.exDropItemsBody.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-ex-drop-delete]");
+        if (!btn) return;
+        const tr = btn.closest("tr");
+        if (!tr) return;
+        const index = Number(tr.getAttribute("data-ex-drop-index"));
+        state.exDropItems.splice(index, 1);
+        renderExDropItems();
+        markDirty();
+      });
+    }
+
+    if (el.dropItemsBody) {
+      let draggingDropIndex = -1;
+      let draggingDropKind = "";
+      el.dropItemsBody.addEventListener("dragstart", (e) => {
+        const handle = e.target.closest(".drag-hint");
+        if (!handle) return;
+        const tr = handle.closest("tr[data-drop-kind]");
+        if (!tr) return;
+        draggingDropKind = String(tr.getAttribute("data-drop-kind") || "normal");
+        draggingDropIndex = Number(
+          draggingDropKind === "ex"
+            ? tr.getAttribute("data-ex-drop-index")
+            : tr.getAttribute("data-drop-index")
+        );
+        tr.classList.add("is-dragging");
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", `${draggingDropKind}:${draggingDropIndex}`);
           e.dataTransfer.setDragImage(tr, 24, 12);
         }
       });
       el.dropItemsBody.addEventListener("dragover", (e) => {
         if (draggingDropIndex < 0) return;
-        const tr = e.target.closest("tr[data-drop-index]");
-        if (!tr) return;
+        const tr = e.target.closest("tr[data-drop-kind]");
+        if (!tr || String(tr.getAttribute("data-drop-kind") || "normal") !== draggingDropKind) return;
         e.preventDefault();
         tr.classList.add("is-drag-over");
       });
       el.dropItemsBody.addEventListener("dragleave", (e) => {
-        const tr = e.target.closest("tr[data-drop-index]");
+        const tr = e.target.closest("tr[data-drop-kind]");
         if (tr) tr.classList.remove("is-drag-over");
       });
       el.dropItemsBody.addEventListener("drop", (e) => {
-        const tr = e.target.closest("tr[data-drop-index]");
+        const tr = e.target.closest("tr[data-drop-kind]");
         if (!tr || draggingDropIndex < 0) return;
+        const kind = String(tr.getAttribute("data-drop-kind") || "normal");
+        if (kind !== draggingDropKind) return;
         e.preventDefault();
         tr.classList.remove("is-drag-over");
-        const toIndex = Number(tr.getAttribute("data-drop-index"));
-        if (moveRowByIndex(state.dropItems, draggingDropIndex, toIndex)) {
+        const toIndex = Number(
+          kind === "ex"
+            ? tr.getAttribute("data-ex-drop-index")
+            : tr.getAttribute("data-drop-index")
+        );
+        const list = kind === "ex" ? state.exDropItems : state.dropItems;
+        if (moveRowByIndex(list, draggingDropIndex, toIndex)) {
           renderDropItems();
           markDirty();
         }
         draggingDropIndex = -1;
+        draggingDropKind = "";
       });
       el.dropItemsBody.addEventListener("dragend", () => {
         draggingDropIndex = -1;
+        draggingDropKind = "";
         el.dropItemsBody.querySelectorAll("tr.is-dragging").forEach((row) => row.classList.remove("is-dragging"));
         el.dropItemsBody.querySelectorAll("tr.is-drag-over").forEach((row) => row.classList.remove("is-drag-over"));
       });
 
       el.dropItemsBody.addEventListener("input", (e) => {
         const target = e.target;
-        const tr = target.closest("tr");
+        const tr = target.closest("tr[data-drop-kind]");
         if (!tr) return;
+        const kind = String(tr.getAttribute("data-drop-kind") || "normal");
+        if (kind === "ex") {
+          const index = Number(tr.getAttribute("data-ex-drop-index"));
+          const key = target.getAttribute("data-ex-drop-key");
+          if (key && state.exDropItems[index]) {
+            state.exDropItems[index][key] = target.value;
+            const qty = Number(state.exDropItems[index].quantity);
+            const unit = Number(String(state.exDropItems[index].unitPrice || "").replace(/[^0-9.-]/g, ""));
+            const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
+            const totalInput = tr.querySelector('td:nth-last-child(2) input[readonly]');
+            if (totalInput) totalInput.value = lineTotal === "" ? "" : String(lineTotal);
+            markDirty();
+          }
+          return;
+        }
+
         const index = Number(tr.getAttribute("data-drop-index"));
         const key = target.getAttribute("data-drop-key");
         if (key && state.dropItems[index]) {
           state.dropItems[index][key] = target.value;
-
           const qty = Number(state.dropItems[index].quantity);
           const unit = Number(String(state.dropItems[index].unitPrice || "").replace(/[^0-9.-]/g, ""));
           const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
-          const totalInput = tr.querySelector('td:nth-child(6) input[readonly]');
-          if (totalInput) {
-            totalInput.value = lineTotal === "" ? "" : String(lineTotal);
-          }
+          const totalInput = tr.querySelector('td:nth-child(7) input[readonly]');
+          if (totalInput) totalInput.value = lineTotal === "" ? "" : String(lineTotal);
           markDirty();
         }
       });
 
       el.dropItemsBody.addEventListener("click", (e) => {
+        const exBtn = e.target.closest("button[data-ex-drop-delete]");
+        if (exBtn) {
+          const tr = exBtn.closest("tr[data-ex-drop-index]");
+          if (!tr) return;
+          const index = Number(tr.getAttribute("data-ex-drop-index"));
+          state.exDropItems.splice(index, 1);
+          renderDropItems();
+          markDirty();
+          return;
+        }
 
         const btn = e.target.closest("button[data-drop-delete]");
         if (!btn) return;
-        const tr = btn.closest("tr");
+        const tr = btn.closest("tr[data-drop-index]");
         if (!tr) return;
         const index = Number(tr.getAttribute("data-drop-index"));
         state.dropItems.splice(index, 1);
+        renderDropItems();
+        markDirty();
+      });
+    }
+
+    if (el.addExDropItemBtn) {
+      el.addExDropItemBtn.addEventListener("click", () => {
+        if (state.exDropItems.length >= 1) {
+          showToast("EXドロップは1枠のみです", "info");
+          renderDropItems();
+          return;
+        }
+        state.exDropItems = [createEmptyExDropItem()];
         renderDropItems();
         markDirty();
       });
@@ -2799,6 +3425,51 @@
       el.addAttackMethodBtn.addEventListener("click", () => {
         state.attackMethods.push(createEmptyAttackMethod());
         renderAttackMethods();
+        markDirty();
+      });
+    }
+
+    if (el.addResourceBtn) {
+      el.addResourceBtn.addEventListener("click", () => {
+        state.resources.push(createEmptyResource());
+        renderResources();
+        markDirty();
+      });
+    }
+
+    if (el.resourcesBody) {
+      el.resourcesBody.addEventListener("input", (e) => {
+        const target = e.target;
+        const tr = target.closest("tr[data-resource-index]");
+        if (!tr) return;
+        const index = Number(tr.getAttribute("data-resource-index"));
+        const key = target.getAttribute("data-resource-key");
+        if (key && state.resources[index]) {
+          state.resources[index][key] = target.value;
+          markDirty();
+        }
+      });
+      el.resourcesBody.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-resource-delete]");
+        if (!btn) return;
+        const tr = btn.closest("tr[data-resource-index]");
+        if (!tr) return;
+        const index = Number(tr.getAttribute("data-resource-index"));
+        state.resources.splice(index, 1);
+        renderResources();
+        markDirty();
+      });
+    }
+
+    if (el.skillDisplayModeButton && el.skillSummaryList) {
+      el.skillDisplayModeButton.addEventListener("click", () => {
+        const block = el.skillSummaryList.closest(".skill-display-area");
+        const tableWrap = document.getElementById("skillsTable")?.closest(".table-wrap");
+        const showingList = block && !block.hidden;
+        if (block) block.hidden = showingList;
+        if (tableWrap) tableWrap.hidden = !showingList;
+        el.skillDisplayModeButton.textContent = showingList ? "一覧表示" : "編集表示";
+        renderSkillSummaryList();
       });
     }
 
@@ -3128,7 +3799,7 @@
           // ココフォリアの駒JSON形式の場合
           if (parsed.kind === "character" && parsed.data) {
             merged = deepClone(current);
-            if (!merged.data) merged.data = { sheet: {}, skills: [], dropItems: [], attackMethods: [] };
+            if (!merged.data) merged.data = { sheet: {}, skills: [], exDropItems: [], dropItems: [], attackMethods: [], resources: [] };
             if (!merged.data.sheet) merged.data.sheet = {};
             
             const d = parsed.data;
@@ -3294,7 +3965,7 @@
       
       const fresh = createEnemyTemplate({ auto: true });
       fresh.data = {
-        sheet: { enemyType: "general", attribute: "-/-", isPublic: true, author: getRememberedAuthor() },
+        sheet: { enemyType: "general", attribute: "-/-", isPublic: true, showDropItemsInView: true, author: getRememberedAuthor() },
         skills: [createEmptySkill(), createEmptySkill(), createEmptySkill()],
         dropItems: createDefaultDropItems(),
         attackMethods: [createEmptyAttackMethod()],

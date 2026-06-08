@@ -3058,4 +3058,1367 @@
         font-size: 0.9rem;
       }
     }
+
+  /* --------------------------------------------------------------------------=
+     UX pass: row drag handles, line-copy preview, EX drops, resources, skill list
+     =-------------------------------------------------------------------------- */
+
+    .ar2e-enemies-page .block-head-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .ar2e-enemies-page .small-square-btn.is-mini {
+      min-height: 1.8rem;
+      height: 1.8rem;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .ar2e-enemies-page .row-drag-cell {
+      width: 2rem;
+      min-width: 2rem;
+      max-width: 2rem;
+      text-align: center;
+      padding-inline: 2px !important;
+      overflow: visible !important;
+    }
+
+    .ar2e-enemies-page .row-drag-cell .drag-hint {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.25rem;
+      height: 1.45rem;
+      border-radius: 4px;
+      color: #d6e4ff;
+      background: rgba(79, 128, 255, 0.12);
+      border: 1px solid rgba(79, 128, 255, 0.3);
+      cursor: grab;
+      line-height: 1;
+      font-size: 0.85rem;
+    }
+
+    .ar2e-enemies-page .row-drag-cell .drag-hint:active {
+      cursor: grabbing;
+    }
+
+    .ar2e-enemies-page #skillsTable col:nth-child(1),
+    .ar2e-enemies-page #attackMethodsTable col:nth-child(1),
+    .ar2e-enemies-page #dropItemsTable col:nth-child(1),
+    .ar2e-enemies-page #exDropItemsTable col:nth-child(1) {
+      width: 2rem !important;
+    }
+
+    .ar2e-enemies-page #skillsTable col:nth-child(3) { width: 12.4% !important; }
+    .ar2e-enemies-page #skillsTable col:nth-child(5) { width: 9.4% !important; }
+    .ar2e-enemies-page #skillsTable col:nth-child(13) { width: 15.6% !important; }
+    .ar2e-enemies-page #skillsTable col:nth-child(14) { width: 4.3rem !important; }
+    .ar2e-enemies-page #skillsTable th:nth-child(14),
+    .ar2e-enemies-page #skillsTable td:nth-child(14) {
+      width: 4.3rem;
+      min-width: 4.3rem;
+      max-width: 4.3rem;
+      padding-inline: 2px;
+      overflow: visible;
+      text-align: center;
+    }
+
+    .ar2e-enemies-page #attackMethodsTable col:nth-child(2) { width: 25% !important; }
+    .ar2e-enemies-page #attackMethodsTable col:nth-child(10) { width: auto !important; }
+    .ar2e-enemies-page #attackMethodsTable col:nth-child(11) { width: 4.3rem !important; }
+    .ar2e-enemies-page #attackMethodsTable th:nth-child(11),
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(11) {
+      width: 4.3rem;
+      min-width: 4.3rem;
+      max-width: 4.3rem;
+      padding-inline: 2px;
+      overflow: visible;
+      text-align: center;
+    }
+
+    .ar2e-enemies-page #skillsTable td:nth-child(14) .row-action-wrap,
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(11) .row-action-wrap {
+      width: 100%;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .ar2e-enemies-page #skillsTable td:nth-child(14) .copy-row-btn,
+    .ar2e-enemies-page #skillsTable td:nth-child(14) .clone-row-btn,
+    .ar2e-enemies-page #skillsTable td:nth-child(14) .delete-btn,
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(11) .copy-row-btn,
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(11) .clone-row-btn,
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(11) .delete-btn {
+      width: 1.15rem;
+      height: 1.15rem;
+      font-size: 0.66rem;
+      flex: 0 0 1.15rem;
+    }
+
+    .ar2e-enemies-page .chat-preview-lines {
+      display: grid;
+      gap: 0.28rem;
+      margin: 0.35rem 0 0.5rem;
+      max-height: 16rem;
+      overflow: auto;
+      padding-right: 0.15rem;
+    }
+
+    .ar2e-enemies-page .chat-preview-line-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: stretch;
+      gap: 0.35rem;
+      padding: 0.25rem;
+      border: 1px solid rgba(79, 128, 255, 0.28);
+      border-radius: 5px;
+      background: rgba(15, 23, 42, 0.48);
+    }
+
+    .ar2e-enemies-page .chat-line-copy-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      min-width: 4.8rem;
+      border: 1px solid #4f80ff;
+      border-radius: 4px;
+      background: #20345f;
+      color: #eef5ff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ar2e-enemies-page .chat-preview-line-row code {
+      display: block;
+      min-width: 0;
+      padding: 0.35rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.22);
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .ar2e-enemies-page .chat-preview-block textarea#chat-palette-preview {
+      min-height: 6rem;
+    }
+
+    .ar2e-enemies-page .sub-block-title {
+      margin: 0.45rem 0 0.25rem;
+      color: #d6e4ff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .ar2e-enemies-page .ex-drop-block {
+      margin-bottom: 0.45rem;
+    }
+
+    .ar2e-enemies-page #exDropItemsTable,
+    .ar2e-enemies-page #resourcesTable {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .ar2e-enemies-page .resource-mini-block {
+      margin-top: 0.55rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed rgba(148, 163, 184, 0.28);
+    }
+
+    .ar2e-enemies-page .mini-block-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+      color: #d6e4ff;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .ar2e-enemies-page .mini-resource-table th,
+    .ar2e-enemies-page .mini-resource-table td,
+    .ar2e-enemies-page #exDropItemsTable th,
+    .ar2e-enemies-page #exDropItemsTable td {
+      padding: 3px;
+    }
+
+    .ar2e-enemies-page .skill-display-area {
+      margin-top: 0.6rem;
+    }
+
+    .ar2e-enemies-page .skill-summary-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+      gap: 0.5rem;
+    }
+
+    .ar2e-enemies-page .skill-summary-card {
+      border: 1px solid rgba(79, 128, 255, 0.32);
+      border-radius: 6px;
+      padding: 0.55rem 0.65rem;
+      background: rgba(15, 23, 42, 0.42);
+    }
+
+    .ar2e-enemies-page .skill-summary-title {
+      color: var(--ar-accent-main);
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+
+    .ar2e-enemies-page .skill-summary-meta {
+      color: #a8b5ce;
+      font-size: 0.78rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .ar2e-enemies-page .skill-summary-effect {
+      color: #e2e8f0;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .ar2e-enemies-page .skill-summary-empty {
+      color: #94a3b8;
+      padding: 0.7rem;
+      border: 1px dashed rgba(148, 163, 184, 0.35);
+      border-radius: 6px;
+    }
+
+    @container tablecontainer (max-width: 1150px) {
+      .ar2e-enemies-page #skillsTable .row-drag-cell,
+      .ar2e-enemies-page #attackMethodsTable .row-drag-cell,
+      .ar2e-enemies-page #dropItemsTable .row-drag-cell,
+      .ar2e-enemies-page #exDropItemsTable .row-drag-cell {
+        align-self: stretch;
+      }
+
+      .ar2e-enemies-page #skillsTable tr,
+      .ar2e-enemies-page #attackMethodsTable tr {
+        grid-template-columns: 2rem repeat(11, minmax(0, 1fr));
+      }
+
+      .ar2e-enemies-page #skillsTable td:nth-child(14),
+      .ar2e-enemies-page #attackMethodsTable td:nth-child(11) {
+        position: static;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+      }
+
+      .ar2e-enemies-page .chat-preview-line-row {
+        grid-template-columns: 1fr;
+      }
+
+      .ar2e-enemies-page .chat-line-copy-btn {
+        min-height: 2rem;
+      }
+    }
+
+
+  /* Column-index reset after moving drag handle to the row start */
+    .ar2e-enemies-page #skillsTable th:nth-child(13),
+    .ar2e-enemies-page #skillsTable td:nth-child(13),
+    .ar2e-enemies-page #attackMethodsTable th:nth-child(10),
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(10) {
+      width: auto;
+      min-width: 0;
+      max-width: none;
+      padding-inline: 3px;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .ar2e-enemies-page #skillsTable td:nth-child(13) .row-action-wrap,
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(10) .row-action-wrap {
+      width: auto;
+      justify-content: initial;
+    }
+
+    .ar2e-enemies-page #skillsTable col:nth-child(12) { width: 7.0% !important; }
+    .ar2e-enemies-page #skillsTable col:nth-child(13) { width: 17.0% !important; }
+    .ar2e-enemies-page #attackMethodsTable col:nth-child(10) { width: auto !important; }
+
+    @container tablecontainer (max-width: 1150px) {
+      .ar2e-enemies-page #skillsTable td:nth-child(13),
+      .ar2e-enemies-page #attackMethodsTable td:nth-child(10) {
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        overflow: visible;
+      }
+    }
+
+
+  /* UX phase 2: unified EX drop rows, safer row actions, and compact resources */
+  .ar2e-enemies-page #dropItemsTable {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .ar2e-enemies-page #dropItemsTable .drop-row-ex td {
+    background: rgba(255, 217, 102, 0.045);
+  }
+
+  .ar2e-enemies-page #dropItemsTable .drop-ex-label-cell {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .ar2e-enemies-page #dropItemsTable .drop-ex-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 2.05rem;
+    padding: 0 0.35rem;
+    border: 1px solid rgba(255, 217, 102, 0.55);
+    border-radius: 4px;
+    background: rgba(255, 217, 102, 0.1);
+    color: var(--ar-accent-main);
+    font-weight: 900;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  .ar2e-enemies-page #dropItemsTable .drop-ex-label-short { display: none; }
+
+  @container mainlayout (max-width: 1180px) {
+    .ar2e-enemies-page #dropItemsTable .drop-ex-label-full { display: none; }
+    .ar2e-enemies-page #dropItemsTable .drop-ex-label-short { display: inline; }
+  }
+
+  .ar2e-enemies-page .row-action-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    min-width: max-content;
+  }
+
+  .ar2e-enemies-page .copy-row-btn,
+  .ar2e-enemies-page .clone-row-btn,
+  .ar2e-enemies-page .delete-btn {
+    width: 1.48rem;
+    height: 1.48rem;
+    min-width: 1.48rem;
+    min-height: 1.48rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    line-height: 1;
+  }
+
+  .ar2e-enemies-page .row-drag-cell {
+    width: 2.2rem;
+    min-width: 2.2rem;
+    max-width: 2.2rem;
+    text-align: center;
+    padding-inline: 2px !important;
+  }
+
+  .ar2e-enemies-page .row-drag-cell .drag-hint {
+    width: 1.45rem;
+    height: 1.85rem;
+    min-width: 1.45rem;
+    font-size: 1rem;
+    opacity: 0.85;
+  }
+
+  /* Correct column indexes after adding the leading drag column */
+  .ar2e-enemies-page #skillsTable col:nth-child(1) { width: 2.2rem !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(2) { width: 2.0rem !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(3) { width: 13.2% !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(4) { width: 3.7rem !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(5) { width: 10.2% !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(6) { width: 7.0% !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(7) { width: 7.2% !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(8) { width: 5.8rem !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(9) { width: 4.4rem !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(10) { width: 7.0% !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(11) { width: 7.0% !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(12) { width: 7.0% !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(13) { width: auto !important; }
+  .ar2e-enemies-page #skillsTable col:nth-child(14) { width: 5.6rem !important; }
+
+  .ar2e-enemies-page #skillsTable th:nth-child(14),
+  .ar2e-enemies-page #skillsTable td:nth-child(14),
+  .ar2e-enemies-page #attackMethodsTable th:nth-child(11),
+  .ar2e-enemies-page #attackMethodsTable td:nth-child(11) {
+    width: 5.6rem;
+    min-width: 5.6rem;
+    max-width: 5.6rem;
+    text-align: center;
+    overflow: visible;
+  }
+
+  .ar2e-enemies-page #skillsTable td:nth-child(14) .row-action-wrap,
+  .ar2e-enemies-page #attackMethodsTable td:nth-child(11) .row-action-wrap {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(1) { width: 2.2rem !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(2) { width: 26% !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(3) { width: 5.6rem !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(4) { width: 4.2rem !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(5) { width: 5.4rem !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(6) { width: 5.4rem !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(7) { width: 6.6rem !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(8) { width: 6.6rem !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(9) { width: 8.2rem !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(10) { width: auto !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(11) { width: 5.6rem !important; }
+
+  .ar2e-enemies-page #resourcesTable col:nth-child(1) { width: 5.8rem !important; }
+  .ar2e-enemies-page #resourcesTable col:nth-child(2) { width: 4rem !important; }
+  .ar2e-enemies-page #resourcesTable col:nth-child(3) { width: 4rem !important; }
+  .ar2e-enemies-page #resourcesTable col:nth-child(4) { width: auto !important; }
+  .ar2e-enemies-page #resourcesTable col:nth-child(5) { width: 3.2rem !important; }
+  .ar2e-enemies-page #resourcesTable input[data-resource-key="name"] { min-width: 0; }
+
+  @container tablecontainer (max-width: 1150px) {
+    .ar2e-enemies-page #skillsTable tr {
+      grid-template-columns: 2rem 2rem repeat(11, minmax(0, 1fr)) 5.6rem;
+    }
+    .ar2e-enemies-page #attackMethodsTable tr {
+      grid-template-columns: 2rem repeat(9, minmax(0, 1fr)) 5.6rem;
+    }
+    .ar2e-enemies-page #skillsTable td:nth-child(14),
+    .ar2e-enemies-page #attackMethodsTable td:nth-child(11) {
+      position: static;
+      width: auto;
+      min-width: 0;
+      max-width: none;
+    }
+  }
+
+
+  /* --------------------------------------------------------------------------=
+     UX phase 3: compact drag grip, single EX drop, table overflow/numeric fixes
+     =-------------------------------------------------------------------------- */
+
+  .ar2e-enemies-page .row-drag-cell {
+    width: 1.35rem !important;
+    min-width: 1.35rem !important;
+    max-width: 1.35rem !important;
+    padding-inline: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .ar2e-enemies-page .row-drag-cell .drag-hint {
+    width: 0.95rem !important;
+    min-width: 0.95rem !important;
+    height: 1.55rem !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #9fb6dd !important;
+    font-size: 0.92rem !important;
+    line-height: 1 !important;
+    opacity: 0.75;
+    box-shadow: none !important;
+  }
+
+  .ar2e-enemies-page .row-drag-cell .drag-hint:hover {
+    color: #ffd966 !important;
+    opacity: 1;
+  }
+
+  .ar2e-enemies-page #skillsTable col:nth-child(1),
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(1),
+  .ar2e-enemies-page #dropItemsTable col:nth-child(1) {
+    width: 1.35rem !important;
+  }
+
+  .ar2e-enemies-page #dropItemsTable {
+    table-layout: fixed;
+  }
+
+  .ar2e-enemies-page #dropItemsTable col:nth-child(1) { width: 1.35rem !important; }
+  .ar2e-enemies-page #dropItemsTable col:nth-child(2),
+  .ar2e-enemies-page #dropItemsTable col:nth-child(3) { width: 3.3rem !important; }
+  .ar2e-enemies-page #dropItemsTable col:nth-child(4) { width: auto !important; }
+  .ar2e-enemies-page #dropItemsTable col:nth-child(5) { width: 5rem !important; }
+  .ar2e-enemies-page #dropItemsTable col:nth-child(6) { width: 3.3rem !important; }
+  .ar2e-enemies-page #dropItemsTable col:nth-child(7) { width: 5.4rem !important; }
+  .ar2e-enemies-page #dropItemsTable col:nth-child(8) { width: 2.6rem !important; }
+
+  .ar2e-enemies-page #dropItemsTable th,
+  .ar2e-enemies-page #dropItemsTable td {
+    padding-inline: 3px;
+  }
+
+  .ar2e-enemies-page #dropItemsTable td:nth-child(7),
+  .ar2e-enemies-page #dropItemsTable .drop-row-ex td:nth-last-child(2) {
+    overflow: hidden;
+  }
+
+  .ar2e-enemies-page #dropItemsTable td:nth-child(7) input[readonly],
+  .ar2e-enemies-page #dropItemsTable .drop-row-ex td:nth-last-child(2) input[readonly] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    padding-inline: 3px !important;
+    font-size: 0.95rem;
+  }
+
+  .ar2e-enemies-page #dropItemsTable .drop-ex-label {
+    min-height: 1.9rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #ffd966;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    padding: 0;
+  }
+
+  .ar2e-enemies-page #addExDropItemBtn.is-disabled,
+  .ar2e-enemies-page #addExDropItemBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.35);
+  }
+
+  .ar2e-enemies-page #resourcesTable col:nth-child(1) { width: 8.8rem !important; }
+  .ar2e-enemies-page #resourcesTable col:nth-child(2),
+  .ar2e-enemies-page #resourcesTable col:nth-child(3) { width: 3.6rem !important; }
+  .ar2e-enemies-page #resourcesTable col:nth-child(4) { width: auto !important; }
+  .ar2e-enemies-page #resourcesTable col:nth-child(5) { width: 2.8rem !important; }
+  .ar2e-enemies-page #resourcesTable input[data-resource-key="name"] {
+    min-width: 7rem;
+  }
+  .ar2e-enemies-page #resourcesTable input[data-resource-key="current"],
+  .ar2e-enemies-page #resourcesTable input[data-resource-key="max"] {
+    padding-inline: 3px;
+  }
+
+  .ar2e-enemies-page #skillsTable .dice-mini-editor.in-table,
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor.in-table {
+    gap: 2px;
+    justify-content: center;
+  }
+
+  .ar2e-enemies-page #skillsTable .dice-mini-editor.in-table input[type="number"],
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor.in-table input[type="number"] {
+    min-height: 2rem;
+    height: 2rem;
+    width: 2.15rem !important;
+    min-width: 2.15rem !important;
+    padding: 2px 3px !important;
+    font-size: 1.08rem !important;
+    line-height: 1;
+  }
+
+  .ar2e-enemies-page #skillsTable .dice-mini-editor.in-table .dice-mark,
+  .ar2e-enemies-page #skillsTable .dice-mini-editor.in-table .dice-plus-mark,
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor.in-table .dice-mark,
+  .ar2e-enemies-page #attackMethodsTable .dice-mini-editor.in-table .dice-plus-mark {
+    font-size: 1.02rem !important;
+    line-height: 1;
+  }
+
+  .ar2e-enemies-page #skillsTable col:nth-child(10),
+  .ar2e-enemies-page #skillsTable col:nth-child(11) { width: 7.7% !important; }
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(7),
+  .ar2e-enemies-page #attackMethodsTable col:nth-child(8) { width: 7.2rem !important; }
+
+  @container tablecontainer (max-width: 1150px) {
+    .ar2e-enemies-page #skillsTable tr {
+      grid-template-columns: 1.35rem 2rem repeat(11, minmax(0, 1fr)) 5.6rem;
+    }
+    .ar2e-enemies-page #attackMethodsTable tr {
+      grid-template-columns: 1.35rem repeat(9, minmax(0, 1fr)) 5.6rem;
+    }
+    .ar2e-enemies-page #dropItemsTable .row-drag-cell {
+      align-self: stretch;
+    }
+  }
+
+}
+
+
+/* ==========================================================================
+   Enemy View Mode v1
+   ========================================================================== */
+@layer ar2e-theme {
+  .ar2e-enemies-page.is-enemy-view-mode .koma-action-row,
+  .ar2e-enemies-page.is-enemy-view-mode .editor-action-bar,
+  .ar2e-enemies-page.is-enemy-view-mode #enemyEditorForm,
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-side-pane {
+    display: none !important;
+  }
+
+  .ar2e-enemies-page .is-view-drop-switch .public-switch-text {
+    max-width: 14rem;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .enemy-view-pane {
+    color: var(--ar-text-on-dark);
+  }
+
+  .enemy-view-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.8rem;
+    padding: 0.6rem;
+    border: 1px solid var(--ar-border);
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.55);
+  }
+
+  .enemy-view-stage-group,
+  .enemy-view-toolbar-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .enemy-view-stage-btn {
+    min-height: 2rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #4f80ff;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #dbeafe;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .enemy-view-stage-btn.is-active {
+    border-color: var(--ar-accent-main);
+    background: linear-gradient(135deg, #a16207, #d97706);
+    color: #fffbe6;
+  }
+
+  .enemy-view-content {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .enemy-view-hero,
+  .enemy-view-block {
+    border: 1px solid #a86d14;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(30, 36, 52, 0.88), rgba(16, 20, 30, 0.88));
+    box-shadow: 0 4px 14px rgba(0,0,0,0.32);
+  }
+
+  .enemy-view-hero {
+    display: grid;
+    grid-template-columns: minmax(8rem, 14rem) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: stretch;
+    min-height: 11rem;
+    overflow: hidden;
+  }
+
+  .enemy-view-image {
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 50% 35%, rgba(255,255,255,0.12), rgba(0,0,0,0.35));
+    border-right: 1px solid rgba(255, 217, 102, 0.22);
+    min-width: 0;
+  }
+
+  .enemy-view-image img {
+    max-width: 100%;
+    max-height: 15rem;
+    object-fit: contain;
+  }
+
+  .enemy-view-image.is-empty i {
+    font-size: 4rem;
+    color: rgba(255, 217, 102, 0.72);
+  }
+
+  .enemy-view-titlebox {
+    display: grid;
+    align-content: center;
+    gap: 0.45rem;
+    min-width: 0;
+    padding: 1rem 1.2rem 1rem 0;
+  }
+
+  .enemy-view-level {
+    justify-self: start;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    background: #9a3412;
+    color: #fff7ed;
+    font-family: var(--ar-num-font);
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+
+  .enemy-view-titlebox h2 {
+    margin: 0;
+    color: var(--ar-accent-main);
+    font-family: "RocknRoll One", sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.15;
+    text-shadow: 0 0 8px rgba(255, 217, 102, 0.35), 2px 2px 0 #000;
+    overflow-wrap: anywhere;
+  }
+
+  .enemy-view-tags,
+  .view-skill-tags,
+  .view-chip-cell {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .view-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.55rem;
+    padding: 0.12rem 0.5rem;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    background: #1e293b;
+    color: #f8fafc;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .view-chip.is-fire { background: #ef4444; }
+  .view-chip.is-water { background: #3b82f6; }
+  .view-chip.is-wind { background: #22c55e; }
+  .view-chip.is-earth { background: #d97706; }
+  .view-chip.is-light { background: #facc15; color: #422006; }
+  .view-chip.is-dark { background: #8b5cf6; }
+  .view-chip.is-special { background: #06b6d4; color: #082f49; }
+  .view-chip.is-phys { background: #475569; }
+  .view-chip.is-secret { background: #111827; color: #cbd5e1; border-color: #64748b; }
+  .view-chip.is-classification { background: #2563eb; }
+  .view-chip.is-identify { background: #713f12; color: #fef3c7; }
+  .view-chip.is-muted { background: #334155; color: #cbd5e1; }
+
+  .enemy-view-block {
+    padding: 0.7rem 0.8rem 0.8rem;
+  }
+
+  .enemy-view-block h3 {
+    margin: 0 0 0.55rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(255, 217, 102, 0.35);
+    color: var(--ar-accent-main);
+    font-family: "RocknRoll One", sans-serif;
+    font-size: 1.15rem;
+  }
+
+  .enemy-view-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 0.45rem;
+  }
+
+  .enemy-view-stat-grid > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid #334155;
+    border-radius: 5px;
+    background: rgba(15, 23, 42, 0.62);
+  }
+
+  .enemy-view-stat-grid b {
+    color: #93a4c3;
+    font-size: 0.78rem;
+  }
+
+  .enemy-view-stat-grid span,
+  .enemy-view-table td {
+    font-family: var(--ar-num-font);
+    font-size: 1rem;
+  }
+
+  .enemy-view-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    background: rgba(15, 23, 42, 0.52);
+  }
+
+  .enemy-view-table th,
+  .enemy-view-table td {
+    padding: 0.35rem 0.45rem;
+    border: 1px solid #334155;
+    vertical-align: middle;
+  }
+
+  .enemy-view-table th {
+    background: rgba(79, 128, 255, 0.16);
+    color: #ffd966;
+    font-family: "RocknRoll One", sans-serif;
+    font-size: 0.86rem;
+  }
+
+  .enemy-view-table .view-name-cell,
+  .enemy-view-table.is-attacks td:first-child,
+  .enemy-view-table.is-drop td:nth-child(2),
+  .enemy-view-table.is-resource td:last-child {
+    text-align: left;
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  }
+
+  .enemy-view-table.is-abilities {
+    table-layout: auto;
+  }
+
+  .enemy-view-table.is-abilities th {
+    width: 5rem;
+  }
+
+  .view-attack-effect-row td {
+    color: #cbd5e1;
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-size: 0.9rem;
+    text-align: left;
+    background: rgba(15, 23, 42, 0.36);
+  }
+
+  .enemy-view-skills {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .view-skill-card {
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #334155;
+    border-left: 4px solid #4f80ff;
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.62);
+  }
+
+  .view-skill-card.is-masked {
+    border-left-color: #64748b;
+    background: repeating-linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0 8px, rgba(30, 41, 59, 0.82) 8px 16px);
+  }
+
+  .view-skill-card h4 {
+    margin: 0 0 0.4rem;
+    color: #f8fafc;
+    font-size: 1rem;
+  }
+
+  .view-skill-card p,
+  .enemy-view-memo {
+    margin: 0.45rem 0 0;
+    color: #e2e8f0;
+    line-height: 1.65;
+    white-space: pre-wrap;
+  }
+
+  .view-skill-dice {
+    margin-top: 0.35rem;
+    color: #ffd966;
+    font-family: var(--ar-num-font);
+    font-weight: 700;
+  }
+
+  .view-mask {
+    display: inline-block;
+    color: #0f172a;
+    text-shadow: 0 0 0 #94a3b8;
+    letter-spacing: 0.02em;
+    font-family: "HigashiOme-Gothic-C", monospace;
+    user-select: none;
+  }
+
+  .view-mask-lines {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .view-empty-cell,
+  .view-empty-card {
+    color: #94a3b8;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .enemy-view-hero {
+      grid-template-columns: 1fr;
+    }
+    .enemy-view-image {
+      min-height: 10rem;
+      border-right: 0;
+      border-bottom: 1px solid rgba(255, 217, 102, 0.22);
+    }
+    .enemy-view-titlebox {
+      padding: 0 0.8rem 0.9rem;
+    }
+    .enemy-view-table.is-attacks,
+    .enemy-view-table.is-attacks thead,
+    .enemy-view-table.is-attacks tbody,
+    .enemy-view-table.is-attacks tr,
+    .enemy-view-table.is-attacks th,
+    .enemy-view-table.is-attacks td {
+      display: block;
+      width: 100%;
+    }
+    .enemy-view-table.is-attacks thead { display: none; }
+    .enemy-view-table.is-attacks tr { border: 1px solid #334155; margin-bottom: 0.45rem; }
+    .enemy-view-table.is-attacks td { border-width: 0 0 1px; text-align: left; }
+  }
+}
+
+/* ==========================================================================
+   Enemy view v1.2: reference-style hero profile table
+   ========================================================================== */
+@layer ar2e-theme {
+  .enemy-view-titlebox {
+    align-content: center;
+    gap: 0.7rem;
+    padding: 1rem 1.2rem 1rem 0;
+  }
+
+  .enemy-view-titlebox h2 {
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(255, 217, 102, 0.5);
+  }
+
+  .enemy-view-profile-table {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(10rem, max-content));
+    column-gap: 1.4rem;
+    row-gap: 0.35rem;
+    align-items: start;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0;
+    color: #e5e7eb;
+    font-size: 0.98rem;
+  }
+
+  .enemy-view-profile-table > div {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .enemy-view-profile-table dt {
+    color: #ffd966;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .enemy-view-profile-table dt::after {
+    content: "：";
+    color: #facc15;
+    font-weight: 700;
+  }
+
+  .enemy-view-profile-table dd {
+    margin: 0;
+    min-width: 0;
+    color: #f8fafc;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .enemy-view-profile-table .view-profile-chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .enemy-view-level-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.1rem;
+    padding: 0.12rem 0.42rem;
+    border-radius: 4px;
+    background: #9a3412;
+    color: #fff7ed;
+    font-family: var(--ar-num-font);
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .enemy-view-level {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    .enemy-view-profile-table {
+      grid-template-columns: 1fr;
+      width: 100%;
+      font-size: 0.92rem;
+    }
+
+    .enemy-view-titlebox h2 {
+      text-align: left;
+    }
+  }
+}
+
+/* ==========================================================================
+   Enemy view v1.3: compact reference-style header
+   ========================================================================== */
+@layer ar2e-theme {
+  .ar2e-enemies-page.is-enemy-view-mode #tableOfContents,
+  .ar2e-enemies-page.is-enemy-view-mode .side-menu,
+  .ar2e-enemies-page.is-enemy-view-mode #hamburger-menu,
+  .ar2e-enemies-page.is-enemy-view-mode .hamburger-menu,
+  .ar2e-enemies-page.is-enemy-view-mode #menu-overlay,
+  .ar2e-enemies-page.is-enemy-view-mode .menu-overlay {
+    display: none !important;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .main-content {
+    margin-left: 0 !important;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-hero {
+    grid-template-columns: minmax(8rem, 13rem) minmax(0, 1fr);
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-titlebox {
+    align-content: start;
+    gap: 0.55rem;
+    padding: 0.85rem 1rem 0.85rem 0;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-titlebox h2 {
+    width: 100%;
+    margin-bottom: 0.1rem;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table {
+    grid-template-columns: repeat(2, minmax(9rem, max-content));
+    column-gap: 1.2rem;
+    row-gap: 0.25rem;
+  }
+
+  .enemy-view-hero-subblock {
+    display: grid;
+    gap: 0.32rem;
+    min-width: 0;
+    padding-top: 0.35rem;
+    border-top: 1px solid rgba(255, 217, 102, 0.28);
+  }
+
+  .enemy-view-hero-subblock h3 {
+    margin: 0;
+    color: var(--ar-accent-main);
+    font-family: "RocknRoll One", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.15;
+  }
+
+  .enemy-view-stat-grid.is-hero-stats {
+    grid-template-columns: repeat(auto-fit, minmax(6.2rem, 1fr));
+    gap: 0.32rem;
+  }
+
+  .enemy-view-stat-grid.is-hero-stats > div {
+    padding: 0.26rem 0.45rem;
+  }
+
+  .enemy-view-ability-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.32rem;
+    align-items: stretch;
+  }
+
+  .enemy-view-ability-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.45rem;
+    min-width: 9.4rem;
+    padding: 0.28rem 0.5rem;
+    border: 1px solid #334155;
+    border-radius: 5px;
+    background: rgba(15, 23, 42, 0.62);
+  }
+
+  .enemy-view-ability-pill b {
+    flex: 0 0 auto;
+    color: #93a4c3;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .enemy-view-ability-pill span {
+    min-width: 0;
+    color: #f8fafc;
+    font-family: var(--ar-num-font);
+    font-size: 0.95rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .enemy-view-table.is-attacks th:nth-child(1) { width: 28%; }
+  .enemy-view-table.is-attacks th:nth-child(2) { width: 13%; }
+  .enemy-view-table.is-attacks th:nth-child(3) { width: 15%; }
+  .enemy-view-table.is-attacks th:nth-child(4) { width: 44%; }
+
+  .view-chip-cell.is-attack-tags {
+    min-width: 0;
+  }
+
+  .view-attack-chipline {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .view-attack-chipline .view-chip {
+    flex: 0 0 auto;
+  }
+
+  @media (max-width: 760px) {
+    .ar2e-enemies-page.is-enemy-view-mode .enemy-view-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .ar2e-enemies-page.is-enemy-view-mode .enemy-view-titlebox {
+      padding: 0 0.8rem 0.9rem;
+    }
+
+    .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table {
+      grid-template-columns: 1fr;
+      width: 100%;
+    }
+
+    .enemy-view-stat-grid.is-hero-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .enemy-view-ability-pill {
+      min-width: min(100%, 10rem);
+      flex: 1 1 9rem;
+    }
+  }
+}
+
+/* ==========================================================================
+   Enemy view v1.4: denser profile, non-table attacks, compact loots
+   ========================================================================== */
+@layer ar2e-theme {
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-titlebox {
+    gap: 0.55rem;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary {
+    grid-template-columns: repeat(3, minmax(7.5rem, max-content));
+    column-gap: 1.05rem;
+    row-gap: 0.22rem;
+    width: auto;
+    max-width: 100%;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(255, 217, 102, 0.28);
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary > div {
+    grid-template-columns: max-content minmax(0, max-content);
+    column-gap: 0.25rem;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary dt {
+    font-size: 0.9rem;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary dd {
+    font-family: var(--ar-num-font);
+    font-size: 0.98rem;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary div:nth-child(-n+2) dd {
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  }
+
+  .enemy-view-ability-pill span .view-ability-base {
+    margin-left: 0.12em;
+    color: #cbd5e1;
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-size: 0.82em;
+    font-weight: 700;
+  }
+
+  .enemy-view-ability-pill span .view-ability-base small {
+    font-size: 0.72em;
+    color: #93a4c3;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .enemy-view-attacks {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .view-attack-card {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid #334155;
+    border-left: 4px solid #f59e0b;
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.58);
+  }
+
+  .view-attack-card.is-masked {
+    border-left-color: #64748b;
+    background: repeating-linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0 8px, rgba(30, 41, 59, 0.82) 8px 16px);
+  }
+
+  .view-attack-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+    min-width: 0;
+  }
+
+  .view-attack-main h4 {
+    margin: 0;
+    color: #f8fafc;
+    font-size: 1rem;
+    line-height: 1.25;
+    min-width: 0;
+  }
+
+  .view-attack-sub {
+    margin-left: 0.25rem;
+    color: #cbd5e1;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .view-attack-formulas {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    color: #ffd966;
+    font-family: var(--ar-num-font);
+    font-size: 1rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .view-attack-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .view-attack-card p {
+    margin: 0.12rem 0 0;
+    color: #e2e8f0;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  .view-skill-tags {
+    gap: 0.32rem;
+  }
+
+  .view-chip-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.55rem;
+    color: #93a4c3;
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .enemy-view-table.is-drop-simple {
+    table-layout: auto;
+    max-width: 100%;
+  }
+
+  .enemy-view-table.is-drop-simple th,
+  .enemy-view-table.is-drop-simple td {
+    padding: 0.3rem 0.55rem;
+    line-height: 1.45;
+  }
+
+  .enemy-view-table.is-drop-simple th {
+    width: 8.5rem;
+    min-width: 7rem;
+    text-align: center;
+    color: #f8fafc;
+    font-family: var(--ar-num-font);
+    background: rgba(79, 128, 255, 0.16);
+    white-space: nowrap;
+  }
+
+  .enemy-view-table.is-drop-simple td {
+    text-align: left;
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  }
+
+  @media (max-width: 900px) {
+    .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary {
+      grid-template-columns: repeat(2, minmax(7rem, max-content));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary {
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+    }
+
+    .view-attack-main {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.28rem;
+    }
+
+    .view-attack-formulas {
+      justify-content: flex-start;
+      white-space: normal;
+    }
+
+    .enemy-view-table.is-drop-simple th {
+      width: 6.8rem;
+      min-width: 6.8rem;
+    }
+  }
 }
