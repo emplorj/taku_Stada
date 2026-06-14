@@ -1063,6 +1063,10 @@
     return String(enemy.author || sheet.author || "").trim();
   }
 
+  function getEnemyAuthor(enemy) {
+    return getEnemyAuthorForCompare(enemy);
+  }
+
   async function fetchEnemyRowsForList(params) {
     const response = await fetchApiJson(buildApiUrl("listAR2EEnemies", params));
     return Array.isArray(response.data) ? response.data : [];
