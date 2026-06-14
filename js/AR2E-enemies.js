@@ -42,7 +42,12 @@
     copyChatPaletteButton: document.getElementById("copyChatPaletteButton"),
     enemyViewPane: document.getElementById("enemyViewPane"),
     enemyViewContent: document.getElementById("enemyViewContent"),
+    enemyViewChatPaletteText: document.getElementById("enemyViewChatPaletteText"),
+    viewToggleChatPaletteButton: document.getElementById("viewToggleChatPaletteButton"),
+    viewWideModeToggle: document.getElementById("viewWideModeToggle"),
     viewCopyChatPaletteButton: document.getElementById("viewCopyChatPaletteButton"),
+    viewCopyKomaJsonButton: document.getElementById("viewCopyKomaJsonButton"),
+    viewCopyKomaJsonToolbarButton: document.getElementById("viewCopyKomaJsonToolbarButton"),
     viewEditModeButton: document.getElementById("viewEditModeButton"),
     openEnemyViewButton: document.getElementById("openEnemyViewButton"),
     nameInput: document.querySelector('input[data-field="name"]'),
@@ -130,8 +135,12 @@
 
   function setPageMode() {
     state.viewMode = shouldStartInViewMode();
+    document.documentElement.classList.toggle("is-ar2e-enemy-view-boot", !!state.viewMode);
     document.body.classList.toggle("is-enemy-view-mode", !!state.viewMode);
     if (el.enemyViewPane) el.enemyViewPane.hidden = !state.viewMode;
+    if (state.viewMode && el.enemyViewContent && !String(el.enemyViewContent.innerHTML || "").trim()) {
+      el.enemyViewContent.innerHTML = `<section class="enemy-view-block enemy-view-loading">エネミー情報を読み込み中...</section>`;
+    }
   }
 
   function showToast(message, kind = "info") {
@@ -334,6 +343,30 @@
     return url.toString();
   }
 
+
+  function openUrlInNewTab(url) {
+    const href = typeof url === "string" ? url : String(url && url.toString ? url.toString() : url || "");
+    if (!href) return;
+    window.open(href, "_blank", "noopener");
+  }
+
+  function openEnemyViewInNewTab(enemyId) {
+    const id = String(enemyId || "").trim();
+    if (!id) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("id", id);
+    url.searchParams.delete("mode");
+    openUrlInNewTab(url);
+  }
+
+  function openEnemyEditInNewTab(enemyId) {
+    const id = String(enemyId || "").trim();
+    const url = new URL(window.location.href);
+    url.searchParams.set("mode", "edit");
+    if (id) url.searchParams.set("id", id);
+    openUrlInNewTab(url);
+  }
+
   function copyTextToClipboard(text) {
     const value = String(text || "");
     if (!value) return Promise.reject(new Error("コピーするテキストがありません"));
@@ -445,11 +478,17 @@
   }
 
   function setStatus(text) {
-    if (el.saveStatusText) el.saveStatusText.textContent = String(text || "");
+    const message = String(text || "");
+    if (el.saveStatusText) el.saveStatusText.textContent = message;
+    if (!message || message === "未保存" || message === "保存済み" || message === "新規白紙") return;
+    const isError = /失敗|エラー|error/i.test(message);
+    showToast(message, isError ? "error" : "info");
   }
 
   function markDirty() {
     state.dirty = true;
+    const current = getSelectedEnemy();
+    if (current) current._pristineNew = false;
     setStatus("未保存");
     saveDraftSnapshotFromCurrent();
     renderEnemyView();
@@ -468,6 +507,34 @@
     } catch (_e) {
       return false;
     }
+  }
+
+  function isBlankNewEnemyDraft(enemy) {
+    if (!enemy || typeof enemy !== "object" || !isUnsavedEnemy(enemy)) return false;
+    const sheet = enemy.data && enemy.data.sheet && typeof enemy.data.sheet === "object" ? enemy.data.sheet : {};
+    const hasBasicText = [
+      enemy.name,
+      enemy.memo,
+      enemy.icon_url,
+      sheet.name,
+      sheet.memo,
+      getByPath(sheet, "meta.imageUrl"),
+    ].some((value) => String(value || "").trim());
+    if (hasBasicText) return false;
+
+    const skills = Array.isArray(enemy.data?.skills) ? enemy.data.skills : [];
+    const attacks = Array.isArray(enemy.data?.attackMethods) ? enemy.data.attackMethods : [];
+    const drops = Array.isArray(enemy.data?.dropItems) ? enemy.data.dropItems : [];
+    const exDrops = Array.isArray(enemy.data?.exDropItems) ? enemy.data.exDropItems : [];
+    const resources = Array.isArray(enemy.data?.resources) ? enemy.data.resources : [];
+    const hasFilledRow = [...skills, ...attacks, ...drops, ...exDrops, ...resources].some((row) => {
+      if (!row || typeof row !== "object") return false;
+      return Object.entries(row).some(([key, value]) => {
+        if (["id", "uid", "_id", "secret"].includes(String(key))) return false;
+        return String(value || "").trim();
+      });
+    });
+    return !hasFilledRow;
   }
 
   function saveDraftSnapshotFromCurrent() {
@@ -496,6 +563,11 @@
 
       const parsed = JSON.parse(raw);
       if (!parsed || typeof parsed !== "object" || !parsed.enemy) return;
+
+      if (isBlankNewEnemyDraft(parsed.enemy)) {
+        clearDraftSnapshot();
+        return;
+      }
 
       const ok = window.confirm("前回の未保存編集を復元しますか？\n\n「いいえ」を押すと新規白紙を作成します。");
       if (!ok) {
@@ -848,7 +920,7 @@
               </span>
               <span class="enemy-list-lower-info">
                 <span>ID：${escapeHtml(idText)}</span>
-                ${author ? `<span>作者：${escapeHtml(author)}</span>` : ""}
+                ${author ? `<span>${getCreditLabel(author)}：${escapeHtml(author)}</span>` : ""}
               </span>
             </span>
             <span class="enemy-list-side-right-group">
@@ -860,6 +932,9 @@
                 <span class="enemy-list-time-tag">${escapeHtml(timeText)}</span>
               </span>
               <span class="enemy-list-btns-row">
+                <button type="button" class="list-side-btn is-view" data-id="${escapeHtml(idText)}" title="閲覧">
+                  <i class="fa-solid fa-eye"></i><br>閲覧
+                </button>
                 <button type="button" class="list-side-btn is-load" data-id="${escapeHtml(idText)}" title="編集">
                   <i class="fa-solid fa-pen-to-square"></i><br>編集
                 </button>
@@ -877,6 +952,10 @@
         state.selectedId = enemy.ID;
         fillFormFromEnemy(enemy);
         renderEnemyList();
+      });
+
+      li.querySelector(".list-side-btn.is-view")?.addEventListener("click", () => {
+        openEnemyViewInNewTab(enemy.ID);
       });
 
       li.querySelector(".list-side-btn.is-output")?.addEventListener("click", async () => {
@@ -1254,14 +1333,15 @@
 
   function createNewEnemy() {
     const fresh = createEnemyTemplate({ auto: false });
+    fresh._pristineNew = true;
     state.enemies.unshift(fresh);
     localUnsavedEnemyIds.add(String(fresh.ID));
     state.selectedId = fresh.ID;
     fillFormFromEnemy(fresh);
-    state.dirty = true;
-    saveDraftSnapshotFromCurrent();
+    state.dirty = false;
+    clearDraftSnapshot();
     renderEnemyList();
-    setStatus("未保存（新規白紙）");
+    setStatus("新規白紙");
   }
 
   function confirmLoadEnemyOrCreateNew(targetEnemy) {
@@ -2099,6 +2179,9 @@
     if (!dice || dice === "0D" || dice === "0D+0") return false;
     const timing = String(skill && skill.timing ? skill.timing : "").trim();
     if (timing === "パッシブ" && isDefaultSkillDiceForPassive(dice)) return false;
+    const judge = String(skill && skill.judge ? skill.judge : "").trim();
+    const hasDiceJudge = /命中|魔術|呪歌|錬金術|射撃|白兵|筋力|器用|敏捷|知力|感知|精神|幸運/.test(judge);
+    if (isDefaultSkillDiceForPassive(dice) && !hasDiceJudge) return false;
     return true;
   }
 
@@ -2124,30 +2207,7 @@
   function renderChatPreviewLineList(rawText) {
     if (!el.chatPreviewLines) return;
     el.chatPreviewLines.innerHTML = "";
-    const lines = String(rawText || "").split(/\n/).filter((line) => String(line || "").trim());
-    if (!lines.length) {
-      el.chatPreviewLines.hidden = true;
-      return;
-    }
-    el.chatPreviewLines.hidden = false;
-    lines.forEach((line) => {
-      const row = document.createElement("div");
-      row.className = "chat-preview-line-row";
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "chat-line-copy-btn";
-      button.innerHTML = '<i class="fa-solid fa-copy"></i><span>コピー</span>';
-      button.addEventListener("click", () => {
-        copyTextToClipboard(line)
-          .then(() => showToast("1行コピーしました", "info"))
-          .catch((error) => showToast(error.message || "コピーに失敗しました", "error"));
-      });
-      const code = document.createElement("code");
-      code.textContent = line;
-      row.appendChild(button);
-      row.appendChild(code);
-      el.chatPreviewLines.appendChild(row);
-    });
+    el.chatPreviewLines.hidden = true;
   }
 
   function setChatPreviewText(rawText) {
@@ -2155,6 +2215,11 @@
     const text = String(rawText || "");
     el.chatPreview.value = text;
     renderChatPreviewLineList(text);
+  }
+
+  function getChatPaletteTextForView() {
+    const previewText = el.chatPreview ? String(el.chatPreview.value || "").trim() : "";
+    return previewText;
   }
 
   function updateChatPalettePreview() {
@@ -2207,7 +2272,8 @@
         lines.push(`${skillHead} (${timing || "パッシブ"}) ${effect}`.trim());
       });
 
-      el.chatPreview.value = lines.join("\n");
+      setChatPreviewText(lines.join("\n"));
+      renderEnemyView();
       return;
     }
 
@@ -2607,10 +2673,19 @@
   const ABILITY_LABELS = { str: "筋力", dex: "器用", agi: "敏捷", int: "知力", sen: "感知", mnd: "精神", luk: "幸運" };
 
   function maskText(size = 8) {
-    const n = Math.max(2, Math.min(28, Number(size) || 8));
+    const n = Math.max(2, Math.min(80, Number(size) || 8));
     let out = "";
     for (let i = 0; i < n; i += 1) out += VIEW_MASK[i % VIEW_MASK.length];
     return out;
+  }
+
+  function maskTextLike(value, fallbackSize = 6) {
+    const text = viewValue(value, "");
+    const normalized = String(text || "").replace(/\s+/g, "");
+    const size = normalized
+      ? Array.from(normalized).reduce((sum, ch) => sum + (/^[\x00-\x7F]$/.test(ch) ? 0.72 : 1.05), 0)
+      : fallbackSize;
+    return maskText(size);
   }
 
   function isViewStagePre() { return state.viewStage === "pre_identify"; }
@@ -2624,7 +2699,7 @@
   }
 
   function maybeMask(value, shouldMask, size = 6) {
-    return shouldMask ? `<span class="view-mask">${maskText(size)}</span>` : escapeHtml(viewValue(value));
+    return shouldMask ? `<span class="view-mask">${maskTextLike(value, size)}</span>` : escapeHtml(viewValue(value));
   }
 
   function chip(label, cls = "") {
@@ -2670,6 +2745,13 @@
     return `${escapeHtml(`${dice}D+${bonus}`)}<span class="view-ability-base">（<small>基本値</small>${escapeHtml(String(base || 0))}）</span>`;
   }
 
+  function defenseCompareText(sheet) {
+    const phys = toInt(getByPath(sheet, "physDef"), 0);
+    const magic = toInt(getByPath(sheet, "magicDef"), 0);
+    if (phys === magic) return "同じ";
+    return phys > magic ? "物防が高い" : "魔防が高い";
+  }
+
   function renderViewStageButtons() {
     document.querySelectorAll(".enemy-view-stage-btn[data-view-stage]").forEach((btn) => {
       btn.classList.toggle("is-active", String(btn.dataset.viewStage) === String(state.viewStage));
@@ -2685,20 +2767,26 @@
       const kind = String(atk.weaponKind || "").trim();
       const part = String(atk.weaponPart || "").trim();
       const kindPart = kind || part ? `<span class="view-attack-sub">[${escapeHtml(kind || "-")}/${escapeHtml(part || "-")}]</span>` : "";
+      const effect = String(atk.effect || "").trim();
       if (maskAll) {
+        const hitText = formatDiceText(atk.hitDice || "2D+0");
+        const dmgText = formatDiceText(atk.damageDice || "2D+0");
+        const kindPartText = kind || part ? `[${kind || "-"}/${part || "-"}]` : "";
+        const metaText = `${kindPartText}${hitText}${dmgText}${atk.attribute || "-"}${atk.target || "-"}${atk.range || "-"}`;
         return `<article class="view-attack-card is-masked">
-          <div class="view-attack-main"><h4><span class="view-mask">${maskText(8)}</span></h4><span class="view-mask">${maskText(14)}</span></div>
-          <div class="view-attack-meta"><span class="view-mask">${maskText(20)}</span></div>
+          <div class="view-attack-main"><span class="view-attack-name"><span class="view-mask">${maskTextLike(name, 8)}</span></span><span class="view-mask">${maskTextLike(metaText, 16)}</span></div>
+          ${effect ? `<p><span class="view-mask">${maskTextLike(effect, 18)}</span></p>` : ""}
         </article>`;
       }
-      const chips = `${attributeChipsForView(atk.attribute || "-")}${chip(`対象:${atk.target || "-"}`)}${chip(`射程:${atk.range || "-"}`)}`;
-      const effect = String(atk.effect || "").trim();
       return `<article class="view-attack-card">
         <div class="view-attack-main">
-          <h4>${escapeHtml(name)} ${kindPart}</h4>
-          <div class="view-attack-formulas"><span>命中 ${escapeHtml(formatDiceText(atk.hitDice || "2D+0"))}</span><span>ダメージ ${escapeHtml(formatDiceText(atk.damageDice || "2D+0"))}</span></div>
+          <span class="view-attack-name">${escapeHtml(name)} ${kindPart}</span>
+          <span class="view-attack-field"><b>命中</b>${escapeHtml(formatDiceText(atk.hitDice || "2D+0"))}</span>
+          <span class="view-attack-field"><b>ダメージ</b>${escapeHtml(formatDiceText(atk.damageDice || "2D+0"))}</span>
+          <span class="view-attack-field"><b>属性</b>${attributeChipsForView(atk.attribute || "-")}</span>
+          <span class="view-attack-field"><b>対象</b>${escapeHtml(viewValue(atk.target, "-"))}</span>
+          <span class="view-attack-field"><b>射程</b>${escapeHtml(viewValue(atk.range, "-"))}</span>
         </div>
-        <div class="view-attack-meta">${chips}</div>
         ${effect ? `<p>${escapeHtml(effect)}</p>` : ""}
       </article>`;
     }).join("");
@@ -2712,27 +2800,31 @@
       const secret = !!skill.isSecret;
       const masked = maskAll || (secret && !isViewStageGm());
       if (masked) {
+        const skillHead = buildSkillHeadlineForKoma(skill) || skill.name || "スキル";
+        const effect = String(skill.effect || "").trim();
+        const meta = [skill.timing, skill.judge, skill.target, skill.range, skill.cost, skill.attribute].filter(Boolean).join(" ");
         return `<article class="view-skill-card is-masked">
-          <h4>《${maskText(8)}》</h4>
-          <div class="view-skill-tags">${chip("未識別", "is-secret")}</div>
-          <p class="view-mask-lines"><span>${maskText(18)}</span><span>　${maskText(22)}</span><span>　${maskText(16)}</span></p>
+          <div class="view-skill-main"><span class="view-skill-name">《${maskTextLike(skillHead, 8)}》</span><span class="view-mask">${maskTextLike(meta, 18)}</span></div>
+          ${effect ? `<p><span class="view-mask">${maskTextLike(effect, 22)}</span></p>` : ""}
         </article>`;
       }
       const head = buildSkillHeadlineForKoma(skill) || escapeHtml(skill.name || "スキル");
-      const tags = [];
-      if (skill.timing) tags.push(chip(`タイミング:${skill.timing}`, "is-timing"));
-      if (skill.judge) tags.push(chip(`判定:${skill.judge}`));
-      if (skill.target) tags.push(chip(`対象:${skill.target}`));
-      if (skill.range) tags.push(chip(`射程:${skill.range}`));
-      if (skill.cost) tags.push(chip(`コスト:${skill.cost}`));
-      if (skill.attribute) tags.push(`<span class="view-chip-label">属性:</span>${attributeChipsForView(skill.attribute)}`);
       const hit = String(skill.hitDice || "").trim();
       const dmg = String(skill.damageDice || "").trim();
-      const diceLine = (hit || dmg) ? `<div class="view-skill-dice">${hit ? `命中 ${escapeHtml(formatDiceText(hit))}` : ""}${hit && dmg ? " / " : ""}${dmg ? `ダメージ ${escapeHtml(formatDiceText(dmg))}` : ""}</div>` : "";
+      const showHit = shouldEmitSkillDiceCommand(skill, hit);
+      const showDmg = shouldEmitSkillDiceCommand(skill, dmg);
       return `<article class="view-skill-card">
-        <h4>${escapeHtml(head)}</h4>
-        ${tags.length ? `<div class="view-skill-tags">${tags.join("")}</div>` : ""}
-        ${diceLine}
+        <div class="view-skill-main">
+          <span class="view-skill-name">${escapeHtml(head)}</span>
+          ${skill.timing ? `<span class="view-skill-field"><b>タイミング</b>${escapeHtml(skill.timing)}</span>` : ""}
+          ${skill.judge ? `<span class="view-skill-field"><b>判定</b>${escapeHtml(skill.judge)}</span>` : ""}
+          ${skill.target ? `<span class="view-skill-field"><b>対象</b>${escapeHtml(skill.target)}</span>` : ""}
+          ${skill.range ? `<span class="view-skill-field"><b>射程</b>${escapeHtml(skill.range)}</span>` : ""}
+          ${skill.cost ? `<span class="view-skill-field"><b>コスト</b>${escapeHtml(skill.cost)}</span>` : ""}
+          ${showHit ? `<span class="view-skill-field"><b>命中</b>${escapeHtml(formatDiceText(hit))}</span>` : ""}
+          ${showDmg ? `<span class="view-skill-field"><b>ダメージ</b>${escapeHtml(formatDiceText(dmg))}</span>` : ""}
+          ${skill.attribute ? `<span class="view-skill-field"><b>属性</b>${attributeChipsForView(skill.attribute)}</span>` : ""}
+        </div>
         ${String(skill.effect || "").trim() ? `<p>${escapeHtml(skill.effect)}</p>` : ""}
       </article>`;
     }).join("");
@@ -2778,6 +2870,12 @@
     return `<section class="enemy-view-block"><h3>追加リソース</h3><table class="enemy-view-table is-resource"><thead><tr><th>名称</th><th>現在</th><th>最大</th><th>メモ</th></tr></thead><tbody>${rows.join("")}</tbody></table></section>`;
   }
 
+
+  function getCreditLabel(author) {
+    const text = String(author || "").trim();
+    return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
+  }
+
   function renderEnemyView() {
     if (!el.enemyViewContent) return;
     renderViewStageButtons();
@@ -2791,7 +2889,15 @@
     const memo = viewValue(current && current.memo || getByPath(sheet, "memo"), "");
     const defenseMasked = !isViewStageDefenseOpen();
     const preMasked = isViewStagePre();
-    const abilities = ABILITY_KEYS.map((key) => `<div class="enemy-view-ability-pill"><b>${ABILITY_LABELS[key]}</b><span>${preMasked ? `<span class="view-mask">${maskText(6)}</span>` : abilityFormulaHtmlForView(key, sheet)}</span></div>`).join("");
+    const identified = !preMasked;
+    const defenseOpen = isViewStageDefenseOpen();
+    const displayName = escapeHtml(name);
+    const viewIconClass = preMasked ? "fa-question" : getClassificationIcon(classification);
+    const defenseSummary = defenseCompareText(sheet);
+    const abilities = ABILITY_KEYS.map((key) => {
+      const abilityText = abilityFormulaForView(key, sheet).replace(/（.*$/, "");
+      return `<div class="enemy-view-ability-pill"><b>${ABILITY_LABELS[key]}</b><span>${preMasked ? `<span class="view-mask">${maskTextLike(abilityText, 5)}</span>` : abilityFormulaHtmlForView(key, sheet)}</span></div>`;
+    }).join("");
     const statSummary = `
       <div class="enemy-view-stat-grid is-hero-stats">
         <div><b>HP</b><span>${maybeMask(getByPath(sheet, "hp"), preMasked, 5)}</span></div>
@@ -2802,28 +2908,36 @@
         <div><b>物防</b><span>${maybeMask(getByPath(sheet, "physDef"), defenseMasked, 3)}</span></div>
         <div><b>魔防</b><span>${maybeMask(getByPath(sheet, "magicDef"), defenseMasked, 3)}</span></div>
       </div>`;
+    try {
+      const chatPaletteText = getChatPaletteTextForView();
+      if (el.enemyViewChatPaletteText) el.enemyViewChatPaletteText.value = chatPaletteText;
+    } catch (error) {
+      console.warn("[AR2E] チャットパレット表示の更新をスキップ:", error);
+    }
     el.enemyViewContent.innerHTML = `
       <section class="enemy-view-hero">
-        ${iconUrl ? `<div class="enemy-view-image"><img src="${escapeHtml(iconUrl)}" alt=""></div>` : `<div class="enemy-view-image is-empty"><i class="fa-solid ${getClassificationIcon(classification)}"></i></div>`}
+        ${iconUrl ? `<div class="enemy-view-image"><img src="${escapeHtml(iconUrl)}" alt=""></div>` : `<div class="enemy-view-image is-empty"><i class="fa-solid ${viewIconClass}"></i></div>`}
         <div class="enemy-view-titlebox">
-          <h2>${escapeHtml(name)}</h2>
+          <i class="fa-solid ${viewIconClass} enemy-view-bg-class-icon" aria-hidden="true"></i>
+          <div class="enemy-view-name-row">
+            <h2>${displayName}</h2>
+          </div>
+          <dl class="enemy-view-top-profile">
+            <div class="is-top-profile"><dt>分類</dt><dd>${identified ? escapeHtml(classification) : `<span class="view-mask">${maskTextLike(classification, 4)}</span>`}</dd></div>
+            <div class="is-top-profile"><dt>属性</dt><dd class="view-profile-chips">${identified ? attributeChipsForView(attr) : `<span class="view-mask">${maskTextLike(attr, 2)}</span>`}</dd></div>
+            <div class="is-top-profile is-level-profile"><dt>レベル</dt><dd><span class="enemy-view-level-inline">${identified ? escapeHtml(level) : `<span class="view-mask">${maskTextLike(level, 2)}</span>`}</span></dd></div>
+            <div class="is-top-profile"><dt>識別値</dt><dd>${escapeHtml(viewValue(getByPath(sheet, "identification"), "-"))}</dd></div>
+          </dl>
           <dl class="enemy-view-profile-table is-with-summary">
-            <div><dt>分類</dt><dd>${escapeHtml(classification)}</dd></div>
-            <div><dt>属性</dt><dd class="view-profile-chips">${attributeChipsForView(attr)}</dd></div>
-            <div><dt>レベル</dt><dd><span class="enemy-view-level-inline">${escapeHtml(level)}</span></dd></div>
-            <div><dt>識別値</dt><dd>${escapeHtml(viewValue(getByPath(sheet, "identification"), "-"))}</dd></div>
             <div><dt>HP</dt><dd>${maybeMask(getByPath(sheet, "hp"), preMasked, 5)}</dd></div>
             <div><dt>MP</dt><dd>${maybeMask(getByPath(sheet, "mp"), preMasked, 5)}</dd></div>
             <div><dt>行動値</dt><dd>${maybeMask(getByPath(sheet, "initiative"), false, 3)}</dd></div>
             <div><dt>移動値</dt><dd>${maybeMask(getByPath(sheet, "movement"), preMasked, 4)}</dd></div>
-            <div><dt>回避</dt><dd>${maybeMask(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), defenseMasked, 5)}</dd></div>
-            <div><dt>物防</dt><dd>${maybeMask(getByPath(sheet, "physDef"), defenseMasked, 3)}</dd></div>
-            <div><dt>魔防</dt><dd>${maybeMask(getByPath(sheet, "magicDef"), defenseMasked, 3)}</dd></div>
+            <div><dt>回避</dt><dd>${escapeHtml(viewValue(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), "-"))}</dd></div>
+            <div><dt>物防</dt><dd class="${!preMasked && !defenseOpen ? "is-text-value" : ""}">${preMasked ? maybeMask(getByPath(sheet, "physDef"), true, 3) : (defenseOpen ? escapeHtml(viewValue(getByPath(sheet, "physDef"), "-")) : escapeHtml(defenseSummary))}</dd></div>
+            <div><dt>魔防</dt><dd class="${!preMasked && !defenseOpen ? "is-text-value" : ""}">${preMasked ? maybeMask(getByPath(sheet, "magicDef"), true, 3) : (defenseOpen ? escapeHtml(viewValue(getByPath(sheet, "magicDef"), "-")) : escapeHtml(defenseSummary))}</dd></div>
+            <div class="enemy-view-profile-abilities"><dt>能力値</dt><dd><div class="enemy-view-ability-row">${abilities}</div></dd></div>
           </dl>
-          <div class="enemy-view-hero-subblock">
-            <h3>能力値</h3>
-            <div class="enemy-view-ability-row">${abilities}</div>
-          </div>
         </div>
       </section>
       <section class="enemy-view-block">
@@ -2834,7 +2948,7 @@
         <h3>所持スキル</h3>
         <div class="enemy-view-skills">${buildViewSkillCards()}</div>
       </section>
-      ${memo ? `<section class="enemy-view-block"><h3>解説</h3><div class="enemy-view-memo">${escapeHtml(memo)}</div></section>` : ""}
+      ${(memo || getEnemyAuthor(current)) ? `<section class="enemy-view-block is-view-memo-block"><div class="enemy-view-memo-head"><h3>解説</h3>${getEnemyAuthor(current) ? `<span class="enemy-view-memo-author">${getCreditLabel(getEnemyAuthor(current))}：${escapeHtml(getEnemyAuthor(current))}</span>` : ""}</div>${memo ? `<div class="enemy-view-memo">${escapeHtml(memo)}</div>` : `<div class="enemy-view-memo is-empty"></div>`}</section>` : ""}
       ${buildViewDropRows(sheet)}
       ${buildViewResources()}
     `;
@@ -2880,10 +2994,7 @@
             const saved = getSelectedEnemy();
             id = String((saved && saved.ID) || "").trim();
           }
-          const url = new URL(window.location.href);
-          url.searchParams.delete("mode");
-          if (id) url.searchParams.set("id", id);
-          window.location.href = url.toString();
+          openEnemyViewInNewTab(id);
         } catch (error) {
           console.error("[AR2E] 閲覧画面への移動に失敗:", error);
           setStatus(`閲覧画面への移動に失敗: ${error.message || "error"}`);
@@ -2893,19 +3004,44 @@
     if (el.viewEditModeButton) {
       el.viewEditModeButton.addEventListener("click", () => {
         const current = getSelectedEnemy();
-        const url = new URL(window.location.href);
-        url.searchParams.set("mode", "edit");
         const id = String((current && current.ID) || getSharedEnemyIdFromUrl() || "").trim();
-        if (id) url.searchParams.set("id", id);
-        window.location.href = url.toString();
+        openEnemyEditInNewTab(id);
       });
     }
     if (el.viewCopyChatPaletteButton) {
       el.viewCopyChatPaletteButton.addEventListener("click", async () => {
-        const text = el.chatPreview ? String(el.chatPreview.value || "") : buildKomaCommandsForCurrentEnemy().join("\n");
+        const text = el.enemyViewChatPaletteText ? String(el.enemyViewChatPaletteText.value || "") : (getChatPaletteTextForView() || buildKomaCommandsForCurrentEnemy().join("\n"));
         if (!text.trim()) return;
         await copyTextToClipboard(text);
         showToast("チャットパレットをコピーしました", "info");
+      });
+    }
+    const copyViewKomaJson = async () => {
+      try {
+        await exportKomaJsonByCurrentMode();
+      } catch (e) {
+        setStatus(`コマJSON出力失敗: ${e.message || "error"}`);
+      }
+    };
+    if (el.viewCopyKomaJsonButton) {
+      el.viewCopyKomaJsonButton.addEventListener("click", copyViewKomaJson);
+    }
+    if (el.viewCopyKomaJsonToolbarButton) {
+      el.viewCopyKomaJsonToolbarButton.addEventListener("click", copyViewKomaJson);
+    }
+    if (el.viewToggleChatPaletteButton) {
+      el.viewToggleChatPaletteButton.addEventListener("click", () => {
+        const panel = document.querySelector(".enemy-view-chat-palette-panel");
+        if (!panel) return;
+        const nextOpen = !panel.classList.contains("is-open");
+        panel.classList.toggle("is-open", nextOpen);
+        document.body.classList.toggle("is-enemy-view-chat-open", nextOpen);
+        el.viewToggleChatPaletteButton.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      });
+    }
+    if (el.viewWideModeToggle) {
+      el.viewWideModeToggle.addEventListener("change", () => {
+        document.body.classList.toggle("is-enemy-view-wide", !!el.viewWideModeToggle.checked);
       });
     }
     document.querySelectorAll('input[data-derived]').forEach((node) => {
@@ -3682,11 +3818,13 @@
         const selectedIsUnsaved = selected && isUnsavedEnemy(selected);
         let preserveCurrentUnsaved = false;
 
-        if (selectedIsUnsaved) {
+        if (selectedIsUnsaved && state.dirty && !selected._pristineNew) {
           const ok = window.confirm(
             "現在の新規白紙を残したまま、DB一覧だけ更新しますか？\n\n「OK」：新規白紙を表示したまま一覧更新\n「キャンセル」：更新しない",
           );
           if (!ok) return;
+          preserveCurrentUnsaved = true;
+        } else if (selectedIsUnsaved) {
           preserveCurrentUnsaved = true;
         } else if (state.dirty) {
           const targetName = String((selected && selected.name) || "").trim() || "編集中データ";

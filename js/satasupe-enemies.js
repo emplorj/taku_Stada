@@ -17,6 +17,8 @@
     page: 1,
     pageSize: 10,
     adminMode: false,
+    viewMode: false,
+    viewErrorMessage: "",
   };
   const localUnsavedSheetIds = new Set();
 
@@ -33,6 +35,15 @@
     exportJsonButton: document.getElementById("exportJsonButton"),
     exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
     importJsonInput: document.getElementById("importJsonInput"),
+    enemyViewPane: document.getElementById("enemyViewPane"),
+    enemyViewContent: document.getElementById("enemyViewContent"),
+    viewCopyChatPaletteButton: document.getElementById("viewCopyChatPaletteButton"),
+    viewCopyKomaJsonButton: document.getElementById("viewCopyKomaJsonButton"),
+    viewCopyKomaJsonToolbarButton: document.getElementById("viewCopyKomaJsonToolbarButton"),
+    viewToggleChatPaletteButton: document.getElementById("viewToggleChatPaletteButton"),
+    enemyViewChatPaletteText: document.getElementById("enemyViewChatPaletteText"),
+    viewEditModeButton: document.getElementById("viewEditModeButton"),
+    openEnemyViewButton: document.getElementById("openEnemyViewButton"),
     addWeaponButton: document.getElementById("addWeaponButton"),
     addOutfitButton: document.getElementById("addOutfitButton"),
     addVehicleButton: document.getElementById("addVehicleButton"),
@@ -106,6 +117,11 @@
     return typeof sharedApi.escapeHtml === "function"
       ? sharedApi.escapeHtml(value)
       : String(value == null ? "" : value);
+  }
+
+  function getCreditLabel(author) {
+    const text = String(author || "").trim();
+    return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
   }
   function autoResizeTextarea(textarea) {
     const sharedApi = getEnemiesShared();
@@ -1089,12 +1105,65 @@
   }
 
   function buildEnemyShareUrl(enemyId) {
-    const id = String(enemyId || "").trim();
-    if (!id) return "";
-    const url = new URL(window.location.href);
-    url.searchParams.set("id", id);
-    url.hash = "";
-    return url.toString();
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.buildEnemyViewUrl === "function"
+      ? sharedApi.buildEnemyViewUrl({ id: enemyId, removeParams: ["mode"] })
+      : "";
+  }
+
+  function getSharedEnemyIdFromUrl() {
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.getViewIdFromUrl === "function"
+      ? sharedApi.getViewIdFromUrl({ aliases: ["id", "enemy", "enemyId"] })
+      : "";
+  }
+
+  function shouldStartInViewMode() {
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.shouldStartInEnemyViewMode === "function"
+      ? sharedApi.shouldStartInEnemyViewMode({ aliases: ["id", "enemy", "enemyId"] })
+      : false;
+  }
+
+  function setPageMode() {
+    state.viewMode = shouldStartInViewMode();
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.applyEnemyViewMode === "function") {
+      sharedApi.applyEnemyViewMode({
+        viewMode: state.viewMode,
+        htmlClass: "is-satasupe-enemy-view-boot",
+        bodyClass: "is-enemy-view-mode",
+        pane: el.enemyViewPane,
+        content: el.enemyViewContent,
+        loadingHtml: `<section class="enemy-view-block enemy-view-loading">エネミー情報を読み込み中...</section>`,
+      });
+    } else if (typeof sharedApi.applyEnemyPageModeClasses === "function") {
+      sharedApi.applyEnemyPageModeClasses({
+        viewMode: state.viewMode,
+        htmlClass: "is-satasupe-enemy-view-boot",
+        bodyClass: "is-enemy-view-mode",
+      });
+      if (el.enemyViewPane) el.enemyViewPane.hidden = !state.viewMode;
+      if (state.viewMode && el.enemyViewContent && !String(el.enemyViewContent.innerHTML || "").trim()) {
+        el.enemyViewContent.innerHTML = `<section class="enemy-view-block enemy-view-loading">エネミー情報を読み込み中...</section>`;
+      }
+    } else {
+      document.documentElement.classList.toggle("is-satasupe-enemy-view-boot", !!state.viewMode);
+      document.body.classList.toggle("is-enemy-view-mode", !!state.viewMode);
+      if (el.enemyViewPane) el.enemyViewPane.hidden = !state.viewMode;
+      if (state.viewMode && el.enemyViewContent && !String(el.enemyViewContent.innerHTML || "").trim()) {
+        el.enemyViewContent.innerHTML = `<section class="enemy-view-block enemy-view-loading">エネミー情報を読み込み中...</section>`;
+      }
+    }
+  }
+
+  function openEnemyViewById(id, target = "_blank") {
+    const enemyId = String(id || "").trim();
+    if (!enemyId) return;
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.openEnemyViewUrl === "function") {
+      sharedApi.openEnemyViewUrl({ id: enemyId, target, removeParams: ["mode"] });
+    }
   }
 
   function tryEnableAdminModeFromImport(raw) {
@@ -1357,6 +1426,7 @@
     sheet.is_public = !!(enemy && enemy.is_public);
     sheet.name = String((enemy && enemy.name) || sheet.name || "").trim();
     sheet.memo = String((enemy && enemy.memo) || sheet.memo || "");
+    sheet.icon_url = String((enemy && enemy.icon_url) || sheet.icon_url || "").trim();
 
     if (!sheet.meta || typeof sheet.meta !== "object") sheet.meta = {};
 
@@ -1605,7 +1675,7 @@
       const iconUrl = sheet.icon_url || "";
       const classType = getSheetCategory(sheet);
       const authorText = String((sheet && sheet.author) || "").trim();
-      const authorLine = authorText ? `<span>作者：${authorText}</span>` : "";
+      const authorLine = authorText ? `<span>${getCreditLabel(authorText)}：${authorText}</span>` : "";
       const silhouetteClass = `is-class-${classType}`;
 
       const li = document.createElement("li");
@@ -1641,6 +1711,9 @@
                 <span class="enemy-list-time-tag">${formatShortDate(sheet.updatedAt)}</span>
               </div>
               <div class="enemy-list-btns-row">
+                <button type="button" class="list-side-btn is-view" data-id="${sheet.id}" title="新しいタブで閲覧">
+                  <i class="fa-solid fa-eye"></i><br>閲覧
+                </button>
                 <button type="button" class="list-side-btn is-load" data-id="${sheet.id}" title="編集">
                   <i class="fa-solid fa-pen-to-square"></i><br>編集
                 </button>
@@ -1975,17 +2048,250 @@
     renderHistory(sheet);
   }
 
+
+  function buildSatasupeViewCommandText(sheet) {
+    if (!sheet) return "";
+    return buildKomaCommands(sheet);
+  }
+
+  function renderViewNotice(title, body) {
+    const esc = (value) => escapeHtml(value);
+    el.enemyViewContent.innerHTML = `<section class="enemy-view-block sata-book-view-notice">
+      <h2>${esc(title)}</h2>
+      <p>${esc(body)}</p>
+    </section>`;
+  }
+
+  function renderEnemyView() {
+    if (!el.enemyViewContent) return;
+    if (!state.viewMode) {
+      el.enemyViewContent.innerHTML = "";
+      if (el.enemyViewChatPaletteText) el.enemyViewChatPaletteText.value = "";
+      return;
+    }
+    const sheet = getSelected();
+    if (!sheet) {
+      if (el.enemyViewChatPaletteText) el.enemyViewChatPaletteText.value = "";
+      renderViewNotice(
+        state.viewErrorMessage ? "閲覧できません" : "エネミー情報が見つかりません",
+        state.viewErrorMessage || "指定されたエネミーは削除されたか、URLが正しくありません。",
+      );
+      return;
+    }
+    if (!state.adminMode && sheet.is_public === false) {
+      if (el.enemyViewChatPaletteText) el.enemyViewChatPaletteText.value = "";
+      renderViewNotice(
+        "このエネミーは非公開です",
+        "作者が公開設定に変更するまで、この閲覧ページでは内容を表示しません。",
+      );
+      return;
+    }
+
+    if (el.enemyViewChatPaletteText) el.enemyViewChatPaletteText.value = buildSatasupeViewCommandText(sheet);
+
+    const ability = sheet.ability || {};
+    const condition = sheet.condition || {};
+    const base = sheet.base || {};
+    const meta = sheet.meta || {};
+    const home = sheet.home || {};
+    const category = getSheetCategory(sheet) || sheet.class_type || "サタスペ";
+    const danger = toInt(meta.danger, 0);
+    const dangerStyle = getDangerVisualStyle(danger);
+    const memo = String(sheet.memo || "").trim();
+    const quote = String(meta.quote || "").trim();
+    const nickname = String(base.nickname || "").trim();
+    const nameKana = String(sheet.nameKana || "").trim();
+    const iconUrl = String(sheet.icon_url || sheet.imageUrl || "").trim();
+
+    const clean = (value, fallback = "-") => {
+      const text = String(value == null ? "" : value).trim();
+      return text || fallback;
+    };
+    const hasValue = (value) => String(value == null ? "" : value).trim() !== "";
+    const esc = (value) => escapeHtml(value);
+    const statRow = (label, value, className = "") => {
+      const isKarmaValue = label === "性業値";
+      const isExpConv = label === "経験換算";
+      const expValue = Number(value);
+      const expBand = Number.isFinite(expValue)
+        ? expValue >= 112 ? "112"
+        : expValue >= 56 ? "56"
+        : expValue >= 28 ? "28"
+        : expValue >= 14 ? "14"
+        : expValue >= 7 ? "7"
+        : "0"
+        : "0";
+      const extraAttrs = [
+        isKarmaValue ? `data-karma-value="${esc(clean(value, "7"))}"` : "",
+        isExpConv ? `data-exp-band="${esc(expBand)}"` : "",
+      ].filter(Boolean).join(" ");
+      const rowClass = `${className || ""}${isKarmaValue ? " is-karma-value" : ""}${isExpConv ? " is-exp-conv" : ""}`.trim();
+      const attrText = extraAttrs ? ` ${extraAttrs}` : "";
+      return `<div class="sata-book-stat-row ${esc(rowClass)}"${attrText}><span>${esc(label)}</span><b>${esc(clean(value, "0"))}</b></div>`;
+    };
+    const infoPair = (label, value, fallback = "-", className = "") => `<div class="sata-book-info-pair ${esc(className)}"><span>${esc(label)}</span><b>${esc(clean(value, fallback))}</b></div>`;
+    const detailLine = (label, value, fallback = "-") => `<p><strong>${esc(label)}：</strong>${esc(clean(value, fallback))}</p>`;
+    const chip = (label, value) => hasValue(value)
+      ? `<span class="sata-book-chip"><small>${esc(label)}</small>${esc(String(value).trim())}</span>`
+      : "";
+
+    const abilityItems = [
+      ["犯罪", ability.crime], ["生活", ability.life], ["恋愛", ability.love], ["教養", ability.culture], ["戦闘", ability.combat],
+      ["肉体", ability.body], ["精神", ability.mind], ["反応力", ability.powerInit], ["攻撃力", ability.powerAtk], ["破壊力", ability.powerDes],
+      ["性業値", meta.karmaValue], ["宝物", meta.garbageTable || "-"], ["経験換算", meta.expConv || 0],
+    ];
+
+    const reactionMark = (() => {
+      const r = clean(meta.reaction, "中");
+      if (r.startsWith("憎")) return "憎";
+      if (r.startsWith("敵")) return "敵";
+      if (r.startsWith("懐")) return "疑";
+      if (r.startsWith("中")) return "中";
+      return r.slice(0, 1) || "-";
+    })();
+    const sizeMark = (() => {
+      const s = clean(meta.size, "中");
+      return s.slice(0, 1) || "-";
+    })();
+
+    const weaponRows = Array.isArray(sheet.weapons) ? sheet.weapons.filter((row) => row && Object.values(row).some(hasValue)) : [];
+    const outfitRows = Array.isArray(sheet.outfits) ? sheet.outfits.filter((row) => row && Object.values(row).some(hasValue)) : [];
+    const vehicleRows = Array.isArray(sheet.vehicles) ? sheet.vehicles.filter((row) => row && Object.values(row).some(hasValue)) : [];
+    const karmaRows = Array.isArray(sheet.karma) ? sheet.karma.filter((row) => row && String(row.name || "").trim()) : [];
+    const talents = karmaRows.filter((row) => !String(row.kind || "").includes("代償"));
+    const prices = karmaRows.filter((row) => String(row.kind || "").includes("代償"));
+
+    const inlineNames = (rows) => rows.map((row) => clean(row.name, "")).filter((name) => name && name !== "-").join("、");
+    const equipSummary = (row) => {
+      const title = clean(row.name || row.item || row.type, "装備");
+      const parts = [];
+      if (hasValue(row.aim)) parts.push(`命${clean(row.aim)}`);
+      if (hasValue(row.damage)) parts.push(`ダ${clean(row.damage)}`);
+      if (hasValue(row.range)) parts.push(`射${clean(row.range)}`);
+      if (hasValue(row.notes || row.memo || row.effect || row.note)) parts.push(clean(row.notes || row.memo || row.effect || row.note));
+      return parts.length ? `${title}（${parts.join("・")}）` : title;
+    };
+    const equipmentSummary = [
+      ...weaponRows.map(equipSummary),
+      ...outfitRows.map(equipSummary),
+      ...vehicleRows.map(equipSummary),
+    ].filter(Boolean).join(" / ");
+
+    const renderEquipCard = (row, fallbackTitle, kindClass) => {
+      const title = clean(row.name || row.item || row.type, fallbackTitle);
+      const metaParts = [];
+      if (hasValue(row.place)) metaParts.push(`場所:${clean(row.place)}`);
+      if (hasValue(row.price)) metaParts.push(`価格${clean(row.price)}`);
+      if (hasValue(row.count || row.quantity)) metaParts.push(`数${clean(row.count || row.quantity)}`);
+      const notes = clean(row.notes || row.memo || row.effect || row.note, "");
+      const noteParts = [...metaParts, notes].filter(hasValue);
+      return `<article class="sata-book-detail-card sata-book-detail-line ${kindClass}">
+        <div class="sata-book-detail-line-head"><span class="sata-book-detail-kind">${kindClass === "is-weapon" ? "武器" : kindClass === "is-vehicle" ? "乗物" : "装備"}</span><h4>${esc(title)}</h4></div>
+        <div class="sata-book-detail-equip-stat">${esc(clean(row.aim))}</div>
+        <div class="sata-book-detail-equip-stat">${esc(clean(row.damage))}</div>
+        <div class="sata-book-detail-equip-stat">${esc(clean(row.range))}</div>
+        <p>${noteParts.length ? esc(noteParts.join(" / ")) : `<span class="is-muted">備考なし</span>`}</p>
+      </article>`;
+    };
+
+    const renderKarmaCard = (row) => {
+      const title = clean(row.name, "名称未設定");
+      const isPrice = String(row.kind || "").includes("代償");
+      const metaParts = [row.category, row.use, row.target, row.judge]
+        .filter(hasValue)
+        .map((value) => clean(value));
+      const effect = clean(row.effect, "");
+      return `<article class="sata-book-detail-card sata-book-detail-line is-karma ${isPrice ? "is-price" : "is-talent"}">
+        <div class="sata-book-detail-line-head"><span class="sata-book-detail-kind">${isPrice ? "代償" : "異能"}</span><h4>${esc(title)}</h4></div>
+        ${metaParts.length ? `<div class="sata-book-detail-line-meta">${esc(metaParts.join(" / "))}</div>` : ""}
+        <p>${effect ? esc(effect) : `<span class="is-muted">効果未入力</span>`}</p>
+      </article>`;
+    };
+
+    const hobbyNames = String(meta.hobbies || "")
+      .split(/[、,，]/)
+      .map((name) => String(name || "").trim())
+      .filter(Boolean);
+    const renderHobbyChip = (name) => {
+      const colorClass = HOBBY_COLOR_CLASS_BY_NAME.get(name) || "is-custom";
+      return `<span class="hobby-input-chip ${esc(colorClass)}">${esc(name)}</span>`;
+    };
+    const hobbiesHtml = hobbyNames.length
+      ? hobbyNames.map(renderHobbyChip).join("")
+      : `<span class="sata-book-empty-text">-</span>`;
+
+    const personLine = [
+      clean(base.sex || "？", "？"),
+      hasValue(base.age) ? `${clean(base.age)}歳` : "年齢不詳",
+    ].filter(Boolean).join(" / ");
+    const likeLine = [meta.likeType, meta.likeDetail].filter(hasValue).join("");
+    const personalRows = [
+      `<div class="sata-book-profile-row is-two">${infoPair("人物", personLine)}${infoPair("好み", likeLine)}</div>`,
+      `<div class="sata-book-profile-row is-two">${infoPair("好き", base.likes)}${infoPair("嫌い", base.dislikes)}</div>`,
+      `<div class="sata-book-profile-row is-nationality-language-row">${infoPair("国籍", base.homeland)}${infoPair("言語", meta.languages, "-", "is-wide is-language")}</div>`,
+      `<div class="sata-book-profile-row is-three">${infoPair("表の顔", base.surface)}${infoPair("盟約", base.alliance)}${infoPair("階層", base.hierarchy)}</div>`,
+      `<div class="sata-book-profile-row is-one">${infoPair("アジト", home.place, "-", "is-wide")}</div>`,
+    ].join("");
+    const karmaCountBox = `<span class="sata-book-detail-count"><small>異能</small><b>${esc(clean(meta.karmaCount, "0"))}</b><small>代償</small><b>${esc(clean(meta.priceCount, "0"))}</b></span>`;
+
+    const karmaDetailCards = karmaRows.map(renderKarmaCard).join("");
+    const equipmentDetailCards = [
+      ...weaponRows.map((row) => renderEquipCard(row, "武器", "is-weapon")),
+      ...outfitRows.map((row) => renderEquipCard(row, "装備", "is-outfit")),
+      ...vehicleRows.map((row) => renderEquipCard(row, "乗物", "is-vehicle")),
+    ].join("");
+
+    el.enemyViewContent.innerHTML = `
+      <article class="sata-book-view-card">
+        <div class="sata-book-category-bar">
+          <span>モンスターカテゴリー</span>
+          <b>${esc(category)}</b>
+        </div>
+        <div class="sata-book-main">
+          <aside class="sata-book-left-rail" aria-label="モンスターデータ">
+            <div class="sata-book-rail-box is-danger" data-danger-band="${esc(dangerStyle.band)}" data-danger-step="${esc(dangerStyle.step)}"><span>危険度</span><b>${esc(danger || "0")}</b></div>
+            <div class="sata-book-rail-box"><span>反応</span><b>${esc(reactionMark)}</b></div>
+            <div class="sata-book-rail-box"><span>サイズ</span><b>${esc(sizeMark)}</b></div>
+            <div class="sata-book-stat-table">${abilityItems.map(([label, value]) => statRow(label, value, label === "宝物" ? "is-treasure" : "")).join("")}</div>
+          </aside>
+          <section class="sata-book-visual">
+            <div class="sata-book-name-band"><div class="sata-book-name-stack">${nameKana ? `<small>${esc(nameKana)}</small>` : ""}<h2>${esc(sheet.name || "（名称未設定）")}</h2></div></div>
+            ${nickname ? `<div class="sata-book-nickname">${esc(nickname)}</div>` : ""}
+            <div class="sata-book-quote">${quote ? `<span class="sata-book-quote-text">「${esc(quote)}」</span>` : ""}</div>
+            <div class="sata-book-portrait ${iconUrl ? "has-image" : "is-empty"}">${iconUrl ? `<img src="${esc(iconUrl)}" alt="${esc(sheet.name || "エネミー画像")}">` : `<div class="sata-book-no-image"><i class="fa-solid fa-user-ninja"></i><strong>画像なし</strong></div>`}</div>
+          </section>
+        </div>
+        <section class="sata-book-profile-panel">
+          <h3>趣味</h3>
+          <div class="sata-book-hobby-chips hobby-input-chips">${hobbiesHtml}</div>
+          <h3>パーソナルデータ</h3>
+          <div class="sata-book-profile-lines">${personalRows}</div>
+        </section>
+        ${karmaDetailCards ? `<section class="sata-book-detail-section is-karma-details"><div class="sata-book-detail-head"><h3>異能・代償</h3>${karmaCountBox}</div><div class="sata-book-detail-table-head is-karma"><span>種別・名称</span><span>分類 / 使用 / 対象 / 判定</span><span>効果</span></div><div class="sata-book-detail-grid is-karma-grid">${karmaDetailCards}</div></section>` : ""}
+        ${equipmentDetailCards ? `<section class="sata-book-detail-section is-equipment-details"><div class="sata-book-detail-head"><h3>装備</h3></div><div class="sata-book-detail-table-head is-equipment"><span>種別・名称</span><span>命中</span><span>ダメージ</span><span>射程</span><span>その他・備考</span></div><div class="sata-book-detail-grid is-equipment-grid">${equipmentDetailCards}</div></section>` : ""}
+        ${(memo || sheet.author) ? `<section class="sata-book-detail-section is-view-memo-block"><div class="enemy-view-memo-head"><h3>解説</h3>${sheet.author ? `<span class="enemy-view-memo-author">${getCreditLabel(sheet.author)}：${esc(sheet.author)}</span>` : ""}</div>${memo ? `<p class="enemy-view-memo">${esc(memo)}</p>` : `<p class="enemy-view-memo is-empty"></p>`}</section>` : ""}
+      </article>
+    `;
+    const noImageBadge = document.getElementById("enemyViewNoImageBadge");
+    if (noImageBadge) noImageBadge.hidden = Boolean(iconUrl);
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.updateEnemyViewIdBadge === "function") sharedApi.updateEnemyViewIdBadge(sheet.id);
+  }
+
   function renderAll() {
-    saveLastSelectedId(state.selectedId || "");
+    setPageMode();
+    if (!state.viewMode) saveLastSelectedId(state.selectedId || "");
     renderList();
     renderEditor();
+    renderEnemyView();
   }
 
   function ensureSelected() {
+    if (state.viewMode && state.viewErrorMessage) return;
     if (state.sheets.length && !state.selectedId) {
       state.selectedId = state.sheets[0].id;
     }
-    saveLastSelectedId(state.selectedId || "");
+    if (!state.viewMode) saveLastSelectedId(state.selectedId || "");
   }
 
   function handleRowInput(target) {
@@ -2847,6 +3153,15 @@
       el.enemyList.addEventListener("click", async (e) => {
         const target = e.target;
 
+        const viewBtn = target.closest(".is-view");
+        if (viewBtn) {
+          e.stopPropagation();
+          const id = viewBtn.getAttribute("data-id");
+          if (!id) return;
+          openEnemyViewById(id, "_blank");
+          return;
+        }
+
         const outputBtn = target.closest(".is-output");
         if (outputBtn) {
           e.stopPropagation();
@@ -3175,6 +3490,72 @@
     }
 
     // ★ 別名保存のイベントリスナー（ダイアログ撤廃 ＆ UIグルグル対応）
+
+    if (el.openEnemyViewButton) {
+      el.openEnemyViewButton.addEventListener("click", async () => {
+        let sheet = getSelected();
+        if (!sheet) return;
+        try {
+          if (state.dirty || localUnsavedSheetIds.has(String(sheet.id || "")) || String(sheet.id || "").startsWith("new-")) {
+            setStatus("閲覧URL作成中...");
+            await saveCurrentToDb();
+            sheet = getSelected();
+            renderAll();
+          }
+          if (!sheet || !String(sheet.id || "").trim()) throw new Error("閲覧用画面を表示する保存済みデータがありません");
+          openEnemyViewById(sheet.id, "_blank");
+        } catch (error) {
+          setStatus(error.message || "閲覧ページを開けませんでした", "error");
+        }
+      });
+    }
+
+    if (el.viewCopyChatPaletteButton) {
+      el.viewCopyChatPaletteButton.addEventListener("click", async () => {
+        const sheet = getSelected();
+        const text = el.enemyViewChatPaletteText
+          ? String(el.enemyViewChatPaletteText.value || "")
+          : (sheet ? buildSatasupeViewCommandText(sheet) : "");
+        if (!text) return;
+        try {
+          await writeClipboardText(text);
+          showToast("チャパレをコピーしました", "info");
+        } catch (error) {
+          setStatus("コピーに失敗しました", "error");
+        }
+      });
+    }
+    const copyViewKomaJson = () => {
+      const sheet = getSelected();
+      if (!sheet) return;
+      exportKomaJson(sheet);
+    };
+    if (el.viewCopyKomaJsonButton) {
+      el.viewCopyKomaJsonButton.addEventListener("click", copyViewKomaJson);
+    }
+    if (el.viewCopyKomaJsonToolbarButton) {
+      el.viewCopyKomaJsonToolbarButton.addEventListener("click", copyViewKomaJson);
+    }
+    if (el.viewToggleChatPaletteButton) {
+      el.viewToggleChatPaletteButton.addEventListener("click", () => {
+        const panel = document.querySelector(".enemy-view-chat-palette-panel");
+        if (!panel) return;
+        const nextOpen = !panel.classList.contains("is-open");
+        panel.classList.toggle("is-open", nextOpen);
+        document.body.classList.toggle("is-enemy-view-chat-open", nextOpen);
+        el.viewToggleChatPaletteButton.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      });
+    }
+    if (el.viewEditModeButton) {
+      el.viewEditModeButton.addEventListener("click", () => {
+        const sheet = getSelected();
+        if (!sheet || !String(sheet.id || "").trim()) return;
+        const url = new URL(window.location.href);
+        url.searchParams.set("id", sheet.id);
+        url.searchParams.set("mode", "edit");
+        window.location.href = url.toString();
+      });
+    }
     if (el.saveAsEnemyButton) {
       el.saveAsEnemyButton.addEventListener("click", async () => {
         if (el.saveAsEnemyButton.disabled) return;
@@ -3388,6 +3769,7 @@
 
   async function boot() {
     setStatus("読込中…");
+    setPageMode();
     try {
       await loadFromDb();
     } catch (error) {
@@ -3395,8 +3777,7 @@
       loadStorage();
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetId = urlParams.get("id");
+    const targetId = getSharedEnemyIdFromUrl();
 
     if (state.sheets.length) {
       if (targetId) {
@@ -3404,11 +3785,17 @@
           (s) => String(s.id) === String(targetId),
         );
         if (found) {
-          state.selectedId = found.id;
+          if (!state.adminMode && found.is_public === false) {
+            state.selectedId = null;
+            state.viewErrorMessage = "このエネミーは非公開です。作者が公開設定に変更するまで内容は表示できません。";
+          } else {
+            state.selectedId = found.id;
+            state.viewErrorMessage = "";
+          }
+        } else if (state.viewMode) {
+          state.selectedId = null;
+          state.viewErrorMessage = "指定されたエネミーは見つかりません。削除されたか、非公開に設定されています。";
         } else {
-          window.alert(
-            "指定されたエネミーが見つかりません。\n削除されているか、非公開に設定されています。\n作者に「公開」してもらうよう頼んでください！",
-          );
           const fallbackId = getLastSelectedId();
           const lastSheet = fallbackId
             ? state.sheets.find((s) => String(s.id) === String(fallbackId))
@@ -3457,10 +3844,14 @@
         markDirty();
       }
     } else {
-      if (targetId) {
-        window.alert(
-          "指定されたエネミーが見つかりません。\n削除されているか、非公開に設定されています。\n作者に「公開」してもらうよう頼んでください！",
-        );
+      if (targetId && state.viewMode) {
+        state.viewErrorMessage = "指定されたエネミーは見つかりません。削除されたか、非公開に設定されています。";
+        state.selectedId = null;
+        ensureSelected();
+        bindEvents();
+        renderAll();
+        setStatus("閲覧不可");
+        return;
       }
       const fresh = createSheetTemplate();
       fresh.author = getRememberedAuthor();
@@ -3475,7 +3866,7 @@
     if (selected && selected.author) rememberAuthor(selected.author);
     bindEvents();
     renderAll();
-    setStatus("未保存");
+    setStatus(state.viewMode ? (state.viewErrorMessage ? "閲覧不可" : "共有URLから読込") : "未保存");
   }
 
   void boot();

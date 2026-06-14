@@ -47,8 +47,11 @@
 @font-face {
   font-family: "ExcelsiorSans";
   src: url("../fonts/ExcelsiorSans.woff2") format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
+  ascent-override: 88%;
+  descent-override: 12%;
+  line-gap-override: 0%;
   font-display: swap;
 }
 

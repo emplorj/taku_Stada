@@ -5,6 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
+  <script>
+    (function () {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var hasViewId = String(params.get("id") || params.get("enemy") || params.get("enemyId") || "").trim();
+        var mode = String(params.get("mode") || "").trim().toLowerCase();
+        if (hasViewId && mode !== "edit") document.documentElement.classList.add("is-satasupe-enemy-view-boot");
+      } catch (_e) {}
+    })();
+  </script>
   <title>サタスペ エネミーシート</title>
   <meta property="og:title" content="サタスペ エネミーシート - 卓スタダ">
   <meta property="og:description" content="サタスペ敵データ向けの保存付きエディタ（配置集計なし）">
@@ -14,6 +24,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Yuji+Syuku&family=Kosugi+Maru&family=RocknRoll+One&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="css/enemies_view_common.css">
   <link rel="stylesheet" href="css/satasupe_enemies.css">
 </head>
 
@@ -23,6 +34,7 @@
 
   <main class="main-content satasupe-enemies-main">
     <header class="satasupe-header">
+      <a class="enemy-view-home-link" href="./" aria-label="卓スタダ ホームへ戻る"><img src="img/taku_stada_mini.png" alt="卓スタダ"></a>
       <h1>サタスペ エネミーシート</h1>
     </header>
 
@@ -49,9 +61,9 @@
                 class="fa-solid fa-rotate-right"></i> DB再読込</button>
           </div>
           <div class="action-bar-right">
-            <span id="saveStatusText" class="save-status-text">未保存</span>
             <button id="shareEnemyButton" type="button" class="action-btn is-main" title="現在のエネミーの共有URLをコピー"><i
                 class="fa-solid fa-share-nodes"></i> 共有</button>
+            <button id="openEnemyViewButton" type="button" class="action-btn is-sub" title="閲覧用画面を新しいタブで表示"><i class="fa-solid fa-eye"></i> 閲覧</button>
             <button id="saveAsEnemyButton" type="button" class="action-btn is-main"><i class="fa-solid fa-copy"></i>
               別名保存</button>
             <button id="saveEnemyButton" type="button" class="action-btn is-main"><i
@@ -72,6 +84,35 @@
               </label>
             </div>
           </div>
+        </section>
+
+
+        <!-- 閲覧モード -->
+        <section id="enemyViewPane" class="enemy-view-pane satasupe-enemy-view-pane" hidden aria-live="polite">
+          <div class="enemy-view-toolbar">
+            <div class="enemy-view-toolbar-title">閲覧ページ</div>
+            <span id="enemyViewIdBadge" class="enemy-view-id-badge" hidden></span>
+            <span id="enemyViewNoImageBadge" class="enemy-view-no-image-badge" hidden>立ち絵未設定</span>
+            <div class="enemy-view-toolbar-actions">
+              <label class="public-switch-label enemy-view-wide-switch">
+                <span class="public-switch-wrap">
+                  <input id="viewWideModeToggle" class="switch" type="checkbox">
+                  <span class="public-switch-text">ワイド</span>
+                </span>
+              </label>
+              <button id="viewToggleChatPaletteButton" type="button" class="small-square-btn is-copy-chat"><i class="fa-solid fa-scroll"></i> チャパレ</button>
+              <button id="viewCopyKomaJsonToolbarButton" type="button" class="small-square-btn is-copy-chat" title="ココフォリア用コマ出力をコピー"><i class="fa-solid fa-dice-d20"></i> 駒出力</button>
+              <a class="small-square-btn enemy-view-new-button" href="satasupe_enemies.html"><i class="fa-solid fa-file"></i> 新規作成</a>
+            </div>
+          </div>
+          <div class="enemy-view-chat-palette-panel">
+            <div class="enemy-view-chat-palette-actions">
+              <button id="viewCopyKomaJsonButton" type="button" class="small-square-btn is-copy-chat"><i class="fa-solid fa-dice-d20"></i> 駒出力コピー</button>
+              <button id="viewCopyChatPaletteButton" type="button" class="small-square-btn is-copy-chat"><i class="fa-solid fa-copy"></i> チャパレコピー</button>
+            </div>
+            <textarea id="enemyViewChatPaletteText" class="enemy-view-chat-palette" readonly rows="8" aria-label="チャットパレット内容"></textarea>
+          </div>
+          <article id="enemyViewContent" class="enemy-view-content satasupe-enemy-view-content"></article>
         </section>
 
         <form id="enemyEditorForm" class="editor-form" autocomplete="off">

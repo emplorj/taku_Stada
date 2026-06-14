@@ -1864,7 +1864,7 @@ html {
   list-style: none;
 }
 .settings-block summary::before {
-  content: "▼";
+  content: "▶";
   position: absolute;
   left: 0;
   top: 50%;

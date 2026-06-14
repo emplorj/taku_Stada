@@ -1345,6 +1345,23 @@ body.nechronica-enemies-page .save-status {
   border-color: #bd4a5d;
   transform: translateY(-1px);
 }
+
+/* 閲覧ボタンは有効時、保存・共有系の主要ボタンと同じ見た目に統一 */
+.nechronica-enemies-page #openEnemyViewButton:not(:disabled):not(.is-disabled) {
+  background: linear-gradient(180deg, #7b1d2a 0%, #4a121e 100%);
+  color: #fff;
+  border: 1px solid #8d3746;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  filter: none;
+  opacity: 1;
+}
+
+.nechronica-enemies-page #openEnemyViewButton:not(:disabled):not(.is-disabled):hover {
+  background: linear-gradient(180deg, #9d2535 0%, #611827 100%);
+  border-color: #bd4a5d;
+  transform: translateY(-1px);
+}
 .action-btn.is-danger {
   background: transparent;
   color: #ff6b6b;
@@ -3117,4 +3134,1999 @@ body.nechronica-enemies-page .save-status {
   background: #2a2528;
   color: #ccc;
   border-color: #555;
+}
+
+/* ======================================================================
+   閲覧モード（ネクロニカ）
+   ====================================================================== */
+body.nechronica-enemies-page.is-enemy-view-mode .nechronica-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  position: relative;
+}
+
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-home-link {
+  position: absolute;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.2rem;
+  height: 3.2rem;
+}
+
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-home-link img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 3rem;
+  max-height: 3rem;
+  object-fit: contain;
+}
+
+.nechronica-enemies-page .enemy-view-pane {
+  color: #f1e7da;
+}
+
+.nechronica-enemies-page .enemy-view-toolbar {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #5b4a50;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(43, 15, 22, 0.9), rgba(31, 25, 29, 0.92));
+}
+
+.nechronica-enemies-page .enemy-view-toolbar-title {
+  color: #d6d0c3;
+  font-weight: 800;
+}
+
+.nechronica-enemies-page .enemy-view-id-badge {
+  border: 1px solid rgba(214, 208, 195, 0.24);
+  background: rgba(214, 208, 195, 0.08);
+  color: rgba(214, 208, 195, 0.62);
+}
+
+.nechronica-enemies-page .enemy-view-toolbar-actions {
+  gap: 0.45rem;
+}
+
+.nechronica-enemies-page .enemy-view-hero {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--sheet-border);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #2a2528 0%, #1f1b1e 100%);
+}
+
+.nechronica-enemies-page .enemy-view-portrait {
+  min-height: 160px;
+  border: 1px solid #574b4f;
+  border-radius: 7px;
+  background: #151116;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #d6d0c3;
+  font-size: 3rem;
+}
+
+.nechronica-enemies-page .enemy-view-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nechronica-enemies-page .enemy-view-kicker {
+  color: #d6d0c3;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.nechronica-enemies-page .enemy-view-hero h2 {
+  margin: 0.15rem 0 0.5rem;
+  color: #f4f1e8;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  text-shadow: var(--enemy-title-shadow);
+}
+
+.nechronica-enemies-page .enemy-view-profile-table,
+.nechronica-enemies-page .enemy-view-part-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.45rem;
+}
+
+.nechronica-enemies-page .enemy-view-profile-table > div,
+.nechronica-enemies-page .enemy-view-part-grid > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(214, 208, 195, 0.24);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.nechronica-enemies-page .enemy-view-part-grid em {
+  color: #9e9388;
+  font-style: normal;
+}
+
+.nechronica-enemies-page .enemy-view-profile-table span,
+.nechronica-enemies-page .enemy-view-part-grid span {
+  color: #b9afa2;
+  font-size: 0.82rem;
+}
+
+.nechronica-enemies-page .enemy-view-profile-table b,
+.nechronica-enemies-page .enemy-view-part-grid b {
+  color: #f4f1e8;
+}
+
+.nechronica-enemies-page .enemy-view-block {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--sheet-border);
+  border-radius: 7px;
+  background: rgba(27, 26, 29, 0.94);
+}
+
+.nechronica-enemies-page .enemy-view-block h3 {
+  margin: 0 0 0.7rem;
+  color: #d6d0c3;
+  border-bottom: 1px solid #5b4a50;
+  padding-bottom: 0.25rem;
+}
+
+.nechronica-enemies-page .enemy-view-card {
+  border: 1px solid rgba(214, 208, 195, 0.22);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.nechronica-enemies-page .enemy-view-card h4 {
+  margin: 0 0 0.4rem;
+  color: #f4f1e8;
+}
+
+.nechronica-enemies-page .enemy-view-tags {
+  margin-bottom: 0.45rem;
+}
+
+.nechronica-enemies-page .enemy-view-tags span {
+  padding: 0.12rem 0.45rem;
+  border: 1px solid #574b4f;
+  border-radius: 999px;
+  color: #e1d8cd;
+  background: rgba(123, 29, 42, 0.16);
+  font-size: 0.78rem;
+}
+
+.nechronica-enemies-page .enemy-view-broken {
+  color: #d2a9a9;
+}
+
+.nechronica-enemies-page .enemy-view-memo {
+  white-space: pre-wrap;
+  line-height: 1.75;
+}
+
+@media (max-width: 720px) {
+  .nechronica-enemies-page .enemy-view-hero {
+    grid-template-columns: 1fr;
+  }
+  body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-home-link {
+    position: static;
+  }
+}
+
+.nechronica-enemies-page .list-side-btn.is-view {
+  background: linear-gradient(135deg, #2f5f67 0%, #254950 100%);
+  color: #e8fbff;
+  border: 1px solid #3d8f98;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+.nechronica-enemies-page .list-side-btn.is-view:hover {
+  background: linear-gradient(135deg, #3d8f98 0%, #2d6570 100%);
+  box-shadow: 0 0 12px rgba(61, 143, 152, 0.45);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   Public enemy view: data-optimized layout
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .enemy-view-profile-table.is-primary,
+.nechronica-enemies-page .enemy-view-profile-table.is-secondary {
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+}
+
+.nechronica-enemies-page .enemy-view-tags span {
+  gap: 0.22rem;
+}
+
+.nechronica-enemies-page .enemy-view-tags small {
+  color: #b2a79a;
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.nechronica-enemies-page .enemy-view-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.45rem;
+  min-width: 2em;
+  padding: 0.04rem 0.35rem;
+  border: 1px solid rgba(214, 208, 195, 0.32);
+  border-radius: 999px;
+  background: rgba(123, 29, 42, 0.32);
+  color: #f4e7d8;
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+
+.nechronica-enemies-page .enemy-view-card-list.is-maneuver-list {
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.nechronica-enemies-page .enemy-view-card.is-maneuver h4 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.nechronica-enemies-page .enemy-view-part-cell {
+  position: relative;
+}
+
+.nechronica-enemies-page .enemy-view-part-cell::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  border-radius: 8px 0 0 8px;
+  background: #7a6e84;
+}
+
+.nechronica-enemies-page .enemy-view-part-cell.is-頭::before { background: #4f9666; }
+.nechronica-enemies-page .enemy-view-part-cell.is-腕::before { background: #b8802d; }
+.nechronica-enemies-page .enemy-view-part-cell.is-胴::before { background: #3d8f98; }
+.nechronica-enemies-page .enemy-view-part-cell.is-脚::before { background: #8a63cb; }
+
+.nechronica-enemies-page .enemy-view-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 760px) {
+}
+
+/* --------------------------------------------------------------------------
+   Public enemy view: 1280px shared width and official-style maneuver layout
+   -------------------------------------------------------------------------- */
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-toolbar button.small-square-btn,
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-wide-switch .public-switch-wrap {
+  box-sizing: border-box;
+  min-height: 2.35rem;
+  height: 2.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+  padding-block: 0;
+  text-decoration: none;
+}
+
+.nechronica-enemies-page .nechronica-view-hero {
+  border: 2px solid #252124;
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, #201c1f 0 11.5rem, #f3f0ea 11.5rem 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16) inset,
+    0 10px 22px rgba(0, 0, 0, 0.28);
+}
+
+.nechronica-enemies-page .nechronica-view-hero.has-no-image {
+  grid-template-columns: minmax(0, 1fr);
+  background: linear-gradient(180deg, #201c1f 0%, #171417 100%);
+}
+
+.nechronica-enemies-page .nechronica-view-hero.has-no-image .enemy-view-hero-main {
+  padding: 0.35rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+  position: relative;
+  padding: 0.15rem 0.35rem 0.25rem 0;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.45rem;
+  padding: 0.05rem 0.55rem;
+  border-radius: 999px;
+  background: #2b292b;
+  color: #f8f8f8;
+  font-size: 0.82rem;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.nechronica-enemies-page .nechronica-view-hero h2 {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0.2rem 0 0.7rem;
+  padding: 0.08rem 0.65rem 0.14rem;
+  border: 2px solid rgba(255, 255, 255, 0.78);
+  border-radius: 0.55rem;
+  background: #302d30;
+  color: #fff;
+  font-size: clamp(1.5rem, 3vw, 2.45rem);
+  line-height: 1.06;
+  text-shadow:
+    2px 2px 0 #000,
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary > div {
+  border-color: #d8d3ca;
+  background: linear-gradient(180deg, #fff 0%, #ddd9d2 100%);
+  color: #211d20;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary span {
+  color: #4b4548;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary b {
+  color: #171416;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .nechronica-view-hero.has-image {
+    background: linear-gradient(180deg, #201c1f 0 9rem, #f3f0ea 9rem 100%);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   Nechronica public view: official-like maneuver placement
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-maneuver-groups {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-group {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  border: 1px solid rgba(214, 208, 195, 0.28);
+  background: #111013;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-part {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  border-right: 1px solid rgba(214, 208, 195, 0.28);
+  background: #f4f1e8;
+  color: #151316;
+  font-weight: 900;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.08em;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-part span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-頭 .nechronica-view-maneuver-part { background: #d9efe0; }
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-腕 .nechronica-view-maneuver-part { background: #f1dfc1; }
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-胴 .nechronica-view-maneuver-part { background: #d1e8eb; }
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-脚 .nechronica-view-maneuver-part { background: #e0d6f2; }
+
+.nechronica-enemies-page .nechronica-view-maneuver-rows {
+  display: grid;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.72fr) minmax(13rem, 1fr) minmax(0, 1.6fr);
+  align-items: stretch;
+  min-height: 2.2rem;
+  border-bottom: 1px solid rgba(214, 208, 195, 0.22);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-row:last-child {
+  border-bottom: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-name,
+.nechronica-enemies-page .nechronica-view-maneuver-tags,
+.nechronica-enemies-page .nechronica-view-maneuver-effect {
+  padding: 0.28rem 0.45rem;
+  border-right: 1px solid rgba(214, 208, 195, 0.18);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  background: #f4f1e8;
+  color: #151316;
+  font-weight: 900;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-tags {
+  margin: 0;
+  align-content: center;
+  background: #242126;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-effect {
+  border-right: 0;
+  color: #eee8dd;
+  line-height: 1.55;
+  background: #171519;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .nechronica-view-maneuver-group {
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-row {
+    grid-template-columns: 1fr;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-name,
+  .nechronica-enemies-page .nechronica-view-maneuver-tags,
+  .nechronica-enemies-page .nechronica-view-maneuver-effect {
+    border-right: 0;
+    border-bottom: 1px solid rgba(214, 208, 195, 0.14);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Nechronica public view hotfix: remove pale hero panel and use table metadata
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-hero,
+.nechronica-enemies-page .nechronica-view-hero.has-image,
+.nechronica-enemies-page .nechronica-view-hero.has-no-image {
+  background: linear-gradient(180deg, #1b181d 0%, #111013 100%) !important;
+  border-color: rgba(214, 208, 195, 0.28);
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary > div {
+  border-color: rgba(214, 208, 195, 0.24);
+  background: linear-gradient(180deg, #211e23 0%, #171519 100%) !important;
+  color: #f1eadf;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary span {
+  color: #b8afa3;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary b {
+  color: #f4f1e8;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-table {
+  display: grid;
+  min-width: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head,
+.nechronica-enemies-page .nechronica-view-maneuver-row {
+  display: grid;
+  grid-template-columns:
+    minmax(8rem, 1.02fr)
+    minmax(5.8rem, 0.58fr)
+    minmax(3.8rem, 0.34fr)
+    minmax(4.6rem, 0.42fr)
+    minmax(3.6rem, 0.32fr)
+    minmax(0, 1.65fr);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head {
+  min-height: 2rem;
+  background: #21191b;
+  color: #f4eee5;
+  border-bottom: 1px solid rgba(214, 208, 195, 0.28);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head > div,
+.nechronica-enemies-page .nechronica-view-maneuver-name,
+.nechronica-enemies-page .nechronica-view-maneuver-cell,
+.nechronica-enemies-page .nechronica-view-maneuver-effect {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0.3rem 0.48rem;
+  border-right: 1px solid rgba(214, 208, 195, 0.18);
+  box-sizing: border-box;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head > div {
+  justify-content: center;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head > div:last-child,
+.nechronica-enemies-page .nechronica-view-maneuver-effect {
+  border-right: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-name {
+  justify-content: space-between;
+  background: #f4f1e8;
+  color: #151316;
+  font-weight: 900;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-cell {
+  justify-content: center;
+  background: #242126;
+  color: #eee8dd;
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-effect {
+  align-items: flex-start;
+  color: #eee8dd;
+  line-height: 1.5;
+  background: #171519;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-tags {
+  display: none !important;
+}
+
+@media (max-width: 860px) {
+  .nechronica-enemies-page .nechronica-view-maneuver-head {
+    display: none;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-row {
+    grid-template-columns: 1fr;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-cell {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-cell::before {
+    display: inline-flex;
+    width: 5.2em;
+    margin-right: 0.45rem;
+    color: #b8afa3;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-cell.is-timing::before { content: "タイミング"; }
+  .nechronica-enemies-page .nechronica-view-maneuver-cell.is-cost::before { content: "コスト"; }
+  .nechronica-enemies-page .nechronica-view-maneuver-cell.is-range::before { content: "射程"; }
+  .nechronica-enemies-page .nechronica-view-maneuver-cell.is-malice::before { content: "悪意"; }
+}
+
+
+/* --------------------------------------------------------------------------
+   View adjustment 010: dark maneuver table and non-servant layout
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-maneuver-group {
+  display: block;
+  border-color: rgba(214, 208, 195, 0.26);
+  background: #111013;
+  overflow: hidden;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-body {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  min-width: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-part {
+  border-right: 1px solid rgba(214, 208, 195, 0.2);
+  background: #252229 !important;
+  color: #f1eadf;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-頭 .nechronica-view-maneuver-part,
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-腕 .nechronica-view-maneuver-part,
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-胴 .nechronica-view-maneuver-part,
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-脚 .nechronica-view-maneuver-part {
+  background: #252229 !important;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-name {
+  background: #1a171c !important;
+  color: #f4f1e8 !important;
+  border-right-color: rgba(214, 208, 195, 0.18);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head {
+  position: relative;
+  z-index: 1;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-flat .nechronica-view-maneuver-row,
+.nechronica-enemies-page .nechronica-view-maneuver-head,
+.nechronica-enemies-page .nechronica-view-maneuver-body .nechronica-view-maneuver-row {
+  grid-template-columns:
+    minmax(8rem, 1.02fr)
+    minmax(5.8rem, 0.58fr)
+    minmax(3.8rem, 0.34fr)
+    minmax(4.6rem, 0.42fr)
+    minmax(3.6rem, 0.32fr)
+    minmax(0, 1.65fr);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-flat .nechronica-view-maneuver-part {
+  display: none !important;
+}
+
+@media (max-width: 860px) {
+  .nechronica-enemies-page .nechronica-view-maneuver-body {
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-group.is-flat .nechronica-view-maneuver-row,
+  .nechronica-enemies-page .nechronica-view-maneuver-body .nechronica-view-maneuver-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 018: class icon, flat/servant maneuver tables, GM info deemphasis
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+  gap: 0.38rem;
+}
+
+.nechronica-enemies-page .nechronica-view-class-icon {
+  display: inline-block;
+  width: 1.55rem;
+  height: 1.55rem;
+  flex: 0 0 1.55rem;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: drop-shadow(1px 1px 0 #000);
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-servant .nechronica-view-class-icon {
+  background-image: url("../img/nc/Servant.png");
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-horror .nechronica-view-class-icon {
+  background-image: url("../img/nc/Horror.png");
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-region .nechronica-view-class-icon {
+  background-image: url("../img/nc/Region.png");
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary > div.is-gm-info,
+.nechronica-enemies-page .nechronica-view-maneuver-head .is-gm-info,
+.nechronica-enemies-page .nechronica-view-maneuver-cell.is-gm-info {
+  opacity: 0.62;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary > div.is-gm-info {
+  order: 99;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-group,
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-flat,
+.nechronica-enemies-page .nechronica-view-maneuver-group.is-servant {
+  display: block;
+  border: 1px solid rgba(214, 208, 195, 0.26);
+  background: #111013;
+  overflow: hidden;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-table {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head,
+.nechronica-enemies-page .nechronica-view-maneuver-row,
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-servant,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-servant,
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-flat,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-flat {
+  display: grid;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-servant,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-servant {
+  grid-template-columns:
+    minmax(3.4rem, 0.28fr)
+    minmax(9rem, 1.05fr)
+    minmax(5.6rem, 0.56fr)
+    minmax(3.8rem, 0.34fr)
+    minmax(4.7rem, 0.42fr)
+    minmax(0, 1.8fr)
+    minmax(3.4rem, 0.28fr);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-flat,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-flat {
+  grid-template-columns:
+    minmax(10rem, 1.05fr)
+    minmax(5.6rem, 0.56fr)
+    minmax(3.8rem, 0.34fr)
+    minmax(4.7rem, 0.42fr)
+    minmax(0, 1.9fr)
+    minmax(3.4rem, 0.28fr);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head {
+  min-height: 2rem;
+  background: #21191b;
+  color: #f4eee5;
+  border-bottom: 1px solid rgba(214, 208, 195, 0.28);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-row {
+  min-height: 2.15rem;
+  border-bottom: 1px solid rgba(214, 208, 195, 0.22);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-row:last-child {
+  border-bottom: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head > div,
+.nechronica-enemies-page .nechronica-view-maneuver-part-cell,
+.nechronica-enemies-page .nechronica-view-maneuver-name,
+.nechronica-enemies-page .nechronica-view-maneuver-cell,
+.nechronica-enemies-page .nechronica-view-maneuver-effect {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0.3rem 0.48rem;
+  border-right: 1px solid rgba(214, 208, 195, 0.18);
+  box-sizing: border-box;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head > div {
+  justify-content: center;
+  text-align: center;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head > div:last-child,
+.nechronica-enemies-page .nechronica-view-maneuver-row > div:last-child {
+  border-right: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-part-cell {
+  justify-content: center;
+  background: #252229;
+  color: #f1eadf;
+  font-weight: 900;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-part-cell.is-頭 { border-left: 4px solid #4f9666; }
+.nechronica-enemies-page .nechronica-view-maneuver-part-cell.is-腕 { border-left: 4px solid #b8802d; }
+.nechronica-enemies-page .nechronica-view-maneuver-part-cell.is-胴 { border-left: 4px solid #3d8f98; }
+.nechronica-enemies-page .nechronica-view-maneuver-part-cell.is-脚 { border-left: 4px solid #8a63cb; }
+
+.nechronica-enemies-page .nechronica-view-maneuver-name {
+  justify-content: flex-start;
+  background: #1a171c !important;
+  color: #f4f1e8 !important;
+  font-weight: 900;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-cell {
+  justify-content: center;
+  background: #242126;
+  color: #eee8dd;
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-cell.is-malice {
+  font-size: 0.8rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-effect {
+  align-items: flex-start;
+  color: #eee8dd;
+  line-height: 1.5;
+  background: #171519;
+}
+
+@media (max-width: 860px) {
+  .nechronica-enemies-page .nechronica-view-maneuver-head {
+    display: none;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-row.is-servant,
+  .nechronica-enemies-page .nechronica-view-maneuver-row.is-flat {
+    grid-template-columns: 1fr;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-part-cell,
+  .nechronica-enemies-page .nechronica-view-maneuver-name,
+  .nechronica-enemies-page .nechronica-view-maneuver-cell,
+  .nechronica-enemies-page .nechronica-view-maneuver-effect {
+    border-right: 0;
+    border-bottom: 1px solid rgba(214, 208, 195, 0.14);
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-cell {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-part-cell::before,
+  .nechronica-enemies-page .nechronica-view-maneuver-cell::before {
+    display: inline-flex;
+    width: 5.2em;
+    margin-right: 0.45rem;
+    color: #b8afa3;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-part-cell::before { content: "部位"; }
+  .nechronica-enemies-page .nechronica-view-maneuver-cell.is-timing::before { content: "タイミング"; }
+  .nechronica-enemies-page .nechronica-view-maneuver-cell.is-cost::before { content: "コスト"; }
+  .nechronica-enemies-page .nechronica-view-maneuver-cell.is-range::before { content: "射程"; }
+  .nechronica-enemies-page .nechronica-view-maneuver-cell.is-malice::before { content: "悪意"; }
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 019: rulebook-like hero, background class icon, lean metrics
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+  position: relative;
+  overflow: hidden;
+  padding: 1rem 1.1rem 1rem 1.15rem;
+  min-height: 9.5rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main::before {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  top: 0.55rem;
+  width: 7.2rem;
+  height: 7.2rem;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.16;
+  filter: grayscale(1) contrast(1.15) drop-shadow(1px 1px 0 #000);
+  pointer-events: none;
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-servant .enemy-view-hero-main::before {
+  background-image: url("../img/nc/Servant.png");
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-horror .enemy-view-hero-main::before {
+  background-image: url("../img/nc/Horror.png");
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-region .enemy-view-hero-main::before {
+  background-image: url("../img/nc/Region.png");
+}
+
+.nechronica-enemies-page .nechronica-view-title-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+  order: 2;
+  margin-left: auto;
+  gap: 0;
+  min-height: 1.55rem;
+  padding: 0.12rem 0.75rem;
+  border: 1px solid rgba(214, 208, 195, 0.24);
+  background: rgba(28, 25, 29, 0.92);
+  color: #f4eee5;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.nechronica-enemies-page .nechronica-view-hero h2 {
+  order: 1;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1;
+  width: auto;
+  text-shadow:
+    2px 2px 0 #000,
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  grid-template-columns: repeat(2, max-content);
+  border: 1px solid rgba(214, 208, 195, 0.28);
+  background: #0f0e11;
+  margin-bottom: 0.6rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats > div {
+  display: grid;
+  grid-template-columns: max-content minmax(2.8rem, max-content);
+  align-items: center;
+  min-height: 1.75rem;
+  border-right: 1px solid rgba(214, 208, 195, 0.24);
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats > div:last-child {
+  border-right: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats span {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0.15rem 0.55rem;
+  background: #21191b;
+  color: #f4eee5;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0.15rem 0.65rem;
+  background: #f4f1e8;
+  color: #221c1f;
+  font-size: 1.15rem;
+  font-weight: 900;
+  font-family: var(--font-latin-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats .is-gm-info {
+  opacity: 0.74;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary {
+  position: relative;
+  z-index: 1;
+  grid-template-columns: repeat(3, minmax(8rem, 1fr));
+  max-width: 42rem;
+}
+
+.nechronica-enemies-page .nechronica-view-class-icon {
+  display: none !important;
+}
+
+.nechronica-enemies-page .nechronica-view-section-title-with-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nechronica-enemies-page .nechronica-view-section-title-with-meta small {
+  margin-left: auto;
+  color: #b8afa3;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-servant,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-servant {
+  grid-template-columns:
+    3.8rem
+    minmax(9rem, 1.05fr)
+    minmax(5.8rem, 0.56fr)
+    minmax(4rem, 0.34fr)
+    minmax(4.8rem, 0.42fr)
+    minmax(0, 1.85fr)
+    minmax(3.8rem, 0.28fr);
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-flat,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-flat {
+  grid-template-columns:
+    minmax(10rem, 1.05fr)
+    minmax(5.8rem, 0.56fr)
+    minmax(4rem, 0.34fr)
+    minmax(4.8rem, 0.42fr)
+    minmax(0, 2fr)
+    minmax(3.8rem, 0.28fr);
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+    padding: 0.8rem;
+  }
+  .nechronica-enemies-page .nechronica-view-title-row {
+    align-items: flex-start;
+  }
+  .nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+    margin-left: 0;
+  }
+  .nechronica-enemies-page .nechronica-view-hero-stats,
+  .nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 020: Nechronica view header alignment and table cleanup
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  grid-template-areas:
+    "title class"
+    "stats class"
+    "profile profile";
+  align-content: start;
+  align-items: start;
+  column-gap: 1rem;
+  row-gap: 0.45rem;
+  min-width: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-title-row {
+  grid-area: title;
+  display: block;
+  min-width: 0;
+  margin: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+  grid-area: class;
+  justify-self: end;
+  align-self: start;
+  order: initial;
+  margin-left: 0;
+  margin-top: 0.35rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero h2 {
+  display: inline;
+  margin: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats {
+  grid-area: stats;
+  justify-self: start;
+  margin: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary {
+  grid-area: profile;
+  justify-self: stretch;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  max-width: 100%;
+  margin-top: 0.1rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary:empty {
+  display: none;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-servant,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-servant {
+  grid-template-columns:
+    minmax(3.8rem, 0.32fr)
+    minmax(10.5rem, 1.1fr)
+    minmax(5.8rem, 0.58fr)
+    minmax(4rem, 0.34fr)
+    minmax(4.8rem, 0.44fr)
+    minmax(16rem, 2.1fr)
+    minmax(3.8rem, 0.28fr) !important;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-flat,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-flat {
+  grid-template-columns:
+    minmax(12rem, 1.16fr)
+    minmax(5.8rem, 0.58fr)
+    minmax(4rem, 0.34fr)
+    minmax(4.8rem, 0.44fr)
+    minmax(18rem, 2.2fr)
+    minmax(3.8rem, 0.28fr) !important;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-effect {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "class"
+      "title"
+      "stats"
+      "profile";
+  }
+
+  .nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+    justify-self: start;
+    margin-top: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 021: Nechronica header cleanup and part-count placement
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .enemy-view-toolbar {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.nechronica-enemies-page .enemy-view-toolbar-actions {
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.nechronica-enemies-page .enemy-view-toolbar .small-square-btn,
+.nechronica-enemies-page .enemy-view-toolbar a.small-square-btn,
+.nechronica-enemies-page .enemy-view-toolbar button.small-square-btn {
+  flex: 0 0 auto;
+  min-width: max-content;
+  padding-inline: 0.72rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.45rem;
+  overflow: hidden;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main::before {
+  left: -0.15rem;
+  top: 0.35rem;
+  width: 5.4rem;
+  height: 5.4rem;
+  opacity: 0.2;
+  z-index: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-title-row {
+  position: relative;
+  z-index: 1;
+  display: inline-flex !important;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 0.1rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero h2 {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  line-height: 1.02;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+  align-self: center;
+  justify-self: auto;
+  order: initial;
+  margin: 0 0 0.25rem 0;
+  padding: 0.08rem 0.62rem;
+  min-height: 1.35rem;
+  font-size: 0.76rem;
+  opacity: 0.92;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  width: min(100%, 32rem);
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  margin-top: 0.1rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary > div.is-author {
+  border-color: rgba(214, 208, 195, 0.16);
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(244, 241, 232, 0.72);
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary > div.is-author span {
+  color: rgba(214, 208, 195, 0.58);
+  font-size: 0.72rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary > div.is-author b {
+  color: rgba(244, 241, 232, 0.82);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-parts-summary {
+  padding-block: 0.72rem;
+}
+
+.nechronica-enemies-page .nechronica-view-parts-head {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.nechronica-enemies-page .nechronica-view-parts-head h3 {
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
+  white-space: nowrap;
+}
+
+.nechronica-enemies-page .nechronica-view-parts-head .enemy-view-part-grid {
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.42rem;
+}
+
+.nechronica-enemies-page .nechronica-view-section-title-with-meta small {
+  white-space: nowrap;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-head.is-flat,
+.nechronica-enemies-page .nechronica-view-maneuver-row.is-flat {
+  grid-template-columns:
+    minmax(12rem, 1.08fr)
+    minmax(5.8rem, 0.54fr)
+    minmax(4rem, 0.32fr)
+    minmax(4.8rem, 0.42fr)
+    minmax(20rem, 2.35fr)
+    minmax(3.6rem, 0.24fr) !important;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .enemy-view-toolbar {
+    overflow: visible;
+  }
+
+  .nechronica-enemies-page .enemy-view-toolbar-actions {
+    justify-content: flex-start;
+  }
+
+  .nechronica-enemies-page .nechronica-view-parts-head {
+    grid-template-columns: 1fr;
+  }
+
+  .nechronica-enemies-page .nechronica-view-parts-head .enemy-view-part-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 022: Nechronica hero composition and maneuver header parts
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-hero {
+  position: relative;
+  align-items: center;
+  overflow: hidden;
+  min-height: 13.4rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero.has-image {
+  grid-template-columns: minmax(12rem, 15.5rem) minmax(0, 1fr) !important;
+  gap: 0.8rem 1.55rem;
+}
+
+.nechronica-enemies-page .enemy-view-portrait.has-image {
+  position: relative;
+  z-index: 2;
+  width: 15.5rem;
+  height: 12.3rem;
+  min-height: 0;
+  overflow: visible;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nechronica-enemies-page .enemy-view-portrait.has-image img {
+  width: 112%;
+  height: 112%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.46));
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+  position: relative;
+  z-index: 1;
+  min-height: 11.8rem;
+  width: 100%;
+  padding: 1.1rem 1.4rem 1.05rem 0;
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.35rem;
+  overflow: hidden;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main::before {
+  left: auto !important;
+  right: 0.8rem;
+  top: 50%;
+  width: min(30rem, 46%);
+  height: 128%;
+  transform: translateY(-50%);
+  opacity: 0.15;
+  background-position: right center;
+  background-size: contain;
+  z-index: -1;
+}
+
+.nechronica-enemies-page .nechronica-view-title-row {
+  width: auto;
+  max-width: min(100%, 42rem);
+  padding-right: 10rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero h2 {
+  margin: 0;
+  max-width: 100%;
+  line-height: 0.98;
+  text-shadow:
+    2px 2px 0 #050505,
+    -1px -1px 0 #050505,
+    0 7px 16px rgba(0, 0, 0, 0.72);
+}
+
+.nechronica-enemies-page .nechronica-view-hero-author {
+  position: absolute;
+  top: 0.85rem;
+  right: 1.05rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  max-width: 16rem;
+  padding: 0.16rem 0.5rem;
+  border: 1px solid rgba(214, 208, 195, 0.14);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.14);
+  color: rgba(244, 241, 232, 0.72);
+  line-height: 1.1;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-author span {
+  color: rgba(214, 208, 195, 0.52);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-author b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(244, 241, 232, 0.82);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+  position: relative;
+  z-index: 2;
+  order: -1;
+  margin: 0 0 -0.25rem 0;
+  padding: 0.08rem 0.66rem;
+  min-height: 1.35rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats {
+  position: relative;
+  z-index: 2;
+  margin-top: 0.05rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-profile-table.is-primary {
+  display: none !important;
+}
+
+.nechronica-enemies-page .enemy-view-profile-table.is-secondary {
+  grid-template-columns: repeat(3, minmax(8rem, 1fr));
+}
+
+.nechronica-enemies-page .enemy-view-profile-table.is-secondary > div:has(span:first-child:last-child),
+.nechronica-enemies-page .enemy-view-profile-table.is-secondary > div.is-maneuver-count {
+  display: none !important;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-parts-summary {
+  display: none !important;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers {
+  overflow: hidden;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(214, 208, 195, 0.28);
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta h3 {
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
+  white-space: nowrap;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta small {
+  grid-column: 3;
+  justify-self: end;
+  align-self: center;
+  white-space: nowrap;
+  opacity: 0.82;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.55rem;
+  margin: -0.1rem 0 0.65rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.6rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(214, 208, 195, 0.22);
+  background: rgba(0, 0, 0, 0.18);
+  color: #f4f1e8;
+  font-weight: 900;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.45rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell {
+  min-height: 2.65rem;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .nechronica-view-hero.has-image {
+    grid-template-columns: 1fr !important;
+  }
+
+  .nechronica-enemies-page .enemy-view-portrait.has-image {
+    width: min(100%, 15rem);
+    height: 10.5rem;
+    justify-content: flex-start;
+  }
+
+  .nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+    min-height: 10rem;
+    padding-right: 0;
+  }
+
+  .nechronica-enemies-page .nechronica-view-hero-author {
+    position: static;
+    margin-bottom: 0.2rem;
+  }
+
+  .nechronica-enemies-page .nechronica-view-title-row {
+    padding-right: 0;
+  }
+
+  .nechronica-enemies-page .enemy-view-profile-table.is-secondary {
+    grid-template-columns: 1fr;
+  }
+
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta,
+  .nechronica-enemies-page .nechronica-view-maneuver-parts {
+    grid-template-columns: 1fr;
+  }
+
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta small {
+    grid-column: 1;
+    justify-self: start;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 023: full-bleed class background and stat layout
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main::before {
+  display: none !important;
+}
+
+.nechronica-enemies-page .nechronica-view-hero::before {
+  content: "";
+  position: absolute;
+  top: -12%;
+  right: -1.2rem;
+  bottom: -12%;
+  width: min(40rem, 54%);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: contain;
+  opacity: 0.17;
+  filter: grayscale(1) contrast(1.12) drop-shadow(1px 1px 0 #000);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-servant::before {
+  background-image: url("../img/nc/Servant.png");
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-horror::before {
+  background-image: url("../img/nc/Horror.png");
+}
+
+.nechronica-enemies-page .nechronica-view-hero.is-class-region::before {
+  background-image: url("../img/nc/Region.png");
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-portrait,
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main,
+.nechronica-enemies-page .nechronica-view-hero-author {
+  position: relative;
+  z-index: 1;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+  overflow: visible;
+}
+
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-kicker {
+  order: 0 !important;
+  margin: 0.2rem 0 0 !important;
+  align-self: flex-start;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats {
+  margin: 0.2rem 0 0;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats > div {
+  align-items: stretch;
+  min-height: 2.05rem;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats span,
+.nechronica-enemies-page .nechronica-view-hero-stats b {
+  align-self: stretch;
+  height: auto;
+  min-height: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-stats b {
+  min-width: 3.15rem;
+  font-size: 1.28rem;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .nechronica-view-hero::before {
+    right: -2.5rem;
+    width: min(28rem, 82%);
+    opacity: 0.11;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 024: maneuver header parts and hero author alignment
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+  position: relative;
+  padding-right: clamp(8rem, 20vw, 16rem);
+}
+
+.nechronica-enemies-page .nechronica-view-hero-author {
+  position: absolute !important;
+  top: 0.45rem;
+  right: 0.2rem;
+  z-index: 4;
+  margin: 0;
+  max-width: clamp(8rem, 20vw, 15rem);
+  transform: none;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta {
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  align-items: center;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta .nechronica-view-maneuver-parts {
+  grid-column: 2;
+  min-width: 0;
+  margin: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts-label {
+  display: none !important;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts {
+  display: block;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-grid {
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.35rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell {
+  min-height: 2.15rem;
+  padding-top: 0.22rem;
+  padding-bottom: 0.22rem;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .nechronica-view-hero .enemy-view-hero-main {
+    padding-right: 0;
+  }
+
+  .nechronica-enemies-page .nechronica-view-hero-author {
+    position: static !important;
+    max-width: 100%;
+    align-self: flex-start;
+    margin: 0.15rem 0 0.2rem;
+  }
+
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta .nechronica-view-maneuver-parts,
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta small {
+    grid-column: 1;
+    justify-self: stretch;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 025: compact maneuver parts and stable author badge
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.7rem;
+  flex-wrap: nowrap;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta h3 {
+  flex: 0 0 auto;
+  min-width: max-content;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta .nechronica-view-maneuver-parts {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-grid {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell {
+  flex: 0 0 auto;
+  min-width: 7.2rem;
+  max-width: 10.5rem;
+  min-height: 1.9rem;
+  padding: 0.18rem 0.52rem 0.18rem 0.7rem;
+  display: grid;
+  grid-template-columns: auto max-content;
+  align-items: center;
+  gap: 0.28rem 0.55rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell span {
+  grid-column: 1 / -1;
+  font-size: 0.64rem;
+  opacity: 0.68;
+  line-height: 1;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.86rem;
+  line-height: 1;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell em {
+  justify-self: end;
+  font-style: normal;
+  color: rgba(214, 208, 195, 0.72);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta small {
+  flex: 0 0 auto;
+  margin-left: 0.25rem;
+  justify-self: auto;
+  font-size: 0.74rem;
+  opacity: 0.78;
+}
+
+.nechronica-enemies-page .nechronica-view-hero-author {
+  top: 0.75rem !important;
+  right: 0.85rem !important;
+  align-items: center;
+  max-width: min(18rem, 42%);
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta {
+    flex-wrap: wrap;
+  }
+
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta .nechronica-view-maneuver-parts {
+    flex-basis: 100%;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell {
+    min-width: 7rem;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   View adjustment 026: part chips show part type only and align with parts count
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta {
+  justify-content: flex-start;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta .nechronica-view-maneuver-parts {
+  flex: 0 1 auto;
+  margin-left: auto;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-grid {
+  justify-content: flex-end;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell {
+  min-width: 5.3rem;
+  max-width: 7rem;
+  min-height: 1.72rem;
+  padding: 0.14rem 0.45rem 0.14rem 0.65rem;
+  grid-template-columns: minmax(1.8rem, auto) max-content;
+  gap: 0.2rem 0.42rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell b {
+  font-size: 0.82rem;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-cell em {
+  font-size: 0.74rem;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta small {
+  margin-left: 0.15rem;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta .nechronica-view-maneuver-parts {
+    flex-basis: auto;
+    margin-left: 0;
+  }
+
+  .nechronica-enemies-page .nechronica-view-maneuver-parts .enemy-view-part-grid {
+    justify-content: flex-start;
+  }
+}
+
+/* 030: author is shown in the quote line, not as a hero corner badge. */
+.nechronica-enemies-page .nechronica-view-quote {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.18rem 0.62rem;
+  border: 1px solid rgba(214, 208, 195, 0.24);
+  border-radius: 999px;
+  background: rgba(12, 10, 13, 0.48);
+  color: rgba(231, 226, 216, 0.78);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.nechronica-enemies-page .nechronica-view-quote .enemy-view-quote-author {
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 030: author badge belongs to the memo block
+   -------------------------------------------------------------------------- */
+.nechronica-enemies-page .enemy-view-block.is-view-memo-block {
+  position: relative;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-view-memo-block .enemy-view-memo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(214, 208, 195, 0.2);
+}
+
+.nechronica-enemies-page .enemy-view-block.is-view-memo-block .enemy-view-memo-head h3 {
+  margin: 0;
+  border-bottom: 0;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-view-memo-block .enemy-view-memo-author {
+  flex: 0 1 auto;
+  max-width: min(20rem, 45%);
+  padding: 0.16rem 0.6rem;
+  border: 1px solid rgba(214, 208, 195, 0.24);
+  border-radius: 999px;
+  background: rgba(12, 10, 13, 0.48);
+  color: rgba(231, 226, 216, 0.78);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nechronica-enemies-page .enemy-view-block.is-view-memo-block .enemy-view-memo.is-empty {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .nechronica-enemies-page .enemy-view-block.is-view-memo-block .enemy-view-memo-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .nechronica-enemies-page .enemy-view-block.is-view-memo-block .enemy-view-memo-author {
+    max-width: 100%;
+  }
+}
+
+
+/* 031: compact page header, no editor subtitle, centered maneuver names */
+body.nechronica-enemies-page.is-enemy-view-mode .nechronica-header {
+  padding: 0 !important;
+  min-height: 0 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.nechronica-enemies-page .nechronica-header .subtitle {
+  display: none !important;
+}
+
+.nechronica-enemies-page .nechronica-view-maneuver-name {
+  text-align: center !important;
+  justify-content: center;
 }

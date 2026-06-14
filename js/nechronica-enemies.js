@@ -16,6 +16,7 @@ const state = {
   enemyListPageSize: 10,
   enemyListPage: 1,
   adminMode: false,
+  viewMode: false,
 };
 
 const PART_TYPES = ["頭", "腕", "胴", "脚"];
@@ -138,6 +139,16 @@ const el = {
   exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
   importKomaJsonButton: document.getElementById("importKomaJsonButton"),
   komaJsonInput: document.getElementById("komaJsonInput"),
+  enemyViewPane: document.getElementById("enemyViewPane"),
+  enemyViewContent: document.getElementById("enemyViewContent"),
+  viewCopyChatPaletteButton: document.getElementById("viewCopyChatPaletteButton"),
+  viewCopyKomaJsonButton: document.getElementById("viewCopyKomaJsonButton"),
+  viewCopyKomaJsonToolbarButton: document.getElementById("viewCopyKomaJsonToolbarButton"),
+  viewToggleChatPaletteButton: document.getElementById("viewToggleChatPaletteButton"),
+  enemyViewChatPaletteText: document.getElementById("enemyViewChatPaletteText"),
+  viewWideModeToggle: document.getElementById("viewWideModeToggle"),
+  viewEditModeButton: document.getElementById("viewEditModeButton"),
+  openEnemyViewButton: document.getElementById("openEnemyViewButton"),
   partsStatusPanel: document.getElementById("partsStatusPanel"),
   addBasicManeuversButton: document.getElementById("addBasicManeuversButton"),
   addManeuverButton: document.getElementById("addManeuverButton"),
@@ -174,6 +185,11 @@ function nowIsoLocal() {
   return typeof sharedApi.nowIsoLocal === "function"
     ? sharedApi.nowIsoLocal()
     : new Date().toLocaleString("ja-JP");
+}
+
+function getCreditLabel(author) {
+  const text = String(author || "").trim();
+  return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
 }
 
 function getRememberedAuthor() {
@@ -346,11 +362,13 @@ function scheduleSaveToDb(delayMs = 600) {
     hasUnsavedChanges = true;
   }
   setSaveStatus("idle", "未保存の変更あり");
+  updateOpenEnemyViewButtonState();
 }
 
 function clearUnsavedChanges() {
   hasUnsavedChanges = false;
   setSaveStatus("idle", "");
+  updateOpenEnemyViewButtonState();
 }
 
 function scheduleSecondaryRenders(options = {}) {
@@ -393,33 +411,43 @@ function scheduleSummaryRenders(options = {}) {
   }, delayMs);
 }
 
+function shouldToastSaveStatus(message, kind = "idle") {
+  const sharedApi = getEnemiesShared();
+  if (sharedApi && typeof sharedApi.shouldToastStatus === "function") {
+    return sharedApi.shouldToastStatus(message, { kind });
+  }
+  const text = String(message || "").trim();
+  if (!text) return false;
+  if (text === "未保存の変更あり" || text === "未保存" || text === "保存済み" || text === "新規白紙") return false;
+  return true;
+}
+
 function setSaveStatus(kind, text) {
   const message = String(text || "").trim();
 
-  // 画面上のテキスト更新（要素があれば）
+  // ヘッダー/画面内のステータス欄は使わず、通知はトーストへ集約する。
   if (el.saveStatusText) {
-    el.saveStatusText.textContent = message;
+    el.saveStatusText.textContent = "";
+    el.saveStatusText.hidden = true;
+    el.saveStatusText.style.display = "none";
     el.saveStatusText.classList.remove(
       "is-idle",
       "is-saving",
       "is-ok",
       "is-error",
     );
-    if (kind === "saving") el.saveStatusText.classList.add("is-saving");
-    else if (kind === "ok") el.saveStatusText.classList.add("is-ok");
-    else if (kind === "error") el.saveStatusText.classList.add("is-error");
-    else el.saveStatusText.classList.add("is-idle");
   }
 
-  // ログ出力
   if (kind === "error") console.error(`[nechronica] ${message}`);
   else console.info(`[nechronica] ${message}`);
 
-  // トースト通知（完了・エラーのみ）
-  if (!message) return;
-  if (kind === "ok" || kind === "error") {
-    showToast(message, kind === "error" ? "error" : "info");
+  const sharedApi = getEnemiesShared();
+  if (sharedApi && typeof sharedApi.notifyStatus === "function") {
+    sharedApi.notifyStatus(message, { kind: kind === "error" ? "error" : "info" });
+    return;
   }
+  if (!shouldToastSaveStatus(message, kind)) return;
+  showToast(message, kind === "error" ? "error" : "info");
 }
 
 function showToast(message, kind = "info") {
@@ -433,6 +461,51 @@ function showToast(message, kind = "info") {
     showClass: "is-show",
     duration: 1800,
   });
+}
+
+function notifyViewOpenUnavailable(error) {
+  const message = String((error && error.message) || "閲覧ページを開けませんでした").trim();
+  showToast(message || "閲覧ページを開けませんでした", "error");
+}
+
+function getEnemyViewOpenGuard(enemy = getSelectedEnemy()) {
+  const sharedApi = getEnemiesShared();
+  const id = String((enemy && enemy.ID) || "").trim();
+  const payload = {
+    id,
+    isUnsaved: !enemy || !id || localUnsavedEnemyIds.has(id),
+    isDirty: !!hasUnsavedChanges,
+    isBlankNew: !enemy,
+    unsavedMessage: "閲覧用画面を表示するには先に保存してください",
+    dirtyMessage: "閲覧用画面を表示するには先に保存してください",
+  };
+  if (sharedApi && typeof sharedApi.canOpenEnemyView === "function") {
+    return sharedApi.canOpenEnemyView(payload);
+  }
+  if (!payload.id || payload.isBlankNew) return { ok: false, reason: "閲覧用画面を表示する保存済みデータがありません" };
+  if (payload.isUnsaved || payload.isDirty) return { ok: false, reason: "閲覧用画面を表示するには先に保存してください" };
+  return { ok: true, reason: "" };
+}
+
+function updateOpenEnemyViewButtonState() {
+  const sharedApi = getEnemiesShared();
+  const guard = getEnemyViewOpenGuard();
+  if (sharedApi && typeof sharedApi.updateEnemyViewButtonState === "function") {
+    sharedApi.updateEnemyViewButtonState({
+      button: el.openEnemyViewButton,
+      canOpen: guard.ok,
+      enabledTitle: "閲覧用画面を新しいタブで表示",
+      disabledTitle: guard.reason || "閲覧用画面を表示する保存済みデータがありません",
+    });
+    return guard.ok;
+  }
+  if (el.openEnemyViewButton instanceof HTMLButtonElement) {
+    el.openEnemyViewButton.disabled = !guard.ok;
+    el.openEnemyViewButton.classList.toggle("is-disabled", !guard.ok);
+    el.openEnemyViewButton.title = guard.ok ? "閲覧用画面を新しいタブで表示" : guard.reason;
+    el.openEnemyViewButton.setAttribute("aria-disabled", guard.ok ? "false" : "true");
+  }
+  return guard.ok;
 }
 
 function showKomaJsonCopySuccessToast() {
@@ -480,21 +553,65 @@ async function writeClipboardText(text) {
 }
 
 function getSharedEnemyIdFromUrl() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    return String(params.get("id") || params.get("enemy") || "").trim();
-  } catch (_e) {
-    return "";
-  }
+  const sharedApi = getEnemiesShared();
+  return typeof sharedApi.getViewIdFromUrl === "function"
+    ? sharedApi.getViewIdFromUrl({ aliases: ["id", "enemy", "enemyId"] })
+    : "";
 }
 
 function buildEnemyShareUrl(enemyId) {
-  const id = String(enemyId || "").trim();
-  if (!id) return "";
-  const url = new URL(window.location.href);
-  url.searchParams.set("id", id);
-  url.hash = "";
-  return url.toString();
+  const sharedApi = getEnemiesShared();
+  return typeof sharedApi.buildEnemyViewUrl === "function"
+    ? sharedApi.buildEnemyViewUrl({ id: enemyId, removeParams: ["mode"] })
+    : "";
+}
+
+function shouldStartInViewMode() {
+  const sharedApi = getEnemiesShared();
+  return typeof sharedApi.shouldStartInEnemyViewMode === "function"
+    ? sharedApi.shouldStartInEnemyViewMode({ aliases: ["id", "enemy", "enemyId"] })
+    : false;
+}
+
+function setPageMode() {
+  state.viewMode = shouldStartInViewMode();
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.applyEnemyViewMode === "function") {
+    sharedApi.applyEnemyViewMode({
+      viewMode: state.viewMode,
+      htmlClass: "is-nechronica-enemy-view-boot",
+      bodyClass: "is-enemy-view-mode",
+      pane: el.enemyViewPane,
+      content: el.enemyViewContent,
+      loadingHtml: `<section class="enemy-view-block enemy-view-loading">手駒情報を読み込み中...</section>`,
+    });
+  } else if (typeof sharedApi.applyEnemyPageModeClasses === "function") {
+    sharedApi.applyEnemyPageModeClasses({
+      viewMode: state.viewMode,
+      htmlClass: "is-nechronica-enemy-view-boot",
+      bodyClass: "is-enemy-view-mode",
+    });
+    if (el.enemyViewPane) el.enemyViewPane.hidden = !state.viewMode;
+    if (state.viewMode && el.enemyViewContent && !String(el.enemyViewContent.innerHTML || "").trim()) {
+      el.enemyViewContent.innerHTML = `<section class="enemy-view-block enemy-view-loading">手駒情報を読み込み中...</section>`;
+    }
+  } else {
+    document.documentElement.classList.toggle("is-nechronica-enemy-view-boot", !!state.viewMode);
+    document.body.classList.toggle("is-enemy-view-mode", !!state.viewMode);
+    if (el.enemyViewPane) el.enemyViewPane.hidden = !state.viewMode;
+    if (state.viewMode && el.enemyViewContent && !String(el.enemyViewContent.innerHTML || "").trim()) {
+      el.enemyViewContent.innerHTML = `<section class="enemy-view-block enemy-view-loading">手駒情報を読み込み中...</section>`;
+    }
+  }
+}
+
+function openEnemyViewById(id, target = "_blank") {
+  const enemyId = String(id || "").trim();
+  if (!enemyId) return;
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.openEnemyViewUrl === "function") {
+    sharedApi.openEnemyViewUrl({ id: enemyId, target, removeParams: ["mode"] });
+  }
 }
 
 function tryEnableAdminModeFromImport(raw) {
@@ -1452,7 +1569,7 @@ function renderEnemyList() {
               }
             </span>
             <span class="enemy-list-lower-info">
-              <span class="meta-item">作者: ${escapeHtml(authorText)}</span>
+              <span class="meta-item">${getCreditLabel(authorText)}: ${escapeHtml(authorText)}</span>
               <span class="meta-item">ID: ${escapeHtml(enemy.ID || "-")}</span>
             </span>
           </span>
@@ -1466,6 +1583,9 @@ function renderEnemyList() {
             </span>
             <!-- アクションボタン -->
             <span class="enemy-list-btns-row">
+              <button type="button" class="list-side-btn is-view" title="新しいタブで閲覧">
+                <i class="fa-solid fa-eye"></i><br>閲覧
+              </button>
               <button type="button" class="list-side-btn is-load" title="編集を表示">
                 <i class="fa-solid fa-file-signature"></i><br>編集
               </button>
@@ -1481,6 +1601,12 @@ function renderEnemyList() {
           </span>
         </span>
       `;
+
+    // 閲覧ボタン
+    card.querySelector(".is-view")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openEnemyViewById(enemy.ID, "_blank");
+    });
 
     // 読込ボタン
     card.querySelector(".is-load").addEventListener("click", () => {
@@ -1499,7 +1625,7 @@ function renderEnemyList() {
       const copyData = buildKomaCharacterJson(enemy);
       try {
         await writeClipboardText(JSON.stringify(copyData));
-        showKomaJsonCopySuccessToast();
+        showToast("チャパレをコピーしました", "info");
         const btn = event.currentTarget;
         if (btn instanceof HTMLButtonElement) {
           const originalText = btn.textContent;
@@ -2325,7 +2451,136 @@ function importFromKomaJson(enemy, src) {
   normalizePartsByClass(enemy);
 }
 
+
+function buildNechronicaViewCommandText(enemy) {
+  if (!enemy) return "";
+  const commands = buildKomaCommands(enemy);
+  return Array.isArray(commands) ? commands.join("\n") : String(commands || "");
+}
+
+function renderEnemyView() {
+  if (!el.enemyViewContent) return;
+  if (!state.viewMode) {
+    el.enemyViewContent.innerHTML = "";
+    if (el.enemyViewChatPaletteText) el.enemyViewChatPaletteText.value = "";
+    return;
+  }
+  const enemy = getSelectedEnemy();
+  if (!enemy) {
+    if (el.enemyViewChatPaletteText) el.enemyViewChatPaletteText.value = "";
+    el.enemyViewContent.innerHTML = `<section class="enemy-view-block enemy-view-loading">手駒情報が見つかりません。</section>`;
+    return;
+  }
+
+  if (el.enemyViewChatPaletteText) el.enemyViewChatPaletteText.value = buildNechronicaViewCommandText(enemy);
+
+  const maneuvers = Array.isArray(enemy.data && enemy.data.maneuvers) ? enemy.data.maneuvers : [];
+  const parts = Array.isArray(enemy.data && enemy.data.parts) ? enemy.data.parts : [];
+  const iconUrl = String(enemy.icon_url || "").trim();
+  const totalMalice = calcMalice(enemy);
+  const initiative = calcInitiativeTotal(enemy);
+  const memo = String(enemy.memo || "").trim();
+  const classType = String(enemy.class_type || "手駒").trim() || "手駒";
+  const classIconKey = (() => {
+    if (classType === "サヴァント") return "servant";
+    if (classType === "ホラー") return "horror";
+    if (classType === "レギオン") return "region";
+    return "other";
+  })();
+  const unitCount = getEnemyUnitCount(enemy);
+  const place = getEnemyPlace(enemy);
+  const sharedApi = getEnemiesShared();
+  if (typeof sharedApi.updateEnemyViewIdBadge === "function") sharedApi.updateEnemyViewIdBadge(enemy.ID);
+
+  const clean = (value, fallback = "-") => {
+    const text = String(value == null ? "" : value).trim();
+    return text || fallback;
+  };
+  const hasText = (value) => String(value == null ? "" : value).trim() !== "";
+  const labelValue = (label, value, fallback = "-", className = "") => `
+    <div${className ? ` class="${escapeHtml(className)}"` : ""}><span>${escapeHtml(label)}</span><b>${escapeHtml(clean(value, fallback))}</b></div>`;
+  const chip = (label, value) => hasText(value)
+    ? `<span><small>${escapeHtml(label)}</small>${escapeHtml(String(value).trim())}</span>`
+    : "";
+
+  const partRows = parts
+    .filter((p) => p && (hasText(p.name) || hasText(p.type) || hasText(p.max) || hasText(p.current)))
+    .map((p) => {
+      const count = clean(p.max ?? p.current, "-");
+      const typeText = clean(p.type || p.name, "部位");
+      return `<div class="enemy-view-part-cell is-${escapeHtml(String(p.type || "other"))}"><b>${escapeHtml(typeText)}</b><em>${escapeHtml(count)}</em></div>`;
+    })
+    .join("");
+  const partsInlineHtml = partRows
+    ? `<div class="nechronica-view-maneuver-parts"><div class="enemy-view-part-grid">${partRows}</div></div>`
+    : "";
+
+  const isServant = String(classType || "").trim() === "サヴァント";
+  const displayManeuvers = maneuvers.filter((m) => m && hasText(m.name || m.displayName || m.kindName));
+  const maneuverHeadHtml = isServant
+    ? `<div class="nechronica-view-maneuver-head is-servant" aria-hidden="true">
+        <div>部位</div><div>マニューバ</div><div>タイミング</div><div>コスト</div><div>射程</div><div>効果</div><div class="is-gm-info">悪意</div>
+      </div>`
+    : `<div class="nechronica-view-maneuver-head is-flat" aria-hidden="true">
+        <div>マニューバ</div><div>タイミング</div><div>コスト</div><div>射程</div><div>効果</div><div class="is-gm-info">悪意</div>
+      </div>`;
+  const renderManeuverRow = (m) => {
+    const part = clean(m.partType, "-");
+    const name = clean(m.displayName || m.name || m.kindName, "名称未設定");
+    const timing = clean(m.timing, "なし");
+    const cost = clean(m.cost, "0");
+    const range = clean(m.range, "-");
+    const malice = hasText(m.malice) ? String(m.malice) : "-";
+    const effect = clean(m.effect, "");
+    const broken = clean(m.brokenEffect || m.broken, "");
+    return `<div class="nechronica-view-maneuver-row ${isServant ? "is-servant" : "is-flat"} is-${escapeHtml(timing)}">
+      ${isServant ? `<div class="nechronica-view-maneuver-part-cell is-${escapeHtml(part)}">${escapeHtml(part)}</div>` : ""}
+      <div class="nechronica-view-maneuver-name">【${escapeHtml(name)}】</div>
+      <div class="nechronica-view-maneuver-cell is-timing">${escapeHtml(timing)}</div>
+      <div class="nechronica-view-maneuver-cell is-cost">${escapeHtml(cost)}</div>
+      <div class="nechronica-view-maneuver-cell is-range">${escapeHtml(range)}</div>
+      <div class="nechronica-view-maneuver-effect">${effect ? escapeHtml(effect) : "-"}${broken ? `<div class="enemy-view-broken"><b>損傷:</b> ${escapeHtml(broken)}</div>` : ""}</div>
+      <div class="nechronica-view-maneuver-cell is-malice is-gm-info">${escapeHtml(malice)}</div>
+    </div>`;
+  };
+
+  const maneuverCards = displayManeuvers.length
+    ? `<article class="nechronica-view-maneuver-group ${isServant ? "is-servant" : "is-flat"}">
+        <div class="nechronica-view-maneuver-table ${isServant ? "is-servant" : "is-flat"}">
+          ${maneuverHeadHtml}
+          <div class="nechronica-view-maneuver-rows">${displayManeuvers.map(renderManeuverRow).join("")}</div>
+        </div>
+      </article>`
+    : "";
+  const isLegion = String(classType || "").trim() === "レギオン";
+  const totalPartsCount = parts.filter((p) => p && (hasText(p.name) || hasText(p.type) || hasText(p.max) || hasText(p.current))).length;
+  const maneuverHeaderMeta = !isLegion && totalPartsCount > 0 ? `パーツ数 ${totalPartsCount}` : "";
+
+  const actionCount = maneuvers.filter((m) => String(m && m.timing || "") === "アクション").length;
+  const autoCount = maneuvers.filter((m) => String(m && m.timing || "") === "オート").length;
+  const supportCount = Math.max(0, maneuvers.length - actionCount - autoCount);
+
+  el.enemyViewContent.innerHTML = `
+    <section class="enemy-view-hero nechronica-view-hero ${iconUrl ? "has-image" : "has-no-image"} is-class-${escapeHtml(classIconKey)}">
+      ${iconUrl ? `<div class="enemy-view-portrait has-image"><img src="${escapeHtml(iconUrl)}" alt=""></div>` : ""}
+      <div class="enemy-view-hero-main">
+        <div class="nechronica-view-title-row">
+          <h2>${escapeHtml(enemy.name || "（名称未設定）")}</h2>
+        </div>
+        <div class="nechronica-view-hero-stats" aria-label="主要値">
+          <div><span>最大行動値</span><b>${escapeHtml(clean(initiative, "0"))}</b></div>
+          <div class="is-gm-info"><span>悪意</span><b>${escapeHtml(clean(totalMalice, "0"))}</b></div>
+        </div>
+        <div class="enemy-view-kicker">${escapeHtml(classType)}</div>
+      </div>
+    </section>
+    ${maneuverCards ? `<section class="enemy-view-block is-maneuvers"><div class="nechronica-view-section-title-with-meta"><h3>マニューバ</h3>${isServant && partsInlineHtml ? partsInlineHtml : ""}${maneuverHeaderMeta ? `<small>${escapeHtml(maneuverHeaderMeta)}</small>` : ""}</div><div class="nechronica-view-maneuver-groups">${maneuverCards}</div></section>` : ""}
+    ${(memo || enemy.author) ? `<section class="enemy-view-block is-view-memo-block"><div class="enemy-view-memo-head"><h3>解説</h3>${enemy.author ? `<span class="enemy-view-memo-author">${getCreditLabel(enemy.author)}：${escapeHtml(clean(enemy.author, "-"))}</span>` : ""}</div>${memo ? `<p class="enemy-view-memo">${escapeHtml(memo)}</p>` : `<p class="enemy-view-memo is-empty"></p>`}</section>` : ""}
+  `;
+}
+
 function renderAll() {
+  setPageMode();
   const enemy = getSelectedEnemy();
   renderEnemyList();
   fillForm(enemy);
@@ -2334,6 +2589,8 @@ function renderAll() {
   renderDataPreview(enemy);
   renderMemoPreview(enemy);
   renderSummaryPanel();
+  renderEnemyView();
+  updateOpenEnemyViewButtonState();
 }
 
 function getEnemyUnitCount(enemy) {
@@ -3390,7 +3647,7 @@ function handleSummaryTableClick(event) {
     );
     writeClipboardText(text)
       .then(() => {
-        showKomaJsonCopySuccessToast();
+        showToast("チャパレをコピーしました", "info");
       })
       .catch(() => {
         showToast(message("clipboardCopyFailedConsole"), "error");
@@ -4318,6 +4575,22 @@ function setupEvents() {
   };
   bindClick(el.saveEnemyButton, handleSaveEnemy);
   bindClick(el.saveEnemyButtonBottom, handleSaveEnemy);
+  bindClick(el.openEnemyViewButton, () => {
+    try {
+      const enemy = getSelectedEnemy();
+      const guard = getEnemyViewOpenGuard(enemy);
+      updateOpenEnemyViewButtonState();
+      if (!guard.ok) {
+        throw new Error(guard.reason || "閲覧ページを開けませんでした");
+      }
+      const id = String((enemy && enemy.ID) || "").trim();
+      openEnemyViewById(id, "_blank");
+    } catch (error) {
+      console.error(error);
+      notifyViewOpenUnavailable(error);
+    }
+  });
+
   bindClick(el.shareEnemyButtonBottom, async () => {
     try {
       await shareSelectedEnemy();
@@ -4325,6 +4598,63 @@ function setupEvents() {
       console.error(error);
       setSaveStatus("error", "共有失敗");
     }
+  });
+
+  bindClick(el.viewCopyChatPaletteButton, async () => {
+    const enemy = getSelectedEnemy();
+    const text = el.enemyViewChatPaletteText
+      ? String(el.enemyViewChatPaletteText.value || "")
+      : (enemy ? buildNechronicaViewCommandText(enemy) : "");
+    if (!text) return;
+    try {
+      await writeClipboardText(text);
+      showToast("チャパレをコピーしました", "info");
+    } catch (error) {
+      console.error(error);
+      setSaveStatus("error", "コピーに失敗しました");
+    }
+  });
+  const copyViewKomaJson = async () => {
+    const enemy = getSelectedEnemy();
+    if (!enemy) return;
+    const out = buildKomaCharacterJson(enemy);
+    const pretty = JSON.stringify(out, null, 0);
+    try {
+      await writeClipboardText(pretty);
+      showKomaJsonCopySuccessToast();
+    } catch (error) {
+      console.error(error);
+      showToast(message("clipboardCopyFailedConsole"), "error");
+      console.log(pretty);
+    }
+  };
+  bindClick(el.viewCopyKomaJsonButton, copyViewKomaJson);
+  bindClick(el.viewCopyKomaJsonToolbarButton, copyViewKomaJson);
+  bindClick(el.viewToggleChatPaletteButton, () => {
+    const panel = document.querySelector(".enemy-view-chat-palette-panel");
+    if (!panel) return;
+    const nextOpen = !panel.classList.contains("is-open");
+    panel.classList.toggle("is-open", nextOpen);
+    document.body.classList.toggle("is-enemy-view-chat-open", nextOpen);
+    el.viewToggleChatPaletteButton.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+  });
+  if (el.viewWideModeToggle) {
+    const sharedApi = getEnemiesShared();
+    if (typeof sharedApi.bindEnemyViewWideModeToggle === "function") {
+      sharedApi.bindEnemyViewWideModeToggle({ toggleId: "viewWideModeToggle" });
+    } else {
+      el.viewWideModeToggle.addEventListener("change", () => {
+        document.body.classList.toggle("is-enemy-view-wide", !!el.viewWideModeToggle.checked);
+      });
+    }
+  }
+  bindClick(el.viewEditModeButton, () => {
+    const enemy = getSelectedEnemy();
+    if (!enemy || !String(enemy.ID || "").trim()) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("id", enemy.ID);
+    url.searchParams.set("mode", "edit");
+    window.location.href = url.toString();
   });
   document.addEventListener("keydown", (event) => {
     const key = String(event.key || "").toLowerCase();
@@ -4403,7 +4733,7 @@ function setupEvents() {
       const pretty = JSON.stringify(out, null, 0);
       writeClipboardText(pretty)
         .then(() => {
-          showKomaJsonCopySuccessToast();
+          showToast("チャパレをコピーしました", "info");
         })
         .catch(() => {
           showToast(message("clipboardCopyFailedConsole"), "error");
@@ -4638,6 +4968,7 @@ function showRestoreDialog(enemy) {
 
 async function boot() {
   setSaveStatus("idle", "読込中…");
+  setPageMode();
   // 読込直後からタブ等を反応させるため、イベントは先に登録する
   setupEvents();
   await loadFromStorage();
@@ -4654,7 +4985,7 @@ async function boot() {
 
   if (sharedEnemy) {
     state.selectedId = sharedEnemy.ID;
-    saveLastSelectedId(sharedEnemy.ID);
+    if (!state.viewMode) saveLastSelectedId(sharedEnemy.ID);
     renderAll();
     setSaveStatus("ok", "共有URLから読込");
     return;

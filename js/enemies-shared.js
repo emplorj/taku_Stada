@@ -606,6 +606,193 @@
     URL.revokeObjectURL(url);
   }
 
+
+
+  function getUrlMode(search = null) {
+    try {
+      const params = new URLSearchParams(search == null ? window.location.search : search);
+      return String(params.get("mode") || "").trim().toLowerCase();
+    } catch (_e) {
+      return "";
+    }
+  }
+
+  function getViewIdFromUrl(options = {}) {
+    const aliases = Array.isArray(options.aliases) && options.aliases.length
+      ? options.aliases
+      : ["id", "enemy", "enemyId"];
+    try {
+      const params = new URLSearchParams(options.search == null ? window.location.search : options.search);
+      for (const key of aliases) {
+        const value = String(params.get(key) || "").trim();
+        if (value) return value;
+      }
+    } catch (_e) {}
+    return "";
+  }
+
+  function shouldStartInEnemyViewMode(options = {}) {
+    const mode = getUrlMode(options.search);
+    const editMode = String(options.editMode || "edit").trim().toLowerCase();
+    return !!getViewIdFromUrl(options) && mode !== editMode;
+  }
+
+  function applyEnemyPageModeClasses({
+    viewMode,
+    htmlClass = "is-enemy-view-boot",
+    bodyClass = "is-enemy-view-mode",
+  } = {}) {
+    const active = !!viewMode;
+    if (typeof document === "undefined") return active;
+    if (document.documentElement) {
+      document.documentElement.classList.toggle(htmlClass, active);
+    }
+    if (document.body) {
+      document.body.classList.toggle(bodyClass, active);
+    }
+    return active;
+  }
+
+  function applyEnemyViewMode({
+    viewMode,
+    htmlClass = "is-enemy-view-boot",
+    bodyClass = "is-enemy-view-mode",
+    pane = null,
+    content = null,
+    loadingHtml = "",
+  } = {}) {
+    const active = applyEnemyPageModeClasses({ viewMode, htmlClass, bodyClass });
+    if (pane) pane.hidden = !active;
+    if (active && content && loadingHtml && !String(content.innerHTML || "").trim()) {
+      content.innerHTML = loadingHtml;
+    }
+    return active;
+  }
+
+  function buildEnemyViewUrl({
+    id,
+    href = null,
+    idParam = "id",
+    removeParams = ["mode"],
+    hash = "",
+  } = {}) {
+    const enemyId = String(id || "").trim();
+    if (!enemyId) return "";
+    const url = new URL(href || window.location.href);
+    url.searchParams.set(idParam, enemyId);
+    (Array.isArray(removeParams) ? removeParams : []).forEach((key) => {
+      if (key && key !== idParam) url.searchParams.delete(key);
+    });
+    url.hash = hash || "";
+    return url.toString();
+  }
+
+  function openEnemyViewUrl(options = {}) {
+    const url = buildEnemyViewUrl(options);
+    if (!url) return null;
+    const target = options.target || "_blank";
+    const features = options.features || "noopener";
+    if (target === "_self") {
+      window.location.href = url;
+      return null;
+    }
+    return window.open(url, target, features);
+  }
+
+  function updateEnemyViewIdBadge(id, options = {}) {
+    const elementId = String(options.elementId || "enemyViewIdBadge");
+    const prefix = options.prefix == null ? "ID: " : String(options.prefix);
+    const badge = typeof document !== "undefined" ? document.getElementById(elementId) : null;
+    if (!badge) return false;
+    const text = String(id || "").trim();
+    badge.textContent = text ? `${prefix}${text}` : "";
+    badge.hidden = !text;
+    return !!text;
+  }
+
+  function bindEnemyViewWideModeToggle(options = {}) {
+    if (typeof document === "undefined") return false;
+    const toggleId = String(options.toggleId || "viewWideModeToggle");
+    const bodyClass = String(options.bodyClass || "is-enemy-view-wide");
+    const toggle = document.getElementById(toggleId);
+    if (!toggle || toggle.__enemyViewWideBound) return false;
+    const apply = () => {
+      if (document.body) document.body.classList.toggle(bodyClass, !!toggle.checked);
+    };
+    toggle.__enemyViewWideBound = true;
+    toggle.addEventListener("change", apply);
+    apply();
+    return true;
+  }
+
+
+  function canOpenEnemyView(options = {}) {
+    const {
+      id = "",
+      isUnsaved = false,
+      isDirty = false,
+      isBlankNew = false,
+      noSavedDataMessage = "閲覧用画面を表示する保存済みデータがありません",
+      unsavedMessage = "閲覧用画面を表示するには、先に保存してください",
+      dirtyMessage = "未保存の変更があります。先に保存してください",
+    } = options || {};
+
+    const normalizedId = String(id || "").trim();
+    if (!normalizedId || isBlankNew) {
+      return { ok: false, reason: String(noSavedDataMessage), code: "no_saved_data" };
+    }
+    if (isUnsaved) {
+      return { ok: false, reason: String(unsavedMessage), code: "unsaved_entity" };
+    }
+    if (isDirty) {
+      return { ok: false, reason: String(dirtyMessage), code: "dirty" };
+    }
+    return { ok: true, reason: "", code: "ok" };
+  }
+
+  function updateEnemyViewButtonState(options = {}) {
+    const {
+      button,
+      canOpen = false,
+      enabledTitle = "閲覧用画面を表示",
+      disabledTitle = "閲覧用画面を表示する保存済みデータがありません",
+      disabledClass = "is-disabled",
+    } = options || {};
+    if (!button || typeof HTMLButtonElement === "undefined" || !(button instanceof HTMLButtonElement)) return false;
+    const enabled = !!canOpen;
+    button.disabled = !enabled;
+    if (disabledClass) button.classList.toggle(disabledClass, !enabled);
+    button.setAttribute("aria-disabled", enabled ? "false" : "true");
+    button.title = enabled ? String(enabledTitle || "") : String(disabledTitle || "");
+    return enabled;
+  }
+
+  function shouldToastStatus(message, options = {}) {
+    const text = String(message || "").trim();
+    if (!text) return false;
+    const passiveMessages = new Set([
+      "未保存",
+      "保存済み",
+      "新規白紙",
+      "未保存の変更あり",
+      "",
+    ]);
+    const extraPassive = Array.isArray(options.passiveMessages)
+      ? options.passiveMessages.map((v) => String(v || "").trim()).filter((v) => v)
+      : [];
+    extraPassive.forEach((v) => passiveMessages.add(v));
+    return !passiveMessages.has(text);
+  }
+
+  function notifyStatus(message, options = {}) {
+    const { kind = "info", suppressPassive = true } = options || {};
+    const text = String(message || "").trim();
+    if (!text) return false;
+    if (suppressPassive && !shouldToastStatus(text, options)) return false;
+    showToast(text, { kind });
+    return true;
+  }
+
   function getShared() {
     return globalScope.EnemiesShared || globalScope.NechronicaShared || sharedApi;
   }
@@ -643,6 +830,18 @@
     saveLastSelectedIdToStorage,
     getLastSelectedIdFromStorage,
     saveFile,
+    getUrlMode,
+    getViewIdFromUrl,
+    shouldStartInEnemyViewMode,
+    applyEnemyPageModeClasses,
+    applyEnemyViewMode,
+    buildEnemyViewUrl,
+    openEnemyViewUrl,
+    canOpenEnemyView,
+    updateEnemyViewButtonState,
+    shouldToastStatus,
+    notifyStatus,
+    updateEnemyViewIdBadge,
     getShared,
   };
 

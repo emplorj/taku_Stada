@@ -19,11 +19,42 @@
   -webkit-appearance: none;
   margin: 0;
 }
-.ar2e-enemies-page input[type=number] {
-  -moz-appearance: textfield;
-}
+  .ar2e-enemies-page input[type=number] {
+    -moz-appearance: textfield;
+  }
 
-/* ==========================================================================
+  .copy-toast {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    transform: translateX(120%);
+    background: rgba(32, 40, 58, 0.94);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    max-width: min(92vw, 480px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.18s ease,
+      transform 0.22s ease;
+  }
+
+  .copy-toast.is-show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .copy-toast.is-error {
+    background: rgba(120, 26, 26, 0.94);
+    border-color: rgba(255, 170, 170, 0.7);
+  }
+
+  /* ==========================================================================
    Theme Override Layer (AR2E)
    ========================================================================== */
 @layer ar2e-theme {
@@ -62,6 +93,24 @@
     border-bottom: 2px solid var(--ar-border);
     padding-bottom: 6px;
     margin-bottom: 8px;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .ar2e-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    position: relative;
+    min-height: 4.4rem;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .ar2e-header h1 {
+    margin: 0;
+    flex: 0 1 auto;
+  }
+
+  .ar2e-enemies-page:not(.is-enemy-view-mode) .ar2e-header .enemy-view-home-link {
+    display: none;
   }
 
   /* パネル背景 */
@@ -104,6 +153,18 @@
     font-size: 0.68rem;
     color: #718096;
     margin: 0;
+    white-space: nowrap;
+  }
+
+  .ar2e-enemies-page .koma-output-options {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    min-width: 0;
     white-space: nowrap;
   }
 
@@ -268,10 +329,6 @@
     flex: 0 0 auto;
   }
 
-  .ar2e-enemies-page .save-status-text {
-    flex: 0 0 auto;
-  }
-
   .ar2e-enemies-page #saveAsEnemyButton,
   .ar2e-enemies-page #saveEnemyButton {
     flex: 0 0 auto;
@@ -287,6 +344,11 @@
     color: #d6e4ff;
     font-size: 0.78rem;
     font-weight: 700;
+  }
+
+  .ar2e-enemies-page .koma-output-options .public-switch-label {
+    padding-left: 0.6rem;
+    border-left: 1px solid rgba(214, 228, 255, 0.22);
   }
 
   .ar2e-enemies-page .koma-mode-label {
@@ -405,13 +467,6 @@
       gap: 0.45rem;
       row-gap: 0;
     }
-
-
-    .ar2e-enemies-page .save-status-text {
-      min-width: 3.8em;
-      margin-right: 0;
-    }
-
     .ar2e-enemies-page .koma-mode-inline {
       gap: 0.25rem;
       margin-inline: 0;
@@ -451,18 +506,6 @@
     min-width: 0;
     flex: 0 1 auto;
     justify-content: flex-start;
-  }
-
-  .ar2e-enemies-page .save-status-text {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    min-width: 4.8em;
-    text-align: center;
-    margin-right: 0.1rem;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
   }
 
   .ar2e-enemies-page .action-meta-field {
@@ -2207,6 +2250,17 @@
     box-shadow: 0 0 12px rgba(157, 37, 53, 0.6);
     transform: translateY(-1px);
   }
+  .ar2e-enemies-page .list-side-btn.is-view {
+    background: linear-gradient(135deg, #9a6a13 0%, #4a3210 100%);
+    color: #fff7d6;
+    border: 1px solid #d9a21f;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  }
+  .ar2e-enemies-page .list-side-btn.is-view:hover {
+    background: linear-gradient(135deg, #c88716 0%, #6b4611 100%);
+    box-shadow: 0 0 12px rgba(217, 162, 31, 0.55);
+    transform: translateY(-1px);
+  }
   .ar2e-enemies-page .list-side-btn.is-output {
     background: linear-gradient(135deg, #37468d 0%, #252a3a 100%);
     color: #dbe4ff;
@@ -3655,10 +3709,16 @@
    Enemy View Mode v1
    ========================================================================== */
 @layer ar2e-theme {
+  .is-ar2e-enemy-view-boot .ar2e-enemies-page .koma-action-row,
+  .is-ar2e-enemy-view-boot .ar2e-enemies-page .editor-action-bar,
+  .is-ar2e-enemy-view-boot .ar2e-enemies-page #enemyEditorForm,
+  .is-ar2e-enemy-view-boot .ar2e-enemies-page .enemy-side-pane,
+  .is-ar2e-enemy-view-boot .ar2e-enemies-page .enemy-list-collapsible,
   .ar2e-enemies-page.is-enemy-view-mode .koma-action-row,
   .ar2e-enemies-page.is-enemy-view-mode .editor-action-bar,
   .ar2e-enemies-page.is-enemy-view-mode #enemyEditorForm,
-  .ar2e-enemies-page.is-enemy-view-mode .enemy-side-pane {
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-side-pane,
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-list-collapsible {
     display: none !important;
   }
 
@@ -3670,6 +3730,36 @@
 
   .enemy-view-pane {
     color: var(--ar-text-on-dark);
+  }
+
+  .enemy-view-home-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 10rem;
+    height: 4.1rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    flex: 0 0 auto;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .ar2e-header .enemy-view-home-link {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .enemy-view-home-link img {
+    display: block;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
   }
 
   .enemy-view-toolbar {
@@ -3691,6 +3781,10 @@
     align-items: center;
     gap: 0.4rem;
     flex-wrap: wrap;
+  }
+
+  .enemy-view-toolbar-actions {
+    position: relative;
   }
 
   .enemy-view-stage-btn {
@@ -3757,6 +3851,25 @@
     gap: 0.45rem;
     min-width: 0;
     padding: 1rem 1.2rem 1rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .enemy-view-bg-class-icon {
+    position: absolute;
+    right: 0.35rem;
+    top: 50%;
+    z-index: 0;
+    color: rgba(255, 217, 102, 0.08);
+    font-size: clamp(5rem, 16vw, 11rem);
+    line-height: 1;
+    transform: translateY(-50%) rotate(-8deg);
+    pointer-events: none;
+  }
+
+  .enemy-view-titlebox > :not(.enemy-view-bg-class-icon) {
+    position: relative;
+    z-index: 1;
   }
 
   .enemy-view-level {
@@ -3922,10 +4035,60 @@
     background: repeating-linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0 8px, rgba(30, 41, 59, 0.82) 8px 16px);
   }
 
+  .view-skill-card.is-masked .view-mask,
+  .view-skill-card.is-masked .view-mask-lines,
+  .view-attack-card.is-masked .view-mask,
+  .view-attack-card.is-masked .view-mask-lines {
+    color: #f8fafc;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+  }
+
   .view-skill-card h4 {
     margin: 0 0 0.4rem;
     color: #f8fafc;
     font-size: 1rem;
+  }
+
+  .view-skill-main {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.7rem;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .view-skill-name {
+    margin: 0 0 0.02rem;
+    color: #f8fafc;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    min-width: 0;
+  }
+
+  .view-skill-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.22rem;
+    min-width: 0;
+    color: #f8fafc;
+    font-size: 0.92rem;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  .view-skill-field b {
+    color: #93a4c3;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .view-skill-card h4,
+  .view-attack-main h4,
+  .view-skill-name {
+    overflow-wrap: anywhere;
   }
 
   .view-skill-card p,
@@ -3945,8 +4108,8 @@
 
   .view-mask {
     display: inline-block;
-    color: #0f172a;
-    text-shadow: 0 0 0 #94a3b8;
+    color: #f8fafc;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
     letter-spacing: 0.02em;
     font-family: "HigashiOme-Gothic-C", monospace;
     user-select: none;
@@ -4002,7 +4165,7 @@
 
   .enemy-view-titlebox h2 {
     padding-bottom: 0.35rem;
-    border-bottom: 1px solid rgba(255, 217, 102, 0.5);
+    border-bottom: 0;
   }
 
   .enemy-view-profile-table {
@@ -4088,6 +4251,12 @@
    Enemy view v1.3: compact reference-style header
    ========================================================================== */
 @layer ar2e-theme {
+  .is-ar2e-enemy-view-boot #tableOfContents,
+  .is-ar2e-enemy-view-boot .side-menu,
+  .is-ar2e-enemy-view-boot #hamburger-menu,
+  .is-ar2e-enemy-view-boot .hamburger-menu,
+  .is-ar2e-enemy-view-boot #menu-overlay,
+  .is-ar2e-enemy-view-boot .menu-overlay,
   .ar2e-enemies-page.is-enemy-view-mode #tableOfContents,
   .ar2e-enemies-page.is-enemy-view-mode .side-menu,
   .ar2e-enemies-page.is-enemy-view-mode #hamburger-menu,
@@ -4097,7 +4266,18 @@
     display: none !important;
   }
 
+  .is-ar2e-enemy-view-boot .main-content,
   .ar2e-enemies-page.is-enemy-view-mode .main-content {
+    margin-left: 0 !important;
+    width: min(88vw, 105rem);
+    max-width: none;
+    margin-right: auto;
+    margin-left: auto !important;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode.is-enemy-view-wide .main-content {
+    width: 100%;
+    margin-right: 0;
     margin-left: 0 !important;
   }
 
@@ -4114,8 +4294,57 @@
   }
 
   .ar2e-enemies-page.is-enemy-view-mode .enemy-view-titlebox h2 {
-    width: 100%;
+    width: auto;
     margin-bottom: 0.1rem;
+  }
+
+  .enemy-view-name-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem 1.1rem;
+    flex-wrap: wrap;
+    min-width: 0;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(255, 217, 102, 0.5);
+  }
+
+  .enemy-view-top-profile {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+    margin: 0;
+    min-width: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .enemy-view-top-profile > div {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .enemy-view-top-profile dt {
+    color: #ffd966;
+    font-size: 0.9rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .enemy-view-top-profile dt::after {
+    content: "：";
+    color: #facc15;
+    font-weight: 700;
+  }
+
+  .enemy-view-top-profile dd {
+    margin: 0;
+    color: #f8fafc;
+    font-family: var(--ar-num-font);
+    font-size: 1.05rem;
+    line-height: 1.2;
   }
 
   .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table {
@@ -4156,32 +4385,66 @@
     align-items: stretch;
   }
 
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary > .enemy-view-profile-abilities {
+    grid-column: 1 / -1;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: start;
+    width: 100%;
+    margin-top: 0.1rem;
+    padding-top: 0.3rem;
+    border-top: 0;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-abilities dd {
+    width: 100%;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-abilities .enemy-view-ability-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
   .enemy-view-ability-pill {
     display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.45rem;
-    min-width: 9.4rem;
-    padding: 0.28rem 0.5rem;
-    border: 1px solid #334155;
-    border-radius: 5px;
-    background: rgba(15, 23, 42, 0.62);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.12rem;
+    min-width: 8.2rem;
+    flex: 0 1 8.2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
   }
 
   .enemy-view-ability-pill b {
     flex: 0 0 auto;
     color: #93a4c3;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
+    line-height: 1.1;
     white-space: nowrap;
+    text-align: left;
   }
 
   .enemy-view-ability-pill span {
     min-width: 0;
     color: #f8fafc;
     font-family: var(--ar-num-font);
-    font-size: 0.95rem;
+    font-size: 1.18rem;
     font-weight: 800;
-    white-space: nowrap;
+    white-space: normal;
+    line-height: 1.1;
+    text-align: left;
+  }
+
+  .enemy-view-ability-pill > span {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.18rem;
+    row-gap: 0.04rem;
   }
 
   .enemy-view-table.is-attacks th:nth-child(1) { width: 28%; }
@@ -4224,8 +4487,8 @@
     }
 
     .enemy-view-ability-pill {
-      min-width: min(100%, 10rem);
-      flex: 1 1 9rem;
+      min-width: 0;
+      flex: 0 1 5.8rem;
     }
   }
 }
@@ -4239,18 +4502,60 @@
   }
 
   .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary {
-    grid-template-columns: repeat(3, minmax(7.5rem, max-content));
-    column-gap: 1.05rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(6.2rem, max-content));
+    column-gap: 0.9rem;
     row-gap: 0.22rem;
-    width: auto;
+    width: 100%;
     max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
     padding-bottom: 0.35rem;
     border-bottom: 1px solid rgba(255, 217, 102, 0.28);
   }
 
   .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary > div {
-    grid-template-columns: max-content minmax(0, max-content);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    grid-template-columns: none;
     column-gap: 0.25rem;
+    min-width: 0;
+    max-width: 100%;
+    flex: 0 1 auto;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary > .is-top-profile {
+    order: 0;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary > .is-level-profile {
+    flex: 0 0 auto;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-linebreak {
+    order: 1;
+    flex: 0 0 100%;
+    width: 100%;
+    height: 0;
+    min-width: 0;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary > div:not(.is-top-profile):not(.enemy-view-profile-abilities) {
+    order: 2;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary > div:not(.enemy-view-profile-abilities) {
+    min-width: 0;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary > .enemy-view-profile-abilities {
+    display: flex;
+    flex: 1 1 100%;
+    min-width: 0;
+    order: 3;
   }
 
   .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary dt {
@@ -4259,7 +4564,23 @@
 
   .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary dd {
     font-family: var(--ar-num-font);
-    font-size: 0.98rem;
+    font-size: 1.16rem;
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary dd.is-text-value {
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-size: 0.95rem;
+  }
+
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-abilities dd {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary div:nth-child(-n+2) dd {
@@ -4267,10 +4588,10 @@
   }
 
   .enemy-view-ability-pill span .view-ability-base {
-    margin-left: 0.12em;
+    margin-left: 0;
     color: #cbd5e1;
     font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
-    font-size: 0.82em;
+    font-size: 0.72em;
     font-weight: 700;
   }
 
@@ -4288,12 +4609,14 @@
 
   .view-attack-card {
     display: grid;
-    gap: 0.35rem;
-    padding: 0.55rem 0.65rem;
+    gap: 0.38rem;
+    padding: 0.65rem 0.75rem;
     border: 1px solid #334155;
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid #4f80ff;
     border-radius: 6px;
-    background: rgba(15, 23, 42, 0.58);
+    background: rgba(15, 23, 42, 0.62);
+    min-width: 0;
+    overflow: hidden;
   }
 
   .view-attack-card.is-masked {
@@ -4303,18 +4626,39 @@
 
   .view-attack-main {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.8rem;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.7rem;
     min-width: 0;
+    overflow: hidden;
   }
 
-  .view-attack-main h4 {
-    margin: 0;
+  .view-attack-main h4,
+  .view-attack-name {
+    margin: 0 0 0.02rem;
     color: #f8fafc;
     font-size: 1rem;
     line-height: 1.25;
     min-width: 0;
+    font-weight: 700;
+  }
+
+  .view-attack-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.22rem;
+    min-width: 0;
+    color: #f8fafc;
+    font-size: 0.92rem;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  .view-attack-field b {
+    color: #93a4c3;
+    font-size: 0.78rem;
+    font-weight: 700;
   }
 
   .view-attack-sub {
@@ -4335,21 +4679,61 @@
     font-size: 1rem;
     font-weight: 800;
     white-space: nowrap;
-  }
-
-  .view-attack-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.3rem;
-    min-width: 0;
+    max-width: 100%;
   }
 
   .view-attack-card p {
-    margin: 0.12rem 0 0;
+    margin: 0.45rem 0 0;
     color: #e2e8f0;
-    line-height: 1.55;
+    line-height: 1.65;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .enemy-view-chat-palette-panel {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: 1000;
+    width: min(72rem, calc(100vw - 2rem));
+    max-height: calc(100vh - 2rem);
+    margin: 0;
+    padding: 0.65rem;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    background: #111827;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+    transform: translate(-50%, -110%);
+    transition: transform 0.24s ease;
+    overflow: auto;
+  }
+
+  .enemy-view-chat-palette-panel.is-open {
+    display: grid;
+    gap: 0.45rem;
+    transform: translate(-50%, 1rem);
+  }
+
+  .enemy-view-chat-palette-panel .is-copy-chat {
+    justify-self: end;
+  }
+
+  .enemy-view-chat-palette {
+    width: 100%;
+    min-height: min(72vh, 42rem);
+    max-height: calc(100vh - 7rem);
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.72);
+    color: #e2e8f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    resize: vertical;
+    white-space: pre;
+    overflow: auto;
   }
 
   .view-skill-tags {
@@ -4384,6 +4768,7 @@
     text-align: center;
     color: #f8fafc;
     font-family: var(--ar-num-font);
+    font-size: 1.28rem;
     background: rgba(79, 128, 255, 0.16);
     white-space: nowrap;
   }
@@ -4391,12 +4776,14 @@
   .enemy-view-table.is-drop-simple td {
     text-align: left;
     font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-size: 1.05rem;
   }
 
   @media (max-width: 900px) {
     .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary {
-      grid-template-columns: repeat(2, minmax(7rem, max-content));
+      grid-template-columns: repeat(auto-fit, minmax(6rem, max-content));
     }
+
   }
 
   @media (max-width: 760px) {
@@ -4421,4 +4808,104 @@
       min-width: 6.8rem;
     }
   }
+}
+
+/* ==========================================================================
+   Enemy view: keep Latin letters and numeric-font values non-bold
+   ========================================================================== */
+@layer ar2e-theme {
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-level,
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-level-inline,
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-stat-grid span,
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-table td,
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-profile-table.is-with-summary dd,
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-ability-pill span,
+  .ar2e-enemies-page.is-enemy-view-mode .view-ability-base,
+  .ar2e-enemies-page.is-enemy-view-mode .view-ability-base small,
+  .ar2e-enemies-page.is-enemy-view-mode .view-skill-dice,
+  .ar2e-enemies-page.is-enemy-view-mode .view-attack-formulas,
+  .ar2e-enemies-page.is-enemy-view-mode .enemy-view-table.is-drop-simple th {
+    font-weight: 400;
+  }
+}
+
+/* ========================================================================== 
+   Enemy view home logo scope fix
+   - style.css is shared, so AR2E page-scoped overrides only.
+   ========================================================================== */
+.ar2e-enemies-page .ar2e-header .enemy-view-home-link {
+  display: none !important;
+  width: 10rem;
+  height: 4.1rem;
+  max-width: 10rem;
+  max-height: 4.1rem;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.ar2e-enemies-page.is-enemy-view-mode .ar2e-header .enemy-view-home-link {
+  display: inline-flex !important;
+}
+
+.ar2e-enemies-page .ar2e-header .enemy-view-home-link > img {
+  display: block !important;
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  flex: 0 0 auto;
+}
+
+.ar2e-enemies-page:not(.is-enemy-view-mode) .ar2e-header .enemy-view-home-link,
+.ar2e-enemies-page:not(.is-enemy-view-mode) .ar2e-header .enemy-view-home-link > img {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+
+/* ========================================================================== 
+   Header compact spacing + scoped view navigation behavior
+   - style.css is shared; keep overrides local to AR2E page only.
+   ========================================================================== */
+.ar2e-enemies-page .ar2e-header {
+  margin: 0 0 0.25rem !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+.ar2e-enemies-page .ar2e-header h1 {
+  margin: 0 0 0.25rem !important;
+  padding: 0 0 0.18rem !important;
+  line-height: 1.15;
+}
+
+.ar2e-enemies-page.is-enemy-view-mode .ar2e-header {
+  min-height: 2.4rem !important;
+  margin-bottom: 0.35rem !important;
+  padding: 0 !important;
+}
+
+.ar2e-enemies-page.is-enemy-view-mode .ar2e-header h1 {
+  margin: 0 !important;
+  padding: 0 0 0.15rem !important;
+}
+
+.ar2e-enemies-page.is-enemy-view-mode .main-content.ar2e-enemies-main {
+  padding-top: 0.35rem !important;
+}
+
+.ar2e-enemies-page.is-enemy-view-mode .ar2e-header .enemy-view-home-link {
+  left: 0 !important;
+  width: 4.2rem !important;
+  height: 2.2rem !important;
+  max-width: 4.2rem !important;
+  max-height: 2.2rem !important;
+}
+
+.ar2e-enemies-page.is-enemy-view-mode .ar2e-header .enemy-view-home-link > img {
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
 }

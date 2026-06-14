@@ -8,7 +8,7 @@
    -------------------------------------------------------------------------- */
 .satasupe-enemies-page
   .editor-pane
-  うhead-metrics
+  .head-metrics
   .metric-karma
   input[data-karma-value="1"],
 .satasupe-enemies-page
@@ -3739,4 +3739,1916 @@ textarea::placeholder {
 .karma-add-price-btn:hover {
   background: linear-gradient(180deg, #ffe5ea 0%, #ffd0d9 100%) !important;
   border-color: #e2a1ad !important;
+}
+
+/* ======================================================================
+   閲覧モード（サタスペ）
+   ====================================================================== */
+html.is-satasupe-enemy-view-boot .side-menu,
+html.is-satasupe-enemy-view-boot .hamburger,
+html.is-satasupe-enemy-view-boot .overlay,
+body.satasupe-enemies-page.is-enemy-view-mode .side-menu,
+body.satasupe-enemies-page.is-enemy-view-mode .hamburger,
+body.satasupe-enemies-page.is-enemy-view-mode .overlay,
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-list-collapsible,
+body.satasupe-enemies-page.is-enemy-view-mode .koma-action-row,
+body.satasupe-enemies-page.is-enemy-view-mode .editor-action-bar,
+body.satasupe-enemies-page.is-enemy-view-mode #enemyEditorForm {
+  display: none !important;
+}
+
+/* 閲覧URL直開き時に、JS起動前の一瞬だけ編集画面が見えるのを防ぐ */
+html.is-satasupe-enemy-view-boot body.satasupe-enemies-page .enemy-list-collapsible,
+html.is-satasupe-enemy-view-boot body.satasupe-enemies-page .koma-action-row,
+html.is-satasupe-enemy-view-boot body.satasupe-enemies-page .editor-action-bar,
+html.is-satasupe-enemy-view-boot body.satasupe-enemies-page #enemyEditorForm {
+  display: none !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .main-content {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.satasupe-enemies-page:not(.is-enemy-view-mode) .enemy-view-home-link {
+  display: none;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .satasupe-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  position: relative;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-home-link {
+  position: absolute;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.2rem;
+  height: 3.2rem;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-home-link img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 3rem;
+  max-height: 3rem;
+  object-fit: contain;
+}
+
+.satasupe-enemies-page .enemy-view-pane {
+  color: #f4ead8;
+}
+
+.satasupe-enemies-page .enemy-view-toolbar {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #b88a4d;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(36, 18, 14, 0.92), rgba(58, 28, 20, 0.92));
+}
+
+.satasupe-enemies-page .enemy-view-toolbar-title {
+  color: #d67a1f;
+  font-weight: 800;
+}
+
+.satasupe-enemies-page .enemy-view-id-badge {
+  border: 1px solid rgba(246, 234, 209, 0.24);
+  background: rgba(246, 234, 209, 0.08);
+  color: rgba(246, 234, 209, 0.62);
+}
+
+.satasupe-enemies-page .enemy-view-no-image-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: auto;
+  padding: 0.18rem 0.6rem;
+  border: 1px solid rgba(214, 122, 31, 0.55);
+  border-radius: 999px;
+  background: rgba(214, 122, 31, 0.12);
+  color: #d67a1f;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.satasupe-enemies-page .enemy-view-no-image-badge[hidden] {
+  display: none !important;
+}
+
+.satasupe-enemies-page .enemy-view-hero {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #9d7a56;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #302016 0%, #1e130d 100%);
+}
+
+.satasupe-enemies-page .enemy-view-portrait {
+  min-height: 160px;
+  border: 1px solid #9d7a56;
+  border-radius: 7px;
+  background: #17110d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #d67a1f;
+  font-size: 3rem;
+}
+
+.satasupe-enemies-page .enemy-view-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.satasupe-enemies-page .enemy-view-kicker {
+  color: #d67a1f;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.satasupe-enemies-page .enemy-view-hero h2 {
+  margin: 0.15rem 0 0.5rem;
+  color: #fff4dd;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  text-shadow: 2px 2px 0 #000;
+}
+
+.satasupe-enemies-page .enemy-view-quote {
+  margin: 0 0 0.8rem;
+  color: #f2c078;
+  font-style: italic;
+}
+
+.satasupe-enemies-page .enemy-view-profile-table,
+.satasupe-enemies-page .enemy-view-stat-grid,
+.satasupe-enemies-page .enemy-view-part-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.45rem;
+}
+
+.satasupe-enemies-page .enemy-view-profile-table > div,
+.satasupe-enemies-page .enemy-view-stat-grid > div,
+.satasupe-enemies-page .enemy-view-part-grid > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(184, 138, 77, 0.5);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.satasupe-enemies-page .enemy-view-profile-table span,
+.satasupe-enemies-page .enemy-view-stat-grid span,
+.satasupe-enemies-page .enemy-view-part-grid span {
+  color: #c7a782;
+  font-size: 0.82rem;
+}
+
+.satasupe-enemies-page .enemy-view-profile-table b,
+.satasupe-enemies-page .enemy-view-stat-grid b,
+.satasupe-enemies-page .enemy-view-part-grid b {
+  color: #fff7e6;
+}
+
+.satasupe-enemies-page .enemy-view-block {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid #5b4a3e;
+  border-radius: 7px;
+  background: rgba(26, 22, 21, 0.92);
+}
+
+.satasupe-enemies-page .enemy-view-block h3 {
+  margin: 0 0 0.7rem;
+  color: #d67a1f;
+  border-bottom: 1px solid #a83f39;
+  padding-bottom: 0.25rem;
+}
+
+.satasupe-enemies-page .enemy-view-card {
+  border: 1px solid rgba(184, 138, 77, 0.55);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.satasupe-enemies-page .enemy-view-card h4 {
+  margin: 0 0 0.4rem;
+  color: #fff0d0;
+}
+
+.satasupe-enemies-page .enemy-view-tags {
+  margin-bottom: 0.45rem;
+}
+
+.satasupe-enemies-page .enemy-view-tags span {
+  padding: 0.12rem 0.45rem;
+  border: 1px solid #9d7a56;
+  border-radius: 999px;
+  color: #f5d7a7;
+  background: rgba(157, 122, 86, 0.14);
+  font-size: 0.78rem;
+}
+
+.satasupe-enemies-page .enemy-view-memo {
+  white-space: pre-wrap;
+  line-height: 1.75;
+}
+
+@media (max-width: 720px) {
+  .satasupe-enemies-page .enemy-view-hero {
+    grid-template-columns: 1fr;
+  }
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-home-link {
+    position: static;
+  }
+}
+
+.satasupe-enemies-page .list-side-btn.is-view {
+  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+  color: #e9fff4;
+  border: 1px solid #40916c;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+.satasupe-enemies-page .list-side-btn.is-view:hover {
+  background: linear-gradient(135deg, #40916c 0%, #245c45 100%);
+  box-shadow: 0 0 12px rgba(64, 145, 108, 0.5);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   Public enemy view: data-optimized layout
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .enemy-view-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: -0.25rem 0 0.5rem;
+  color: #bca98b;
+  font-size: 0.86rem;
+}
+
+.satasupe-enemies-page .enemy-view-profile-table.is-primary {
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+}
+
+.satasupe-enemies-page .enemy-view-profile-table.is-secondary {
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+}
+
+.satasupe-enemies-page .enemy-view-stat-grid.is-satasupe-ability {
+  grid-template-columns: repeat(auto-fit, minmax(5.8rem, 1fr));
+}
+
+.satasupe-enemies-page .enemy-view-tags span {
+  gap: 0.22rem;
+}
+
+.satasupe-enemies-page .enemy-view-tags small {
+  color: #a9977f;
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.satasupe-enemies-page .enemy-view-card.is-karma.is-price {
+  border-color: rgba(95, 141, 190, 0.58);
+  background: linear-gradient(180deg, rgba(35, 54, 78, 0.86), rgba(21, 27, 38, 0.9));
+}
+
+.satasupe-enemies-page .enemy-view-card.is-karma.is-talent {
+  border-color: rgba(214, 122, 31, 0.65);
+}
+
+.satasupe-enemies-page .enemy-view-card.is-weapon h4::before {
+  content: "武器 ";
+  color: #d67a1f;
+  font-size: 0.72rem;
+}
+
+.satasupe-enemies-page .enemy-view-card.is-outfit h4::before {
+  content: "装備 ";
+  color: #d67a1f;
+  font-size: 0.72rem;
+}
+
+.satasupe-enemies-page .enemy-view-card.is-vehicle h4::before {
+  content: "乗物 ";
+  color: #d67a1f;
+  font-size: 0.72rem;
+}
+
+/* --------------------------------------------------------------------------
+   Public enemy view: book-inspired Satasupe monster sheet
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-view-card {
+  max-width: 980px;
+  margin: 0 auto 1.2rem;
+  padding: 0.95rem;
+  border: 2px solid #1b1511;
+  border-radius: 7px;
+  background:
+    linear-gradient(180deg, rgba(255, 247, 229, 0.96), rgba(229, 211, 180, 0.96)),
+    repeating-linear-gradient(0deg, rgba(40, 30, 20, 0.035) 0 1px, transparent 1px 8px);
+  color: #241a13;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+}
+
+.satasupe-enemies-page .sata-book-category-bar {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.7rem;
+  background: #1b1511;
+  color: #f6ead1;
+  border: 2px solid #1b1511;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.satasupe-enemies-page .sata-book-category-bar span,
+.satasupe-enemies-page .sata-book-category-bar b  {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  border-right: 2px solid #f6ead1;
+}
+
+.satasupe-enemies-page .sata-book-category-bar b {
+  justify-content: center;
+  font-size: 1.2rem;
+  border-right: 0;
+}
+
+.satasupe-enemies-page .sata-book-main {
+  display: grid;
+  grid-template-columns: 16.2rem 1fr;
+  gap: 0.7rem;
+  align-items: stretch;
+}
+
+.satasupe-enemies-page .sata-book-left-rail {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
+  border: 2px solid #1b1511;
+  background: #f4ead3;
+}
+
+.satasupe-enemies-page .sata-book-rail-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5.3rem;
+  align-items: stretch;
+  min-height: 3rem;
+  border-bottom: 2px solid #1b1511;
+}
+
+.satasupe-enemies-page .sata-book-rail-box span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  box-sizing: border-box;
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  padding: 0 0.35rem;
+  border-right: 2px solid #1b1511;
+  background: #fff8e8;
+}
+
+.satasupe-enemies-page .sata-book-rail-box b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1;
+  font-family: "vdl-logojrblack", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  background: #211914;
+  color: #fff4dd;
+  text-align: center;
+}
+
+.satasupe-enemies-page .sata-book-rail-box.is-danger b {
+  font-size: 3.2rem;
+}
+
+.satasupe-enemies-page .sata-book-stat-table {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.satasupe-enemies-page .sata-book-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 2rem;
+  min-height: 1.55rem;
+  border-bottom: 1px solid #1b1511;
+  background: #f8edd3;
+}
+
+.satasupe-enemies-page .sata-book-stat-row span {
+  padding: 0.08rem 0.35rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  border-right: 2px solid #1b1511;
+}
+
+.satasupe-enemies-page .sata-book-stat-row b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 0;
+  background: #eee0bf;
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.52rem;
+  font-weight: 400;
+  font-synthesis: none;
+  font-synthesis-weight: none;
+  line-height: 1;
+}
+
+.satasupe-enemies-page .sata-book-visual {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  min-height: 25rem;
+  border: 2px solid #1b1511;
+  background: #fff8e8;
+  position: relative;
+  overflow: hidden;
+}
+
+.satasupe-enemies-page .sata-book-view-author {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.55rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: min(42%, 18rem);
+  min-height: 1.35rem;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid rgba(246, 234, 209, 0.45);
+  border-radius: 999px;
+  background: rgba(27, 21, 17, 0.82);
+  color: #fff4dd;
+  font-size: 0.72rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.satasupe-enemies-page .sata-book-view-author span {
+  color: #c8b58f;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.satasupe-enemies-page .sata-book-view-author b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.satasupe-enemies-page .sata-book-name-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-height: 3.1rem;
+  padding: 0.25rem 0.8rem;
+  border-bottom: 2px solid #1b1511;
+  background: #211914;
+  color: #fff4dd;
+}
+
+.satasupe-enemies-page .sata-book-name-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+}
+
+.satasupe-enemies-page .sata-book-name-band h2 {
+  margin: 0;
+  color: inherit;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-shadow: none;
+}
+
+.satasupe-enemies-page .sata-book-name-band small {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: #d9c9aa;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.satasupe-enemies-page .sata-book-no-image-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid rgba(255, 244, 221, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 244, 221, 0.12);
+  color: #d9c9aa;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.satasupe-enemies-page .sata-book-nickname {
+  position: absolute;
+  left: 0;
+  top: 3.1rem;
+  bottom: 0;
+  width: 3.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 0.7rem 0;
+  background: #211914;
+  color: #fff4dd;
+  font-size: 1.1rem;
+  font-weight: 900;
+  z-index: 2;
+}
+
+.satasupe-enemies-page .sata-book-quote {
+  min-height: 2.55rem;
+  padding: 0.45rem 0.9rem 0.45rem 4rem;
+  border-bottom: 2px solid #1b1511;
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-weight: 900;
+  text-align: center;
+  color: #241a13;
+  background: #fffaf0;
+}
+
+.satasupe-enemies-page .sata-book-portrait {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 19rem;
+  padding-left: 3.1rem;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,0.56), transparent 45%),
+    repeating-linear-gradient(135deg, rgba(0,0,0,0.06) 0 2px, transparent 2px 7px),
+    #eadcbd;
+  color: #3b2b1c;
+  font-size: 4rem;
+}
+
+.satasupe-enemies-page .sata-book-portrait img {
+  width: 100%;
+  height: 100%;
+  max-height: 24rem;
+  object-fit: contain;
+  filter: grayscale(0.15) contrast(1.04);
+}
+
+.satasupe-enemies-page .sata-book-summary-lines {
+  margin-top: 0.8rem;
+  padding: 0.75rem 0.85rem;
+  border-top: 2px solid #1b1511;
+  border-bottom: 2px solid #1b1511;
+  background: rgba(255, 250, 240, 0.68);
+}
+
+.satasupe-enemies-page .sata-book-summary-lines p {
+  margin: 0.25rem 0;
+  line-height: 1.55;
+  color: #241a13;
+}
+
+.satasupe-enemies-page .sata-book-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.2rem, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.satasupe-enemies-page .sata-book-info-pair {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem;
+  align-items: center;
+  min-height: 1.9rem;
+  border: 1px solid rgba(27, 21, 17, 0.55);
+  background: rgba(255, 250, 240, 0.72);
+}
+
+.satasupe-enemies-page .sata-book-info-pair span {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding: 0 0.45rem;
+  background: #211914;
+  color: #fff4dd;
+  font-size: 0.74rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.satasupe-enemies-page .sata-book-info-pair b {
+  padding: 0.18rem 0.4rem 0.18rem 0;
+  color: #241a13;
+  overflow-wrap: anywhere;
+}
+
+.satasupe-enemies-page .sata-book-detail-section {
+  margin-top: 0.95rem;
+  padding-top: 0.8rem;
+  border-top: 2px solid #1b1511;
+}
+
+.satasupe-enemies-page .sata-book-detail-section h3 {
+  margin: 0 0 0.65rem;
+  color: #211914;
+  border-bottom: 0;
+  padding: 0;
+  font-size: 1.15rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-card {
+  padding: 0.7rem 0.8rem;
+  border: 2px solid #211914;
+  background: rgba(255, 250, 240, 0.82);
+  color: #241a13;
+}
+
+.satasupe-enemies-page .sata-book-detail-card h4 {
+  margin: 0 0 0.45rem;
+  color: #211914;
+  font-size: 1.05rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-card p {
+  margin: 0.4rem 0 0;
+  white-space: pre-wrap;
+  line-height: 1.65;
+}
+
+.satasupe-enemies-page .sata-book-detail-card.is-price {
+  border-color: #243b5a;
+  background: rgba(229, 238, 248, 0.85);
+}
+
+.satasupe-enemies-page .sata-book-detail-card.is-weapon,
+.satasupe-enemies-page .sata-book-detail-card.is-outfit,
+.satasupe-enemies-page .sata-book-detail-card.is-vehicle {
+  border-color: #7b4d22;
+}
+
+.satasupe-enemies-page .sata-book-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.satasupe-enemies-page .sata-book-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid rgba(27, 21, 17, 0.55);
+  border-radius: 999px;
+  background: rgba(33, 25, 20, 0.08);
+  color: #241a13;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.satasupe-enemies-page .sata-book-chip small {
+  color: #6e5843;
+  font-size: 0.66rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-card .is-muted {
+  color: #6e5843;
+}
+
+@media (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-category-bar {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .satasupe-enemies-page .sata-book-category-bar span,
+  .satasupe-enemies-page .sata-book-category-bar b {
+    border-right: 0;
+    border-bottom: 1px solid #f6ead1;
+    justify-content: center;
+  }
+  .satasupe-enemies-page .sata-book-main {
+    grid-template-columns: 1fr;
+  }
+  .satasupe-enemies-page .sata-book-left-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .satasupe-enemies-page .sata-book-stat-table {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .satasupe-enemies-page .sata-book-rail-box {
+    grid-template-columns: 1fr;
+  }
+  .satasupe-enemies-page .sata-book-rail-box span {
+    writing-mode: horizontal-tb;
+    border-right: 0;
+    border-bottom: 1px solid #1b1511;
+  }
+  .satasupe-enemies-page .sata-book-visual {
+    min-height: 19rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Public enemy view polish: stable boot width, danger color, compact book rows
+   -------------------------------------------------------------------------- */
+html.is-satasupe-enemy-view-boot body.satasupe-enemies-page .main-content,
+body.satasupe-enemies-page.is-enemy-view-mode .main-content {
+  width: min(1100px, calc(100vw - 32px)) !important;
+  max-width: 1100px !important;
+  min-width: 0 !important;
+  padding-inline: clamp(10px, 2vw, 18px) !important;
+  box-sizing: border-box;
+}
+
+html.is-satasupe-enemy-view-boot body.satasupe-enemies-page .satasupe-layout,
+body.satasupe-enemies-page.is-enemy-view-mode .satasupe-layout {
+  display: block !important;
+}
+
+html.is-satasupe-enemy-view-boot body.satasupe-enemies-page .enemy-view-pane,
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-pane {
+  width: 100%;
+  min-width: 0;
+}
+
+.satasupe-enemies-page .enemy-view-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.satasupe-enemies-page .sata-book-stat-row {
+  grid-template-columns: minmax(0, 1fr) 5.3rem;
+}
+
+.satasupe-enemies-page .sata-book-stat-row span {
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.satasupe-enemies-page .sata-book-stat-row:last-child span {
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-treasure b {
+  justify-content: center;
+  padding: 0.08rem 0.18rem;
+  font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="0"] b {
+  background: #3b2b1c;
+  border-color: #665244;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="1"] b {
+  background: #4b301f;
+  border-color: #7d6149;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="2"] b {
+  background: #5b3521;
+  border-color: #956e4d;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="3"] b {
+  background: #6a3922;
+  border-color: #aa764d;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="4"] b {
+  background: #783d22;
+  border-color: #be7d4c;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="5"] b {
+  background: #864021;
+  border-color: #cf804a;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="6"] b {
+  background: #933f21;
+  border-color: #da7a47;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="7"] b {
+  background: #a13a24;
+  border-color: #de6f47;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="8"] b {
+  background: #ad3328;
+  border-color: #de614b;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="grad"][data-danger-step="9"] b {
+  background: #b62c2d;
+  border-color: #dc5450;
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="danger"] b {
+  background: linear-gradient(180deg, #c9252f, #8e1118);
+  border-color: #ff6f7b;
+  box-shadow: 0 0 10px rgba(214, 33, 43, 0.35);
+}
+.satasupe-enemies-page .sata-book-rail-box.is-danger[data-danger-band="abyss"] b {
+  background: linear-gradient(180deg, #2a0d12, #070305);
+  border-color: #8a3b6c;
+  box-shadow: 0 0 12px rgba(148, 36, 109, 0.35);
+}
+
+.satasupe-enemies-page .sata-book-no-image {
+  width: min(18rem, 70%);
+  aspect-ratio: 4 / 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  border: 2px dashed rgba(33, 25, 20, 0.45);
+  background:
+    linear-gradient(135deg, rgba(33, 25, 20, 0.08) 25%, transparent 25%) 0 0 / 14px 14px,
+    linear-gradient(315deg, rgba(33, 25, 20, 0.08) 25%, transparent 25%) 0 0 / 14px 14px,
+    rgba(255, 250, 240, 0.34);
+  color: rgba(33, 25, 20, 0.52);
+}
+
+.satasupe-enemies-page .sata-book-no-image i {
+  font-size: 3rem;
+}
+
+.satasupe-enemies-page .sata-book-no-image span {
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.satasupe-enemies-page .sata-book-profile-panel {
+  margin-top: 0.85rem;
+  padding: 0.75rem;
+  border: 2px solid rgba(27, 21, 17, 0.82);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 240, 0.6), rgba(221, 204, 171, 0.52)),
+    repeating-linear-gradient(90deg, rgba(27, 21, 17, 0.035) 0 1px, transparent 1px 7px);
+}
+
+.satasupe-enemies-page .sata-book-profile-panel h3 {
+  margin: 0.15rem 0 0.45rem;
+  color: #211914;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  border-left: 0.55rem solid #211914;
+  padding-left: 0.45rem;
+}
+
+.satasupe-enemies-page .sata-book-profile-panel h3:not(:first-child) {
+  margin-top: 0.7rem;
+}
+
+.satasupe-enemies-page .sata-book-profile-grid {
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  margin-top: 0;
+}
+
+.satasupe-enemies-page .sata-book-profile-grid.is-secondary {
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+}
+
+.satasupe-enemies-page .sata-book-info-pair {
+  background: rgba(255, 250, 240, 0.86);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.36);
+}
+
+.satasupe-enemies-page .sata-book-detail-section {
+  background: rgba(255, 250, 240, 0.46);
+  border: 2px solid rgba(27, 21, 17, 0.78);
+  padding: 0.8rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-grid {
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.satasupe-enemies-page .sata-book-detail-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 8rem;
+  box-shadow: 3px 3px 0 rgba(33, 25, 20, 0.16);
+}
+
+.satasupe-enemies-page .sata-book-detail-card h4 {
+  border-bottom: 1px solid rgba(33, 25, 20, 0.36);
+  padding-bottom: 0.28rem;
+}
+
+@media (max-width: 760px) {
+  html.is-satasupe-enemy-view-boot body.satasupe-enemies-page .main-content,
+  body.satasupe-enemies-page.is-enemy-view-mode .main-content {
+    width: min(100vw, calc(100vw - 12px)) !important;
+    padding-inline: 6px !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row {
+    grid-template-columns: minmax(0, 1fr) 4rem;
+  }
+
+  .satasupe-enemies-page .sata-book-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Satasupe official-like view: personal data and hobby polish
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-profile-panel h3:first-child {
+  margin-top: 0;
+}
+
+.satasupe-enemies-page .sata-book-hobby-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(33, 25, 20, 0.45);
+  background: rgba(255, 250, 240, 0.72);
+}
+
+.satasupe-enemies-page .sata-book-hobby-chips .hobby-input-chip {
+  margin: 0;
+  min-height: 1.75rem;
+  padding: 0.18rem 0.6rem;
+  border-color: rgba(33, 25, 20, 0.32);
+  box-shadow: 1px 1px 0 rgba(33, 25, 20, 0.16);
+}
+
+.satasupe-enemies-page .sata-book-empty-text {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  color: #6e5843;
+  font-weight: 800;
+}
+
+.satasupe-enemies-page .sata-book-summary-lines {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.satasupe-enemies-page .sata-book-profile-grid {
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  align-items: stretch;
+}
+
+.satasupe-enemies-page .sata-book-profile-grid.is-secondary {
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.satasupe-enemies-page .sata-book-info-pair {
+  min-height: 2.15rem;
+}
+
+.satasupe-enemies-page .sata-book-info-pair span {
+  min-width: 4.4em;
+  justify-content: center;
+}
+
+.satasupe-enemies-page .sata-book-info-pair b {
+  padding: 0.24rem 0.45rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-profile-grid,
+  .satasupe-enemies-page .sata-book-profile-grid.is-secondary {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Satasupe view: requested personal row layout and private-page notice
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-view-notice {
+  width: min(780px, 100%);
+  margin: 0 auto;
+  padding: 2rem 1.6rem;
+  border: 2px solid #211914;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 240, 0.92), rgba(224, 207, 175, 0.88)),
+    repeating-linear-gradient(90deg, rgba(33, 25, 20, 0.04) 0 1px, transparent 1px 7px);
+  color: #241a13;
+  text-align: center;
+  box-shadow: 5px 5px 0 rgba(33, 25, 20, 0.2);
+}
+
+.satasupe-enemies-page .sata-book-view-notice h2 {
+  margin: 0 0 0.8rem;
+  color: #211914;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  border-bottom: 2px solid #211914;
+  padding-bottom: 0.55rem;
+}
+
+.satasupe-enemies-page .sata-book-view-notice p {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.75;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines {
+  display: grid;
+  gap: 0.38rem;
+  margin-top: 0.25rem;
+}
+
+.satasupe-enemies-page .sata-book-profile-row {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.satasupe-enemies-page .sata-book-profile-row.is-two {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.satasupe-enemies-page .sata-book-profile-row.is-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.satasupe-enemies-page .sata-book-profile-row.is-one {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.satasupe-enemies-page .sata-book-profile-row.is-nationality-language-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.satasupe-enemies-page .sata-book-profile-row.is-nationality-language-row .sata-book-info-pair.is-language {
+  grid-column: span 2;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair {
+  min-height: 2.05rem;
+  margin: 0;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair span {
+  width: 4.5rem;
+  min-width: 4.5rem;
+  max-width: 4.5rem;
+  box-sizing: border-box;
+}
+
+.satasupe-enemies-page .sata-book-info-pair.is-wide b {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.satasupe-enemies-page .sata-book-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.65rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-head h3 {
+  margin: 0;
+}
+
+.satasupe-enemies-page .sata-book-detail-count {
+  display: inline-grid;
+  grid-template-columns: auto auto auto auto;
+  align-items: center;
+  overflow: hidden;
+  border: 2px solid #211914;
+  background: #fff8e8;
+  color: #211914;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.satasupe-enemies-page .sata-book-detail-count small,
+.satasupe-enemies-page .sata-book-detail-count b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0 0.55rem;
+  border-right: 1px solid #211914;
+}
+
+.satasupe-enemies-page .sata-book-detail-count small {
+  background: #211914;
+  color: #fff4dd;
+  font-size: 0.76rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-count b {
+  min-width: 2.2rem;
+  font-size: 1.42rem;
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: 400;
+  font-synthesis: none;
+  font-synthesis-weight: none;
+}
+
+.satasupe-enemies-page .sata-book-detail-count b:last-child {
+  border-right: 0;
+}
+
+.satasupe-enemies-page .sata-book-hobby-chips {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.satasupe-enemies-page .sata-book-hobby-chips .hobby-input-chip {
+  /* 編集側の hobbyChips と同じ丸チップをそのまま使う。余計な上書きはしない。 */
+  box-shadow: none;
+}
+
+@media (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-profile-row.is-two,
+  .satasupe-enemies-page .sata-book-profile-row.is-three,
+  .satasupe-enemies-page .sata-book-profile-row.is-nationality-language-row {
+    grid-template-columns: 1fr;
+  }
+  .satasupe-enemies-page .sata-book-detail-head {
+    align-items: stretch;
+  }
+  .satasupe-enemies-page .sata-book-detail-count {
+    width: max-content;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Satasupe view: compact official-like personal rows and one-line detail rows
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-profile-row.is-two {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.satasupe-enemies-page .sata-book-profile-row.is-one .sata-book-info-pair.is-wide b {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value b {
+  border-color: #1b1511;
+  font-weight: 400;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="1"] b {
+  background: #cf5d44;
+  color: #fff7f2;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="2"] b {
+  background: #e89474;
+  color: #3f2616;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="3"] b {
+  background: #7f1d1d;
+  color: #fff4f0;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="4"] b {
+  background: #f3c19f;
+  color: #3f2616;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="5"] b {
+  background: #f6dbc5;
+  color: #3f2616;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="6"] b {
+  background: #eee0bf;
+  color: #2b2522;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="7"] b {
+  background: #eee0bf;
+  color: #2b2522;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="8"] b {
+  background: #eee0bf;
+  color: #1e3044;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="9"] b {
+  background: #d5e2f2;
+  color: #1a2c42;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="10"] b {
+  background: #b8cde7;
+  color: #16293f;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="11"] b {
+  background: #1f3b67;
+  color: #eef5ff;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="12"] b {
+  background: #35588a;
+  color: #f2f7ff;
+}
+.satasupe-enemies-page .sata-book-stat-row.is-karma-value[data-karma-value="13"] b {
+  background: #4f77a8;
+  color: #f5f9ff;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-exp-conv b {
+  border-color: #1b1511;
+  font-weight: 400;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-exp-conv[data-exp-band="0"] b {
+  background: #eee0bf;
+  color: #2b2522;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-exp-conv[data-exp-band="7"] b {
+  background: #f8f2d8;
+  color: #2b2522;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-exp-conv[data-exp-band="14"] b {
+  background: #e9c982;
+  color: #3f2616;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-exp-conv[data-exp-band="28"] b {
+  background: #d99a54;
+  color: #3f2616;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-exp-conv[data-exp-band="56"] b {
+  background: #a94b2c;
+  color: #fff4dd;
+}
+
+.satasupe-enemies-page .sata-book-stat-row.is-exp-conv[data-exp-band="112"] b {
+  background: #5b1d1d;
+  color: #fff4dd;
+}
+
+.satasupe-enemies-page .sata-book-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.38rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.8fr) minmax(10rem, 0.9fr) minmax(14rem, 1.6fr);
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.satasupe-enemies-page .sata-book-detail-line-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+  min-width: 0;
+  border-right: 1px solid rgba(33, 25, 20, 0.38);
+}
+
+.satasupe-enemies-page .sata-book-detail-kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.4rem;
+  padding: 0.25rem 0.45rem;
+  background: #211914;
+  color: #fff4dd;
+  font-size: 0.78rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line h4 {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0.32rem 0.55rem;
+  border-bottom: 0;
+  color: #211914;
+  font-size: 0.98rem;
+  line-height: 1.25;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.satasupe-enemies-page .sata-book-detail-line-meta {
+  display: flex;
+  align-items: center;
+  padding: 0.32rem 0.55rem;
+  border-right: 1px solid rgba(33, 25, 20, 0.28);
+  color: #5b4634;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line p {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0.32rem 0.65rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-talent {
+  border-color: #91d6e3;
+  background: linear-gradient(180deg, #fafdff 0%, #eaf8ff 100%);
+  color: #2f6f7c;
+}
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-talent .sata-book-detail-kind {
+  background: #2f6f7c;
+  color: #fafdff;
+}
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-price {
+  border-color: #e8b8c1;
+  background: linear-gradient(180deg, #fffdfd 0%, #fff1f5 100%);
+  color: #9b4f5d;
+}
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-price .sata-book-detail-kind {
+  background: #9b4f5d;
+  color: #fffdfd;
+}
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-weapon,
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-outfit,
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-vehicle {
+  border-color: #b88a4d;
+  background: linear-gradient(180deg, #fffaf0 0%, #f3e2c4 100%);
+  color: #3b2b1c;
+}
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-weapon .sata-book-detail-kind,
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-outfit .sata-book-detail-kind,
+.satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line.is-vehicle .sata-book-detail-kind {
+  background: #7b4d22;
+  color: #fff4dd;
+}
+
+@media (max-width: 860px) {
+  .satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line {
+    grid-template-columns: 1fr;
+  }
+  .satasupe-enemies-page .sata-book-detail-line-head,
+  .satasupe-enemies-page .sata-book-detail-line-meta {
+    border-right: 0;
+    border-bottom: 1px solid rgba(33, 25, 20, 0.28);
+  }
+}
+
+@media (max-width: 640px) {
+  .satasupe-enemies-page .sata-book-profile-row.is-two {
+    grid-template-columns: 1fr;
+  }
+  .satasupe-enemies-page .sata-book-profile-row.is-one .sata-book-info-pair.is-wide b {
+    white-space: normal;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Satasupe view: split details sections and portrait/no-image polish
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-portrait {
+  min-height: clamp(21rem, 46vw, 32rem);
+  padding: 0.8rem 0.8rem 0.8rem 3.9rem;
+  box-sizing: border-box;
+}
+
+.satasupe-enemies-page .sata-book-portrait.has-image {
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255, 255, 255, 0.72), transparent 46%),
+    repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.055) 0 2px, transparent 2px 7px),
+    #eadcbd;
+}
+
+.satasupe-enemies-page .sata-book-portrait.has-image img {
+  width: auto;
+  height: auto;
+  max-width: min(100%, 28rem);
+  max-height: clamp(20rem, 44vw, 31rem);
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+  margin: auto;
+  filter: grayscale(0.08) contrast(1.04) drop-shadow(0 12px 22px rgba(33, 25, 20, 0.28));
+}
+
+.satasupe-enemies-page .sata-book-portrait.is-empty {
+  background:
+    radial-gradient(circle at 50% 32%, rgba(255, 250, 240, 0.82), transparent 42%),
+    linear-gradient(135deg, rgba(33, 25, 20, 0.07) 25%, transparent 25%, transparent 50%, rgba(33, 25, 20, 0.07) 50%, rgba(33, 25, 20, 0.07) 75%, transparent 75%, transparent),
+    #e8d9ba;
+  background-size: auto, 18px 18px, auto;
+}
+
+.satasupe-enemies-page .sata-book-no-image {
+  width: min(78%, 18rem);
+  min-height: 18rem;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 3px double rgba(33, 25, 20, 0.58);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 240, 0.64), rgba(214, 194, 157, 0.68)),
+    repeating-linear-gradient(0deg, rgba(33, 25, 20, 0.06) 0 1px, transparent 1px 8px);
+  color: rgba(33, 25, 20, 0.72);
+  box-shadow: inset 0 0 0 8px rgba(255, 250, 240, 0.35);
+}
+
+.satasupe-enemies-page .sata-book-no-image i {
+  font-size: 4.2rem;
+  opacity: 0.62;
+}
+
+.satasupe-enemies-page .sata-book-no-image strong {
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.satasupe-enemies-page .sata-book-no-image span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: rgba(33, 25, 20, 0.56);
+}
+
+.satasupe-enemies-page .sata-book-detail-section.is-karma-details,
+.satasupe-enemies-page .sata-book-detail-section.is-equipment-details {
+  background: rgba(255, 250, 240, 0.38);
+  padding: 0.75rem 0.75rem 0.85rem;
+  border: 2px solid #211914;
+  border-radius: 2px;
+}
+
+.satasupe-enemies-page .sata-book-detail-section.is-equipment-details {
+  margin-top: 0.75rem;
+  background: rgba(246, 230, 198, 0.58);
+}
+
+.satasupe-enemies-page .sata-book-detail-section .sata-book-detail-head {
+  padding-bottom: 0.45rem;
+  border-bottom: 2px solid #211914;
+}
+
+.satasupe-enemies-page .sata-book-detail-section.is-karma-details .sata-book-detail-head h3::before {
+  content: "◆";
+  margin-right: 0.35rem;
+  color: #2f6f7c;
+}
+
+.satasupe-enemies-page .sata-book-detail-section.is-equipment-details .sata-book-detail-head h3::before {
+  content: "◆";
+  margin-right: 0.35rem;
+  color: #7b4d22;
+}
+
+.satasupe-enemies-page .sata-book-detail-grid.is-karma-grid,
+.satasupe-enemies-page .sata-book-detail-grid.is-equipment-grid {
+  margin-top: 0.55rem;
+}
+
+.satasupe-enemies-page .sata-book-detail-grid.is-equipment-grid .sata-book-detail-card.sata-book-detail-line {
+  grid-template-columns: minmax(13rem, 1.2fr) minmax(4.5rem, 0.32fr) minmax(4.5rem, 0.32fr) minmax(4.5rem, 0.32fr) minmax(16rem, 1.55fr);
+}
+
+.satasupe-enemies-page .sata-book-detail-equip-stat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0.32rem 0.45rem;
+  border-right: 1px solid rgba(33, 25, 20, 0.28);
+  color: #5b4634;
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: 400;
+  font-synthesis: none;
+  font-synthesis-weight: none;
+  font-size: 1.52rem;
+  line-height: 1;
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .satasupe-enemies-page .sata-book-portrait {
+    padding-left: 3.6rem;
+    min-height: 19rem;
+  }
+
+  .satasupe-enemies-page .sata-book-portrait.has-image img {
+    max-height: 22rem;
+  }
+
+  .satasupe-enemies-page .sata-book-no-image {
+    min-height: 15rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Satasupe view: no-image compaction
+   画像なしの閲覧画面では、立ち絵枠を残さずプロフィールを右カラムへ詰める。
+   :has() 非対応ブラウザでも通常表示に戻るだけなので、編集画面への影響はない。
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) {
+  display: grid;
+  grid-template-columns: 10.2rem minmax(0, 1fr);
+  gap: 0.7rem;
+}
+
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-category-bar,
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-detail-section,
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .enemy-view-memo {
+  grid-column: 1 / -1;
+}
+
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-main {
+  display: contents;
+}
+
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-left-rail {
+  grid-column: 1;
+  grid-row: 2 / span 2;
+  min-width: 0;
+}
+
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-visual {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 0;
+  grid-template-rows: auto auto;
+}
+
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-portrait.is-empty {
+  display: none;
+}
+
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-profile-panel {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+  align-self: start;
+  border: 2px solid #1b1511;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 240, 0.92), rgba(241, 226, 196, 0.94)),
+    repeating-linear-gradient(135deg, rgba(33, 25, 20, 0.045) 0 2px, transparent 2px 8px);
+  box-shadow: inset 0 0 0 5px rgba(255, 250, 240, 0.32);
+}
+
+.satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-profile-panel::before {
+  content: none;
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) {
+    display: block;
+  }
+
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-main {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-profile-panel {
+    margin-top: 0.75rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Satasupe view: fixed-width label for 国籍・言語 row
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language {
+  grid-template-columns: 4.6em minmax(0, 1fr);
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language span {
+  min-width: 0;
+  width: 4.6em;
+  padding-inline: 0.18rem;
+  font-size: 0.68rem;
+  letter-spacing: -0.03em;
+  box-sizing: border-box;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Satasupe view: keep 国籍/言語 label aligned with other personal labels
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language {
+  display: grid;
+  grid-template-columns: 4.6em minmax(0, 1fr) !important;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language span {
+  width: 4.6em !important;
+  min-width: 4.6em !important;
+  max-width: 4.6em !important;
+  box-sizing: border-box;
+  white-space: normal !important;
+  line-height: 1.05;
+  text-align: center;
+  justify-content: center;
+  padding-inline: 0.25rem;
+  overflow: hidden;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   Satasupe view: 005 personal row and detail headers
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language {
+  display: grid;
+  grid-template-columns: 4.6em minmax(0, 1fr) !important;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language span {
+  width: 4.6em !important;
+  min-width: 4.6em !important;
+  max-width: 4.6em !important;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  font-size: 0.78rem;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-align: center;
+  justify-content: center;
+  padding-inline: 0.35rem;
+  overflow: hidden;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.satasupe-enemies-page .sata-book-detail-table-head {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.8fr) minmax(10rem, 0.9fr) minmax(14rem, 1.6fr);
+  align-items: stretch;
+  margin: 0.55rem 0 0.28rem;
+  border: 2px solid #211914;
+  background: #211914;
+  color: #fff4dd;
+  font-weight: 900;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.satasupe-enemies-page .sata-book-detail-table-head span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.8rem;
+  padding: 0.22rem 0.45rem;
+  border-right: 1px solid rgba(255, 244, 221, 0.35);
+  text-align: center;
+}
+
+.satasupe-enemies-page .sata-book-detail-table-head span:last-child {
+  border-right: 0;
+}
+
+.satasupe-enemies-page .sata-book-detail-table-head.is-karma {
+  background: linear-gradient(90deg, #2f6f7c 0%, #211914 44%, #211914 100%);
+}
+
+.satasupe-enemies-page .sata-book-detail-table-head.is-equipment {
+  grid-template-columns: minmax(13rem, 1.2fr) minmax(4.5rem, 0.32fr) minmax(4.5rem, 0.32fr) minmax(4.5rem, 0.32fr) minmax(16rem, 1.55fr);
+  background: linear-gradient(90deg, #7b4d22 0%, #211914 44%, #211914 100%);
+}
+
+@media (max-width: 860px) {
+  .satasupe-enemies-page .sata-book-detail-table-head,
+  .satasupe-enemies-page .sata-book-detail-table-head.is-equipment {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language {
+    grid-template-columns: 4.6em minmax(0, 1fr) !important;
+  }
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Satasupe view: 006 align 国籍/言語 label width with normal profile labels
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) !important;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language span {
+  width: 4.5rem !important;
+  min-width: 4.5rem !important;
+  max-width: 4.5rem !important;
+  box-sizing: border-box;
+  white-space: normal !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0 !important;
+  line-height: 1.05;
+  text-align: center;
+  justify-content: center;
+  padding-inline: 0.45rem;
+  overflow: hidden;
+}
+
+.satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language {
+    grid-template-columns: 4.5rem minmax(0, 1fr) !important;
+  }
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* 030: author is shown in the quote line, not as a hero corner badge. */
+.satasupe-enemies-page .sata-book-quote {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+}
+
+.satasupe-enemies-page .sata-book-quote .enemy-view-quote-author {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.16rem 0.55rem;
+  border: 1px solid rgba(56, 40, 18, 0.55);
+  border-radius: 999px;
+  background: rgba(255, 248, 227, 0.68);
+  color: rgba(38, 27, 13, 0.78);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* --------------------------------------------------------------------------
+   View adjustment 030: author badge belongs to the memo block
+   -------------------------------------------------------------------------- */
+.satasupe-enemies-page .sata-book-detail-section.is-view-memo-block {
+  position: relative;
+}
+
+.satasupe-enemies-page .sata-book-detail-section.is-view-memo-block .enemy-view-memo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(42, 28, 15, 0.32);
+}
+
+.satasupe-enemies-page .sata-book-detail-section.is-view-memo-block .enemy-view-memo-head h3 {
+  margin: 0;
+  border-bottom: 0;
+}
+
+.satasupe-enemies-page .sata-book-detail-section.is-view-memo-block .enemy-view-memo-author {
+  flex: 0 1 auto;
+  max-width: min(20rem, 45%);
+  padding: 0.15rem 0.55rem;
+  border: 1px solid rgba(56, 40, 18, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 248, 227, 0.78);
+  color: rgba(38, 27, 13, 0.78);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.satasupe-enemies-page .sata-book-detail-section.is-view-memo-block .enemy-view-memo.is-empty {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-detail-section.is-view-memo-block .enemy-view-memo-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .satasupe-enemies-page .sata-book-detail-section.is-view-memo-block .enemy-view-memo-author {
+    max-width: 100%;
+  }
+}
+
+
+/* 031: compact page header in enemy view mode */
+body.satasupe-enemies-page.is-enemy-view-mode .satasupe-header {
+  padding: 0 !important;
+  min-height: 0 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .satasupe-header h1 {
+  padding-bottom: 0 !important;
 }
