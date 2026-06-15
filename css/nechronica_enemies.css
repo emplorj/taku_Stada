@@ -4146,8 +4146,9 @@ body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-toolbar button.small
   background: #f4f1e8;
   color: #221c1f;
   font-size: 1.15rem;
-  font-weight: 900;
-  font-family: var(--font-latin-ui, sans-serif);
+  line-height: 1;
+  font-weight: var(--font-latin-ui-weight, 300);
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
   font-variant-numeric: tabular-nums;
 }
 
@@ -4814,7 +4815,7 @@ body.nechronica-enemies-page.is-enemy-view-mode .enemy-view-toolbar button.small
 
 .nechronica-enemies-page .nechronica-view-hero-stats b {
   min-width: 3.15rem;
-  font-size: 1.28rem;
+  font-size: 1.42rem;
 }
 
 @media (max-width: 760px) {

@@ -47,7 +47,7 @@
 @font-face {
   font-family: "ExcelsiorSans";
   src: url("../fonts/ExcelsiorSans.woff2") format("woff2");
-  font-weight: 400;
+  font-weight: 300;
   font-style: normal;
   ascent-override: 88%;
   descent-override: 12%;
@@ -58,6 +58,7 @@
 :root {
   --font-latin-ui:
     "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  --font-latin-ui-weight: 300;
   --color-coc: #93c47d; /* CoC */
   --color-coc-secret: #6aa84f; /* CoC-㊙ */
   --color-sw: #ea9999;

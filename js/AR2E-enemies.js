@@ -666,6 +666,13 @@
     if (el.fieldShowDropsInView) {
       setByPath(sheet, "showDropItemsInView", !!el.fieldShowDropsInView.checked);
     }
+    if (el.komaExportModeSelect) {
+      const viewStage = normalizeViewStage(el.komaExportModeSelect.value || state.viewStage);
+      state.viewStage = viewStage;
+      setByPath(sheet, "viewStage", viewStage);
+    } else {
+      setByPath(sheet, "viewStage", normalizeViewStage(state.viewStage));
+    }
 
     current.author = String(sheet.author || "").trim() || getRememberedAuthor();
     current.name = String(sheet.name || "").trim();
@@ -730,6 +737,11 @@
       el.fieldShowDropsInView.checked = rawShowDrops == null || rawShowDrops === "" ? true : !!rawShowDrops;
     }
     setSaveButtonLabelByEnemy(enemy);
+    const savedViewStage = normalizeViewStage(getByPath(sheet, "viewStage"));
+    state.viewStage = savedViewStage;
+    if (el.komaExportModeSelect) {
+      el.komaExportModeSelect.value = savedViewStage;
+    }
     state.skills = Array.isArray(enemy?.data?.skills) ? deepClone(enemy.data.skills) : [createEmptySkill()];
     state.exDropItems = Array.isArray(enemy?.data?.exDropItems)
       ? deepClone(enemy.data.exDropItems)
@@ -2692,6 +2704,12 @@
     return maskText(size);
   }
 
+  function normalizeViewStage(value) {
+    const stage = String(value || "").trim();
+    if (["pre_identify", "post_identify", "defense_open", "gm"].includes(stage)) return stage;
+    return "pre_identify";
+  }
+
   function isViewStagePre() { return state.viewStage === "pre_identify"; }
   function isViewStagePost() { return state.viewStage === "post_identify"; }
   function isViewStageDefenseOpen() { return state.viewStage === "defense_open" || state.viewStage === "gm"; }
@@ -2704,6 +2722,11 @@
 
   function maybeMask(value, shouldMask, size = 6) {
     return shouldMask ? `<span class="view-mask">${maskTextLike(value, size)}</span>` : escapeHtml(viewValue(value));
+  }
+
+  function diceTextHtmlForView(value, extraClass = "") {
+    const className = `view-dice-letter${extraClass ? ` ${extraClass}` : ""}`;
+    return escapeHtml(viewValue(value)).replace(/D/g, `<span class="${className}">D</span>`);
   }
 
   function chip(label, cls = "") {
@@ -2746,7 +2769,7 @@
     const base = toInt(getByPath(sheet, key), 0);
     const dice = toInt(getByPath(sheet, `${key}Dice`), 2);
     const bonus = Math.floor(Math.max(0, base) / 3);
-    return `${escapeHtml(`${dice}D+${bonus}`)}<span class="view-ability-base">（<small>基本値</small>${escapeHtml(String(base || 0))}）</span>`;
+    return `${diceTextHtmlForView(`${dice}D+${bonus}`, "is-ability-dice-letter")}<span class="view-ability-base">（<small>基本値</small>${escapeHtml(String(base || 0))}）</span>`;
   }
 
   function defenseCompareText(sheet) {
@@ -2908,7 +2931,7 @@
         <div><b>MP</b><span>${maybeMask(getByPath(sheet, "mp"), preMasked, 5)}</span></div>
         <div><b>行動値</b><span>${maybeMask(getByPath(sheet, "initiative"), false, 3)}</span></div>
         <div><b>移動値</b><span>${maybeMask(getByPath(sheet, "movement"), preMasked, 4)}</span></div>
-        <div><b>回避</b><span>${maybeMask(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), defenseMasked, 5)}</span></div>
+        <div><b>回避</b><span>${defenseMasked ? maybeMask(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), true, 5) : diceTextHtmlForView(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), "is-summary-dice-letter")}</span></div>
         <div><b>物防</b><span>${maybeMask(getByPath(sheet, "physDef"), defenseMasked, 3)}</span></div>
         <div><b>魔防</b><span>${maybeMask(getByPath(sheet, "magicDef"), defenseMasked, 3)}</span></div>
       </div>`;
@@ -2937,7 +2960,7 @@
             <div><dt>MP</dt><dd>${maybeMask(getByPath(sheet, "mp"), preMasked, 5)}</dd></div>
             <div><dt>行動値</dt><dd>${maybeMask(getByPath(sheet, "initiative"), false, 3)}</dd></div>
             <div><dt>移動値</dt><dd>${maybeMask(getByPath(sheet, "movement"), preMasked, 4)}</dd></div>
-            <div><dt>回避</dt><dd>${escapeHtml(viewValue(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), "-"))}</dd></div>
+            <div><dt>回避</dt><dd>${defenseMasked ? maybeMask(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), true, 5) : diceTextHtmlForView(formatDiceText(getByPath(sheet, "evadeDice") || "2D+0"), "is-summary-dice-letter")}</dd></div>
             <div><dt>物防</dt><dd class="${!preMasked && !defenseOpen ? "is-text-value" : ""}">${preMasked ? maybeMask(getByPath(sheet, "physDef"), true, 3) : (defenseOpen ? escapeHtml(viewValue(getByPath(sheet, "physDef"), "-")) : escapeHtml(defenseSummary))}</dd></div>
             <div><dt>魔防</dt><dd class="${!preMasked && !defenseOpen ? "is-text-value" : ""}">${preMasked ? maybeMask(getByPath(sheet, "magicDef"), true, 3) : (defenseOpen ? escapeHtml(viewValue(getByPath(sheet, "magicDef"), "-")) : escapeHtml(defenseSummary))}</dd></div>
             <div class="enemy-view-profile-abilities"><dt>能力値</dt><dd><div class="enemy-view-ability-row">${abilities}</div></dd></div>
@@ -2952,7 +2975,7 @@
         <h3>所持スキル</h3>
         <div class="enemy-view-skills">${buildViewSkillCards()}</div>
       </section>
-      ${(memo || getEnemyAuthor(current)) ? `<section class="enemy-view-block is-view-memo-block"><div class="enemy-view-memo-head"><h3>解説</h3>${getEnemyAuthor(current) ? `<span class="enemy-view-memo-author">${getCreditLabel(getEnemyAuthor(current))}：${escapeHtml(getEnemyAuthor(current))}</span>` : ""}</div>${memo ? `<div class="enemy-view-memo">${escapeHtml(memo)}</div>` : `<div class="enemy-view-memo is-empty"></div>`}</section>` : ""}
+      ${(memo || getEnemyAuthor(current)) ? `<section class="enemy-view-block is-view-memo-block"><div class="enemy-view-memo-head"><h3>解説</h3>${getEnemyAuthor(current) ? `<span class="view-chip is-credit enemy-view-memo-credit-chip">${getCreditLabel(getEnemyAuthor(current))}：${escapeHtml(getEnemyAuthor(current))}</span>` : ""}</div>${memo ? `<div class="enemy-view-memo">${escapeHtml(memo)}</div>` : `<div class="enemy-view-memo is-empty"></div>`}</section>` : ""}
       ${buildViewDropRows(sheet)}
       ${buildViewResources()}
     `;
@@ -2974,6 +2997,14 @@
     setPageMode();
     if (el.fieldShowDropsInView) {
       el.fieldShowDropsInView.addEventListener("change", () => {
+        const current = getSelectedEnemy();
+        if (current) readFormToCurrentEnemy();
+        markDirty();
+      });
+    }
+    if (el.komaExportModeSelect) {
+      el.komaExportModeSelect.addEventListener("change", () => {
+        state.viewStage = normalizeViewStage(el.komaExportModeSelect.value);
         const current = getSelectedEnemy();
         if (current) readFormToCurrentEnemy();
         markDirty();
@@ -3927,6 +3958,16 @@
         renderEnemyList();
       });
     }
+    document.addEventListener("keydown", (event) => {
+      const key = String(event.key || "").toLowerCase();
+      if (!(event.ctrlKey || event.metaKey) || key !== "s") return;
+      event.preventDefault();
+      if (state.viewMode) return;
+      if (el.saveEnemyButton && !el.saveEnemyButton.disabled) {
+        el.saveEnemyButton.click();
+      }
+    });
+
     if (el.importJsonInput) {
       el.importJsonInput.addEventListener("change", () => {
         const raw = String(el.importJsonInput.value || "").trim();
