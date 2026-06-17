@@ -1963,8 +1963,8 @@
       tr.innerHTML = `
         <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="このEXドロップ行をドラッグで並べ替え">⠿</span></td>
         <td colspan="2" class="drop-ex-label-cell cell-drop-min" data-label="出目"><span class="drop-ex-label">EXドロップ</span></td>
-        <td class="cell-drop-name" data-label="名前"><input type="text" data-ex-drop-key="name" value="${escapeHtml(item.name || "")}" placeholder="EXドロップ名"></td>
-        <td class="cell-drop-price" data-label="単価"><input type="text" data-ex-drop-key="unitPrice" value="${escapeHtml(item.unitPrice || "")}" placeholder="1000G"></td>
+        <td class="cell-drop-name" data-label="名前"><input type="text" data-ex-drop-key="name" value="${escapeHtml(item.name || "")}" placeholder="アイテム名"></td>
+        <td class="cell-drop-price" data-label="単価"><input type="text" data-ex-drop-key="unitPrice" value="${escapeHtml(item.unitPrice || "")}" placeholder="100G" class="numeric-font"></td>
         <td class="cell-drop-qty" data-label="個数"><input type="number" data-ex-drop-key="quantity" value="${escapeHtml(item.quantity || "1")}" min="1" step="1" class="num-2"></td>
         <td class="cell-drop-total" data-label="総計"><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2 numeric-font"></td>
         <td class="row-actions-cell">
