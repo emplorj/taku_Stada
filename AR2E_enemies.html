@@ -141,7 +141,7 @@
           <div class="top-two-col">
             <!-- 左カラム：基本情報・ステータス -->
             <div class="left-column-stack">
-              <section class="data-block">
+              <section class="data-block block-basic-info">
                 <div class="block-head">
                   <h3>基本情報</h3>
                   <label class="enemy-type-inline">種別
@@ -189,7 +189,6 @@
                             <option value="風">風</option>
                             <option value="光">光</option>
                             <option value="闇">闇</option>
-                            <option value="特殊">特殊</option>
                           </select>
                         </div>
                         <input id="attributeSpecialText" class="attribute-special-text" type="text" placeholder="特殊属性" hidden>
@@ -241,11 +240,11 @@
                   <div class="table-wrap resource-table-wrap">
                     <table class="asian-table mini-resource-table" id="resourcesTable">
                       <colgroup>
-                        <col style="width: 8.8rem;">
-                        <col style="width: 3.6rem;">
-                        <col style="width: 3.6rem;">
-                        <col style="width: auto;">
-                        <col style="width: 3.2rem;">
+                        <col class="col-resource-name">
+                        <col class="col-resource-current">
+                        <col class="col-resource-max">
+                        <col class="col-resource-memo">
+                        <col class="col-row-actions">
                       </colgroup>
                       <thead>
                         <tr>
@@ -262,7 +261,7 @@
                 </div>
               </section>
 
-              <section class="data-block">
+              <section class="data-block block-memo">
                 <div class="block-head">
                   <h3>メモ・解説</h3>
                 </div>
@@ -272,7 +271,7 @@
 
             <!-- 右カラム：能力値・ドロップ品・解説 -->
             <div class="right-column-stack">
-              <section class="data-block">
+              <section class="data-block block-abilities">
                 <div class="block-head">
                   <h3 id="abilityBlockTitle">能力値</h3>
                 </div>
@@ -387,7 +386,7 @@
                 </div>
               </section>
 
-              <section class="data-block">
+              <section class="data-block block-drops">
                 <div class="block-head">
                   <h3>ドロップ品</h3>
                   <div class="block-head-actions">
@@ -404,14 +403,14 @@
                 <div class="table-wrap">
                   <table class="asian-table" id="dropItemsTable">
                     <colgroup>
-                      <col style="width: 1.35rem;">
-                      <col style="width: 3.3rem;">
-                      <col style="width: 3.3rem;">
-                      <col style="width: auto;">
-                      <col style="width: 5.0rem;">
-                      <col style="width: 3.3rem;">
-                      <col style="width: 5.4rem;">
-                      <col style="width: 2.6rem;">
+                      <col class="col-row-handle">
+                      <col class="col-drop-min">
+                      <col class="col-drop-max">
+                      <col class="col-drop-name">
+                      <col class="col-drop-price">
+                      <col class="col-drop-qty">
+                      <col class="col-drop-total">
+                      <col class="col-row-actions">
                     </colgroup>
                     <thead>
                       <tr>
@@ -448,17 +447,17 @@
             <div class="table-wrap">
               <table class="asian-table" id="attackMethodsTable">
                 <colgroup>
-                  <col style="width: 2rem;"> <!-- 並べ替え -->
-                  <col style="width: auto; min-width: 7rem;"> <!-- 名前（やや狭め） -->
-                  <col style="width: 5.8rem;"> <!-- 種別（拡張） -->
-                  <col style="width: 4.2rem;"> <!-- 部位（拡張） -->
-                  <col style="width: 5.2rem;"> <!-- 対象（拡張） -->
-                  <col style="width: 5.2rem;"> <!-- 射程（拡張） -->
-                  <col style="width: 6.8rem;"> <!-- 命中（拡張） -->
-                  <col style="width: 6.8rem;"> <!-- ダメージ（拡張） -->
-                  <col style="width: 7.2rem;"> <!-- 属性（重点拡張） -->
-                  <col style="width: auto; min-width: 10rem;"> <!-- 効果 -->
-                  <col style="width: 5.5rem;"> <!-- 操作 -->
+                  <col class="col-row-handle"> <!-- 並べ替え -->
+                  <col class="col-name"> <!-- 名前 -->
+                  <col class="col-kind"> <!-- 種別 -->
+                  <col class="col-part"> <!-- 部位 -->
+                  <col class="col-target"> <!-- 対象 -->
+                  <col class="col-range"> <!-- 射程 -->
+                  <col class="col-hit"> <!-- 命中 -->
+                  <col class="col-damage"> <!-- ダメージ -->
+                  <col class="col-attribute"> <!-- 属性 -->
+                  <col class="col-effect"> <!-- 効果 -->
+                  <col class="col-row-actions"> <!-- 操作 -->
                 </colgroup>
                 <thead>
                   <tr>
@@ -492,20 +491,20 @@
             <div class="table-wrap">
               <table class="asian-table" id="skillsTable">
                 <colgroup>
-                  <col style="width: 2rem;"> <!-- 並べ替え -->
-                  <col style="width: 24px;"> <!-- 秘 -->
-                  <col style="width: 14%;"> <!-- 名前 -->
-                  <col style="width: 3.5rem;"><!-- SL -->
-                  <col style="width: 11%;"> <!-- タイミング -->
-                  <col style="width: 5.5em;"> <!-- 判定 -->
-                  <col style="width: 8%;"> <!-- 対象 -->
-                  <col style="width: 5.5em;"> <!-- 射程 -->
-                  <col style="width: 4rem;"> <!-- コスト -->
-                  <col style="width: 8.5%;"> <!-- 命中 -->
-                  <col style="width: 8.5%;"> <!-- ダメージ -->
-                  <col style="width: 6.2%; min-width: 5.8rem;"> <!-- 属性（やや狭め・白兵(物理)は入る） -->
-                  <col style="width: 20.8%;"> <!-- 効果 -->
-                  <col style="width: 28px;"> <!-- 削除 -->
+                  <col class="col-row-handle"> <!-- 並べ替え -->
+                  <col class="col-secret"> <!-- 秘 -->
+                  <col class="col-name"> <!-- 名前 -->
+                  <col class="col-sl"><!-- SL -->
+                  <col class="col-timing"> <!-- タイミング -->
+                  <col class="col-judge"> <!-- 判定 -->
+                  <col class="col-target"> <!-- 対象 -->
+                  <col class="col-range"> <!-- 射程 -->
+                  <col class="col-cost"> <!-- コスト -->
+                  <col class="col-hit"> <!-- 命中 -->
+                  <col class="col-damage"> <!-- ダメージ -->
+                  <col class="col-attribute"> <!-- 属性 -->
+                  <col class="col-effect"> <!-- 効果 -->
+                  <col class="col-row-actions"> <!-- 操作 -->
                 </colgroup>
                 <thead>
                   <tr>
@@ -540,8 +539,8 @@
                 <span id="chatPreviewLabel">チャットパレットプレビュー（自動生成）</span>
               </div>
               <div id="chatPreviewLines" class="chat-preview-lines" hidden></div>
-              <textarea id="chat-palette-preview" rows="4" readonly class="readonly-derived-box"
-                aria-labelledby="chatPreviewLabel" style="font-family: monospace; white-space: pre;"></textarea>
+              <textarea id="chat-palette-preview" rows="4" readonly class="readonly-derived-box chat-palette-preview-text"
+                aria-labelledby="chatPreviewLabel"></textarea>
             </div>
 
             <datalist id="ar2eTimingList">

@@ -249,6 +249,44 @@
     return Math.min(999, Math.max(0, Math.trunc(n)));
   }
 
+  function toHalfWidthNumericText(value) {
+    return String(value == null ? "" : value)
+      .replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
+      .replace(/[＋]/g, "+")
+      .replace(/[－ー―]/g, "-")
+      .replace(/[．]/g, ".");
+  }
+
+  function normalizeNumericLikeInput(target) {
+    if (!target || target.tagName !== "INPUT") return false;
+    const type = String(target.getAttribute("type") || "text").toLowerCase();
+    const numericType = type === "number" || target.classList.contains("numeric-font") || target.classList.contains("num-2");
+    const numericDataKey = [
+      "data-field",
+      "data-key",
+      "data-dice-key",
+      "data-atk-dice-key",
+      "data-drop-key",
+      "data-ex-drop-key",
+      "data-resource-key",
+    ].some((attr) => /(?:level|hp|mp|initiative|movement|identification|physDef|magicDef|sl|cost|quantity|min|max|unitPrice|current|str|dex|agi|int|sen|mnd|luk|Dice)$/i.test(String(target.getAttribute(attr) || "")));
+    if (!numericType && !numericDataKey) return false;
+
+    const before = target.value;
+    const after = toHalfWidthNumericText(before);
+    if (before === after) return false;
+
+    const start = target.selectionStart;
+    const end = target.selectionEnd;
+    target.value = after;
+    try {
+      if (start != null && end != null && type !== "number") {
+        target.setSelectionRange(start, end);
+      }
+    } catch (_e) {}
+    return true;
+  }
+
   function nowText() {
     const sharedApi = getEnemiesShared();
     return typeof sharedApi.nowText === "function"
@@ -542,6 +580,10 @@
       const current = getSelectedEnemy();
       if (!current) return;
       readFormToCurrentEnemy();
+      if (isBlankNewEnemyDraft(current)) {
+        clearDraftSnapshot();
+        return;
+      }
       const payload = {
         selectedId: String(current.ID || ""),
         enemy: deepClone(current),
@@ -1789,17 +1831,17 @@
 
       tr.innerHTML = `
         <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="この行をドラッグで並べ替え">⠿</span></td>
-        <td style="text-align:center;" data-label="秘">
+        <td class="secret-cell" data-label="秘">
           <input type="checkbox" data-key="isSecret" ${skill.isSecret ? "checked" : ""}>
         </td>
-        <td data-label="名前"><input type="text" data-key="name" value="${escapeHtml(skill.name)}" placeholder="名称" list="ar2eSkillNameList"></td>
-        <td data-label="SL"><input type="number" data-key="sl" value="${escapeHtml(skill.sl)}" placeholder="1" ${skill.slMax ? `max="${escapeHtml(skill.slMax)}"` : ""}></td>
-        <td data-label="タイミング"><input type="text" data-key="timing" value="${escapeHtml(skill.timing)}" placeholder="メジャー等" list="ar2eTimingList"></td>
-        <td data-label="判定"><input type="text" data-key="judge" value="${escapeHtml(skill.judge)}" placeholder="自動成功"></td>
-        <td data-label="対象"><input type="text" data-key="target" value="${escapeHtml(skill.target)}" list="ar2eTargetList" placeholder="単体"></td>
-        <td data-label="射程"><input type="text" data-key="range" value="${escapeHtml(skill.range)}" list="ar2eRangeList" placeholder="至近"></td>
-        <td data-label="コスト"><input type="number" data-key="cost" value="${escapeHtml(skill.cost)}" placeholder="3"></td>
-        <td data-label="命中">
+        <td class="cell-name" data-label="名前"><input type="text" data-key="name" value="${escapeHtml(skill.name)}" placeholder="名称" list="ar2eSkillNameList"></td>
+        <td class="cell-sl" data-label="SL"><input type="number" data-key="sl" value="${escapeHtml(skill.sl)}" placeholder="1" ${skill.slMax ? `max="${escapeHtml(skill.slMax)}"` : ""}></td>
+        <td class="cell-timing" data-label="タイミング"><input type="text" data-key="timing" value="${escapeHtml(skill.timing)}" placeholder="メジャー等" list="ar2eTimingList"></td>
+        <td class="cell-judge" data-label="判定"><input type="text" data-key="judge" value="${escapeHtml(skill.judge)}" placeholder="自動成功"></td>
+        <td class="cell-target" data-label="対象"><input type="text" data-key="target" value="${escapeHtml(skill.target)}" list="ar2eTargetList" placeholder="単体"></td>
+        <td class="cell-range" data-label="射程"><input type="text" data-key="range" value="${escapeHtml(skill.range)}" list="ar2eRangeList" placeholder="至近"></td>
+        <td class="cell-cost" data-label="コスト"><input type="number" data-key="cost" value="${escapeHtml(skill.cost)}" placeholder="3"></td>
+        <td class="cell-hit" data-label="命中">
           <input type="hidden" data-key="hitDice" value="${escapeHtml(skill.hitDice || "2D+0")}">
           <span class="dice-mini-editor in-table" aria-label="命中ダイス式">
             <input type="number" data-dice-key="hitDice" data-dice-part="count" min="0" step="1" value="${hit.count}" class="dice-count-input">
@@ -1808,7 +1850,7 @@
             <input type="number" data-dice-key="hitDice" data-dice-part="plus" min="0" step="1" value="${hit.plus}" placeholder="0" class="dice-plus-input">
           </span>
         </td>
-        <td data-label="ダメージ">
+        <td class="cell-damage" data-label="ダメージ">
           <input type="hidden" data-key="damageDice" value="${escapeHtml(skill.damageDice || "2D+0")}">
           <span class="dice-mini-editor in-table" aria-label="ダメージダイス式">
             <input type="number" data-dice-key="damageDice" data-dice-part="count" min="0" step="1" value="${dmg.count}" class="dice-count-input">
@@ -1817,16 +1859,25 @@
             <input type="number" data-dice-key="damageDice" data-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="dice-plus-input">
           </span>
         </td>
-        <td data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="火(魔)" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
-        <td data-label="効果">${isEffectMultiline
+        <td class="cell-attribute" data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="火(魔)" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
+        <td class="cell-effect" data-label="効果">${isEffectMultiline
           ? `<textarea data-key="effect" placeholder="効果" rows="2">${escapeHtml(skill.effect)}</textarea>`
           : `<input type="text" data-key="effect" value="${escapeHtml(skill.effect)}" placeholder="効果">`
         }</td>
-        <td style="text-align:center;" data-label="">
+        <td class="row-actions-cell" data-label="">
           <div class="row-action-wrap">
-            <button type="button" class="copy-row-btn" data-copy-kind="skill-line" data-index="${index}" title="このスキルのチャットパレットをコピー" aria-label="このスキルのチャットパレットをコピー"><i class="fa-solid fa-clipboard"></i></button>
-            <button type="button" class="clone-row-btn" data-clone-kind="skills" data-index="${index}" title="このスキル行を複製" aria-label="このスキル行を複製"><i class="fa-solid fa-copy"></i></button>
-            <button type="button" class="delete-btn" data-remove-kind="skills" data-index="${index}" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
+            <span class="row-action-left" aria-hidden="false">
+              <span class="drag-hint row-action-drag" draggable="true" aria-hidden="true" title="この行をドラッグで並べ替え">⠿</span>
+              <label class="row-action-secret" title="非公開スキル">
+                <span class="row-action-secret-label">秘</span>
+                <input type="checkbox" data-card-secret="1" ${skill.isSecret ? "checked" : ""} aria-label="非公開スキル">
+              </label>
+            </span>
+            <span class="row-action-buttons">
+              <button type="button" class="copy-row-btn" data-copy-kind="skill-line" data-index="${index}" title="このスキルのチャットパレットをコピー" aria-label="このスキルのチャットパレットをコピー"><i class="fa-solid fa-clipboard"></i></button>
+              <button type="button" class="clone-row-btn" data-clone-kind="skills" data-index="${index}" title="このスキル行を複製" aria-label="このスキル行を複製"><i class="fa-solid fa-copy"></i></button>
+              <button type="button" class="delete-btn" data-remove-kind="skills" data-index="${index}" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
+            </span>
           </div>
         </td>
       `;
@@ -1834,13 +1885,15 @@
 
       // isSecretの反映のみ
       const secretInput = tr.querySelector('input[data-key="isSecret"]');
-      if (secretInput) {
-        secretInput.classList.add("skill-secret-toggle");
+      const cardSecretInput = tr.querySelector('input[data-card-secret]');
+      [secretInput, cardSecretInput].filter(Boolean).forEach((node) => {
+        node.classList.add("skill-secret-toggle");
         const isSecret = !!(skill && skill.isSecret);
-        secretInput.classList.toggle("is-secret-on", isSecret);
-        secretInput.setAttribute("aria-checked", isSecret ? "true" : "false");
+        node.checked = isSecret;
+        node.classList.toggle("is-secret-on", isSecret);
+        node.setAttribute("aria-checked", isSecret ? "true" : "false");
         tr.classList.toggle("is-secret-row", isSecret);
-      }
+      });
     });
 
     applyNumericFontClasses();
@@ -1909,12 +1962,12 @@
       const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
       tr.innerHTML = `
         <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="このEXドロップ行をドラッグで並べ替え">⠿</span></td>
-        <td colspan="2" class="drop-ex-label-cell" data-label="出目"><span class="drop-ex-label"><span class="drop-ex-label-full">EXドロップ</span><span class="drop-ex-label-short">EX</span></span></td>
-        <td><input type="text" data-ex-drop-key="name" value="${escapeHtml(item.name || "")}" placeholder="EXドロップ名"></td>
-        <td><input type="text" data-ex-drop-key="unitPrice" value="${escapeHtml(item.unitPrice || "")}" placeholder="1000G"></td>
-        <td><input type="number" data-ex-drop-key="quantity" value="${escapeHtml(item.quantity || "1")}" min="1" step="1" class="num-2"></td>
-        <td><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2"></td>
-        <td style="text-align:center; white-space: nowrap;">
+        <td colspan="2" class="drop-ex-label-cell cell-drop-min" data-label="出目"><span class="drop-ex-label"><span class="drop-ex-label-full">EXドロップ</span><span class="drop-ex-label-short">EX</span></span></td>
+        <td class="cell-drop-name" data-label="名前"><input type="text" data-ex-drop-key="name" value="${escapeHtml(item.name || "")}" placeholder="EXドロップ名"></td>
+        <td class="cell-drop-price" data-label="単価"><input type="text" data-ex-drop-key="unitPrice" value="${escapeHtml(item.unitPrice || "")}" placeholder="1000G"></td>
+        <td class="cell-drop-qty" data-label="個数"><input type="number" data-ex-drop-key="quantity" value="${escapeHtml(item.quantity || "1")}" min="1" step="1" class="num-2"></td>
+        <td class="cell-drop-total" data-label="総計"><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2 numeric-font"></td>
+        <td class="row-actions-cell">
           <div class="row-action-wrap">
             <button type="button" class="delete-btn" data-ex-drop-delete="1" title="EXドロップを削除" aria-label="EXドロップを削除"><i class="fa-solid fa-trash"></i></button>
           </div>
@@ -1932,13 +1985,13 @@
       const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
       tr.innerHTML = `
         <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="このドロップ行をドラッグで並べ替え">⠿</span></td>
-        <td><input type="number" data-drop-key="min" value="${escapeHtml(item.min)}" placeholder="1"></td>
-        <td><input type="number" data-drop-key="max" value="${escapeHtml(item.max)}" placeholder="5"></td>
-        <td><input type="text" data-drop-key="name" value="${escapeHtml(item.name)}" placeholder="アイテム名"></td>
-        <td><input type="text" data-drop-key="unitPrice" value="${escapeHtml(item.unitPrice)}" placeholder="100G"></td>
-        <td><input type="number" data-drop-key="quantity" value="${escapeHtml(item.quantity || "1")}" min="1" step="1" class="num-2"></td>
-        <td><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2"></td>
-        <td style="text-align:center; white-space: nowrap;">
+        <td class="cell-drop-min" data-label="出目小"><input type="number" data-drop-key="min" value="${escapeHtml(item.min)}" placeholder="1"></td>
+        <td class="cell-drop-max" data-label="出目大"><input type="number" data-drop-key="max" value="${escapeHtml(item.max)}" placeholder="5"></td>
+        <td class="cell-drop-name" data-label="名前"><input type="text" data-drop-key="name" value="${escapeHtml(item.name)}" placeholder="アイテム名"></td>
+        <td class="cell-drop-price" data-label="単価"><input type="text" data-drop-key="unitPrice" value="${escapeHtml(item.unitPrice)}" placeholder="100G"></td>
+        <td class="cell-drop-qty" data-label="個数"><input type="number" data-drop-key="quantity" value="${escapeHtml(item.quantity || "1")}" min="1" step="1" class="num-2"></td>
+        <td class="cell-drop-total" data-label="総計"><input type="text" value="${escapeHtml(lineTotal === "" ? "" : String(lineTotal))}" readonly tabindex="-1" aria-label="行総計" class="num-2 numeric-font"></td>
+        <td class="row-actions-cell">
           <div class="row-action-wrap">
             <button type="button" class="delete-btn" data-remove-kind="dropItems" data-drop-delete="1" title="ドロップ品を削除" aria-label="ドロップ品を削除"><i class="fa-solid fa-trash"></i></button>
           </div>
@@ -1967,12 +2020,12 @@
 
       tr.innerHTML = `
         <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="この行をドラッグで並べ替え">⠿</span></td>
-        <td data-label="名前"><input type="text" data-atk-key="name" value="${escapeHtml(atk.name)}" placeholder="攻撃名"></td>
-        <td data-label="種別"><input type="text" data-atk-key="weaponKind" value="${escapeHtml(atk.weaponKind || "")}" list="ar2eWeaponKindList" placeholder="格闘" class="atk-kind-input"></td>
-        <td data-label="部位"><input type="text" data-atk-key="weaponPart" value="${escapeHtml(atk.weaponPart || "")}" list="ar2eWeaponPartList" placeholder="片" class="atk-part-input"></td>
-        <td data-label="対象"><input type="text" data-atk-key="target" value="${escapeHtml(atk.target)}" list="ar2eTargetList" placeholder="単体"></td>
-        <td data-label="射程"><input type="text" data-atk-key="range" value="${escapeHtml(atk.range)}" list="ar2eRangeList" placeholder="至近"></td>
-        <td data-label="命中">
+        <td class="cell-name" data-label="名前"><input type="text" data-atk-key="name" value="${escapeHtml(atk.name)}" placeholder="攻撃名"></td>
+        <td class="cell-kind" data-label="種別"><input type="text" data-atk-key="weaponKind" value="${escapeHtml(atk.weaponKind || "")}" list="ar2eWeaponKindList" placeholder="格闘" class="atk-kind-input"></td>
+        <td class="cell-part" data-label="部位"><input type="text" data-atk-key="weaponPart" value="${escapeHtml(atk.weaponPart || "")}" list="ar2eWeaponPartList" placeholder="片" class="atk-part-input"></td>
+        <td class="cell-target" data-label="対象"><input type="text" data-atk-key="target" value="${escapeHtml(atk.target)}" list="ar2eTargetList" placeholder="単体"></td>
+        <td class="cell-range" data-label="射程"><input type="text" data-atk-key="range" value="${escapeHtml(atk.range)}" list="ar2eRangeList" placeholder="至近"></td>
+        <td class="cell-hit" data-label="命中">
           <span class="dice-mini-editor in-table" aria-label="攻撃命中式">
             <input type="number" data-atk-dice-key="hitDice" data-atk-dice-part="count" min="0" step="1" value="${hit.count}" class="numeric-font dice-count-input">
             <span class="dice-mark numeric-font">D</span>
@@ -1980,7 +2033,7 @@
             <input type="number" data-atk-dice-key="hitDice" data-atk-dice-part="plus" min="0" step="1" value="${hit.plus}" placeholder="0" class="numeric-font dice-plus-input">
           </span>
         </td>
-        <td data-label="ダメージ">
+        <td class="cell-damage" data-label="ダメージ">
           <span class="dice-mini-editor in-table" aria-label="攻撃ダメージ式">
             <input type="number" data-atk-dice-key="damageDice" data-atk-dice-part="count" min="0" step="1" value="${dmg.count}" class="numeric-font dice-count-input">
             <span class="dice-mark numeric-font">D</span>
@@ -1988,16 +2041,21 @@
             <input type="number" data-atk-dice-key="damageDice" data-atk-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="numeric-font dice-plus-input">
           </span>
         </td>
-        <td data-label="属性"><input type="text" data-atk-key="attribute" value="${escapeHtml(atk.attribute)}" list="ar2eAttributeList" placeholder="属性" ${atkAttrTheme ? `data-atk-attr-theme="${atkAttrTheme}"` : ""}></td>
-        <td data-label="効果">${isEffectMultiline
+        <td class="cell-attribute" data-label="属性"><input type="text" data-atk-key="attribute" value="${escapeHtml(atk.attribute)}" list="ar2eAttributeList" placeholder="属性" ${atkAttrTheme ? `data-atk-attr-theme="${atkAttrTheme}"` : ""}></td>
+        <td class="cell-effect" data-label="効果">${isEffectMultiline
           ? `<textarea data-atk-key="effect" placeholder="効果" rows="2">${escapeHtml(atk.effect)}</textarea>`
           : `<input type="text" data-atk-key="effect" value="${escapeHtml(atk.effect)}" placeholder="効果">`
         }</td>
-        <td style="text-align:center;" data-label="">
+        <td class="row-actions-cell" data-label="">
           <div class="row-action-wrap">
-            <button type="button" class="copy-row-btn" data-copy-kind="attack-line" data-atk-copy="1" title="この攻撃方法のチャットパレットをコピー" aria-label="この攻撃方法のチャットパレットをコピー"><i class="fa-solid fa-clipboard"></i></button>
-            <button type="button" class="clone-row-btn" data-clone-kind="attackMethods" data-atk-clone="1" title="この攻撃方法行を複製" aria-label="この攻撃方法行を複製"><i class="fa-solid fa-copy"></i></button>
-            <button type="button" class="delete-btn" data-remove-kind="attackMethods" data-atk-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
+            <span class="row-action-left" aria-hidden="false">
+              <span class="drag-hint row-action-drag" draggable="true" aria-hidden="true" title="この行をドラッグで並べ替え">⠿</span>
+            </span>
+            <span class="row-action-buttons">
+              <button type="button" class="copy-row-btn" data-copy-kind="attack-line" data-atk-copy="1" title="この攻撃方法のチャットパレットをコピー" aria-label="この攻撃方法のチャットパレットをコピー"><i class="fa-solid fa-clipboard"></i></button>
+              <button type="button" class="clone-row-btn" data-clone-kind="attackMethods" data-atk-clone="1" title="この攻撃方法行を複製" aria-label="この攻撃方法行を複製"><i class="fa-solid fa-copy"></i></button>
+              <button type="button" class="delete-btn" data-remove-kind="attackMethods" data-atk-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button>
+            </span>
           </div>
         </td>
       `;
@@ -2015,11 +2073,11 @@
       const tr = document.createElement("tr");
       tr.setAttribute("data-resource-index", index);
       tr.innerHTML = `
-        <td><input type="text" data-resource-key="name" value="${escapeHtml(res.name || "")}" placeholder="フェイト / ヘイト等"></td>
-        <td><input type="number" data-resource-key="current" value="${escapeHtml(res.current || "")}" placeholder="0" class="num-2"></td>
-        <td><input type="number" data-resource-key="max" value="${escapeHtml(res.max || "")}" placeholder="0" class="num-2"></td>
-        <td><input type="text" data-resource-key="memo" value="${escapeHtml(res.memo || "")}" placeholder="用途メモ"></td>
-        <td style="text-align:center; white-space: nowrap;"><div class="row-action-wrap"><button type="button" class="delete-btn" data-resource-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button></div></td>
+        <td class="cell-resource-name" data-label="名前"><input type="text" data-resource-key="name" value="${escapeHtml(res.name || "")}" placeholder="フェイト / ヘイト等"></td>
+        <td class="cell-resource-current" data-label="現在"><input type="number" data-resource-key="current" value="${escapeHtml(res.current || "")}" placeholder="0" class="num-2"></td>
+        <td class="cell-resource-max" data-label="最大"><input type="number" data-resource-key="max" value="${escapeHtml(res.max || "")}" placeholder="0" class="num-2"></td>
+        <td class="cell-resource-memo" data-label="メモ"><input type="text" data-resource-key="memo" value="${escapeHtml(res.memo || "")}" placeholder="ここでのメモはコマには反映されない"></td>
+        <td class="row-actions-cell" data-label=""><div class="row-action-wrap"><button type="button" class="delete-btn" data-resource-delete="1" title="削除" aria-label="削除"><i class="fa-solid fa-trash"></i></button></div></td>
       `;
       el.resourcesBody.appendChild(tr);
     });
@@ -2582,8 +2640,9 @@
   function updateAttributeSpecialInputVisibility() {
     if (!el.attributeSpecialText || !el.attributePrimarySelect || !el.attributeSecondarySelect) return;
     const primaryIsSpecial = el.attributePrimarySelect.value === "特殊";
-    const secondaryIsSpecial = el.attributeSecondarySelect.value === "特殊";
-    const usesSpecial = primaryIsSpecial || secondaryIsSpecial;
+    const secondaryIsSpecial = false;
+    if (el.attributeSecondarySelect.value === "特殊") el.attributeSecondarySelect.value = "";
+    const usesSpecial = primaryIsSpecial;
     el.attributeSpecialText.hidden = !usesSpecial;
     el.attributeSelectGroup.classList.toggle("is-special-primary", primaryIsSpecial);
     el.attributeSelectGroup.classList.toggle("is-special-secondary", secondaryIsSpecial);
@@ -2593,7 +2652,11 @@
   function updateAttributeFromSelects() {
     if (!el.attributeInput || !el.attributePrimarySelect || !el.attributeSecondarySelect) return;
     const primary = String(el.attributePrimarySelect.value || "-").trim() || "-";
-    const secondary = String(el.attributeSecondarySelect.value || "").trim();
+    let secondary = String(el.attributeSecondarySelect.value || "").trim();
+    if (secondary === "特殊") {
+      secondary = "";
+      el.attributeSecondarySelect.value = "";
+    }
     updateAttributeSpecialInputVisibility();
 
     if (primary === "-") {
@@ -2994,6 +3057,11 @@
   }
 
   function bindEvents() {
+    if (el.form) {
+      el.form.addEventListener("input", (e) => {
+        normalizeNumericLikeInput(e.target);
+      }, true);
+    }
     setPageMode();
     if (el.fieldShowDropsInView) {
       el.fieldShowDropsInView.addEventListener("change", () => {
@@ -3157,6 +3225,19 @@
             if (hidden) hidden.value = formula;
             updateChatPalettePreview();
           }
+          return;
+        }
+
+        if (target.matches && target.matches('input[data-card-secret]') && state.skills[index]) {
+          const isSecret = !!target.checked;
+          state.skills[index].isSecret = isSecret;
+          tr.querySelectorAll('input[data-key="isSecret"], input[data-card-secret]').forEach((node) => {
+            node.checked = isSecret;
+            node.classList.toggle("is-secret-on", isSecret);
+            node.setAttribute("aria-checked", isSecret ? "true" : "false");
+          });
+          tr.classList.toggle("is-secret-row", isSecret);
+          updateChatPalettePreview();
           return;
         }
 
@@ -4163,10 +4244,15 @@
 
     window.addEventListener("beforeunload", (event) => {
       const current = getSelectedEnemy();
+      const isBlankFresh = !!current && isBlankNewEnemyDraft(current);
       const shouldConfirmUnload =
-        !!state.dirty ||
-        (!!current && isUnsavedEnemy(current) && !current._autoTemplate);
-      if (!shouldConfirmUnload) return;
+        !isBlankFresh &&
+        (!!state.dirty ||
+          (!!current && isUnsavedEnemy(current) && !current._autoTemplate && !current._pristineNew));
+      if (!shouldConfirmUnload) {
+        if (isBlankFresh) clearDraftSnapshot();
+        return;
+      }
       saveDraftSnapshotFromCurrent();
       event.preventDefault();
       event.returnValue = "";
