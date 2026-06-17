@@ -4925,3 +4925,3688 @@ body.nechronica-enemies-page.is-enemy-view-mode .nechronica-header {
   text-align: center !important;
   justify-content: center;
 }
+
+/* ===========================================================================
+   2026-06 Nechronica mobile responsive pass
+   Goal: unlike AR2E/Satasupe, this page gets a real smartphone layout.
+   - editor controls stack cleanly
+   - primary info is one-column on phones
+   - maneuver/summary tables scroll inside their wrappers, not the page
+   - view cards and maneuver headers wrap without clipping
+   =========================================================================== */
+body.nechronica-enemies-page {
+  overflow-x: clip;
+}
+
+.nechronica-enemies-page .nechronica-main,
+.nechronica-enemies-page .enemies-layout,
+.nechronica-enemies-page .editor-pane,
+.nechronica-enemies-page .summary-pane,
+.nechronica-enemies-page .enemy-list-collapsible,
+.nechronica-enemies-page .enemy-list-pane,
+.nechronica-enemies-page .enemy-view-content,
+.nechronica-enemies-page .nechronica-enemy-view-content {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.nechronica-enemies-page .enemies-layout.single-column {
+  width: min(100%, 1280px);
+  margin-inline: auto;
+}
+
+.nechronica-enemies-page .editor-form,
+.nechronica-enemies-page .data-block,
+.nechronica-enemies-page .primary-info-grid,
+.nechronica-enemies-page .sub-header,
+.nechronica-enemies-page .pane-header,
+.nechronica-enemies-page .summary-total-grid,
+.nechronica-enemies-page .summary-place-grid,
+.nechronica-enemies-page .summary-damage-unit-card,
+.nechronica-enemies-page .summary-unit-parts-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.nechronica-enemies-page .primary-info-grid > label,
+.nechronica-enemies-page .primary-info-grid input,
+.nechronica-enemies-page .primary-info-grid select,
+.nechronica-enemies-page .editor-form textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.nechronica-enemies-page .table-wrap,
+.nechronica-enemies-page .summary-table-wrap,
+.nechronica-enemies-page .summary-unit-parts-wrap {
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
+}
+
+.nechronica-enemies-page #maneuversTable,
+.nechronica-enemies-page #summaryEnemiesTable,
+.nechronica-enemies-page .summary-unit-parts-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.nechronica-enemies-page #maneuversTable input,
+.nechronica-enemies-page #maneuversTable select,
+.nechronica-enemies-page .summary-unit-parts-table input,
+.nechronica-enemies-page .summary-unit-parts-table select {
+  min-width: 0;
+}
+
+.nechronica-enemies-page #maneuversTable td,
+.nechronica-enemies-page .summary-unit-parts-table td,
+.nechronica-enemies-page #summaryEnemiesTable td {
+  overflow-wrap: anywhere;
+}
+
+.nechronica-enemies-page .enemy-view-block,
+.nechronica-enemies-page .enemy-view-card,
+.nechronica-enemies-page .nechronica-view-maneuver-card,
+.nechronica-enemies-page .nechronica-view-maneuver-effect,
+.nechronica-enemies-page .nechronica-view-maneuver-parts {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.nechronica-enemies-page .enemy-list-card,
+.nechronica-enemies-page .enemy-list-row,
+.nechronica-enemies-page .enemy-list-content-main,
+.nechronica-enemies-page .enemy-list-upper-info,
+.nechronica-enemies-page .enemy-list-lower-info,
+.nechronica-enemies-page .enemy-list-side-right-group,
+.nechronica-enemies-page .enemy-list-meta-column {
+  min-width: 0;
+}
+
+.nechronica-enemies-page .enemy-list-name,
+.nechronica-enemies-page .enemy-list-lower-info,
+.nechronica-enemies-page .enemy-list-meta-column {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1024px) {
+  .nechronica-enemies-page .main-content.nechronica-main {
+    width: min(calc(100vw - 32px), 1320px);
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 860px) {
+  .nechronica-enemies-page .nechronica-header h1 {
+    font-size: clamp(1.35rem, 6vw, 2rem);
+    overflow-wrap: anywhere;
+  }
+
+  .nechronica-enemies-page .nechronica-page-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nechronica-enemies-page .page-tab-btn {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .nechronica-enemies-page .sub-header,
+  .nechronica-enemies-page .pane-header,
+  .nechronica-enemies-page .summary-place-header,
+  .nechronica-enemies-page .summary-damage-header {
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .nechronica-enemies-page .sub-header > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    width: 100%;
+  }
+
+  .nechronica-enemies-page .sub-header .small-square-btn {
+    flex: 1 1 9rem;
+  }
+
+  .nechronica-enemies-page .koma-action-row,
+  .nechronica-enemies-page .editor-action-bar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.55rem !important;
+  }
+
+  .nechronica-enemies-page .action-bar-left,
+  .nechronica-enemies-page .action-bar-right,
+  .nechronica-enemies-page .action-bar-meta {
+    width: 100% !important;
+    margin-left: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+  }
+
+  .nechronica-enemies-page .action-bar-left .action-btn,
+  .nechronica-enemies-page .action-bar-right .action-btn {
+    flex: 1 1 calc(50% - 0.35rem) !important;
+    min-width: 8.4rem !important;
+  }
+
+  .nechronica-enemies-page .action-bar-meta .action-meta-field {
+    flex: 1 1 12rem;
+    width: auto;
+  }
+
+  .nechronica-enemies-page .action-bar-meta .action-meta-field input {
+    width: 100% !important;
+  }
+
+  .nechronica-enemies-page .koma-import-inline {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  .nechronica-enemies-page .koma-import-inline #komaJsonInput {
+    width: 100% !important;
+    flex: 1 1 auto;
+  }
+
+  .nechronica-enemies-page .koma-import-help {
+    white-space: normal !important;
+  }
+
+  .nechronica-enemies-page .primary-info-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+
+  .nechronica-enemies-page .primary-info-grid > label {
+    display: grid !important;
+    grid-template-columns: minmax(4.5rem, max-content) minmax(0, 1fr);
+    align-items: center !important;
+    gap: 0.45rem !important;
+    white-space: normal !important;
+  }
+
+  .nechronica-enemies-page .primary-info-grid > label:not(.compact-field) input,
+  .nechronica-enemies-page .primary-info-grid > label select {
+    width: 100% !important;
+  }
+
+  .nechronica-enemies-page .editor-form > .data-block > label {
+    display: block;
+  }
+
+  .nechronica-enemies-page #field-memo {
+    width: 100%;
+    min-height: 7rem;
+  }
+
+  .nechronica-enemies-page .parts-status-panel {
+    display: block;
+    overflow: hidden;
+  }
+
+  .nechronica-enemies-page .parts-status-total {
+    margin: 0 0 0.45rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nechronica-enemies-page .parts-chip-list {
+    width: 100%;
+    padding-bottom: 0.2rem;
+  }
+
+  .nechronica-enemies-page .summary-total-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .nechronica-enemies-page .summary-place-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .nechronica-enemies-page .enemies-layout.single-column {
+    padding: 0 !important;
+  }
+
+  .nechronica-enemies-page .editor-pane,
+  .nechronica-enemies-page .summary-pane,
+  .nechronica-enemies-page .enemy-list-pane {
+    border-radius: 5px;
+    padding: 0.65rem !important;
+  }
+
+  .nechronica-enemies-page .action-bar-left .action-btn,
+  .nechronica-enemies-page .action-bar-right .action-btn {
+    flex-basis: 100% !important;
+    width: 100%;
+  }
+
+  .nechronica-enemies-page .public-switch-label {
+    min-height: 2.1rem;
+    align-items: center;
+  }
+
+  .nechronica-enemies-page .primary-info-grid > label {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+
+  .nechronica-enemies-page .primary-info-grid .compact-field {
+    grid-template-columns: minmax(4.5rem, max-content) minmax(0, 1fr) !important;
+  }
+
+  .nechronica-enemies-page .primary-info-grid .compact-field input {
+    width: 5.5rem !important;
+    justify-self: end;
+  }
+
+  .nechronica-enemies-page .initiative-plus-wrap {
+    justify-self: end;
+  }
+
+  .nechronica-enemies-page #maneuversTable {
+    min-width: 720px !important;
+  }
+
+  .nechronica-enemies-page #summaryEnemiesTable {
+    min-width: 620px !important;
+  }
+
+  .nechronica-enemies-page .summary-unit-parts-table {
+    min-width: 780px !important;
+  }
+
+  .nechronica-enemies-page .table-wrap::after,
+  .nechronica-enemies-page .summary-unit-parts-wrap::after {
+    content: "横にスクロールできます";
+    display: block;
+    position: sticky;
+    left: 0;
+    width: max-content;
+    margin: 0.25rem 0 0;
+    color: #b8aea2;
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+
+  .nechronica-enemies-page .enemy-search-row {
+    display: grid !important;
+    grid-template-columns: minmax(6rem, 0.42fr) minmax(0, 1fr);
+  }
+
+  .nechronica-enemies-page .enemy-search-field-select,
+  .nechronica-enemies-page #enemySearchInput {
+    width: 100% !important;
+  }
+
+  .nechronica-enemies-page .enemy-sort-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .nechronica-enemies-page .enemy-list-controls,
+  .nechronica-enemies-page .enemy-list-pager-inline {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  body.nechronica-enemies-page.is-enemy-view-mode .nechronica-header h1 {
+    font-size: clamp(1.05rem, 5.4vw, 1.45rem);
+  }
+
+  .nechronica-enemies-page .enemy-view-toolbar-title,
+  .nechronica-enemies-page .enemy-view-id-badge {
+    flex: 1 1 auto;
+  }
+
+  .nechronica-enemies-page .enemy-view-toolbar-actions .small-square-btn,
+  .nechronica-enemies-page .enemy-view-toolbar-actions a.small-square-btn {
+    flex: 1 1 calc(50% - 0.35rem);
+    min-width: 7.2rem;
+  }
+
+  .nechronica-enemies-page .enemy-view-card-list,
+  .nechronica-enemies-page .nechronica-view-maneuver-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.35rem !important;
+  }
+
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta h3,
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta small,
+  .nechronica-enemies-page .enemy-view-block.is-maneuvers > .nechronica-view-section-title-with-meta .nechronica-view-maneuver-parts {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ===========================================================================
+   v9 full-size width restoration + Satasupe menu compatibility
+   ---------------------------------------------------------------------------
+   - Desktop uses the full remaining viewport width after the fixed side menu.
+   - Do not cap editor pages at 1280/1320/1440px on full-size displays.
+   - Keep Satasupe's own menu/background skin active; do not hide the menu.
+   =========================================================================== */
+
+@media (min-width: 1081px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
+    .main-content,
+    .ar2e-enemies-main,
+    .satasupe-enemies-main,
+    .nechronica-main
+  ) {
+    box-sizing: border-box !important;
+    align-self: flex-start !important;
+    flex: 0 0 auto !important;
+    width: calc(100vw - 260px) !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-left: 260px !important;
+    margin-right: 0 !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    transform: none !important;
+    overflow-x: clip !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
+    .ar2e-layout,
+    .satasupe-layout,
+    .enemies-layout,
+    .editor-pane,
+    .editor-form,
+    .top-two-col,
+    .left-column-stack,
+    .right-column-stack,
+    .data-block,
+    .table-wrap
+  ) {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (min-width: 1600px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
+    .main-content,
+    .ar2e-enemies-main,
+    .satasupe-enemies-main,
+    .nechronica-main
+  ) {
+    width: calc(100vw - 260px) !important;
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 1080px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
+    .main-content,
+    .ar2e-enemies-main,
+    .satasupe-enemies-main,
+    .nechronica-main
+  ) {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* Satasupe has its own side-menu/background skin in satasupe_style.css.
+   Keep those styles visible even in enemy view boot/view mode. */
+html.is-satasupe-enemy-view-boot #tableOfContents.side-menu,
+html.is-satasupe-enemy-view-boot .side-menu,
+body.satasupe-enemies-page.is-enemy-view-mode #tableOfContents.side-menu,
+body.satasupe-enemies-page.is-enemy-view-mode .side-menu {
+  display: block !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+html.is-satasupe-enemy-view-boot .hamburger-menu,
+body.satasupe-enemies-page.is-enemy-view-mode .hamburger-menu,
+html.is-satasupe-enemy-view-boot .menu-overlay,
+body.satasupe-enemies-page.is-enemy-view-mode .menu-overlay {
+  visibility: visible !important;
+}
+
+/* Full-size action bar: keep it compact and one-line when width is available. */
+@media (min-width: 1280px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn {
+    min-height: 2rem !important;
+    height: 2rem !important;
+    padding: 0.24rem 0.64rem !important;
+    line-height: 1 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-author {
+    width: clamp(6rem, 7vw, 8rem) !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
+    width: clamp(10rem, 16vw, 22rem) !important;
+  }
+}
+
+/* ===========================================================================
+   v15 responsive control bars and shared display classes
+   ---------------------------------------------------------------------------
+   - full / wide: one-line compact control bar
+   - middle: 3 + 4 buttons over two rows, metadata on its own row
+   - mobile: two-column buttons
+   - public/private switch is visually normalized in action meta area
+   =========================================================================== */
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row) {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row, .action-bar-left, .action-bar-right, .action-bar-meta, .action-meta-field, .koma-output-options, .import-json-inline, .koma-import-inline) {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row) .action-btn,
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row) .small-square-btn {
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  min-height: 2rem !important;
+  height: 2rem !important;
+  padding: 0.25rem 0.76rem !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#field-icon-url, #importJsonInput, #komaJsonInput) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#importJsonInput, #komaJsonInput) {
+  width: clamp(7rem, 13vw, 12rem) !important;
+  max-width: 12rem !important;
+  flex: 0 1 12rem !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
+  width: clamp(8rem, 13vw, 14rem) !important;
+  max-width: 14rem !important;
+  flex: 0 1 14rem !important;
+}
+
+/* Koma output row: same placement idea for all systems, skin remains individual. */
+@media (min-width: 769px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.45rem 0.75rem !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-import-help {
+    flex: 1 1 auto !important;
+    min-width: 12rem !important;
+    white-space: normal !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.import-json-inline, .koma-import-inline, .koma-mode-inline, .koma-output-options) {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    width: auto !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Wide desktop: compact one-line action bar. */
+@media (min-width: 1280px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.5rem !important;
+    overflow: hidden !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    width: auto !important;
+    gap: 0.45rem !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left {
+    flex: 0 0 auto !important;
+    margin-right: auto !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
+    flex: 1 1 auto !important;
+    justify-content: flex-end !important;
+    margin-left: auto !important;
+    min-width: 0 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
+    display: inline-flex !important;
+    flex: 0 1 auto !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 0.42rem !important;
+    width: auto !important;
+    max-width: min(40rem, 42vw) !important;
+    overflow: hidden !important;
+  }
+}
+
+/* Middle width: avoid the accidental full-width flat stack; use 3 + 4 + meta. */
+@media (min-width: 769px) and (max-width: 1279px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.58rem !important;
+    align-items: start !important;
+    overflow: visible !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 0.48rem !important;
+    margin: 0 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 0.48rem !important;
+    margin: 0 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left > .action-btn,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-bar-meta {
+    grid-column: 1 / -1 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
+    display: grid !important;
+    grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr) auto !important;
+    width: 100% !important;
+    gap: 0.48rem 0.65rem !important;
+    align-items: center !important;
+    max-width: none !important;
+    overflow: visible !important;
+  }
+}
+
+/* Mobile: compact two-column buttons. */
+@media (max-width: 768px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.62rem !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 0.48rem !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-bar-meta {
+    grid-column: 1 / -1 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr) auto !important;
+    width: 100% !important;
+    gap: 0.45rem !important;
+    align-items: center !important;
+  }
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-meta-field {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.28rem !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-meta-field > input {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-author {
+  width: clamp(5rem, 8vw, 8rem) !important;
+  max-width: 8rem !important;
+  flex: 0 1 8rem !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta .public-switch-label,
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-public-switch-field {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: auto !important;
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+/* Keep switch dimensions under broad input rules. */
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) input[type="checkbox"].switch {
+  width: 44px !important;
+  height: 28px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  padding: 0 !important;
+  flex: 0 0 44px !important;
+  box-sizing: border-box !important;
+}
+
+/* AR2E: reuse view-mode card appearance for the editable skill summary list. */
+.ar2e-enemies-page .skill-summary-list {
+  display: grid !important;
+  gap: 0.55rem !important;
+}
+
+.ar2e-enemies-page .skill-summary-card.view-skill-card {
+  padding: 0.65rem 0.75rem !important;
+  border: 1px solid #334155 !important;
+  border-left: 4px solid #4f80ff !important;
+  border-radius: 6px !important;
+  background: rgba(15, 23, 42, 0.62) !important;
+  color: #e2e8f0 !important;
+}
+
+.ar2e-enemies-page .skill-summary-card .skill-summary-main {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 0.35rem 0.7rem !important;
+}
+
+.ar2e-enemies-page .skill-summary-card .skill-summary-title {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+}
+
+.ar2e-enemies-page .skill-summary-card .skill-summary-effect {
+  margin: 0.45rem 0 0 !important;
+  color: #cbd5e1 !important;
+  line-height: 1.55 !important;
+}
+
+/* Shared class bridge: intentionally additive. */
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-metric-badge,
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-action-btn,
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-control-bar,
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-meta-row,
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-meta-field {
+  box-sizing: border-box;
+}
+
+/* ===========================================================================
+   v16 final control-bar breakpoints
+   ---------------------------------------------------------------------------
+   Full desktop: one-line when there is enough width.
+   Middle width: explicit 3 + 4 + meta for all three systems.
+   Mobile: two-column buttons and stacked meta, with Nechronica mobile hardening.
+   =========================================================================== */
+
+@media (min-width: 769px) and (max-width: 1279px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-pane > .editor-action-bar,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: 0.56rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
+    display: grid !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    gap: 0.48rem !important;
+    flex: none !important;
+    overflow: visible !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left > .action-btn,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right > .action-btn {
+    display: inline-flex !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 2.15rem !important;
+    min-height: 2.15rem !important;
+    padding: 0.22rem 0.55rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right > .action-bar-meta {
+    grid-column: 1 / -1 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-bar-meta {
+    display: grid !important;
+    grid-template-columns: minmax(6rem, 9rem) minmax(9rem, 1fr) auto !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+    gap: 0.45rem 0.65rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-pane > .editor-action-bar,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    gap: 0.45rem !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left {
+    flex: 0 0 auto !important;
+    margin-right: auto !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
+    flex: 1 1 auto !important;
+    justify-content: flex-end !important;
+    margin-left: auto !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left > .action-btn,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right > .action-btn {
+    width: auto !important;
+    min-width: 4.8rem !important;
+    max-width: none !important;
+    height: 2.05rem !important;
+    min-height: 2.05rem !important;
+    padding: 0.2rem 0.7rem !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-bar-meta {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 0.42rem !important;
+    width: auto !important;
+    max-width: min(42rem, 44vw) !important;
+    min-width: 0 !important;
+    margin-left: 0.2rem !important;
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-pane > .editor-action-bar,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.55rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 2.15rem !important;
+    min-height: 2.15rem !important;
+    padding: 0.22rem 0.5rem !important;
+    justify-content: center !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right > .action-bar-meta {
+    grid-column: 1 / -1 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-bar-meta {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.42rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#field-icon-url, #importJsonInput, #komaJsonInput) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
+  width: clamp(8rem, 13vw, 14rem) !important;
+  max-width: 14rem !important;
+  min-width: 0 !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#importJsonInput, #komaJsonInput) {
+  width: clamp(7rem, 13vw, 12rem) !important;
+  max-width: 12rem !important;
+  min-width: 0 !important;
+}
+
+/* Nechronica mobile hardening: previous patches were partial, so lock the main editor into one column on phones. */
+@media (max-width: 768px) {
+  body.nechronica-enemies-page .editor-pane {
+    padding: 0.65rem !important;
+  }
+
+  body.nechronica-enemies-page :is(.enemies-layout, .top-two-col, .damage-manager-layout, .summary-place-grid, .parts-grid, .maneuver-grid, .nc-grid, .nc-two-col) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  body.nechronica-enemies-page :is(.tab-list, .tab-buttons, .editor-tabs, .pane-tabs) {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-width: 100% !important;
+  }
+
+  body.nechronica-enemies-page :is(.table-wrap, .parts-table-wrap, .maneuver-table-wrap, .damage-table-wrap) {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  body.nechronica-enemies-page :is(input, select, textarea, button) {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* ===========================================================================
+   v17 final middle-width control bar fix
+   ---------------------------------------------------------------------------
+   Some system-specific CSS is loaded after the shared CSS and restores flex
+   wrapping around 1200px. This block is intentionally repeated in the shared
+   and individual CSS files so 769-1279px is always 3 / 4 / meta, not 3 / 3 / 1.
+   =========================================================================== */
+@media (min-width: 769px) and (max-width: 1279px) {
+  body.ar2e-enemies-page .editor-pane > section.editor-action-bar,
+  body.satasupe-enemies-page .editor-pane > section.editor-action-bar,
+  body.satasupe-body.satasupe-enemies-page .editor-pane > section.editor-action-bar,
+  body.nechronica-enemies-page .editor-pane > section.editor-action-bar,
+  body.ar2e-enemies-page section.editor-action-bar,
+  body.satasupe-enemies-page section.editor-action-bar,
+  body.satasupe-body.satasupe-enemies-page section.editor-action-bar,
+  body.nechronica-enemies-page section.editor-action-bar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: 0.56rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.ar2e-enemies-page section.editor-action-bar > .action-bar-left,
+  body.satasupe-enemies-page section.editor-action-bar > .action-bar-left,
+  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > .action-bar-left,
+  body.nechronica-enemies-page section.editor-action-bar > .action-bar-left {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: column !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: 0.48rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    flex: none !important;
+    flex-wrap: nowrap !important;
+    overflow: visible !important;
+  }
+
+  body.ar2e-enemies-page section.editor-action-bar > .action-bar-right,
+  body.satasupe-enemies-page section.editor-action-bar > .action-bar-right,
+  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > .action-bar-right,
+  body.nechronica-enemies-page section.editor-action-bar > .action-bar-right {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: 0.48rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    flex: none !important;
+    flex-wrap: nowrap !important;
+    overflow: visible !important;
+  }
+
+  body.ar2e-enemies-page section.editor-action-bar > :is(.action-bar-left, .action-bar-right) > .action-btn,
+  body.satasupe-enemies-page section.editor-action-bar > :is(.action-bar-left, .action-bar-right) > .action-btn,
+  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > :is(.action-bar-left, .action-bar-right) > .action-btn,
+  body.nechronica-enemies-page section.editor-action-bar > :is(.action-bar-left, .action-bar-right) > .action-btn {
+    display: inline-flex !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 2.15rem !important;
+    min-height: 2.15rem !important;
+    padding: 0.22rem 0.55rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    flex: none !important;
+    grid-column: auto !important;
+  }
+
+  body.ar2e-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta,
+  body.satasupe-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta,
+  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta,
+  body.nechronica-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: minmax(6rem, 9rem) minmax(9rem, 1fr) auto !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+    gap: 0.45rem 0.65rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.ar2e-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta > .public-switch-label,
+  body.satasupe-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta > .public-switch-label,
+  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta > .public-switch-label,
+  body.nechronica-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta > .public-switch-label {
+    justify-self: end !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+}
+
+/* ===========================================================================
+   v18 Nechronica mobile-first editor tables
+   Purpose: avoid unreadable squeezed tables on phones. Keep the desktop table
+   unchanged, and turn the highest-friction tables into card-like rows only on
+   narrow screens.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page {
+    overflow-x: hidden !important;
+  }
+
+  body.nechronica-enemies-page .main-content,
+  body.nechronica-enemies-page .enemies-layout,
+  body.nechronica-enemies-page .editor-pane,
+  body.nechronica-enemies-page .editor-form,
+  body.nechronica-enemies-page .data-block,
+  body.nechronica-enemies-page .summary-pane,
+  body.nechronica-enemies-page .summary-damage-section,
+  body.nechronica-enemies-page .summary-damage-unit-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page .editor-pane {
+    padding-inline: 0.7rem !important;
+  }
+
+  body.nechronica-enemies-page .nechronica-page-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.4rem !important;
+  }
+
+  body.nechronica-enemies-page .nechronica-page-tab-btn {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 0.55rem 0.35rem !important;
+    font-size: 0.86rem !important;
+    white-space: nowrap !important;
+  }
+
+  body.nechronica-enemies-page .primary-info-grid,
+  body.nechronica-enemies-page .sub-info-grid,
+  body.nechronica-enemies-page .editor-meta-row {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+
+  body.nechronica-enemies-page .primary-info-grid label,
+  body.nechronica-enemies-page .sub-info-grid label,
+  body.nechronica-enemies-page .editor-meta-row label {
+    min-width: 0 !important;
+  }
+
+  body.nechronica-enemies-page .sub-header {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  body.nechronica-enemies-page .sub-header h3 {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.nechronica-enemies-page .sub-header > div {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem !important;
+    width: 100% !important;
+  }
+
+  body.nechronica-enemies-page .sub-header .small-square-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 2.15rem !important;
+    min-height: 2.15rem !important;
+    padding: 0.25rem 0.45rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* Main maneuver editor table -> cards */
+  body.nechronica-enemies-page #maneuversTable {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: transparent !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable colgroup,
+  body.nechronica-enemies-page #maneuversTable thead {
+    display: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody {
+    display: grid !important;
+    gap: 0.7rem !important;
+    width: 100% !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 0.45rem 0.55rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0.65rem !important;
+    border: 1px solid var(--sheet-border) !important;
+    border-radius: 8px !important;
+    background: linear-gradient(180deg, #211b20 0%, #171417 100%) !important;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24) !important;
+    box-sizing: border-box !important;
+    cursor: default !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody tr.is-head {
+    border-color: #4f8a5f !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody tr.is-arm {
+    border-color: #9f7745 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody tr.is-body {
+    border-color: #3e8591 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody tr.is-leg {
+    border-color: #745b8f !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td {
+    display: grid !important;
+    grid-template-columns: 4.8rem minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #e7dfd2 !important;
+    box-sizing: border-box !important;
+    position: static !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td::before {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 1.8rem !important;
+    color: #b9afa2 !important;
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1) {
+    grid-column: 1 / -1 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1)::before { content: "名称"; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(2)::before { content: "部位"; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before { content: "タイミング"; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before { content: "コスト"; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before { content: "射程"; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before { content: "行動値"; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7) {
+    grid-column: 1 / -1 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7)::before { content: "効果"; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before { content: "悪意"; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(9) {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    padding-top: 0.2rem !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(9)::before {
+    content: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable input,
+  body.nechronica-enemies-page #maneuversTable select {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    box-sizing: border-box !important;
+    font-size: 0.88rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable td:nth-child(7) input {
+    min-height: 2.15rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable .row-action-wrap {
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    gap: 0.45rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable .copy-row-btn,
+  body.nechronica-enemies-page #maneuversTable .delete-btn {
+    width: 2.1rem !important;
+    height: 2.1rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable .drag-hint {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2.1rem !important;
+    height: 2.1rem !important;
+    border: 1px solid #4a4048 !important;
+    border-radius: 4px !important;
+    background: #18161b !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable.hide-part-column tbody td:nth-child(2) {
+    display: none !important;
+  }
+
+  /* Summary damage tables -> cards. Keep all controls usable. */
+  body.nechronica-enemies-page .summary-unit-parts-wrap,
+  body.nechronica-enemies-page .summary-table-wrap {
+    overflow: visible !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    background: transparent !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table colgroup,
+  body.nechronica-enemies-page .summary-unit-parts-table thead {
+    display: none !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody {
+    display: grid !important;
+    gap: 0.55rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 0.4rem 0.5rem !important;
+    padding: 0.55rem !important;
+    border: 1px solid var(--sheet-border) !important;
+    border-radius: 7px !important;
+    background: linear-gradient(180deg, #211b20 0%, #171417 100%) !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td {
+    display: grid !important;
+    grid-template-columns: 4.3rem minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+    border: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    background: transparent !important;
+    position: static !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td::before {
+    color: #b9afa2 !important;
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(1)::before { content: "報告"; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(2)::before { content: "状態"; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(3)::before { content: "部位"; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(4) {
+    grid-column: 1 / -1 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(4)::before { content: "名称"; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(5)::before { content: "タイミング"; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6)::before { content: "コスト"; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7)::before { content: "射程"; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    grid-column: 1 / -1 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8)::before { content: "効果"; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:last-child {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:last-child::before {
+    content: none !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table input,
+  body.nechronica-enemies-page .summary-unit-parts-table select {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page .summary-damage-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.4rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-damage-tab-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0.45rem 0.35rem !important;
+    font-size: 0.82rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-place-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ===========================================================================
+   v19 Nechronica mobile maneuver cards: book-like layout
+   - Keep desktop table intact.
+   - On phones, make each maneuver row look closer to the official card block:
+     title band, T/C/R row from left to right, and a left-side Effect label.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable tbody {
+    gap: 0.82rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid #514953 !important;
+    border-radius: 2px !important;
+    background: #dedbd3 !important;
+    color: #171417 !important;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.34) !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody tr.is-head {
+    border-color: #445c4e !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody tr.is-arm {
+    border-color: #6d5840 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody tr.is-body {
+    border-color: #3e5960 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody tr.is-leg {
+    border-color: #5a4d66 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td {
+    display: grid !important;
+    align-items: stretch !important;
+    min-width: 0 !important;
+    width: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td::before {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 1.72rem !important;
+    padding: 0 0.35rem !important;
+    background: #2b292c !important;
+    color: #f2eee8 !important;
+    border-right: 1px solid #8d8785 !important;
+    font-size: 0.72rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.02em !important;
+    white-space: nowrap !important;
+  }
+
+  /* Title band: [ part ] 【 maneuver name 】 */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1) {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    min-height: 2.05rem !important;
+    padding: 0 0.35rem !important;
+    background: #252326 !important;
+    border-bottom: 1px solid #868080 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1)::before {
+    content: "【" !important;
+    min-height: auto !important;
+    padding: 0 0.18rem 0 0.28rem !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #f7f1ea !important;
+    font-size: 1.1rem !important;
+    font-weight: 900 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1)::after {
+    content: "】" !important;
+    color: #f7f1ea !important;
+    font-size: 1.1rem !important;
+    font-weight: 900 !important;
+    padding-left: 0.18rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1) input {
+    height: 1.75rem !important;
+    min-height: 1.75rem !important;
+    padding: 0 0.18rem !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #f7f1ea !important;
+    font-size: 1rem !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+    letter-spacing: 0.12em !important;
+    box-shadow: none !important;
+  }
+
+  /* Part: compact badge below the title; hidden when part column is hidden. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(2) {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: 2.2rem minmax(0, 1fr) !important;
+    align-items: center !important;
+    min-height: 1.75rem !important;
+    border-bottom: 1px solid #b4aeaa !important;
+    background: #c7c3bb !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(2)::before {
+    content: "部" !important;
+  }
+  body.nechronica-enemies-page #maneuversTable.hide-part-column tbody td:nth-child(2) {
+    display: none !important;
+  }
+
+  /* T / C / R. The order must be timing, cost, range from left to right. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) {
+    grid-template-columns: 1.9rem minmax(0, 1fr) !important;
+    border-bottom: 1px solid #b4aeaa !important;
+    background: #ddd9d1 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) {
+    grid-column: 1 / 2 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) {
+    grid-column: 2 / 3 !important;
+    border-left: 1px solid #b4aeaa !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) {
+    grid-column: 3 / 4 !important;
+    border-left: 1px solid #b4aeaa !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before { content: "T" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before { content: "C" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before { content: "R" !important; }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) select,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) select {
+    height: 1.72rem !important;
+    min-height: 1.72rem !important;
+    padding: 0 0.25rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #eeeae2 !important;
+    color: #282326 !important;
+    font-size: 0.82rem !important;
+    box-shadow: none !important;
+  }
+
+  /* Effect block: official-like black vertical label on the left. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7) {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: 2.95rem minmax(0, 1fr) !important;
+    min-height: 4.3rem !important;
+    border-bottom: 1px solid #b4aeaa !important;
+    background: #f0ede7 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7)::before {
+    content: "効果" !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 100% !important;
+    padding: 0 !important;
+    border-right: 1px solid #8d8785 !important;
+    background: #2b292c !important;
+    color: #f2eee8 !important;
+    font-size: 0.92rem !important;
+    writing-mode: horizontal-tb !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7) input {
+    height: auto !important;
+    min-height: 4.3rem !important;
+    padding: 0.38rem 0.45rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #f8f6ef !important;
+    color: #242022 !important;
+    font-size: 0.88rem !important;
+    line-height: 1.35 !important;
+    box-shadow: none !important;
+  }
+
+  /* Footer: keep editor-only values compact. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    display: grid !important;
+    grid-template-columns: 3.9rem minmax(0, 1fr) !important;
+    border-bottom: 1px solid #b4aeaa !important;
+    background: #d7d2ca !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) {
+    grid-column: 1 / 2 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    grid-column: 2 / 4 !important;
+    border-left: 1px solid #b4aeaa !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before { content: "行動値" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before { content: "悪意" !important; }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) input {
+    height: 1.72rem !important;
+    min-height: 1.72rem !important;
+    padding: 0 0.25rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #eeeae2 !important;
+    color: #282326 !important;
+    font-size: 0.82rem !important;
+    box-shadow: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(9) {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.45rem !important;
+    padding: 0.32rem 0.42rem !important;
+    background: #c9c4bc !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(9)::before {
+    content: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable .row-action-wrap {
+    margin-left: auto !important;
+  }
+  body.nechronica-enemies-page #maneuversTable .drag-hint {
+    background: #2b292c !important;
+    border-color: #504a4e !important;
+    color: #f2eee8 !important;
+  }
+}
+
+/* ===========================================================================
+   v20 Nechronica mobile maneuver cards
+   - Keep the official-like information order, but use explicit Japanese labels.
+   - Move row actions to the top-right, closer to the AR2E skill-card operation.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    position: relative !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  /* Title band: leave room for copy/delete/drag actions on the right. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1) {
+    grid-row: 1 !important;
+    grid-column: 1 / -1 !important;
+    padding: 0 7.2rem 0 0.35rem !important;
+    min-height: 2.35rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1) input {
+    text-align: left !important;
+    letter-spacing: 0.08em !important;
+    padding-left: 0.24rem !important;
+  }
+
+  /* Row operations: AR2E skill-card style, top-right for long-card usability. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(9) {
+    position: absolute !important;
+    top: 0.25rem !important;
+    right: 0.35rem !important;
+    z-index: 3 !important;
+    grid-column: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(9)::before {
+    content: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable .row-action-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.28rem !important;
+    margin: 0 !important;
+    width: auto !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable .row-action-wrap button,
+  body.nechronica-enemies-page #maneuversTable .row-action-wrap .drag-hint {
+    width: 1.7rem !important;
+    height: 1.7rem !important;
+    min-width: 1.7rem !important;
+    min-height: 1.7rem !important;
+    padding: 0 !important;
+    border-radius: 3px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Timing / Cost / Range: no T/C/R shorthand in the editor UI. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 1.2rem 1.78rem !important;
+    min-height: 2.98rem !important;
+    align-items: stretch !important;
+    background: #ddd9d1 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before {
+    min-height: 1.2rem !important;
+    height: 1.2rem !important;
+    padding: 0 0.12rem !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid #8d8785 !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before {
+    content: "タイミング" !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before {
+    content: "コスト" !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before {
+    content: "射程" !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) select,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) select {
+    width: 100% !important;
+    height: 1.78rem !important;
+    min-height: 1.78rem !important;
+    text-align: center !important;
+  }
+
+  /* Keep editor-only values less visually dominant than the official fields. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    background: #d1ccc4 !important;
+  }
+}
+
+/* ===========================================================================
+   v21 Nechronica mobile maneuver cards
+   - Put 行動値 and 悪意 on the same metric row as タイミング/コスト/射程.
+   - Normalize the 射程 field so it does not inherit the dark large field style.
+   - Keep 効果 compact; avoid overly tall cards.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(2),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7) {
+    grid-column: 1 / -1 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) {
+    grid-column: 1 / 2 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) {
+    grid-column: 2 / 3 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) {
+    grid-column: 3 / 4 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) {
+    grid-column: 4 / 5 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    grid-column: 5 / 6 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 1.16rem 1.68rem !important;
+    min-height: 2.84rem !important;
+    border-left: 1px solid #b4aeaa !important;
+    border-bottom: 1px solid #b4aeaa !important;
+    background: #ddd9d1 !important;
+    align-items: stretch !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) {
+    border-left: 0 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 1.16rem !important;
+    height: 1.16rem !important;
+    padding: 0 0.08rem !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid #8d8785 !important;
+    background: #2b292c !important;
+    color: #f2eee8 !important;
+    font-size: 0.58rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.03em !important;
+    white-space: nowrap !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before { content: "タイミング" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before { content: "コスト" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before { content: "射程" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before { content: "行動値" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before { content: "悪意" !important; }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) :is(input, select, textarea) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 1.68rem !important;
+    min-height: 1.68rem !important;
+    margin: 0 !important;
+    padding: 0 0.18rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #eeeae2 !important;
+    color: #282326 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    font-size: 0.78rem !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea) {
+    background: #eeeae2 !important;
+    color: #282326 !important;
+    border-color: transparent !important;
+    font-weight: 700 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7) {
+    display: grid !important;
+    grid-template-columns: 2.75rem minmax(0, 1fr) !important;
+    min-height: 2.85rem !important;
+    max-height: none !important;
+    border-bottom: 1px solid #b4aeaa !important;
+    background: #f0ede7 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7)::before {
+    content: "効果" !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 2.85rem !important;
+    height: auto !important;
+    padding: 0 !important;
+    border-right: 1px solid #8d8785 !important;
+    border-bottom: 0 !important;
+    background: #2b292c !important;
+    color: #f2eee8 !important;
+    font-size: 0.9rem !important;
+    font-weight: 900 !important;
+    writing-mode: horizontal-tb !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7) :is(input, textarea) {
+    width: 100% !important;
+    height: 2.85rem !important;
+    min-height: 2.85rem !important;
+    max-height: 5.2rem !important;
+    margin: 0 !important;
+    padding: 0.34rem 0.45rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #f8f6ef !important;
+    color: #242022 !important;
+    box-shadow: none !important;
+    font-size: 0.84rem !important;
+    line-height: 1.28 !important;
+    overflow-y: auto !important;
+    resize: vertical !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* ===========================================================================
+   v22 Nechronica mobile maneuver cards
+   - Keep 悪意 on the same metric row; never let it fall under 効果.
+   - Give タイミング the long column; コスト/射程/行動値/悪意 are short fields.
+   - Remove the unused lower area and keep 効果 compact.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    display: grid !important;
+    position: relative !important;
+    grid-template-columns: minmax(7.25rem, 1fr) repeat(4, minmax(2.35rem, 2.75rem)) !important;
+    grid-template-rows: auto auto auto !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+    row-gap: 0 !important;
+    column-gap: 0 !important;
+  }
+
+  /* Title band. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(1) {
+    grid-row: 1 !important;
+    grid-column: 1 / -1 !important;
+    padding-right: 6.9rem !important;
+    min-height: 2.24rem !important;
+  }
+
+  /* Optional part/location cell should not reserve a separate bottom row on mobile. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(2) {
+    grid-row: 1 !important;
+    grid-column: 1 / 2 !important;
+    align-self: end !important;
+    justify-self: start !important;
+    width: auto !important;
+    max-width: 5.8rem !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0.22rem 0 0.18rem 0.36rem !important;
+    border: 0 !important;
+    background: transparent !important;
+    opacity: 0.9 !important;
+    z-index: 2 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(2)::before {
+    content: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(2) :is(input, select, textarea) {
+    width: auto !important;
+    max-width: 5.8rem !important;
+    height: 1.22rem !important;
+    min-height: 1.22rem !important;
+    padding: 0 0.24rem !important;
+    border: 0 !important;
+    background: rgba(248, 246, 239, 0.16) !important;
+    color: #f2eee8 !important;
+    font-size: 0.64rem !important;
+    line-height: 1 !important;
+  }
+
+  /* Top-right operations, AR2E skill-card style. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(9) {
+    position: absolute !important;
+    top: 0.24rem !important;
+    right: 0.34rem !important;
+    z-index: 4 !important;
+    grid-row: auto !important;
+    grid-column: auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(9)::before {
+    content: none !important;
+  }
+
+  /* Metric row: タイミング is long, the rest are one-character / short-value cells. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) {
+    grid-row: 2 !important;
+    grid-column: 1 / 2 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) {
+    grid-row: 2 !important;
+    grid-column: 2 / 3 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) {
+    grid-row: 2 !important;
+    grid-column: 3 / 4 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) {
+    grid-row: 2 !important;
+    grid-column: 4 / 5 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    grid-row: 2 !important;
+    grid-column: 5 / 6 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 1.04rem 1.52rem !important;
+    min-height: 2.56rem !important;
+    height: 2.56rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-top: 1px solid #8d8785 !important;
+    border-right: 1px solid #8d8785 !important;
+    border-bottom: 1px solid #b4aeaa !important;
+    border-left: 0 !important;
+    background: #ddd9d1 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) {
+    border-left: 1px solid #8d8785 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 1.04rem !important;
+    min-height: 1.04rem !important;
+    padding: 0 0.06rem !important;
+    border: 0 !important;
+    border-bottom: 1px solid #8d8785 !important;
+    background: #272529 !important;
+    color: #f2eee8 !important;
+    font-size: 0.54rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.04em !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before {
+    content: "タイミング" !important;
+    font-size: 0.6rem !important;
+    letter-spacing: 0 !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before { content: "コスト" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before { content: "射程" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before { content: "行動値" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before { content: "悪意" !important; }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) :is(input, select, textarea) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 1.52rem !important;
+    min-height: 1.52rem !important;
+    margin: 0 !important;
+    padding: 0 0.12rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #eeeae2 !important;
+    color: #282326 !important;
+    box-shadow: none !important;
+    font-size: 0.78rem !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) :is(input, select, textarea) {
+    text-align: left !important;
+    padding-left: 0.28rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  /* Effect: compact single content row. Do not reserve a lower empty area. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7) {
+    grid-row: 3 !important;
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: 2.65rem minmax(0, 1fr) !important;
+    min-height: 2.65rem !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid #b4aeaa !important;
+    background: #f0ede7 !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7)::before {
+    content: "効果" !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 2.65rem !important;
+    height: 100% !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-right: 1px solid #8d8785 !important;
+    background: #272529 !important;
+    color: #f2eee8 !important;
+    font-size: 0.86rem !important;
+    font-weight: 900 !important;
+    writing-mode: horizontal-tb !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(7) :is(input, textarea) {
+    width: 100% !important;
+    height: 2.65rem !important;
+    min-height: 2.65rem !important;
+    max-height: 4.3rem !important;
+    margin: 0 !important;
+    padding: 0.28rem 0.42rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #f8f6ef !important;
+    color: #242022 !important;
+    box-shadow: none !important;
+    font-size: 0.82rem !important;
+    line-height: 1.24 !important;
+    overflow-y: auto !important;
+    resize: vertical !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* ===========================================================================
+   v23 Nechronica mobile maneuver cards
+   - Make short metric columns truly narrow: one-character value width intent.
+   - Keep the labels visible by shrinking the header text instead of using wide cells.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    grid-template-columns: minmax(8.4rem, 1fr) repeat(4, 1.9rem) !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    grid-template-rows: 0.96rem 1.46rem !important;
+    min-height: 2.42rem !important;
+    height: 2.42rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before {
+    height: 0.96rem !important;
+    min-height: 0.96rem !important;
+    padding: 0 0.02rem !important;
+    font-size: 0.48rem !important;
+    letter-spacing: -0.06em !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before {
+    font-size: 0.56rem !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) :is(input, select, textarea) {
+    height: 1.46rem !important;
+    min-height: 1.46rem !important;
+    padding: 0 0.06rem !important;
+    font-size: 0.76rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) :is(input, select, textarea) {
+    text-align: center !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+}
+
+/* ===========================================================================
+   v24 Nechronica mobile maneuver cards
+   - Expand 射程 to handle 2-3 character values like 0~1.
+   - Confirm each metric td is fully filled by its label/value blocks.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    grid-template-columns: minmax(7.9rem, 1fr) 1.72rem 2.32rem 1.72rem 1.72rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    align-self: stretch !important;
+    justify-self: stretch !important;
+    width: 100% !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before {
+    width: 100% !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) :is(input, select, textarea) {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 1.46rem !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea) {
+    padding-inline: 0.08rem !important;
+    font-size: 0.72rem !important;
+    letter-spacing: -0.01em !important;
+    text-align: center !important;
+  }
+}
+
+
+/* ===========================================================================
+   v25 Nechronica mobile maneuver cards
+   - Fix clipped metric values caused by height:100% inside a two-row grid cell.
+   - Use explicit row heights and line-height so value controls sit centered.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    grid-template-columns: minmax(7.9rem, 1fr) 1.72rem 2.36rem 1.72rem 1.72rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    display: grid !important;
+    grid-template-rows: 0.98rem 1.62rem !important;
+    min-height: 2.6rem !important;
+    height: 2.6rem !important;
+    align-items: stretch !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before {
+    height: 0.98rem !important;
+    min-height: 0.98rem !important;
+    line-height: 0.98rem !important;
+    padding-block: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) :is(input, select, textarea) {
+    align-self: stretch !important;
+    justify-self: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 1.62rem !important;
+    min-height: 1.62rem !important;
+    max-height: 1.62rem !important;
+    line-height: 1.62rem !important;
+    padding-block: 0 !important;
+    padding-inline: 0.05rem !important;
+    overflow: hidden !important;
+    vertical-align: middle !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) select,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) select {
+    line-height: normal !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) input {
+    text-align: center !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) :is(input, select, textarea) {
+    font-size: 0.7rem !important;
+    letter-spacing: -0.02em !important;
+  }
+}
+
+/* ===========================================================================
+   v27 Nechronica mobile maneuver cards
+   - Reset the stacked v18-v25 mobile td/input rules in one final layer.
+   - Root cause: the old mobile card td rule still provided gap: .35rem and
+     some value controls kept UA/native input metrics, so the value row clipped.
+   - Keep the card layout, but make metric cells a strict 2-row grid:
+     label row + value row, with no internal gap.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    grid-template-columns: minmax(8.05rem, 1fr) 1.72rem 2.42rem 1.72rem 1.72rem !important;
+    grid-auto-rows: auto !important;
+    gap: 0 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 1.02rem 1.78rem !important;
+    gap: 0 !important;
+    row-gap: 0 !important;
+    column-gap: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 2.8rem !important;
+    min-height: 2.8rem !important;
+    max-height: 2.8rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    align-items: stretch !important;
+    justify-items: stretch !important;
+    place-items: stretch !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before {
+    display: flex !important;
+    grid-row: 1 !important;
+    grid-column: 1 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 1.02rem !important;
+    min-height: 1.02rem !important;
+    max-height: 1.02rem !important;
+    margin: 0 !important;
+    padding: 0 0.02rem !important;
+    border: 0 !important;
+    border-bottom: 1px solid #8d8785 !important;
+    background: #272529 !important;
+    color: #f2eee8 !important;
+    font-size: 0.48rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.06em !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3)::before {
+    content: "タイミング" !important;
+    font-size: 0.56rem !important;
+    letter-spacing: -0.02em !important;
+  }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4)::before { content: "コスト" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5)::before { content: "射程" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6)::before { content: "行動値" !important; }
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8)::before { content: "悪意" !important; }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) > :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) > :is(input, select, textarea),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) > :is(input, select, textarea) {
+    display: block !important;
+    grid-row: 2 !important;
+    grid-column: 1 !important;
+    align-self: stretch !important;
+    justify-self: stretch !important;
+    width: 100% !important;
+    inline-size: 100% !important;
+    min-width: 0 !important;
+    min-inline-size: 0 !important;
+    max-width: 100% !important;
+    height: 1.78rem !important;
+    min-height: 1.78rem !important;
+    max-height: 1.78rem !important;
+    margin: 0 !important;
+    padding: 0.18rem 0.06rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #eeeae2 !important;
+    color: #282326 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    font-family: "Yu Gothic", "Meiryo", sans-serif !important;
+    font-size: 0.72rem !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    transform: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) > select,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > :is(input, select),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) > input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) > input {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) > select {
+    padding-inline: 0.16rem !important;
+    font-size: 0.68rem !important;
+    text-align: left !important;
+    text-align-last: left !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > :is(input, select) {
+    padding-inline: 0.04rem !important;
+    font-size: 0.68rem !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) > input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) > input {
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input::-webkit-outer-spin-button,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input::-webkit-inner-spin-button,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) > input::-webkit-outer-spin-button,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) > input::-webkit-inner-spin-button,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) > input::-webkit-outer-spin-button,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) > input::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+}
+
+/* ===========================================================================
+   v28 Nechronica mobile maneuver cards
+   - Increase numeric metric readability now that the short columns have room.
+   - For Servant rows, show the part selector in the title band at the left of
+     the maneuver name. Non-servant rows keep the part column hidden.
+   =========================================================================== */
+@media (max-width: 720px) {
+  /* Keep timing wide enough for "アクション" while giving range 0-1 room. */
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    grid-template-columns: minmax(8.2rem, 1fr) 1.86rem 2.52rem 1.86rem 1.86rem !important;
+  }
+
+  /* Servant title row reserves a compact part badge between 【 and the name. */
+  body.nechronica-enemies-page #maneuversTable:not(.hide-part-column) tbody td:nth-child(1) {
+    padding-left: 3.45rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable.hide-part-column tbody td:nth-child(1) {
+    padding-left: 0.35rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable:not(.hide-part-column) tbody td:nth-child(2) {
+    position: absolute !important;
+    top: 0.36rem !important;
+    left: 1.25rem !important;
+    z-index: 5 !important;
+    display: block !important;
+    grid-row: auto !important;
+    grid-column: auto !important;
+    width: 2.35rem !important;
+    min-width: 2.35rem !important;
+    max-width: 2.35rem !important;
+    height: 1.38rem !important;
+    min-height: 1.38rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    opacity: 1 !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable:not(.hide-part-column) tbody td:nth-child(2)::before,
+  body.nechronica-enemies-page #maneuversTable:not(.hide-part-column) tbody td:nth-child(2)::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable:not(.hide-part-column) tbody td:nth-child(2) > select,
+  body.nechronica-enemies-page #maneuversTable:not(.hide-part-column) tbody td:nth-child(2) > input {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 1.38rem !important;
+    min-height: 1.38rem !important;
+    max-height: 1.38rem !important;
+    margin: 0 !important;
+    padding: 0 0.12rem !important;
+    border: 1px solid rgba(214, 208, 195, 0.42) !important;
+    border-radius: 3px !important;
+    background: #1a181c !important;
+    color: #f4eee5 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    font-family: "Yu Gothic", "Meiryo", sans-serif !important;
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    line-height: 1.38rem !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable.hide-part-column tbody td:nth-child(2) {
+    display: none !important;
+  }
+
+  /* Short numeric/value fields: labels stay small, values get bigger. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > :is(input, select),
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) > input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) > input {
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    line-height: 1.78rem !important;
+    padding-inline: 0.03rem !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > :is(input, select) {
+    font-size: 0.82rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(3) > select {
+    font-size: 0.7rem !important;
+  }
+}
+
+/* ===========================================================================
+   v29 Nechronica mobile maneuver cards
+   - For Servant rows, place the part badge to the LEFT of the opening bracket.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #maneuversTable:not(.hide-part-column) tbody td:nth-child(1) {
+    padding-left: 3.2rem !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable:not(.hide-part-column) tbody td:nth-child(2) {
+    left: 0.34rem !important;
+    width: 2.42rem !important;
+    min-width: 2.42rem !important;
+    max-width: 2.42rem !important;
+  }
+}
+
+/* ===========================================================================
+   v30 Nechronica mobile maneuver cards
+   - Fix datalist-input rendering for コスト / 射程 on mobile cards.
+   - Widen 射程 slightly so values like 自身 / 0-1 sit cleanly.
+   =========================================================================== */
+@media (max-width: 720px) {
+  /* Rebalance short metrics: range gets more room, cost/initiative/malice stay compact. */
+  body.nechronica-enemies-page #maneuversTable tbody tr {
+    grid-template-columns: minmax(7.9rem, 1fr) 1.64rem 2.86rem 1.64rem 1.64rem !important;
+  }
+
+  /* Inputs with datalist can reserve a picker area in some browsers.
+     That makes コスト look right-shifted and can clip 射程 values like 自身.
+     Force plain text-field rendering. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input[list],
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > input[list] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-image: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    text-indent: 0 !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    font-family: "Yu Gothic", "Meiryo", sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input[list]::-webkit-calendar-picker-indicator,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > input[list]::-webkit-calendar-picker-indicator,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input[list]::-webkit-list-button,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > input[list]::-webkit-list-button {
+    display: none !important;
+    opacity: 0 !important;
+    -webkit-appearance: none !important;
+  }
+
+  /* Cost stays numeric and centered. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(4) > input {
+    font-size: 0.94rem !important;
+    font-variant-numeric: tabular-nums !important;
+    line-height: 1.78rem !important;
+  }
+
+  /* Range needs to support 2-3 chars like 自身 / 0-1 without clipping. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(5) > input {
+    font-size: 0.8rem !important;
+    line-height: 1.78rem !important;
+    padding-inline: 0.06rem !important;
+    overflow: visible !important;
+  }
+
+  /* Numeric footer cells keep the slightly larger readable values. */
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(6) > input,
+  body.nechronica-enemies-page #maneuversTable tbody td:nth-child(8) > input {
+    font-size: 0.94rem !important;
+    font-variant-numeric: tabular-nums !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    padding-inline: 0 !important;
+    text-indent: 0 !important;
+    font-family: "Yu Gothic", "Meiryo", sans-serif !important;
+  }
+}
+
+/* ===========================================================================
+   v31 Nechronica mobile session board
+   - Optimize 手駒配置 for session use, not data-entry table use.
+   - Turn the placed-unit table into management cards on phones.
+   - Make place chips and damage tabs easier to operate during play.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page #summaryTabPanel {
+    padding-inline: 0.5rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-total-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.42rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-total-card {
+    min-height: 2.25rem !important;
+    padding: 0.32rem 0.5rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-total-label {
+    font-size: 0.72rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-total-value {
+    font-size: 1.12rem !important;
+  }
+
+  /* Placement table -> session cards. */
+  body.nechronica-enemies-page .summary-table-wrap {
+    border: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: separate !important;
+    background: transparent !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable colgroup,
+  body.nechronica-enemies-page #summaryEnemiesTable thead {
+    display: none !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody {
+    display: grid !important;
+    gap: 0.55rem !important;
+    width: 100% !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody tr {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    border: 1px solid #554a55 !important;
+    border-radius: 8px !important;
+    background: linear-gradient(180deg, #231d23 0%, #171419 100%) !important;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24) !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td {
+    display: grid !important;
+    grid-template-rows: 1rem 1.65rem !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    min-width: 0 !important;
+    min-height: 2.65rem !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-right: 1px solid #4f4850 !important;
+    border-bottom: 1px solid #4f4850 !important;
+    background: #242026 !important;
+    color: #e9e1d6 !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td::before {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 1rem !important;
+    min-height: 1rem !important;
+    padding: 0 0.08rem !important;
+    background: #141217 !important;
+    color: #cfc5b8 !important;
+    border-bottom: 1px solid #4f4850 !important;
+    font-family: "Yu Gothic", "Meiryo", sans-serif !important;
+    font-size: 0.56rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(6) {
+    order: 1 !important;
+    grid-column: 1 / -1 !important;
+    display: block !important;
+    min-height: auto !important;
+    padding: 0.5rem 0.55rem !important;
+    border-right: 0 !important;
+    background: #201c22 !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(6)::before {
+    content: none !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(4) {
+    order: 2 !important;
+  }
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(4)::before { content: "種別" !important; }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(1) {
+    order: 3 !important;
+  }
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(1)::before { content: "合計悪意" !important; }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(2) {
+    order: 4 !important;
+  }
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(2)::before { content: "単体悪意" !important; }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(3) {
+    order: 5 !important;
+    border-right: 0 !important;
+  }
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(3)::before { content: "数" !important; }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(5) {
+    order: 6 !important;
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: 3rem minmax(0, 1fr) !important;
+    grid-template-rows: 2rem !important;
+    min-height: 2rem !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    background: #1b171d !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(5)::before {
+    content: "場所" !important;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    border-bottom: 0 !important;
+    border-right: 1px solid #4f4850 !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(1),
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(2),
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(3),
+  body.nechronica-enemies-page #summaryEnemiesTable tbody td:nth-child(4) {
+    font-family: "Yu Gothic", "Meiryo", sans-serif !important;
+    font-size: 0.96rem !important;
+    font-weight: 800 !important;
+    line-height: 1.65rem !important;
+    text-align: center !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable .summary-unit-input,
+  body.nechronica-enemies-page #summaryEnemiesTable .summary-place-select {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 0.22rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #eeeae2 !important;
+    color: #242026 !important;
+    box-shadow: none !important;
+    font-family: "Yu Gothic", "Meiryo", sans-serif !important;
+    font-size: 0.9rem !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable .summary-place-select {
+    text-align-last: center !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable .summary-name-cell-wrap {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.46rem !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable .summary-name-text {
+    display: block !important;
+    min-width: 0 !important;
+    color: #f5eee7 !important;
+    font-size: 1rem !important;
+    font-weight: 900 !important;
+    line-height: 1.25 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable .summary-row-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.38rem !important;
+    margin-left: 0 !important;
+    justify-content: stretch !important;
+  }
+
+  body.nechronica-enemies-page #summaryEnemiesTable .summary-row-action-btn,
+  body.nechronica-enemies-page #summaryEnemiesTable .summary-remove-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 2rem !important;
+    height: 2rem !important;
+    padding: 0.16rem 0.25rem !important;
+    font-size: 0.72rem !important;
+    line-height: 1 !important;
+    justify-content: center !important;
+  }
+
+  /* Place board: compact drag targets. */
+  body.nechronica-enemies-page .summary-place-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.42rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-place-card {
+    display: grid !important;
+    grid-template-columns: 4.2rem minmax(0, 1fr) !important;
+    min-height: 3rem !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page .summary-place-card > header {
+    min-height: 3rem !important;
+    padding: 0.25rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-place-body {
+    min-height: 3rem !important;
+    padding: 0.38rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-place-item-line {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.32rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-place-badge {
+    max-width: 100% !important;
+    min-height: 1.8rem !important;
+    padding: 0.18rem 0.44rem !important;
+    border-radius: 999px !important;
+    font-size: 0.78rem !important;
+    line-height: 1.05 !important;
+    touch-action: manipulation !important;
+  }
+
+  body.nechronica-enemies-page .summary-place-badge-name {
+    max-width: 9.5rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body.nechronica-enemies-page .summary-place-badge-count {
+    font-size: 0.74rem !important;
+  }
+
+  /* Damage target selector: horizontal tabs are faster during a session. */
+  body.nechronica-enemies-page .summary-damage-tabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 0.38rem !important;
+    overflow-x: auto !important;
+    padding: 0.2rem 0.1rem 0.42rem !important;
+    border-bottom: 1px solid var(--sheet-border) !important;
+    scrollbar-width: thin !important;
+  }
+
+  body.nechronica-enemies-page .summary-damage-tab-btn {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: 13rem !important;
+    min-height: 2.05rem !important;
+    padding: 0.35rem 0.58rem !important;
+    border-radius: 999px !important;
+    border-bottom: 2px solid var(--sheet-border) !important;
+    top: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  body.nechronica-enemies-page .summary-damage-tab-btn span:last-child {
+    display: inline-block !important;
+    max-width: 9.4rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body.nechronica-enemies-page .summary-damage-unit-header {
+    align-items: stretch !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.48rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-damage-unit-header strong {
+    display: block !important;
+    font-size: 1rem !important;
+    line-height: 1.25 !important;
+  }
+
+  body.nechronica-enemies-page .summary-damage-unit-meta {
+    display: block !important;
+    margin-left: 0 !important;
+    margin-top: 0.18rem !important;
+    font-size: 0.76rem !important;
+    line-height: 1.35 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-header-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.38rem !important;
+    margin-left: 0 !important;
+    justify-content: stretch !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-copy-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 2rem !important;
+    height: 2rem !important;
+    padding: 0.16rem 0.28rem !important;
+    font-size: 0.72rem !important;
+    justify-content: center !important;
+  }
+
+  /* Damage part cards: put controls first, readable during play. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody tr {
+    grid-template-columns: 3.2rem minmax(0, 1fr) 2.8rem !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td {
+    grid-template-columns: 3.4rem minmax(0, 1fr) !important;
+    min-height: 2rem !important;
+    padding: 0 !important;
+    border-bottom: 1px solid #49434b !important;
+    background: #211d23 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td::before {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    min-height: 2rem !important;
+    padding: 0 0.18rem !important;
+    border-right: 1px solid #49434b !important;
+    background: #151217 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(2) {
+    grid-column: 3 / 4 !important;
+    grid-row: 1 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(3) {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(4) {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(5),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7) {
+    grid-column: auto !important;
+    grid-row: 3 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    grid-column: 1 / -1 !important;
+    grid-row: 4 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(1)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(2)::before {
+    content: none !important;
+  }
+
+  body.nechronica-enemies-page .summary-damage-check {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    justify-self: center !important;
+    align-self: center !important;
+  }
+
+  body.nechronica-enemies-page .summary-part-copy-btn {
+    justify-self: center !important;
+    align-self: center !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table .status-select,
+  body.nechronica-enemies-page .summary-part-name-input {
+    height: 2rem !important;
+    min-height: 2rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* ===========================================================================
+   v32 Nechronica mobile damage manager
+   - Fix column mapping after the copy column was added.
+   - Compact per-unit damage cards for session use.
+   - Smaller check box, grouped top controls, compact effect row.
+   =========================================================================== */
+@media (max-width: 720px) {
+  /* The summary damage table now has 9 columns:
+     1 check / 2 copy / 3 state / 4 part / 5 name / 6 timing / 7 cost / 8 range / 9 effect.
+     Earlier mobile CSS assumed 8 columns, so rows after "copy" drifted. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody tr {
+    grid-template-columns: 2rem 3.1rem minmax(0, 1fr) 2rem !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td {
+    display: grid !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    min-height: 1.72rem !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #49434b !important;
+    background: #211d23 !important;
+    min-width: 0 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td::before {
+    color: #d3cdc3 !important;
+    font-size: 0.64rem !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    background: #151217 !important;
+    border-right: 1px solid #49434b !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 0.2rem !important;
+  }
+
+  /* Row 1: check / part / state / copy */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 1.9rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(4) {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 1.9rem !important;
+    padding-inline: 0.18rem !important;
+    font-size: 0.76rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.02em !important;
+    color: #f1ebe3 !important;
+    background: #151217 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(3) {
+    grid-column: 3 / 4 !important;
+    grid-row: 1 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: 1.9rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(2) {
+    grid-column: 4 / 5 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 1.9rem !important;
+  }
+
+  /* Row 2: name */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(5) {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    grid-template-columns: 2.8rem minmax(0, 1fr) !important;
+    min-height: 1.9rem !important;
+  }
+
+  /* Row 3: timing / cost / range */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6) {
+    grid-column: 1 / 3 !important;
+    grid-row: 3 !important;
+    grid-template-columns: 3.25rem minmax(0, 1fr) !important;
+    min-height: 1.72rem !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7) {
+    grid-column: 3 / 4 !important;
+    grid-row: 3 !important;
+    grid-template-columns: 1.55rem minmax(0, 1fr) !important;
+    min-height: 1.72rem !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    grid-column: 4 / 5 !important;
+    grid-row: 3 !important;
+    grid-template-columns: 1.55rem minmax(0, 1fr) !important;
+    min-height: 1.72rem !important;
+  }
+
+  /* Row 4: effect (compact, only grows when needed) */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9) {
+    grid-column: 1 / -1 !important;
+    grid-row: 4 !important;
+    grid-template-columns: 2.4rem minmax(0, 1fr) !important;
+    min-height: 1.86rem !important;
+  }
+
+  /* Correct labels. Top control row does not need labels. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(1)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(2)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(3)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(4)::before {
+    content: none !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(5)::before { content: "名称" !important; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6)::before { content: "タイミング" !important; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7)::before { content: "コスト" !important; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8)::before { content: "射程" !important; }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9)::before { content: "効果" !important; }
+
+  body.nechronica-enemies-page .summary-damage-check {
+    width: 0.96rem !important;
+    height: 0.96rem !important;
+    margin: 0 !important;
+  }
+
+  body.nechronica-enemies-page .summary-part-copy-btn {
+    width: 1.5rem !important;
+    min-width: 1.5rem !important;
+    height: 1.5rem !important;
+    min-height: 1.5rem !important;
+    padding: 0 !important;
+    border-radius: 4px !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table .status-select,
+  body.nechronica-enemies-page .summary-part-name-input {
+    height: 1.9rem !important;
+    min-height: 1.9rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9) {
+    color: #f1ebe3 !important;
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    text-align: center !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9) {
+    align-items: stretch !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9)::before {
+    align-items: flex-start !important;
+    padding-top: 0.32rem !important;
+  }
+
+  /* Make the top action buttons slightly denser so the part list gets more room. */
+  body.nechronica-enemies-page .summary-unit-header-actions {
+    gap: 0.32rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-header-actions .small-square-btn {
+    min-height: 1.9rem !important;
+    height: 1.9rem !important;
+    padding: 0.2rem 0.45rem !important;
+    font-size: 0.76rem !important;
+  }
+}
+
+/* ===========================================================================
+   v33 Nechronica mobile damage manager
+   - Rebalance the per-part card grid.
+   - Give 射程 enough real width for values like 0 / 0-1 / 自身.
+   - Keep タイミング wide because it holds the longest token.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page .summary-unit-parts-table tbody tr {
+    /* check | part | state(main) | cost-slot | range-slot */
+    grid-template-columns: 1.85rem 2.15rem minmax(0, 1fr) 2.1rem 2.85rem !important;
+  }
+
+  /* Row 1: top controls */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(4) {
+    grid-column: 2 / 3 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(3) {
+    grid-column: 3 / 5 !important; /* let status breathe */
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(2) {
+    grid-column: 5 / 6 !important;
+  }
+
+  /* Row 3: timing / cost / range */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6) {
+    grid-column: 1 / 4 !important;
+    grid-template-columns: 3.05rem minmax(0, 1fr) !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7) {
+    grid-column: 4 / 5 !important;
+    grid-template-columns: 1.25rem minmax(0, 1fr) !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    grid-column: 5 / 6 !important;
+    grid-template-columns: 1.25rem minmax(0, 1fr) !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8)::before {
+    font-size: 0.6rem !important;
+    padding-inline: 0.12rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    justify-items: stretch !important;
+    align-items: stretch !important;
+  }
+
+  /* Prevent narrow cells from looking shifted; keep the value block centered. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7) > :not(::before),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) > :not(::before) {
+    min-width: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  /* Range needs a touch smaller font than timing, but no clipping. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    font-size: 0.76rem !important;
+  }
+}
+
+/* ===========================================================================
+   v34 Nechronica mobile damage manager
+   - Widen cost, slightly narrow timing.
+   - Stabilize effect row placement for 2nd+ cards.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page .summary-unit-parts-table tbody tr {
+    /* check | part | timing-main | cost | range/copy */
+    grid-template-columns: 1.72rem 1.7rem minmax(0, 1fr) 2.5rem 2.42rem !important;
+    grid-auto-rows: auto !important;
+  }
+
+  /* Top control row remains compact but gains a little more space for status/copy balance. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(3) {
+    grid-column: 3 / 5 !important;
+  }
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(2) {
+    grid-column: 5 / 6 !important;
+  }
+
+  /* Row 3: take some width from timing and give it to cost. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6) {
+    grid-column: 1 / 4 !important;
+    grid-template-columns: 2.72rem minmax(0, 1fr) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7) {
+    grid-column: 4 / 5 !important;
+    grid-template-columns: 1.18rem minmax(0, 1fr) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    grid-column: 5 / 6 !important;
+    grid-template-columns: 1.18rem minmax(0, 1fr) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8)::before {
+    font-size: 0.58rem !important;
+    padding-inline: 0.1rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9) {
+    align-self: stretch !important;
+    justify-self: stretch !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    text-align: center !important;
+  }
+
+  /* Stabilize effect row for later cards: force a clean full-width row with no carry-over overflow. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9) {
+    grid-column: 1 / -1 !important;
+    grid-row: 4 !important;
+    grid-template-columns: 2.18rem minmax(0, 1fr) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    clear: both !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9)::before {
+    font-size: 0.62rem !important;
+    padding-top: 0.28rem !important;
+  }
+
+  /* Ensure any direct text/value block in row 3-4 can shrink without pushing neighbors. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6) > *,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7) > *,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) > *,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9) > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ===========================================================================
+   v35 Nechronica mobile damage manager
+   - Kill legacy td:last-child flex layout that still pushed the effect row.
+   - Give cost a bit more width; timing a bit less.
+   =========================================================================== */
+@media (max-width: 720px) {
+  /* Further rebalance row 3: timing narrower, cost wider, range still practical. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody tr {
+    grid-template-columns: 1.68rem 1.64rem minmax(0, 1fr) 2.74rem 2.28rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6) {
+    grid-column: 1 / 4 !important;
+    grid-template-columns: 2.54rem minmax(0, 1fr) !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7) {
+    grid-column: 4 / 5 !important;
+    grid-template-columns: 1.26rem minmax(0, 1fr) !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    grid-column: 5 / 6 !important;
+    grid-template-columns: 1.12rem minmax(0, 1fr) !important;
+  }
+
+  /* Legacy mobile CSS had td:last-child = flex-end. Because effect is the last td,
+     that old rule kept shifting the effect block on later cards. Override it hard. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:last-child,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9) {
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 4 !important;
+    grid-template-columns: 2.12rem minmax(0, 1fr) !important;
+    justify-content: stretch !important;
+    align-items: stretch !important;
+    align-content: start !important;
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow: hidden !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:last-child::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9)::before {
+    content: "効果" !important;
+    display: inline-flex !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* ===========================================================================
+   v36 Nechronica mobile damage manager
+   - Vertically center per-part card contents.
+   - Widen コスト / 射程, and slightly narrow タイミング.
+   =========================================================================== */
+@media (max-width: 720px) {
+  body.nechronica-enemies-page .summary-unit-parts-table tbody tr {
+    /* check | part | timing-main | cost | range/copy */
+    grid-template-columns: 1.5rem 1.42rem minmax(0, 1fr) 2.98rem 2.52rem !important;
+    align-items: stretch !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td {
+    align-items: center !important;
+    align-content: center !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td::before {
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    line-height: 1 !important;
+  }
+
+  /* Row 3: timing is still the longest label/value pair, but cost/range need more real width. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6) {
+    grid-column: 1 / 4 !important;
+    grid-template-columns: 2.42rem minmax(0, 1fr) !important;
+    min-height: 1.82rem !important;
+    align-items: center !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7) {
+    grid-column: 4 / 5 !important;
+    grid-template-columns: 1.2rem minmax(0, 1fr) !important;
+    min-height: 1.82rem !important;
+    align-items: center !important;
+    justify-items: stretch !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    grid-column: 5 / 6 !important;
+    grid-template-columns: 1.08rem minmax(0, 1fr) !important;
+    min-height: 1.82rem !important;
+    align-items: center !important;
+    justify-items: stretch !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7)::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8)::before {
+    font-size: 0.58rem !important;
+    padding-inline: 0.08rem !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(6),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    font-size: 0.82rem !important;
+    line-height: 1.1 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(7),
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(8) {
+    text-align: center !important;
+  }
+
+  /* Effect row: keep the row full-width and center both label and body vertically. */
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:last-child,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9) {
+    display: grid !important;
+    grid-template-columns: 2.08rem minmax(0, 1fr) !important;
+    min-height: 2.15rem !important;
+    align-items: center !important;
+    align-content: center !important;
+    line-height: 1.25 !important;
+  }
+
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:last-child::before,
+  body.nechronica-enemies-page .summary-unit-parts-table tbody td:nth-child(9)::before {
+    align-items: center !important;
+    padding-top: 0 !important;
+    font-size: 0.64rem !important;
+  }
+}

@@ -955,7 +955,7 @@
           <i class="fa-solid ${classificationIcon} enemy-list-bg-icon" aria-hidden="true"></i>
           <span class="enemy-list-row">
             <span class="enemy-list-side-left">
-              <span class="enemy-level-badge ${levelStyle.class}" style="${levelStyle.style}">
+              <span class="enemy-metric-badge enemy-level-badge ${levelStyle.class}" style="${levelStyle.style}">
                 <span class="level-label">Lv</span>
                 <span class="level-value">${escapeHtml(String(levelText).replace(/^Lv\s*/, ""))}</span>
               </span>
@@ -1919,20 +1919,22 @@
     }
     visibleSkills.forEach((skill) => {
       const item = document.createElement("article");
-      item.className = "skill-summary-card";
-      const title = buildSkillHeadlineForKoma(skill) || String(skill.name || "").trim();
+      item.className = "skill-summary-card view-skill-card enemy-view-item-card";
+      const title = buildSkillHeadlineForKoma(skill) || normalizeSkillNameForKoma(skill.name || "スキル");
       const metaParts = [];
-      if (skill.timing) metaParts.push(skill.timing);
-      if (skill.judge) metaParts.push(`判定:${skill.judge}`);
-      if (skill.target) metaParts.push(`対象:${skill.target}`);
-      if (skill.range) metaParts.push(`射程:${skill.range}`);
-      if (skill.cost) metaParts.push(`コスト:${skill.cost}`);
-      if (skill.attribute) metaParts.push(`属性:${skill.attribute}`);
+      if (skill.timing) metaParts.push(["タイミング", skill.timing]);
+      if (skill.judge) metaParts.push(["判定", skill.judge]);
+      if (skill.target) metaParts.push(["対象", skill.target]);
+      if (skill.range) metaParts.push(["射程", skill.range]);
+      if (skill.cost) metaParts.push(["コスト", skill.cost]);
+      if (skill.attribute) metaParts.push(["属性", skill.attribute]);
       const effect = String(skill.effect || "").trim();
       item.innerHTML = `
-        <div class="skill-summary-title">${escapeHtml(title)}</div>
-        ${metaParts.length ? `<div class="skill-summary-meta">${escapeHtml(metaParts.join(" / "))}</div>` : ""}
-        ${effect ? `<div class="skill-summary-effect">${escapeHtml(effect)}</div>` : ""}
+        <div class="view-skill-main skill-summary-main">
+          <span class="view-skill-name skill-summary-title">${escapeHtml(title)}</span>
+          ${metaParts.map(([label, value]) => `<span class="view-skill-field skill-summary-meta-pill"><b>${escapeHtml(label)}</b>${escapeHtml(value)}</span>`).join("")}
+        </div>
+        ${effect ? `<p class="skill-summary-effect">${escapeHtml(effect)}</p>` : ""}
       `;
       el.skillSummaryList.appendChild(item);
     });

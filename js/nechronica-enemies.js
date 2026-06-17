@@ -1545,7 +1545,7 @@ function renderEnemyList() {
         <span class="enemy-list-row enemy-list-row-main">
           <!-- 左: 悪意点バッジ / アイコン -->
           <span class="enemy-list-side-left">
-            <span class="enemy-malice-badge ${maliceBadgeClass}" title="悪意点">
+            <span class="enemy-metric-badge enemy-malice-badge ${maliceBadgeClass}" title="悪意点">
               <span class="malice-label">悪意</span>
               <span class="malice-value">${escapeHtml(maliceValue)}</span>
             </span>
@@ -5032,3 +5032,41 @@ async function boot() {
 }
 
 document.addEventListener("DOMContentLoaded", boot);
+
+// v18: Nechronica mobile layout hooks.
+// Keep existing HTML and data logic intact; only add semantic classes that CSS can target.
+(function setupNechronicaMobileLayoutHooks() {
+  function markRows() {
+    const table = document.getElementById("maneuversTable");
+    if (table) {
+      table.classList.add("enemy-mobile-card-table", "enemy-mobile-maneuver-table");
+      table.querySelectorAll("tbody tr").forEach((tr) => {
+        tr.classList.add("enemy-mobile-card-row", "enemy-mobile-maneuver-card");
+      });
+    }
+    document.querySelectorAll(".summary-unit-parts-table").forEach((summaryTable) => {
+      summaryTable.classList.add("enemy-mobile-card-table", "enemy-mobile-damage-table");
+      summaryTable.querySelectorAll("tbody tr").forEach((tr) => {
+        tr.classList.add("enemy-mobile-card-row", "enemy-mobile-damage-card");
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", markRows, { once: true });
+  } else {
+    markRows();
+  }
+
+  const observer = new MutationObserver(() => markRows());
+  const startObserver = () => {
+    const root = document.querySelector("body.nechronica-enemies-page");
+    if (!root) return;
+    observer.observe(root, { childList: true, subtree: true });
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startObserver, { once: true });
+  } else {
+    startObserver();
+  }
+})();

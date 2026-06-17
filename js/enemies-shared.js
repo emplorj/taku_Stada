@@ -855,3 +855,105 @@
   globalScope.EnemiesShared = merged;
   globalScope.NechronicaShared = merged;
 })(typeof window !== "undefined" ? window : globalThis);
+
+/* 2026-06 compatibility shim: expose the wide-mode helper when older shared bundles did not export it. */
+(function exposeEnemyViewWideModeBinder(globalScope) {
+  const shared = globalScope && (globalScope.EnemiesShared || globalScope.NechronicaShared);
+  if (!shared || typeof shared.bindEnemyViewWideModeToggle === "function") return;
+  shared.bindEnemyViewWideModeToggle = function bindEnemyViewWideModeToggle(options = {}) {
+    if (typeof document === "undefined") return false;
+    const toggleId = String(options.toggleId || "viewWideModeToggle");
+    const bodyClass = String(options.bodyClass || "is-enemy-view-wide");
+    const toggle = document.getElementById(toggleId);
+    if (!toggle || toggle.__enemyViewWideBound) return false;
+    const apply = () => {
+      if (document.body) document.body.classList.toggle(bodyClass, !!toggle.checked);
+    };
+    toggle.__enemyViewWideBound = true;
+    toggle.addEventListener("change", apply);
+    apply();
+    return true;
+  };
+})(typeof window !== "undefined" ? window : globalThis);
+
+/* v13 additive common class bridge for enemy sheet DOM. */
+(function addEnemyCommonClassBridge(globalScope) {
+  if (typeof document === "undefined") return;
+
+  function addAll(selector, classNames) {
+    const classes = String(classNames || "").split(/\s+/).filter(Boolean);
+    if (!classes.length) return;
+    document.querySelectorAll(selector).forEach((node) => node.classList.add(...classes));
+  }
+
+  function applyCommonEnemyClasses() {
+    const body = document.body;
+    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page")) return;
+
+    addAll(".editor-action-bar", "enemy-control-bar enemy-action-bar");
+    addAll(".koma-action-row", "enemy-control-bar enemy-koma-bar");
+    addAll(".action-bar-left, .action-bar-right", "enemy-action-group");
+    addAll(".action-bar-meta", "enemy-meta-row");
+    addAll(".action-meta-field", "enemy-meta-field");
+    addAll(".action-btn, .small-square-btn, .list-side-btn", "enemy-action-btn");
+    addAll(".data-block", "enemy-section");
+    addAll(".table-wrap", "enemy-table-wrap");
+    addAll(".enemy-list-card", "enemy-card");
+    addAll(".enemy-list-row", "enemy-card-row");
+    addAll(".enemy-list-icon, .enemy-list-icon-wrap", "enemy-icon");
+    addAll(".enemy-view-card", "enemy-view-item-card");
+    addAll(".enemy-view-tags", "enemy-tag-list");
+    addAll(".enemy-view-tags span, .enemy-list-class-tag, .enemy-list-karma-tag, .enemy-list-time-tag", "enemy-meta-tag");
+    addAll(".enemy-level-badge, .enemy-danger-badge, .enemy-malice-badge", "enemy-metric-badge");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyCommonEnemyClasses, { once: true });
+  } else {
+    applyCommonEnemyClasses();
+  }
+
+  // Lists are often re-rendered after async DB loading; apply safely after common events.
+  ["click", "input", "change"].forEach((eventName) => {
+    document.addEventListener(eventName, () => globalScope.setTimeout(applyCommonEnemyClasses, 0), true);
+  });
+})(typeof window !== "undefined" ? window : globalThis);
+
+/* v15: normalize enemy sheet control layout without changing each skin. */
+(function normalizeEnemyControlBars(globalScope) {
+  if (typeof document === "undefined") return;
+
+  function movePublicSwitchToActionMeta() {
+    const body = document.body;
+    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page")) return;
+    const publicInput = document.getElementById("field-is-public");
+    if (!publicInput) return;
+    const publicLabel = publicInput.closest("label.public-switch-label") || publicInput.closest("label");
+    const actionMeta = document.querySelector(".editor-action-bar .action-bar-meta");
+    if (!publicLabel || !actionMeta || actionMeta.contains(publicLabel)) return;
+    publicLabel.classList.add("enemy-public-switch-field");
+    actionMeta.appendChild(publicLabel);
+  }
+
+  function applyEnemyControlNormalization() {
+    const body = document.body;
+    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page")) return;
+    movePublicSwitchToActionMeta();
+    document.querySelectorAll(".editor-action-bar").forEach((node) => node.classList.add("enemy-control-bar", "enemy-action-bar"));
+    document.querySelectorAll(".koma-action-row").forEach((node) => node.classList.add("enemy-control-bar", "enemy-koma-bar"));
+    document.querySelectorAll(".action-btn, .small-square-btn, .list-side-btn").forEach((node) => node.classList.add("enemy-action-btn"));
+    document.querySelectorAll(".action-bar-meta").forEach((node) => node.classList.add("enemy-meta-row"));
+    document.querySelectorAll(".action-meta-field").forEach((node) => node.classList.add("enemy-meta-field"));
+    document.querySelectorAll(".enemy-level-badge, .enemy-danger-badge, .enemy-malice-badge").forEach((node) => node.classList.add("enemy-metric-badge"));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyEnemyControlNormalization, { once: true });
+  } else {
+    applyEnemyControlNormalization();
+  }
+
+  ["click", "input", "change"].forEach((eventName) => {
+    document.addEventListener(eventName, () => globalScope.setTimeout(applyEnemyControlNormalization, 0), true);
+  });
+})(typeof window !== "undefined" ? window : globalThis);

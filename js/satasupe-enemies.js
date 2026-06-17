@@ -1687,7 +1687,7 @@
         <div class="enemy-list-card ${silhouetteClass}" data-id="${sheet.id}">
           <div class="enemy-list-row">
             <div class="enemy-list-side-left">
-              <div class="enemy-danger-badge" data-danger-band="${dangerStyle.band}" data-danger-step="${dangerStyle.step}">
+              <div class="enemy-metric-badge enemy-danger-badge" data-danger-band="${dangerStyle.band}" data-danger-step="${dangerStyle.step}">
                 <span class="danger-label">危険度</span>
                 <span class="danger-value">${danger}</span>
               </div>
