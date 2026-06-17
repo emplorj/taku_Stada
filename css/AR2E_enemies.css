@@ -2576,8 +2576,8 @@
   .ar2e-enemies-page #attackMethodsTable .col-part { width: 3.5rem; }
   .ar2e-enemies-page #attackMethodsTable .col-target { width: 7.4rem; }
   .ar2e-enemies-page #attackMethodsTable .col-range { width: 5.4rem; }
-  .ar2e-enemies-page #attackMethodsTable .col-hit { width: 6.4rem; }
-  .ar2e-enemies-page #attackMethodsTable .col-damage { width: 6.6rem; }
+  .ar2e-enemies-page #attackMethodsTable .col-hit { width: 8.2rem; }
+  .ar2e-enemies-page #attackMethodsTable .col-damage { width: 8.5rem; }
   .ar2e-enemies-page #attackMethodsTable .col-attribute { width: 7.4rem; }
   .ar2e-enemies-page #attackMethodsTable .col-effect { width: auto; }
   .ar2e-enemies-page #attackMethodsTable .col-row-actions { width: 5.4rem; }
@@ -2591,8 +2591,8 @@
   .ar2e-enemies-page #skillsTable .col-target { width: 7.2rem; }
   .ar2e-enemies-page #skillsTable .col-range { width: 5.3rem; }
   .ar2e-enemies-page #skillsTable .col-cost { width: 3.6rem; }
-  .ar2e-enemies-page #skillsTable .col-hit { width: 6.1rem; }
-  .ar2e-enemies-page #skillsTable .col-damage { width: 6.4rem; }
+  .ar2e-enemies-page #skillsTable .col-hit { width: 7.9rem; }
+  .ar2e-enemies-page #skillsTable .col-damage { width: 8.2rem; }
   .ar2e-enemies-page #skillsTable .col-attribute { width: 7.3rem; }
   .ar2e-enemies-page #skillsTable .col-effect { width: auto; }
   .ar2e-enemies-page #skillsTable .col-row-actions { width: 5.4rem; }
@@ -2635,17 +2635,17 @@
 
   .ar2e-enemies-page .dice-mini-editor .dice-count-input,
   .ar2e-enemies-page .dice-mini-editor .dice-plus-input {
-    width: 2.55ch;
-    min-width: 2.55ch;
-    max-width: 2.9ch;
-    padding-inline: 0.08rem;
+    width: 4.8ch;
+    min-width: 4.8ch;
+    max-width: 5.3ch;
+    padding-inline: 0.12rem;
     text-align: right;
   }
 
   .ar2e-enemies-page .dice-mini-editor .dice-plus-input {
-    width: 2.7ch;
-    min-width: 2.55ch;
-    max-width: 3.4ch;
+    width: 5ch;
+    min-width: 4.8ch;
+    max-width: 5.6ch;
   }
 
   .ar2e-enemies-page #skillsTable .cell-sl input,
@@ -2787,28 +2787,28 @@
       flex: 0 0 auto;
     }
 
-    .ar2e-enemies-page #attackMethodsTable .cell-name { flex: 1 1 14rem; order: 10; }
-    .ar2e-enemies-page #attackMethodsTable .cell-kind { flex: 0 1 6.8rem; order: 20; }
-    .ar2e-enemies-page #attackMethodsTable .cell-part { flex: 0 1 3.7rem; order: 30; }
-    .ar2e-enemies-page #attackMethodsTable .cell-target { flex: 0 1 7.2rem; order: 40; }
-    .ar2e-enemies-page #attackMethodsTable .cell-range { flex: 0 1 5.2rem; order: 50; }
-    .ar2e-enemies-page #attackMethodsTable .cell-hit { flex: 0 1 5.75rem; order: 60; }
-    .ar2e-enemies-page #attackMethodsTable .cell-damage { flex: 0 1 5.9rem; order: 70; }
-    .ar2e-enemies-page #attackMethodsTable .cell-attribute { flex: 0 1 7.4rem; order: 80; }
+    .ar2e-enemies-page #attackMethodsTable .cell-name { flex: 1 1 13rem; order: 10; }
+    .ar2e-enemies-page #attackMethodsTable .cell-kind { flex: 0 1 6.2rem; order: 20; }
+    .ar2e-enemies-page #attackMethodsTable .cell-part { flex: 0 1 3.1rem; order: 30; }
+    .ar2e-enemies-page #attackMethodsTable .cell-target { flex: 0 1 6.2rem; order: 40; }
+    .ar2e-enemies-page #attackMethodsTable .cell-range { flex: 0 1 4.25rem; order: 50; }
+    .ar2e-enemies-page #attackMethodsTable .cell-hit { flex: 0 1 8.1rem; order: 60; }
+    .ar2e-enemies-page #attackMethodsTable .cell-damage { flex: 0 1 8.35rem; order: 70; }
+    .ar2e-enemies-page #attackMethodsTable .cell-attribute { flex: 0 1 6.75rem; order: 80; }
 
-    .ar2e-enemies-page #skillsTable .cell-name { flex: 1 1 13rem; order: 10; }
-    .ar2e-enemies-page #skillsTable .cell-sl { flex: 0 1 3.4rem; order: 20; }
-    .ar2e-enemies-page #skillsTable .cell-timing { flex: 0 1 7.8rem; order: 30; }
-    .ar2e-enemies-page #skillsTable .cell-judge { flex: 0 1 6.6rem; order: 40; }
-    .ar2e-enemies-page #skillsTable .cell-target { flex: 0 1 7.2rem; order: 50; }
-    .ar2e-enemies-page #skillsTable .cell-range { flex: 0 1 5.2rem; order: 60; }
-    .ar2e-enemies-page #skillsTable .cell-cost { flex: 0 1 3.6rem; order: 70; }
-    .ar2e-enemies-page #skillsTable .cell-hit { flex: 0 1 5.75rem; order: 80; }
-    .ar2e-enemies-page #skillsTable .cell-damage { flex: 0 1 5.9rem; order: 90; }
-    .ar2e-enemies-page #skillsTable .cell-attribute { flex: 0 1 7.4rem; order: 100; }
+    .ar2e-enemies-page #skillsTable .cell-name { flex: 1 1 12rem; order: 10; }
+    .ar2e-enemies-page #skillsTable .cell-sl { flex: 0 1 2.55rem; order: 20; }
+    .ar2e-enemies-page #skillsTable .cell-timing { flex: 0 1 7rem; order: 30; }
+    .ar2e-enemies-page #skillsTable .cell-judge { flex: 0 1 5.8rem; order: 40; }
+    .ar2e-enemies-page #skillsTable .cell-target { flex: 0 1 6.2rem; order: 50; }
+    .ar2e-enemies-page #skillsTable .cell-range { flex: 0 1 4.25rem; order: 60; }
+    .ar2e-enemies-page #skillsTable .cell-cost { flex: 0 1 2.8rem; order: 70; }
+    .ar2e-enemies-page #skillsTable .cell-hit { flex: 0 1 8.1rem; order: 80; }
+    .ar2e-enemies-page #skillsTable .cell-damage { flex: 0 1 8.35rem; order: 90; }
+    .ar2e-enemies-page #skillsTable .cell-attribute { flex: 0 1 6.75rem; order: 100; }
 
     .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-attribute {
-      max-width: 9rem;
+      max-width: 7.4rem;
     }
 
     .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-effect {
@@ -2844,7 +2844,7 @@
 
     .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .dice-mini-editor.in-table {
       justify-content: flex-start;
-      min-width: 5.05rem;
+      min-width: 7.2rem;
     }
   }
 
@@ -2862,16 +2862,16 @@
     .ar2e-enemies-page #attackMethodsTable .cell-kind { flex-basis: 6.5rem; }
     .ar2e-enemies-page #attackMethodsTable .cell-part { flex-basis: 3.5rem; }
     .ar2e-enemies-page #attackMethodsTable .cell-target,
-    .ar2e-enemies-page #skillsTable .cell-target { flex-basis: 6.8rem; }
+    .ar2e-enemies-page #skillsTable .cell-target { flex-basis: 5.9rem; }
     .ar2e-enemies-page #attackMethodsTable .cell-range,
-    .ar2e-enemies-page #skillsTable .cell-range { flex-basis: 4.9rem; }
+    .ar2e-enemies-page #skillsTable .cell-range { flex-basis: 3.9rem; }
     .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-hit,
-    .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-damage { flex-basis: 5.75rem; }
-    .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-attribute { flex-basis: 6.8rem; max-width: 7.6rem; }
-    .ar2e-enemies-page #skillsTable .cell-timing { flex-basis: 7.4rem; }
-    .ar2e-enemies-page #skillsTable .cell-judge { flex-basis: 6.4rem; }
+    .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-damage { flex-basis: 8.1rem; }
+    .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-attribute { flex-basis: 6.4rem; max-width: 7rem; }
+    .ar2e-enemies-page #skillsTable .cell-timing { flex-basis: 6.8rem; }
+    .ar2e-enemies-page #skillsTable .cell-judge { flex-basis: 5.8rem; }
     .ar2e-enemies-page #skillsTable .cell-sl,
-    .ar2e-enemies-page #skillsTable .cell-cost { flex-basis: 3.4rem; }
+    .ar2e-enemies-page #skillsTable .cell-cost { flex-basis: 2.7rem; }
   }
 
   @container tablecontainer (max-width: 430px) {
@@ -3264,9 +3264,9 @@ body.ar2e-enemies-page #dropItemsTable .cell-drop-total input[readonly] {
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-hit,
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-damage {
-    flex: 0 1 4.9rem;
-    min-width: 4.9rem;
-    max-width: 5.25rem;
+    flex: 0 1 7.2rem;
+    min-width: 7.2rem;
+    max-width: 7.7rem;
   }
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-attribute {
@@ -3302,10 +3302,10 @@ body.ar2e-enemies-page #dropItemsTable .cell-drop-total input[readonly] {
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .dice-mini-editor .dice-count-input,
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .dice-mini-editor .dice-plus-input {
-    width: 2.3ch;
-    min-width: 2.3ch;
-    max-width: 2.5ch;
-    padding-inline: 0.05rem;
+    width: 4.3ch;
+    min-width: 4.3ch;
+    max-width: 4.8ch;
+    padding-inline: 0.08rem;
   }
 }
 
@@ -3421,10 +3421,10 @@ body.ar2e-enemies-page #dropItemsTable .cell-drop-total input[readonly] {
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-hit,
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-damage {
-    flex: 0 1 4.45rem;
-    width: 4.45rem;
-    min-width: 4.45rem;
-    max-width: 4.45rem;
+    flex: 0 1 6.85rem;
+    width: 6.85rem;
+    min-width: 6.85rem;
+    max-width: 6.85rem;
   }
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-attribute {
@@ -3635,6 +3635,26 @@ body.ar2e-enemies-page #dropItemsTable .cell-drop-total input[readonly] {
     overflow-wrap: anywhere;
   }
 
+  body.ar2e-enemies-page .block-drops > .block-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  body.ar2e-enemies-page .block-drops > .block-head h3 {
+    flex: none;
+    width: 100%;
+    overflow-wrap: normal;
+    white-space: nowrap;
+  }
+
+  body.ar2e-enemies-page .block-drops > .block-head .block-head-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    width: 100%;
+  }
+
   body.ar2e-enemies-page .basic-info-group {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 4.6rem;
@@ -3721,17 +3741,31 @@ body.ar2e-enemies-page #dropItemsTable .cell-drop-total input[readonly] {
    -------------------------------------------------------------------------- */
 @layer ar2e-theme {
   @container tablecontainer (max-width: 1150px) {
+    .ar2e-enemies-page #skillsTable .cell-sl {
+      flex: 0 1 2.45rem;
+    }
+
+    .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-target {
+      flex: 0 1 5.9rem;
+    }
+
+    .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-range {
+      flex: 0 1 3.9rem;
+    }
+
     .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-hit {
-      flex: 0 1 6.7rem;
+      flex: 0 1 8.05rem;
+      min-width: 7.6rem;
     }
 
     .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-damage {
-      flex: 0 1 7rem;
+      flex: 0 1 8.25rem;
+      min-width: 7.8rem;
     }
 
     .ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-attribute {
-      flex: 0 1 5.2rem;
-      max-width: 5.8rem;
+      flex: 0 1 6.4rem;
+      max-width: 6.9rem;
     }
   }
 
@@ -3855,10 +3889,10 @@ body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) :is(.cell-hit, .ce
   }
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) :is(.cell-hit, .cell-damage) {
-    flex: 0 0 5.15rem;
-    width: 5.15rem;
-    min-width: 5.15rem;
-    max-width: 5.15rem;
+    flex: 0 0 7.35rem;
+    width: 7.35rem;
+    min-width: 7.35rem;
+    max-width: 7.35rem;
   }
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-attribute {
@@ -3875,7 +3909,7 @@ body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) :is(.cell-hit, .ce
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .dice-mini-editor.in-table {
     display: inline-grid;
-    grid-template-columns: 2.2ch max-content max-content 2.2ch;
+    grid-template-columns: 4.3ch max-content max-content 4.3ch;
     align-items: center;
     justify-content: start;
     column-gap: 0.04rem;
@@ -3886,19 +3920,19 @@ body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) :is(.cell-hit, .ce
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .dice-mini-editor .dice-count-input,
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .dice-mini-editor .dice-plus-input {
-    width: 2.2ch;
-    min-width: 2.2ch;
-    max-width: 2.2ch;
-    padding-inline: 0.04rem;
+    width: 4.3ch;
+    min-width: 4.3ch;
+    max-width: 4.3ch;
+    padding-inline: 0.08rem;
   }
 }
 
 @media (max-width: 430px) {
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) :is(.cell-hit, .cell-damage) {
-    flex-basis: 5.05rem;
-    width: 5.05rem;
-    min-width: 5.05rem;
-    max-width: 5.05rem;
+    flex-basis: 7.2rem;
+    width: 7.2rem;
+    min-width: 7.2rem;
+    max-width: 7.2rem;
   }
 
   body.ar2e-enemies-page :is(#attackMethodsTable, #skillsTable) .cell-attribute {

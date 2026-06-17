@@ -1859,7 +1859,7 @@
             <input type="number" data-dice-key="damageDice" data-dice-part="plus" min="0" step="1" value="${dmg.plus}" placeholder="0" class="dice-plus-input">
           </span>
         </td>
-        <td class="cell-attribute" data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="火(魔)" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
+        <td class="cell-attribute" data-label="属性"><input type="text" data-key="attribute" value="${escapeHtml(skill.attribute)}" list="ar2eAttributeList" placeholder="白兵(物理)" ${skillAttrTheme ? `data-skill-attr-theme="${skillAttrTheme}"` : ""}></td>
         <td class="cell-effect" data-label="効果">${isEffectMultiline
           ? `<textarea data-key="effect" placeholder="効果" rows="2">${escapeHtml(skill.effect)}</textarea>`
           : `<input type="text" data-key="effect" value="${escapeHtml(skill.effect)}" placeholder="効果">`
@@ -1962,7 +1962,7 @@
       const lineTotal = Number.isFinite(qty) && Number.isFinite(unit) ? qty * unit : "";
       tr.innerHTML = `
         <td class="row-drag-cell" data-label=""><span class="drag-hint" draggable="true" aria-hidden="true" title="このEXドロップ行をドラッグで並べ替え">⠿</span></td>
-        <td colspan="2" class="drop-ex-label-cell cell-drop-min" data-label="出目"><span class="drop-ex-label"><span class="drop-ex-label-full">EXドロップ</span><span class="drop-ex-label-short">EX</span></span></td>
+        <td colspan="2" class="drop-ex-label-cell cell-drop-min" data-label="出目"><span class="drop-ex-label">EXドロップ</span></td>
         <td class="cell-drop-name" data-label="名前"><input type="text" data-ex-drop-key="name" value="${escapeHtml(item.name || "")}" placeholder="EXドロップ名"></td>
         <td class="cell-drop-price" data-label="単価"><input type="text" data-ex-drop-key="unitPrice" value="${escapeHtml(item.unitPrice || "")}" placeholder="1000G"></td>
         <td class="cell-drop-qty" data-label="個数"><input type="number" data-ex-drop-key="quantity" value="${escapeHtml(item.quantity || "1")}" min="1" step="1" class="num-2"></td>
