@@ -766,7 +766,6 @@
   /* 数値表示を一元化 */
   .ar2e-enemies-page {
     --ar-num-font: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
-    --ar-num-size: 1.15rem; /* linter/読み込み順対策として再定義 */
   }
 
   .ar2e-enemies-page input[type="number"] {
@@ -1914,50 +1913,16 @@
     background: rgba(250, 204, 21, 0.12);
   }
 
-
-  .ar2e-enemies-page .enemy-list-collapsible { border: none; border-radius: 0; box-shadow: none; }
-  .ar2e-enemies-page .enemy-list-collapsible > summary { position: relative; cursor: pointer; list-style: none; margin-bottom: 10px; }
-  .ar2e-enemies-page .enemy-list-collapsible > summary::after,
-  .ar2e-enemies-page .enemy-list-collapsible > summary::-webkit-details-marker { display: none; }
-  .ar2e-enemies-page .enemy-list-collapsible > summary::before {
-    content: "\25B6"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); transition: transform 0.2s ease;
-    width: 20px; height: 20px; line-height: 20px; text-align: center; font-size: 1rem; color: #ddd; z-index: 3; pointer-events: none;
-  }
-  .ar2e-enemies-page .enemy-list-collapsible[open] > summary::before { transform: translateY(-50%) rotate(90deg); }
-  .ar2e-enemies-page .enemy-list-collapsible .enemy-list-pane { border-top: none; padding-top: 0.4rem; }
-
   .ar2e-enemies-page .enemy-list-title {
-    display: flex;
-    align-items: center;
-    margin: 0;
-    padding-top: 10px;
-    padding-bottom: 0;
-    padding-left: 40px;
-    padding-right: 0;
-    min-height: 0;
-    font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
-    font-size: 1.5em;
-    font-weight: normal;
-    color: #f5f0e5;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 217, 102, 0.35);
     background: linear-gradient(90deg, #0f172a 0%, #1e293b 32%, var(--ar-accent-main) 100%);
-    border: none;
-    border-radius: 8px 0 0 8px;
-    width: calc(100% + 20px);
-    margin-right: -20px;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 1;
-    overflow: visible;
-    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
   }
 
   .enemy-list-pane {
     border: 1px solid var(--ar-border); border-top: none; border-radius: 0 0 6px 6px; padding: 12px; background: var(--ar-bg-panel);
   }
 
-  .list-head, .enemy-sort-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .enemy-list-controls { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex-wrap: nowrap; }
+  .enemy-list-controls { white-space: nowrap; flex-wrap: nowrap; }
   .enemy-search-row { margin-top: 8px; }
   .search-input-group { display: flex; width: 100%; }
   .enemy-search-field-select {
@@ -1987,7 +1952,7 @@
   }
   .ar2e-enemies-page #exportKomaJsonButton { border-color: var(--ar-accent-sub); background: linear-gradient(180deg, #253149 0%, #1c273a 100%); color: #dbe7ff; }
   .ar2e-enemies-page #exportKomaJsonButton:hover { border-color: #7aa6ff; background: linear-gradient(180deg, #2d3d5f 0%, #23324d 100%); color: #ffffff; box-shadow: 2px 2px 0 #000, 0 0 8px rgba(79, 128, 255, 0.4); }
-  .ar2e-enemies-page .enemy-page-size-input { width: 2.4em !important; min-width: 0 !important; max-width: 2.4em !important; padding: 0.24rem 0.22rem; font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+  .ar2e-enemies-page .enemy-page-size-input { padding: 0.24rem 0.22rem; font-size: 1.02rem; font-variant-numeric: tabular-nums; }
   .enemy-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 0.6rem; max-height: 42vh; overflow-x: hidden; overflow-y: auto; }
 
   .ar2e-enemies-page .enemy-list-item { margin: 0; }

@@ -115,6 +115,293 @@
   min-height: 6rem;
 }
 
+/* --------------------------------------------------------------------------
+   Shared enemy list collapsible layout
+   -------------------------------------------------------------------------- */
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible,
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible summary,
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible summary *,
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-pane,
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-pane * {
+  box-sizing: border-box;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible > summary {
+  position: relative;
+  display: block;
+  margin-bottom: 10px;
+  padding: 0;
+  cursor: pointer;
+  list-style: none;
+  outline: none;
+  user-select: none;
+  overflow: visible;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible > summary::after,
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible > summary::-webkit-details-marker {
+  display: none;
+  content: none;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible > summary::before {
+  content: "\25B6";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 1rem;
+  color: #ddd;
+  z-index: 3;
+  pointer-events: none;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible[open] > summary::before {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-collapsible .enemy-list-pane {
+  border-top: none;
+  padding-top: 0.4rem;
+  max-width: 100%;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-title {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding-top: 10px;
+  padding-bottom: 0;
+  padding-left: 40px;
+  padding-right: 0;
+  min-height: 0;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.5em;
+  font-weight: normal;
+  color: #f5f0e5;
+  border: none;
+  border-radius: 8px 0 0 8px;
+  width: calc(100% + 20px);
+  margin-right: -20px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) :is(.list-head, .pane-header, .enemy-sort-row) {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-sort-row {
+  margin-top: 0.35rem;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-sort-row .enemy-list-controls {
+  margin-left: auto;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-page-size-input {
+  width: 2.4em !important;
+  min-width: 0 !important;
+  max-width: 2.4em !important;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-pager {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-top: 0.55rem;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-pager-inline {
+  margin-top: 0;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-pager-info {
+  font-size: 0.8rem;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-search-row {
+  display: flex;
+  align-items: center;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-search-field-select {
+  min-width: 7.2rem;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-time-tag {
+  font-family: var(--font-latin-ui, "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+@media (max-width: 600px) {
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-card {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.55rem !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0.55rem 0.62rem !important;
+    overflow: visible !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-row,
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-row-main {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 0.5rem 0.62rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-side-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) :is(.enemy-level-badge, .enemy-danger-badge, .enemy-malice-badge) {
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-icon-wrap {
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-content-main {
+    flex: 1 1 9rem !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-upper-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    min-width: 0 !important;
+    flex-wrap: nowrap !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-name {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 1.02rem !important;
+    line-height: 1.25 !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-lower-info {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 0.18rem 0.55rem !important;
+    margin-top: 0.18rem !important;
+    font-size: 0.68rem !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-side-right-group {
+    display: flex !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    padding-top: 0.45rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    gap: 0.45rem !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-meta-column {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    align-items: flex-start !important;
+    justify-content: flex-end !important;
+    gap: 0.16rem !important;
+    margin-top: 0 !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-time-tag {
+    font-size: 0.72rem !important;
+    text-align: left !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-btns-row {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    justify-content: flex-end !important;
+    align-items: flex-end !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+    margin-left: auto !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .list-side-btn {
+    width: 42px !important;
+    height: 40px !important;
+    min-width: 42px !important;
+    padding: 2px 0 !important;
+    font-size: 0.58rem !important;
+    line-height: 1.05 !important;
+  }
+
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .list-side-btn i {
+    font-size: 0.95rem !important;
+    margin-bottom: -4px !important;
+  }
+}
+
 @media (max-width: 760px) {
   :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode .enemy-view-home-link {
     position: static;
@@ -369,8 +656,9 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is
   padding: 0.75rem;
   color: #f8fafc;
   background: rgba(5, 8, 16, 0.94);
+  --ar-num-size: 1.25rem;
   font-family: var(--font-latin-ui, "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif);
-  font-size: 0.84rem;
+  font-size: var(--ar-num-size);
   line-height: 1.45;
   white-space: pre;
 }

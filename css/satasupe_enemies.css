@@ -403,21 +403,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border: 1px solid #665244;
   border-radius: 5px;
   background: #3b2b1c;
   color: #e9e5df;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .danger-label {
-  font-size: 0.64rem;
+  font-size: 0.6rem;
+  margin-bottom: -2px;
 }
 
 .danger-value {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-family:
     "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
   font-weight: 400;
@@ -591,8 +593,6 @@
 .enemy-list-time-tag {
   font-size: 1rem;
   color: #7d6b5d;
-  white-space: nowrap;
-  line-height: 1;
 }
 
 .enemy-list-btns-row {
@@ -1105,65 +1105,7 @@ tr.is-row-dragging {
   opacity: 0.72;
 }
 
-.enemy-list-collapsible {
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.enemy-list-collapsible > summary {
-  position: relative;
-  cursor: pointer;
-  list-style: none;
-  margin-bottom: 10px;
-}
-
-.enemy-list-collapsible > summary::after {
-  content: none;
-}
-
-.enemy-list-collapsible > summary::-webkit-details-marker {
-  display: none;
-}
-
-.enemy-list-collapsible > summary::before {
-  content: "\25B6";
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  transition: transform 0.2s ease;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  text-align: center;
-  font-size: 1rem;
-  color: #ddd;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.enemy-list-collapsible[open] > summary::before {
-  transform: translateY(-50%) rotate(90deg);
-}
-
-.enemy-list-collapsible .enemy-list-pane {
-  border-top: none;
-  padding-top: 0.4rem;
-}
 .enemy-list-title {
-  display: flex;
-  align-items: center;
-  margin: 0;
-  padding-top: 10px;
-  padding-bottom: 0;
-  padding-left: 40px;
-  padding-right: 0;
-  min-height: 0;
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
-  font-size: 1.5em;
-  font-weight: normal;
-  color: #f5f0e5;
   text-shadow:
     0 1px 1px rgba(0, 0, 0, 0.5),
     0 0 8px rgba(123, 29, 42, 0.35);
@@ -1173,23 +1115,6 @@ tr.is-row-dragging {
     #151515 62%,
     var(--satasupe-orange) 100%
   );
-  border: none;
-  border-radius: 8px 0 0 8px;
-  width: calc(100% + 20px);
-  margin-right: -20px;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-  overflow: visible;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
-}
-
-.enemy-sort-row {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 0.35rem;
 }
 
 .sort-chip {
@@ -1214,11 +1139,7 @@ tr.is-row-dragging {
 }
 
 .enemy-list-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
   color: #d8cfbf;
-  font-size: 0.78rem;
 }
 
 .enemy-page-size-input {
@@ -1228,9 +1149,6 @@ tr.is-row-dragging {
   border-radius: 4px;
   padding: 0.22rem 0.5rem;
   font-size: 0.78rem;
-  width: 2.4em !important;
-  min-width: 0 !important;
-  max-width: 2.4em !important;
 }
 
 .enemy-page-size-input:focus {
@@ -1253,25 +1171,8 @@ tr.is-row-dragging {
   background: #2a2325;
 }
 
-.enemy-list-pager {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-wrap: wrap;
-  margin-top: 0.55rem;
-}
-
-.enemy-sort-row .enemy-list-controls {
-  margin-left: auto;
-}
-
-.enemy-list-pager-inline {
-  margin-top: 0;
-}
-
 .enemy-list-pager-info {
   color: #cfc5b8;
-  font-size: 0.8rem;
 }
 
 .pager-btn {
@@ -1295,8 +1196,6 @@ tr.is-row-dragging {
 }
 
 .enemy-search-row {
-  display: flex;
-  align-items: center;
   gap: 6px;
   margin-bottom: 8px;
 }

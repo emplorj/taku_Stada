@@ -1042,7 +1042,6 @@
     }
     
     let r, g, b;
-    let textColor = "#f1f5f9"; // 最初から白系
 
     if (level <= 15) {
       // 緑 (#93c47d) -> 黄色 (#ffd666)
@@ -1059,8 +1058,14 @@
     } else {
       // 赤固定
       r = 0xcc; g = 0x00; b = 0x00;
-      textColor = "#ffffff";
     }
+
+    // Lvバッジは白文字固定。薄色帯でも読めるよう背景側を少し濃くする。
+    const shade = 0.72;
+    r = Math.round(r * shade);
+    g = Math.round(g * shade);
+    b = Math.round(b * shade);
+    const textColor = "#ffffff";
 
     return {
       class: "",

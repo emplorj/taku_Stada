@@ -56,10 +56,6 @@ body.nechronica-enemies-page {
     "isemin", "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
 }
 
-.enemy-list-collapsible summary,
-.enemy-list-collapsible summary *,
-.enemy-list-pane,
-.enemy-list-pane *,
 .editor-pane,
 .editor-pane * {
   box-sizing: border-box;
@@ -79,79 +75,11 @@ body.nechronica-enemies-page {
   grid-template-columns: 1fr;
 }
 
-.enemy-list-collapsible {
-  border: none;
-  background: transparent;
-  overflow: visible;
-}
-
-.enemy-list-collapsible summary {
-  position: relative;
-  cursor: pointer;
-  outline: none;
-  list-style: none;
-  display: block;
-  margin-bottom: 10px;
-  padding: 0;
-  user-select: none;
-  overflow: visible;
-}
-
-.enemy-list-collapsible summary::after {
-  content: none;
-}
-
-.enemy-list-collapsible summary::-webkit-details-marker {
-  display: none;
-}
-
-.enemy-list-collapsible summary::before {
-  content: "\25B6";
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  transition: transform 0.2s ease;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  text-align: center;
-  font-size: 1rem;
-  color: #ddd;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.enemy-list-collapsible[open] summary::before {
-  transform: translateY(-50%) rotate(90deg);
-}
-
 .enemy-list-title {
-  display: flex;
-  align-items: center;
-  margin: 0;
-  padding-top: 10px;
-  padding-bottom: 0;
-  padding-left: 40px;
-  padding-right: 0;
-  min-height: 0;
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
-  font-size: 1.5em;
-  font-weight: normal;
-  color: #f5f0e5;
   text-shadow:
     0 1px 1px rgba(0, 0, 0, 0.5),
     0 0 8px rgba(123, 29, 42, 0.35);
   background: linear-gradient(90deg, #2b0f16 0%, #4a121e 42%, #1f191d 100%);
-  border: none;
-  border-radius: 8px 0 0 8px;
-  width: calc(100% + 20px);
-  margin-right: -20px;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-  overflow: visible;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
 }
 
 .enemy-list-pane,
@@ -169,11 +97,6 @@ body.nechronica-enemies-page {
 .enemy-list-pane {
   border: 2px solid var(--sheet-border);
   border-top: none;
-  padding-top: 0.4rem;
-  max-width: 100%;
-  width: 100%;
-  margin-left: 0;
-  margin-right: 0;
 }
 
 .editor-pane {
@@ -343,7 +266,6 @@ body.nechronica-enemies-page .save-status {
 }
 
 .enemy-search-row {
-  display: flex;
   width: 100%;
   margin: 0.6rem 0;
 }
@@ -361,26 +283,13 @@ body.nechronica-enemies-page .save-status {
 }
 
 .enemy-search-input {
-  flex: 1;
   margin: 0;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 
-.enemy-sort-row {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 0.35rem;
-}
-
 .enemy-list-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
   color: #d8cfbf;
-  font-size: 0.78rem;
 }
 
 .enemy-page-size-input {
@@ -390,9 +299,6 @@ body.nechronica-enemies-page .save-status {
   border-radius: 4px;
   padding: 0.22rem 0.5rem;
   font-size: 0.78rem;
-  width: 2.4em !important;
-  min-width: 0 !important;
-  max-width: 2.4em !important;
 }
 
 .enemy-page-size-input:focus {
@@ -444,25 +350,8 @@ body.nechronica-enemies-page .save-status {
   gap: 0.4rem;
 }
 
-.enemy-list-pager {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-wrap: wrap;
-  margin-top: 0.55rem;
-}
-
-.enemy-sort-row .enemy-list-controls {
-  margin-left: auto;
-}
-
-.enemy-list-pager-inline {
-  margin-top: 0;
-}
-
 .enemy-list-pager-info {
   color: #cfc5b8;
-  font-size: 0.8rem;
 }
 
 .pager-btn {
@@ -3018,100 +2907,9 @@ body.nechronica-enemies-page .save-status {
     font-size: 0.72rem;
   }
 
-  /* 重なり（笠庵り）を物理的に防ぐ 2段スタック構成 */
-  .enemy-list-card {
-    padding: 8px 10px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important; /* 1段目と2段目の間にしっかり隙間を作る */
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-  }
-
-  /* 1段目: アイコン、名前、行動値 */
-  .enemy-list-row-main {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 10px !important;
-    width: 100% !important;
-    position: relative !important;
-  }
-
-  .enemy-list-side-left {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .enemy-list-content-main {
-    flex: 1 !important;
-    min-width: 0 !important;
-  }
-
   .enemy-list-name {
-    font-size: 1.1rem !important;
     font-weight: bold !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
     color: #ffdbe4;
-  }
-
-  /* 2段目: 作者・ID（左）と、操作ボタン（右） */
-  .enemy-list-side-right-group {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: flex-end !important;
-    width: 100% !important;
-    padding-top: 6px !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-    margin-left: 0 !important;
-  }
-
-  /* 2段目左側: 行動値・作者・ID */
-  .enemy-list-lower-info {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 2px !important;
-    font-size: 0.65rem !important;
-    opacity: 0.8;
-  }
-
-  /* 2段目右側: 操作ボタン */
-  .enemy-list-btns-row {
-    display: flex !important;
-    gap: 8px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .list-side-btn {
-    width: 44px !important;
-    height: 42px !important;
-    padding: 2px 0 !important;
-    font-size: 0.6rem !important;
-    border-radius: 4px !important;
-  }
-
-  .list-side-btn i {
-    font-size: 1rem !important;
-    margin-bottom: -4px !important;
-  }
-
-  /* 共通パーツのサイズ調整 */
-  .enemy-malice-badge {
-    width: 36px !important;
-    height: 36px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .enemy-list-icon-wrap {
-    width: 36px !important;
-    height: 36px !important;
-    flex: 0 0 36px !important;
   }
 
   .enemy-meta-chip {
@@ -3119,10 +2917,6 @@ body.nechronica-enemies-page .save-status {
     font-size: 0.72rem !important;
     padding: 0 6px !important;
     white-space: nowrap !important;
-  }
-
-  .enemy-list-meta-column {
-    display: none !important;
   }
 
   .enemy-list-inline-edit {
