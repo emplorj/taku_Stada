@@ -1,0 +1,42 @@
+/* 247_guild_common.css
+   Common baseline for pages under /247_guild.
+   Keep page-specific rules in 247_guild.css, request_form.css, or sw25/*.css.
+*/
+:root {
+  --primary-color: #b22222;
+  --secondary-color: #506db9;
+  --wood-color: #8b4513;
+  --gold-color: #c8a464;
+  --gold-glow: rgba(255, 223, 150, 0.8);
+}
+
+body.guild-background,
+body.page-request-form-guild {
+  min-height: 100vh;
+}
+
+.page-header {
+  box-sizing: border-box;
+}
+
+.page-header .subtitle {
+  font-family: "Makinas-4-Flat", "Noto Serif JP", sans-serif;
+}
+
+.page-nav a {
+  text-decoration: none;
+}
+
+.small-button,
+.add-row-btn,
+.copy-btn {
+  box-sizing: border-box;
+}
+
+.dynamic-rows-container {
+  box-sizing: border-box;
+}
+
+.toast-notification {
+  box-sizing: border-box;
+}

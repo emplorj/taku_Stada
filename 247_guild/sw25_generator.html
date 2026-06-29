@@ -13,8 +13,8 @@
   <meta property="og:url" content="https://emplorj.github.io/taku_Stada/247_guild/sw25_generator.html" />
   <!-- Stylesheets -->
   <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="css/247_guild_common.css" />
   <link rel="stylesheet" href="css/247_guild.css" />
-  <link rel="stylesheet" href="css/request_form.css" />
   <link rel="stylesheet" href="css/sw25_generator.css" />
   <!-- Fonts and Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
@@ -24,7 +24,7 @@
     rel="stylesheet" />
 </head>
 
-<body data-no-sidemenu="true" class="guild-background">
+<body data-no-sidemenu="true" class="guild-background sw25-generator-page">
   <div class="page-wrapper">
     <!-- ヘッダー -->
     <header class="page-header">
@@ -58,6 +58,10 @@
               <li>
                 <a href="#" class="sidebar-link" data-target="panel-enemy-enhancement"><i class="fa-solid fa-ghost"></i>
                   敵強化</a>
+              </li>
+              <li>
+                <a href="#" class="sidebar-link" data-target="panel-character-analysis"><i
+                    class="fa-solid fa-chart-simple"></i> キャラシ分析</a>
               </li>
             </ul>
           </nav>
@@ -333,47 +337,46 @@
             <!-- 敵強化パネル -->
             <div id="panel-enemy-enhancement" class="form-panel">
               <h3><i class="fa-solid fa-ghost"></i> 敵強化</h3>
+              <div class="enemy-enhancement-howto">
+                <span class="enemy-howto-main">コマの <strong>「ココフォリア用コマデータ（クリップボードへコピー）」</strong> を貼る → 強化を適用 → 出力をコピー → ココフォリアで貼り付け</span>
+              </div>
               <div class="enhancement-io-container vertical-layout">
 
                 <!-- 入力 -->
-                <div class="enhancement-column">
-                  <h4><i class="fa-solid fa-file-import"></i> 入力JSON</h4>
-                  <textarea id="enemy-json-input" placeholder="ここに敵のJSONデータを貼り付け..."></textarea>
+                <div class="enhancement-column enhancement-input-column">
+                  <h4><i class="fa-solid fa-file-import"></i> 入力</h4>
+                  <input type="text" id="enemy-json-input" autocomplete="off" placeholder="ココフォリア用コマデータJSONを貼り付け。補助: ゆとシートURL / mode=json" />
+                  <div class="input-actions">
+                    <button type="button" id="apply-enemy-enhancement-btn" class="add-row-btn">
+                      <i class="fa-solid fa-hammer"></i> 強化を適用
+                    </button>
+                  </div>
                 </div>
 
                 <!-- UI -->
-                <div class="enhancement-controls">
-                  <h4><i class="fa-solid fa-screwdriver-wrench"></i> 強化設定</h4>
-
-                  <div class="enhancement-section-wrapper">
-                    <!-- 剣のかけら -->
-                    <div class="enhancement-sub-section">
-                      <h5><i class="fa-solid fa-khanda"></i> 剣のかけら</h5>
-                      <p>入力した「剣のかけらの数」だけ、敵のすべての部位の「HP」「MP」と「生命・精神抵抗」が上昇します。</p>
-                      <div class="form-item-inline shard-count-line">
-                        <label for="sword-shards-count">剣のかけらの数:</label>
-                        <input type="number" id="sword-shards-count" value="0" min="0">
+                <div class="enhancement-controls enemy-enhancement-modern">
+                  <div class="enemy-enhancement-modern-header">
+                    <h4><i class="fa-solid fa-screwdriver-wrench"></i> 強化設定</h4>
+                    <div class="enemy-enhancement-topline">
+                      <label class="enemy-shard-control">
+                        <span class="enemy-shard-label"><i class="fa-solid fa-khanda"></i> 剣のかけら</span>
+                        <input type="number" id="sword-shards-count" value="0" min="0" aria-label="剣のかけら">
+                      </label>
+                      <div class="enemy-tp-total-pill" aria-label="消費トレジャーポイント">
+                        <span>消費TP</span>
+                        <strong id="treasure-points-total" class="display-value">0</strong>
+                        <span>P</span>
                       </div>
                     </div>
-
-                    <!-- トレジャーポイント -->
-                    <div class="enhancement-sub-section">
-                      <h5><i class="fa-solid fa-gem"></i> トレジャーポイント</h5>
-                      <div class="form-item-inline tp-summary-line">
-                        <label for="treasure-points-total">消費トレジャーポイント:</label>
-                        <span id="treasure-points-total" class="display-value">0</span>
-                      </div>
-                      <div id="tp-selection-container" class="dynamic-rows-container"></div>
-                      <button type="button" id="add-tp-ability-btn" class="add-row-btn"><i class="fa fa-plus"></i>
-                        強化項目を追加</button>
-                    </div>
+                    <p class="enemy-enhancement-note">剣のかけらは全ての部位のHP/MP/生命・精神抵抗を入力数ぶん上昇。TPは一覧表の有効セルをクリックして選択します。</p>
+                    <div id="tp-selection-container" class="tp-selected-list" aria-live="polite"></div>
                   </div>
 
-                  <details class="treasure-point-details">
-                    <summary>トレジャーポイント強化一覧表</summary>
+                  <div class="enhancement-sub-section treasure-point-reference enemy-tp-table-card">
+                    <h5><i class="fa-solid fa-table-list"></i> トレジャーポイント強化一覧</h5>
                     <div class="treasure-point-table-wrapper">
-                      <table id="treasure-point-table">
-                        <caption>トレジャーポイント強化一覧</caption>
+                        <table id="treasure-point-table">
+                          <caption>トレジャーポイント強化一覧</caption>
                         <thead>
                           <tr>
                             <th>項目</th>
@@ -496,23 +499,136 @@
                           </tr>
                         </tbody>
                       </table>
-                    </div>
-                  </details>
+                      </div>
+                  </div>
                 </div>
 
                 <!-- 出力 -->
-                <div class="enhancement-column">
-                  <h4><i class="fa-solid fa-file-export"></i> 出力JSON</h4>
-                  <textarea id="enemy-json-output" readonly></textarea>
+                <div class="enhancement-column enhancement-output-column">
+                  <h4><i class="fa-solid fa-file-export"></i> 出力</h4>
+                  <input type="text" id="enemy-json-output" readonly placeholder="強化後のコマデータJSONがここに出ます" />
                   <div class="output-actions">
-                    <button type="button" id="apply-enemy-enhancement-btn" class="add-row-btn">
-                      <i class="fa-solid fa-hammer"></i> 強化を適用
-                    </button>
                     <button type="button" id="copy-enemy-json-btn" class="small-button copy-btn">
                       <i class="fa-solid fa-copy"></i> コピー
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- キャラシ分析パネル -->
+            <div id="panel-character-analysis" class="form-panel">
+              <h3><i class="fa-solid fa-chart-simple"></i> キャラシ分析</h3>
+              <p class="analysis-lead">
+                ゆとシートⅡのJSONをもとに、戦闘で参照しやすい代表値を概算します。SW2.5の全裁定を自動化するものではなく、CSVの効果概要から補助効果候補を抽出し、手動チェックで反映します。
+              </p>
+
+              <div class="analysis-input-row">
+                <div class="analysis-card analysis-input-card compact">
+                  <h4><i class="fa-solid fa-link"></i> ゆとシートURL</h4>
+                  <div class="analysis-url-row">
+                    <input type="url" id="char-analysis-url" placeholder="https://yutorize.2-d.jp/ytsheet/sw2.5/?id=..." />
+                    <button type="button" id="char-analysis-load-btn" class="add-row-btn">
+                      <i class="fa-solid fa-magnifying-glass-chart"></i> 取得して分析
+                    </button>
+                  </div>
+                  <p class="analysis-note">URLからJSONを取得して、そのまま分析します。JSON貼り付け欄は使いません。</p>
+                </div>
+              </div>
+
+              <div id="char-analysis-status" class="analysis-status" aria-live="polite"></div>
+
+              <section class="analysis-card analysis-card-wide analysis-controls-card is-attack-mode" data-analysis-battle-mode="attack">
+                <div class="analysis-controls-header">
+                  <h4><i class="fa-solid fa-sliders"></i> 戦闘期待値 v0.1 設定</h4>
+                </div>
+                <div class="analysis-setup-vs-grid">
+                  <div class="analysis-setup-side analysis-setup-defense">
+                    <h5><i class="fa-solid fa-shield-halved"></i> 防御</h5>
+                    <div id="char-analysis-defense" class="analysis-output muted">未分析です。</div>
+                  </div>
+                </div>
+                <p class="analysis-note">設定や敵値を変更すると平均ダメージ/Rは自動で再計算されます。v0.1では単体PC・同一対象の平均ダメージを中心に計算します。補助動作バフは複数ON可能、主動作バフ/デバフはラウンド消費として扱います。</p>
+              </section>
+
+              <div class="analysis-result-grid is-analysis-hidden" id="char-analysis-results">
+                <section class="analysis-card analysis-card-wide analysis-overview-card">
+                  <h4><i class="fa-solid fa-id-card"></i> キャラクター概要</h4>
+                  <div id="char-analysis-overview" class="analysis-output muted">JSONを読み込むと表示されます。</div>
+                </section>
+
+                <div class="analysis-left-stack">
+                  <section class="analysis-card analysis-effects-card">
+                    <h4><i class="fa-solid fa-hand-sparkles"></i> 補助効果候補</h4>
+                    <div id="char-analysis-effects" class="analysis-output muted">CSVの効果概要から候補を抽出します。</div>
+                  </section>
+
+                  <section class="analysis-card analysis-enemy-card analysis-enemy-compact-card">
+                    <details class="analysis-enemy-details" open>
+                      <summary class="analysis-enemy-summary">
+                        <span class="analysis-enemy-summary-title"><i class="fa-solid fa-skull"></i> 敵/対戦相手データ（任意）</span>
+                        <span class="analysis-enemy-summary-hint">開閉</span>
+                      </summary>
+                      <div class="analysis-setup-side analysis-setup-enemy">
+                        <div class="analysis-enemy-url-row">
+                          <input type="url" id="char-analysis-enemy-url" placeholder="敵/対戦相手のゆとシートURL（PCシートも可）" />
+                          <button type="button" id="char-analysis-enemy-load-btn" class="small-button">読込</button>
+                          <button type="button" id="char-analysis-enemy-dummy-btn" class="small-button">木人</button>
+                        </div>
+                        <div class="analysis-enemy-part-row">
+                          <label for="char-analysis-enemy-part-select">対象部位</label>
+                          <select id="char-analysis-enemy-part-select"><option value="0">木人</option></select>
+                          <span id="char-analysis-enemy-part-status" class="analysis-enemy-part-status" hidden></span>
+                        </div>
+                        <div class="analysis-enemy-stat-grid enemy-control-grid">
+                          <div class="analysis-enemy-stat-row analysis-enemy-stat-row-main">
+                            <label class="analysis-enemy-stat-field analysis-enemy-stat-field-short"><span>防護点</span><input type="number" id="char-analysis-enemy-def" value="0" /></label>
+                            <label class="analysis-enemy-stat-field analysis-enemy-stat-field-short"><span>HP</span><input type="number" id="char-analysis-enemy-hp" /></label>
+                            <label class="analysis-enemy-stat-field"><span>命中力</span><span class="analysis-dice-input"><span>2D+</span><input type="number" id="char-analysis-enemy-hit" /></span></label>
+                            <label class="analysis-enemy-stat-field"><span>打撃点</span><span class="analysis-dice-input"><span>2D+</span><input type="number" id="char-analysis-enemy-damage" /></span></label>
+                            <label class="analysis-enemy-stat-field"><span>回避力</span><span class="analysis-dice-input"><span>2D+</span><input type="number" id="char-analysis-enemy-eva" /></span></label>
+                          </div>
+                          <div class="analysis-enemy-stat-row analysis-enemy-stat-row-resist">
+                            <label class="analysis-enemy-stat-field"><span>生命抵抗</span><span class="analysis-dice-input"><span>2D+</span><input type="number" id="char-analysis-enemy-vit" /></span></label>
+                            <label class="analysis-enemy-stat-field"><span>精神抵抗</span><span class="analysis-dice-input"><span>2D+</span><input type="number" id="char-analysis-enemy-mnd" /></span></label>
+                          </div>
+                          <div class="analysis-enemy-stat-row analysis-enemy-stat-row-scout">
+                            <label class="analysis-enemy-stat-field analysis-enemy-stat-field-short"><span>知名度</span><input type="number" id="char-analysis-enemy-knowledge" /></label>
+                            <label class="analysis-enemy-stat-field analysis-enemy-stat-field-short"><span>弱点値</span><input type="number" id="char-analysis-enemy-weakness-value" /></label>
+                            <label class="analysis-enemy-stat-field analysis-enemy-stat-field-short"><span>先制値</span><input type="number" id="char-analysis-enemy-initiative-target" /></label>
+                            <label class="analysis-enemy-stat-field analysis-enemy-weakness-input"><span>弱点</span><input type="text" id="char-analysis-enemy-weakness-text" placeholder="例: 物理ダメージ+2点" /></label>
+                          </div>
+                        </div>
+                        <div id="char-analysis-enemy-actions" class="analysis-enemy-actions muted" hidden></div>
+                      </div>
+                    </details>
+                  </section>
+
+                  <section class="analysis-card analysis-weapons-card">
+                    <h4><i class="fa-solid fa-gavel"></i> 1R行動・試行設定</h4>
+                    <div id="char-analysis-weapons" class="analysis-output muted">未分析です。</div>
+                  </section>
+
+                </div>
+
+                <section class="analysis-card analysis-plan-card">
+                  <div class="analysis-plan-header-row">
+                    <h4><i class="fa-solid fa-calculator"></i> 戦闘プラン・平均ダメージ</h4>
+                    <label class="analysis-battle-mode-control">モード
+                      <select id="char-analysis-battle-mode">
+                        <option value="attack" selected>攻撃モード</option>
+                        <option value="defense">防御モード</option>
+                        <option value="scout">戦闘準備</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div id="char-analysis-adjusted" class="analysis-output muted">補助効果や敵値を設定すると更新されます。</div>
+                </section>
+
+                <section class="analysis-card analysis-card-wide">
+                  <h4><i class="fa-solid fa-list-check"></i> 仕様メモ</h4>
+                  <div id="char-analysis-implementation" class="analysis-output muted">v0.1では単体対象の平均ダメージを中心に計算します。対応: 命中/回避、行使/抵抗、威力表、C値、追加D、防護点、抵抗:半減、判定確実化、威力確実化。平均ダメージ/Rは理論期待値として自動計算し、多数試行はボタン実行時に通常・上振れ・下振れの簡易パターンを試せます。相手が回避/抵抗するかは計算条件で切り替えます。未対応: 範囲攻撃の複数体期待値、複数部位、継続ダメージ、弱点属性補正、薬師道具セット、特殊効果の完全自動反映。</div>
+                </section>
               </div>
             </div>
           </form>
@@ -666,8 +782,7 @@
 
   <!-- Scripts -->
   <script src="../js/common.js"></script>
-  <script src="./js/247_guild.js"></script>
-  <script src="./js/sw25_data.js"></script>
+  <script src="./data/sw25_data.js"></script>
   <script src="./js/sw25_generator.js"></script>
 </body>
 

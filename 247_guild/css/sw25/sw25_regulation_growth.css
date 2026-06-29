@@ -1,0 +1,256 @@
+/* sw25_regulation_growth.css - split from sw25_generator.css */
+
+.panel-3-column-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1.5fr; /* カラム幅を調整 */
+  gap: 20px;
+  align-items: start;
+}
+.panel-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.regulation-row-top {
+  margin-bottom: 15px;
+}
+.regulation-row-top .form-item-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.regulation-row-top .form-item-inline label {
+  font-weight: bold;
+  color: var(--text-color);
+  white-space: nowrap;
+  margin-right: auto; /* ラベルを左に寄せる */
+}
+.regulation-row-top .form-item-inline select {
+  flex-grow: 0; /* 成長しないようにする */
+  width: 120px; /* 幅を固定 */
+}
+.regulation-flex-row {
+  display: grid;
+  grid-template-columns: 1fr; /* 1カラムに変更 */
+  gap: 10px; /* 縦方向のギャップを調整 */
+}
+.regulation-flex-row .form-item-inline {
+  display: flex; /* flexboxを使用 */
+  align-items: center;
+  justify-content: space-between; /* ラベルと入力フィールドを左右に配置 */
+  gap: 8px;
+}
+.regulation-flex-row label {
+  font-weight: bold;
+  font-size: 0.9em;
+  flex-shrink: 0; /* ラベルが縮まないようにする */
+  width: 80px; /* ラベルの幅を固定 */
+  text-align: left; /* ラベルを左寄せ */
+  white-space: nowrap; /* 折り返しを防ぐ */
+}
+.regulation-flex-row .form-item-inline input {
+  width: 80px; /* 入力フィールドの幅を固定 */
+  flex-grow: 0; /* 入力フィールドが広がらないようにする */
+  text-align: right;
+}
+.regulation-select {
+  width: 80px; /* 入力フィールドの幅を固定 */
+  flex-grow: 0; /* 入力フィールドが広がらないようにする */
+  text-align: right;
+}
+#roll-growth-btn {
+  grid-column: 1; /* 1カラム目全体に配置 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--secondary-color);
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  margin-top: 10px; /* ボタンの上にスペースを追加 */
+}
+#roll-growth-btn:hover {
+  background: #3e538e;
+}
+.stats-grid-wrapper {
+  overflow-x: auto;
+}
+#stats-grid-container {
+  display: grid;
+  grid-template-columns: 80px repeat(6, 1fr);
+  gap: 8px 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 6px;
+  align-items: center;
+  min-width: 450px;
+}
+#stats-grid-container > * {
+  text-align: center;
+  font-weight: bold;
+}
+.grid-header {
+  font-size: 0.9em;
+  color: var(--gold-color);
+}
+.grid-label {
+  text-align: right;
+  font-size: 0.9em;
+  padding-right: 10px;
+}
+.initial-status-label {
+  transform: translateX(-8px) scaleX(0.7);
+  transform-origin: center center;
+  white-space: nowrap;
+  text-align: center;
+}
+#stats-grid-container select {
+  padding: 5px;
+}
+#stats-grid-container input[type="number"] {
+  padding: 5px;
+}
+.bracelet-btn {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #ccc;
+  border: 1px solid #555;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 1em;
+}
+.stat-total,
+.stat-bonus {
+  font-size: 1.2em;
+}
+.priority-controls {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.priority-note-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.priority-note {
+  font-size: 0.8em;
+  color: #ccc;
+}
+
+.growth-summary-output-wrapper {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#growth-summary-output {
+  width: 100%;
+  min-height: 28px;
+  height: 28px;
+  padding: 4px 6px;
+  font-size: 0.85em;
+  line-height: 1.2;
+  resize: none;
+}
+.small-button {
+  background-color: #6c757d;
+  color: white;
+  border: 1px solid #5a6268;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 0.85em;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+.small-button:hover {
+  background-color: #5a6268;
+}
+.small-button:active {
+  transform: translateY(1px);
+}
+.growth-results-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 15px;
+  border-radius: 6px;
+}
+.growth-results-header,
+.growth-row {
+  display: grid;
+  grid-template-columns: 30px 1fr 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+  text-align: center;
+  padding: 0 5px 8px 5px;
+}
+.growth-results-header {
+  font-weight: bold;
+  color: var(--gold-color);
+  border-bottom: 1px solid var(--wood-color);
+  margin-bottom: 5px;
+  padding-bottom: 8px;
+}
+.growth-row-number {
+  font-weight: bold;
+  text-align: right;
+  padding-right: 5px;
+}
+#growth-results-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+  max-height: 55vh;
+  scrollbar-gutter: stable both-edges;
+}
+.stat-candidate {
+  width: 100%;
+  padding: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #ccc;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  text-align: center;
+}
+.stat-candidate.selected {
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.stat-candidate.unselected {
+  opacity: 0.6;
+}
+.stat-candidate:disabled {
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+.stat-candidate:disabled.selected {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  transform: translateY(0);
+}
+.stat-confirmed {
+  font-weight: bold;
+  padding: 7px;
+  border-radius: 4px;
+  border: 1px dashed transparent;
+}

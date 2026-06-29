@@ -1,0 +1,502 @@
+/* sw25_equipment_items.css - split from sw25_generator.css */
+
+.equipment-container {
+  overflow-x: auto;
+}
+.equipment-header,
+.weapon-row,
+.armour-row,
+.item-row {
+  min-width: 850px;
+}
+.equipment-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: bold;
+  color: var(--gold-color);
+  border-bottom: 1px solid var(--wood-color);
+  padding: 0 5px 5px;
+  margin-bottom: 10px;
+}
+.equipment-header span {
+  text-align: center;
+  white-space: nowrap;
+}
+.weapon-header > span:first-child,
+.armour-header > span:first-child {
+  font-family: "Cinzel", "Noto Serif JP", serif;
+  font-size: 1.3em;
+  color: var(--gold-color);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  flex: 1 1 15rem;
+  justify-content: flex-start;
+  display: flex;
+  gap: 8px;
+  padding-left: 10px;
+}
+.custom-title-header {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 15px;
+  min-width: 0;
+}
+.custom-title-header > span {
+  font-family: "Cinzel", "Noto Serif JP", serif;
+  font-size: 1.3em;
+  color: var(--gold-color);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  display: flex;
+  gap: 8px;
+}
+.weapon-header > span:nth-child(2) {
+  flex: 0 0 5em;
+}
+.weapon-header > span:nth-child(3) {
+  flex: 0 0 4em;
+}
+.weapon-header > span:nth-child(4) {
+  flex: 0 0 3em;
+}
+.weapon-header > span:nth-child(5) {
+  flex: 0 0 4em;
+}
+.weapon-header > span:nth-child(6) {
+  flex: 0 0 3em;
+}
+.weapon-header > span:nth-child(7) {
+  flex: 0 0 3em;
+}
+.weapon-header > span:nth-child(8) {
+  flex: 0 0 4em;
+}
+.weapon-header > span:nth-child(9) {
+  flex: 0 0 8em;
+}
+.weapon-header > span:nth-child(10) {
+  flex: 0 0 3em;
+}
+.weapon-header > span:nth-child(11) {
+  flex: 1 1 8em;
+  text-align: left;
+}
+.weapon-header > span:nth-child(12) {
+  flex: 0 0 28px;
+}
+.weapon-row > *:nth-child(1) {
+  flex: 0 0 30px;
+}
+.weapon-row > *:nth-child(2) {
+  flex: 1 1 15rem;
+}
+.weapon-row > *:nth-child(3) {
+  flex: 0 0 5em;
+}
+.weapon-row > *:nth-child(4) {
+  flex: 0 0 4em;
+}
+.weapon-row > *:nth-child(5) {
+  flex: 0 0 3em;
+}
+.weapon-row > *:nth-child(6) {
+  flex: 0 0 4em;
+}
+.weapon-row > *:nth-child(7) {
+  flex: 0 0 3em;
+}
+.weapon-row > *:nth-child(8) {
+  flex: 0 0 3em;
+}
+.weapon-row > *:nth-child(9) {
+  flex: 0 0 4em;
+}
+.weapon-row > *:nth-child(10) {
+  flex: 0 0 8em;
+}
+.weapon-row > *:nth-child(11) {
+  flex: 0 0 3em;
+}
+.weapon-row > *:nth-child(12) {
+  flex: 1 1 8em;
+}
+.armour-header > span:nth-child(2) {
+  flex: 0 0 5em;
+}
+.armour-header > span:nth-child(3) {
+  flex: 0 0 3em;
+}
+.armour-header > span:nth-child(4) {
+  flex: 0 0 3em;
+}
+.armour-header > span:nth-child(5) {
+  flex: 0 0 3em;
+}
+.armour-header > span:nth-child(6) {
+  flex: 0 0 3em;
+}
+.armour-header > span:nth-child(7) {
+  flex: 0 0 8em;
+}
+.armour-header > span:nth-child(8) {
+  flex: 1 1 8em;
+  text-align: left;
+}
+.armour-header > span:nth-child(9) {
+  flex: 0 0 28px;
+}
+.armour-row > *:nth-child(1) {
+  flex: 0 0 30px;
+}
+.armour-row > *:nth-child(2) {
+  flex: 1 1 15rem;
+}
+.armour-row > *:nth-child(3) {
+  flex: 0 0 5em;
+}
+.armour-row > *:nth-child(4) {
+  flex: 0 0 3em;
+}
+.armour-row > *:nth-child(5) {
+  flex: 0 0 3em;
+}
+.armour-row > *:nth-child(6) {
+  flex: 0 0 3em;
+}
+.armour-row > *:nth-child(7) {
+  flex: 0 0 3em;
+}
+.armour-row > *:nth-child(8) {
+  flex: 0 0 8em;
+}
+.armour-row > *:nth-child(9) {
+  flex: 1 1 8em;
+}
+.item-name-cell .item-name-free,
+.item-name-cell .item-name-select {
+  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+/* .select-toggle-btn と .item-select-btn の共通スタイル */
+.select-toggle-btn,
+.item-select-btn {
+  flex-shrink: 0;
+  margin-left: 5px;
+  height: 30px;
+  width: auto;
+}
+
+/* dropdown-arrow のスタイルを select-toggle-btn にも適用 */
+.item-name-cell .select-toggle-btn,
+.item-name-cell .item-select-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0; /* 既存のマージンをリセット */
+  height: auto; /* 高さを自動調整 */
+  width: auto; /* 幅を自動調整 */
+  padding: 5px; /* クリックしやすいようにパディングを追加 */
+  background-color: transparent; /* 背景を透明に */
+  border: none; /* ボーダーをなくす */
+  color: var(--gold-color); /* アイコンの色をテーマカラーに */
+  font-size: 1.2em; /* アイコンサイズを調整 */
+  z-index: 1; /* 入力フィールドより手前に */
+}
+
+.item-name-cell .select-toggle-btn:hover,
+.item-name-cell .item-select-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* ホバーエフェクト */
+}
+
+/* input-with-dropdown のスタイル */
+.input-with-dropdown {
+  /* .item-name-cell に既に position: relative; があるため、ここでは不要 */
+}
+
+.input-with-dropdown .dropdown-arrow {
+  position: absolute;
+  right: 8px; /* ボタンの右端に合わせる */
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: block; /* 常に表示 */
+  color: var(--gold-color); /* SW2.5のテーマカラーに合わせる */
+  padding: 0; /* ボタンのパディングをリセット */
+  background: none; /* ボタンの背景をなくす */
+  border: none; /* ボタンのボーダーをなくす */
+}
+
+/* .item-select-btn が dropdown-arrow の役割を果たすため、そのスタイルを調整 */
+.item-name-cell .item-select-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0; /* 既存のマージンをリセット */
+  height: auto; /* 高さを自動調整 */
+  width: auto; /* 幅を自動調整 */
+  padding: 5px; /* クリックしやすいようにパディングを追加 */
+  background-color: transparent; /* 背景を透明に */
+  border: none; /* ボーダーをなくす */
+  color: var(--gold-color); /* アイコンの色をテーマカラーに */
+  font-size: 1.2em; /* アイコンサイズを調整 */
+  z-index: 1; /* 入力フィールドより手前に */
+}
+
+.item-name-cell .item-select-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* ホバーエフェクト */
+}
+
+.input-with-dropdown .dropdown-menu {
+  position: fixed; /* JavaScriptで位置を制御するため fixed に変更 */
+  /* top, left はJavaScriptで設定するため、ここでは削除またはコメントアウト */
+  /* top: 100%; */
+  /* left: 0; */
+  z-index: 9999; /* 確実に手前に表示 */
+  background-color: var(--panel-bg-color); /* SW2.5のテーマカラーに合わせる */
+  border: 1px solid var(--wood-color); /* SW2.5のテーマカラーに合わせる */
+  border-radius: 4px;
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 5px 0;
+  max-height: 200px;
+  overflow-y: auto;
+  /* min-width: 100%; を削除 */
+  /* max-width は削除し、コンテンツの幅に合わせる */
+  overflow-x: auto; /* 横方向のスクロールを許可 */
+  box-sizing: border-box; /* パディングとボーダーを幅に含める */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: none; /* デフォルトは非表示 */
+}
+
+.input-with-dropdown .dropdown-menu li {
+  padding: 8px 12px;
+  color: var(--text-color); /* SW2.5のテーマカラーに合わせる */
+  cursor: pointer;
+}
+
+.input-with-dropdown .dropdown-menu li:hover {
+  background-color: rgba(0, 0, 0, 0.4); /* input-bg-colorに近い色 */
+}
+.item-folder-controls label {
+  white-space: nowrap;
+}
+.equipment-header.item-header {
+  align-items: stretch;
+}
+.item-header-magic {
+  flex: 0 0 30px;
+}
+.item-header-name {
+  flex: 1 1 15rem;
+  min-width: 10rem;
+  justify-content: flex-start;
+}
+.item-points-header {
+  flex: 0 0 5em;
+  display: none;
+}
+.item-header-unit-price {
+  flex: 0 0 6em;
+}
+.item-header-quantity {
+  flex: 0 0 4em;
+}
+.item-header-total-price {
+  flex: 0 0 6em;
+}
+.item-header-effect {
+  flex: 1 1 10rem;
+  min-width: 8rem;
+  justify-content: flex-start;
+}
+.item-header-remove {
+  flex: 0 0 28px;
+}
+#panel-equipment-items.points-column-visible .item-points-header {
+  display: block;
+}
+.item-row {
+  flex-wrap: nowrap;
+}
+.item-row > * {
+  flex-shrink: 0;
+}
+.item-name-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 15rem;
+  flex: 1 1 15rem;
+  min-width: 10rem;
+}
+.item-points {
+  flex: 0 0 5em;
+  display: none;
+}
+.item-unit-price {
+  flex: 0 0 6em;
+}
+.item-quantity {
+  flex: 0 0 4em;
+}
+.item-total-price {
+  flex: 0 0 6em;
+}
+.item-effect {
+  flex: 1 1 10rem;
+  min-width: 8rem;
+}
+.item-unit-price,
+.item-quantity,
+.item-total-price,
+.item-points {
+  text-align: right;
+}
+.item-row.is-crystal .item-points {
+  display: block;
+}
+.item-row.is-crystal .item-name-cell {
+  flex-basis: calc(15rem - 5em - 10px);
+}
+.magic-item-toggle-label {
+  flex: 0 0 30px;
+  align-items: center;
+  justify-content: center;
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 30px;
+}
+.magic-item-toggle-label input[type="checkbox"] {
+  display: none;
+}
+.magic-item-toggle-label i {
+  font-size: 1.2em;
+  color: #666;
+  text-shadow: none;
+  transition:
+    color 0.2s,
+    text-shadow 0.2s;
+}
+.magic-item-toggle-label input[type="checkbox"]:checked + i {
+  color: var(--gold-color);
+  text-shadow: 0 0 5px var(--gold-glow);
+}
+.copy-buttons-group {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+#items-output,
+#cashbook {
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 1.6;
+  white-space: pre;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid #444;
+}
+.weapon-header > span:first-child > i,
+.armour-header > span:first-child > i,
+.custom-title-header > span > i {
+  position: relative;
+  top: 0.2em;
+}
+.stat-器用 {
+  color: #f0c040;
+}
+.stat-敏捷 {
+  color: #50c878;
+}
+.stat-筋力 {
+  color: #c04040;
+}
+.stat-生命 {
+  color: #60a0f0;
+}
+.stat-知力 {
+  color: #c070c0;
+}
+.stat-精神 {
+  color: #b0b0b0;
+}
+.stat-candidate.selected.stat-器用 {
+  background-color: #b08c1a;
+  border-color: #ffd700;
+  color: white;
+}
+.stat-candidate.selected.stat-敏捷 {
+  background-color: #226b42;
+  border-color: #50c878;
+  color: white;
+}
+.stat-candidate.selected.stat-筋力 {
+  background-color: #8c1a1a;
+  border-color: #ff4500;
+  color: white;
+}
+.stat-candidate.selected.stat-生命 {
+  background-color: #3250b0;
+  border-color: #6495ed;
+  color: white;
+}
+.stat-candidate.selected.stat-知力 {
+  background-color: #600060;
+  border-color: #da70d6;
+  color: white;
+}
+.stat-candidate.selected.stat-精神 {
+  background-color: #3a3a3a;
+  border-color: #a9a9a9;
+  color: white;
+}
+.stat-confirmed.stat-器用 {
+  background-color: #b08c1a;
+  border-color: #ffd700;
+  color: white;
+}
+.stat-confirmed.stat-敏捷 {
+  background-color: #226b42;
+  border-color: #50c878;
+  color: white;
+}
+.stat-confirmed.stat-筋力 {
+  background-color: #8c1a1a;
+  border-color: #ff4500;
+  color: white;
+}
+.stat-confirmed.stat-生命 {
+  background-color: #3250b0;
+  border-color: #6495ed;
+  color: white;
+}
+.stat-confirmed.stat-知力 {
+  background-color: #600060;
+  border-color: #da70d6;
+  color: white;
+}
+.stat-confirmed.stat-精神 {
+  background-color: #3a3a3a;
+  border-color: #a9a9a9;
+  color: white;
+}
+option[data-rank="A"] {
+  color: #cda434;
+  font-weight: bold;
+}
+option[data-rank="S"] {
+  color: #ffc700;
+  font-weight: bold;
+}
+option[data-rank="SS"] {
+  color: #ffdf80;
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+}
+optgroup {
+  color: var(--gold-color);
+}
