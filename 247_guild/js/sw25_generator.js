@@ -2273,8 +2273,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return 1;
   }
 
-  const DECLARATION_WEAPON_PATTERN = /(全力攻撃|魔力撃|必殺攻撃|牽制攻撃|薙ぎ払い|挑発攻撃|囮攻撃|鎧貫き|斬り返し|牙折り)/;
-  const DECLARATION_MAGIC_PATTERN = /(魔法拡大|ダブルキャスト|マルチアクション)/;
+  const DECLARATION_WEAPON_PATTERN = /(全力攻撃|魔力撃|必殺攻撃|牽制攻撃|薙ぎ払い|なぎ払い|挑発攻撃|囮攻撃|鎧貫き|斬り返し|牙折り|インファイト|テイルスイング|乱撃|シールドバッシュ|シャドウステップ|捨て身攻撃|露払い)/;
+  const DECLARATION_MAGIC_PATTERN = /(魔法拡大|ダブルキャスト|マルチアクション|クリティカルキャスト|バイオレントキャスト|カニングキャスト|クイックキャスト)/;
 
   function classifyCharAnalysisDeclaration(name) {
     const normalized = normalizeAnalysisName(name);
@@ -2589,6 +2589,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   function extractCharAnalysisMaxTargetsFromOption(option) {
+    const declaredMax = toAnalysisNumber(option?.declarationTargetMax, 0);
+    if (declaredMax > 1) return Math.max(1, Math.min(99, Math.trunc(declaredMax)));
     const type = option?.type || "";
     const targetText = `${option?.target || ""} ${option?.note || ""}`;
     if (type === "weapon" || type === "manual") return 1;
@@ -2707,43 +2709,94 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!normalized || /^(バトルマスター|変幻自在|ルーンマスター)/.test(normalized)) return null;
     const rank = getAnalysisFeatRank(normalized);
     const bonuses = [];
+    const risks = [];
     const notes = [];
     const addBonus = (type, label, value, uncertain = false) => {
       if (value || uncertain) bonuses.push({ type, label, value, uncertain });
     };
+    const addRisk = (type, label, value, scope = "afterDeclaration") => {
+      if (value) risks.push({ type, label, value, scope });
+    };
+    const addTargetMax = (value, label = "最大対象数") => addBonus("targetMax", label, value);
     if (/全力攻撃/.test(normalized)) {
       addBonus("damage", "与ダメージ", rank >= 3 ? 20 : rank >= 2 ? 12 : 4);
-      notes.push("回避ペナルティは防御モード用メモ");
+      addRisk("eva", "回避", -2);
     } else if (/魔力撃/.test(normalized)) {
       const magic = getCharAnalysisHighestMagicPowerEntry(charData);
       const power = magic?.value || 0;
       addBonus("damage", "与ダメージ", power, power <= 0);
+      addRisk("vitRes", "生命抵抗", -2);
+      addRisk("mndRes", "精神抵抗", -2);
       notes.push(power > 0 ? `${magic.label}魔力${power}を加算` : "魔力不明のため要確認");
     } else if (/必殺攻撃/.test(normalized)) {
       addBonus("diceRepeat", "威力表出目#", 1);
-      notes.push(rank >= 3 ? "必殺攻撃Ⅲ。威力表出目+1を回転後も継続、クリティカル無効無視はメモ扱い" : `必殺攻撃${rank >= 2 ? "Ⅱ" : "Ⅰ"}。威力表出目+1を回転後も継続、回避ペナルティは防御モード用メモ`);
+      if (rank <= 1) addRisk("eva", "回避", -2);
+      else if (rank === 2) addRisk("eva", "回避", -1);
+      notes.push(rank >= 3 ? "必殺攻撃Ⅲ。威力表出目+1を回転後も継続、クリティカル無効を無視する効果はメモ扱い" : `必殺攻撃${rank >= 2 ? "Ⅱ" : "Ⅰ"}。威力表出目+1を回転後も継続`);
     } else if (/牽制攻撃/.test(normalized)) {
       addBonus("hit", "命中", rank >= 3 ? 3 : rank >= 2 ? 2 : 1);
-    } else if (/薙ぎ払い/.test(normalized)) {
+      if (rank <= 1) addBonus("crit", "C値", 1);
+    } else if (/インファイト/.test(normalized)) {
+      addBonus("hit", "命中", 2);
+      if (rank >= 2) addBonus("damage", "与ダメージ", 4);
+      addRisk("eva", "回避", -2);
+      notes.push("特定対象のみ攻撃可能。対象制限はメモ扱い");
+    } else if (/薙ぎ払い|なぎ払い/.test(normalized)) {
+      addTargetMax(rank >= 2 ? 5 : 3);
       if (rank <= 1) addBonus("damage", "与ダメージ", -3);
-      notes.push(rank >= 2 ? "複数対象。単体平均ダメージ/R補正なし" : "複数対象。単体平均ダメージ/Rではダメージ-3のみ反映");
+      notes.push(rank >= 2 ? "5体までを攻撃。単体平均ダメージ/R補正なし" : "3体までを攻撃。単体平均ダメージ/Rではダメージ-3を反映");
+    } else if (/テイルスイング/.test(normalized)) {
+      addTargetMax(rank >= 2 ? 5 : 3);
+      if (rank <= 1) addBonus("hit", "命中", -1);
+      notes.push(rank >= 2 ? "5体までを尻尾で攻撃" : "3体までを尻尾で攻撃、命中-1");
+    } else if (/乱撃/.test(normalized)) {
+      addTargetMax(3);
+      if (rank <= 1) addBonus("hit", "命中", -2);
+      notes.push(rank >= 2 ? "3体までを1H武器で攻撃、命中ペナルティなし" : "3体までを1H武器で攻撃、命中-2");
     } else if (/挑発攻撃/.test(normalized)) {
-      notes.push("誘導効果は平均ダメージ/R未反映");
+      if (rank <= 1) addBonus("damage", "与ダメージ", -2);
+      notes.push(rank >= 2 ? "攻撃誘導効果は平均ダメージ/R未反映" : "攻撃誘導効果は平均ダメージ/R未反映、与ダメージ-2");
     } else if (/囮攻撃/.test(normalized)) {
       addBonus("hit", "命中", -2);
-      addBonus("damage", "与ダメージ", 2);
-      notes.push("回避低下効果は平均ダメージ/R未反映");
+      addBonus("damage", "与ダメージ", rank >= 2 ? 8 : 2);
+      notes.push(rank >= 2 ? "回避された相手の回避低下は未反映" : "回避された相手の回避低下は未反映");
     } else if (/鎧貫き/.test(normalized)) {
-      notes.push("防護点半減/無視系は未反映");
+      if (rank >= 2) notes.push(rank >= 3 ? "クリティカル時は防護点0、クリティカル無効系を無視する効果はメモ扱い" : "クリティカル時は防護点0扱い。条件付きのため平均ダメージ/Rでは未反映");
+      else notes.push("命中時の防護点半減は条件付きのため平均ダメージ/Rでは未反映");
     } else if (/斬り返し/.test(normalized)) {
-      notes.push("命中失敗時の再攻撃は未反映");
+      if (rank >= 2) notes.push("命中失敗時に再攻撃。1回目命中時のダメージ+4は選択式/条件付きのため未反映");
+      else notes.push("命中失敗時の再攻撃は未反映");
     } else if (/牙折り/.test(normalized)) {
-      notes.push("対象の打撃点低下は防御モード用メモ");
+      addBonus("damage", "与ダメージ", -8);
+      notes.push("命中した対象の物理ダメージ低下は防御モード用メモ");
+    } else if (/シールドバッシュ/.test(normalized)) {
+      addBonus("hit", "命中", 2);
+      notes.push(rank >= 2 ? "盾攻撃。盾の防護点/回避補正は有効、転倒効果は未反映" : "盾攻撃。盾の防護点/回避補正は無効、転倒効果は未反映");
+    } else if (/シャドウステップ/.test(normalized)) {
+      addBonus("damage", "与ダメージ", rank >= 2 ? 4 : 2);
+      notes.push(rank >= 2 ? "攻撃時効果として近接ダメージ+4を反映。回避振り直し側は未反映" : "攻撃時効果として近接ダメージ+2を反映。回避振り直し側は未反映");
+    } else if (/捨て身攻撃/.test(normalized)) {
+      const self = rank >= 3 ? 30 : rank >= 2 ? 10 : 5;
+      addBonus("damage", "与ダメージ", self);
+      addRisk("selfDamage", "自身確定ダメージ", self, "onHit");
+    } else if (/露払い/.test(normalized)) {
+      notes.push("命中時の威力表出目固定/上昇効果は条件付きのため未反映");
+    } else if (/クリティカルキャスト/.test(normalized)) {
+      addBonus("crit", "C値", -1);
+      notes.push(rank >= 2 ? "魔法のC値-1。クリティカル無効を無視する効果はメモ扱い" : "魔法のC値-1。C値下限7は計算側で確認");
+    } else if (/バイオレントキャスト/.test(normalized)) {
+      addBonus("hit", "行使", rank >= 2 ? 3 : 2);
+      notes.push("ダメージ魔法の魔法行使判定に適用");
+    } else if (/カニングキャスト/.test(normalized)) {
+      addBonus("hit", "行使", rank >= 2 ? 3 : 2);
+      notes.push("同名魔法の再行使時の達成値補正として概算反映");
+    } else if (/クイックキャスト/.test(normalized)) {
+      notes.push("抵抗:消滅の魔法行使時、消費MP半減。火力値には直接未反映");
     } else if (/魔法拡大/.test(normalized)) {
       const expansion = describeMagicExpansionDeclaration(normalized);
       notes.push(expansion.note);
     } else if (/ダブルキャスト/.test(normalized)) {
-      notes.push("2回行使は未反映。防御/複数行動拡張用メモ");
+      notes.push("追加の魔法行使は未反映。複数行動スロット拡張用メモ");
     } else if (/マルチアクション/.test(normalized)) {
       notes.push("1R行動枠に魔法行使枠を追加。魔法攻撃を選んだ場合は1R期待値へ加算");
     } else {
@@ -2759,6 +2812,7 @@ document.addEventListener("DOMContentLoaded", () => {
       rank,
       category,
       bonuses,
+      risks,
       notes,
     };
   }
@@ -2775,9 +2829,24 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  function formatDeclarationBonusText(bonuses = []) {
-    if (!bonuses.length) return "計算補正なし";
-    return bonuses.map((bonus) => `${bonus.label}${formatSigned(bonus.value)}${bonus.uncertain ? "（要確認）" : ""}`).join(" / ");
+  function formatDeclarationRiskText(risks = []) {
+    if (!risks.length) return "";
+    return risks.map((risk) => `${risk.label}${formatSigned(risk.value)}${risk.scope === "onHit" ? "（命中時）" : ""}`).join(" / ");
+  }
+
+  function formatDeclarationBonusText(bonuses = [], risks = []) {
+    const bonusText = bonuses.length
+      ? bonuses
+          .filter((bonus) => bonus.type !== "targetMax")
+          .map((bonus) => `${bonus.label}${formatSigned(bonus.value)}${bonus.uncertain ? "（要確認）" : ""}`)
+          .join(" / ")
+      : "計算補正なし";
+    const targetText = bonuses
+      .filter((bonus) => bonus.type === "targetMax")
+      .map((bonus) => `${bonus.label}${bonus.value}`)
+      .join(" / ");
+    const riskText = formatDeclarationRiskText(risks);
+    return [bonusText, targetText, riskText ? `リスク: ${riskText}` : ""].filter(Boolean).join(" / ");
   }
 
   function normalizeCharAnalysisAlchemyKey(key) {
@@ -2915,12 +2984,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function calculateCharAnalysisTotals(effects, declarations = []) {
     return [...effects, ...declarations].reduce(
       (total, effect) => {
-        effect.bonuses.forEach((bonus) => {
-          total[bonus.type] = (total[bonus.type] || 0) + bonus.value;
+        (effect.bonuses || []).forEach((bonus) => {
+          if (bonus.type === "targetMax") total.targetMax = Math.max(total.targetMax || 1, toAnalysisNumber(bonus.value, 1));
+          else total[bonus.type] = (total[bonus.type] || 0) + bonus.value;
         });
         return total;
       },
-      { hit: 0, eva: 0, damage: 0, def: 0, crit: 0, diceRepeat: 0 },
+      { hit: 0, eva: 0, damage: 0, def: 0, crit: 0, diceRepeat: 0, targetMax: 1 },
     );
   }
 
@@ -2954,11 +3024,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getCharAnalysisInitiativeBase(charData) {
     const scoutLevel = getCharAnalysisSkillLevel(charData, "スカウト");
-    if (scoutLevel <= 0) return null;
     const raw = charData?.raw || {};
-    const computed = scoutLevel + toAnalysisNumber(getAnalysisValue(raw, ["bonusAgi", "agiBonus"], 0), 0);
+    const agiBonus = toAnalysisNumber(getAnalysisValue(raw, ["bonusAgi", "agiBonus"], 0), 0);
+    if (scoutLevel <= 0) {
+      // 戦闘準備モードでは、スカウトがないキャラクターでも先制判定カードを出す。
+      // 技能なしは平目として扱い、敵の先制値との比較だけは可能にする。
+      return { available: false, label: "先制", skill: "なし", ability: "", level: 0, abilityBonus: 0, base: 0, itemBonus: 0, isFlat: true };
+    }
+    const computed = scoutLevel + agiBonus;
     const direct = toAnalysisNumber(getAnalysisValue(raw, ["packScoAgi", "initiativeTotal", "initiative"], computed), computed);
-    return { available: true, label: "先制", skill: "スカウト", ability: "敏捷B", level: scoutLevel, abilityBonus: toAnalysisNumber(getAnalysisValue(raw, ["bonusAgi", "agiBonus"], 0), 0), base: direct, itemBonus: 0 };
+    return { available: true, label: "先制", skill: "スカウト", ability: "敏捷B", level: scoutLevel, abilityBonus: agiBonus, base: direct, itemBonus: 0, isFlat: false };
   }
 
   function getCharAnalysisMonsterLoreBase(charData) {
@@ -3001,7 +3076,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const initiative = getCharAnalysisInitiativeBase(charData);
     const lore = getCharAnalysisMonsterLoreBase(charData);
     const cards = [];
-    if (initiative) cards.push(`<div class="analysis-scout-setup-card"><b>先制判定</b><span>2D + スカウト${initiative.level} + 敏捷B${initiative.abilityBonus}${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}</span><strong>2D${formatSigned(initiative.base + toAnalysisNumber(totals.initiative, 0))}</strong></div>`);
+    if (initiative) {
+      const initiativeBase = initiative.base + toAnalysisNumber(totals.initiative, 0);
+      const initiativeFormula = initiative.isFlat
+        ? `2D + 平目${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`
+        : `2D + スカウト${initiative.level} + 敏捷B${initiative.abilityBonus}${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`;
+      cards.push(`<div class="analysis-scout-setup-card"><b>先制判定</b><span>${initiativeFormula}</span><strong>2D${formatSigned(initiativeBase)}</strong></div>`);
+    }
     if (lore) cards.push(`<div class="analysis-scout-setup-card"><b>魔物知識判定</b><span>2D + セージ${lore.level} + 知力B${lore.abilityBonus}${lore.itemBonus ? ` + 装備${formatSigned(lore.itemBonus)}` : ""}${totals.monsterLore ? ` + 補助${formatSigned(totals.monsterLore)}` : ""}</span><strong>2D${formatSigned(lore.base + toAnalysisNumber(totals.monsterLore, 0))}</strong></div>`);
     if (!cards.length) return `<p class="muted">スカウト・セージがないため、戦闘準備判定は表示しません。</p>`;
     return `<div class="analysis-scout-setup-list">${cards.join("")}</div>`;
@@ -3013,32 +3094,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const enemy = settings.enemy || {};
     const blocks = [];
     const renderNeedText = (result) => {
-      if (!result) return "-";
+      if (!result) return "未入力";
       if (result.rate >= 1) return "自動成功以外でも可";
       if (result.rate <= 0) return "6ゾロのみ";
       return `${Math.max(2, Math.min(12, result.need))}以上`;
     };
-    const renderScoutMatch = ({ kind, title, selfLabel, selfFormula, selfMeta, targetLabel, targetValue, targetMeta, rateLabel, rateResult, extraHtml = "" }) => {
-      const rate = formatAnalysisPercentFromRate(rateResult);
-      const need = renderNeedText(rateResult);
-      return `<section class="analysis-scout-match-block ${escapeAnalysisHtml(kind)}">
-        <div class="analysis-match-summary analysis-scout-match-summary">
+    const renderThresholdChip = (label, result) => `<span class="analysis-scout-threshold-chip">${escapeAnalysisHtml(renderNeedText(result))}で${escapeAnalysisHtml(label)}</span>`;
+    const renderRateBox = (label, result) => `<span class="analysis-match-dpr analysis-scout-rate-box"><b>${escapeAnalysisHtml(formatAnalysisPercentFromRate(result))}</b><small>${escapeAnalysisHtml(label)}</small></span>`;
+    const renderTargetNumber = (value) => Number.isFinite(value) ? value : "-";
+    const renderScoutMatch = ({ kind, title, judgementResult, selfLabel, selfFormula, selfMeta, thresholdHtml, enemyHtml, rateHtml, noteHtml = "" }) => {
+      const grade = judgementResult ? gradeFromRate(judgementResult.rate) : { label: "未入力", className: "unknown" };
+      return `<section class="analysis-scout-match-block ${escapeAnalysisHtml(kind)} match-rank-${escapeAnalysisHtml(grade.className)}">
+        <div class="analysis-match-summary analysis-action-slot-match-summary analysis-scout-match-summary match-rank-${escapeAnalysisHtml(grade.className)}">
           <div class="analysis-match-side analysis-match-self">
             <div class="analysis-match-label">冒険者</div>
             <div class="analysis-match-main"><span class="analysis-match-main-label">${escapeAnalysisHtml(selfLabel)}</span><strong>${escapeAnalysisHtml(selfFormula)}</strong></div>
             <div class="analysis-match-statline">${escapeAnalysisHtml(selfMeta)}</div>
+            <div class="analysis-match-tags analysis-scout-thresholds">${thresholdHtml}</div>
           </div>
           <div class="analysis-match-center">
-            <div class="analysis-match-result-head"><div class="analysis-match-judgement">${escapeAnalysisHtml(title)}</div><span class="analysis-match-rate"><b>${escapeAnalysisHtml(rate)}</b><small>${escapeAnalysisHtml(rateLabel)}</small></span></div>
-            <div class="analysis-match-ribbon">必要出目 ${escapeAnalysisHtml(need)}</div>
+            <div class="analysis-match-result-head"><div class="analysis-match-judgement">${escapeAnalysisHtml(grade.label)}</div><span class="analysis-match-rate"><b>${escapeAnalysisHtml(formatAnalysisPercentFromRate(judgementResult))}</b><small>${escapeAnalysisHtml(title)}</small></span></div>
+            <div class="analysis-match-spark" aria-hidden="true"></div>
+            <div class="analysis-match-center-values analysis-scout-rate-row">${rateHtml}</div>
           </div>
           <div class="analysis-match-side analysis-match-enemy">
             <div class="analysis-match-label">敵データ</div>
-            <div class="analysis-match-main"><span class="analysis-match-main-label">${escapeAnalysisHtml(targetLabel)}</span><strong>${escapeAnalysisHtml(Number.isFinite(targetValue) ? targetValue : "-")}</strong></div>
-            <div class="analysis-match-statline">${escapeAnalysisHtml(targetMeta || "-")}</div>
+            ${enemyHtml}
           </div>
         </div>
-        ${extraHtml}
+        ${noteHtml}
       </section>`;
     };
     if (initiative) {
@@ -3046,16 +3130,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = get2dSuccessRate(base, enemy.initiativeTarget);
       blocks.push(renderScoutMatch({
         kind: "is-initiative",
-        title: "先制判定",
+        title: "先制",
+        judgementResult: result,
         selfLabel: "先制",
         selfFormula: `2D${formatSigned(base)}`,
-        selfMeta: `スカウト${initiative.level} + 敏捷B${initiative.abilityBonus}${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`,
-        targetLabel: "先制値",
-        targetValue: enemy.initiativeTarget,
-        targetMeta: "この値以上で先制",
-        rateLabel: "先制成功率",
-        rateResult: result,
-        extraHtml: totals.initiative ? `<p class="analysis-note">イニシアティブブーストなど: ${escapeAnalysisHtml(formatSigned(totals.initiative))}</p>` : "",
+        selfMeta: initiative.isFlat
+          ? `平目${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`
+          : `スカウト${initiative.level} + 敏捷B${initiative.abilityBonus}${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`,
+        thresholdHtml: renderThresholdChip("先制", result),
+        enemyHtml: `<div class="analysis-match-main"><span class="analysis-match-main-label">先制値</span><strong>${escapeAnalysisHtml(renderTargetNumber(enemy.initiativeTarget))}</strong></div><div class="analysis-match-statline">${formatAnalysisStatChip("先制値", renderTargetNumber(enemy.initiativeTarget))}</div>`,
+        rateHtml: renderRateBox("先制", result),
+        noteHtml: totals.initiative ? `<p class="analysis-note">イニシアティブブーストなど: ${escapeAnalysisHtml(formatSigned(totals.initiative))}</p>` : "",
       }));
     }
     if (lore) {
@@ -3063,34 +3148,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const infoRate = get2dSuccessRate(base, enemy.knowledge);
       const weaknessRate = get2dSuccessRate(base, enemy.weaknessValue);
       const selfMeta = `セージ${lore.level} + 知力B${lore.abilityBonus}${lore.itemBonus ? ` + 装備${formatSigned(lore.itemBonus)}` : ""}${totals.monsterLore ? ` + 補助${formatSigned(totals.monsterLore)}` : ""}`;
+      const weaknessText = enemy.weaknessText || charAnalysisEnemyScoutLore.weaknessText || "弱点未入力";
+      const enemyStats = [
+        formatAnalysisStatChip("知名度", renderTargetNumber(enemy.knowledge)),
+        formatAnalysisStatChip("弱点値", renderTargetNumber(enemy.weaknessValue)),
+      ].filter(Boolean).join("");
       blocks.push(renderScoutMatch({
         kind: "is-knowledge",
-        title: "魔物知識: 情報",
+        title: "魔物知識",
+        judgementResult: infoRate,
         selfLabel: "魔物知識",
         selfFormula: `2D${formatSigned(base)}`,
         selfMeta,
-        targetLabel: "知名度",
-        targetValue: enemy.knowledge,
-        targetMeta: "この値以上で情報開示",
-        rateLabel: "情報成功率",
-        rateResult: infoRate,
-      }));
-      blocks.push(renderScoutMatch({
-        kind: "is-weakness",
-        title: "魔物知識: 弱点",
-        selfLabel: "魔物知識",
-        selfFormula: `2D${formatSigned(base)}`,
-        selfMeta,
-        targetLabel: "弱点値",
-        targetValue: enemy.weaknessValue,
-        targetMeta: enemy.weaknessText || charAnalysisEnemyScoutLore.weaknessText || "弱点未入力",
-        rateLabel: "弱点適用率",
-        rateResult: weaknessRate,
-        extraHtml: `<p class="analysis-scout-weakness"><span>弱点</span><b>${escapeAnalysisHtml(enemy.weaknessText || charAnalysisEnemyScoutLore.weaknessText || "-")}</b></p>${totals.monsterLore ? `<p class="analysis-note">エンサイクロペディアなど: ${escapeAnalysisHtml(formatSigned(totals.monsterLore))}</p>` : ""}`,
+        thresholdHtml: [
+          renderThresholdChip("情報開示", infoRate),
+          renderThresholdChip("弱点適用", weaknessRate),
+        ].join(""),
+        enemyHtml: `<div class="analysis-match-main"><span class="analysis-match-main-label">知名度 / 弱点値</span><strong>${escapeAnalysisHtml(renderTargetNumber(enemy.knowledge))} / ${escapeAnalysisHtml(renderTargetNumber(enemy.weaknessValue))}</strong></div><div class="analysis-match-statline">${enemyStats}</div><div class="analysis-match-tags analysis-scout-weakness-inline"><span class="analysis-match-chip"><b>弱点効果</b>${escapeAnalysisHtml(weaknessText)}</span></div>`,
+        rateHtml: `${renderRateBox("情報", infoRate)}${renderRateBox("弱点", weaknessRate)}`,
+        noteHtml: totals.monsterLore ? `<p class="analysis-note">エンサイクロペディアなど: ${escapeAnalysisHtml(formatSigned(totals.monsterLore))}</p>` : "",
       }));
     }
     if (!blocks.length) return `<p class="muted">スカウト・セージがないため、このモードでは判定を行いません。</p>`;
-    return `<div class="analysis-scout-match-layout">${blocks.join("")}</div><p class="analysis-note">戦闘準備の2D判定は1ゾロ失敗、6ゾロ成功として概算しています。弱点値に達すると、表示された弱点を以後の攻撃へ適用できます。</p>`;
+    return `<div class="analysis-scout-match-layout">${blocks.join("")}</div><p class="analysis-note">戦闘準備の2D判定は1ゾロ失敗、6ゾロ成功として概算しています。魔物知識は情報開示と弱点適用を同じカード内で確認します。</p>`;
   }
 
   function renderCharAnalysis() {
@@ -3541,7 +3621,7 @@ document.addEventListener("DOMContentLoaded", () => {
       items.push({ name: effect.name, kind: "敵補助", meta: effect.part || "共通", bonus: formatEnemySupportBonusText(effect.bonuses), note: effect.techniques?.map((technique) => `${technique.name}: ${formatEnemySupportBonusText(technique.bonuses)}`).join(" / ") || effect.summary || "" });
     });
     (actions.declarations || []).forEach((feat) => {
-      items.push({ name: feat.name, kind: "敵宣言", meta: feat.part || "共通", bonus: formatDeclarationBonusText(feat.bonuses), note: feat.note || feat.summary || "" });
+      items.push({ name: feat.name, kind: "敵宣言", meta: feat.part || "共通", bonus: formatDeclarationBonusText(feat.bonuses, feat.risks || []), note: feat.note || feat.summary || "" });
     });
     if (!items.length) return `<p class="muted">敵補助効果候補は見つかりませんでした。</p>`;
     return `<div class="analysis-effect-list">${items.map((item) => `<div class="analysis-effect-item is-auto">
@@ -3770,6 +3850,9 @@ document.addEventListener("DOMContentLoaded", () => {
       next.add = toAnalysisNumber(next.add, 0) + toAnalysisNumber(totals.damage, 0);
       next.crit = toAnalysisNumber(next.crit, 10) + toAnalysisNumber(totals.crit, 0);
     }
+    if (totals.targetMax && totals.targetMax > 1) next.declarationTargetMax = Math.max(toAnalysisNumber(next.declarationTargetMax, 1), totals.targetMax);
+    const risks = declarations.flatMap((feat) => Array.isArray(feat.risks) ? feat.risks : []);
+    if (risks.length) next.declarationRisks = risks;
     return { option: next, totals };
   }
 
@@ -3828,7 +3911,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `<option value="${escapeAnalysisHtml(feat.id)}" ${selected} ${disabled}>${escapeAnalysisHtml(renderSw25DecoratedNameText(feat.name))}</option>`;
       }));
       const currentFeat = currentId ? declarationFeats.find((feat) => feat.id === currentId) : null;
-      const detail = currentFeat ? `<small>${escapeAnalysisHtml(formatDeclarationBonusText(currentFeat.bonuses || []))}</small>` : `<small>この枠に乗せる宣言を選択</small>`;
+      const detail = currentFeat ? `<small>${escapeAnalysisHtml(formatDeclarationBonusText(currentFeat.bonuses || [], currentFeat.risks || []))}</small>` : `<small>この枠に乗せる宣言を選択</small>`;
       return `<label class="analysis-action-declaration-select-row">
         <span>宣言${index + 1}</span>
         <select class="char-analysis-action-slot-declaration-select" data-slot="${escapeAnalysisHtml(slot.key)}" data-declaration-index="${index}">${optionRows.join("")}</select>
@@ -4002,7 +4085,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const title = !checked && !canAdd.ok ? ` title="${escapeAnalysisHtml(canAdd.message)}"` : "";
         return `<label class="analysis-declaration-item${checked ? " is-selected" : ""}${disabled ? " is-disabled" : ""}"${title}>
           <input type="checkbox" class="char-analysis-declaration-check" data-declaration-id="${escapeAnalysisHtml(feat.id)}" ${checked ? "checked" : ""} ${disabled} />
-          <span><b>${renderAnalysisDaggerHtml(feat.name)}</b><i>${escapeAnalysisHtml(getDeclarationCategoryLabel(feat.category))}</i><em>${escapeAnalysisHtml(formatDeclarationBonusText(feat.bonuses))}</em>${note}</span>
+          <span><b>${renderAnalysisDaggerHtml(feat.name)}</b><i>${escapeAnalysisHtml(getDeclarationCategoryLabel(feat.category))}</i><em>${escapeAnalysisHtml(formatDeclarationBonusText(feat.bonuses, feat.risks || []))}</em>${note}</span>
         </label>`;
       }).join("")}</div>`;
     };
@@ -5407,9 +5490,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const powerFormula = formatAnalysisAttackFormulaDirect(adjusted, settings);
     const rateText = formatPercent(metrics.hitRate);
     const targetCount = Math.max(1, Math.trunc(toAnalysisNumber(result.targetCount, 1)) || 1);
+    const targetMaxValue = Math.max(1, Math.trunc(toAnalysisNumber(result.targetMax, 1)) || 1);
+    const shouldShowTargetCountControl = targetMaxValue > 1 || targetCount > 1;
     const singleDpr = metrics.averageDpr || 0;
     const totalDpr = result.totalAverageDpr ?? singleDpr * targetCount;
     const dprText = targetCount > 1 ? `${formatDecimal(singleDpr)}×${targetCount}=${formatDecimal(totalDpr)}` : formatDecimal(singleDpr);
+    const targetSuffixCompact = [targetCount > 1 ? `${targetCount}体` : "", targetMaxValue > 1 ? `最大${targetMaxValue}` : ""].filter(Boolean).join("/");
+    const targetSuffixFull = [targetCount > 1 ? `${targetCount}体` : "", targetMaxValue > 1 ? `最大${targetMaxValue}` : ""].filter(Boolean).join(" / ");
     const centerClass = `analysis-match-summary analysis-action-slot-match-summary match-rank-${grade.className}`;
     const attackTypeText = adjusted.source === "manual" ? "直接指定" : (adjusted.source === "gun-bullet" ? "ガン攻撃" : (adjusted.type === "spell" ? "魔法攻撃" : "武器攻撃"));
     const enemySub = opponent.dummy
@@ -5470,7 +5557,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="analysis-compact-attack-name">${attackNameHtml}</div>
           <div class="analysis-compact-formulas"><span>${escapeAnalysisHtml(checkLabel)} ${escapeAnalysisHtml(checkFormula)}</span><span>${escapeAnalysisHtml(powerFormula)}</span></div>
           <div class="analysis-compact-declarations">${escapeAnalysisHtml(compactDecl)}</div>
-          <label class="analysis-target-count-control is-compact"><span>対象</span><input type="text" inputmode="numeric" pattern="[0-9]*" class="char-analysis-action-target-count" data-slot="${escapeAnalysisHtml(result.slot?.key || "")}" data-target-max="${escapeAnalysisHtml(result.targetMax || 1)}" value="${escapeAnalysisHtml(targetCount)}" /><em>体${(result.targetMax || 1) > 1 ? `/${escapeAnalysisHtml(result.targetMax)}` : ""}</em></label>
+          ${shouldShowTargetCountControl ? `<label class="analysis-target-count-control is-compact"><span>対象</span><input type="text" inputmode="numeric" pattern="[0-9]*" class="char-analysis-action-target-count" data-slot="${escapeAnalysisHtml(result.slot?.key || "")}" data-target-max="${escapeAnalysisHtml(targetMaxValue)}" value="${escapeAnalysisHtml(targetCount)}" />${targetSuffixCompact ? `<em>${escapeAnalysisHtml(targetSuffixCompact)}</em>` : ""}</label>` : ""}
           <div class="analysis-compact-result"><b>${escapeAnalysisHtml(dprText)}</b><small>${escapeAnalysisHtml(grade.label)} / ${escapeAnalysisHtml(rateText)}</small></div>
         </div>
       </section>`;
@@ -5510,7 +5597,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="analysis-match-main-label">${escapeAnalysisHtml(opponent.label)}</span>
             <strong>${escapeAnalysisHtml(opponent.value)}</strong>
           </div>
-          <label class="analysis-target-count-control"><span>対象数</span><input type="text" inputmode="numeric" pattern="[0-9]*" class="char-analysis-action-target-count" data-slot="${escapeAnalysisHtml(result.slot?.key || "")}" data-target-max="${escapeAnalysisHtml(result.targetMax || 1)}" value="${escapeAnalysisHtml(targetCount)}" /><em>体${(result.targetMax || 1) > 1 ? ` / 最大${escapeAnalysisHtml(result.targetMax)}` : ""}</em></label>
+          ${shouldShowTargetCountControl ? `<label class="analysis-target-count-control"><span>対象数</span><input type="text" inputmode="numeric" pattern="[0-9]*" class="char-analysis-action-target-count" data-slot="${escapeAnalysisHtml(result.slot?.key || "")}" data-target-max="${escapeAnalysisHtml(targetMaxValue)}" value="${escapeAnalysisHtml(targetCount)}" />${targetSuffixFull ? `<em>${escapeAnalysisHtml(targetSuffixFull)}</em>` : ""}</label>` : ""}
           <div class="analysis-match-statline">${enemySub}</div>
           <div class="analysis-match-ribbon enemy">${escapeAnalysisHtml(opponent.sub)}</div>
         </div>
@@ -5687,7 +5774,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const spellLines = attackSpells.slice(0, 30).map((spell) => `- ${spell.name} / ${spell.skill} Lv${spell.level} / k${spell.k} / 魔力${formatSigned(spell.magicPower)} / ${spell.attribute} / ${spell.resist} / ${spell.range}`);
     const selectedDeclarations = (charAnalysisCurrent?.declarationFeats || []).filter((feat) => charAnalysisSelectedDeclarationIds.has(feat.id));
     const effectLines = selectedEffects.map((effect) => `- ${effect.name}: ${effect.bonuses.map((bonus) => `${bonus.label}${formatSigned(bonus.value)}${bonus.uncertain ? "候補" : ""}`).join("、")}`);
-    const declarationLines = selectedDeclarations.map((feat) => `- ${feat.name}: ${formatDeclarationBonusText(feat.bonuses)}${feat.notes?.length ? `（${feat.notes.join("、")}）` : ""}`);
+    const declarationLines = selectedDeclarations.map((feat) => `- ${feat.name}: ${formatDeclarationBonusText(feat.bonuses, feat.risks || [])}${feat.notes?.length ? `（${feat.notes.join("、")}）` : ""}`);
     return [
       `【キャラシ分析】${charData.name}`,
       `種族: ${charData.race} / レベル: ${charData.level}`,

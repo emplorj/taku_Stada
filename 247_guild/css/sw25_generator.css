@@ -1,6 +1,4 @@
-/* sw25_generator.css - split entry point.
-   Individual panel styles live under css/sw25/.
-*/
+/* sw25_generator.css - split loader */
 @import url("./sw25/sw25_common.css");
 @import url("./sw25/sw25_regulation_growth.css");
 @import url("./sw25/sw25_basic.css");
