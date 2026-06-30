@@ -3029,11 +3029,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (scoutLevel <= 0) {
       // 戦闘準備モードでは、スカウトがないキャラクターでも先制判定カードを出す。
       // 技能なしは平目として扱い、敵の先制値との比較だけは可能にする。
-      return { available: false, label: "先制", skill: "なし", ability: "", level: 0, abilityBonus: 0, base: 0, itemBonus: 0, isFlat: true };
+      return { available: false, label: "先制", skill: "なし", ability: "", level: 0, abilityBonus: 0, base: 0, itemBonus: 0, isFlat: true, source: "flat" };
     }
     const computed = scoutLevel + agiBonus;
-    const direct = toAnalysisNumber(getAnalysisValue(raw, ["packScoAgi", "initiativeTotal", "initiative"], computed), computed);
-    return { available: true, label: "先制", skill: "スカウト", ability: "敏捷B", level: scoutLevel, abilityBonus: agiBonus, base: direct, itemBonus: 0, isFlat: false };
+    const explicitTotal = toAnalysisNumber(getAnalysisValue(raw, ["initiativeTotal", "initiative"], NaN), NaN);
+    const packScoAgi = toAnalysisNumber(getAnalysisValue(raw, ["packScoAgi"], NaN), NaN);
+    let base = computed;
+    let source = "computed";
+    // ゆとシートJSONの packScoAgi は、先制判定で実際に使うパッケージ値として扱う。
+    // 明示的な initiativeTotal 等がある場合のみ、それをさらに優先する。
+    if (Number.isFinite(packScoAgi)) {
+      base = packScoAgi;
+      source = "packScoAgi";
+    }
+    if (Number.isFinite(explicitTotal)) {
+      base = explicitTotal;
+      source = "explicit";
+    }
+    return { available: true, label: "先制", skill: "スカウト", ability: "敏捷B", level: scoutLevel, abilityBonus: agiBonus, base, itemBonus: 0, isFlat: false, source };
   }
 
   function getCharAnalysisMonsterLoreBase(charData) {
@@ -3048,19 +3061,21 @@ document.addEventListener("DOMContentLoaded", () => {
     return { available: true, label: "魔物知識", skill: "セージ", ability: "知力B", level: sageLevel, abilityBonus: intBonus, base, itemBonus: itemBonus && direct <= computed ? itemBonus : 0 };
   }
 
-  function get2dSuccessRate(base, target) {
+  function get2dSuccessRate(base, target, options = {}) {
     const t = toAnalysisNumber(target, NaN);
     const b = toAnalysisNumber(base, NaN);
+    const autoSuccess = options.autoSuccess !== false;
+    const autoFail = options.autoFail !== false;
     if (!Number.isFinite(t) || !Number.isFinite(b)) return null;
     let success = 0;
     for (let d1 = 1; d1 <= 6; d1 += 1) {
       for (let d2 = 1; d2 <= 6; d2 += 1) {
         const total = d1 + d2;
-        if (total === 2) continue;
-        if (total === 12 || total + b >= t) success += 1;
+        if (autoFail && total === 2) continue;
+        if ((autoSuccess && total === 12) || total + b >= t) success += 1;
       }
     }
-    return { success, total: 36, rate: success / 36, need: t - b };
+    return { success, total: 36, rate: success / 36, need: t - b, autoSuccess, autoFail };
   }
 
   function formatAnalysisPercentFromRate(result) {
@@ -3096,7 +3111,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const renderNeedText = (result) => {
       if (!result) return "未入力";
       if (result.rate >= 1) return "自動成功以外でも可";
-      if (result.rate <= 0) return "6ゾロのみ";
+      if (result.rate <= 0) return result.autoSuccess === false ? "不可" : "6ゾロのみ";
       return `${Math.max(2, Math.min(12, result.need))}以上`;
     };
     const renderThresholdChip = (label, result) => `<span class="analysis-scout-threshold-chip">${escapeAnalysisHtml(renderNeedText(result))}で${escapeAnalysisHtml(label)}</span>`;
@@ -3127,7 +3142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     if (initiative) {
       const base = initiative.base + toAnalysisNumber(totals.initiative, 0);
-      const result = get2dSuccessRate(base, enemy.initiativeTarget);
+      const result = get2dSuccessRate(base, enemy.initiativeTarget, { autoSuccess: false });
       blocks.push(renderScoutMatch({
         kind: "is-initiative",
         title: "先制",
@@ -3136,7 +3151,9 @@ document.addEventListener("DOMContentLoaded", () => {
         selfFormula: `2D${formatSigned(base)}`,
         selfMeta: initiative.isFlat
           ? `平目${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`
-          : `スカウト${initiative.level} + 敏捷B${initiative.abilityBonus}${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`,
+          : (initiative.source === "packScoAgi"
+            ? `先制パッケージ値${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`
+            : `スカウト${initiative.level} + 敏捷B${initiative.abilityBonus}${totals.initiative ? ` + 補助${formatSigned(totals.initiative)}` : ""}`),
         thresholdHtml: renderThresholdChip("先制", result),
         enemyHtml: `<div class="analysis-match-main"><span class="analysis-match-main-label">先制値</span><strong>${escapeAnalysisHtml(renderTargetNumber(enemy.initiativeTarget))}</strong></div><div class="analysis-match-statline">${formatAnalysisStatChip("先制値", renderTargetNumber(enemy.initiativeTarget))}</div>`,
         rateHtml: renderRateBox("先制", result),
@@ -3170,7 +3187,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }));
     }
     if (!blocks.length) return `<p class="muted">スカウト・セージがないため、このモードでは判定を行いません。</p>`;
-    return `<div class="analysis-scout-match-layout">${blocks.join("")}</div><p class="analysis-note">戦闘準備の2D判定は1ゾロ失敗、6ゾロ成功として概算しています。魔物知識は情報開示と弱点適用を同じカード内で確認します。</p>`;
+    return `<div class="analysis-scout-match-layout">${blocks.join("")}</div><p class="analysis-note">戦闘準備の2D判定は1ゾロ失敗として概算します。6ゾロ自動成功は魔物知識にのみ適用し、先制判定には適用しません。魔物知識は情報開示と弱点適用を同じカード内で確認します。</p>`;
   }
 
   function renderCharAnalysis() {
