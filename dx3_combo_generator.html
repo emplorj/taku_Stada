@@ -54,7 +54,7 @@
           <li><strong>「<i class="fa-solid fa-plus"></i> コンボを追加」</strong>で新しいコンボ欄を作る。</li>
           <li><strong>「<i class="fa-solid fa-check-double"></i>
               組合せ」</strong>で、使うエフェクトとアイテムを選ぶ。チェック入れるだけ。</li>
-          <li>コンボ計算バーの<strong>「技能値」</strong>あたりを調整。大体は自動で賢くやってくれるけど、まあ、好みでいじってくれ。</li>
+          <li>コンボ計算バーの<strong>「使用技能」</strong>あたりを調整。大体は自動で賢くやってくれるけど、まあ、好みでいじってくれ。</li>
         </ol>
 
         <h4>STEP 3: パレットをコピー。終わり。</h4>
@@ -193,7 +193,7 @@
           </div>
 
           <div class="math-pattern-box">
-            <h5>パターンC： <code>[LV×2+10]</code></h5>
+            <h5>パターンC： <code>[LV×2-10]</code></h5>
             <p>「Lv毎に2増えて、固定で-10」。<br>分解すれば簡単。</p>
             <div class="math-values">
               <div>Lv毎加算: <strong>2</strong></div>
@@ -213,7 +213,7 @@
           <li><strong>「<i class="fa-solid fa-check-double"></i> 組合せ」</strong>ボタンを押して、使いたいエフェクトや武器にチェックを入れる。<br>
             <small>※ここに表示される数字は、さっき設定した「係数」を元に計算されているよ。</small>
           </li>
-          <li><strong>「技能値」</strong>をチェック。基本は自動で選ばれるけど、変えたいときはプルダウンから選んでね。</li>
+          <li><strong>「使用技能」</strong>をチェック。基本は自動で選ばれるけど、変えたいときはプルダウンから選んでね。</li>
         </ol>
 
         <h3>STEP 4: 仕上げと出力</h3>
@@ -285,9 +285,112 @@
       </div>
 
       <div class="all-tables-container">
+        <div class="sheet-source-controls">
+          <div class="sheet-source-note">
+            <strong>エフェクト情報はキャラクターシート側で編集してください。</strong>
+            <span>この画面では係数とコンボを設定します。必要な時だけ編集ロックを解除できます。</span>
+          </div>
+          <div class="sheet-source-actions">
+            <div class="display-mode-toggle" role="group" aria-label="エフェクト表示モード">
+              <button type="button" :class="{ active: effectDisplayMode === 'combo' }" @click="effectDisplayMode = 'combo'" title="コンボ作成に必要な項目だけ表示します">
+                コンボ用
+              </button>
+              <button type="button" :class="{ active: effectDisplayMode === 'detail' }" @click="effectDisplayMode = 'detail'" title="キャラシ由来の詳細項目を表示します">
+                詳細
+              </button>
+            </div>
+            <button type="button" class="btn-sheet-refresh" @click="refreshSheetData" :disabled="isBusy || !characterSheetUrl" title="現在のキャラクターシートURLからエフェクトとアイテムを再取得します。コンボは維持されます。">
+              <i class="fa-solid fa-rotate"></i> キャラシから更新
+            </button>
+            <button type="button" class="btn-edit-toggle" @click="effectFieldsEditable = !effectFieldsEditable" :class="{ active: effectFieldsEditable }">
+              <i class="fa-solid" :class="effectFieldsEditable ? 'fa-lock-open' : 'fa-lock'"></i>
+              {{ effectFieldsEditable ? 'エフェクト欄をロック' : 'エフェクト欄を編集' }}
+            </button>
+          </div>
+        </div>
         <h2 class="section-title"><i class="fa-solid fa-bolt"></i> エフェクト <span class="xp-display">(使用経験点: {{ effectXp
             }})</span></h2>
-        <div class="table-wrapper">
+        <div v-if="effectDisplayMode === 'combo'" class="table-wrapper compact-table-wrapper">
+          <table class="dx3-table combo-source-table combo-source-table-v34">
+            <colgroup>
+              <col class="combo-col-name">
+              <col class="combo-col-lv">
+              <col class="combo-col-timing">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-current">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-current">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-current">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-current">
+              <col class="combo-col-effect">
+              <col class="combo-col-note">
+            </colgroup>
+            <thead>
+              <tr>
+                <th rowspan="3">名称</th>
+                <th rowspan="3">Lv</th>
+                <th rowspan="3">タイミング</th>
+                <th colspan="14" class="coefficient-main-head">係数</th>
+                <th rowspan="3" title="キャラクターシート由来の効果文です。原則、修正はキャラシ側で行います。">効果</th>
+                <th rowspan="3" title="コンボ作成・係数推定用の補足メモです。このツール内で編集してもキャラクターシート本体には反映されません。">備考</th>
+              </tr>
+              <tr>
+                <th colspan="3">ダイス</th>
+                <th colspan="3">達成値</th>
+                <th colspan="4">ATK</th>
+                <th colspan="4">C値</th>
+              </tr>
+              <tr>
+                <th>固定値</th>
+                <th>Lv毎</th>
+                <th>現在値</th>
+                <th>固定値</th>
+                <th>Lv毎</th>
+                <th>現在値</th>
+                <th>固定値</th>
+                <th>Lv毎</th>
+                <th>最大</th>
+                <th>現在値</th>
+                <th>基準</th>
+                <th>Lv毎</th>
+                <th>下限</th>
+                <th>現在値</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(effect, index) in effects">
+                <td class="source-name-cell"><input type="text" :value="effect.name" :readonly="!effectFieldsEditable" @change="updateNameAndSync('effects', index, $event.target.value)"></td>
+                <td class="text-right source-level-cell"><input type="number" :value="effect.level" :readonly="!effectFieldsEditable" @input="updateAndSyncLevel('effects', index, $event.target.value)" min="1" class="text-right"></td>
+                <td class="source-short-cell"><input-with-dropdown v-model="effect.timing" :options="dropdownOptions.timing" :disabled="!effectFieldsEditable"></input-with-dropdown></td>
+                <td class="coef-cell coef-cell-numeric"><input type="text" v-model="effect.values.dice.base" :readonly="isEssentialEffect(effect.name)" placeholder="0" title="ダイス 固定値。2Dなども入力できます。"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="text" v-model="effect.values.dice.perLevel" :readonly="isEssentialEffect(effect.name)" placeholder="0" title="ダイス Lv毎。2Dなども入力できます。"></td>
+                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'固定値 + Lv毎 × 現在Lv' + effect.level + ' のダイス補正'">{{ coefficientCurrentValue(effect, 'dice') }}</div></td>
+                <td class="coef-cell coef-cell-numeric"><input type="text" v-model="effect.values.achieve.base" :readonly="isEssentialEffect(effect.name)" placeholder="0" title="達成値 固定値。2Dなども入力できます。"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="text" v-model="effect.values.achieve.perLevel" :readonly="isEssentialEffect(effect.name)" placeholder="0" title="達成値 Lv毎。2Dなども入力できます。"></td>
+                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'固定値 + Lv毎 × 現在Lv' + effect.level + ' の達成値補正'">{{ coefficientCurrentValue(effect, 'achieve') }}</div></td>
+                <td class="coef-cell"><input type="text" v-model="effect.values.attack.base" :readonly="isEssentialEffect(effect.name)" placeholder="0" title="ATK 固定値。2Dなども入力できます。"></td>
+                <td class="coef-cell"><input type="text" v-model="effect.values.attack.perLevel" :readonly="isEssentialEffect(effect.name)" placeholder="0" title="ATK Lv毎。2Dなども入力できます。"></td>
+                <td class="coef-cell"><input type="text" v-model="effect.values.attack.max" :readonly="isEssentialEffect(effect.name)" placeholder="なし" title="ATKの最大値。空欄なら上限なし。"></td>
+                <td class="coef-cell coef-current-cell"><div class="coef-current-box" :title="'固定値 + Lv毎 × 現在Lv' + effect.level + ' のATK補正。最大値があれば反映します。'">{{ coefficientCurrentValue(effect, 'attack') }}</div></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="effect.values.crit.base" :readonly="isEssentialEffect(effect.name)" title="C値 基準値"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="effect.values.crit.perLevel" :readonly="isEssentialEffect(effect.name)" title="C値 Lv毎減算"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="effect.values.crit.min" :readonly="isEssentialEffect(effect.name)" title="C値 下限"></td>
+                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'基準 - Lv毎 × 現在Lv' + effect.level + ' のC値。下限があれば反映します。'">{{ coefficientCurrentValue(effect, 'crit') }}</div></td>
+                <td class="source-effect-cell"><textarea v-model="effect.effect" :readonly="!effectFieldsEditable" title="キャラクターシート由来の効果文です。基本的にはキャラシ側で編集してください。"></textarea></td>
+                <td class="source-note-cell"><textarea v-model="effect.notes" title="コンボ作成・係数推定用の補足メモです。このツール内で編集してもキャラシ本体には反映されません。"></textarea></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else class="table-wrapper">
           <table class="dx3-table effects-table">
             <thead>
               <tr>
@@ -302,50 +405,130 @@
                 <th>侵蝕値</th>
                 <th>制限</th>
                 <th>効果</th>
-                <th>備考</th>
+                <th title="コンボ作成・係数推定用の補足メモです。このツール内のメモとして使います。">備考</th>
                 <th>設定</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(effect, index) in effects">
-                <td><input type="text" :value="effect.name"
+                <td><input type="text" :value="effect.name" :readonly="!effectFieldsEditable"
                     @change="updateNameAndSync('effects', index, $event.target.value)"></td>
-                <td class="text-right"><input type="number" :value="effect.level"
+                <td class="text-right"><input type="number" :value="effect.level" :readonly="!effectFieldsEditable"
                     @input="updateAndSyncLevel('effects', index, $event.target.value)" min="1" class="text-right"></td>
-                <td class="text-right"><input type="number" v-model.number="effect.maxLevel" min="1" class="text-right">
+                <td class="text-right"><input type="number" v-model.number="effect.maxLevel" :readonly="!effectFieldsEditable" min="1" class="text-right">
                 </td>
                 <td><input-with-dropdown v-model="effect.timing"
-                    :options="dropdownOptions.timing"></input-with-dropdown>
+                    :options="dropdownOptions.timing" :disabled="!effectFieldsEditable"></input-with-dropdown>
                 </td>
-                <td><input-with-dropdown v-model="effect.skill" :options="dropdownOptions.skill"></input-with-dropdown>
+                <td><input-with-dropdown v-model="effect.skill" :options="dropdownOptions.skill" :disabled="!effectFieldsEditable"></input-with-dropdown>
                 </td>
                 <td><input-with-dropdown v-model="effect.difficulty"
-                    :options="dropdownOptions.difficulty"></input-with-dropdown></td>
+                    :options="dropdownOptions.difficulty" :disabled="!effectFieldsEditable"></input-with-dropdown></td>
                 <td><input-with-dropdown v-model="effect.target"
-                    :options="dropdownOptions.target"></input-with-dropdown>
+                    :options="dropdownOptions.target" :disabled="!effectFieldsEditable"></input-with-dropdown>
                 </td>
-                <td><input type="text" v-model="effect.range"></td>
-                <td class="text-right"><input type="text" v-model="effect.cost" class="text-right"></td>
-                <td><input-with-dropdown v-model="effect.limit" :options="dropdownOptions.limit"></input-with-dropdown>
+                <td><input type="text" v-model="effect.range" :readonly="!effectFieldsEditable"></td>
+                <td class="text-right"><input type="text" v-model="effect.cost" class="text-right" :readonly="!effectFieldsEditable"></td>
+                <td><input-with-dropdown v-model="effect.limit" :options="dropdownOptions.limit" :disabled="!effectFieldsEditable"></input-with-dropdown>
                 </td>
-                <td><textarea v-model="effect.effect"></textarea></td>
-                <td><textarea v-model="effect.notes"></textarea></td>
+                <td><textarea v-model="effect.effect" :readonly="!effectFieldsEditable"></textarea></td>
+                <td><textarea v-model="effect.notes" :readonly="!effectFieldsEditable"></textarea></td>
                 <td class="action-cell">
                   <button @click.stop="openEffectPanel($event, effect, 'effect', index)" class="setting-btn"
-                    :class="{ 'has-auto-update': effect._hasAutoUpdate }" title="詳細設定"
+                    :class="{ 'has-auto-update': effect._hasAutoUpdate }" :title="'係数: ' + coefficientSummary(effect)"
                     :disabled="isEssentialEffect(effect.name)">係数</button>
                   <button @click="removeEffect(index)" class="delete-btn" title="削除"
-                    :disabled="isEssentialEffect(effect.name)"><i class="fa-solid fa-trash"></i></button>
+                    :disabled="!effectFieldsEditable || isEssentialEffect(effect.name)"><i class="fa-solid fa-trash"></i></button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <button @click="addEffect" class="add-btn"><i class="fa-solid fa-plus"></i> エフェクトを追加</button>
+        <button v-if="effectFieldsEditable" @click="addEffect" class="add-btn"><i class="fa-solid fa-plus"></i> エフェクトを追加</button>
 
         <h2 class="section-title"><i class="fa-solid fa-star"></i> イージーエフェクト <span class="xp-display">(使用経験点: {{
             easyEffectXp }})</span></h2>
-        <div class="table-wrapper">
+        <div v-if="effectDisplayMode === 'combo'" class="table-wrapper compact-table-wrapper">
+          <table class="dx3-table combo-source-table combo-source-table-v34">
+            <colgroup>
+              <col class="combo-col-name">
+              <col class="combo-col-lv">
+              <col class="combo-col-timing">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-current">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-current">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-current">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-coef">
+              <col class="combo-col-current">
+              <col class="combo-col-effect">
+              <col class="combo-col-note">
+            </colgroup>
+            <thead>
+              <tr>
+                <th rowspan="3">名称</th>
+                <th rowspan="3">Lv</th>
+                <th rowspan="3">タイミング</th>
+                <th colspan="14" class="coefficient-main-head">係数</th>
+                <th rowspan="3" title="キャラクターシート由来の効果文です。原則、修正はキャラシ側で行います。">効果</th>
+                <th rowspan="3" title="コンボ作成・係数推定用の補足メモです。このツール内で編集してもキャラクターシート本体には反映されません。">備考</th>
+              </tr>
+              <tr>
+                <th colspan="3">ダイス</th>
+                <th colspan="3">達成値</th>
+                <th colspan="4">ATK</th>
+                <th colspan="4">C値</th>
+              </tr>
+              <tr>
+                <th>固定値</th>
+                <th>Lv毎</th>
+                <th>現在値</th>
+                <th>固定値</th>
+                <th>Lv毎</th>
+                <th>現在値</th>
+                <th>固定値</th>
+                <th>Lv毎</th>
+                <th>最大</th>
+                <th>現在値</th>
+                <th>基準</th>
+                <th>Lv毎</th>
+                <th>下限</th>
+                <th>現在値</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(ee, index) in easyEffects">
+                <td class="source-name-cell"><input type="text" :value="ee.name" :readonly="!effectFieldsEditable" @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
+                <td class="text-right source-level-cell"><input type="number" :value="ee.level" :readonly="!effectFieldsEditable" @input="updateAndSyncLevel('easyEffects', index, $event.target.value)" min="1" class="text-right"></td>
+                <td class="source-short-cell"><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing" :disabled="!effectFieldsEditable"></input-with-dropdown></td>
+                <td class="coef-cell coef-cell-numeric"><input type="text" v-model="ee.values.dice.base" placeholder="0" title="ダイス 固定値。2Dなども入力できます。"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="text" v-model="ee.values.dice.perLevel" placeholder="0" title="ダイス Lv毎。2Dなども入力できます。"></td>
+                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'固定値 + Lv毎 × 現在Lv' + ee.level + ' のダイス補正'">{{ coefficientCurrentValue(ee, 'dice') }}</div></td>
+                <td class="coef-cell coef-cell-numeric"><input type="text" v-model="ee.values.achieve.base" placeholder="0" title="達成値 固定値。2Dなども入力できます。"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="text" v-model="ee.values.achieve.perLevel" placeholder="0" title="達成値 Lv毎。2Dなども入力できます。"></td>
+                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'固定値 + Lv毎 × 現在Lv' + ee.level + ' の達成値補正'">{{ coefficientCurrentValue(ee, 'achieve') }}</div></td>
+                <td class="coef-cell"><input type="text" v-model="ee.values.attack.base" placeholder="0" title="ATK 固定値。2Dなども入力できます。"></td>
+                <td class="coef-cell"><input type="text" v-model="ee.values.attack.perLevel" placeholder="0" title="ATK Lv毎。2Dなども入力できます。"></td>
+                <td class="coef-cell"><input type="text" v-model="ee.values.attack.max" placeholder="なし" title="ATKの最大値。空欄なら上限なし。"></td>
+                <td class="coef-cell coef-current-cell"><div class="coef-current-box" :title="'固定値 + Lv毎 × 現在Lv' + ee.level + ' のATK補正。最大値があれば反映します。'">{{ coefficientCurrentValue(ee, 'attack') }}</div></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="ee.values.crit.base" title="C値 基準値"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="ee.values.crit.perLevel" title="C値 Lv毎減算"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="ee.values.crit.min" title="C値 下限"></td>
+                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'基準 - Lv毎 × 現在Lv' + ee.level + ' のC値。下限があれば反映します。'">{{ coefficientCurrentValue(ee, 'crit') }}</div></td>
+                <td class="source-effect-cell"><textarea v-model="ee.effect" :readonly="!effectFieldsEditable" title="キャラクターシート由来の効果文です。基本的にはキャラシ側で編集してください。"></textarea></td>
+                <td class="source-note-cell"><textarea v-model="ee.notes" title="コンボ作成・係数推定用の補足メモです。このツール内で編集してもキャラシ本体には反映されません。"></textarea></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else class="table-wrapper">
           <table class="dx3-table effects-table">
             <thead>
               <tr>
@@ -360,48 +543,62 @@
                 <th>侵蝕値</th>
                 <th>制限</th>
                 <th>効果</th>
-                <th>備考</th>
+                <th title="コンボ作成・係数推定用の補足メモです。このツール内のメモとして使います。">備考</th>
                 <th>設定</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(ee, index) in easyEffects">
-                <td><input type="text" :value="ee.name"
+                <td><input type="text" :value="ee.name" :readonly="!effectFieldsEditable"
                     @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
-                <td class="text-right"><input type="number" :value="ee.level"
+                <td class="text-right"><input type="number" :value="ee.level" :readonly="!effectFieldsEditable"
                     @input="updateAndSyncLevel('easyEffects', index, $event.target.value)" min="1" class="text-right">
                 </td>
-                <td class="text-right"><input type="number" v-model.number="ee.maxLevel" min="1" class="text-right">
+                <td class="text-right"><input type="number" v-model.number="ee.maxLevel" :readonly="!effectFieldsEditable" min="1" class="text-right">
                 </td>
-                <td><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing"></input-with-dropdown>
+                <td><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing" :disabled="!effectFieldsEditable"></input-with-dropdown>
                 </td>
-                <td><input-with-dropdown v-model="ee.skill" :options="dropdownOptions.skill"></input-with-dropdown></td>
+                <td><input-with-dropdown v-model="ee.skill" :options="dropdownOptions.skill" :disabled="!effectFieldsEditable"></input-with-dropdown></td>
                 <td><input-with-dropdown v-model="ee.difficulty"
-                    :options="dropdownOptions.difficulty"></input-with-dropdown></td>
-                <td><input-with-dropdown v-model="ee.target" :options="dropdownOptions.target"></input-with-dropdown>
+                    :options="dropdownOptions.difficulty" :disabled="!effectFieldsEditable"></input-with-dropdown></td>
+                <td><input-with-dropdown v-model="ee.target" :options="dropdownOptions.target" :disabled="!effectFieldsEditable"></input-with-dropdown>
                 </td>
-                <td><input type="text" v-model="ee.range"></td>
-                <td class="text-right"><input type="text" v-model="ee.cost" class="text-right"></td>
-                <td><input-with-dropdown v-model="ee.limit" :options="dropdownOptions.limit"></input-with-dropdown></td>
-                <td><textarea v-model="ee.effect"></textarea></td>
-                <td><textarea v-model="ee.notes"></textarea></td>
+                <td><input type="text" v-model="ee.range" :readonly="!effectFieldsEditable"></td>
+                <td class="text-right"><input type="text" v-model="ee.cost" class="text-right" :readonly="!effectFieldsEditable"></td>
+                <td><input-with-dropdown v-model="ee.limit" :options="dropdownOptions.limit" :disabled="!effectFieldsEditable"></input-with-dropdown></td>
+                <td><textarea v-model="ee.effect" :readonly="!effectFieldsEditable"></textarea></td>
+                <td><textarea v-model="ee.notes" :readonly="!effectFieldsEditable"></textarea></td>
                 <td class="action-cell">
                   <button @click.stop="openEffectPanel($event, ee, 'easy', index)" class="setting-btn"
-                    :class="{ 'has-auto-update': ee._hasAutoUpdate }" title="詳細設定">係数</button>
-                  <button @click="removeEasyEffect(index)" class="delete-btn" title="削除"><i
+                    :class="{ 'has-auto-update': ee._hasAutoUpdate }" :title="'係数: ' + coefficientSummary(ee)">係数</button>
+                  <button @click="removeEasyEffect(index)" class="delete-btn" title="削除" :disabled="!effectFieldsEditable"><i
                       class="fa-solid fa-trash"></i></button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <button @click="addEasyEffect" class="add-btn"><i class="fa-solid fa-plus"></i> イージーエフェクトを追加</button>
+        <button v-if="effectFieldsEditable" @click="addEasyEffect" class="add-btn"><i class="fa-solid fa-plus"></i> イージーエフェクトを追加</button>
 
         <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> アイテム（別タイミングのバフ） <span
             class="xp-display">(使用経験点: {{
             itemXp }})</span></h2>
         <div class="table-wrapper">
           <table class="dx3-table items-table">
+            <colgroup>
+              <col class="item-col-name">
+              <col class="item-col-level">
+              <col class="item-col-type">
+              <col class="item-col-skill">
+              <col class="item-col-accuracy">
+              <col class="item-col-attack">
+              <col class="item-col-guard">
+              <col class="item-col-range">
+              <col class="item-col-cost">
+              <col class="item-col-xp">
+              <col class="item-col-notes">
+              <col class="item-col-actions">
+            </colgroup>
             <thead>
               <tr>
                 <th>名称</th>
@@ -437,7 +634,7 @@
                 <td><textarea v-model="item.notes"></textarea></td>
                 <td class="action-cell">
                   <button @click.stop="openEffectPanel($event, item, 'item', index)" class="setting-btn"
-                    :class="{ 'has-auto-update': item._hasAutoUpdate }" title="詳細設定">係数</button>
+                    :class="{ 'has-auto-update': item._hasAutoUpdate }" :title="'係数: ' + coefficientSummary(item)">係数</button>
                   <button @click="removeItem(index)" class="delete-btn" title="削除"><i
                       class="fa-solid fa-trash"></i></button>
                 </td>
@@ -510,7 +707,7 @@
             </div>
           </div>
           <div class="stat-item base-ability-input">
-            <span>技能値:</span>
+            <span>使用技能:</span>
             <!-- ▼▼▼ 変更: @changeを追加 ▼▼▼ -->
             <select v-model="combos[index].baseAbility.skill" @change="updateComboAbility(index)">
               <option v-for="opt in dropdownOptions.baseSkillSelect" :value="opt">{{ opt }}</option>
@@ -564,14 +761,16 @@
         </div>
         <div class="combo-palette-display">
           <div class="copy-container">
+            <div class="copy-label">宣言</div>
             <textarea readonly :value="combo.chatPalette.header"></textarea>
-            <button @click="copyToClipboard(combo.chatPalette.header, $event)"><i
-                class="fa-solid fa-paste"></i></button>
+            <button @click="copyToClipboard(combo.chatPalette.header, $event)" title="宣言をコピー"><i
+                class="fa-solid fa-paste"></i><span class="copy-button-text">コピー</span></button>
           </div>
           <div class="copy-container" v-if="combo.isMajorAction">
+            <div class="copy-label">判定式</div>
             <textarea readonly :value="combo.chatPalette.diceFormula" class="dice-formula-textarea"></textarea>
-            <button @click="copyToClipboard(combo.chatPalette.diceFormula, $event)"><i
-                class="fa-solid fa-paste"></i></button>
+            <button @click="copyToClipboard(combo.chatPalette.diceFormula, $event)" title="判定式をコピー"><i
+                class="fa-solid fa-paste"></i><span class="copy-button-text">コピー</span></button>
           </div>
         </div>
 
@@ -580,53 +779,63 @@
 
       <div v-if="isPanelOpen" class="floating-panel" :style="panelStyle" @click.stop>
         <div class="panel-header">
-          <h3>{{ editingEffect.name || '新規' }} 詳細設定</h3><button @click="closeEffectPanel" class="close-btn">×</button>
+          <h3>{{ editingEffect.name || '新規' }} 詳細設定</h3><button @click="cancelEffectPanel" class="close-btn" title="変更を反映せず閉じる">×</button>
         </div>
         <div class="panel-body">
-          <div class="modal-tabs">
-            <button v-for="tab in modalTabs" :key="tab.key" :class="{ 
-    active: activeModalTab === tab.key, 
-    dimmed: !tab.isRelevant,
-    'auto-detected': tab.isAutoDetected 
-  }" @click="activeModalTab = tab.key">
-              {{ tab.label }}
-            </button>
+          <div class="panel-source-text" v-if="editingEffect.effect || editingEffect.notes">
+            <div class="panel-source-title">効果・備考</div>
+            <div class="panel-source-content">{{ editingEffect.effect || editingEffect.notes }}</div>
           </div>
-          <div class="modal-tab-content">
-            <div v-show="activeModalTab !== 'crit'" class="panel-grid">
-              <div class="input-group">
-                <label>{{ activeModalTabLabel }} 固定値: <span class="input-example">(例: [LV*2<span
-                      class="color-base">+4]</span>)</span></label>
-                <div class="input-with-addon">
-                  <input type="number" v-model.number="editingEffect.values[activeModalTab].base">
-                  <button
-                    v-if="activeModalTab !== 'dice' && (activeModalTab === 'accuracy' || activeModalTab === 'attack' || activeModalTab === 'guard')"
-                    @click.stop="editingEffect.values[activeModalTab].isDiceInput = !editingEffect.values[activeModalTab].isDiceInput"
-                    :class="{active: editingEffect.values[activeModalTab].isDiceInput}" class="dice-toggle-btn"
-                    title="クリックでダイス表記のON/OFFを切替">D</button>
-                </div>
-              </div>
-              <div class="input-group">
-                <label>{{ activeModalTabLabel }} Lv毎加算: <span class="input-example">(例: [LV*<span
-                      class="color-per-level">2</span>+4])</span></label>
-                <div class="input-with-addon">
-                  <input type="number" v-model.number="editingEffect.values[activeModalTab].perLevel">
-                  <button
-                    v-if="activeModalTab !== 'dice' && (activeModalTab === 'accuracy' || activeModalTab === 'attack' || activeModalTab === 'guard')"
-                    @click.stop="editingEffect.values[activeModalTab].isPerLevelDiceInput = !editingEffect.values[activeModalTab].isPerLevelDiceInput"
-                    :class="{active: editingEffect.values[activeModalTab].isPerLevelDiceInput}" class="dice-toggle-btn"
-                    title="クリックでダイス表記のON/OFFを切替">D</button>
-                </div>
-              </div>
+          <div class="panel-quick-actions">
+            <button @click.stop="applyEffectTextInference(false)" title="効果文・備考から、未設定の係数だけ推定して反映します">効果文から推定</button>
+            <button @click.stop="applyEffectTextInference(true)" class="danger-light" title="効果文・備考から推定した値で既存の係数も上書きします">上書き推定</button>
+          </div>
+          <div class="coefficient-panel-table">
+            <div class="coefficient-panel-head">
+              <span>項目</span>
+              <span>固定値</span>
+              <span>Lv毎</span>
+              <span>補足</span>
             </div>
-            <div v-show="activeModalTab === 'crit'">
-              <div class="input-group"><label>C値 固定値:</label><input type="number"
-                  v-model.number="editingEffect.values.crit.base"></div>
-              <div class="input-group"><label>C値 Lv毎減算:</label><input type="number"
-                  v-model.number="editingEffect.values.crit.perLevel"></div>
-              <div class="input-group"><label>C値 下限:</label><input type="number"
-                  v-model.number="editingEffect.values.crit.min"></div>
+            <div v-for="tab in modalTabs" :key="tab.key" class="coefficient-panel-row" :class="{
+              dimmed: !tab.isRelevant,
+              'auto-detected': tab.isAutoDetected,
+              'is-crit': tab.key === 'crit'
+            }">
+              <div class="coef-row-label">
+                <strong>{{ tab.label }}</strong>
+                <span v-if="tab.isAutoDetected" class="coef-chip auto">推定</span>
+                <span v-else-if="tab.isRelevant" class="coef-chip relevant">関連</span>
+              </div>
+              <template v-if="tab.key !== 'crit'">
+                <input type="text"
+                  v-model="editingEffect.values[tab.key].base"
+                  placeholder="0 / 2D"
+                  title="Lv補正が0のときに足す値。2D のようなダイス表記も入力できます">
+                <input type="text"
+                  v-model="editingEffect.values[tab.key].perLevel"
+                  placeholder="0 / 1D"
+                  title="エフェクトLvが1上がるごとに足す値。1D のようなダイス表記も入力できます">
+                <div class="coef-row-tools" :class="{ 'has-limit': tab.key === 'attack' }">
+                  <span class="coef-help-text">数値/D可</span>
+                  <div v-if="tab.key === 'attack'" class="coef-limit-field" title="例: 攻撃力を-[5-LV]最大0 → 最大 0">
+                    <span>最大</span>
+                    <input type="number" v-model.number="editingEffect.values.attack.max" placeholder="なし">
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                <input type="number" v-model.number="editingEffect.values.crit.base" title="C値の基準値。通常は10">
+                <input type="number" v-model.number="editingEffect.values.crit.perLevel" title="Lvごとに下げる値。コンセントレイトなら1">
+                <div class="coef-min-field">
+                  <span>下限</span>
+                  <input type="number" v-model.number="editingEffect.values.crit.min">
+                </div>
+              </template>
             </div>
+          </div>
+          <div class="panel-footer-actions">
+            <button @click.stop="closeEffectPanel">反映して閉じる</button>
           </div>
         </div>
       </div>
@@ -637,11 +846,16 @@
             <h3>コンボのエフェクトを選択</h3><button @click.stop="cancelEffectSelection" class="close-btn">×</button>
           </div>
           <div class="modal-body">
+            <div class="effect-select-toolbar" v-if="availableBulkTimingOptions.length">
+              <span class="toolbar-label">一括選択</span>
+              <button v-for="option in availableBulkTimingOptions" :key="option.key" type="button" @click.stop="selectEffectsByTiming(option.key)">{{ option.label }}</button>
+              <button type="button" class="clear-selection-btn" @click.stop="clearTempEffectSelection">全解除</button>
+            </div>
             <div class="option-group">
               <strong>エフェクト</strong>
               <label v-for="effect in effects" :key="effect.name + editingComboIndex + 'effect-select'"
                 class="item-select-label" :class="{disabled: isEffectDisabled(effect)}">
-                <input type="checkbox" :value="effect" v-model="tempSelectedEffects"
+                <input type="checkbox" :checked="isEffectSelected(effect.name)"
                   :disabled="isEffectDisabled(effect)"
                   @change="handleEffectSelectionChange(effect, $event.target.checked)">
                 <span>{{ effect.name }} ({{ effect.timing }})</span>
@@ -651,7 +865,7 @@
               <strong>イージーエフェクト</strong>
               <label v-for="ee in easyEffects" :key="ee.name + editingComboIndex + 'ee-select'"
                 class="item-select-label" :class="{disabled: isEffectDisabled(ee)}">
-                <input type="checkbox" :value="ee" v-model="tempSelectedEffects" :disabled="isEffectDisabled(ee)"
+                <input type="checkbox" :checked="isEffectSelected(ee.name)" :disabled="isEffectDisabled(ee)"
                   @change="handleEffectSelectionChange(ee, $event.target.checked)">
                 <span>{{ ee.name }} ({{ ee.timing }})</span>
               </label>
@@ -660,7 +874,7 @@
               <strong>アイテム</strong>
               <label v-for="item in items" :key="item.name + editingComboIndex + 'item-select'"
                 class="item-select-label">
-                <input type="checkbox" :value="item" v-model="tempSelectedItems"
+                <input type="checkbox" :checked="isItemSelected(item.name)"
                   @change="handleEffectSelectionChange(item, $event.target.checked)">
                 <span>{{ item.name }} ({{ item.type }})</span>
               </label>
@@ -706,30 +920,15 @@
         <div class="modal-content confirmation-modal" @click.stop>
           <div class="modal-header">
             <h3>{{ updateOptions.title }}</h3>
+            <button @click="resolveUpdateOptions('abort')" class="close-btn" title="読み込み自体をやめる">×</button>
           </div>
           <div class="modal-body">
             <p v-html="updateOptions.message"></p>
           </div>
           <div class="modal-footer">
-            <button @click="resolveUpdateOptions('cancel')" class="cancel-btn">維持</button>
-            <button @click="resolveUpdateOptions('effects')">エフェクトのみ</button>
-            <button @click="resolveUpdateOptions('all')">すべて更新</button>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="updateOptions.show" class="modal-overlay">
-        <div class="modal-content confirmation-modal" @click.stop>
-          <div class="modal-header">
-            <h3>{{ updateOptions.title }}</h3>
-          </div>
-          <div class="modal-body">
-            <p v-html="updateOptions.message"></p>
-          </div>
-          <div class="modal-footer">
-            <button @click="resolveUpdateOptions('cancel')" class="cancel-btn">キャンセル</button>
-            <button @click="resolveUpdateOptions('effects')">エフェクトのみ</button>
-            <button @click="resolveUpdateOptions('all')">すべて更新</button>
+            <button @click="resolveUpdateOptions('cancel')" class="cancel-btn">保存データのまま</button>
+            <button @click="resolveUpdateOptions('effects')">エフェクト更新</button>
+            <button @click="resolveUpdateOptions('all')">エフェクト+アイテム更新</button>
           </div>
         </div>
       </div>

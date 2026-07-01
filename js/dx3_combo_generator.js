@@ -22,7 +22,7 @@ Vue.component("input-with-dropdown", {
   },
   methods: {
     toggleDropdown(event) {
-      if (this.options.length === 0) {
+      if (this.disabled || this.options.length === 0) {
         return;
       }
       this.isOpen = !this.isOpen;
@@ -196,6 +196,8 @@ new Vue({
     },
     isBuffSectionOpen: true,
     isSyncingComboLevel: false,
+    effectFieldsEditable: false,
+    effectDisplayMode: "combo",
   },
   created() {
     this.effects = [
@@ -247,7 +249,7 @@ new Vue({
             2
           )}`;
         } else if (shortUrl.startsWith("y-")) {
-          fullUrl = `https://yutorize.2-d.jp/ytsheet/dx3rd/?id=${shortUrl.substring(
+          fullUrl = `https://yutorize.work/ytsheet/dx3rd/?id=${shortUrl.substring(
             2
           )}`;
         }
@@ -268,6 +270,25 @@ new Vue({
     window.removeEventListener("beforeunload", this.handleBeforeUnload);
   },
   computed: {
+    availableBulkTimingOptions() {
+      const options = [
+        { key: "major", label: "メジャー" },
+        { key: "minor", label: "マイナー" },
+        { key: "reaction", label: "リアクション" },
+        { key: "setup", label: "セットアップ" },
+        { key: "initiative", label: "イニシアチブ" },
+        { key: "auto", label: "オート" },
+        { key: "constant", label: "常時" },
+      ];
+      const allEffects = [...this.effects, ...this.easyEffects].filter((effect) => effect && effect.name);
+      return options.filter((option) =>
+        allEffects.some(
+          (effect) =>
+            this.normalizeTimingForBulkSelect(effect.timing) === option.key &&
+            !this.isEffectDisabled(effect)
+        )
+      );
+    },
     effectXp() {
       return this.effects.reduce((t, e) => {
         if (e.level > 0 && !this.isEssentialEffect(e.name)) {
@@ -388,6 +409,13 @@ new Vue({
                 dice: baseParsed.dice + effectiveLevel * perLevelParsed.dice,
                 fixed: baseParsed.fixed + effectiveLevel * perLevelParsed.fixed,
               };
+            }
+
+            if (valueKey === "attack" && source.values.attack && !this.isZeroLike(source.values.attack.max)) {
+              const maxValue = Number(source.values.attack.max);
+              if (Number.isFinite(maxValue) && finalValue.dice === 0 && finalValue.fixed > maxValue) {
+                finalValue.fixed = maxValue;
+              }
             }
 
             if (finalValue.dice !== 0 || finalValue.fixed !== 0) {
@@ -724,6 +752,7 @@ new Vue({
           .map((s) => s.name)
           .join(", ");
 
+
         return {
           ...comboData,
           totalDice: finalDice,
@@ -884,6 +913,342 @@ new Vue({
     });
   },
   methods: {
+    ensureCoefficientValues(source) {
+      if (!source.values) {
+        this.$set(source, "values", this.createDefaultValues());
+      }
+      const defaults = this.createDefaultValues();
+      ["dice", "achieve", "attack", "accuracy", "guard"].forEach((key) => {
+        if (!source.values[key]) {
+          this.$set(source.values, key, JSON.parse(JSON.stringify(defaults[key])));
+        }
+        if (key === "attack" && source.values[key].max === undefined) {
+          this.$set(source.values[key], "max", "");
+        }
+      });
+      if (!source.values.crit) {
+        this.$set(source.values, "crit", JSON.parse(JSON.stringify(defaults.crit)));
+      }
+    },
+    isZeroLike(value) {
+      if (value === null || value === undefined || value === "") return true;
+      if (typeof value === "string") {
+        const cleaned = value.trim().toUpperCase();
+        return cleaned === "0" || cleaned === "0D";
+      }
+      return Number(value) === 0;
+    },
+    formatCoefficientTerm(base, perLevel, options = {}) {
+      const parts = [];
+      const addTerm = (value, text) => {
+        if (this.isZeroLike(value)) return;
+        const sign = String(value).trim().startsWith("-") ? "" : parts.length ? "+" : "";
+        parts.push(`${sign}${text}`);
+      };
+      const baseText = String(base ?? "0").trim();
+      addTerm(base, baseText);
+
+      if (!this.isZeroLike(perLevel)) {
+        const n = Number(perLevel);
+        let text;
+        if (!isNaN(n)) {
+          const abs = Math.abs(n);
+          text = abs === 1 ? "LV" : `LV*${abs}`;
+          if (n < 0) text = `-${text}`;
+          else if (parts.length) text = `+${text}`;
+        } else {
+          text = parts.length ? `+LV*${perLevel}` : `LV*${perLevel}`;
+        }
+        parts.push(text);
+      }
+      return parts.join("") || (options.blankAsDash ? "-" : "0");
+    },
+    coefficientSummary(source) {
+      if (!source || !source.values) return "-";
+      const v = source.values;
+      const parts = [];
+      const addNormal = (label, key) => {
+        if (!v[key]) return;
+        if (this.isZeroLike(v[key].base) && this.isZeroLike(v[key].perLevel)) return;
+        parts.push(`${label}:${this.formatCoefficientTerm(v[key].base, v[key].perLevel)}`);
+      };
+      addNormal("ダイス", "dice");
+      addNormal("達成値", "achieve");
+      addNormal("ATK", "attack");
+      if (v.attack && !this.isZeroLike(v.attack.max)) {
+        const idx = parts.findIndex((p) => p.startsWith("ATK:"));
+        if (idx >= 0) parts[idx] += `/最大${v.attack.max}`;
+        else parts.push(`ATK:最大${v.attack.max}`);
+      }
+      if (v.crit && (!this.isZeroLike(v.crit.base) || !this.isZeroLike(v.crit.perLevel) || Number(v.crit.min) !== 10)) {
+        const base = this.isZeroLike(v.crit.base) ? 10 : v.crit.base;
+        const per = this.isZeroLike(v.crit.perLevel) ? 0 : Number(v.crit.perLevel);
+        const min = v.crit.min ?? 10;
+        let text = `${base}`;
+        if (per) text += `-LV${Math.abs(per) === 1 ? "" : `*${Math.abs(per)}`}`;
+        text += `/下限${min}`;
+        parts.push(`C値:${text}`);
+      }
+      return parts.length ? parts.join(" / ") : "-";
+    },
+
+    coefficientCurrentValue(source, key) {
+      if (!source || !source.values) return "-";
+      const level = Number(source.level) || 0;
+      if (key === "crit") {
+        const crit = source.values.crit || {};
+        const base = this.isZeroLike(crit.base) ? 10 : Number(crit.base);
+        const perLevel = this.isZeroLike(crit.perLevel) ? 0 : Number(crit.perLevel);
+        const min = this.isZeroLike(crit.min) ? 2 : Number(crit.min);
+        const value = Math.max(
+          Number.isFinite(base) ? base - level * (Number.isFinite(perLevel) ? perLevel : 0) : 10,
+          Number.isFinite(min) ? min : 2
+        );
+        return String(value);
+      }
+      const value = source.values[key];
+      if (!value) return "0";
+      const baseParsed = this.evaluateDiceString(String(value.base || "0"));
+      const perLevelParsed = this.evaluateDiceString(String(value.perLevel || "0"));
+      const result = {
+        dice: baseParsed.dice + level * perLevelParsed.dice,
+        fixed: baseParsed.fixed + level * perLevelParsed.fixed,
+      };
+      if (key === "attack" && source.values.attack && !this.isZeroLike(source.values.attack.max)) {
+        const maxValue = Number(source.values.attack.max);
+        if (Number.isFinite(maxValue) && result.dice === 0 && result.fixed > maxValue) {
+          result.fixed = maxValue;
+        }
+      }
+      return this.formatDiceString(result);
+    },
+    safeEvalLinearFormula(formulaText) {
+      if (!formulaText) return null;
+      const normalized = String(formulaText)
+        .replace(/[Ｌｌ]/g, "L")
+        .replace(/[Ｖｖ]/g, "V")
+        .replace(/[＋]/g, "+")
+        .replace(/[－]/g, "-")
+        .replace(/[×]/g, "*")
+        .replace(/[÷]/g, "/")
+        .replace(/\s+/g, "")
+        .toUpperCase()
+        .replace(/SL/g, "LV");
+      if (!/^[0-9+\-*/().LV]+$/.test(normalized)) return null;
+      try {
+        const evalAt = (lv) => {
+          const expr = normalized.replace(/LV/g, String(lv));
+          // 入力は上のホワイトリストで四則演算と数値とLVだけに制限している。
+          return Function(`"use strict"; return (${expr});`)();
+        };
+        const val0 = Number(evalAt(0));
+        const val100 = Number(evalAt(100));
+        if (!Number.isFinite(val0) || !Number.isFinite(val100)) return null;
+        return { base: val0, perLevel: (val100 - val0) / 100 };
+      } catch (e) {
+        return null;
+      }
+    },
+    inferEffectTextCoefficients(source) {
+      const rawText = `${source?.effect || ""}\n${source?.notes || ""}`;
+      const suggestions = {};
+      const setSuggestion = (key, data) => {
+        if (!key || !data) return;
+        suggestions[key] = { ...(suggestions[key] || {}), ...data };
+      };
+      const normalizeText = (text) =>
+        String(text || "")
+          .replace(/[＋]/g, "+")
+          .replace(/[－−ーｰ]/g, "-")
+          .replace(/[×]/g, "*")
+          .replace(/[÷]/g, "/")
+          .replace(/[Ｌｌ]/g, "L")
+          .replace(/[Ｖｖ]/g, "V")
+          .replace(/[Ｓｓ]/g, "S")
+          .replace(/[Ｄｄ]/g, "D");
+      const normalizeFormula = (text) =>
+        normalizeText(text)
+          .replace(/ＳＬ|SL/gi, "LV")
+          .replace(/ＬＶ|LV/gi, "LV")
+          .replace(/^\((.*)\)$/u, "$1")
+          .replace(/^[\[［](.*)[\]］]$/u, "$1")
+          .trim();
+      const parseLinearTerm = (text) => {
+        const formula = normalizeFormula(text);
+        if (!formula) return null;
+        const parsed = this.safeEvalLinearFormula(formula);
+        if (!parsed) return null;
+        return {
+          base: Number(parsed.base) || 0,
+          perLevel: Number(parsed.perLevel) || 0,
+        };
+      };
+      const applySignedTerm = (key, sign, term, extra = {}) => {
+        const parsed = parseLinearTerm(term);
+        if (!parsed) return false;
+        const mult = sign === "-" ? -1 : 1;
+        setSuggestion(key, {
+          base: parsed.base * mult,
+          perLevel: parsed.perLevel * mult,
+          ...extra,
+        });
+        return true;
+      };
+      const applySignedTermWithOptionalDice = (key, sign, term, extra = {}) => {
+        const normalizedTerm = normalizeText(term).trim();
+        const diceLike = /(?:DX|D)\s*$/i.test(normalizedTerm);
+        const termBody = diceLike ? normalizedTerm.replace(/(?:DX|D)\s*$/i, "") : normalizedTerm;
+        const parsed = parseLinearTerm(termBody);
+        if (!parsed) return false;
+        const mult = sign === "-" ? -1 : 1;
+        const toCoefValue = (value) => {
+          const n = Number(value) * mult;
+          if (!diceLike || key === "dice") return n;
+          if (n === 0) return 0;
+          const abs = Math.abs(n);
+          return `${n < 0 ? "-" : ""}${abs === 1 ? "1" : abs}D`;
+        };
+        setSuggestion(key, {
+          base: toCoefValue(parsed.base),
+          perLevel: toCoefValue(parsed.perLevel),
+          ...(diceLike && key !== "dice" ? { isDiceInput: true, isPerLevelDiceInput: true } : {}),
+          ...extra,
+        });
+        return true;
+      };
+      const classifyTarget = (context, suffix = "") => {
+        const c = String(context || "").toUpperCase();
+        const sfx = String(suffix || "").toUpperCase();
+        if (/C値|Ｃ値|クリティカル|コンセントレイト|リフレックス/.test(context)) return "crit";
+        if (/攻撃力|ATK|ＡＴＫ|ダメージ|攻撃の/.test(context)) return "attack";
+        if (/達成値|命中達成値|判定値/.test(context)) return "achieve";
+        if (/ダイス|判定のダイス/.test(context)) return "dice";
+        if (/命中/.test(context)) return "accuracy";
+        if (/ガード|装甲/.test(context)) return "guard";
+        if (/DX|個/.test(sfx)) return "dice";
+        return null;
+      };
+
+      const normalizedRaw = normalizeText(rawText);
+      const lines = normalizedRaw.split(/[\n。]/).map((line) => line.trim()).filter(Boolean);
+
+      // コンセントレイト/リフレックスは効果文が省略されがちなので、名称・備考込みで強めに補正する。
+      const nameAndNotes = normalizeText(`${source?.name || ""}\n${source?.notes || ""}\n${source?.effect || ""}`);
+      if (/コンセントレイト|リフレックス/.test(nameAndNotes)) {
+        setSuggestion("crit", { base: 10, perLevel: 1, min: 7 });
+      }
+
+      // [LV×2] / -[5-LV] / +[Lv+1]DX 形式。
+      const bracketRegex = /([+\-]?)\s*[\[［](.*?)[\]］]\s*((?:DX|D|個|点)?)?/gi;
+      let match;
+      while ((match = bracketRegex.exec(normalizedRaw)) !== null) {
+        const signStr = match[1] || "+";
+        const formulaInner = match[2];
+        const suffix = match[3] || "";
+        const precedingText = normalizedRaw.substring(Math.max(0, match.index - 34), match.index);
+        const targetType = classifyTarget(precedingText, suffix);
+        if (!targetType) continue;
+        if (targetType === "crit") {
+          const parsed = parseLinearTerm(formulaInner);
+          const per = parsed ? Math.abs(parsed.perLevel || parsed.base || 1) : 1;
+          setSuggestion("crit", { base: 10, perLevel: per, min: 7 });
+        } else {
+          const isDiceMode = targetType !== "dice" && /D|DX/i.test(String(suffix));
+          applySignedTerm(targetType, signStr === "-" ? "-" : "+", formulaInner, {
+            ...(isDiceMode ? { isDiceInput: true, isPerLevelDiceInput: true } : {}),
+          });
+        }
+      }
+
+      lines.forEach((line) => {
+        const maxMatch = line.match(/(?:最大|MAX|Max|max)\s*([+\-]?\d+)/);
+        if (maxMatch && classifyTarget(line) === "attack") {
+          setSuggestion("attack", { max: Number(maxMatch[1]) });
+        }
+
+        // 略記: ATK+Lv / ATK+10 / 攻撃力+SL*3 / 攻撃力+(SL×2)
+        const attackRegex = /(?:ATK|攻撃力|攻撃の攻撃力)\s*(?:を|に|:)??\s*([+\-])\s*(\([^)]*\)\s*(?:DX|D)?|[\[［][^\]］]+[\]］]\s*(?:DX|D)?|(?:LV|SL)(?:\s*[*]\s*\d+)?\s*(?:DX|D)?|\d+\s*(?:DX|D)?)/gi;
+        let attackMatch;
+        while ((attackMatch = attackRegex.exec(line)) !== null) {
+          applySignedTermWithOptionalDice("attack", attackMatch[1], attackMatch[2]);
+        }
+
+        // 略記: 命中達成値+[Lv+2] / 達成値+Lv*2
+        const achieveRegex = /(?:命中達成値|達成値|判定値)\s*(?:を|に|:)??\s*([+\-])\s*(\([^)]*\)\s*(?:DX|D)?|[\[［][^\]］]+[\]］]\s*(?:DX|D)?|(?:LV|SL)(?:\s*[*]\s*\d+)?\s*(?:DX|D)?|\d+\s*(?:DX|D)?)/gi;
+        let achieveMatch;
+        while ((achieveMatch = achieveRegex.exec(line)) !== null) {
+          applySignedTermWithOptionalDice("achieve", achieveMatch[1], achieveMatch[2]);
+        }
+
+        // 略記: +[Lv+1]DX / -1DX / ダイス+Lv個 / ダイスを-Lv個
+        const diceRegex = /(?:ダイス|判定のダイス|判定ダイス|DX)\s*(?:を|に)?\s*([+\-])\s*(\([^)]*\)|[\[［][^\]］]+[\]］]|(?:LV|SL)(?:\s*[*]\s*\d+)?|\d+)\s*(?:DX|D|個)?|([+\-])\s*(\([^)]*\)|[\[［][^\]］]+[\]］]|(?:LV|SL)(?:\s*[*]\s*\d+)?|\d+)\s*(DX)/gi;
+        let diceMatch;
+        while ((diceMatch = diceRegex.exec(line)) !== null) {
+          const sign = diceMatch[1] || diceMatch[3];
+          const term = diceMatch[2] || diceMatch[4];
+          applySignedTerm("dice", sign, term);
+        }
+
+        // C値-LV / C値-1 / クリティカル値を-LVする
+        const cMatch = line.match(/(?:C値|Ｃ値|クリティカル値?|コンセントレイト|リフレックス).*?[-]\s*(LV|SL|\d+)/i);
+        if (cMatch) {
+          const token = cMatch[1].toUpperCase().replace("SL", "LV");
+          if (token === "LV") setSuggestion("crit", { base: 10, perLevel: 1, min: 7 });
+          else setSuggestion("crit", { base: 10 - Number(token || 0), perLevel: 0, min: 7 });
+        }
+      });
+      return suggestions;
+    },
+    applyInferredCoefficientsToEffect(target, overwrite = false) {
+      if (!target) return {};
+      this.ensureCoefficientValues(target);
+      const suggestions = this.inferEffectTextCoefficients(target);
+      const updatedTabs = {};
+      Object.keys(suggestions).forEach((key) => {
+        const suggestion = suggestions[key];
+        if (key === "crit") {
+          const current = target.values.crit;
+          const isEmpty = this.isZeroLike(current.base) && this.isZeroLike(current.perLevel);
+          if (overwrite || isEmpty) {
+            this.$set(current, "base", suggestion.base ?? 10);
+            this.$set(current, "perLevel", suggestion.perLevel ?? 1);
+            this.$set(current, "min", suggestion.min ?? 7);
+            updatedTabs[key] = true;
+          }
+          return;
+        }
+        const current = target.values[key];
+        if (!current) return;
+        const isEmpty = this.isZeroLike(current.base) && this.isZeroLike(current.perLevel);
+        if (overwrite || isEmpty) {
+          this.$set(current, "base", suggestion.base ?? 0);
+          this.$set(current, "perLevel", suggestion.perLevel ?? 0);
+          if (suggestion.isDiceInput !== undefined) this.$set(current, "isDiceInput", suggestion.isDiceInput);
+          if (suggestion.isPerLevelDiceInput !== undefined) this.$set(current, "isPerLevelDiceInput", suggestion.isPerLevelDiceInput);
+          if (suggestion.max !== undefined && key === "attack") this.$set(current, "max", suggestion.max);
+          updatedTabs[key] = true;
+        }
+      });
+      return updatedTabs;
+    },
+    applyEffectTextInference(overwrite = false) {
+      if (!this.editingEffect) return;
+      const suggestions = this.inferEffectTextCoefficients(this.editingEffect);
+      const suggestionKeys = Object.keys(suggestions);
+      const updatedTabs = this.applyInferredCoefficientsToEffect(this.editingEffect, overwrite);
+      const updatedKeys = Object.keys(updatedTabs);
+      this.modalTabs.forEach((tab) => {
+        if (updatedTabs[tab.key]) this.$set(tab, "isAutoDetected", true);
+      });
+      if (updatedKeys.length > 0) {
+        this.activeModalTab = updatedKeys[0];
+        this.showStatus(overwrite ? "係数を上書き推定しました。" : "未設定の係数を推定しました。");
+      } else if (suggestionKeys.length > 0 && !overwrite) {
+        this.showStatus("推定候補はありますが、既存の係数を上書きしませんでした。必要なら『上書き推定』を使ってください。", true);
+      } else {
+        this.showStatus("反映できる係数候補がありません。ATK+Lv、+[Lv+1]DX、達成値+[Lv+2] などは手動入力できます。", true);
+      }
+    },
     updateComboAbility(index) {
       const combo = this.combos[index];
       const skill = combo.baseAbility.skill;
@@ -1172,6 +1537,14 @@ new Vue({
         this.toast.show = false;
       }, duration);
     },
+
+    async refreshSheetData() {
+      if (!this.characterSheetUrl) {
+        this.showStatus("キャラクターシートURLを入力してください。", true);
+        return;
+      }
+      await this.importFromSheet(true, false, "all");
+    },
     validateInputs() {
       if (!this.characterSheetUrl) {
         this.showStatus("キャラクターシートのURLを入力してください。", true);
@@ -1307,6 +1680,17 @@ new Vue({
         this.showStatus("読み込みをキャンセルしました。");
         return;
       }
+      const loadAbortSnapshot = {
+        characterName: this.characterName,
+        totalXp: this.totalXp,
+        otherXp: this.otherXp,
+        effects: JSON.parse(JSON.stringify(this.effects || [])),
+        easyEffects: JSON.parse(JSON.stringify(this.easyEffects || [])),
+        items: JSON.parse(JSON.stringify(this.items || [])),
+        combos: JSON.parse(JSON.stringify(this.combos || [])),
+        isDirty: this.isDirty,
+      };
+
       this.isBusy = true;
       this.showStatus("DBにアクセス中...", false, 0);
       const url = new URL(this.gasWebAppUrl);
@@ -1359,9 +1743,22 @@ new Vue({
           }
           this.isDirty = false;
           const updateType = await this.showUpdateOptions(
-            "キャラクターシートからの更新",
-            "キャラクターシートの最新データで何を更新しますか？<br>（注意：現在作成中のコンボデータは維持されます）"
+            "保存データの読み込み完了",
+            "保存済みデータを読み込みました。<br>キャラクターシート側の最新内容も取り込む場合は、更新範囲を選んでください。<br><br><strong>どの選択でも、現在保存されているコンボデータは維持されます。</strong>"
           );
+
+          if (updateType === "abort") {
+            this.characterName = loadAbortSnapshot.characterName;
+            this.totalXp = loadAbortSnapshot.totalXp;
+            this.otherXp = loadAbortSnapshot.otherXp;
+            this.effects = loadAbortSnapshot.effects;
+            this.easyEffects = loadAbortSnapshot.easyEffects;
+            this.items = loadAbortSnapshot.items;
+            this.combos = loadAbortSnapshot.combos;
+            this.isDirty = loadAbortSnapshot.isDirty;
+            this.showStatus("読み込みをキャンセルしました。");
+            return;
+          }
 
           if (updateType === "all") {
             await this.importFromSheet(true, true, "all");
@@ -1395,6 +1792,30 @@ new Vue({
         this.isBusy = false;
       }
     },
+    isYutoSheetUrl(url) {
+      try {
+        const u = new URL(url);
+        return u.hostname.includes("yutorize.2-d.jp") || u.hostname.includes("yutorize.work");
+      } catch (e) {
+        return String(url || "").includes("yutorize.2-d.jp") || String(url || "").includes("yutorize.work");
+      }
+    },
+    buildImportSummary(importedData, effectsCount, easyEffectsCount, itemsCount) {
+      const xpLines = [];
+      const total = importedData.expTotal ?? importedData.totalXp;
+      const used = importedData.expUsed ?? importedData.usedXp;
+      const rest = importedData.expRest ?? importedData.restXp;
+      if (total !== undefined && total !== null && total !== "") xpLines.push(`・総経験点: ${total}`);
+      if (used !== undefined && used !== null && used !== "") xpLines.push(`・使用経験点: ${used}`);
+      if (rest !== undefined && rest !== null && rest !== "") xpLines.push(`・残経験点: ${rest}`);
+      if (xpLines.length === 0 && importedData.totalXp !== undefined) xpLines.push(`・経験点: ${importedData.totalXp}`);
+      return [
+        ...xpLines,
+        `・エフェクト: ${effectsCount}件`,
+        `・イージーエフェクト: ${easyEffectsCount}件`,
+        `・アイテム: ${itemsCount}件`,
+      ].join("<br>");
+    },
     async importFromSheet(
       mergeMode = false,
       skipConfirmation = false,
@@ -1418,7 +1839,7 @@ new Vue({
       }
       try {
         let importedData;
-        if (this.characterSheetUrl.includes("yutorize.2-d.jp")) {
+        if (this.isYutoSheetUrl(this.characterSheetUrl)) {
           importedData = await this.importFromYutoSheet_direct(
             this.characterSheetUrl
           );
@@ -1442,10 +1863,7 @@ new Vue({
           !(await this.showConfirmation(
             mergeMode ? "データ更新の確認" : "新規引用の確認",
             confirmMessage +
-              `・総経験点: ${importedData.totalXp}<br>` +
-              `・エフェクト: ${effectsCount}件<br>` +
-              `・イージーエフェクト: ${easyEffectsCount}件<br>` +
-              `・アイテム: ${itemsCount}件`
+              this.buildImportSummary(importedData, effectsCount, easyEffectsCount, itemsCount)
           ))
         ) {
           this.showStatus("引用をキャンセルしました。");
@@ -1456,8 +1874,10 @@ new Vue({
         this.totalXp = importedData.totalXp;
         if (!mergeMode) {
           this.otherXp = 0;
-          this.combos = [];
-          this.addCombo();
+          this.combos = (importedData.combos && importedData.combos.length)
+            ? importedData.combos.map((c) => ({ ...this.createDefaultCombo(), ...c }))
+            : [];
+          if (this.combos.length === 0) this.addCombo();
         }
         const defaultEffects = this.effects.filter((e) =>
           this.isEssentialEffect(e.name)
@@ -1541,15 +1961,33 @@ new Vue({
         this.isBusy = false;
       }
     },
-    async importFromYutoSheet_direct(url) {
-      const jsonUrl = url + (url.includes("?") ? "&" : "?") + "mode=json";
-      const response = await fetch(jsonUrl);
-      if (!response.ok) {
+    async fetchYutoJson(yutoJsonUrl) {
+      const fetchJson = async (fetchUrl, label) => {
+        const response = await fetch(fetchUrl, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`${label} ステータス: ${response.status}`);
+        }
+        return await response.json();
+      };
+      try {
+        return await fetchJson(yutoJsonUrl, "直接取得");
+      } catch (directError) {
+        console.warn("YutoSheet direct fetch failed. Trying CORS proxy.", directError);
+      }
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(yutoJsonUrl)}`;
+      try {
+        return await fetchJson(proxyUrl, "プロキシ取得");
+      } catch (proxyError) {
+        console.error("YutoSheet proxy fetch failed.", proxyError);
         throw new Error(
-          `ゆとシートAPIへのアクセスに失敗しました (ステータス: ${response.status})`
+          "ゆとシートJSONを取得できませんでした。CORS制限、プロキシ不調、またはシートの公開設定を確認してください。"
         );
       }
-      const jsonData = await response.json();
+    },
+    async importFromYutoSheet_direct(url) {
+      const yutoUrl = new URL(url);
+      yutoUrl.searchParams.set("mode", "json");
+      const jsonData = await this.fetchYutoJson(yutoUrl.toString());
       const effects = [];
       const easyEffects = [];
       const items = [];
@@ -1643,14 +2081,46 @@ new Vue({
         });
       }
 
+      const combos = [];
+      const comboNum = parseInt(jsonData.comboNum, 10) || 0;
+      for (let i = 1; i <= comboNum; i++) {
+        const comboName = this.normalizeImportedString(jsonData[`combo${i}Name`]) || "";
+        const comboText = this.normalizeImportedString(jsonData[`combo${i}Combo`]) || "";
+        if (!comboName && !comboText) continue;
+        const effectNames = comboText
+          .split(/[+＋]/)
+          .map((name) => this.normalizeImportedString(name).trim())
+          .filter(Boolean)
+          .map((name) => ({ name, showInComboName: true }));
+        combos.push({
+          ...this.createDefaultCombo(),
+          name: comboName || `コンボ${i}`,
+          effectNames,
+          baseAbility: {
+            skill: this.normalizeSkillName(this.normalizeImportedString(jsonData[`combo${i}Skill`])) || "-",
+            statOverride: "",
+          },
+          manualTarget: this.normalizeImportedString(jsonData[`combo${i}Target`]) || "",
+          targetMode: jsonData[`combo${i}Target`] ? "manual" : "auto",
+          manualRange: this.normalizeImportedString(jsonData[`combo${i}Range`]) || "",
+          rangeMode: jsonData[`combo${i}Range`] ? "manual" : "auto",
+          manualTiming: this.normalizeSkillName(this.normalizeImportedString(jsonData[`combo${i}Timing`])) || "",
+          timingMode: jsonData[`combo${i}Timing`] ? "manual" : "auto",
+          cost_manual: Number(jsonData[`combo${i}Encroach`]) || 0,
+        });
+      }
       return {
         characterName: this.normalizeImportedString(
           jsonData.characterName || jsonData.pc_name
         ),
         totalXp: parseInt(jsonData.expTotal, 10) || 130,
+        expTotal: parseInt(jsonData.expTotal, 10) || undefined,
+        expUsed: parseInt(jsonData.expUsed, 10) || undefined,
+        expRest: parseInt(jsonData.expRest, 10) || undefined,
         effects: effects,
         easyEffects: easyEffects,
         items: items,
+        combos: combos,
       };
     },
     async importFromHokanjo_gas(url) {
@@ -1724,6 +2194,7 @@ new Vue({
           isPerLevelDiceInput: false,
         };
       });
+      values.attack.max = "";
       values.crit.min = 10;
       // isDiceInputはcritには不要なので削除
       delete values.crit.isDiceInput;
@@ -1928,64 +2399,19 @@ new Vue({
     // 自動入力可能な項目があるかチェックし、フラグを立てる
     detectAutoUpdateAvailable() {
       const allLists = [...this.effects, ...this.easyEffects, ...this.items];
-      const regex =
-        /([+\-＋－]?)\s*[\[［](.*?)[\]］](?:[×*]?)(\s*(?:DX|ＤＸ|D|Ｄ|個|点))?/gi;
-
       allLists.forEach((item) => {
-        // コンセントレイトなどは除外
         if (this.isEssentialEffect(item.name)) return;
-
-        const rawText = (item.effect || "") + "\n" + (item.notes || "");
-        if (!rawText.match(/[\[［].*?[\]］]/)) return; // [ ] がなければスキップ
-
-        let hasUpdate = false;
-        let match;
-        // regexのlastIndexをリセット
-        regex.lastIndex = 0;
-
-        while ((match = regex.exec(rawText)) !== null) {
-          const suffix = (match[3] || "").trim().toUpperCase();
-          const idx = match.index;
-          const precedingText = rawText
-            .substring(Math.max(0, idx - 20), idx)
-            .toUpperCase();
-
-          let targetType = null;
-          // 簡易判定 (openEffectPanelほど厳密でなくて良い、何らかのターゲットが決まればよい)
-          if (/攻撃力|ATK|ＡＴＫ|ダメージ|攻撃の/.test(precedingText))
-            targetType = "attack";
-          else if (/ガード|装甲/.test(precedingText)) targetType = "guard";
-          else if (/命中/.test(precedingText)) targetType = "accuracy";
-          else if (/達成値/.test(precedingText)) targetType = "achieve";
-          else if (
-            /ダイス|DX|ＤＸ/.test(precedingText) ||
-            /DX|ＤＸ/.test(suffix) ||
-            /D|Ｄ/.test(suffix)
-          )
-            targetType = "dice";
-
-          if (targetType) {
-            // 現在の値が0の場合のみ「更新あり」とみなす
-            if (!item.values[targetType]) {
-              // values自体がない場合は初期化されていないので更新候補
-              hasUpdate = true;
-            } else {
-              const v = item.values[targetType];
-              // BaseもPerLevelも0なら、自動入力の余地がある
-              if (
-                (Number(v.base) || 0) === 0 &&
-                (Number(v.perLevel) || 0) === 0
-              ) {
-                hasUpdate = true;
-              }
-            }
+        this.ensureCoefficientValues(item);
+        const suggestions = this.inferEffectTextCoefficients(item);
+        const hasUpdate = Object.keys(suggestions).some((key) => {
+          if (key === "crit") {
+            const c = item.values.crit || {};
+            return this.isZeroLike(c.base) && this.isZeroLike(c.perLevel);
           }
-          if (hasUpdate) break;
-        }
-
-        if (hasUpdate) {
-          this.$set(item, "_hasAutoUpdate", true);
-        }
+          const v = item.values[key];
+          return !v || (this.isZeroLike(v.base) && this.isZeroLike(v.perLevel));
+        });
+        if (hasUpdate) this.$set(item, "_hasAutoUpdate", true);
       });
     },
     openEffectPanel(event, source, type, index) {
@@ -2003,137 +2429,36 @@ new Vue({
         "\n" +
         (source.name || "")
       ).toUpperCase();
-      const rawText = (source.effect || "") + "\n" + (source.notes || "");
+      const inferredPreview = this.inferEffectTextCoefficients(this.editingEffect);
       const autoUpdatedTabs = {};
 
-      // 数式解析用関数
-      const parseFormulas = () => {
-        // 例: "+[LV+1]", "-[3-LV]DX", "攻撃力を+[LV*2]D"
-        const regex =
-          /([+\-＋－]?)\s*[\[［](.*?)[\]］](?:[×*]?)(\s*(?:DX|ＤＸ|D|Ｄ|個|点))?/gi;
-        let match;
-
-        while ((match = regex.exec(rawText)) !== null) {
-          const signStr = match[1] || "+";
-          const formulaInner = match[2];
-          const suffix = match[3] || "";
-
-          const idx = match.index;
-          const precedingText = rawText
-            .substring(Math.max(0, idx - 20), idx)
-            .toUpperCase();
-          const suffixUpper = suffix.trim().toUpperCase();
-
-          let targetType = null;
-          let isDiceMode = false;
-
-          // ★修正: 「D」がついている場合でも、文脈(PrecedingText)を最優先する
-          // 「攻撃力を...[LV]Dする」のようなケースに対応
-          if (/攻撃力|ATK|ＡＴＫ|ダメージ|攻撃の/.test(precedingText)) {
-            targetType = "attack";
-            if (/D|Ｄ/.test(suffixUpper)) isDiceMode = true; // 攻撃力だがD計算
-          } else if (/ガード|装甲/.test(precedingText)) {
-            targetType = "guard";
-            if (/D|Ｄ/.test(suffixUpper)) isDiceMode = true;
-          } else if (/命中/.test(precedingText)) {
-            targetType = "accuracy";
-            if (/D|Ｄ/.test(suffixUpper)) isDiceMode = true;
-          } else if (/達成値/.test(precedingText)) {
-            targetType = "achieve";
-          } else if (/ダイス/.test(precedingText)) {
-            targetType = "dice";
-          }
-
-          // 文脈で決まらなかった場合、接尾辞で判断
-          if (!targetType) {
-            if (/DX|ＤＸ/.test(suffixUpper)) {
-              targetType = "dice";
-            } else if (/D|Ｄ/.test(suffixUpper)) {
-              targetType = "dice";
-            }
-          }
-
-          if (targetType) {
-            let f = formulaInner
-              .replace(/[＋]/g, "+")
-              .replace(/[－]/g, "-")
-              .replace(/[×]/g, "*")
-              .replace(/[÷]/g, "/");
-            try {
-              const evalAt = (lv) =>
-                new Function("return " + f.replace(/LV/gi, lv))();
-              const val0 = evalAt(0);
-              const val100 = evalAt(100);
-
-              if (!isNaN(val0) && !isNaN(val100)) {
-                let slope = (val100 - val0) / 100;
-                let intercept = val0;
-                const signMult = signStr === "-" || signStr === "－" ? -1 : 1;
-
-                const finalPerLevel = slope * signMult;
-                const finalBase = intercept * signMult;
-
-                if (!this.editingEffect.values[targetType]) {
-                  this.$set(
-                    this.editingEffect.values,
-                    targetType,
-                    this.createDefaultValues()[targetType]
-                  );
-                }
-                const current = this.editingEffect.values[targetType];
-
-                // 値が未設定(0)の場合のみ自動入力
-                if (current.base === 0 && current.perLevel === 0) {
-                  this.$set(current, "base", finalBase);
-                  this.$set(current, "perLevel", finalPerLevel);
-
-                  // ★追加: 「D」フラグが立っていれば、入力モードをダイスに切り替える
-                  if (isDiceMode) {
-                    if (finalBase !== 0)
-                      this.$set(current, "isDiceInput", true);
-                    if (finalPerLevel !== 0)
-                      this.$set(current, "isPerLevelDiceInput", true);
-                  }
-
-                  autoUpdatedTabs[targetType] = true;
-                }
-              }
-            } catch (e) {
-              console.warn("Auto-parse failed:", formulaInner);
-            }
-          }
-        }
-      };
-
-      parseFormulas();
-
-      const checkRelevance = (keywords) =>
-        keywords.some((kw) => textToAnalyze.includes(kw));
+      const checkRelevance = (keywords, key) =>
+        Boolean(inferredPreview[key]) || keywords.some((kw) => textToAnalyze.includes(kw));
 
       if (type === "item") {
         this.modalTabs = [
           {
             key: "accuracy",
             label: "命中",
-            isRelevant: checkRelevance(["命中"]),
+            isRelevant: checkRelevance(["命中"], "accuracy"),
             isAutoDetected: autoUpdatedTabs["accuracy"],
           },
           {
             key: "attack",
             label: "攻撃力",
-            isRelevant: checkRelevance(["攻撃力", "ATK", "ダメージ", "攻撃の"]),
+            isRelevant: checkRelevance(["攻撃力", "ATK", "ダメージ", "攻撃の"], "attack"),
             isAutoDetected: autoUpdatedTabs["attack"],
           },
           {
             key: "guard",
             label: "ガード値",
-            isRelevant: checkRelevance(["ガード", "装甲"]),
+            isRelevant: checkRelevance(["ガード", "装甲"], "guard"),
             isAutoDetected: autoUpdatedTabs["guard"],
           },
           {
             key: "crit",
             label: "C値",
-            isRelevant: checkRelevance(["クリティカル", "C値", "Ｃ値", "@"]),
+            isRelevant: checkRelevance(["クリティカル", "C値", "Ｃ値", "@"], "crit"),
             isAutoDetected: false,
           },
         ];
@@ -2143,25 +2468,25 @@ new Vue({
           {
             key: "dice",
             label: "ダイス",
-            isRelevant: checkRelevance(["ダイス", "DX", "ＤＸ", "個"]),
+            isRelevant: checkRelevance(["ダイス", "DX", "ＤＸ", "個"], "dice"),
             isAutoDetected: autoUpdatedTabs["dice"],
           },
           {
             key: "achieve",
             label: "達成値",
-            isRelevant: checkRelevance(["達成値"]),
+            isRelevant: checkRelevance(["達成値"], "achieve"),
             isAutoDetected: autoUpdatedTabs["achieve"],
           },
           {
             key: "attack",
             label: "ATK",
-            isRelevant: checkRelevance(["攻撃力", "ATK", "ダメージ", "攻撃の"]),
+            isRelevant: checkRelevance(["攻撃力", "ATK", "ダメージ", "攻撃の"], "attack"),
             isAutoDetected: autoUpdatedTabs["attack"],
           },
           {
             key: "crit",
             label: "C値",
-            isRelevant: checkRelevance(["クリティカル", "C値", "Ｃ値", "@"]),
+            isRelevant: checkRelevance(["クリティカル", "C値", "Ｃ値", "@"], "crit"),
             isAutoDetected: false,
           },
         ];
@@ -2199,38 +2524,36 @@ new Vue({
               isPerLevelDiceInput: false,
             });
           }
-          // 数値orD表記変換 (isDiceInputフラグ等は上でセットしたものを優先したいので、D文字が含まれる場合のみ上書きするガードを入れる)
-          const baseValueStr = String(
-            this.editingEffect.values[tabKey].base || "0"
+          // 係数パネルでは ATK / 達成値 / 命中修正などに「2D」のような
+          // 直接D表記を許可する。旧データの isDiceInput フラグは表示用に文字列へ戻す。
+          const normalizePanelValue = (value, isDice) => {
+            if (value === null || value === undefined || value === "") return "0";
+            const str = String(value).trim();
+            if (str.toUpperCase().includes("D")) return str.toUpperCase();
+            if (isDice && tabKey !== "dice") return `${Number(str) || 0}D`;
+            return String(Number(str) || 0);
+          };
+          this.editingEffect.values[tabKey].base = normalizePanelValue(
+            this.editingEffect.values[tabKey].base,
+            this.editingEffect.values[tabKey].isDiceInput
           );
-          if (baseValueStr.toUpperCase().includes("D")) {
-            this.editingEffect.values[tabKey].isDiceInput = true;
-            this.editingEffect.values[tabKey].base =
-              parseInt(baseValueStr, 10) || 0;
-          } else if (!this.editingEffect.values[tabKey].isDiceInput) {
-            // 自動判定でDiceフラグが立っていない場合のみ数値変換
-            this.editingEffect.values[tabKey].base = Number(baseValueStr) || 0;
-          }
-
-          const perLevelValueStr = String(
-            this.editingEffect.values[tabKey].perLevel || "0"
+          this.editingEffect.values[tabKey].perLevel = normalizePanelValue(
+            this.editingEffect.values[tabKey].perLevel,
+            this.editingEffect.values[tabKey].isPerLevelDiceInput
           );
-          if (perLevelValueStr.toUpperCase().includes("D")) {
-            this.editingEffect.values[tabKey].isPerLevelDiceInput = true;
-            this.editingEffect.values[tabKey].perLevel =
-              parseInt(perLevelValueStr, 10) || 0;
-          } else if (!this.editingEffect.values[tabKey].isPerLevelDiceInput) {
-            this.editingEffect.values[tabKey].perLevel =
-              Number(perLevelValueStr) || 0;
-          }
         }
       });
       this.editingEffectType = type;
       this.editingEffectIndex = index;
-      const rect = event.target.getBoundingClientRect();
+      // 係数パネルはボタン位置に追従させると、画面下部で開いた時だけ
+      // 縦スクロールが出やすい。常に画面中央へ出して、表示位置による差をなくす。
+      const panelWidth = Math.min(560, window.innerWidth - 32);
       this.panelStyle = {
-        top: `${rect.bottom + window.scrollY + 5}px`,
-        left: `${rect.left + window.scrollX - 250}px`,
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: `${panelWidth}px`,
+        maxHeight: "calc(100vh - 32px)",
       };
       this.isPanelOpen = true;
     },
@@ -2240,28 +2563,36 @@ new Vue({
           const tabKey = tab.key;
           if (tabKey !== "crit") {
             if (tabKey === "dice") {
-              // 'dice'タブは常に数値として保存
+              // ダイス補正そのものは個数入力なのでD表記にはしない
               this.editingEffect.values.dice.base =
                 Number(this.editingEffect.values.dice.base) || 0;
               this.editingEffect.values.dice.perLevel =
                 Number(this.editingEffect.values.dice.perLevel) || 0;
             } else {
-              // 他のタブはD表記を考慮
-              if (this.editingEffect.values[tabKey].isDiceInput) {
-                this.editingEffect.values[
-                  tabKey
-                ].base = `${this.editingEffect.values[tabKey].base}D`;
-              } else {
-                this.editingEffect.values[tabKey].base =
-                  Number(this.editingEffect.values[tabKey].base) || 0;
-              }
-              if (this.editingEffect.values[tabKey].isPerLevelDiceInput) {
-                this.editingEffect.values[
-                  tabKey
-                ].perLevel = `${this.editingEffect.values[tabKey].perLevel}D`;
-              } else {
-                this.editingEffect.values[tabKey].perLevel =
-                  Number(this.editingEffect.values[tabKey].perLevel) || 0;
+              const normalizeStoredCoef = (value) => {
+                if (value === null || value === undefined || value === "") return 0;
+                const str = String(value).trim().replace(/ｄ/gi, "D").replace(/Ｄ/g, "D");
+                if (str.toUpperCase().includes("D")) return str.toUpperCase();
+                return Number(str) || 0;
+              };
+              this.editingEffect.values[tabKey].base = normalizeStoredCoef(
+                this.editingEffect.values[tabKey].base
+              );
+              this.editingEffect.values[tabKey].perLevel = normalizeStoredCoef(
+                this.editingEffect.values[tabKey].perLevel
+              );
+              this.editingEffect.values[tabKey].isDiceInput = String(
+                this.editingEffect.values[tabKey].base
+              ).toUpperCase().includes("D");
+              this.editingEffect.values[tabKey].isPerLevelDiceInput = String(
+                this.editingEffect.values[tabKey].perLevel
+              ).toUpperCase().includes("D");
+              if (tabKey === "attack") {
+                const maxValue = this.editingEffect.values.attack.max;
+                this.editingEffect.values.attack.max =
+                  maxValue === "" || maxValue === null || maxValue === undefined
+                    ? ""
+                    : Number(maxValue);
               }
             }
           }
@@ -2284,6 +2615,12 @@ new Vue({
       this.isPanelOpen = false;
       this.editingEffect = null;
       // 元々ここにあった syncAllData の呼び出しを削除
+    },
+    cancelEffectPanel() {
+      this.isPanelOpen = false;
+      this.editingEffect = null;
+      this.editingEffectType = "";
+      this.editingEffectIndex = -1;
     },
     openEffectSelectModal(comboIndex) {
       this.editingComboIndex = comboIndex;
@@ -2315,6 +2652,37 @@ new Vue({
       this.tempSelectedBuffs = [...(combo.appliedBuffs || [])]; // 適用中のバフをセット
 
       this.isEffectSelectModalOpen = true;
+    },
+
+    normalizeTimingForBulkSelect(timing) {
+      const raw = String(timing || "").replace(/[\s　]/g, "");
+      if (!raw || raw === "-" || raw === "ー") return "other";
+      if (raw.includes("メジャ") || raw.includes("ﾒｼﾞｬ") || raw.includes("メイン")) return "major";
+      if (raw.includes("マイナー") || raw.includes("ﾏｲﾅｰ")) return "minor";
+      if (raw.includes("リア") || raw.includes("ﾘｱ") || raw === "リ") return "reaction";
+      if (raw.includes("セット") || raw.includes("ｾｯﾄ")) return "setup";
+      if (raw.includes("イニシ") || raw.includes("ｲﾆｼ")) return "initiative";
+      if (raw.includes("オート") || raw.includes("ｵｰﾄ")) return "auto";
+      if (raw.includes("常時")) return "constant";
+      return "other";
+    },
+    selectEffectsByTiming(timingKey) {
+      if (!this.isEffectSelectModalOpen) return;
+      const candidates = [...this.effects, ...this.easyEffects].filter(
+        (effect) => this.normalizeTimingForBulkSelect(effect.timing) === timingKey
+      );
+
+      candidates.forEach((effect) => {
+        if (!effect || !effect.name) return;
+        if (this.isEffectDisabled(effect)) return;
+        if (!this.tempSelectedEffects.some((selected) => selected.name === effect.name)) {
+          this.tempSelectedEffects.push(effect);
+        }
+      });
+    },
+    clearTempEffectSelection() {
+      this.tempSelectedEffects = [];
+      this.tempSelectedItems = [];
     },
     confirmEffectSelection() {
       if (this.editingComboIndex !== -1) {
@@ -2448,7 +2816,27 @@ new Vue({
     },
     normalizeImportedString(str) {
       if (typeof str !== "string" || !str) return str;
-      return str.replace(/―/g, "-");
+      let text = str;
+      if (typeof document !== "undefined") {
+        const textarea = document.createElement("textarea");
+        textarea.innerHTML = text;
+        text = textarea.value;
+      } else {
+        text = text
+          .replace(/&darr;/gi, "↓")
+          .replace(/&uarr;/gi, "↑")
+          .replace(/&times;/gi, "×")
+          .replace(/&divide;/gi, "÷")
+          .replace(/&nbsp;/gi, " ")
+          .replace(/&quot;/gi, '\"')
+          .replace(/&#039;|&apos;/gi, "'")
+          .replace(/&lt;/gi, "<")
+          .replace(/&gt;/gi, ">")
+          .replace(/&amp;/gi, "&");
+      }
+      return text
+        .replace(/<br\s*\/?\s*>/gi, "\n")
+        .replace(/―/g, "-");
     },
     normalizeSkillName(str) {
       if (!str) return "";
@@ -2634,7 +3022,7 @@ new Vue({
           if (url.hostname.includes("charasheet.vampire-blood.net")) {
             const pathId = url.pathname.split("/").pop();
             shortUrl = `v-${pathId}`;
-          } else if (url.hostname.includes("yutorize.2-d.jp")) {
+          } else if (url.hostname.includes("yutorize.2-d.jp") || url.hostname.includes("yutorize.work")) {
             const queryId = url.searchParams.get("id");
             shortUrl = `y-${queryId}`;
           }

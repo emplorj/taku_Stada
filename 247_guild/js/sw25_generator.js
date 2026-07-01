@@ -515,6 +515,21 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAllItems();
   }
 
+  function formatCashbookSignedAmount(amount) {
+    const numeric = Number(amount) || 0;
+    if (numeric === 0) return "0";
+    return `${numeric > 0 ? "+" : "-"}${Math.abs(numeric)}`;
+  }
+
+  function formatAutoCashbookPriceExpression(price, quantity = 1) {
+    const numericPrice = Number(price) || 0;
+    const sign = numericPrice < 0 ? "+" : "-";
+    const absPrice = Math.abs(numericPrice);
+    const count = Number.parseInt(quantity, 10) || 1;
+    if (count > 1) return `::${sign}${absPrice}*${count}`;
+    return `::${sign}${absPrice}`;
+  }
+
   function updateCashbookAndMoney() {
     const cashbookTextarea = document.getElementById("cashbook");
     const folderToggle = document.getElementById("item-folder-toggle").checked;
@@ -529,9 +544,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const priceInput = row.querySelector(
           ".weapon-price, .armour-price, .item-total-price",
         );
-        const nameSelect = row.querySelector(
-          ".weapon-name-select, .armour-name-select, .item-name-select",
-        );
         const nameFree = row.querySelector(
           ".weapon-name-free, .armour-name-free, .item-name-free",
         );
@@ -542,7 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (priceInput) {
           const price = parseFloat(priceInput.value) || 0;
-          if (price > 0) {
+          if (price !== 0) {
             autoTotalCost += price;
             const isMagic =
               row.querySelector(".item-magic-check")?.checked || false;
@@ -562,10 +574,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (quantity > 1 && row.classList.contains("item-row")) {
               autoEntries.push(
-                `: ${prefix}${nameText}|::-` + unitPrice + "*" + quantity,
+                `: ${prefix}${nameText}|` +
+                  formatAutoCashbookPriceExpression(unitPrice, quantity),
               );
             } else {
-              autoEntries.push(`: ${prefix}${nameText}|::-` + price);
+              autoEntries.push(
+                `: ${prefix}${nameText}|` +
+                  formatAutoCashbookPriceExpression(price),
+              );
             }
           }
         }
@@ -588,14 +604,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userCashbookContent) {
       const userEntries = userCashbookContent.split("\n");
       userEntries.forEach((line) => {
-        const match = line.match(/::(-?\d+)/);
-        if (match) userTotalCost -= parseInt(match[1], 10);
+        const match = line.match(/::([+-]?\d+(?:\.\d+)?)/);
+        if (match) userTotalCost -= Number(match[1]);
       });
     }
 
     const finalTotalCost = autoTotalCost + userTotalCost;
     document.getElementById("money-sidebar-items-total").textContent =
-      `-${finalTotalCost}`;
+      formatCashbookSignedAmount(-finalTotalCost);
     updateRemainingMoney();
   }
 
