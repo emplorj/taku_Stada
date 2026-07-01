@@ -3063,22 +3063,30 @@
   overflow: hidden;
   background: #1f1f1f;
   flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .display-mode-toggle button {
   border: none;
   border-right: 1px solid #4a5c9a;
-  background: #3c3c3c;
-  color: #ddd;
-  padding: 8px 10px;
+  background: #2b334a;
+  color: #aebcda;
+  padding: 8px 12px;
   cursor: pointer;
   font-size: 0.85em;
   white-space: nowrap;
+  transition: background .2s, color .2s, opacity .2s;
 }
 .display-mode-toggle button:last-child { border-right: none; }
 .display-mode-toggle button.active {
   background: #3498db;
   color: #fff;
   font-weight: bold;
+}
+.btn-coef-infer {
+  background: #2f7ed8;
+}
+.btn-coef-infer.danger {
+  background: #7c4d9d;
 }
 .compact-table-wrapper { overflow-x: auto; }
 .combo-source-table {
@@ -4286,78 +4294,212 @@
 
 /* v52: narrow combo-use numeric boxes; values are expected to be about 1-3 digits. */
 #dx3-app .combo-source-table-v34 {
-  width: 1590px;
-  min-width: 1590px;
-  max-width: 1590px;
+  width: 1550px;
+  min-width: 1550px;
+  max-width: 1550px;
 }
 #dx3-app .combo-source-table-v34 col.combo-col-lv { width: 54px; }
-#dx3-app .combo-source-table-v34 col.combo-col-coef { width: 52px; }
-#dx3-app .combo-source-table-v34 col.combo-col-current { width: 66px; }
+#dx3-app .combo-source-table-v34 col.combo-col-coef { width: 50px; }
+#dx3-app .combo-source-table-v34 col.combo-col-current { width: 56px; }
 #dx3-app .combo-source-table-v34 .source-level-cell {
   width: 54px;
   min-width: 54px;
   max-width: 54px;
 }
 #dx3-app .combo-source-table-v34 .coef-cell {
-  width: 52px;
-  min-width: 52px;
-  max-width: 52px;
-  padding: 5px 3px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  padding: 5px 2px;
 }
 #dx3-app .combo-source-table-v34 .coef-current-cell {
-  width: 66px;
-  min-width: 66px;
-  max-width: 66px;
-  padding: 5px 3px;
+  width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  padding: 5px 2px;
 }
 #dx3-app .combo-source-table-v34 .coef-cell input[type="text"],
 #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
-  width: 46px;
-  min-width: 46px;
-  max-width: 46px;
-  padding: 4px 4px;
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  padding: 4px 3px;
 }
 #dx3-app .combo-source-table-v34 .coef-current-box {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
-  padding: 4px 4px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  padding: 4px 3px;
 }
 @media (max-width: 900px) {
   #dx3-app .combo-source-table-v34 {
-    width: 1590px;
-    min-width: 1590px;
-    max-width: 1590px;
+    width: 1550px;
+    min-width: 1550px;
+    max-width: 1550px;
   }
 }
 
 
 /* v53: dice / achieve / crit numeric cells are right-aligned and narrower */
 #dx3-app .combo-source-table-v34 .coef-cell.coef-cell-numeric {
-  width: 42px;
-  min-width: 42px;
-  max-width: 42px;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
   padding: 5px 1px;
 }
 #dx3-app .combo-source-table-v34 .coef-cell.coef-cell-numeric input[type="text"],
 #dx3-app .combo-source-table-v34 .coef-cell.coef-cell-numeric input[type="number"] {
-  width: 36px;
-  min-width: 36px;
-  max-width: 36px;
-  padding: 4px 3px;
+  width: 34px;
+  min-width: 34px;
+  max-width: 34px;
+  padding: 4px 2px;
   text-align: right;
 }
 #dx3-app .combo-source-table-v34 .coef-current-cell.coef-current-cell-numeric {
-  width: 52px;
-  min-width: 52px;
-  max-width: 52px;
+  width: 56px;
+  min-width: 56px;
+  max-width: 56px;
   padding: 5px 1px;
 }
 #dx3-app .combo-source-table-v34 .coef-current-cell.coef-current-cell-numeric .coef-current-box.coef-current-box-numeric {
-  width: 46px;
-  min-width: 46px;
-  max-width: 46px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
   margin: 0 auto;
-  padding: 4px 3px;
+  padding: 4px 2px;
   text-align: right;
+}
+
+
+/* v57: coefficient/detail tabs do not change on hover; row-level inference controls */
+.display-mode-toggle button:hover {
+  background: #2b334a;
+  color: #aebcda;
+  transform: none;
+  opacity: 1;
+}
+.display-mode-toggle button.active:hover {
+  background: #3498db;
+  color: #fff;
+}
+#dx3-app .combo-source-table-v34 .source-name-with-infer {
+  vertical-align: middle;
+}
+#dx3-app .combo-source-table-v34 .source-name-infer-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+#dx3-app .combo-source-table-v34 .source-name-infer-wrap input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn {
+  flex: 0 0 auto;
+  width: 42px;
+  min-width: 42px;
+  padding: 4px 5px;
+  border: 1px solid rgba(135, 206, 250, 0.45);
+  border-radius: 4px;
+  background: #2f7ed8;
+  color: #fff;
+  font-size: 0.78em;
+  line-height: 1.1;
+  cursor: pointer;
+}
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+/* v58: row-level coefficient inference confirmation */
+#dx3-app .combo-source-table-v34 tr.is-inference-candidate td {
+  background: rgba(255, 235, 59, 0.10);
+  box-shadow: inset 0 0 0 1px rgba(255, 235, 59, 0.28);
+}
+#dx3-app .combo-source-table-v34 tr.is-inference-candidate .coef-row-infer-btn {
+  background: #f39c12;
+  color: #111827;
+  font-weight: 700;
+}
+#dx3-app .inference-modal {
+  max-width: 560px;
+}
+#dx3-app .inference-lead,
+#dx3-app .inference-note {
+  color: #dce8ff;
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+#dx3-app .inference-note {
+  color: #b8c7dd;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+#dx3-app .inference-preview-list {
+  display: grid;
+  gap: 8px;
+}
+#dx3-app .inference-preview-row {
+  display: grid;
+  grid-template-columns: 5.5em minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid rgba(74, 92, 154, 0.8);
+  border-radius: 6px;
+  background: rgba(13, 26, 80, 0.52);
+}
+#dx3-app .inference-preview-row strong {
+  color: #87cefa;
+}
+#dx3-app .inference-preview-row span {
+  color: #eef6ff;
+  font-family: var(--font-latin-ui), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* v59: row inference undo and candidate badge */
+#dx3-app .combo-source-table-v34 .source-name-infer-wrap {
+  gap: 3px;
+}
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn,
+#dx3-app .combo-source-table-v34 .coef-row-undo-btn {
+  position: relative;
+  flex: 0 0 auto;
+  width: 42px;
+  min-width: 42px;
+  padding: 4px 5px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.78em;
+  line-height: 1.1;
+  cursor: pointer;
+}
+#dx3-app .combo-source-table-v34 .coef-row-undo-btn {
+  width: 42px;
+  min-width: 42px;
+  border: 1px solid rgba(255, 193, 7, 0.5);
+  background: #6c5f35;
+}
+#dx3-app .combo-source-table-v34 .coef-row-undo-btn:hover {
+  background: #8a7130;
+}
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn.has-inference-badge::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffeb3b;
+  border: 1px solid rgba(17, 24, 39, 0.75);
+  box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.16);
 }

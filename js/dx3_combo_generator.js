@@ -198,6 +198,13 @@ new Vue({
     isSyncingComboLevel: false,
     effectFieldsEditable: false,
     effectDisplayMode: "combo",
+    pendingInference: {
+      show: false,
+      target: null,
+      targetName: "",
+      overwrite: false,
+      suggestions: {},
+    },
   },
   created() {
     this.effects = [
@@ -443,7 +450,8 @@ new Vue({
         const atkResult = calcResult("attack", allSelectedSources);
         const accuracyResult = calcResult("accuracy", relevantItems);
 
-        let critTotal = 10;
+        let critReductionTotal = 0;
+        let critMinLimit = 10;
         const critBreakdown = [];
         allSelectedSources.forEach((source) => {
           if (!source.values?.crit?.base || source.values.crit.base === 0)
@@ -451,15 +459,18 @@ new Vue({
           const effectiveLevel = source.level
             ? (Number(source.level) || 0) + comboLevelBonus
             : 0;
-          const base = Number(source.values.crit.base) || 0;
+          const base = Number(source.values.crit.base) || 10;
           const perLevel = Number(source.values.crit.perLevel) || 0;
           const min = Number(source.values.crit.min) || 2;
-          const value = Math.max(base - effectiveLevel * perLevel, min);
-          if (value < critTotal) {
-            critTotal = value;
-            critBreakdown.push(`${source.name}: ${value}`);
+          const sourceValue = Math.max(base - effectiveLevel * perLevel, min);
+          const reduction = Math.max(0, 10 - sourceValue);
+          if (reduction > 0) {
+            critReductionTotal += reduction;
+            critMinLimit = Math.min(critMinLimit, min);
+            critBreakdown.push(`${source.name}: -${reduction}（単体C${sourceValue} / 下限${min}）`);
           }
         });
+        const critTotal = Math.max(10 - critReductionTotal, critMinLimit);
 
         const weaponAtk = this.evaluateDiceString(combo.atk_weapon || "0");
         const totalAtkDice = weaponAtk.dice + atkResult.dice;
@@ -913,6 +924,10 @@ new Vue({
     });
   },
   methods: {
+    setEffectDisplayMode(mode) {
+      if (mode !== "combo" && mode !== "detail") return;
+      this.effectDisplayMode = mode;
+    },
     ensureCoefficientValues(source) {
       if (!source.values) {
         this.$set(source, "values", this.createDefaultValues());
@@ -1189,12 +1204,14 @@ new Vue({
           applySignedTerm("dice", sign, term);
         }
 
-        // C値-LV / C値-1 / クリティカル値を-LVする
+        // C値-LV / C値-1 / クリティカル値を-LVする / 下限値6
         const cMatch = line.match(/(?:C値|Ｃ値|クリティカル値?|コンセントレイト|リフレックス).*?[-]\s*(LV|SL|\d+)/i);
         if (cMatch) {
           const token = cMatch[1].toUpperCase().replace("SL", "LV");
-          if (token === "LV") setSuggestion("crit", { base: 10, perLevel: 1, min: 7 });
-          else setSuggestion("crit", { base: 10 - Number(token || 0), perLevel: 0, min: 7 });
+          const minMatch = line.match(/(?:下限値?|下限)\s*([0-9]+)/i);
+          const minValue = minMatch ? Number(minMatch[1]) : 7;
+          if (token === "LV") setSuggestion("crit", { base: 10, perLevel: 1, min: minValue });
+          else setSuggestion("crit", { base: 10 - Number(token || 0), perLevel: 0, min: minValue });
         }
       });
       return suggestions;
@@ -1244,6 +1261,140 @@ new Vue({
         this.activeModalTab = updatedKeys[0];
         this.showStatus(overwrite ? "係数を上書き推定しました。" : "未設定の係数を推定しました。");
       } else if (suggestionKeys.length > 0 && !overwrite) {
+        this.showStatus("推定候補はありますが、既存の係数を上書きしませんでした。必要なら『上書き推定』を使ってください。", true);
+      } else {
+        this.showStatus("反映できる係数候補がありません。ATK+Lv、+[Lv+1]DX、達成値+[Lv+2] などは手動入力できます。", true);
+      }
+    },
+    inferencePreviewRows(suggestions = {}) {
+      const labels = {
+        dice: "ダイス",
+        achieve: "達成値",
+        attack: "ATK",
+        crit: "C値",
+        accuracy: "命中",
+        guard: "ガード",
+      };
+      return Object.keys(suggestions).map((key) => {
+        const s = suggestions[key] || {};
+        let text;
+        if (key === "crit") {
+          const base = s.base ?? 10;
+          const perLevel = s.perLevel ?? 0;
+          const min = s.min ?? 7;
+          text = `基準 ${base} / Lv毎 ${perLevel} / 下限 ${min}`;
+        } else {
+          const parts = [`固定値 ${s.base ?? 0}`, `Lv毎 ${s.perLevel ?? 0}`];
+          if (key === "attack" && s.max !== undefined) parts.push(`最大 ${s.max}`);
+          text = parts.join(" / ");
+        }
+        return { key, label: labels[key] || key, text };
+      });
+    },
+    cloneCoefficientValues(values) {
+      return JSON.parse(JSON.stringify(values || this.createDefaultValues()));
+    },
+    hasInferenceCandidate(target) {
+      if (!target) return false;
+      const suggestions = this.inferEffectTextCoefficients(target);
+      return Object.keys(suggestions).length > 0;
+    },
+    restoreLastInference(target) {
+      if (!target || !target._lastInferenceBackup) {
+        this.showStatus("戻せる推定履歴がありません。", true);
+        return;
+      }
+      this.$set(target, "values", this.cloneCoefficientValues(target._lastInferenceBackup));
+      this.$delete(target, "_lastInferenceBackup");
+      this.$set(target, "_hasAutoUpdate", false);
+      this.showStatus(`${target.name || "この行"} の係数を推定前に戻しました。`);
+    },
+    openRowEffectInference(target, overwrite = false) {
+      if (!target) return;
+      this.ensureCoefficientValues(target);
+      const suggestions = this.inferEffectTextCoefficients(target);
+      const suggestionKeys = Object.keys(suggestions);
+      if (suggestionKeys.length === 0) {
+        this.showStatus(`${target.name || "この行"} から反映できる係数候補がありません。`, true);
+        return;
+      }
+      if (this.pendingInference.target) {
+        this.$set(this.pendingInference.target, "_inferenceCandidate", false);
+      }
+      this.$set(target, "_inferenceCandidate", true);
+      this.pendingInference = {
+        show: true,
+        target,
+        targetName: target.name || "この行",
+        overwrite,
+        suggestions,
+      };
+    },
+    cancelRowEffectInference() {
+      if (this.pendingInference.target) {
+        this.$set(this.pendingInference.target, "_inferenceCandidate", false);
+      }
+      this.pendingInference = {
+        show: false,
+        target: null,
+        targetName: "",
+        overwrite: false,
+        suggestions: {},
+      };
+    },
+    confirmRowEffectInference() {
+      const target = this.pendingInference.target;
+      if (!target) {
+        this.cancelRowEffectInference();
+        return;
+      }
+      const backup = this.cloneCoefficientValues(target.values);
+      const updatedTabs = this.applyInferredCoefficientsToEffect(target, this.pendingInference.overwrite);
+      const updatedKeys = Object.keys(updatedTabs);
+      this.$set(target, "_inferenceCandidate", false);
+      if (updatedKeys.length > 0) {
+        this.$set(target, "_lastInferenceBackup", backup);
+        this.$set(target, "_hasAutoUpdate", true);
+        this.showStatus(`${target.name || "この行"} の係数を推定しました。違う場合は「戻す」で推定前に戻せます。`);
+      } else {
+        this.showStatus(`${target.name || "この行"} は推定候補がありますが、既存の係数を上書きしませんでした。`, true);
+      }
+      this.pendingInference = {
+        show: false,
+        target: null,
+        targetName: "",
+        overwrite: false,
+        suggestions: {},
+      };
+    },
+    applyAllEffectTextInference(overwrite = false) {
+      const targets = [...(this.effects || []), ...(this.easyEffects || [])].filter(Boolean);
+      if (targets.length === 0) {
+        this.showStatus("推定対象のエフェクトがありません。", true);
+        return;
+      }
+      let updatedEffectCount = 0;
+      let updatedFieldCount = 0;
+      let candidateEffectCount = 0;
+      targets.forEach((target) => {
+        this.ensureCoefficientValues(target);
+        const suggestions = this.inferEffectTextCoefficients(target);
+        const suggestionKeys = Object.keys(suggestions);
+        if (suggestionKeys.length > 0) candidateEffectCount += 1;
+        const updatedTabs = this.applyInferredCoefficientsToEffect(target, overwrite);
+        const updatedKeys = Object.keys(updatedTabs);
+        if (updatedKeys.length > 0) {
+          updatedEffectCount += 1;
+          updatedFieldCount += updatedKeys.length;
+        }
+      });
+      if (updatedEffectCount > 0) {
+        this.showStatus(
+          overwrite
+            ? `係数を上書き推定しました（${updatedEffectCount}件 / ${updatedFieldCount}項目）。`
+            : `未設定の係数を推定しました（${updatedEffectCount}件 / ${updatedFieldCount}項目）。`
+        );
+      } else if (candidateEffectCount > 0 && !overwrite) {
         this.showStatus("推定候補はありますが、既存の係数を上書きしませんでした。必要なら『上書き推定』を使ってください。", true);
       } else {
         this.showStatus("反映できる係数候補がありません。ATK+Lv、+[Lv+1]DX、達成値+[Lv+2] などは手動入力できます。", true);

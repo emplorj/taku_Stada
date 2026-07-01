@@ -292,10 +292,10 @@
           </div>
           <div class="sheet-source-actions">
             <div class="display-mode-toggle" role="group" aria-label="エフェクト表示モード">
-              <button type="button" :class="{ active: effectDisplayMode === 'combo' }" @click="effectDisplayMode = 'combo'" title="コンボ作成に必要な項目だけ表示します">
-                コンボ用
+              <button type="button" :class="{ active: effectDisplayMode === 'combo' }" @click="setEffectDisplayMode('combo')">
+                係数
               </button>
-              <button type="button" :class="{ active: effectDisplayMode === 'detail' }" @click="effectDisplayMode = 'detail'" title="キャラシ由来の詳細項目を表示します">
+              <button type="button" :class="{ active: effectDisplayMode === 'detail' }" @click="setEffectDisplayMode('detail')">
                 詳細
               </button>
             </div>
@@ -366,8 +366,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(effect, index) in effects">
-                <td class="source-name-cell"><input type="text" :value="effect.name" :readonly="!effectFieldsEditable" @change="updateNameAndSync('effects', index, $event.target.value)"></td>
+              <tr v-for="(effect, index) in effects" :class="{ 'is-inference-candidate': effect._inferenceCandidate }">
+                <td class="source-name-cell source-name-with-infer">
+                  <div class="source-name-infer-wrap">
+                    <input type="text" :value="effect.name" :readonly="!effectFieldsEditable" @change="updateNameAndSync('effects', index, $event.target.value)">
+                    <button type="button" class="coef-row-infer-btn" :class="{ 'has-inference-badge': hasInferenceCandidate(effect) }" @click.stop="openRowEffectInference(effect, false)" :disabled="isEssentialEffect(effect.name)">推定</button>
+                    <button v-if="effect._lastInferenceBackup" type="button" class="coef-row-undo-btn" @click.stop="restoreLastInference(effect)" title="直前の推定反映前に戻します">戻す</button>
+                  </div>
+                </td>
                 <td class="text-right source-level-cell"><input type="number" :value="effect.level" :readonly="!effectFieldsEditable" @input="updateAndSyncLevel('effects', index, $event.target.value)" min="1" class="text-right"></td>
                 <td class="source-short-cell"><input-with-dropdown v-model="effect.timing" :options="dropdownOptions.timing" :disabled="!effectFieldsEditable"></input-with-dropdown></td>
                 <td class="coef-cell coef-cell-numeric"><input type="text" v-model="effect.values.dice.base" :readonly="isEssentialEffect(effect.name)" placeholder="0" title="ダイス 固定値。2Dなども入力できます。"></td>
@@ -410,7 +416,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(effect, index) in effects">
+              <tr v-for="(effect, index) in effects" :class="{ 'is-inference-candidate': effect._inferenceCandidate }">
                 <td><input type="text" :value="effect.name" :readonly="!effectFieldsEditable"
                     @change="updateNameAndSync('effects', index, $event.target.value)"></td>
                 <td class="text-right"><input type="number" :value="effect.level" :readonly="!effectFieldsEditable"
@@ -504,8 +510,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(ee, index) in easyEffects">
-                <td class="source-name-cell"><input type="text" :value="ee.name" :readonly="!effectFieldsEditable" @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
+              <tr v-for="(ee, index) in easyEffects" :class="{ 'is-inference-candidate': ee._inferenceCandidate }">
+                <td class="source-name-cell source-name-with-infer">
+                  <div class="source-name-infer-wrap">
+                    <input type="text" :value="ee.name" :readonly="!effectFieldsEditable" @change="updateNameAndSync('easyEffects', index, $event.target.value)">
+                    <button type="button" class="coef-row-infer-btn" :class="{ 'has-inference-badge': hasInferenceCandidate(ee) }" @click.stop="openRowEffectInference(ee, false)">推定</button>
+                    <button v-if="ee._lastInferenceBackup" type="button" class="coef-row-undo-btn" @click.stop="restoreLastInference(ee)" title="直前の推定反映前に戻します">戻す</button>
+                  </div>
+                </td>
                 <td class="text-right source-level-cell"><input type="number" :value="ee.level" :readonly="!effectFieldsEditable" @input="updateAndSyncLevel('easyEffects', index, $event.target.value)" min="1" class="text-right"></td>
                 <td class="source-short-cell"><input-with-dropdown v-model="ee.timing" :options="dropdownOptions.timing" :disabled="!effectFieldsEditable"></input-with-dropdown></td>
                 <td class="coef-cell coef-cell-numeric"><input type="text" v-model="ee.values.dice.base" placeholder="0" title="ダイス 固定値。2Dなども入力できます。"></td>
@@ -548,7 +560,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(ee, index) in easyEffects">
+              <tr v-for="(ee, index) in easyEffects" :class="{ 'is-inference-candidate': ee._inferenceCandidate }">
                 <td><input type="text" :value="ee.name" :readonly="!effectFieldsEditable"
                     @change="updateNameAndSync('easyEffects', index, $event.target.value)"></td>
                 <td class="text-right"><input type="number" :value="ee.level" :readonly="!effectFieldsEditable"
@@ -929,6 +941,29 @@
             <button @click="resolveUpdateOptions('cancel')" class="cancel-btn">保存データのまま</button>
             <button @click="resolveUpdateOptions('effects')">エフェクト更新</button>
             <button @click="resolveUpdateOptions('all')">エフェクト+アイテム更新</button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="pendingInference.show" class="modal-overlay">
+        <div class="modal-content inference-modal" @click.stop>
+          <div class="modal-header">
+            <h3>係数推定候補：{{ pendingInference.targetName }}</h3>
+            <button @click="cancelRowEffectInference" class="close-btn" title="キャンセル">×</button>
+          </div>
+          <div class="modal-body">
+            <p class="inference-lead">効果文・備考から、以下の係数候補を検出しました。反映する場合は「決定」を押してください。</p>
+            <div class="inference-preview-list">
+              <div v-for="row in inferencePreviewRows(pendingInference.suggestions)" :key="row.key" class="inference-preview-row">
+                <strong>{{ row.label }}</strong>
+                <span>{{ row.text }}</span>
+              </div>
+            </div>
+            <p class="inference-note">※この操作は未設定の係数だけ反映します。既存値の上書きは詳細の係数パネルから行ってください。</p>
+          </div>
+          <div class="modal-footer">
+            <button @click="cancelRowEffectInference" class="cancel-btn">キャンセル</button>
+            <button @click="confirmRowEffectInference">決定</button>
           </div>
         </div>
       </div>
