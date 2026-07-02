@@ -927,3 +927,273 @@
   width: 7.8em;
   padding-left: 7px;
 }
+
+/* v73: トレジャーポイント表を内容幅ベースにして、不要な横伸びを抑制 */
+#panel-enemy-enhancement .treasure-point-table-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+#panel-enemy-enhancement #treasure-point-table {
+  display: inline-table;
+  width: max-content;
+  min-width: 0;
+  max-width: none;
+  table-layout: auto;
+}
+
+#panel-enemy-enhancement #treasure-point-table th,
+#panel-enemy-enhancement #treasure-point-table td {
+  width: auto;
+  box-sizing: border-box;
+}
+
+#panel-enemy-enhancement #treasure-point-table td:first-child,
+#panel-enemy-enhancement #treasure-point-table th:first-child {
+  width: auto;
+  min-width: 7.6em;
+  max-width: 11em;
+}
+
+#panel-enemy-enhancement #treasure-point-table th:not(:first-child),
+#panel-enemy-enhancement #treasure-point-table td:not(:first-child) {
+  width: auto;
+  min-width: 2.05em;
+  padding-left: 0.28em;
+  padding-right: 0.28em;
+}
+
+@media (max-width: 768px) {
+  #panel-enemy-enhancement #treasure-point-table {
+    width: max-content;
+    min-width: 0;
+    table-layout: auto;
+  }
+
+  #panel-enemy-enhancement #treasure-point-table td:first-child,
+  #panel-enemy-enhancement #treasure-point-table th:first-child {
+    min-width: 7.2em;
+    max-width: 10em;
+  }
+
+  #panel-enemy-enhancement #treasure-point-table th:not(:first-child),
+  #panel-enemy-enhancement #treasure-point-table td:not(:first-child) {
+    min-width: 1.95em;
+    padding-left: 0.22em;
+    padding-right: 0.22em;
+  }
+}
+
+/* v74: TP表のhover/active/selected色差を抑制 */
+#panel-enemy-enhancement #treasure-point-table td.is-tp-selectable:hover,
+#panel-enemy-enhancement #treasure-point-table td.is-tp-selectable:focus-visible {
+  color: #fff6c8;
+  background: rgba(200, 164, 100, 0.22);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 218, 110, 0.48),
+    inset 0 0 10px rgba(255, 205, 92, 0.08);
+  outline: none;
+}
+
+#panel-enemy-enhancement #treasure-point-table td.is-tp-selectable:active {
+  color: #fff6c8;
+  background: rgba(200, 164, 100, 0.28);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 226, 135, 0.58),
+    inset 0 0 12px rgba(255, 205, 92, 0.12);
+}
+
+#panel-enemy-enhancement #treasure-point-table td.is-selected {
+  position: relative;
+  color: #fff6c8;
+  background: rgba(200, 164, 100, 0.28);
+  font-weight: 800;
+  text-shadow: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 226, 135, 0.62),
+    inset 0 0 12px rgba(255, 205, 92, 0.12),
+    0 0 5px rgba(255, 190, 60, 0.22);
+}
+
+#panel-enemy-enhancement #treasure-point-table td.is-selected:hover,
+#panel-enemy-enhancement #treasure-point-table td.is-selected:focus-visible {
+  color: #fff8d8;
+  background: rgba(200, 164, 100, 0.32);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 232, 150, 0.68),
+    inset 0 0 12px rgba(255, 205, 92, 0.14),
+    0 0 6px rgba(255, 190, 60, 0.24);
+}
+
+#panel-enemy-enhancement #treasure-point-table td.is-selected::after {
+  inset: 1px;
+  border-color: rgba(255, 232, 150, 0.42);
+  border-radius: 2px;
+}
+
+#panel-enemy-enhancement #treasure-point-table tbody tr.is-selected-row td:first-child {
+  color: #fff2bf;
+  background: rgba(200, 164, 100, 0.13);
+  text-shadow: none;
+}
+
+#panel-enemy-enhancement #treasure-point-table th.is-selected-column {
+  color: #fff6c8;
+  background: rgba(200, 164, 100, 0.16);
+  box-shadow: inset 0 -1px 0 rgba(255, 221, 120, 0.38);
+}
+
+/* v75: PC幅では内容幅のTP表を中央寄せする */
+@media (min-width: 769px) {
+  #panel-enemy-enhancement .treasure-point-table-wrapper {
+    text-align: center;
+  }
+
+  #panel-enemy-enhancement #treasure-point-table {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #panel-enemy-enhancement #treasure-point-table td:first-child,
+  #panel-enemy-enhancement #treasure-point-table th:first-child {
+    text-align: left;
+  }
+}
+
+/* v76: スマホ時の説明文ピルが狭くなりすぎる問題を修正 */
+@media (max-width: 768px) {
+  #panel-enemy-enhancement .enemy-enhancement-howto {
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    margin: 0 0 0.45rem;
+    padding: 0;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  #panel-enemy-enhancement .enemy-howto-main {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 0.42rem 0.55rem;
+    border-radius: 8px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    line-break: strict;
+    line-height: 1.55;
+    text-align: left;
+  }
+
+  #panel-enemy-enhancement .enemy-howto-main strong {
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+}
+
+/* v77: スマホ時の入力/出力ボタン配置を統一 */
+@media (max-width: 768px) {
+  #panel-enemy-enhancement .enhancement-column,
+  #panel-enemy-enhancement .enhancement-column:last-child,
+  #panel-enemy-enhancement .enhancement-input-column,
+  #panel-enemy-enhancement .enhancement-output-column {
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+  }
+
+  #panel-enemy-enhancement .enhancement-input-column .input-actions,
+  #panel-enemy-enhancement .enhancement-output-column .output-actions,
+  #panel-enemy-enhancement .input-actions,
+  #panel-enemy-enhancement .output-actions {
+    grid-column: 2 / -1;
+    justify-content: stretch;
+    width: 100%;
+    margin: 0;
+  }
+
+  #panel-enemy-enhancement #apply-enemy-enhancement-btn,
+  #panel-enemy-enhancement #copy-enemy-json-btn {
+    width: 100%;
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+/* v78: スマホ時の入力/出力ボタン行を同一カラムへ強制統一 */
+@media (max-width: 768px) {
+  #panel-enemy-enhancement .enhancement-column.enhancement-input-column,
+  #panel-enemy-enhancement .enhancement-column.enhancement-output-column {
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+  }
+
+  #panel-enemy-enhancement .enhancement-column.enhancement-input-column .input-actions,
+  #panel-enemy-enhancement .enhancement-column.enhancement-output-column .output-actions {
+    grid-column: 2 / 3 !important;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    justify-content: stretch;
+    margin: 0;
+  }
+
+  #panel-enemy-enhancement .enhancement-column.enhancement-input-column #apply-enemy-enhancement-btn,
+  #panel-enemy-enhancement .enhancement-column.enhancement-output-column #copy-enemy-json-btn {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+/* v79: スマホ時の入力/出力ボタンをカード内の下1行いっぱいに配置 */
+@media (max-width: 768px) {
+  #panel-enemy-enhancement .enhancement-column.enhancement-input-column,
+  #panel-enemy-enhancement .enhancement-column.enhancement-output-column {
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    gap: 0.42rem 0.45rem;
+  }
+
+  #panel-enemy-enhancement .enhancement-column.enhancement-input-column h4,
+  #panel-enemy-enhancement .enhancement-column.enhancement-output-column h4 {
+    grid-column: 1 / 2;
+    grid-row: 1;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  #panel-enemy-enhancement .enhancement-column.enhancement-input-column #enemy-json-input,
+  #panel-enemy-enhancement .enhancement-column.enhancement-output-column #enemy-json-output {
+    grid-column: 2 / 3;
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+
+  #panel-enemy-enhancement .enhancement-column.enhancement-input-column .input-actions,
+  #panel-enemy-enhancement .enhancement-column.enhancement-output-column .output-actions {
+    grid-column: 1 / -1 !important;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    justify-content: stretch;
+    margin: 0;
+  }
+
+  #panel-enemy-enhancement .enhancement-column.enhancement-input-column #apply-enemy-enhancement-btn,
+  #panel-enemy-enhancement .enhancement-column.enhancement-output-column #copy-enemy-json-btn {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}

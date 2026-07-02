@@ -649,12 +649,6 @@ document.addEventListener("DOMContentLoaded", () => {
         nameSpan.textContent = set.name;
         row.appendChild(nameSpan);
 
-        const priceSpan = document.createElement("span");
-        priceSpan.textContent = `(${set.price.toLocaleString()}G)`;
-        priceSpan.style.color = "#ccc";
-        priceSpan.style.fontSize = "0.9em";
-        row.appendChild(priceSpan);
-
         const tooltipTrigger = document.createElement("i");
         tooltipTrigger.className =
           "fas fa-question-circle item-set-tooltip-trigger";
@@ -6417,38 +6411,87 @@ document.addEventListener("DOMContentLoaded", () => {
       "growth-summary-output",
     );
 
+    const getPopupTitle = (panel) => {
+      if (!panel) return "メニュー";
+      if (panel.id === "enhancement-panel") return "武器/防具強化";
+      if (panel.id === "item-sets-panel") return "アイテムセット購入";
+      if (panel.id === "recommended-items-panel") return "推奨アイテム";
+      return "メニュー";
+    };
+
+    const ensurePopupHeader = (panel) => {
+      if (!panel || panel.querySelector(":scope > .enhancement-popup-header")) return;
+      const header = document.createElement("div");
+      header.className = "enhancement-popup-header";
+
+      const title = document.createElement("strong");
+      title.className = "enhancement-popup-title";
+      title.textContent = getPopupTitle(panel);
+
+      const closeButton = document.createElement("button");
+      closeButton.type = "button";
+      closeButton.className = "enhancement-popup-close";
+      closeButton.setAttribute("aria-label", "メニューを閉じる");
+      closeButton.textContent = "×";
+      closeButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        panel.classList.remove("visible");
+      });
+
+      header.appendChild(title);
+      header.appendChild(closeButton);
+      panel.prepend(header);
+    };
+
+    [enhancementPanel, itemSetsPanel, recommendedPanel].forEach(ensurePopupHeader);
+
+    const closeVisiblePopups = () => {
+      document
+        .querySelectorAll(".enhancement-panel-container.visible")
+        .forEach((p) => p.classList.remove("visible"));
+    };
+
     const togglePopup = (button, panel) => {
+      if (!button || !panel) return;
+      ensurePopupHeader(panel);
       if (panel.classList.contains("visible")) {
         panel.classList.remove("visible");
-      } else {
-        document
-          .querySelectorAll(".enhancement-panel-container.visible")
-          .forEach((p) => p.classList.remove("visible"));
-
-        const rect = button.getBoundingClientRect();
-        const panelWidth = panel.offsetWidth;
-        const panelHeight = panel.offsetHeight;
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        const margin = 10;
-
-        let finalLeft = rect.left;
-        if (rect.left + panelWidth > windowWidth) {
-          finalLeft = windowWidth - panelWidth - margin;
-        }
-
-        let finalTop = rect.top;
-        if (rect.top + panelHeight > windowHeight) {
-          finalTop = windowHeight - panelHeight - margin;
-        }
-        if (finalTop < 0) {
-          finalTop = margin;
-        }
-
-        panel.style.left = `${finalLeft}px`;
-        panel.style.top = `${finalTop}px`;
-        panel.classList.add("visible");
+        return;
       }
+
+      closeVisiblePopups();
+
+      const isMobilePopup = window.matchMedia("(max-width: 768px)").matches;
+      if (isMobilePopup) {
+        panel.style.left = "";
+        panel.style.top = "";
+        panel.classList.add("visible");
+        return;
+      }
+
+      const rect = button.getBoundingClientRect();
+      const panelWidth = panel.offsetWidth;
+      const panelHeight = panel.offsetHeight;
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const margin = 10;
+
+      let finalLeft = rect.left;
+      if (rect.left + panelWidth > windowWidth) {
+        finalLeft = Math.max(margin, windowWidth - panelWidth - margin);
+      }
+
+      let finalTop = rect.top;
+      if (rect.top + panelHeight > windowHeight) {
+        finalTop = windowHeight - panelHeight - margin;
+      }
+      if (finalTop < 0) {
+        finalTop = margin;
+      }
+
+      panel.style.left = `${finalLeft}px`;
+      panel.style.top = `${finalTop}px`;
+      panel.classList.add("visible");
     };
 
     if (enhancementBtn) {
@@ -6516,6 +6559,10 @@ document.addEventListener("DOMContentLoaded", () => {
             panel.classList.remove("visible");
           }
         });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeVisiblePopups();
     });
 
     form.addEventListener("click", (event) => {
@@ -7189,7 +7236,7 @@ document.addEventListener("DOMContentLoaded", () => {
           let value = "";
           switch (key) {
             case "usage":
-              value = data.hands === 1 ? "片手" : "両手";
+              value = data.usage || (data.hands === 1 ? "1H" : data.hands === 2 ? "2H" : "");
               break;
             case "rate":
               value = data.might;

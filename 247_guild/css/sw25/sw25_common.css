@@ -131,17 +131,17 @@
   font-size: 0.9em;
 }
 .money-row label {
-  font-weight: bold;
+  font-weight: 400;
 }
 .money-row span,
 .money-row input {
-  font-weight: bold;
+  font-weight: 300;
   text-align: right;
 }
 #money-sidebar-panel input {
-  width: 80px;
-  padding: 5px;
-  font-size: 1em;
+    width: 80px;
+    padding: 1px;
+    font-size: 1.4em;
 }
 #money-sidebar-panel hr {
   border-color: var(--wood-color);
@@ -330,4 +330,24 @@ hr.section-divider {
 }
 .toast-notification.error {
   background-color: var(--primary-color);
+}
+
+/* v72: 所持金管理ラベルの改行抑制 */
+#money-sidebar-panel .money-row {
+  gap: 8px;
+  align-items: baseline;
+}
+
+#money-sidebar-panel .money-row label {
+  white-space: nowrap;
+  flex: 0 0 auto;
+  min-width: max-content;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+#money-sidebar-panel .money-row span,
+#money-sidebar-panel .money-row input {
+  flex: 0 0 auto;
+  min-width: 0;
 }

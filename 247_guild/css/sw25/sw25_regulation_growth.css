@@ -114,7 +114,9 @@
   padding: 5px;
 }
 #stats-grid-container input[type="number"] {
-  padding: 5px;
+  padding: 1px;
+  font-weight: 300;
+  font-size: 1.3em;
 }
 .bracelet-btn {
   background-color: rgba(0, 0, 0, 0.4);
@@ -253,4 +255,65 @@
   padding: 7px;
   border-radius: 4px;
   border: 1px dashed transparent;
+}
+
+/* v64: レギュ・成長の数値を拡大し、余白を圧縮 */
+#panel-regulation-growth input[type="number"],
+#panel-regulation-growth #stats-grid-container input[type="number"],
+#panel-regulation-growth .priority-select,
+#panel-regulation-growth .stat-total,
+#panel-regulation-growth .stat-bonus,
+#panel-regulation-growth .growth-row-number,
+#panel-regulation-growth .growth-summary-output-wrapper textarea {
+  font-family: var(--font-latin-ui, "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif);
+  font-weight: var(--font-latin-ui-weight, 300);
+  font-variant-numeric: tabular-nums;
+}
+
+#panel-regulation-growth input[type="number"],
+#panel-regulation-growth #stats-grid-container input[type="number"] {
+  padding: 1px 2px;
+  font-size: 1.2rem;
+  line-height: 1.1;
+  text-align: right;
+}
+
+#panel-regulation-growth .priority-select {
+  padding: 1px 18px 1px 2px;
+  font-size: 1.2rem;
+  line-height: 1.1;
+  text-align: center;
+  text-align-last: center;
+}
+
+#panel-regulation-growth .stat-total,
+#panel-regulation-growth .stat-bonus,
+#panel-regulation-growth .growth-row-number {
+  font-size: 1.2rem;
+  line-height: 1.1;
+}
+
+#panel-regulation-growth .regulation-flex-row .form-item-inline input,
+#panel-regulation-growth .regulation-select {
+  width: 5.2rem;
+}
+
+/* v65: 初期ステータス行ラベルを中央配置し、数値の太さを300に統一 */
+#panel-regulation-growth .initial-status-label {
+  transform: none;
+  justify-self: center;
+  align-self: center;
+  width: 100%;
+  padding-right: 0;
+  text-align: center;
+}
+
+#panel-regulation-growth input[type="number"],
+#panel-regulation-growth #stats-grid-container input[type="number"],
+#panel-regulation-growth .priority-select,
+#panel-regulation-growth .stat-total,
+#panel-regulation-growth .stat-bonus,
+#panel-regulation-growth .growth-row-number,
+#panel-regulation-growth .growth-summary-output-wrapper textarea {
+  font-weight: 300;
 }

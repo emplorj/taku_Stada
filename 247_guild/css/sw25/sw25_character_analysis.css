@@ -7244,3 +7244,38 @@ grid-template-columns: minmax(0, 1fr);
     grid-template-columns: 1fr;
   }
 }
+
+/* v64: キャラシ分析の数値入力・数値表示を拡大し、余白を圧縮 */
+#panel-character-analysis input[type="number"],
+#panel-character-analysis .analysis-control-grid input[type="number"],
+#panel-character-analysis .analysis-manual-grid input[type="number"],
+#panel-character-analysis .analysis-match-center-values b,
+#panel-character-analysis .analysis-match-result-head .analysis-match-rate b,
+#panel-character-analysis .analysis-match-statline b,
+#panel-character-analysis .analysis-dice-input > span,
+#panel-character-analysis .analysis-kpi strong,
+#panel-character-analysis .analysis-metric strong,
+#panel-character-analysis .analysis-definition-list dd {
+  font-family: var(--font-latin-ui, "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif);
+  font-weight: var(--font-latin-ui-weight, 300);
+  font-variant-numeric: tabular-nums;
+}
+
+#panel-character-analysis input[type="number"],
+#panel-character-analysis .analysis-control-grid input[type="number"],
+#panel-character-analysis .analysis-manual-grid input[type="number"] {
+  padding: 1px 2px;
+  font-size: 1.2rem;
+  line-height: 1.1;
+  text-align: right;
+}
+
+#panel-character-analysis .analysis-match-center-values b,
+#panel-character-analysis .analysis-match-result-head .analysis-match-rate b,
+#panel-character-analysis .analysis-match-statline b,
+#panel-character-analysis .analysis-kpi strong,
+#panel-character-analysis .analysis-metric strong,
+#panel-character-analysis .analysis-definition-list dd {
+  font-size: 1.2rem;
+  line-height: 1.1;
+}

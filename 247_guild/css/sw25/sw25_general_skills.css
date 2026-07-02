@@ -609,3 +609,207 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   }
 }
 
+
+/* v87: 装備・所持品の補助メニューをモバイルで扱いやすくする */
+.enhancement-panel-container {
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.enhancement-popup-header {
+  display: none;
+}
+
+.enhancement-popup-close {
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(200, 164, 100, 0.42);
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--gold-color);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.enhancement-popup-close:hover,
+.enhancement-popup-close:focus-visible {
+  background: rgba(200, 164, 100, 0.18);
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .enhancement-panel-container {
+    left: 50%;
+    top: 50%;
+    width: min(92vw, 22rem);
+    max-width: min(92vw, 22rem);
+    max-height: min(78vh, 42rem);
+    padding: 0.75rem;
+    gap: 0.75rem;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transform: translate(-50%, -50%) scale(0.98);
+    scrollbar-gutter: stable;
+  }
+
+  .enhancement-panel-container.visible {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .enhancement-popup-header {
+    position: sticky;
+    top: -0.75rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: -0.75rem -0.75rem 0.2rem;
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid rgba(200, 164, 100, 0.34);
+    background: rgba(22, 15, 13, 0.98);
+    color: var(--gold-color);
+  }
+
+  .enhancement-popup-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: "Cinzel", "Noto Serif JP", serif;
+    font-size: 1rem;
+  }
+
+  .enhancement-section {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .enhancement-row,
+  .item-set-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto 3rem;
+    gap: 0.45rem;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    align-items: center;
+  }
+
+  .enhancement-name,
+  .item-set-name {
+    width: auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .enhancement-buttons {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(2.25rem, 1fr));
+    gap: 0.45rem;
+    width: 100%;
+  }
+
+  .enhancement-btn,
+  .item-set-btn {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .item-set-row .item-set-btn {
+    grid-column: 4;
+    width: 3rem;
+    padding-inline: 0.45rem;
+  }
+
+  #recommended-items-panel {
+    width: min(92vw, 22rem);
+    max-width: min(92vw, 22rem);
+  }
+
+  #recommended-items-panel h3 {
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+
+  #recommended-items-table-wrapper {
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  #recommended-items-table {
+    min-width: 19rem;
+    font-size: 0.86rem;
+  }
+
+  #recommended-items-table th,
+  #recommended-items-table td {
+    padding: 0.45rem 0.5rem;
+  }
+
+  #recommended-items-table .item-cell {
+    gap: 0.45rem;
+  }
+
+  #recommended-items-table .item-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  #recommended-items-table .action-btn {
+    flex: 0 0 auto;
+    padding-inline: 0.65rem;
+  }
+}
+
+/* v89: 推奨アイテム表の見出しとスマホ時の追加ボタン配置を整理 */
+#recommended-items-table th {
+  background: linear-gradient(180deg, rgba(78, 48, 20, 0.92), rgba(34, 24, 18, 0.96));
+  color: #ffe6a6;
+  border-color: rgba(200, 164, 100, 0.34);
+  box-shadow: inset 0 -1px 0 rgba(200, 164, 100, 0.3);
+}
+
+#recommended-items-table .skill-cell {
+  background: rgba(28, 20, 16, 0.82);
+  color: #fff1c6;
+  border-color: rgba(200, 164, 100, 0.2);
+}
+
+@media (max-width: 700px) {
+  #recommended-items-table .item-cell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.42rem;
+    align-items: stretch;
+    justify-items: stretch;
+  }
+
+  #recommended-items-table .item-name {
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+    align-items: flex-start;
+    line-height: 1.45;
+  }
+
+  #recommended-items-table .item-name.required::before {
+    margin-top: 0.05em;
+  }
+
+  #recommended-items-table .action-btn {
+    width: 100%;
+    justify-self: stretch;
+    text-align: center;
+    padding: 0.42rem 0.65rem;
+    white-space: nowrap;
+  }
+}

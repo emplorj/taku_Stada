@@ -370,7 +370,7 @@
                 <td class="source-name-cell source-name-with-infer">
                   <div class="source-name-infer-wrap">
                     <input type="text" :value="effect.name" :readonly="!effectFieldsEditable" @change="updateNameAndSync('effects', index, $event.target.value)">
-                    <button type="button" class="coef-row-infer-btn" :class="{ 'has-inference-badge': hasInferenceCandidate(effect) }" @click.stop="openRowEffectInference(effect, false)" :disabled="isEssentialEffect(effect.name)">推定</button>
+                    <button type="button" class="coef-row-infer-btn" :class="{ 'has-inference-badge': hasActionableInferenceCandidate(effect), 'is-muted': hasInferenceCandidate(effect) && !hasActionableInferenceCandidate(effect) }" @click.stop="openRowEffectInference(effect, false)" :disabled="isEssentialEffect(effect.name) || !hasInferenceCandidate(effect)">推定</button>
                     <button v-if="effect._lastInferenceBackup" type="button" class="coef-row-undo-btn" @click.stop="restoreLastInference(effect)" title="直前の推定反映前に戻します">戻す</button>
                   </div>
                 </td>
@@ -514,7 +514,7 @@
                 <td class="source-name-cell source-name-with-infer">
                   <div class="source-name-infer-wrap">
                     <input type="text" :value="ee.name" :readonly="!effectFieldsEditable" @change="updateNameAndSync('easyEffects', index, $event.target.value)">
-                    <button type="button" class="coef-row-infer-btn" :class="{ 'has-inference-badge': hasInferenceCandidate(ee) }" @click.stop="openRowEffectInference(ee, false)">推定</button>
+                    <button type="button" class="coef-row-infer-btn" :class="{ 'has-inference-badge': hasActionableInferenceCandidate(ee), 'is-muted': hasInferenceCandidate(ee) && !hasActionableInferenceCandidate(ee) }" @click.stop="openRowEffectInference(ee, false)" :disabled="!hasInferenceCandidate(ee)">推定</button>
                     <button v-if="ee._lastInferenceBackup" type="button" class="coef-row-undo-btn" @click.stop="restoreLastInference(ee)" title="直前の推定反映前に戻します">戻す</button>
                   </div>
                 </td>

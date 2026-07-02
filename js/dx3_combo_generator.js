@@ -1299,6 +1299,26 @@ new Vue({
       const suggestions = this.inferEffectTextCoefficients(target);
       return Object.keys(suggestions).length > 0;
     },
+    getActionableInferenceKeys(target) {
+      if (!target) return [];
+      this.ensureCoefficientValues(target);
+      const suggestions = this.inferEffectTextCoefficients(target);
+      return Object.keys(suggestions).filter((key) => {
+        const suggestion = suggestions[key] || {};
+        if (key === "crit") {
+          const current = target.values.crit || {};
+          return this.isZeroLike(current.base) && this.isZeroLike(current.perLevel);
+        }
+        const current = target.values[key];
+        if (!current) return true;
+        if (this.isZeroLike(current.base) && this.isZeroLike(current.perLevel)) return true;
+        if (key === "attack" && suggestion.max !== undefined && this.isZeroLike(current.max)) return true;
+        return false;
+      });
+    },
+    hasActionableInferenceCandidate(target) {
+      return this.getActionableInferenceKeys(target).length > 0;
+    },
     restoreLastInference(target) {
       if (!target || !target._lastInferenceBackup) {
         this.showStatus("戻せる推定履歴がありません。", true);
@@ -1316,6 +1336,10 @@ new Vue({
       const suggestionKeys = Object.keys(suggestions);
       if (suggestionKeys.length === 0) {
         this.showStatus(`${target.name || "この行"} から反映できる係数候補がありません。`, true);
+        return;
+      }
+      if (!overwrite && this.getActionableInferenceKeys(target).length === 0) {
+        this.showStatus(`${target.name || "この行"} は既に反映済み、または未設定推定では変更不要です。`, true);
         return;
       }
       if (this.pendingInference.target) {

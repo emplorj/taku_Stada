@@ -4503,3 +4503,21 @@
   border: 1px solid rgba(17, 24, 39, 0.75);
   box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.16);
 }
+
+
+/* v60: badges only mean actionable inference; non-actionable candidates are muted, no-candidate rows are disabled. */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn.is-muted {
+  background: #4b5563;
+  border-color: rgba(148, 163, 184, 0.45);
+  color: #d1d5db;
+}
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn.is-muted:hover:not(:disabled) {
+  background: #5b6472;
+}
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn:disabled {
+  background: #343a46;
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #8b95a5;
+  opacity: 0.55;
+  cursor: not-allowed;
+}

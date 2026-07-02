@@ -682,3 +682,317 @@ optgroup {
 #panel-equipment-items .armour-row .remove-row-btn {
   justify-self: center;
 }
+
+/* v60: 装備行内の数値/非数値フォントを統一 */
+#panel-equipment-items .weapon-row input,
+#panel-equipment-items .weapon-row select,
+#panel-equipment-items .armour-row input,
+#panel-equipment-items .armour-row select,
+#panel-equipment-items .item-row input,
+#panel-equipment-items .item-row select,
+#panel-equipment-items .item-row textarea {
+  font-family: var(
+    --font-latin-ui,
+    "ExcelsiorSans",
+    "HigashiOme-Gothic-C",
+    "Yu Gothic",
+    "Meiryo",
+    sans-serif
+  );
+  font-weight: var(--font-latin-ui-weight, 300);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+#panel-equipment-items .weapon-name-free,
+#panel-equipment-items .weapon-usage,
+#panel-equipment-items .weapon-category,
+#panel-equipment-items .weapon-rank,
+#panel-equipment-items .weapon-note,
+#panel-equipment-items .armour-name-free,
+#panel-equipment-items .armour-rank,
+#panel-equipment-items .armour-category,
+#panel-equipment-items .armour-note,
+#panel-equipment-items .item-name-free,
+#panel-equipment-items .item-name-select,
+#panel-equipment-items .item-effect {
+  font-size: 1.05em;
+  line-height: 1.2;
+}
+
+#panel-equipment-items .weapon-price,
+#panel-equipment-items .weapon-req,
+#panel-equipment-items .weapon-acc,
+#panel-equipment-items .weapon-rate,
+#panel-equipment-items .weapon-crit,
+#panel-equipment-items .weapon-dmg,
+#panel-equipment-items .armour-price,
+#panel-equipment-items .armour-req,
+#panel-equipment-items .armour-eva,
+#panel-equipment-items .armour-def,
+#panel-equipment-items .item-points,
+#panel-equipment-items .item-unit-price,
+#panel-equipment-items .item-quantity,
+#panel-equipment-items .item-total-price {
+  font-size: 1.16em;
+  line-height: 1.15;
+  font-family: var(
+    --font-latin-ui,
+    "ExcelsiorSans",
+    "HigashiOme-Gothic-C",
+    "Yu Gothic",
+    "Meiryo",
+    sans-serif
+  );
+  font-weight: var(--font-latin-ui-weight, 300);
+}
+
+#panel-equipment-items .weapon-row select,
+#panel-equipment-items .armour-row select,
+#panel-equipment-items .item-row select {
+  color: #f5f5f5;
+}
+
+/* v61: 装備行フォントを英数字優先 + 日本語は従来系フォントへ戻す */
+#panel-equipment-items {
+  --sw25-equipment-latin-font: "ExcelsiorSans";
+  --sw25-equipment-japanese-font: "Noto Serif JP", "Yu Gothic", "Meiryo", sans-serif;
+  --sw25-equipment-mixed-font: var(--sw25-equipment-latin-font), var(--sw25-equipment-japanese-font);
+}
+
+#panel-equipment-items .weapon-row input,
+#panel-equipment-items .weapon-row select,
+#panel-equipment-items .armour-row input,
+#panel-equipment-items .armour-row select,
+#panel-equipment-items .item-row input,
+#panel-equipment-items .item-row select,
+#panel-equipment-items .item-row textarea {
+  font-family: var(--sw25-equipment-mixed-font);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+#panel-equipment-items .weapon-price,
+#panel-equipment-items .weapon-req,
+#panel-equipment-items .weapon-acc,
+#panel-equipment-items .weapon-rate,
+#panel-equipment-items .weapon-crit,
+#panel-equipment-items .weapon-dmg,
+#panel-equipment-items .armour-price,
+#panel-equipment-items .armour-req,
+#panel-equipment-items .armour-eva,
+#panel-equipment-items .armour-def,
+#panel-equipment-items .item-points,
+#panel-equipment-items .item-unit-price,
+#panel-equipment-items .item-quantity,
+#panel-equipment-items .item-total-price {
+  font-family: var(--sw25-equipment-latin-font), var(--sw25-equipment-japanese-font);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.16em;
+  line-height: 1.15;
+}
+
+#panel-equipment-items .weapon-note,
+#panel-equipment-items .armour-note,
+#panel-equipment-items .item-effect,
+#panel-equipment-items .weapon-name-free,
+#panel-equipment-items .armour-name-free,
+#panel-equipment-items .item-name-free,
+#panel-equipment-items .item-name-select {
+  font-family: var(--sw25-equipment-mixed-font);
+}
+
+/* v62: ランク欄は日本語系フォントへ寄せる */
+#panel-equipment-items .weapon-rank,
+#panel-equipment-items .armour-rank,
+#panel-equipment-items .weapon-rank option,
+#panel-equipment-items .armour-rank option {
+  font-family: var(--sw25-equipment-japanese-font);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-variant-numeric: normal;
+}
+
+/* v63: ランク欄の英字もNoto Serif JP系へ強制 */
+#panel-equipment-items input.weapon-rank,
+#panel-equipment-items input.armour-rank,
+#panel-equipment-items .weapon-row input.weapon-rank,
+#panel-equipment-items .armour-row input.armour-rank {
+  font-family: "Noto Serif JP", "Noto Serif", "Yu Mincho", "Yu Gothic", "Meiryo", serif;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  font-variant-numeric: normal;
+}
+
+#panel-equipment-items input.weapon-rank::placeholder,
+#panel-equipment-items input.armour-rank::placeholder,
+#panel-equipment-items .weapon-row input.weapon-rank::placeholder,
+#panel-equipment-items .armour-row input.armour-rank::placeholder {
+  font-family: "Noto Serif JP", "Noto Serif", "Yu Mincho", "Yu Gothic", "Meiryo", serif;
+  font-weight: 700;
+}
+
+/* v86: スマホ横スクロール整理。v80-v84 の競合指定を一本化 */
+@media (max-width: 768px) {
+  #panel-equipment-items .equipment-container {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding-right: 0;
+    margin-right: 0;
+    border-right: 0;
+    box-shadow: none;
+  }
+
+  /* 武器・防具だけ、セクション単位で横スクロール。光るフェードは使わない。 */
+  #panel-equipment-items .equipment-container:has(> .weapon-header),
+  #panel-equipment-items .equipment-container:has(> .armour-header) {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-gutter: stable;
+    scroll-padding-inline: 8px 20px;
+  }
+
+  #panel-equipment-items .equipment-container:has(> .weapon-header)::before,
+  #panel-equipment-items .equipment-container:has(> .armour-header)::before,
+  #panel-equipment-items #items-container::before {
+    content: "← 横にスクロールできます →";
+    position: sticky;
+    left: 0;
+    z-index: 8;
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    max-width: min(100%, calc(100vw - 86px));
+    margin: 0.1rem 0 0.45rem;
+    padding: 0.22rem 0.6rem;
+    border: 1px solid rgba(200, 164, 100, 0.34);
+    border-radius: 999px;
+    background: rgba(15, 10, 8, 0.88);
+    color: #f2d88c;
+    font-size: 0.76rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  }
+
+  #panel-equipment-items .equipment-container:has(> .weapon-header)::after,
+  #panel-equipment-items .equipment-container:has(> .armour-header)::after,
+  #panel-equipment-items .equipment-container:has(> .custom-title-header)::before,
+  #panel-equipment-items .equipment-container:has(> .custom-title-header)::after {
+    content: none;
+    display: none;
+  }
+
+  /* 所持品セクション本体は横スクロールさせない。 */
+  #panel-equipment-items .equipment-container:has(> .custom-title-header) {
+    display: block;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+    contain: inline-size;
+  }
+
+  #panel-equipment-items .equipment-container:has(> .custom-title-header) > :not(#items-container) {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  #panel-equipment-items .equipment-container:has(> .custom-title-header) > .item-header {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #panel-equipment-items .equipment-container:has(> .custom-title-header) > .item-header > span {
+    min-width: 0;
+  }
+
+  #panel-equipment-items .equipment-container:has(> .custom-title-header) > .item-header .item-header-name {
+    flex: 1 1 7rem;
+    min-width: 6rem;
+  }
+
+  #panel-equipment-items .equipment-container:has(> .custom-title-header) > .item-header .item-header-effect,
+  #panel-equipment-items .equipment-container:has(> .custom-title-header) > .item-header .item-header-remove {
+    display: none;
+  }
+
+  /* 所持品の横スクロールは行リストだけに閉じ込める。 */
+  #panel-equipment-items #items-container {
+    display: block;
+    inline-size: 100%;
+    width: 100%;
+    max-inline-size: 100%;
+    max-width: 100%;
+    min-inline-size: 0;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    contain: inline-size;
+    box-sizing: border-box;
+    padding-right: 0;
+    margin-right: 0;
+    border-right: 0;
+    box-shadow: none;
+    scrollbar-gutter: stable;
+  }
+
+  #panel-equipment-items #items-container .item-row {
+    display: flex;
+    width: 850px;
+    min-width: 850px;
+    max-width: none;
+    box-sizing: border-box;
+  }
+
+  #panel-equipment-items .item-folder-controls {
+    display: grid;
+    grid-template-columns: auto max-content minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+  }
+
+  #panel-equipment-items #item-folder-title {
+    min-width: 0;
+  }
+
+  #panel-equipment-items .item-controls-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  #panel-equipment-items .item-controls-footer .action-buttons-group,
+  #panel-equipment-items .item-controls-footer .copy-buttons-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  #panel-equipment-items .item-controls-footer .add-row-btn,
+  #panel-equipment-items .item-controls-footer .small-button {
+    width: 100%;
+    max-width: 100%;
+    white-space: normal;
+  }
+}
