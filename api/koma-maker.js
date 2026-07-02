@@ -1200,7 +1200,7 @@ function createComboPaletteFromData(comboData) {
     if (finalAchieve !== 0) {
       diceFormula += `${finalAchieve >= 0 ? "+" : ""}${finalAchieve}`;
     }
-    diceFormula += ` ◆${(combo && combo.name) || "コンボ"}`;
+    diceFormula += ` ◆${normalizeComboName(combo)}`;
     return diceFormula;
   };
 
@@ -1209,6 +1209,22 @@ function createComboPaletteFromData(comboData) {
     const s = String(v).trim();
     return s ? s : defVal;
   };
+
+  const normalizeComboName = (combo) => {
+    const name = String((combo && combo.name) || "").trim();
+    return name || "コンボ名入れて！！！！";
+  };
+
+  const toCocofoliaCommandPart = (value) =>
+    String(value || "")
+      .replace(/\r?\n/g, "\\n")
+      .trim();
+
+  const joinCocofoliaCommandParts = (parts) =>
+    parts
+      .map(toCocofoliaCommandPart)
+      .filter(Boolean)
+      .join("\\n");
 
   const normalizeTiming = (t) => {
     if (!t) return "-";
@@ -1426,20 +1442,33 @@ function createComboPaletteFromData(comboData) {
       comboLevelBonus,
     );
 
-    let critTotal = 10;
+    let critCorrectionTotal = 0;
+    let critMinLimit = 10;
     sourceList.forEach((source) => {
       if (!source || !source.values || !source.values.crit) return;
-      const base = Number(source.values.crit.base) || 0;
-      if (base === 0) return;
+      const crit = source.values.crit;
       const effectiveLevel =
         source.level !== undefined
           ? (Number(source.level) || 0) + comboLevelBonus
           : 0;
-      const perLevel = Number(source.values.crit.perLevel) || 0;
-      const min = Number(source.values.crit.min) || 2;
-      const value = Math.max(base - effectiveLevel * perLevel, min);
-      if (value < critTotal) critTotal = value;
+      let base = Number(crit.base) || 0;
+      let perLevel = Number(crit.perLevel) || 0;
+      const min = Number(crit.min) || 10;
+
+      // 旧コンボDB互換: base=10/perLevel=1 のような「C値そのもの」形式を、
+      // v64以降の「C値補正」形式へ読み替える。
+      if (base >= 2 || perLevel > 0) {
+        base = base - 10;
+        if (perLevel > 0) perLevel = -Math.abs(perLevel);
+      }
+
+      const correction = base + effectiveLevel * perLevel;
+      if (correction !== 0) {
+        critCorrectionTotal += correction;
+        if (correction < 0) critMinLimit = Math.min(critMinLimit, min);
+      }
     });
+    const critTotal = Math.max(10 + critCorrectionTotal, critMinLimit);
 
     const weaponAtk = evaluateDiceString(
       String((combo && combo.atk_weapon) || "0"),
@@ -1462,8 +1491,9 @@ function createComboPaletteFromData(comboData) {
   };
 
   const buildFromCombo = (combo, preferCompositionText = "") => {
-    if (!combo || !combo.name) return "";
+    if (!combo) return "";
 
+    const comboName = normalizeComboName(combo);
     const relevantEffects = getRelevantEffects(combo);
     const sourceList =
       Array.isArray(combo.allSelectedSources) && combo.allSelectedSources.length
@@ -1551,9 +1581,24 @@ function createComboPaletteFromData(comboData) {
       `C値:${pickVal(combo.finalCrit || combo.critical || computed.finalCrit, "10")}`,
     ].join("　");
 
-    return [`◆${combo.name}`, compositionText, flavorText, details, diceFormula]
-      .filter(Boolean)
-      .join("\n");
+    const effectDescription =
+      String(combo.effectDescriptionMode || "auto") === "manual"
+        ? String(combo.manualEffectDescription || "").trim()
+        : sourceList
+            .map((s) => String((s && (s.effect || s.notes)) || "").trim())
+            .filter(Boolean)
+            .join("\n");
+
+    // ココフォリアのコマcommandsでは、宣言コマンド内の改行を
+    // 「\n」という文字列でつなぐ。判定式は別コマンドとして実改行で分ける。
+    const declarationCommand = joinCocofoliaCommandParts([
+      `◆${comboName}`,
+      compositionText,
+      flavorText,
+      details,
+      effectDescription,
+    ]);
+    return [declarationCommand, diceFormula].filter(Boolean);
   };
 
   if (
@@ -1563,9 +1608,9 @@ function createComboPaletteFromData(comboData) {
     const p = ["//▼コンボデータ"];
     comboData.processedCombos.forEach((pc) => {
       if (!pc) return;
-      const text = buildFromCombo(pc, pc.compositionText || "");
-      if (text) {
-        p.push(text);
+      const lines = buildFromCombo(pc, pc.compositionText || "");
+      if (Array.isArray(lines) && lines.length) {
+        p.push(...lines);
         p.push("");
       }
     });
@@ -1845,7 +1890,7 @@ async function getDataDX(html, url, img, opt, additionalPalette, comboPalette) {
 
   const roice = createDxRoice(html);
   let commands = opt[1] ? createDxChapale() : "";
-  if (comboPalette) commands += (commands ? "\n" : "") + comboPalette;
+  if (opt[1] && comboPalette) commands += (commands ? "\n" : "") + comboPalette;
   if (additionalPalette) commands += (commands ? "\n" : "") + additionalPalette;
 
   const memo = opt[0]
@@ -2720,20 +2765,17 @@ async function processSheetData(formData) {
 
   if (system === "DX3") {
     const comboPalette = await getComboPaletteByUrl(url);
-    const useComboPalette =
-      String(formData.useComboPalette || "false") === "true";
     outObj = await getDataDX(
       html,
       url,
       img,
       opt,
       additionalPalette,
-      useComboPalette ? comboPalette : "",
+      comboPalette || "",
     );
-    message = `ククク、${charName}よ。任務に向かえ。`;
-    if (comboPalette && !useComboPalette) {
-      message = "コンボデータが見つかりました！コンボデータを反映させますか？";
-    }
+    message = comboPalette
+      ? `ククク、${charName}よ。任務に向かえ。コンボデータもcommands末尾に追加したぞ。`
+      : `ククク、${charName}よ。任務に向かえ。`;
     eff = getEffectDX(html);
   } else if (system === "SW25") {
     outObj = getDataSW25(html, url, img);
@@ -2774,12 +2816,7 @@ async function processSheetData(formData) {
     eff,
     itemLimits,
     itemSections,
-    comboFound:
-      system === "DX3"
-        ? String(formData.useComboPalette || "false") !== "true" &&
-          message ===
-            "コンボデータが見つかりました！コンボデータを反映させますか？"
-        : false,
+    comboFound: false,
   };
 }
 

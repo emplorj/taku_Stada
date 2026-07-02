@@ -4521,3 +4521,114 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* v65: coefficient header help popovers */
+#dx3-app .coef-help-head-row th {
+  overflow: visible;
+  position: relative;
+}
+#dx3-app .coef-head-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  position: relative;
+  min-width: 0;
+  cursor: help;
+  outline: none;
+}
+#dx3-app .coef-head-help-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(205, 218, 255, 0.65);
+  color: #dbe7ff;
+  background: rgba(15, 28, 82, 0.88);
+  font-size: 0.68rem;
+  line-height: 1;
+  font-weight: 700;
+}
+#dx3-app .coef-head-popover {
+  display: none;
+  position: absolute;
+  z-index: 80;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 260px;
+  min-width: 190px;
+  padding: 8px 9px;
+  border: 1px solid rgba(152, 177, 255, 0.75);
+  border-radius: 8px;
+  background: rgba(8, 16, 45, 0.98);
+  color: #eef3ff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.36);
+  text-align: left;
+  white-space: normal;
+  line-height: 1.45;
+  font-size: 0.78rem;
+  font-weight: 500;
+  pointer-events: none;
+}
+#dx3-app .coef-head-popover::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  border-width: 7px 6px 0 6px;
+  border-style: solid;
+  border-color: rgba(8, 16, 45, 0.98) transparent transparent transparent;
+}
+#dx3-app .coef-head-help:hover .coef-head-popover,
+#dx3-app .coef-head-help:focus .coef-head-popover,
+#dx3-app .coef-head-help:focus-within .coef-head-popover {
+  display: block;
+}
+#dx3-app .coef-example {
+  color: #dbe7ff;
+  font-family: var(--font-latin-ui), var(--font-body);
+  font-weight: 700;
+}
+#dx3-app .coef-highlight {
+  color: #ffd166;
+  font-weight: 800;
+}
+@media (max-width: 720px) {
+  #dx3-app .coef-head-popover {
+    max-width: 220px;
+    min-width: 170px;
+    font-size: 0.74rem;
+  }
+  #dx3-app .coef-head-help-mark {
+    width: 0.82rem;
+    height: 0.82rem;
+    font-size: 0.62rem;
+  }
+}
+
+/* v66: remove question icons; the header text itself opens the help popover. */
+#dx3-app .coefficient-head-note {
+  margin-left: 0.55rem;
+  color: rgba(214, 226, 255, 0.72);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+#dx3-app .coef-head-help {
+  gap: 0;
+  padding: 0 1px 2px;
+  border-bottom: 1px dotted rgba(205, 218, 255, 0.58);
+}
+#dx3-app .coef-head-help:hover,
+#dx3-app .coef-head-help:focus,
+#dx3-app .coef-head-help:focus-within {
+  color: #ffffff;
+  border-bottom-color: #ffd166;
+}
+#dx3-app .coef-head-help-mark {
+  display: none;
+}

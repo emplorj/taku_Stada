@@ -93,7 +93,7 @@
           </li>
           <li><strong>C値の下げ方</strong>
             <ul>
-              <li><strong>固定値/Lv毎減算:</strong> C値を下げる効果を入力。シンプルに引いてくれる。</li>
+              <li><strong>固定補正/Lv毎補正:</strong> C値を下げる効果を入力。シンプルに引いてくれる。</li>
               <li><strong>C値 下限:</strong> C値の最低ライン。「7」とかで設定しとけば、それ以下にはならない。計算ミスがなくて最高。</li>
             </ul>
           </li>
@@ -292,10 +292,10 @@
           </div>
           <div class="sheet-source-actions">
             <div class="display-mode-toggle" role="group" aria-label="エフェクト表示モード">
-              <button type="button" :class="{ active: effectDisplayMode === 'combo' }" @click="setEffectDisplayMode('combo')">
+              <button type="button" :class="{ active: effectDisplayMode === 'combo' }" @click="toggleEffectDisplayMode" title="表示モードを切り替えます">
                 係数
               </button>
-              <button type="button" :class="{ active: effectDisplayMode === 'detail' }" @click="setEffectDisplayMode('detail')">
+              <button type="button" :class="{ active: effectDisplayMode === 'detail' }" @click="toggleEffectDisplayMode" title="表示モードを切り替えます">
                 詳細
               </button>
             </div>
@@ -338,7 +338,7 @@
                 <th rowspan="3">名称</th>
                 <th rowspan="3">Lv</th>
                 <th rowspan="3">タイミング</th>
-                <th colspan="14" class="coefficient-main-head">係数</th>
+                <th colspan="14" class="coefficient-main-head">係数<span class="coefficient-head-note">見出しホバーで説明</span></th>
                 <th rowspan="3" title="キャラクターシート由来の効果文です。原則、修正はキャラシ側で行います。">効果</th>
                 <th rowspan="3" title="コンボ作成・係数推定用の補足メモです。このツール内で編集してもキャラクターシート本体には反映されません。">備考</th>
               </tr>
@@ -348,21 +348,21 @@
                 <th colspan="4">ATK</th>
                 <th colspan="4">C値</th>
               </tr>
-              <tr>
-                <th>固定値</th>
-                <th>Lv毎</th>
-                <th>現在値</th>
-                <th>固定値</th>
-                <th>Lv毎</th>
-                <th>現在値</th>
-                <th>固定値</th>
-                <th>Lv毎</th>
-                <th>最大</th>
-                <th>現在値</th>
-                <th>基準</th>
-                <th>Lv毎</th>
-                <th>下限</th>
-                <th>現在値</th>
+              <tr class="coef-help-head-row">
+                <th><span class="coef-head-help" tabindex="0">固定値<span class="coef-head-popover">ダイスのレベルに関係ない増減。<br><span class="coef-example">[LV×2<span class="coef-highlight">+3</span>]</span> なら <span class="coef-highlight">+3</span> の部分を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">Lv毎<span class="coef-head-popover">Lv1ごとに増えるダイス数。<br><span class="coef-example">[<span class="coef-highlight">LV×2</span>+3]</span> なら <span class="coef-highlight">2</span> を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">現在値<span class="coef-head-popover">現在Lvでのダイス補正。<br>固定値 + Lv毎 × 現在Lv。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">固定値<span class="coef-head-popover">達成値のレベルに関係ない増減。<br><span class="coef-example">[LV×2<span class="coef-highlight">+3</span>]</span> なら <span class="coef-highlight">+3</span> の部分を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">Lv毎<span class="coef-head-popover">Lv1ごとに増える達成値。<br><span class="coef-example">[<span class="coef-highlight">LV×2</span>+3]</span> なら <span class="coef-highlight">2</span> を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">現在値<span class="coef-head-popover">現在Lvでの達成値補正。<br>固定値 + Lv毎 × 現在Lv。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">固定値<span class="coef-head-popover">攻撃力のレベルに関係ない増減。<br><span class="coef-example">[LV×2<span class="coef-highlight">+3</span>]</span> なら <span class="coef-highlight">+3</span> の部分を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">Lv毎<span class="coef-head-popover">Lv1ごとに増える攻撃力。<br><span class="coef-example">[<span class="coef-highlight">LV×2</span>+3]</span> なら <span class="coef-highlight">2</span> を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">最大<span class="coef-head-popover">攻撃力補正の上限。空欄なら上限なし。<br><span class="coef-example">-[5-LV]（最大0）</span> は固定値 <span class="coef-highlight">-5</span>、Lv毎 <span class="coef-highlight">+1</span>、最大 <span class="coef-highlight">0</span>。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">現在値<span class="coef-head-popover">現在Lvでの攻撃力補正。<br>固定値 + Lv毎 × 現在Lv。最大があれば上限を適用。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">固定<span class="coef-head-popover">C値のレベルに関係ない補正。<br><span class="coef-example">C値-1</span> なら <span class="coef-highlight">-1</span>。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">Lv毎<span class="coef-head-popover">Lv1ごとのC値補正。<br>コンセントレイト/リフレックスは <span class="coef-highlight">-1</span>。Lv3なら合計 -3。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">下限<span class="coef-head-popover">C値がこれ未満にならない最低値。<br>例: 下限7、下限6。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">現在値<span class="coef-head-popover">現在LvでのC値。<br>10 + 固定 + Lv毎 × 現在Lv。下限があれば適用。</span></span></th>
               </tr>
             </thead>
             <tbody>
@@ -386,10 +386,10 @@
                 <td class="coef-cell"><input type="text" v-model="effect.values.attack.perLevel" :readonly="isEssentialEffect(effect.name)" placeholder="0" title="ATK Lv毎。2Dなども入力できます。"></td>
                 <td class="coef-cell"><input type="text" v-model="effect.values.attack.max" :readonly="isEssentialEffect(effect.name)" placeholder="なし" title="ATKの最大値。空欄なら上限なし。"></td>
                 <td class="coef-cell coef-current-cell"><div class="coef-current-box" :title="'固定値 + Lv毎 × 現在Lv' + effect.level + ' のATK補正。最大値があれば反映します。'">{{ coefficientCurrentValue(effect, 'attack') }}</div></td>
-                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="effect.values.crit.base" :readonly="isEssentialEffect(effect.name)" title="C値 基準値"></td>
-                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="effect.values.crit.perLevel" :readonly="isEssentialEffect(effect.name)" title="C値 Lv毎減算"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="effect.values.crit.base" :readonly="isEssentialEffect(effect.name)" title="C値 固定補正。C値-1なら -1"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="effect.values.crit.perLevel" :readonly="isEssentialEffect(effect.name)" title="C値 Lv毎補正。コンセントレイトなら -1"></td>
                 <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="effect.values.crit.min" :readonly="isEssentialEffect(effect.name)" title="C値 下限"></td>
-                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'基準 - Lv毎 × 現在Lv' + effect.level + ' のC値。下限があれば反映します。'">{{ coefficientCurrentValue(effect, 'crit') }}</div></td>
+                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'10 + 固定補正 + Lv毎補正 × 現在Lv' + effect.level + ' のC値。下限があれば反映します。'">{{ coefficientCurrentValue(effect, 'crit') }}</div></td>
                 <td class="source-effect-cell"><textarea v-model="effect.effect" :readonly="!effectFieldsEditable" title="キャラクターシート由来の効果文です。基本的にはキャラシ側で編集してください。"></textarea></td>
                 <td class="source-note-cell"><textarea v-model="effect.notes" title="コンボ作成・係数推定用の補足メモです。このツール内で編集してもキャラシ本体には反映されません。"></textarea></td>
               </tr>
@@ -482,7 +482,7 @@
                 <th rowspan="3">名称</th>
                 <th rowspan="3">Lv</th>
                 <th rowspan="3">タイミング</th>
-                <th colspan="14" class="coefficient-main-head">係数</th>
+                <th colspan="14" class="coefficient-main-head">係数<span class="coefficient-head-note">見出しホバーで説明</span></th>
                 <th rowspan="3" title="キャラクターシート由来の効果文です。原則、修正はキャラシ側で行います。">効果</th>
                 <th rowspan="3" title="コンボ作成・係数推定用の補足メモです。このツール内で編集してもキャラクターシート本体には反映されません。">備考</th>
               </tr>
@@ -492,21 +492,21 @@
                 <th colspan="4">ATK</th>
                 <th colspan="4">C値</th>
               </tr>
-              <tr>
-                <th>固定値</th>
-                <th>Lv毎</th>
-                <th>現在値</th>
-                <th>固定値</th>
-                <th>Lv毎</th>
-                <th>現在値</th>
-                <th>固定値</th>
-                <th>Lv毎</th>
-                <th>最大</th>
-                <th>現在値</th>
-                <th>基準</th>
-                <th>Lv毎</th>
-                <th>下限</th>
-                <th>現在値</th>
+              <tr class="coef-help-head-row">
+                <th><span class="coef-head-help" tabindex="0">固定値<span class="coef-head-popover">ダイスのレベルに関係ない増減。<br><span class="coef-example">[LV×2<span class="coef-highlight">+3</span>]</span> なら <span class="coef-highlight">+3</span> の部分を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">Lv毎<span class="coef-head-popover">Lv1ごとに増えるダイス数。<br><span class="coef-example">[<span class="coef-highlight">LV×2</span>+3]</span> なら <span class="coef-highlight">2</span> を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">現在値<span class="coef-head-popover">現在Lvでのダイス補正。<br>固定値 + Lv毎 × 現在Lv。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">固定値<span class="coef-head-popover">達成値のレベルに関係ない増減。<br><span class="coef-example">[LV×2<span class="coef-highlight">+3</span>]</span> なら <span class="coef-highlight">+3</span> の部分を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">Lv毎<span class="coef-head-popover">Lv1ごとに増える達成値。<br><span class="coef-example">[<span class="coef-highlight">LV×2</span>+3]</span> なら <span class="coef-highlight">2</span> を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">現在値<span class="coef-head-popover">現在Lvでの達成値補正。<br>固定値 + Lv毎 × 現在Lv。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">固定値<span class="coef-head-popover">攻撃力のレベルに関係ない増減。<br><span class="coef-example">[LV×2<span class="coef-highlight">+3</span>]</span> なら <span class="coef-highlight">+3</span> の部分を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">Lv毎<span class="coef-head-popover">Lv1ごとに増える攻撃力。<br><span class="coef-example">[<span class="coef-highlight">LV×2</span>+3]</span> なら <span class="coef-highlight">2</span> を入れる。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">最大<span class="coef-head-popover">攻撃力補正の上限。空欄なら上限なし。<br><span class="coef-example">-[5-LV]（最大0）</span> は固定値 <span class="coef-highlight">-5</span>、Lv毎 <span class="coef-highlight">+1</span>、最大 <span class="coef-highlight">0</span>。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">現在値<span class="coef-head-popover">現在Lvでの攻撃力補正。<br>固定値 + Lv毎 × 現在Lv。最大があれば上限を適用。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">固定<span class="coef-head-popover">C値のレベルに関係ない補正。<br><span class="coef-example">C値-1</span> なら <span class="coef-highlight">-1</span>。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">Lv毎<span class="coef-head-popover">Lv1ごとのC値補正。<br>コンセントレイト/リフレックスは <span class="coef-highlight">-1</span>。Lv3なら合計 -3。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">下限<span class="coef-head-popover">C値がこれ未満にならない最低値。<br>例: 下限7、下限6。</span></span></th>
+                <th><span class="coef-head-help" tabindex="0">現在値<span class="coef-head-popover">現在LvでのC値。<br>10 + 固定 + Lv毎 × 現在Lv。下限があれば適用。</span></span></th>
               </tr>
             </thead>
             <tbody>
@@ -530,10 +530,10 @@
                 <td class="coef-cell"><input type="text" v-model="ee.values.attack.perLevel" placeholder="0" title="ATK Lv毎。2Dなども入力できます。"></td>
                 <td class="coef-cell"><input type="text" v-model="ee.values.attack.max" placeholder="なし" title="ATKの最大値。空欄なら上限なし。"></td>
                 <td class="coef-cell coef-current-cell"><div class="coef-current-box" :title="'固定値 + Lv毎 × 現在Lv' + ee.level + ' のATK補正。最大値があれば反映します。'">{{ coefficientCurrentValue(ee, 'attack') }}</div></td>
-                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="ee.values.crit.base" title="C値 基準値"></td>
-                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="ee.values.crit.perLevel" title="C値 Lv毎減算"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="ee.values.crit.base" title="C値 固定補正。C値-1なら -1"></td>
+                <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="ee.values.crit.perLevel" title="C値 Lv毎補正。コンセントレイトなら -1"></td>
                 <td class="coef-cell coef-cell-numeric"><input type="number" v-model.number="ee.values.crit.min" title="C値 下限"></td>
-                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'基準 - Lv毎 × 現在Lv' + ee.level + ' のC値。下限があれば反映します。'">{{ coefficientCurrentValue(ee, 'crit') }}</div></td>
+                <td class="coef-cell coef-current-cell coef-current-cell-numeric"><div class="coef-current-box coef-current-box-numeric" :title="'10 + 固定補正 + Lv毎補正 × 現在Lv' + ee.level + ' のC値。下限があれば反映します。'">{{ coefficientCurrentValue(ee, 'crit') }}</div></td>
                 <td class="source-effect-cell"><textarea v-model="ee.effect" :readonly="!effectFieldsEditable" title="キャラクターシート由来の効果文です。基本的にはキャラシ側で編集してください。"></textarea></td>
                 <td class="source-note-cell"><textarea v-model="ee.notes" title="コンボ作成・係数推定用の補足メモです。このツール内で編集してもキャラシ本体には反映されません。"></textarea></td>
               </tr>
@@ -660,7 +660,7 @@
       <h2 class="section-title"><i class="fa-solid fa-cubes-stacked"></i> コンボデータ</h2>
       <div v-for="(combo, index) in processedCombos" class="combo-block">
         <div class="combo-header">
-          <input type="text" v-model="combos[index].name" class="combo-name-input">
+          <input type="text" v-model="combos[index].name" class="combo-name-input" placeholder="コンボ名入れて！！！！">
           <span v-if="combo.maxLimit" class="limit-chip">{{ combo.maxLimit }}</span>
           <label class="combo-level-select">コンボLv:<select v-model.number="combos[index].comboLevelBonus">
               <option v-for="n in 6" :value="n-1">+{{ n-1 }}</option>
@@ -794,9 +794,9 @@
           <h3>{{ editingEffect.name || '新規' }} 詳細設定</h3><button @click="cancelEffectPanel" class="close-btn" title="変更を反映せず閉じる">×</button>
         </div>
         <div class="panel-body">
-          <div class="panel-source-text" v-if="editingEffect.effect || editingEffect.notes">
+          <div class="panel-source-text" v-if="effectSourceText(editingEffect)">
             <div class="panel-source-title">効果・備考</div>
-            <div class="panel-source-content">{{ editingEffect.effect || editingEffect.notes }}</div>
+            <div class="panel-source-content">{{ effectSourceText(editingEffect) }}</div>
           </div>
           <div class="panel-quick-actions">
             <button @click.stop="applyEffectTextInference(false)" title="効果文・備考から、未設定の係数だけ推定して反映します">効果文から推定</button>
@@ -837,8 +837,8 @@
                 </div>
               </template>
               <template v-else>
-                <input type="number" v-model.number="editingEffect.values.crit.base" title="C値の基準値。通常は10">
-                <input type="number" v-model.number="editingEffect.values.crit.perLevel" title="Lvごとに下げる値。コンセントレイトなら1">
+                <input type="number" v-model.number="editingEffect.values.crit.base" title="C値の固定補正。C値-1なら -1、補正なしなら0">
+                <input type="number" v-model.number="editingEffect.values.crit.perLevel" title="LvごとのC値補正。コンセントレイトなら -1">
                 <div class="coef-min-field">
                   <span>下限</span>
                   <input type="number" v-model.number="editingEffect.values.crit.min">
@@ -952,6 +952,10 @@
             <button @click="cancelRowEffectInference" class="close-btn" title="キャンセル">×</button>
           </div>
           <div class="modal-body">
+            <div class="panel-source-text inference-source-text" v-if="effectSourceText(pendingInference.target)">
+              <div class="panel-source-title">効果・備考</div>
+              <div class="panel-source-content">{{ effectSourceText(pendingInference.target) }}</div>
+            </div>
             <p class="inference-lead">効果文・備考から、以下の係数候補を検出しました。反映する場合は「決定」を押してください。</p>
             <div class="inference-preview-list">
               <div v-for="row in inferencePreviewRows(pendingInference.suggestions)" :key="row.key" class="inference-preview-row">

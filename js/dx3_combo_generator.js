@@ -450,27 +450,27 @@ new Vue({
         const atkResult = calcResult("attack", allSelectedSources);
         const accuracyResult = calcResult("accuracy", relevantItems);
 
-        let critReductionTotal = 0;
+        let critCorrectionTotal = 0;
         let critMinLimit = 10;
         const critBreakdown = [];
         allSelectedSources.forEach((source) => {
-          if (!source.values?.crit?.base || source.values.crit.base === 0)
-            return;
+          this.migrateLegacyCritValue(source);
+          if (!source.values?.crit) return;
           const effectiveLevel = source.level
             ? (Number(source.level) || 0) + comboLevelBonus
             : 0;
-          const base = Number(source.values.crit.base) || 10;
+          const base = Number(source.values.crit.base) || 0;
           const perLevel = Number(source.values.crit.perLevel) || 0;
-          const min = Number(source.values.crit.min) || 2;
-          const sourceValue = Math.max(base - effectiveLevel * perLevel, min);
-          const reduction = Math.max(0, 10 - sourceValue);
-          if (reduction > 0) {
-            critReductionTotal += reduction;
-            critMinLimit = Math.min(critMinLimit, min);
-            critBreakdown.push(`${source.name}: -${reduction}（単体C${sourceValue} / 下限${min}）`);
+          const min = Number(source.values.crit.min) || 10;
+          const correction = base + effectiveLevel * perLevel;
+          if (correction !== 0) {
+            critCorrectionTotal += correction;
+            if (correction < 0) critMinLimit = Math.min(critMinLimit, min);
+            const sourceValue = Math.max(10 + correction, min);
+            critBreakdown.push(`${source.name}: ${correction >= 0 ? "+" : ""}${correction}（単体C${sourceValue} / 下限${min}）`);
           }
         });
-        const critTotal = Math.max(10 - critReductionTotal, critMinLimit);
+        const critTotal = Math.max(10 + critCorrectionTotal, critMinLimit);
 
         const weaponAtk = this.evaluateDiceString(combo.atk_weapon || "0");
         const totalAtkDice = weaponAtk.dice + atkResult.dice;
@@ -493,6 +493,8 @@ new Vue({
             atkDice: totalAtkDice,
             atkFixed: totalAtkFixed,
             crit: critTotal,
+            critCorrection: critCorrectionTotal,
+            critMin: critMinLimit,
           },
           breakdowns: {
             dice: [diceResult.breakdown, accuracyResult.breakdown]
@@ -517,7 +519,9 @@ new Vue({
         let finalAchieve = comboData.baseValues.achieve;
         let finalAtkDice = comboData.baseValues.atkDice;
         let finalAtkFixed = comboData.baseValues.atkFixed;
-        let finalCrit = comboData.baseValues.crit;
+        let finalCritCorrection = comboData.baseValues.critCorrection || 0;
+        let finalCritMin = comboData.baseValues.critMin || 10;
+        let finalCrit = Math.max(10 + finalCritCorrection, finalCritMin);
 
         let diceBreakdown = [comboData.breakdowns.dice];
         let achieveBreakdown = [comboData.breakdowns.achieve];
@@ -532,9 +536,9 @@ new Vue({
               finalAchieve += buffComboData.baseValues.achieve;
               finalAtkDice += buffComboData.baseValues.atkDice;
               finalAtkFixed += buffComboData.baseValues.atkFixed;
-              if (buffComboData.baseValues.crit < finalCrit) {
-                finalCrit = buffComboData.baseValues.crit;
-              }
+              finalCritCorrection += buffComboData.baseValues.critCorrection || 0;
+              finalCritMin = Math.min(finalCritMin, buffComboData.baseValues.critMin || 10);
+              finalCrit = Math.max(10 + finalCritCorrection, finalCritMin);
               diceBreakdown.push(buffComboData.breakdowns.dice);
               achieveBreakdown.push(buffComboData.breakdowns.achieve);
               atkBreakdown.push(buffComboData.breakdowns.atk);
@@ -674,7 +678,8 @@ new Vue({
 
         // --- チャットパレット生成ロジックを修正 ---
 
-        const line1 = `◆${currentCombo.name}`;
+        const comboDisplayName = String(currentCombo.name || "").trim() || "コンボ名入れて！！！！";
+        const line1 = `◆${comboDisplayName}`;
         const line2 = allSelectedSources
           .map((s) => {
             const baseLevel = Number(s.level) || 1;
@@ -682,7 +687,8 @@ new Vue({
             return `《${s.name}》Lv${baseLevel}${bonusPart}`;
           })
           .join("+");
-        const line3 = `『${currentCombo.flavor || ""}』`;
+        const flavorText = String(currentCombo.flavor || "").trim();
+        const line3 = flavorText ? `『${flavorText}』` : "";
 
         const mainEffect =
           allSelectedSources.find((s) =>
@@ -745,7 +751,7 @@ new Vue({
         }
 
         // 5. ◆コンボ名 (攻撃力などは含めない)
-        diceFormula += ` ◆${currentCombo.name}`;
+        diceFormula += ` ◆${comboDisplayName}`;
 
         const hasHiddenBuffs = allSelectedSources.some((s) => {
           const effectData = (currentCombo.effectNames || []).find(
@@ -870,12 +876,10 @@ new Vue({
     },
     characterSheetUrl: {
       handler: function (newVal, oldVal) {
-        if (newVal && newVal.includes("#")) {
-          const normalizedUrl = newVal.split("#")[0];
-          if (this.characterSheetUrl !== normalizedUrl) {
-            this.characterSheetUrl = normalizedUrl;
-            return;
-          }
+        const normalizedUrl = this.normalizeCharacterSheetUrl(newVal);
+        if (normalizedUrl && newVal !== normalizedUrl) {
+          this.characterSheetUrl = normalizedUrl;
+          return;
         }
         this.setDataDirty();
         this.generateShareUrl();
@@ -928,6 +932,16 @@ new Vue({
       if (mode !== "combo" && mode !== "detail") return;
       this.effectDisplayMode = mode;
     },
+    toggleEffectDisplayMode() {
+      this.effectDisplayMode = this.effectDisplayMode === "combo" ? "detail" : "combo";
+    },
+    effectSourceText(source) {
+      if (!source) return "";
+      const parts = [];
+      if (source.effect && String(source.effect).trim()) parts.push(String(source.effect).trim());
+      if (source.notes && String(source.notes).trim()) parts.push(String(source.notes).trim());
+      return parts.join("\n");
+    },
     ensureCoefficientValues(source) {
       if (!source.values) {
         this.$set(source, "values", this.createDefaultValues());
@@ -943,6 +957,20 @@ new Vue({
       });
       if (!source.values.crit) {
         this.$set(source.values, "crit", JSON.parse(JSON.stringify(defaults.crit)));
+      }
+      this.migrateLegacyCritValue(source);
+    },
+    migrateLegacyCritValue(source) {
+      if (!source || !source.values || !source.values.crit) return;
+      const crit = source.values.crit;
+      const base = Number(crit.base) || 0;
+      const perLevel = Number(crit.perLevel) || 0;
+      // 旧形式: base=10/perLevel=1 など「C値そのもの」を持つ形式。
+      // 新形式: base=0/perLevel=-1 など「C値補正」を持つ形式。
+      if (base >= 2 || perLevel > 0) {
+        this.$set(crit, "base", base - 10);
+        this.$set(crit, "perLevel", perLevel > 0 ? -Math.abs(perLevel) : perLevel);
+        if (crit.min === undefined || crit.min === null || crit.min === "") this.$set(crit, "min", 10);
       }
     },
     isZeroLike(value) {
@@ -995,14 +1023,18 @@ new Vue({
         if (idx >= 0) parts[idx] += `/最大${v.attack.max}`;
         else parts.push(`ATK:最大${v.attack.max}`);
       }
-      if (v.crit && (!this.isZeroLike(v.crit.base) || !this.isZeroLike(v.crit.perLevel) || Number(v.crit.min) !== 10)) {
-        const base = this.isZeroLike(v.crit.base) ? 10 : v.crit.base;
-        const per = this.isZeroLike(v.crit.perLevel) ? 0 : Number(v.crit.perLevel);
+      if (v.crit) {
+        this.migrateLegacyCritValue(source);
+        const base = Number(v.crit.base) || 0;
+        const per = Number(v.crit.perLevel) || 0;
         const min = v.crit.min ?? 10;
-        let text = `${base}`;
-        if (per) text += `-LV${Math.abs(per) === 1 ? "" : `*${Math.abs(per)}`}`;
-        text += `/下限${min}`;
-        parts.push(`C値:${text}`);
+        if (base !== 0 || per !== 0 || Number(min) !== 10) {
+          const terms = [];
+          if (base !== 0) terms.push(`${base >= 0 ? "+" : ""}${base}`);
+          if (per !== 0) terms.push(`${per >= 0 ? "+" : ""}${Math.abs(per) === 1 ? "LV" : `LV*${Math.abs(per)}`}${per < 0 ? "低下" : "上昇"}`);
+          const text = `${terms.join(" ") || "0"}/下限${min}`;
+          parts.push(`C値補正:${text}`);
+        }
       }
       return parts.length ? parts.join(" / ") : "-";
     },
@@ -1011,14 +1043,13 @@ new Vue({
       if (!source || !source.values) return "-";
       const level = Number(source.level) || 0;
       if (key === "crit") {
+        this.migrateLegacyCritValue(source);
         const crit = source.values.crit || {};
-        const base = this.isZeroLike(crit.base) ? 10 : Number(crit.base);
-        const perLevel = this.isZeroLike(crit.perLevel) ? 0 : Number(crit.perLevel);
-        const min = this.isZeroLike(crit.min) ? 2 : Number(crit.min);
-        const value = Math.max(
-          Number.isFinite(base) ? base - level * (Number.isFinite(perLevel) ? perLevel : 0) : 10,
-          Number.isFinite(min) ? min : 2
-        );
+        const base = Number(crit.base) || 0;
+        const perLevel = Number(crit.perLevel) || 0;
+        const min = this.isZeroLike(crit.min) ? 10 : Number(crit.min);
+        const correction = base + level * perLevel;
+        const value = Math.max(10 + correction, Number.isFinite(min) ? min : 10);
         return String(value);
       }
       const value = source.values[key];
@@ -1150,7 +1181,7 @@ new Vue({
       // コンセントレイト/リフレックスは効果文が省略されがちなので、名称・備考込みで強めに補正する。
       const nameAndNotes = normalizeText(`${source?.name || ""}\n${source?.notes || ""}\n${source?.effect || ""}`);
       if (/コンセントレイト|リフレックス/.test(nameAndNotes)) {
-        setSuggestion("crit", { base: 10, perLevel: 1, min: 7 });
+        setSuggestion("crit", { base: 0, perLevel: -1, min: 7 });
       }
 
       // [LV×2] / -[5-LV] / +[Lv+1]DX 形式。
@@ -1166,7 +1197,7 @@ new Vue({
         if (targetType === "crit") {
           const parsed = parseLinearTerm(formulaInner);
           const per = parsed ? Math.abs(parsed.perLevel || parsed.base || 1) : 1;
-          setSuggestion("crit", { base: 10, perLevel: per, min: 7 });
+          setSuggestion("crit", { base: 0, perLevel: -Math.abs(per || 1), min: 7 });
         } else {
           const isDiceMode = targetType !== "dice" && /D|DX/i.test(String(suffix));
           applySignedTerm(targetType, signStr === "-" ? "-" : "+", formulaInner, {
@@ -1210,8 +1241,8 @@ new Vue({
           const token = cMatch[1].toUpperCase().replace("SL", "LV");
           const minMatch = line.match(/(?:下限値?|下限)\s*([0-9]+)/i);
           const minValue = minMatch ? Number(minMatch[1]) : 7;
-          if (token === "LV") setSuggestion("crit", { base: 10, perLevel: 1, min: minValue });
-          else setSuggestion("crit", { base: 10 - Number(token || 0), perLevel: 0, min: minValue });
+          if (token === "LV") setSuggestion("crit", { base: 0, perLevel: -1, min: minValue });
+          else setSuggestion("crit", { base: -Number(token || 0), perLevel: 0, min: minValue });
         }
       });
       return suggestions;
@@ -1227,8 +1258,8 @@ new Vue({
           const current = target.values.crit;
           const isEmpty = this.isZeroLike(current.base) && this.isZeroLike(current.perLevel);
           if (overwrite || isEmpty) {
-            this.$set(current, "base", suggestion.base ?? 10);
-            this.$set(current, "perLevel", suggestion.perLevel ?? 1);
+            this.$set(current, "base", suggestion.base ?? 0);
+            this.$set(current, "perLevel", suggestion.perLevel ?? -1);
             this.$set(current, "min", suggestion.min ?? 7);
             updatedTabs[key] = true;
           }
@@ -1279,10 +1310,10 @@ new Vue({
         const s = suggestions[key] || {};
         let text;
         if (key === "crit") {
-          const base = s.base ?? 10;
+          const base = s.base ?? 0;
           const perLevel = s.perLevel ?? 0;
           const min = s.min ?? 7;
-          text = `基準 ${base} / Lv毎 ${perLevel} / 下限 ${min}`;
+          text = `固定補正 ${base} / Lv毎 ${perLevel} / 下限 ${min}`;
         } else {
           const parts = [`固定値 ${s.base ?? 0}`, `Lv毎 ${s.perLevel ?? 0}`];
           if (key === "attack" && s.max !== undefined) parts.push(`最大 ${s.max}`);
@@ -1657,8 +1688,8 @@ new Vue({
             name.includes("コンセ") ||
             name.includes("リフレックス");
           if (isConcentrate) {
-            effect.values.crit.base = 10;
-            effect.values.crit.perLevel = 1;
+            effect.values.crit.base = 0;
+            effect.values.crit.perLevel = -1;
             effect.values.crit.min = 7;
           }
         }
@@ -1713,11 +1744,38 @@ new Vue({
       }, duration);
     },
 
+    normalizeCharacterSheetUrl(urlText) {
+      const raw = String(urlText || "").trim();
+      if (!raw) return "";
+      try {
+        const url = new URL(raw.split("#")[0]);
+        if (url.hostname.includes("charasheet.vampire-blood.net")) {
+          const id = url.pathname.split("/").filter(Boolean).pop();
+          return id ? `https://charasheet.vampire-blood.net/${id}` : raw.split("#")[0];
+        }
+        // yutorize系はDB側の移行に合わせ、ドメインを勝手に変換しない。
+        return url.toString().split("#")[0];
+      } catch (e) {
+        return raw.split("#")[0];
+      }
+    },
+    getCharacterSheetDbIds(urlText) {
+      const canonical = this.normalizeCharacterSheetUrl(urlText);
+      return canonical ? [canonical] : [];
+    },
+    normalizeCurrentCharacterSheetUrl() {
+      const normalized = this.normalizeCharacterSheetUrl(this.characterSheetUrl);
+      if (normalized && this.characterSheetUrl !== normalized) {
+        this.characterSheetUrl = normalized;
+      }
+      return normalized;
+    },
     async refreshSheetData() {
       if (!this.characterSheetUrl) {
         this.showStatus("キャラクターシートURLを入力してください。", true);
         return;
       }
+      this.normalizeCurrentCharacterSheetUrl();
       await this.importFromSheet(true, false, "all");
     },
     validateInputs() {
@@ -1740,6 +1798,8 @@ new Vue({
         if (!confirmed) this.showStatus("保存をキャンセルしました。");
         return;
       }
+      this.normalizeCurrentCharacterSheetUrl();
+      const dbId = this.normalizeCharacterSheetUrl(this.characterSheetUrl);
       this.isBusy = true;
       this.showStatus("保存中...", false, 0);
       this.generateShareUrl();
@@ -1761,7 +1821,7 @@ new Vue({
             tool: "comboGenerator", // どのツールからのリクエストかを示す
             action: "save", // 実行したいアクション
             // ▲▲▲ ここまで修正 ▲▲▲
-            id: this.characterSheetUrl,
+            id: dbId,
             data: dataToSave,
             shareUrl: this.shareUrl,
           }),
@@ -1804,6 +1864,8 @@ new Vue({
         if (!confirmed) this.showStatus("削除をキャンセルしました。");
         return;
       }
+      this.normalizeCurrentCharacterSheetUrl();
+      const dbId = this.normalizeCharacterSheetUrl(this.characterSheetUrl);
       this.isBusy = true;
       this.showStatus("削除中...", false, 0);
       try {
@@ -1815,7 +1877,7 @@ new Vue({
             tool: "comboGenerator", // どのツールからのリクエストかを示す
             action: "delete", // 実行したいアクション
             // ▲▲▲ ここまで修正 ▲▲▲
-            id: this.characterSheetUrl,
+            id: dbId,
           }),
         });
         const result = await response.json();
@@ -1835,9 +1897,7 @@ new Vue({
     },
     async loadFromDb(skipConfirm = false) {
       if (!this.validateInputs()) return;
-      if (this.characterSheetUrl.includes("#")) {
-        this.characterSheetUrl = this.characterSheetUrl.split("#")[0];
-      }
+      this.normalizeCurrentCharacterSheetUrl();
 
       // ▼▼▼ 修正箇所: 未保存時のメッセージ分岐 ▼▼▼
       let confirmMsg =
@@ -1868,11 +1928,20 @@ new Vue({
 
       this.isBusy = true;
       this.showStatus("DBにアクセス中...", false, 0);
-      const url = new URL(this.gasWebAppUrl);
-      url.searchParams.append("id", this.characterSheetUrl);
       try {
-        const response = await fetch(url);
-        const result = await response.json();
+        const candidateIds = this.getCharacterSheetDbIds(this.characterSheetUrl);
+        let result = null;
+        for (const id of candidateIds) {
+          const url = new URL(this.gasWebAppUrl);
+          url.searchParams.append("id", id);
+          const response = await fetch(url);
+          result = await response.json();
+          if (result.status === "success") {
+            if (this.characterSheetUrl !== id) this.characterSheetUrl = id;
+            break;
+          }
+        }
+        result = result || { status: "not_found" };
         if (result.status === "success") {
           const d = result.data;
           this.characterName = d.characterName || "名称未設定";
@@ -1895,6 +1964,9 @@ new Vue({
             level: Number(i.level) || 1,
             values: { ...this.createDefaultValues(), ...(i.values || {}) },
           }));
+          [...this.effects, ...this.easyEffects, ...this.items].forEach((source) => {
+            this.ensureCoefficientValues(source);
+          });
           this.items.forEach((item) => {
             this.parseAttackFormula(item);
             this.parseAccuracyFormula(item);
@@ -2269,7 +2341,7 @@ new Vue({
           .map((name) => ({ name, showInComboName: true }));
         combos.push({
           ...this.createDefaultCombo(),
-          name: comboName || `コンボ${i}`,
+          name: comboName || "",
           effectNames,
           baseAbility: {
             skill: this.normalizeSkillName(this.normalizeImportedString(jsonData[`combo${i}Skill`])) || "-",
@@ -2470,7 +2542,7 @@ new Vue({
     },
     createDefaultCombo() {
       return {
-        name: `コンボ${this.combos.length + 1}`,
+        name: "",
         effectNames: [],
         itemNames: [],
         atk_weapon: 0,

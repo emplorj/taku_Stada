@@ -285,31 +285,43 @@ if (plNameInput) {
   });
 }
 
+function normalizeBaseUrl(baseUrl) {
+  return String(baseUrl || "").replace(/\/+$/, "");
+}
+
+function isInvalidApiBase(baseUrl) {
+  const normalized = normalizeBaseUrl(baseUrl);
+  if (!normalized) return true;
+  try {
+    const u = new URL(normalized);
+    // ローカルのファイル名から https://koma-maker.html.vercel.app のような
+    // 架空の候補を作ってしまった場合は使わない。
+    if (/\.html\.vercel\.app$/i.test(u.hostname)) return true;
+    return false;
+  } catch (_) {
+    return true;
+  }
+}
+
 function getConfiguredApiBase() {
   const params = new URLSearchParams(window.location.search);
-  const apiBaseFromQuery = params.get("apiBase");
+  const apiBaseFromQuery = normalizeBaseUrl(params.get("apiBase") || "");
   if (apiBaseFromQuery) {
-    localStorage.setItem("komaMakerApiBase", apiBaseFromQuery);
+    if (!isInvalidApiBase(apiBaseFromQuery)) {
+      localStorage.setItem("komaMakerApiBase", apiBaseFromQuery);
+      return apiBaseFromQuery;
+    }
+    localStorage.removeItem("komaMakerApiBase");
+    return "";
   }
 
-  const fromStorage = localStorage.getItem("komaMakerApiBase") || "";
-  if (apiBaseFromQuery || fromStorage) {
-    return apiBaseFromQuery || fromStorage;
-  }
-
-  // GitHub Pages では同一オリジン /api が存在しないため、
-  // 既定の Vercel API を自動採用してクエリ指定を不要にする。
-  if (window.location.hostname.endsWith("github.io")) {
-    const fallback = DEFAULT_VERCEL_API_BASES[0] || "";
-    if (fallback) localStorage.setItem("komaMakerApiBase", fallback);
-    return fallback;
+  const fromStorage = normalizeBaseUrl(localStorage.getItem("komaMakerApiBase") || "");
+  if (fromStorage) {
+    if (!isInvalidApiBase(fromStorage)) return fromStorage;
+    localStorage.removeItem("komaMakerApiBase");
   }
 
   return "";
-}
-
-function normalizeBaseUrl(baseUrl) {
-  return String(baseUrl || "").replace(/\/+$/, "");
 }
 
 function guessVercelApiBaseFromPath() {
@@ -318,7 +330,7 @@ function guessVercelApiBaseFromPath() {
     .filter(Boolean);
   if (!parts.length) return "";
   const repoName = parts[0].toLowerCase().replace(/_/g, "-");
-  if (!repoName) return "";
+  if (!repoName || repoName.includes(".")) return "";
   return `https://${repoName}.vercel.app`;
 }
 
@@ -326,14 +338,14 @@ function getApiCandidates() {
   const configuredBase = normalizeBaseUrl(getConfiguredApiBase());
   const guessedBase = normalizeBaseUrl(guessVercelApiBaseFromPath());
   const isGitHubPages = window.location.hostname.endsWith("github.io");
-  const defaultBases = isGitHubPages
-    ? DEFAULT_VERCEL_API_BASES.map(normalizeBaseUrl)
-    : [];
+  const defaultBases = DEFAULT_VERCEL_API_BASES.map(normalizeBaseUrl).filter(Boolean);
 
   const externalCandidates = [
     configuredBase ? `${configuredBase}/api/koma-maker` : null,
-    guessedBase ? `${guessedBase}/api/koma-maker` : null,
     ...defaultBases.map((b) => `${b}/api/koma-maker`),
+    guessedBase && !isInvalidApiBase(guessedBase)
+      ? `${guessedBase}/api/koma-maker`
+      : null,
   ].filter(Boolean);
 
   // GitHub Pages には同一オリジンの /api が存在しないため、
@@ -406,9 +418,7 @@ async function submitSheetData(formData) {
 
     if (window.location.hostname.endsWith("github.io")) {
       const suggestedBase = normalizeBaseUrl(
-        getConfiguredApiBase() ||
-          guessVercelApiBaseFromPath() ||
-          DEFAULT_VERCEL_API_BASES[0],
+        getConfiguredApiBase() || DEFAULT_VERCEL_API_BASES[0] || guessVercelApiBaseFromPath(),
       );
       const helpUrl = new URL(window.location.href);
       if (suggestedBase) helpUrl.searchParams.set("apiBase", suggestedBase);
@@ -1513,6 +1523,77 @@ sheetForm.addEventListener("submit", function (event) {
     .catch(showError);
 });
 
+
+function normalizeDxComboCommandEscapesInOutput(renderedOut) {
+  let parsed;
+  try {
+    parsed = JSON.parse(String(renderedOut || ""));
+  } catch (_e) {
+    return renderedOut;
+  }
+  if (!parsed || !parsed.data || typeof parsed.data.commands !== "string") {
+    return renderedOut;
+  }
+
+  const commands = parsed.data.commands;
+  const marker = "//▼コンボデータ";
+  const markerIndex = commands.indexOf(marker);
+  if (markerIndex < 0) return renderedOut;
+
+  const before = commands.slice(0, markerIndex).replace(/\n*$/, "");
+  const comboSection = commands.slice(markerIndex);
+  const sourceLines = comboSection.split(/\r?\n/);
+  const outLines = [];
+  let declarationParts = [];
+
+  const commandBreak = String.fromCharCode(92, 110);
+  const flushDeclaration = () => {
+    if (!declarationParts.length) return;
+    outLines.push(
+      declarationParts
+        .map((line) => String(line || "").replace(/\r?\n/g, commandBreak).trim())
+        .filter(Boolean)
+        .join(commandBreak),
+    );
+    declarationParts = [];
+  };
+  const isDiceFormulaLine = (line) => /^\s*\([^\n]*\)\s*DX/i.test(line) || /^\s*\([^\n]*\)DX/i.test(line) || (/DX/i.test(line) && /◆/.test(line));
+
+  sourceLines.forEach((line, index) => {
+    const raw = String(line || "").trimEnd();
+    const trimmed = raw.trim();
+    if (index === 0 && trimmed === marker) {
+      outLines.push(marker);
+      return;
+    }
+    if (!trimmed) return;
+
+    if (trimmed.startsWith("◆")) {
+      flushDeclaration();
+      declarationParts.push(trimmed);
+      return;
+    }
+
+    if (isDiceFormulaLine(trimmed)) {
+      flushDeclaration();
+      outLines.push(trimmed);
+      return;
+    }
+
+    if (declarationParts.length) {
+      declarationParts.push(trimmed);
+    } else {
+      outLines.push(trimmed);
+    }
+  });
+  flushDeclaration();
+
+  parsed.data.commands = [before, outLines.join("\n")]
+    .filter((part) => String(part || "").trim())
+    .join("\n");
+  return JSON.stringify(parsed);
+}
+
 function updatePage(result) {
   const hideMemoDisplay = !!(document.getElementById("hideMemoDisplay") || {})
     .checked;
@@ -1561,6 +1642,8 @@ function updatePage(result) {
       }
     } catch (_) {}
   }
+
+  renderedOut = normalizeDxComboCommandEscapesInOutput(renderedOut);
 
   setProgressAtLeast(95, true);
   messageArea.textContent = result.message || "メッセージの受信に失敗した。";
