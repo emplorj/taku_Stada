@@ -888,7 +888,7 @@
 
   function applyCommonEnemyClasses() {
     const body = document.body;
-    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page")) return;
+    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page")) return;
 
     addAll(".editor-action-bar", "enemy-control-bar enemy-action-bar");
     addAll(".koma-action-row", "enemy-control-bar enemy-koma-bar");
@@ -925,7 +925,7 @@
 
   function movePublicSwitchToActionMeta() {
     const body = document.body;
-    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page")) return;
+    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page")) return;
     const publicInput = document.getElementById("field-is-public");
     if (!publicInput) return;
     const publicLabel = publicInput.closest("label.public-switch-label") || publicInput.closest("label");
@@ -937,7 +937,7 @@
 
   function applyEnemyControlNormalization() {
     const body = document.body;
-    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page")) return;
+    if (!body || !body.matches(".ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page")) return;
     movePublicSwitchToActionMeta();
     document.querySelectorAll(".editor-action-bar").forEach((node) => node.classList.add("enemy-control-bar", "enemy-action-bar"));
     document.querySelectorAll(".koma-action-row").forEach((node) => node.classList.add("enemy-control-bar", "enemy-koma-bar"));

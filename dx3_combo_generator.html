@@ -11,12 +11,13 @@
 
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.css">
+  <link rel="stylesheet" href="css/enemies_view_common.css">
   <link rel="stylesheet" href="css/dx3_combo_generator.css">
 
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
 </head>
 
-<body>
+<body class="dx3-combo-page dx3-enemies-page">
   <div id="header-placeholder"></div>
   <canvas id="particleCanvas"></canvas>
 
@@ -27,156 +28,48 @@
     </header>
 
     <!-- ★★★ ここから使い方ガイドを追加 (最新版) ★★★ -->
-    <!-- 旧テキストバックアップ
     <details class="usage-guide plain-text-block">
       <summary>
         <div class="summary-content">
-          <h2>DX3コンボジェネレーター、使いこなしてる？</h2>
-          <p class="subtitle">面倒な計算はツールに任せて、最高のコンボを考えようぜ。</p>
+          <h2><i class="fa-solid fa-book-open-reader"></i> 使い方メモ</h2>
+          <p class="subtitle">URL読む → 係数見る → コンボ組む → コピー。だいたいこれ。</p>
         </div>
       </summary>
       <div class="content-wrapper">
         <p>
-          コンボ計算とかチャットパレット作りとか、正直だるい。わかる。<br>だからこのツール作ったんだ。キャラシのURLさえあれば、<strong>データは一瞬で読み込める</strong>し、あとは直感的にいじるだけでOK。
-        </p>
-        <p>どうせなら、ツールのポテンシャル、限界まで引き出そうぜ。</p>
-
-        <h3>基本の3ステップ。これだけ覚えれば大体OK。</h3>
-        <h4>STEP 1: まずはキャラシをブチ込む。</h4>
-        <ol>
-          <li><strong>「キャラクターシートURL」</strong>に、自分のキャラシURLをコピペする。</li>
-          <li><strong>「<i class="fas fa-cloud-download-alt"></i> 読込/引用」</strong>をGO。DBにデータがなければ、キャラシから引用するか聞いてくれる。</li>
-          <li>確認出るから「OK」。これだけで、君のデータがリストに展開される。楽勝だろ。</li>
-        </ol>
-
-        <h4>STEP 2: コンボを組み立てる。</h4>
-        <ol>
-          <li><strong>「<i class="fa-solid fa-plus"></i> コンボを追加」</strong>で新しいコンボ欄を作る。</li>
-          <li><strong>「<i class="fa-solid fa-check-double"></i>
-              組合せ」</strong>で、使うエフェクトとアイテムを選ぶ。チェック入れるだけ。</li>
-          <li>コンボ計算バーの<strong>「使用技能」</strong>あたりを調整。大体は自動で賢くやってくれるけど、まあ、好みでいじってくれ。</li>
-        </ol>
-
-        <h4>STEP 3: パレットをコピー。終わり。</h4>
-        <ol>
-          <li>コンボの下に、もう<strong>チャットパレットが出来上がってる</strong>。説明文とダイス式の2段構えだ。</li>
-          <li>それぞれの右にある<strong>コピーボタン<i class="fa-solid fa-paste"></i></strong> をクリック。</li>
-          <li>あとはココフォリアに貼るだけ。マジでこれだけ。</li>
-        </ol>
-
-        <h3>もっと深く知りたい？ならアドバンス機能だ。</h3>
-        <p>このツールのヤバさは、ここからかもしれない。</p>
-
-        <h4><i class="fa-solid fa-database"></i> 全部保存。</h4>
-        <ul>
-          <li><strong>「<i class="fas fa-save"></i> 保存」</strong>: 作ったビルドは、URLに紐づけてDBに保存できる。データが飛ぶ心配はない。</li>
-          <li><strong>「<i class="fas fa-cloud-download-alt"></i> 読込/引用」</strong>: 保存したビルドはいつでも一発で呼び出せる。セッション直前の準備も余裕。
-          </li>
-        </ul>
-        <h4><i class="fa-solid fa-gear"></i> 「詳細設定」計算をして適用させよう。</h4>
-        <p>
-          ここがキモ。<strong>歯車ボタン<i class="fa-solid fa-gear"></i></strong>から、計算の裏側を全部入力できる。一度設定すれば、あとは全自動だ。
-        </p>
-        <ul>
-          <li><strong>【重要】アイテム攻撃力の連携機能</strong>
-            <ul>
-              <li>アイテムの攻撃力設定は、リストの<strong>「攻撃力」欄</strong>と<strong>詳細設定の「ATK」タブ</strong>が<strong>完全に同期する</strong>。</li>
-              <li>例えば、攻撃力欄に<code>LV*4+2</code>と入力すれば、詳細設定のATKが「固定値: 2」「Lv毎加算: 4」に自動で変わる。</li>
-              <li>逆に、詳細設定をいじれば、それがリアルタイムで攻撃力欄の式に反映される。どっちからでも入力できるから、好きな方を使ってくれ。</li>
-            </ul>
-          </li>
-          <li><strong>ダイス・固定値・追加攻撃力の定義</strong>
-            <ul>
-              <li><strong>固定値:</strong> コンボに乗る固定値を入力する。</li>
-              <li><strong>Lv毎加算:</strong> LVで効果がスケールするやつはここ。「LV*2」なら「2」と入れれば、あとは勝手に計算してくれる。</li>
-            </ul>
-          </li>
-          <li><strong>C値の下げ方</strong>
-            <ul>
-              <li><strong>固定補正/Lv毎補正:</strong> C値を下げる効果を入力。シンプルに引いてくれる。</li>
-              <li><strong>C値 下限:</strong> C値の最低ライン。「7」とかで設定しとけば、それ以下にはならない。計算ミスがなくて最高。</li>
-            </ul>
-          </li>
-        </ul>
-
-        <h4><i class="fa-solid fa-wand-magic-sparkles"></i> 色々賢くやってくれる機能。</h4>
-        <ul>
-          <li><strong>リアルタイム計算バー</strong>:
-            ダイスとかC値とか、全部リアルタイムで自動計算される。数字にカーソル乗せれば、計算の内訳も見える。</li>
-          <li><strong>対象・射程の自動判別＆手動上書き</strong>:
-            どの効果が優先されるか、ルールに従ってツールが勝手に判断する。気に入らなければ「手動」に切り替えて上書きもできるぞ。</li>
-          <li><strong>オーヴァードの義務教育「コンセントレイト」にも対応！:</strong>
-            エフェクト名に「コンセントレイト」と入力するだけで、ツールがそれを認識して、C値を下げるための面倒な詳細設定を<strong>全部自動でやってくれる</strong>。マジで賢いだろ。
-          </li>
-
-          <li><strong>効果テキストの動的生成がえぐい</strong>:
-            <ul>
-              <li><strong>自動転記:</strong> エフェクトの効果、いい感じにまとめてくれる。</li>
-              <li>
-                <strong>解説のLv自動計算:</strong>
-                これが本命。効果文に<code>攻撃力+[LV*5]</code>みたいに書いとけば、今のLVで自動計算してくれる。LV4なら「攻撃力+20」になる。<code>[LV]</code>って囲むのだけ忘れんな。
-              </li>
-            </ul>
-          </li>
-        </ul>
-
-        <h4><i class="fa-solid fa-ghost"></i> 隠し味としてのバフ。</h4>
-        <p>マイナーアクションのバフみたいに、「コンボ名はスッキリさせたいけど、効果は乗せたい」って時あるだろ？そういう時はこれだ。</p>
-        <ul>
-          <li><strong>「コンボ」ボタンの切り替え:</strong>
-            エフェクトやアイテムを選ぶ時、右側にある「コンボ」ボタンをオフにすると、その効果はコンボ名に表示されなくなる。でも、ダイスやC値の計算にはちゃんと反映されるから安心しろ。</li>
-          <li><strong>(+α)インジケーター:</strong> コンボ名に表示されないバフがある場合、「組合せ」ボタンの横に「(+α)」って表示が出る。カーソルを合わせれば、どの隠しバフが乗ってるか確認できるぞ。
-          </li>
-        </ul>
-        <p>じゃ、あとはこのツールで自分だけの最強コンボ、作り込んでくれ。</p>
-      </div>
-    </details>
-    -->
-
-    <details class="usage-guide plain-text-block">
-      <summary>
-        <div class="summary-content">
-          <h2><i class="fa-solid fa-book-open-reader"></i> DX3コンボジェネレーター、120%使いこなしてる？</h2>
-          <p class="subtitle">面倒な計算はツールにお任せ!「係数」の謎もここで解明するよ。</p>
-        </div>
-      </summary>
-      <div class="content-wrapper">
-        <p>
-          ダブルクロスのコンボ計算って、侵蝕率ボーナスやエフェクトレベルの計算が混ざって大変だよね。<br>
-          このツールは、そんな計算を自動化して、すぐにココフォリアに貼り付けられるパレットを作ってくれるよ。<br>
-          一緒に最強のコンボを作ってみよう!
+          DX3のコンボを作るやつ。<a href="https://charasheet.vampire-blood.net/dx3_pc_making.html" target="_blank" rel="noopener noreferrer">キャラクター保管所</a>や<a href="https://yutorize.2-d.jp/ytsheet/dx3rd/" target="_blank" rel="noopener noreferrer">ゆとシート</a>を読んで、エフェクト・アイテムを拾って、<a href="https://ccfolia.com/" target="_blank" rel="noopener noreferrer">ココフォリア</a>に貼る用の宣言文と判定式を出す。<br>
+          キャラシ本体を書き換えるツールではないので、元データを直したいときはキャラシ側で直す。
         </p>
 
-        <h3>STEP 1: キャラクターを連れてこよう</h3>
-        <p>まずは、君のキャラクターデータを読み込むところからスタートだ。</p>
+        <h3>最初にやること</h3>
         <ol>
-          <li>画面上の<strong>「キャラクターシートURL」</strong>に、保管所やゆとシートのURLを貼り付けてね。</li>
-          <li><strong>「<i class="fas fa-cloud-download-alt"></i> 読込/引用」</strong>ボタンをポチッ!</li>
-          <li>確認画面が出るから「OK」を押せば、エフェクトやアイテムがズラッと並ぶはずだよ。</li>
+          <li><strong>キャラクターシートURL</strong>に<a href="https://charasheet.vampire-blood.net/dx3_pc_making.html" target="_blank" rel="noopener noreferrer">キャラクター保管所</a>か<a href="https://yutorize.2-d.jp/ytsheet/dx3rd/" target="_blank" rel="noopener noreferrer">ゆとシート</a>のURLを貼る。</li>
+          <li><strong><i class="fas fa-cloud-download-alt"></i> 読込/引用</strong>を押す。</li>
+          <li>保存済みデータがあればそれを読む。なければキャラシから引用。</li>
+          <li><strong>係数</strong>を確認して、必要なら推定や手入力で直す。</li>
+          <li><strong>コンボを追加</strong>して、<strong>組合せ</strong>からエフェクトや武器を選ぶ。</li>
+          <li>出力された<strong>宣言</strong>や<strong>判定式</strong>をコピーする。</li>
         </ol>
 
         <div class="tip-box">
-          <strong><i class="fa-solid fa-lightbulb"></i> ポイント:</strong><br>
-          保存機能を使うと、このツール専用のデータベースに保存できるから、次回からはもっとスムーズに呼び出せるよ。
+          <strong><i class="fa-solid fa-lightbulb"></i> ざっくり:</strong><br>
+          まずはURL読込だけでいい。細かい係数は、コンボを組んで数字が変だったところから直せばOK。
         </div>
 
-        <h3>STEP 2: ここが一番大事!「係数」を設定しよう</h3>
+        <h3>係数って何</h3>
         <p>
-          ここがこのツールの心臓部で、ちょっとだけ頭を使うところ。<br>
-          エフェクトの右側にある<strong>「係数」ボタン</strong>を押してみて。画面が出てくるよね?<br>
-          DX3のエフェクトは「LV × 〇〇」みたいに、レベルによって強さが変わるものが多いんだ。<br>
-          ツールに<strong>「どういう計算式なのか」</strong>を教えてあげる作業、それが係数設定だよ。
+          係数は、ダイス・達成値・攻撃力・C値の計算設定。<br>
+          たとえば <code>[LV×2+3]</code> なら「Lv毎=2、固定値=3」みたいに分けて入れる。<br>
+          各行の<strong>推定</strong>を押すと、効果文や備考から候補を拾う。候補を見てから反映できるし、直前の推定は<strong>戻す</strong>で戻せる。
         </p>
 
-        <h4><i class="fa-solid fa-chalkboard-user"></i> カンタン係数講座</h4>
-        <p>
-          難しく考えなくて大丈夫。「スタート地点(固定値)」と「1レベルごとの伸び幅(Lv毎加算)」に分けるだけ!
-        </p>
+        <h4><i class="fa-solid fa-chalkboard-user"></i> 係数の例</h4>
+        <p>ここは現状のパターンを残しておく。迷ったら近いやつを見る。</p>
 
         <div class="math-pattern-container">
           <div class="math-pattern-box">
             <h5>パターンA： <code>[LV×3]</code></h5>
-            <p>「Lv1ごとに3増える」ってこと。<br>一番シンプルなやつ。</p>
+            <p>Lv1ごとに3増える。</p>
             <div class="math-values">
               <div>Lv毎加算: <strong>3</strong></div>
               <div>固定値: <strong>0</strong></div>
@@ -185,7 +78,7 @@
 
           <div class="math-pattern-box">
             <h5>パターンB： <code>[LV+5]</code></h5>
-            <p>ここがつまずきポイント。<br>「LV」単体は「1×LV」のことだ。</p>
+            <p><code>LV</code>だけなら <code>1×LV</code> 扱い。</p>
             <div class="math-values">
               <div>Lv毎加算: <strong>1</strong></div>
               <div>固定値: <strong>5</strong></div>
@@ -194,40 +87,80 @@
 
           <div class="math-pattern-box">
             <h5>パターンC： <code>[LV×2-10]</code></h5>
-            <p>「Lv毎に2増えて、固定で-10」。<br>分解すれば簡単。</p>
+            <p>Lv毎に2増えて、固定で-10。</p>
             <div class="math-values">
               <div>Lv毎加算: <strong>2</strong></div>
               <div>固定値: <strong>-10</strong></div>
             </div>
           </div>
+
+          <div class="math-pattern-box">
+            <h5>パターンD： <code>+[LV+1]DX</code></h5>
+            <p>判定ダイスが <code>LV+1</code> 個増えるやつ。</p>
+            <div class="math-values">
+              <div>ダイス Lv毎: <strong>1</strong></div>
+              <div>ダイス 固定値: <strong>1</strong></div>
+            </div>
+          </div>
+
+          <div class="math-pattern-box">
+            <h5>パターンE： <code>-[5-LV] 最大0</code></h5>
+            <p>マイナスから始まって、Lvで0に近づくやつ。</p>
+            <div class="math-values">
+              <div>ATK固定値: <strong>-5</strong></div>
+              <div>ATK Lv毎: <strong>1</strong></div>
+              <div>ATK最大: <strong>0</strong></div>
+            </div>
+          </div>
+
+          <div class="math-pattern-box">
+            <h5>パターンF： <code>C値-1 下限6</code></h5>
+            <p>C値は「最終値」ではなく補正で入れる。</p>
+            <div class="math-values">
+              <div>C値 固定: <strong>-1</strong></div>
+              <div>C値 Lv毎: <strong>0</strong></div>
+              <div>C値 下限: <strong>6</strong></div>
+            </div>
+          </div>
         </div>
+
+        <h4><i class="fa-solid fa-triangle-exclamation"></i> C値だけ注意</h4>
         <p>
-          これを設定しておくと、コンボのLvが上がったり、タイタスでLvボーナスが入っても、ツールが勝手に正しい数字を計算してくれるんだ。<br>
-          (※「コンセントレイト」と名前のつくエフェクトは、自動でC値の設定が入るからそのままでOKだよ!)
+          C値は補正値で考える。<br>
+          コンセントレイト/リフレックスなら <strong>C値 固定=0 / Lv毎=-1 / 下限=7</strong>。<br>
+          つまりLv2なら「10-2」でC値8、Lv3ならC値7。下限7なのでそれより下にはならない。
         </p>
 
-        <h3>STEP 3: コンボを組み立てよう</h3>
-        <p>準備ができたら、いよいよコンボ作成だ!</p>
-        <ol>
-          <li>下の方にある<strong>「<i class="fa-solid fa-plus"></i> コンボを追加」</strong>ボタンを押す。</li>
-          <li><strong>「<i class="fa-solid fa-check-double"></i> 組合せ」</strong>ボタンを押して、使いたいエフェクトや武器にチェックを入れる。<br>
-            <small>※ここに表示される数字は、さっき設定した「係数」を元に計算されているよ。</small>
-          </li>
-          <li><strong>「使用技能」</strong>をチェック。基本は自動で選ばれるけど、変えたいときはプルダウンから選んでね。</li>
-        </ol>
-
-        <h3>STEP 4: 仕上げと出力</h3>
-        <p>コンボができたら、実際のセッションで使うテキストを整えよう。</p>
+        <h3>係数モード / 詳細モード</h3>
         <ul>
-          <li><strong>条件設定:</strong> タイミングや射程、対象などは、選んだエフェクトから自動で判断してくれるけど、「手動」に切り替えれば好きに書き換えられるよ。</li>
-          <li><strong>解説文の魔法:</strong> 効果解説の欄に <code>攻撃力+[LV*5]</code> みたいに書くと、計算後の数値に変換されるよ! <code>[ ]</code> で囲むのがコツ。
-          </li>
-          <li><strong>コピーしてGO:</strong> 最後に、右側にある<strong>コピーボタン <i class="fa-solid fa-paste"></i></strong>
-            を押せば、ココフォリア用のパレットが一丁上がり!</li>
+          <li><strong>係数:</strong> ダイス、達成値、ATK、C値をまとめて触る画面。見出しにカーソルを乗せると説明が出る。</li>
+          <li><strong>詳細:</strong> タイミング、技能、対象、射程、効果文、備考を見る画面。キャラシ由来の情報確認用。</li>
+          <li><strong>推定:</strong> 効果文から係数候補を出す。全部信じるというより、候補を見て採用する感じ。</li>
+        </ul>
+
+        <h3>コンボを作る</h3>
+        <ol>
+          <li><strong>コンボを追加</strong>を押す。</li>
+          <li><strong>組合せ</strong>で使うエフェクト・アイテムにチェックを入れる。</li>
+          <li><strong>使用技能</strong>、タイミング、対象、射程を確認する。自動で変な時は手動にする。</li>
+          <li>宣言文と判定式を確認してコピー。</li>
+        </ol>
+        <ul>
+          <li><strong>コンボ名:</strong> 書き忘れると、出力では <strong>コンボ名入れて！！！！</strong> になる。気づいたらちゃんと名前を入れる。</li>
+          <li><strong>フレーバー:</strong> 空欄なら <code>『』</code> は出ない。必要なコンボだけ書けばいい。</li>
+          <li><strong>隠しバフ:</strong> 組合せ画面で「コンボ」をオフにすると、名前には出さずに計算だけ乗せる。マイナーのバフとかに使う。</li>
+        </ul>
+
+        <h3>コピーと保存</h3>
+        <ul>
+          <li><strong>宣言:</strong> コンボ名、組合せ、フレーバー、侵蝕値などを出す。</li>
+          <li><strong>判定式:</strong> ダイス式だけ出す。メジャーじゃないコンボには基本出ない。</li>
+          <li><strong>保存:</strong> キャラシURLに紐づけて保存する。次回は読込で戻せる。</li>
+          <li><strong><a href="koma-maker.html">コマメーカー連携</a>:</strong> 同じURLで保存したコンボデータは、コマメーカー側でコマの commands 下部に付けられる。</li>
         </ul>
 
         <div class="final-message">
-          <p>これでもう、複雑な計算に頭を悩ませる必要ナシ!<br>浮いた時間で、最高にかっこいいロールプレイを考えちゃおう!</p>
+          <p>まずは雑に組んで、数字がズレたら係数を直す。だいたいその流れでいける。</p>
         </div>
       </div>
     </details>
@@ -247,7 +180,12 @@
 
     <div id="dx3-app" class="plain-text-block" v-cloak>
 
-      <div class="top-info-wrapper">
+      <section class="dx3-mode-tabs" role="tablist" aria-label="モード切替">
+        <button type="button" class="dx3-mode-tab" :class="{ active: appMode === 'pc' }" @click="switchAppMode('pc')">PCコンボ</button>
+        <button type="button" class="dx3-mode-tab" :class="{ active: appMode === 'enemy' }" @click="switchAppMode('enemy')">エネミー作成</button>
+      </section>
+
+      <div class="top-info-wrapper" v-if="appMode === 'pc'">
         <div class="db-sync-container">
           <div class="db-sync-block">
             <label class="db-url-input">
@@ -284,11 +222,203 @@
         <!-- <p>タグをこの位置に移動 -->
       </div>
 
+      <section class="dx3-enemy-mode-panel" v-if="appMode === 'enemy'">
+        <header class="dx3-enemy-common-header pane-header">
+          <div class="dx3-enemy-title-block">
+            <h2><i class="fa-solid fa-skull-crossbones"></i> DX3rd エネミーシート</h2>
+            <span class="dx3-enemy-header-note">DX敵テンプレ寄せ。キャラシ読込なしでここで作る。</span>
+          </div>
+          <div class="dx3-enemy-sample-actions" aria-label="サンプルデータ">
+            <button type="button" class="action-btn is-sub dx3-enemy-sample-btn" @click="loadDx3EnemySpringKyojiSample">
+              <i class="fa-solid fa-flask"></i> 春日恭二サンプル
+            </button>
+            <span class="dx3-enemy-sample-note">テスト用のエフェクト・コンボを一括投入</span>
+          </div>
+        </header>
+
+        <section class="dx3-enemy-action-bar editor-action-bar">
+          <div class="action-bar-left enemy-action-left">
+            <button type="button" class="action-btn is-sub" @click="newDx3Enemy"><i class="fa-solid fa-file"></i> 新規白紙</button>
+            <button type="button" class="action-btn is-danger" @click="deleteDx3Enemy" :disabled="isBusy || !enemySheet.ID"><i class="fa-solid fa-trash-can"></i> 削除</button>
+            <button type="button" class="action-btn is-sub" @click="loadDx3EnemyList" :disabled="isBusy"><i class="fa-solid fa-rotate-right"></i> DB再読込</button>
+          </div>
+          <div class="action-bar-right enemy-action-right">
+            <button type="button" class="action-btn is-main" @click="shareDx3Enemy" :disabled="!enemySheet.ID"><i class="fa-solid fa-share-nodes"></i> 共有</button>
+            <button type="button" class="action-btn is-sub" @click="openDx3EnemyView" :disabled="!enemySheet.ID"><i class="fa-solid fa-eye"></i> 閲覧</button>
+            <button type="button" class="action-btn is-main" @click="saveDx3Enemy(true)" :disabled="isBusy"><i class="fa-solid fa-copy"></i> 別名保存</button>
+            <button type="button" class="action-btn is-main" @click="saveDx3Enemy(false)" :disabled="isBusy"><i class="fa-solid fa-cloud-arrow-up"></i> {{ enemySheet.ID ? '上書き保存' : '新規保存' }}</button>
+            <button type="button" class="action-btn is-copy" @click="exportDx3EnemyKomaJson"><i class="fa-solid fa-dice-d20"></i> 駒出力</button>
+          </div>
+          <div class="action-bar-meta enemy-action-meta">
+            <label class="action-meta-field"><span>作者</span><input type="text" v-model.trim="enemySheet.author" placeholder="例: エンJ"></label>
+            <label class="action-meta-field is-icon"><span>立ち絵URL</span><input type="url" v-model.trim="enemySheet.icon_url" placeholder="https://storage.ccfolia-cdn.net/users/..."></label>
+            <label class="public-switch-label">
+              <span class="public-switch-wrap">
+                <input class="switch" type="checkbox" v-model="enemySheet.is_public">
+                <span class="public-switch-text">{{ enemySheet.is_public ? '公開' : '非公開' }}</span>
+              </span>
+            </label>
+            <span class="enemy-compact-flags" aria-label="コマ出力オプション">
+              <label class="enemy-compact-flag"><input type="checkbox" v-model="enemyData.hideStatus"><span>ステータス非公開</span></label>
+              <label class="enemy-compact-flag"><input type="checkbox" v-model="enemyData.secret"><span>盤面一覧非表示</span></label>
+              <label class="enemy-compact-flag"><input type="checkbox" v-model="enemyData.hpAsDamage"><span>HPを与ダメに</span></label>
+            </span>
+          </div>
+        </section>
+
+        <section class="dx3-enemy-editor-pane dx3-enemy-template-pane">
+          <details class="dx3-collapsible-section dx3-enemy-basic-section" open>
+            <summary class="dx3-collapsible-summary"><h3>基本情報</h3><span>名前・解説まわり</span></summary>
+          <div class="enemy-template-top-grid">
+            <div class="enemy-ruby-field enemy-ruby-field-name">
+              <span class="enemy-ruby-label">キャラクター名</span>
+              <input class="enemy-ruby-input" type="text" v-model="enemyData.nameKana" placeholder="カスガ キョウジ" aria-label="キャラクター名の読み">
+              <input class="enemy-main-input" type="text" v-model="enemySheet.name" placeholder="春日恭二" aria-label="キャラクター名">
+            </div>
+            <div class="enemy-ruby-field enemy-ruby-field-code">
+              <span class="enemy-ruby-label">コードネーム</span>
+              <input class="enemy-ruby-input" type="text" v-model="enemyData.codenameKana" placeholder="" aria-label="コードネームの読み">
+              <input class="enemy-main-input" type="text" v-model="enemyData.codename" placeholder="ディアボロス" aria-label="コードネーム">
+            </div>
+          </div>
+          <div class="enemy-text-grid">
+            <label class="enemy-memo-field">解説（コマに乗る）<textarea v-model="enemyData.explanation" placeholder="ココフォリアのコマmemoに入る説明"></textarea></label>
+            <label class="enemy-memo-field">立ち回りとか（コマに乗らない）<textarea v-model="enemyData.tactics" placeholder="GM用メモ。駒出力には入れない"></textarea></label>
+          </div>
+
+          </details>
+
+          <datalist id="dx3SyndromeList">
+            <option v-for="name in dx3SyndromeNames" :key="name" :value="name"></option>
+          </datalist>
+
+          <div class="dx3-enemy-ability-skill-grid">
+          <details class="dx3-collapsible-section dx3-enemy-ability-section" open>
+            <summary class="dx3-collapsible-summary"><h3>能力値・HP</h3><span>能力値とHP系の計算</span></summary>
+          <div class="enemy-ability-breakdown enemy-ability-matrix-block">
+            <div class="enemy-ability-breakdown-head">
+              <span>能力値・HP</span>
+              <small>シンドローム行を積んで、白い行で手入力する。シンドローム1個なら2倍、2個なら加算、オプショナルは表示のみ。</small>
+            </div>
+            <div class="enemy-ability-matrix-wrap">
+              <table class="enemy-ability-matrix">
+                <thead>
+                  <tr>
+                    <th class="ability-row-label-head">名前</th>
+                    <th v-for="def in dx3EnemyAbilityDefs" :key="def.key">{{ def.label }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(label, index) in ['シンドローム①', 'シンドローム②', 'オプショナル']" :key="label" :class="['syndrome-source-row', index === 2 ? 'is-optional' : '']">
+                    <th class="ability-row-label">
+                      <span>{{ label }}</span>
+                      <select v-model="enemyData.syndromes[index]" class="enemy-syndrome-select">
+                        <option value=""></option>
+                        <option v-for="name in dx3SyndromeNames" :key="name" :value="name">{{ name }}</option>
+                        <option value="free">その他（自由記入）</option>
+                      </select>
+                    </th>
+                    <td v-for="def in dx3EnemyAbilityDefs" :key="def.key"><input type="number" :value="dx3EnemySyndromeRows[index][def.key]" readonly></td>
+                  </tr>
+                  <tr class="manual-source-row">
+                    <th class="ability-row-label"><span>その他修正</span></th>
+                    <td v-for="def in dx3EnemyAbilityDefs" :key="def.key"><input type="number" v-model.number="enemyData.abilityOther[def.key]"></td>
+                  </tr>
+                  <tr class="ability-total-row">
+                    <th class="ability-row-label"><span>{{ dx3EnemyAutoBreedLabel || '能力値' }}</span></th>
+                    <td v-for="def in dx3EnemyAbilityDefs" :key="def.key"><input type="number" :value="dx3EnemyDisplayAbilities[def.key]" readonly></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="enemy-stat-stack-grid" aria-label="HP・侵蝕率・行動値など">
+              <div class="enemy-stat-stack-card" v-for="stat in dx3EnemyStatDefs" :key="stat.key" :class="stat.key === 'erosion' ? 'is-erosion' : ''">
+                <div class="enemy-stat-stack-title">{{ stat.label }}</div>
+                <div class="enemy-stat-stack-formula" v-if="stat.key === 'erosion'">
+                  <input type="text" v-model="enemyData.statBase.erosion" :title="getDx3EnemyStatFormulaLabel(stat.key)" aria-label="侵蝕率" inputmode="numeric">
+                  <span class="enemy-stat-equals">=</span>
+                  <em class="enemy-erosion-dice-chip">{{ dx3EnemyErosionDice }}D</em>
+                </div>
+                <div class="enemy-stat-stack-formula" v-else>
+                  <template v-if="isDx3EnemyDerivedStatBase(stat.key)">
+                    <input type="number" :value="getDx3EnemyDerivedStatBase(stat.key)" readonly :title="getDx3EnemyStatFormulaLabel(stat.key)" aria-label="自動算出値">
+                  </template>
+                  <template v-else>
+                    <input type="number" v-model.number="enemyData.statBase[stat.key]" :title="getDx3EnemyStatFormulaLabel(stat.key)" aria-label="初期値">
+                  </template>
+                  <span>+</span>
+                  <input type="number" v-model.number="enemyData.statOther[stat.key]" aria-label="その他修正">
+                  <span>=</span>
+                  <strong>{{ dx3EnemyFinalStats[stat.key] }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          </details>
+
+          <details class="enemy-skill-block dx3-collapsible-section" open>
+            <summary class="enemy-section-head dx3-collapsible-summary enemy-skill-summary">
+              <div class="enemy-skill-summary-main">
+                <h3>技能</h3>
+                <button type="button" class="action-btn is-sub enemy-skill-add-btn" @click.stop.prevent="addDx3EnemySkillRow"><i class="fa-solid fa-plus"></i> 技能追加</button>
+              </div>
+              <span>基本行は固定。足りない技能は追加、追加行だけ削除できる。</span>
+            </summary>
+            <div class="enemy-skill-table-wrap">
+              <table class="enemy-skill-table">
+                <colgroup>
+                  <col class="enemy-skill-col-name">
+                  <col class="enemy-skill-col-spec">
+                  <col class="enemy-skill-col-ability">
+                  <col class="enemy-skill-col-num">
+                  <col class="enemy-skill-col-num">
+                  <col class="enemy-skill-col-num">
+                  <col class="enemy-skill-col-output">
+                  <col class="enemy-skill-col-note">
+                  <col class="enemy-skill-col-action">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>技能名</th><th>指定</th><th>能力</th><th>Lv</th><th>追加D</th><th>修正</th><th>出力</th><th>備考</th><th class="enemy-skill-action-head">削除</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, index) in enemyData.skillRows" :key="index" :data-skill-group="getDx3EnemySkillColorKey(row)" :class="{ 'is-fixed-skill-row': isDx3EnemyFixedNoSpecSkill(row), 'is-custom-skill-row': row && row.isCustom }">
+                    <td v-if="isDx3EnemyFixedNoSpecSkill(row)" colspan="2" class="enemy-skill-fixed-label"><span>{{ row.name }}</span></td>
+                    <template v-else>
+                      <td>
+                        <input v-if="row && row.isCustom" type="text" v-model="row.name" placeholder="情報">
+                        <span v-else class="enemy-skill-fixed-name">{{ row.name }}</span>
+                      </td>
+                      <td><input type="text" v-model="row.spec" placeholder="裏社会など"></td>
+                    </template>
+                    <td class="enemy-skill-ability-cell">
+                      <select v-model="row.ability">
+                        <option value="肉体">肉体</option><option value="感覚">感覚</option><option value="精神">精神</option><option value="社会">社会</option>
+                      </select>
+                    </td>
+                    <td class="enemy-skill-num-cell"><input class="enemy-skill-num-input" type="number" v-model.number="row.level"></td>
+                    <td class="enemy-skill-num-cell"><input class="enemy-skill-num-input" type="number" v-model.number="row.dice"></td>
+                    <td class="enemy-skill-num-cell"><input class="enemy-skill-num-input" type="number" v-model.number="row.mod"></td>
+                    <td class="enemy-skill-output">{{ formatDx3EnemySkillOutput(row) }}</td>
+                    <td><input type="text" v-model="row.note"></td>
+                    <td class="enemy-skill-action-cell">
+                      <button v-if="canRemoveDx3EnemySkillRow(index, row)" type="button" class="delete-btn enemy-skill-delete-btn" @click="removeDx3EnemySkillRow(index)" title="追加技能を削除"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
+          </div>
+        </section>
+      </section>
+
       <div class="all-tables-container">
         <div class="sheet-source-controls">
           <div class="sheet-source-note">
-            <strong>エフェクト情報はキャラクターシート側で編集してください。</strong>
-            <span>この画面では係数とコンボを設定します。必要な時だけ編集ロックを解除できます。</span>
+            <strong>{{ appMode === 'enemy' ? 'エネミー用はここで完結。キャラシ読込なしで直接作ります。' : 'エフェクト情報はキャラクターシート側で編集してください。' }}</strong>
+            <span>{{ appMode === 'enemy' ? 'エフェクト欄は常に編集できます。係数とコンボを作って、そのまま駒出力できます。' : 'この画面では係数とコンボを設定します。必要な時だけ編集ロックを解除できます。' }}</span>
           </div>
           <div class="sheet-source-actions">
             <div class="display-mode-toggle" role="group" aria-label="エフェクト表示モード">
@@ -299,17 +429,16 @@
                 詳細
               </button>
             </div>
-            <button type="button" class="btn-sheet-refresh" @click="refreshSheetData" :disabled="isBusy || !characterSheetUrl" title="現在のキャラクターシートURLからエフェクトとアイテムを再取得します。コンボは維持されます。">
+            <button v-if="appMode === 'pc'" type="button" class="btn-sheet-refresh" @click="refreshSheetData" :disabled="isBusy || !characterSheetUrl" title="現在のキャラクターシートURLからエフェクトとアイテムを再取得します。コンボは維持されます。">
               <i class="fa-solid fa-rotate"></i> キャラシから更新
             </button>
-            <button type="button" class="btn-edit-toggle" @click="effectFieldsEditable = !effectFieldsEditable" :class="{ active: effectFieldsEditable }">
+            <button v-if="appMode === 'pc'" type="button" class="btn-edit-toggle" @click="effectFieldsEditable = !effectFieldsEditable" :class="{ active: effectFieldsEditable }">
               <i class="fa-solid" :class="effectFieldsEditable ? 'fa-lock-open' : 'fa-lock'"></i>
               {{ effectFieldsEditable ? 'エフェクト欄をロック' : 'エフェクト欄を編集' }}
             </button>
           </div>
         </div>
-        <h2 class="section-title"><i class="fa-solid fa-bolt"></i> エフェクト <span class="xp-display">(使用経験点: {{ effectXp
-            }})</span></h2>
+        <h2 class="section-title"><i class="fa-solid fa-bolt"></i> エフェクト <span class="xp-display" v-if="appMode === 'pc'">(使用経験点: {{ effectXp }})</span><span class="xp-display" v-else>(エネミー用)</span></h2>
         <div v-if="effectDisplayMode === 'combo'" class="table-wrapper compact-table-wrapper">
           <table class="dx3-table combo-source-table combo-source-table-v34">
             <colgroup>
@@ -660,7 +789,7 @@
       <h2 class="section-title"><i class="fa-solid fa-cubes-stacked"></i> コンボデータ</h2>
       <div v-for="(combo, index) in processedCombos" class="combo-block">
         <div class="combo-header">
-          <input type="text" v-model="combos[index].name" class="combo-name-input" placeholder="コンボ名入れて！！！！">
+          <input type="text" v-model="combos[index].name" class="combo-name-input"  :placeholder="comboPlaceholderName(index)">
           <span v-if="combo.maxLimit" class="limit-chip">{{ combo.maxLimit }}</span>
           <label class="combo-level-select">コンボLv:<select v-model.number="combos[index].comboLevelBonus">
               <option v-for="n in 6" :value="n-1">+{{ n-1 }}</option>
@@ -788,6 +917,113 @@
 
       </div>
       <button @click="addCombo" class="add-btn"><i class="fa-solid fa-plus"></i> コンボを追加</button>
+
+      <details v-if="appMode === 'enemy'" class="enemy-list-collapsible dx3-enemy-community-pane" open aria-label="みんなのエネミー">
+        <summary>
+          <h2 class="enemy-list-title">みんなのエネミー</h2>
+        </summary>
+        <div class="enemy-list-pane dx3-enemy-community-list-pane">
+          <div class="list-head">
+            <h2>エネミー一覧</h2>
+            <span class="enemy-list-count">{{ filteredDx3EnemyList.length }}件</span>
+          </div>
+          <div class="enemy-sort-row dx3-enemy-community-controls" aria-label="DX3エネミー一覧ソート">
+            <button type="button" class="sort-chip" :class="dx3EnemySortButtonClass('id')" @click="setDx3EnemySort('id')">ID順</button>
+            <button type="button" class="sort-chip" :class="dx3EnemySortButtonClass('time')" @click="setDx3EnemySort('time')">更新順</button>
+            <button type="button" class="sort-chip" :class="dx3EnemySortButtonClass('name')" @click="setDx3EnemySort('name')">名前</button>
+            <button type="button" class="sort-chip" :class="dx3EnemySortButtonClass('author')" @click="setDx3EnemySort('author')">作者</button>
+            <button type="button" class="sort-chip" :class="dx3EnemySortButtonClass('class')" @click="setDx3EnemySort('class')">種別</button>
+            <div class="enemy-list-controls" aria-label="エネミー表示件数">
+              <label for="dx3EnemyPageSizeInput">表示件数</label>
+              <input id="dx3EnemyPageSizeInput" class="enemy-page-size-input" type="number" min="0" step="1" v-model.number="dx3EnemyPageSize" @change="normalizeDx3EnemyPageSize" inputmode="numeric" aria-label="表示件数（空欄は10、0で全部）">
+              <button type="button" class="enemy-show-all-btn" @click="setDx3EnemyPageSize(0)" title="0を入れて全部表示にする">0（全部）</button>
+              <button type="button" class="enemy-show-all-btn" @click="setDx3EnemyPageSize(10)" title="10件表示に戻す">10</button>
+            </div>
+            <div class="enemy-list-pager enemy-list-pager-inline" aria-live="polite">
+              <button type="button" class="pager-btn" @click="moveDx3EnemyPage(-1)" :disabled="dx3EnemyCurrentPage <= 1">前へ</button>
+              <span class="enemy-list-pager-info">{{ dx3EnemyPagerInfo }}</span>
+              <button type="button" class="pager-btn" @click="moveDx3EnemyPage(1)" :disabled="dx3EnemyCurrentPage >= dx3EnemyTotalPages">次へ</button>
+            </div>
+          </div>
+          <div class="enemy-search-row" aria-label="エネミー一覧検索">
+            <div class="search-input-group">
+              <select class="enemy-search-field-select" v-model="enemySearchField">
+                <option value="all">ごちゃ混ぜ</option>
+                <option value="name">名前</option>
+                <option value="author">作者</option>
+                <option value="class">種別</option>
+                <option value="memo">メモ</option>
+                <option value="id">ID</option>
+              </select>
+              <input class="enemy-search-input" type="search" v-model.trim="enemySearch" placeholder="検索...">
+            </div>
+            <button type="button" class="action-btn is-sub enemy-list-reload-btn" @click="loadDx3EnemyList" :disabled="isBusy"><i class="fa-solid fa-rotate-right"></i> DB再読込</button>
+          </div>
+        <ul class="enemy-list dx3-enemy-community-list" v-if="dx3EnemyVisibleList.length">
+          <li class="enemy-list-item"
+            v-for="enemy in dx3EnemyVisibleList"
+            :key="enemy.ID || enemy.name"
+            :class="{ 'is-active': String(enemySheet.ID || '') === String(enemy.ID || '') }">
+            <div class="dx3-enemy-list-card enemy-list-card"
+              :data-enemy-type="enemy.class_type || 'ジャーム'"
+              @click="loadDx3Enemy(enemy)">
+              <i class="fa-solid fa-burst enemy-list-bg-icon" aria-hidden="true"></i>
+              <span class="enemy-list-row">
+                <span class="enemy-list-side-left">
+                  <span class="enemy-metric-badge dx3-erosion-badge">
+                    <span class="erosion-label">侵</span>
+                    <span class="erosion-value">{{ dx3EnemyListErosion(enemy) }}</span>
+                  </span>
+                  <span class="enemy-list-icon-wrap">
+                    <img v-if="enemy.icon_url" :src="enemy.icon_url" alt="">
+                    <i v-else class="fa-solid fa-skull-crossbones" aria-hidden="true"></i>
+                  </span>
+                </span>
+
+                <span class="enemy-list-content-main">
+                  <span class="enemy-list-upper-info">
+                    <span class="enemy-list-name">{{ enemy.name || '名称未設定' }}</span>
+                    <span class="enemy-list-meta-tags">
+                      <span class="enemy-list-meta-tag is-stat">HP {{ dx3EnemyListValue(enemy, 'hp', '-') }}</span>
+                      <span class="enemy-list-meta-tag is-stat">行動 {{ dx3EnemyListValue(enemy, 'initiative', '-') }}</span>
+                      <span class="enemy-list-meta-tag is-stat">装甲 {{ dx3EnemyListValue(enemy, 'armor', '-') }}</span>
+                    </span>
+                  </span>
+                  <span class="enemy-list-lower-info">
+                    <span>ID：{{ enemy.ID || '-' }}</span>
+                    <span v-if="enemy.author">{{ dx3EnemyCreditLabel(enemy.author) }}：{{ enemy.author }}</span>
+                  </span>
+                </span>
+
+                <span class="enemy-list-side-right-group">
+                  <span class="enemy-list-meta-column">
+                    <span class="enemy-list-badge-row">
+                      <span class="enemy-public-badge" :class="enemy.is_public === false || String(enemy.is_public).toLowerCase() === 'false' ? 'is-private' : 'is-public'">
+                        {{ enemy.is_public === false || String(enemy.is_public).toLowerCase() === 'false' ? '非公開' : '公開' }}
+                      </span>
+                      <span class="enemy-list-class-tag">{{ enemy.class_type || '種別未設定' }}</span>
+                    </span>
+                    <span class="enemy-list-time-tag">{{ enemy.time || '-' }}</span>
+                  </span>
+                  <span class="enemy-list-btns-row">
+                    <button type="button" class="list-side-btn is-view" @click.stop="viewDx3EnemyFromList(enemy)" title="閲覧">
+                      <i class="fa-solid fa-eye"></i><br>閲覧
+                    </button>
+                    <button type="button" class="list-side-btn is-load" @click.stop="loadDx3Enemy(enemy)" title="編集">
+                      <i class="fa-solid fa-pen-to-square"></i><br>編集
+                    </button>
+                    <button type="button" class="list-side-btn is-output" @click.stop="exportDx3EnemyFromList(enemy)" title="出力">
+                      <i class="fa-solid fa-file-export"></i><br>出力
+                    </button>
+                  </span>
+                </span>
+              </span>
+            </div>
+          </li>
+        </ul>
+        <p class="dx3-enemy-community-empty" v-else>まだ表示できるエネミーがない。保存かDB再読込をしてみる。</p>
+        </div>
+      </details>
 
       <div v-if="isPanelOpen" class="floating-panel" :style="panelStyle" @click.stop>
         <div class="panel-header">
@@ -982,6 +1218,7 @@
 
   <button onclick="topFunction()" id="backToTopBtn" title="トップへ戻る">▲</button>
   <script src="js/common.js"></script>
+  <script src="js/enemies-shared.js"></script>
 
 
   <script src="js/dx3_combo_generator.js"></script>

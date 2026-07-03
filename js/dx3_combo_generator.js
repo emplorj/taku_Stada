@@ -21,6 +21,7 @@ Vue.component("input-with-dropdown", {
     };
   },
   methods: {
+
     toggleDropdown(event) {
       if (this.disabled || this.options.length === 0) {
         return;
@@ -72,6 +73,55 @@ new Vue({
   el: "#dx3-app",
   data: {
     isGuideOpen: false,
+    appMode: "pc",
+    enemySheet: { ID: "", author: "", name: "", class_type: "DX3", is_public: true, memo: "", icon_url: "", time: "" },
+    enemyData: {
+      nameKana: "",
+      codename: "",
+      codenameKana: "",
+      breed: "",
+      syndromes: ["", "", ""],
+      explanation: "",
+      tactics: "",
+      hp: 30,
+      initiative: 5,
+      armor: 0,
+      guard: 0,
+      move: 10,
+      erosion: 100,
+      erosionDice: 3,
+      addErosionDiceToAbilityTotal: false,
+      hideStatus: false,
+      secret: false,
+      hpAsDamage: false,
+      abilities: { body: 3, sense: 3, mind: 3, social: 3 },
+      abilityAdds: { body: 0, sense: 0, mind: 0, social: 0 },
+      abilityGrowth: { body: 0, sense: 0, mind: 0, social: 0 },
+      abilityOther: { body: 0, sense: 0, mind: 0, social: 0 },
+      statBase: { hp: 30, erosion: 100, initiative: 5, armor: 0, move: 10 },
+      statGrowth: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
+      statOther: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
+      skills: { "白兵": 0, "射撃": 0, RC: 0, "交渉": 0 },
+      skillRows: [
+        { name: "白兵", spec: "", ability: "肉体", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "回避", spec: "", ability: "肉体", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "射撃", spec: "", ability: "感覚", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "知覚", spec: "", ability: "感覚", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "RC", spec: "", ability: "精神", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "意志", spec: "", ability: "精神", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "知識", spec: "", ability: "精神", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "交渉", spec: "", ability: "社会", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "調達", spec: "", ability: "社会", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "情報", spec: "裏社会", ability: "社会", level: 0, dice: 0, mod: 0, note: "" },
+      ],
+    },
+    dx3EnemyList: [],
+    enemySearch: "",
+    enemySearchField: "all",
+    dx3EnemySortKey: "time",
+    dx3EnemySortOrder: "desc",
+    dx3EnemyPage: 1,
+    dx3EnemyPageSize: 10,
     gasWebAppUrl:
       "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec",
     characterSheetUrl: "",
@@ -207,6 +257,17 @@ new Vue({
     },
   },
   created() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("mode") === "enemy") this.appMode = "enemy";
+      const enemyId = params.get("enemy") || params.get("enemyId");
+      if (enemyId) {
+        this.appMode = "enemy";
+        this.enemySheet.ID = String(enemyId);
+      }
+      const rememberedAuthor = localStorage.getItem("dx3EnemiesAuthor") || "";
+      if (rememberedAuthor) this.enemySheet.author = rememberedAuthor;
+    } catch (_e) {}
     this.effects = [
       {
         name: "ワーディング",
@@ -245,6 +306,9 @@ new Vue({
     this.addEasyEffect();
     this.addItem();
     this.addCombo();
+    if (this.appMode === "enemy") {
+      this.setupEnemyModeDefaults(true);
+    }
     this.$nextTick(() => {
       this.isDirty = false;
       const urlParams = new URLSearchParams(window.location.search);
@@ -264,6 +328,14 @@ new Vue({
         this.loadFromDb(true);
       }
       this.generateShareUrl();
+      if (this.appMode === "enemy") {
+        this.loadDx3EnemyList().then(() => {
+          if (this.enemySheet.ID) {
+            const found = this.dx3EnemyList.find((enemy) => String(enemy.ID) === String(this.enemySheet.ID));
+            if (found) this.loadDx3Enemy(found);
+          }
+        }).catch(() => {});
+      }
       this.$nextTick(() => {
         this.isInitializing = false;
         this.isDirty = false;
@@ -277,6 +349,121 @@ new Vue({
     window.removeEventListener("beforeunload", this.handleBeforeUnload);
   },
   computed: {
+    dx3EnemyAbilityDefs() {
+      return [
+        { key: "body", label: "肉体" },
+        { key: "sense", label: "感覚" },
+        { key: "mind", label: "精神" },
+        { key: "social", label: "社会" },
+      ];
+    },
+    dx3EnemyStatDefs() {
+      return [
+        { key: "hp", label: "HP" },
+        { key: "erosion", label: "侵蝕" },
+        { key: "initiative", label: "行動" },
+        { key: "armor", label: "装甲" },
+        { key: "move", label: "移動" },
+      ];
+    },
+    dx3SyndromeNames() {
+      return [
+        "エンジェルハィロゥ",
+        "バロール",
+        "ブラックドッグ",
+        "ブラム＝ストーカー",
+        "キュマイラ",
+        "エグザイル",
+        "ハヌマーン",
+        "モルフェウス",
+        "ノイマン",
+        "オルクス",
+        "サラマンダー",
+        "ソラリス",
+        "ウロボロス",
+        "ミストルティン",
+        "グレイプニル",
+        "アザトース",
+      ];
+    },
+    dx3EnemyAutoBreedLabel() {
+      return this.getDx3EnemyBreedLabel(this.enemyData);
+    },
+    dx3EnemySyndromeAbilityBase() {
+      return this.getDx3EnemySyndromeAbilityBase(this.enemyData);
+    },
+    dx3EnemySyndromeRows() {
+      return this.getDx3EnemySyndromeRows(this.enemyData);
+    },
+    dx3EnemyTotalAbilities() {
+      return this.getDx3EnemyTotalAbilities(this.enemyData);
+    },
+    dx3EnemyFinalStats() {
+      return this.getDx3EnemyFinalStats(this.enemyData);
+    },
+    dx3EnemyDisplayAbilities() {
+      return this.getDx3EnemyTotalAbilities(this.enemyData);
+    },
+    dx3EnemyErosionDice() {
+      const stats = this.getDx3EnemyFinalStats(this.enemyData);
+      return this.getErosionDice(stats.erosion);
+    },
+    filteredDx3EnemyList() {
+      const q = String(this.enemySearch || "").trim().toLowerCase();
+      const list = Array.isArray(this.dx3EnemyList) ? this.dx3EnemyList : [];
+      if (!q) return list;
+      const fieldMap = {
+        name: ["name"],
+        author: ["author"],
+        class: ["class_type"],
+        memo: ["memo"],
+        id: ["ID"],
+        all: ["name", "author", "class_type", "memo", "ID"],
+      };
+      const fields = fieldMap[this.enemySearchField] || fieldMap.all;
+      return list.filter((enemy) => fields.some((key) => String((enemy && enemy[key]) || "").toLowerCase().includes(q)));
+    },
+    sortedDx3EnemyList() {
+      const list = [...this.filteredDx3EnemyList];
+      const key = this.dx3EnemySortKey || "time";
+      const order = this.dx3EnemySortOrder === "asc" ? 1 : -1;
+      const read = (enemy) => {
+        if (!enemy) return "";
+        if (key === "id") return Number(enemy.ID) || String(enemy.ID || "");
+        if (key === "class") return String(enemy.class_type || "");
+        if (key === "time") return String(enemy.time || "");
+        return String(enemy[key] || "");
+      };
+      return list.sort((a, b) => {
+        const av = read(a);
+        const bv = read(b);
+        if (typeof av === "number" && typeof bv === "number") return (av - bv) * order;
+        return String(av).localeCompare(String(bv), "ja", { numeric: true, sensitivity: "base" }) * order;
+      });
+    },
+    dx3EnemyTotalPages() {
+      const size = Number(this.dx3EnemyPageSize) || 0;
+      if (size <= 0) return 1;
+      return Math.max(1, Math.ceil(this.sortedDx3EnemyList.length / size));
+    },
+    dx3EnemyCurrentPage() {
+      return Math.min(Math.max(1, Number(this.dx3EnemyPage) || 1), this.dx3EnemyTotalPages);
+    },
+    dx3EnemyVisibleList() {
+      const size = Number(this.dx3EnemyPageSize) || 0;
+      if (size <= 0) return this.sortedDx3EnemyList;
+      const start = (this.dx3EnemyCurrentPage - 1) * size;
+      return this.sortedDx3EnemyList.slice(start, start + size);
+    },
+    dx3EnemyPagerInfo() {
+      const total = this.sortedDx3EnemyList.length;
+      if (!total) return "0件";
+      const size = Number(this.dx3EnemyPageSize) || 0;
+      if (size <= 0) return `全${total}件`;
+      const from = (this.dx3EnemyCurrentPage - 1) * size + 1;
+      const to = Math.min(total, from + size - 1);
+      return `${from}-${to} / ${total}件`;
+    },
     availableBulkTimingOptions() {
       const options = [
         { key: "major", label: "メジャー" },
@@ -809,6 +996,18 @@ new Vue({
     },
   },
   watch: {
+    appMode(value) {
+      if (value === "enemy") this.setupEnemyModeDefaults(false);
+      if (value === "pc") this.effectFieldsEditable = false;
+    },
+    enemySheet: {
+      handler() {
+        this.setDataDirty();
+        try { localStorage.setItem("dx3EnemiesAuthor", String(this.enemySheet.author || "").trim()); } catch (_e) {}
+      },
+      deep: true,
+    },
+    enemyData: { handler: "setDataDirty", deep: true },
     characterName: { handler: "setDataDirty", deep: true },
     totalXp: { handler: "setDataDirty", deep: true },
     otherXp: { handler: "setDataDirty", deep: true },
@@ -885,6 +1084,15 @@ new Vue({
         this.generateShareUrl();
       },
     },
+    enemySearch() {
+      this.dx3EnemyPage = 1;
+    },
+    enemySearchField() {
+      this.dx3EnemyPage = 1;
+    },
+    dx3EnemyPageSize() {
+      this.dx3EnemyPage = 1;
+    },
     "editingEffect.values.attack": {
       handler(newValue, oldValue) {
         if (
@@ -928,9 +1136,997 @@ new Vue({
     });
   },
   methods: {
+    getEnemiesSharedApi() {
+      return (typeof window !== "undefined" && (window.EnemiesShared || window.NechronicaShared)) || {};
+    },
+    showDx3EnemyToast(message, kind = "info") {
+      const shared = this.getEnemiesSharedApi();
+      if (shared && typeof shared.showToast === "function") {
+        shared.showToast(String(message || ""), {
+          kind,
+          id: "copyToast",
+          className: "copy-toast",
+          errorClass: "is-error",
+          showClass: "is-show",
+          duration: 1800,
+        });
+        return;
+      }
+      if (message) console[kind === "error" ? "warn" : "log"](message);
+    },
+    switchAppMode(mode) {
+      if (mode !== "pc" && mode !== "enemy") return;
+      this.appMode = mode;
+      if (mode === "enemy") {
+        this.setupEnemyModeDefaults(false);
+        this.loadDx3EnemyList().catch((error) => {
+          console.warn("DX3 enemy list load failed", error);
+        });
+      } else {
+        this.effectFieldsEditable = false;
+        this.generateShareUrl();
+      }
+    },
+    getErosionDice(erosion) {
+      const n = Number(erosion);
+      if (!Number.isFinite(n)) return 0;
+      if (n < 60) return 0;
+      if (n < 80) return 1;
+      if (n < 100) return 2;
+      if (n < 130) return 3;
+      if (n < 160) return 4;
+      if (n < 190) return 4;
+      if (n < 220) return 5;
+      if (n < 260) return 5;
+      if (n < 300) return 6;
+      return 7;
+    },
+    getDx3SyndromeAbilityMap() {
+      return {
+        "エンジェルハィロゥ": { body: 0, sense: 3, mind: 1, social: 0 },
+        "エンジェルハイロゥ": { body: 0, sense: 3, mind: 1, social: 0 },
+        "バロール": { body: 0, sense: 1, mind: 2, social: 1 },
+        "ブラックドッグ": { body: 2, sense: 1, mind: 1, social: 0 },
+        "ブラム＝ストーカー": { body: 1, sense: 2, mind: 1, social: 0 },
+        "ブラム=ストーカー": { body: 1, sense: 2, mind: 1, social: 0 },
+        "ブラムストーカー": { body: 1, sense: 2, mind: 1, social: 0 },
+        "プラム＝ストーカー": { body: 1, sense: 2, mind: 1, social: 0 },
+        "プラムストーカー": { body: 1, sense: 2, mind: 1, social: 0 },
+        "キュマイラ": { body: 3, sense: 0, mind: 0, social: 1 },
+        "エグザイル": { body: 2, sense: 1, mind: 0, social: 1 },
+        "ハヌマーン": { body: 1, sense: 1, mind: 1, social: 1 },
+        "モルフェウス": { body: 1, sense: 2, mind: 0, social: 1 },
+        "ノイマン": { body: 0, sense: 0, mind: 3, social: 1 },
+        "オルクス": { body: 0, sense: 1, mind: 1, social: 2 },
+        "サラマンダー": { body: 2, sense: 0, mind: 1, social: 1 },
+        "ソラリス": { body: 0, sense: 0, mind: 1, social: 3 },
+        "ウロボロス": { body: 1, sense: 1, mind: 2, social: 0 },
+        "アザトース": { body: 1, sense: 0, mind: 3, social: 0 },
+        "ミストルティン": { body: 2, sense: 2, mind: 0, social: 0 },
+        "グレイプニル": { body: 1, sense: 0, mind: 2, social: 1 },
+      };
+    },
+    normalizeSyndromeName(name) {
+      const raw = String(name || "").trim().replace(/=/g, "＝");
+      const compact = raw.replace(/[\s　・･＝=ー－-]/g, "");
+      const aliases = {
+        "エンジェルハイロゥ": "エンジェルハィロゥ",
+        "エンジェルハィロゥ": "エンジェルハィロゥ",
+        "ブラムストーカー": "ブラム＝ストーカー",
+        "プラムストーカー": "ブラム＝ストーカー",
+        "ブラム＝ストーカー": "ブラム＝ストーカー",
+        "プラム＝ストーカー": "ブラム＝ストーカー",
+      };
+      return aliases[raw] || aliases[compact] || raw;
+    },
+    getDx3EnemyBreedLabel(data = null) {
+      const src = data || this.enemyData || {};
+      const names = Array.isArray(src.syndromes)
+        ? src.syndromes.map((name) => this.normalizeSyndromeName(name)).filter(Boolean)
+        : [];
+      if (names.length >= 3) return "トライブリード";
+      if (names.length === 2) return "クロスブリード";
+      if (names.length === 1) return "ピュアブリード";
+      return "";
+    },
+    getDx3EnemySyndromeRow(name) {
+      const map = this.getDx3SyndromeAbilityMap();
+      const row = map[this.normalizeSyndromeName(name)] || {};
+      return {
+        body: Number(row.body) || 0,
+        sense: Number(row.sense) || 0,
+        mind: Number(row.mind) || 0,
+        social: Number(row.social) || 0,
+      };
+    },
+    getDx3EnemySyndromeRows(data = null) {
+      const src = data || this.enemyData || {};
+      const names = Array.isArray(src.syndromes) ? src.syndromes : ["", "", ""];
+      return [0, 1, 2].map((index) => this.getDx3EnemySyndromeRow(names[index] || ""));
+    },
+    getDx3EnemySyndromeAbilityBase(data = null) {
+      const src = data || this.enemyData || {};
+      const rows = this.getDx3EnemySyndromeRows(src);
+      const names = Array.isArray(src.syndromes) ? src.syndromes.map((name) => this.normalizeSyndromeName(name)).filter(Boolean) : [];
+      const useRows = names.length === 1 ? [rows[0], rows[0]] : rows.slice(0, 2);
+      const total = { body: 0, sense: 0, mind: 0, social: 0 };
+      useRows.forEach((row) => {
+        total.body += Number(row.body) || 0;
+        total.sense += Number(row.sense) || 0;
+        total.mind += Number(row.mind) || 0;
+        total.social += Number(row.social) || 0;
+      });
+      return total;
+    },
+    getDx3EnemyAbilityAdds(data = null) {
+      const src = data || this.enemyData || {};
+      const defaults = { body: 0, sense: 0, mind: 0, social: 0 };
+      return { ...defaults, ...(src.abilityAdds || {}) };
+    },
+    getDx3EnemyAbilityGrowth(data = null) {
+      const src = data || this.enemyData || {};
+      const defaults = { body: 0, sense: 0, mind: 0, social: 0 };
+      return { ...defaults, ...(src.abilityGrowth || {}) };
+    },
+    getDx3EnemyAbilityOther(data = null) {
+      const src = data || this.enemyData || {};
+      const defaults = { body: 0, sense: 0, mind: 0, social: 0 };
+      return { ...defaults, ...(src.abilityOther || {}) };
+    },
+    getDx3EnemyTotalAbilities(data = null) {
+      const base = this.getDx3EnemySyndromeAbilityBase(data);
+      const other = this.getDx3EnemyAbilityOther(data);
+      return {
+        body: (Number(base.body) || 0) + (Number(other.body) || 0),
+        sense: (Number(base.sense) || 0) + (Number(other.sense) || 0),
+        mind: (Number(base.mind) || 0) + (Number(other.mind) || 0),
+        social: (Number(base.social) || 0) + (Number(other.social) || 0),
+      };
+    },
+    getDx3EnemyStatSet(data = null, key = "statBase") {
+      const src = data || this.enemyData || {};
+      const defaults = key === "statBase"
+        ? { hp: 30, erosion: 100, initiative: 5, armor: 0, move: 10 }
+        : { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 };
+      return { ...defaults, ...((src && src[key]) || {}) };
+    },
+    isDx3EnemyDerivedStatBase(key) {
+      return ["hp", "initiative", "move"].includes(String(key || ""));
+    },
+    getDx3EnemyStatFormulaLabel(key) {
+      const labels = {
+        hp: "HP = 肉体×2 + 精神 + 20",
+        initiative: "行動値 = 感覚×2 + 精神 + 補正",
+        move: "移動力 = 行動値 + 5 + 補正",
+        erosion: "侵蝕率 = 入力値（加算なし）",
+        armor: "装甲 = 初期値 + 成長 + その他",
+      };
+      return labels[String(key || "")] || "初期値";
+    },
+    getDx3EnemyDerivedStatBase(key, data = null) {
+      const abilities = this.getDx3EnemyTotalAbilities(data || this.enemyData);
+      const statBase = this.getDx3EnemyStatSet(data, "statBase");
+      const statOther = this.getDx3EnemyStatSet(data, "statOther");
+      const body = Number(abilities.body) || 0;
+      const sense = Number(abilities.sense) || 0;
+      const mind = Number(abilities.mind) || 0;
+      const initiativeBase = sense * 2 + mind;
+      const initiative = initiativeBase + (Number(statOther.initiative) || 0);
+      if (key === "hp") return body * 2 + mind + 20;
+      if (key === "initiative") return initiativeBase;
+      if (key === "move") return initiative + 5;
+      return Number(statBase[key]) || 0;
+    },
+    parseDx3SignedNumber(value, fallback = 0) {
+      const raw = String(value == null ? "" : value)
+        .replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
+        .replace(/[＋]/g, "+")
+        .replace(/[－ー―]/g, "-")
+        .replace(/[，,]/g, "")
+        .replace(/\s+/g, "");
+      if (!raw) return fallback;
+      const parts = raw.match(/[+-]?\d+(?:\.\d+)?/g);
+      if (!parts || parts.join("") !== raw) {
+        const n = Number(raw);
+        return Number.isFinite(n) ? Math.trunc(n) : fallback;
+      }
+      const total = parts.reduce((sum, part) => sum + Number(part || 0), 0);
+      return Number.isFinite(total) ? Math.trunc(total) : fallback;
+    },
+    getDx3EnemyFinalStats(data = null) {
+      const base = this.getDx3EnemyStatSet(data, "statBase");
+      const other = this.getDx3EnemyStatSet(data, "statOther");
+      const hpBase = this.getDx3EnemyDerivedStatBase("hp", data);
+      const initiativeBase = this.getDx3EnemyDerivedStatBase("initiative", data);
+      const initiative = initiativeBase + (Number(other.initiative) || 0);
+      const moveBase = initiative + 5;
+      return {
+        hp: hpBase + (Number(other.hp) || 0),
+        erosion: this.parseDx3SignedNumber(base.erosion, 0),
+        initiative,
+        armor: (Number(base.armor) || 0) + (Number(other.armor) || 0),
+        move: moveBase + (Number(other.move) || 0),
+      };
+    },
+    createDefaultDx3EnemySkillRows() {
+      return [
+        { name: "白兵", spec: "", ability: "肉体", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "回避", spec: "", ability: "肉体", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "射撃", spec: "", ability: "感覚", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "知覚", spec: "", ability: "感覚", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "RC", spec: "", ability: "精神", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "意志", spec: "", ability: "精神", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "知識", spec: "", ability: "精神", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "交渉", spec: "", ability: "社会", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "調達", spec: "", ability: "社会", level: 0, dice: 0, mod: 0, note: "" },
+        { name: "情報", spec: "裏社会", ability: "社会", level: 0, dice: 0, mod: 0, note: "" },
+      ];
+    },
+    mergeDx3EnemySkillRowsWithDefaults(rows = []) {
+      const sourceRows = Array.isArray(rows) ? rows : [];
+      const used = new Set();
+      const rowKey = (row) => {
+        const name = String((row && row.name) || "").trim();
+        const spec = String((row && row.spec) || "").trim();
+        return `${name}::${spec}`;
+      };
+      const merged = this.createDefaultDx3EnemySkillRows().map((base) => {
+        const exactKey = rowKey(base);
+        let idx = sourceRows.findIndex((row, i) => !used.has(i) && rowKey(row) === exactKey);
+        if (idx < 0 && this.isDx3EnemyFixedNoSpecSkill(base)) {
+          idx = sourceRows.findIndex((row, i) => !used.has(i) && String((row && row.name) || "").trim() === base.name);
+        }
+        if (idx < 0) return { ...base };
+        used.add(idx);
+        return { ...base, ...sourceRows[idx], isCustom: false };
+      });
+      sourceRows.forEach((row, index) => {
+        if (used.has(index)) return;
+        if (!row || !String(row.name || "").trim()) return;
+        merged.push({ ...row, isCustom: row.isCustom !== false });
+      });
+      return merged;
+    },
+    createDefaultDx3EnemyData() {
+      return {
+        nameKana: "",
+        codename: "",
+        codenameKana: "",
+        breed: "",
+        syndromes: ["", "", ""],
+        explanation: "",
+        tactics: "",
+        hp: 30,
+        initiative: 5,
+        armor: 0,
+        guard: 0,
+        move: 10,
+        erosion: 100,
+        erosionDice: 3,
+        addErosionDiceToAbilityTotal: false,
+        hideStatus: false,
+        secret: false,
+        hpAsDamage: false,
+        abilities: { body: 0, sense: 0, mind: 0, social: 0 },
+        abilityAdds: { body: 0, sense: 0, mind: 0, social: 0 },
+        abilityGrowth: { body: 0, sense: 0, mind: 0, social: 0 },
+        abilityOther: { body: 0, sense: 0, mind: 0, social: 0 },
+        statBase: { hp: 30, erosion: 100, initiative: 5, armor: 0, move: 10 },
+        statGrowth: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
+        statOther: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
+        skills: { "白兵": 0, "射撃": 0, RC: 0, "交渉": 0 },
+        skillRows: this.createDefaultDx3EnemySkillRows(),
+      };
+    },
+    createDx3EnemySampleEffect({
+      name = "",
+      level = 1,
+      maxLevel = 1,
+      timing = "",
+      skill = "",
+      difficulty = "対決",
+      target = "",
+      range = "",
+      cost = "",
+      limit = "",
+      effect = "",
+      notes = "",
+      diceBase = 0,
+      dicePerLevel = 0,
+      attackBase = 0,
+      attackPerLevel = 0,
+      achieveBase = 0,
+      achievePerLevel = 0,
+      critBase = 0,
+      critPerLevel = 0,
+      critMin = 10,
+    } = {}) {
+      const effectRow = {
+        ...this.createDefaultEffect(),
+        name,
+        level,
+        maxLevel,
+        timing,
+        skill,
+        difficulty,
+        target,
+        range,
+        cost,
+        limit,
+        effect,
+        notes,
+      };
+      effectRow.values.dice.base = diceBase;
+      effectRow.values.dice.perLevel = dicePerLevel;
+      effectRow.values.attack.base = attackBase;
+      effectRow.values.attack.perLevel = attackPerLevel;
+      effectRow.values.achieve.base = achieveBase;
+      effectRow.values.achieve.perLevel = achievePerLevel;
+      effectRow.values.crit.base = critBase;
+      effectRow.values.crit.perLevel = critPerLevel;
+      effectRow.values.crit.min = critMin;
+      return effectRow;
+    },
+    createSpringKyojiSampleSet() {
+      const effects = [
+        this.createDx3EnemySampleEffect({
+          name: "コンセントレイト：キュマイラ",
+          level: 2,
+          maxLevel: 3,
+          timing: "メジャー",
+          skill: "シンドローム",
+          difficulty: "-",
+          target: "-",
+          range: "-",
+          cost: "2",
+          effect: "C値を下げる。エネミーテスト用のサンプル。",
+          notes: "C値補正の確認用",
+          critPerLevel: -1,
+          critMin: 7,
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "獣の力",
+          level: 3,
+          maxLevel: 5,
+          timing: "メジャー",
+          skill: "白兵",
+          target: "単体",
+          range: "武器",
+          cost: "2",
+          effect: "白兵攻撃の攻撃力を上げる。",
+          attackPerLevel: 2,
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "伸縮腕",
+          level: 1,
+          maxLevel: 3,
+          timing: "メジャー",
+          skill: "白兵",
+          target: "単体",
+          range: "視界",
+          cost: "2",
+          effect: "白兵攻撃の射程を視界にする。テスト用にダイス-1を入れている。",
+          diceBase: -1,
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "血の宴",
+          level: 1,
+          maxLevel: 3,
+          timing: "メジャー",
+          skill: "シンドローム",
+          target: "範囲(選択)",
+          range: "-",
+          cost: "3",
+          limit: "シナリオLV回",
+          effect: "攻撃対象を範囲(選択)にする。",
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "完全獣化",
+          level: 2,
+          maxLevel: 3,
+          timing: "マイナー",
+          skill: "-",
+          difficulty: "自動成功",
+          target: "自身",
+          range: "至近",
+          cost: "6",
+          effect: "シーン中、肉体判定ダイスを増やす。",
+          diceBase: 2,
+          dicePerLevel: 1,
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "破壊の爪",
+          level: 1,
+          maxLevel: 10,
+          timing: "マイナー",
+          skill: "-",
+          difficulty: "自動成功",
+          target: "自身",
+          range: "至近",
+          cost: "3",
+          effect: "素手データを戦闘用に変更する。サンプルでは武器攻撃力8として扱う。",
+        }),
+      ];
+      const combos = [
+        {
+          ...this.createDefaultCombo(),
+          name: "獣化",
+          effectNames: [{ name: "完全獣化", showInComboName: true }, { name: "破壊の爪", showInComboName: true }],
+          baseAbility: { skill: "白兵", statOverride: "肉体" },
+          flavor: "姿を変え、腕を異形の凶器に変える。",
+          manualTiming: "マイナー",
+          timingMode: "manual",
+          manualTarget: "自身",
+          targetMode: "manual",
+          manualRange: "至近",
+          rangeMode: "manual",
+        },
+        {
+          ...this.createDefaultCombo(),
+          name: "ディアボロス・クラッシュ",
+          effectNames: [
+            { name: "コンセントレイト：キュマイラ", showInComboName: true },
+            { name: "獣の力", showInComboName: true },
+            { name: "伸縮腕", showInComboName: true },
+          ],
+          appliedBuffs: ["獣化"],
+          atk_weapon: 8,
+          baseAbility: { skill: "白兵", statOverride: "肉体" },
+          flavor: "異形化した腕を伸ばし、遠間から叩き潰す。",
+        },
+        {
+          ...this.createDefaultCombo(),
+          name: "ディアボロス・ブラッドスイング",
+          effectNames: [
+            { name: "コンセントレイト：キュマイラ", showInComboName: true },
+            { name: "獣の力", showInComboName: true },
+            { name: "伸縮腕", showInComboName: true },
+            { name: "血の宴", showInComboName: true },
+          ],
+          appliedBuffs: ["獣化"],
+          atk_weapon: 8,
+          baseAbility: { skill: "白兵", statOverride: "肉体" },
+          flavor: "血と異形の腕を振るい、複数対象をまとめて薙ぎ払う。",
+        },
+      ];
+      return { effects, combos };
+    },
+    loadDx3EnemySpringKyojiSample() {
+      const hasExisting =
+        String(this.enemySheet.name || "").trim() ||
+        (Array.isArray(this.effects) && this.effects.some((effect) => effect && String(effect.name || "").trim())) ||
+        (Array.isArray(this.combos) && this.combos.some((combo) => combo && String(combo.name || "").trim()));
+      if (hasExisting && !window.confirm("現在のエネミーデータを春日恭二サンプルで上書きする？")) return;
+
+      const rememberedAuthor = String(this.enemySheet.author || "").trim();
+      const sample = this.createSpringKyojiSampleSet();
+      this.enemySheet = {
+        ID: "",
+        author: rememberedAuthor,
+        name: "春日恭二",
+        class_type: "トライブリード",
+        is_public: true,
+        memo: "サンプルデータ",
+        icon_url: "",
+        time: "",
+      };
+      this.enemyData = this.normalizeDx3EnemyData({
+        nameKana: "カスガ キョウジ",
+        codename: "ディアボロス",
+        codenameKana: "",
+        breed: "トライブリード",
+        syndromes: ["キュマイラ", "エグザイル", "ブラム＝ストーカー"],
+        explanation: "DX3エネミー作成モードのテスト用サンプル。公式データではなく、入力・係数・駒出力の確認用。",
+        tactics: "マイナーで獣化してから、白兵コンボで攻撃する想定。範囲版は複数対象の出力確認用。",
+        hp: 72,
+        initiative: 8,
+        armor: 5,
+        guard: 3,
+        move: 14,
+        erosion: 120,
+        statBase: { hp: 30, erosion: 120, initiative: 5, armor: 5, move: 10 },
+        statGrowth: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
+        statOther: { hp: 36, erosion: 0, initiative: 2, armor: 0, move: 1 },
+        addErosionDiceToAbilityTotal: false,
+        abilityAdds: { body: 0, sense: 0, mind: 0, social: 0 },
+        abilityGrowth: { body: 0, sense: 0, mind: 0, social: 0 },
+        abilityOther: { body: 2, sense: 1, mind: 2, social: 1 },
+        skillRows: [
+          { name: "白兵", spec: "", ability: "肉体", level: 5, dice: 0, mod: 0, note: "メイン攻撃" },
+          { name: "回避", spec: "", ability: "肉体", level: 2, dice: 0, mod: 0, note: "" },
+          { name: "射撃", spec: "", ability: "感覚", level: 0, dice: 0, mod: 0, note: "" },
+          { name: "知覚", spec: "", ability: "感覚", level: 1, dice: 0, mod: 0, note: "" },
+          { name: "RC", spec: "", ability: "精神", level: 0, dice: 0, mod: 0, note: "" },
+          { name: "意志", spec: "", ability: "精神", level: 3, dice: 0, mod: 0, note: "" },
+          { name: "知識", spec: "レネゲイド", ability: "精神", level: 2, dice: 0, mod: 0, note: "" },
+          { name: "交渉", spec: "", ability: "社会", level: 1, dice: 0, mod: 0, note: "" },
+          { name: "調達", spec: "", ability: "社会", level: 1, dice: 0, mod: 0, note: "" },
+          { name: "情報", spec: "裏社会", ability: "社会", level: 2, dice: 0, mod: 0, note: "" },
+          { name: "情報", spec: "FH", ability: "社会", level: 2, dice: 0, mod: 0, note: "追加技能テスト", isCustom: true },
+        ],
+      });
+      this.effects = sample.effects;
+      this.easyEffects = [];
+      this.items = [];
+      this.combos = sample.combos;
+      this.effectFieldsEditable = true;
+      this.effectDisplayMode = "combo";
+      this.syncDx3EnemySkillMap();
+      this.generateShareUrl();
+      this.isDirty = true;
+      this.showDx3EnemyToast("春日恭二サンプルを入れた", "info");
+    },
+    normalizeDx3EnemyData(data = {}) {
+      const src = data && typeof data === "object" ? data : {};
+      const defaults = this.createDefaultDx3EnemyData();
+      const skillRows = Array.isArray(src.skillRows) && src.skillRows.length
+        ? this.mergeDx3EnemySkillRowsWithDefaults(src.skillRows.map((row) => ({
+            name: String((row && row.name) || ""),
+            spec: String((row && row.spec) || ""),
+            ability: String((row && row.ability) || "肉体"),
+            level: Number((row && row.level) || 0),
+            dice: Number((row && row.dice) || 0),
+            mod: Number((row && row.mod) || 0),
+            note: String((row && row.note) || ""),
+            isCustom: !!(row && row.isCustom),
+          })))
+        : this.createDefaultDx3EnemySkillRows();
+      return {
+        ...defaults,
+        ...src,
+        nameKana: String(src.nameKana || ""),
+        codename: String(src.codename || ""),
+        codenameKana: String(src.codenameKana || ""),
+        breed: String(src.breed || ""),
+        syndromes: Array.isArray(src.syndromes) ? [src.syndromes[0] || "", src.syndromes[1] || "", src.syndromes[2] || ""] : ["", "", ""],
+        explanation: String(src.explanation || src.memoForKoma || ""),
+        tactics: String(src.tactics || src.gmMemo || ""),
+        hp: Number(src.hp ?? defaults.hp) || 0,
+        initiative: Number(src.initiative ?? defaults.initiative) || 0,
+        armor: Number(src.armor ?? defaults.armor) || 0,
+        guard: Number(src.guard ?? defaults.guard) || 0,
+        move: Number(src.move ?? defaults.move) || 0,
+        erosion: Number(src.erosion ?? defaults.erosion) || 0,
+        erosionDice: this.getErosionDice(src.erosion ?? defaults.erosion),
+        addErosionDiceToAbilityTotal: false,
+        hideStatus: !!src.hideStatus,
+        secret: !!src.secret,
+        hpAsDamage: !!src.hpAsDamage,
+        statBase: {
+          ...defaults.statBase,
+          ...((src.statBase && typeof src.statBase === "object") ? src.statBase : {
+            hp: src.hp ?? defaults.statBase.hp,
+            erosion: src.erosion ?? defaults.statBase.erosion,
+            initiative: src.initiative ?? defaults.statBase.initiative,
+            armor: src.armor ?? defaults.statBase.armor,
+            move: src.move ?? defaults.statBase.move,
+          }),
+        },
+        statGrowth: { ...defaults.statGrowth, ...((src.statGrowth && typeof src.statGrowth === "object") ? src.statGrowth : {}) },
+        statOther: { ...defaults.statOther, ...((src.statOther && typeof src.statOther === "object") ? src.statOther : {}) },
+        abilityAdds: { ...defaults.abilityAdds },
+        abilityGrowth: { ...defaults.abilityGrowth },
+        abilityOther: (() => {
+          const other = { ...defaults.abilityOther, ...((src.abilityOther && typeof src.abilityOther === "object") ? src.abilityOther : {}) };
+          const add = src.abilityAdds && typeof src.abilityAdds === "object" ? src.abilityAdds : null;
+          const growth = src.abilityGrowth && typeof src.abilityGrowth === "object" ? src.abilityGrowth : null;
+          [add, growth].forEach((obj) => {
+            if (!obj) return;
+            ["body", "sense", "mind", "social"].forEach((key) => {
+              other[key] = (Number(other[key]) || 0) + (Number(obj[key]) || 0);
+            });
+          });
+          const hasManualRows = !!(src.abilityOther || src.abilityAdds || src.abilityGrowth);
+          const oldAbilities = src.abilities && typeof src.abilities === "object" ? src.abilities : null;
+          if (!hasManualRows && oldAbilities) {
+            const temp = { ...defaults, ...src };
+            const base = this.getDx3EnemySyndromeAbilityBase(temp);
+            ["body", "sense", "mind", "social"].forEach((key) => {
+              other[key] = Math.max(0, (Number(oldAbilities[key]) || 0) - (Number(base[key]) || 0));
+            });
+          }
+          return other;
+        })(),
+        abilities: { ...defaults.abilities },
+        skills: { ...defaults.skills, ...(src.skills || {}) },
+        skillRows,
+      };
+    },
+    setupEnemyModeDefaults(forceReset = false) {
+      this.effectFieldsEditable = true;
+      this.effectDisplayMode = "combo";
+      const hasOnlyInitialPcEffects =
+        Array.isArray(this.effects) &&
+        this.effects.length <= 3 &&
+        this.effects.some((e) => e && e.name === "ワーディング") &&
+        this.effects.some((e) => e && e.name === "リザレクト");
+      if (forceReset || hasOnlyInitialPcEffects || !Array.isArray(this.effects) || this.effects.length === 0) {
+        this.effects = [this.createDefaultEffect()];
+      }
+      if (!Array.isArray(this.easyEffects) || forceReset) this.easyEffects = [];
+      if (!Array.isArray(this.items) || forceReset) this.items = [];
+      if (!Array.isArray(this.combos) || this.combos.length === 0 || forceReset) this.combos = [this.createDefaultCombo()];
+      if (!this.enemySheet || typeof this.enemySheet !== "object") {
+        this.enemySheet = { ID: "", author: "", name: "", class_type: "DX3", is_public: true, memo: "", icon_url: "", time: "" };
+      }
+      this.enemyData = this.normalizeDx3EnemyData(this.enemyData);
+      this.syncDx3EnemySkillMap();
+      this.generateShareUrl();
+    },
+    syncDx3EnemySkillMap() {
+      if (!this.enemyData || typeof this.enemyData !== "object") return;
+      const nextSkills = {};
+      (this.enemyData.skillRows || []).forEach((row) => {
+        const key = this.getDx3EnemySkillLabel(row);
+        if (!key) return;
+        nextSkills[key] = (Number(row.level) || 0) + (Number(row.mod) || 0);
+      });
+      this.$set(this.enemyData, "skills", nextSkills);
+    },
+    addDx3EnemySkillRow() {
+      if (!this.enemyData.skillRows) this.$set(this.enemyData, "skillRows", []);
+      this.enemyData.skillRows.push({
+        name: "",
+        spec: "",
+        ability: "肉体",
+        level: 0,
+        dice: 0,
+        mod: 0,
+        note: "",
+        isCustom: true,
+      });
+    },
+    canRemoveDx3EnemySkillRow(index, row) {
+      const baseCount = this.createDefaultDx3EnemySkillRows().length;
+      return Number(index) >= baseCount || !!(row && row.isCustom);
+    },
+    removeDx3EnemySkillRow(index) {
+      if (!Array.isArray(this.enemyData.skillRows)) return;
+      this.enemyData.skillRows.splice(index, 1);
+      this.syncDx3EnemySkillMap();
+    },
+    isDx3EnemyFixedNoSpecSkill(row) {
+      const name = String((row && row.name) || "").trim();
+      if (!name || (row && row.isCustom)) return false;
+      return ["白兵", "射撃", "RC", "交渉", "回避", "知覚", "意志", "調達"].includes(name);
+    },
+    getDx3EnemySkillColorKey(row) {
+      const ability = String((row && row.ability) || "").trim();
+      if (ability === "肉体") return "body";
+      if (ability === "感覚") return "sense";
+      if (ability === "精神") return "mind";
+      if (ability === "社会") return "social";
+      return "other";
+    },
+    getDx3EnemySkillLabel(row) {
+      const name = String((row && row.name) || "").trim();
+      const spec = String((row && row.spec) || "").trim();
+      if (!name) return "";
+      return spec ? `${name}：${spec}` : name;
+    },
+    formatDx3EnemySkillOutput(row) {
+      const ability = String((row && row.ability) || "肉体");
+      const label = this.getDx3EnemySkillLabel(row);
+      if (!label) return "";
+      const dice = Number((row && row.dice) || 0);
+      const fixed = (Number((row && row.level) || 0) + Number((row && row.mod) || 0));
+      const dicePart = dice ? `${dice > 0 ? "+" : ""}${dice}` : "";
+      const fixedPart = fixed ? `${fixed > 0 ? "+" : ""}${fixed}` : "+0";
+      return `({${ability}}+{侵蝕率D}${dicePart})DX${fixedPart} 【${ability}】〈${label}〉`;
+    },
+    buildDx3EnemyApiUrl(action, params = {}) {
+      const shared = this.getEnemiesSharedApi();
+      if (shared && typeof shared.buildApiUrl === "function") {
+        return shared.buildApiUrl({
+          baseUrl: this.gasWebAppUrl,
+          tool: "dx3enemy",
+          action,
+          params,
+        });
+      }
+      const base = String(this.gasWebAppUrl || "").replace(/\/+$/, "");
+      if (!base) throw new Error("GAS API URLが未設定");
+      const url = new URL(base);
+      url.searchParams.set("tool", "dx3enemy");
+      url.searchParams.set("action", action);
+      Object.entries(params || {}).forEach(([key, value]) => {
+        if (value === null || value === undefined) return;
+        const text = String(value).trim();
+        if (!text) return;
+        url.searchParams.set(key, text);
+      });
+      return url.toString();
+    },
+    async fetchDx3EnemyJson(url, init = null) {
+      const shared = this.getEnemiesSharedApi();
+      if (shared && typeof shared.fetchApiJson === "function") {
+        return shared.fetchApiJson(url, init);
+      }
+      const response = await fetch(url, init || undefined);
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error((data && data.message) || `APIエラー HTTP ${response.status}`);
+      }
+      if (!data || data.status === "error") {
+        throw new Error((data && data.message) || "API応答が不正");
+      }
+      return data;
+    },
+    async loadDx3EnemyList() {
+      const url = this.buildDx3EnemyApiUrl("listDX3Enemies", { includePrivate: "true" });
+      const data = await this.fetchDx3EnemyJson(url);
+      this.dx3EnemyList = Array.isArray(data.enemies) ? data.enemies : [];
+      this.dx3EnemyPage = Math.min(this.dx3EnemyCurrentPage, this.dx3EnemyTotalPages);
+      return this.dx3EnemyList;
+    },
+    setDx3EnemySort(key) {
+      const normalizedKey = String(key || "time");
+      if (this.dx3EnemySortKey === normalizedKey) {
+        this.dx3EnemySortOrder = this.dx3EnemySortOrder === "asc" ? "desc" : "asc";
+      } else {
+        this.dx3EnemySortKey = normalizedKey;
+        this.dx3EnemySortOrder = normalizedKey === "time" || normalizedKey === "id" ? "desc" : "asc";
+      }
+      this.dx3EnemyPage = 1;
+    },
+    dx3EnemySortButtonClass(key) {
+      if (this.dx3EnemySortKey !== key) return "";
+      return this.dx3EnemySortOrder === "asc" ? "is-active is-asc" : "is-active is-desc";
+    },
+    normalizeDx3EnemyPageSize() {
+      const raw = Number(this.dx3EnemyPageSize);
+      this.dx3EnemyPageSize = Number.isFinite(raw) && raw >= 0 ? Math.trunc(raw) : 10;
+      this.dx3EnemyPage = 1;
+    },
+    setDx3EnemyPageSize(size) {
+      this.dx3EnemyPageSize = Number(size) || 0;
+      this.dx3EnemyPage = 1;
+    },
+    moveDx3EnemyPage(delta) {
+      const next = this.dx3EnemyCurrentPage + Number(delta || 0);
+      this.dx3EnemyPage = Math.min(Math.max(1, next), this.dx3EnemyTotalPages);
+    },
+    normalizeDx3EnemyRecord(enemy) {
+      const src = enemy && typeof enemy === "object" ? enemy : {};
+      const data = src.data && typeof src.data === "object" ? src.data : {};
+      return {
+        ID: String(src.ID || "").trim(),
+        author: String(src.author || "").trim(),
+        name: String(src.name || "").trim(),
+        class_type: String(src.class_type || "ジャーム").trim() || "ジャーム",
+        is_public: src.is_public !== false && String(src.is_public).toLowerCase() !== "false",
+        memo: String(src.memo || ""),
+        icon_url: String(src.icon_url || "").trim(),
+        time: String(src.time || "").trim(),
+        data,
+      };
+    },
+    dx3EnemyListValue(enemy, key, fallback = "-") {
+      const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+      const value = data[key];
+      if (value === null || value === undefined || value === "") return fallback;
+      return value;
+    },
+    dx3EnemyListErosion(enemy) {
+      const value = this.dx3EnemyListValue(enemy, "erosion", "-");
+      return String(value || "-").replace(/%$/, "");
+    },
+    dx3EnemyCreditLabel(author) {
+      const text = String(author || "").trim();
+      return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
+    },
+    viewDx3EnemyFromList(enemy) {
+      this.loadDx3Enemy(enemy);
+      this.$nextTick(() => this.openDx3EnemyView());
+    },
+    exportDx3EnemyFromList(enemy) {
+      this.loadDx3Enemy(enemy);
+      this.$nextTick(() => this.exportDx3EnemyKomaJson());
+    },
+    loadDx3Enemy(enemy) {
+      const normalized = this.normalizeDx3EnemyRecord(enemy);
+      this.enemySheet = {
+        ID: normalized.ID,
+        author: normalized.author,
+        name: normalized.name,
+        class_type: normalized.class_type,
+        is_public: normalized.is_public,
+        memo: normalized.memo,
+        icon_url: normalized.icon_url,
+        time: normalized.time,
+      };
+      this.enemyData = this.normalizeDx3EnemyData(normalized.data || {});
+      this.syncDx3EnemySkillMap();
+      this.effects = Array.isArray(this.enemyData.effects) && this.enemyData.effects.length ? this.enemyData.effects : (Array.isArray(normalized.data.effects) && normalized.data.effects.length ? normalized.data.effects : [this.createDefaultEffect()]);
+      this.easyEffects = Array.isArray(normalized.data.easyEffects) ? normalized.data.easyEffects : [];
+      this.items = Array.isArray(normalized.data.items) ? normalized.data.items : [];
+      this.combos = Array.isArray(normalized.data.combos) && normalized.data.combos.length ? normalized.data.combos : [this.createDefaultCombo()];
+      [...this.effects, ...this.easyEffects, ...this.items].forEach((source) => this.ensureCoefficientValues(source));
+      this.effectFieldsEditable = true;
+      this.isDirty = false;
+      this.showDx3EnemyToast("読み込んだ", "info");
+    },
+    newDx3Enemy() {
+      this.enemySheet = { ID: "", author: this.enemySheet.author || "", name: "", class_type: "DX3", is_public: true, memo: "", icon_url: "", time: "" };
+      this.enemyData = this.createDefaultDx3EnemyData();
+      this.effects = [this.createDefaultEffect()];
+      this.easyEffects = [];
+      this.items = [];
+      this.combos = [this.createDefaultCombo()];
+      this.effectFieldsEditable = true;
+      this.isDirty = false;
+    },
+    buildDx3EnemyPayload() {
+      this.syncDx3EnemySkillMap();
+      const finalStats = this.getDx3EnemyFinalStats(this.enemyData);
+      const normalizedEnemyData = this.normalizeDx3EnemyData(this.enemyData);
+      const data = {
+        ...normalizedEnemyData,
+        breed: this.getDx3EnemyBreedLabel(normalizedEnemyData),
+        ...finalStats,
+        erosionDice: this.getErosionDice(finalStats.erosion),
+        abilities: this.getDx3EnemyTotalAbilities(this.enemyData),
+        effects: this.effects || [],
+        easyEffects: this.easyEffects || [],
+        items: this.items || [],
+        combos: this.combos || [],
+      };
+      return {
+        ID: this.enemySheet.ID || "",
+        author: this.enemySheet.author || "",
+        name: this.enemySheet.name || "DX3エネミー",
+        class_type: this.getDx3EnemyBreedLabel(data) || "DX3",
+        is_public: this.enemySheet.is_public !== false,
+        memo: data.tactics || this.enemySheet.memo || "",
+        icon_url: this.enemySheet.icon_url || "",
+        data,
+      };
+    },
+    async saveDx3Enemy(saveAs = false) {
+      try {
+        this.isBusy = true;
+        const enemy = this.buildDx3EnemyPayload();
+        if (saveAs) enemy.ID = "";
+        const data = await this.fetchDx3EnemyJson(this.buildDx3EnemyApiUrl("saveDX3Enemy"), {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ tool: "dx3enemy", action: "saveDX3Enemy", enemy }),
+        });
+        if (data.enemy) this.loadDx3Enemy(data.enemy);
+        await this.loadDx3EnemyList();
+        this.showDx3EnemyToast("保存した", "info");
+      } catch (error) {
+        console.error(error);
+        this.showDx3EnemyToast(`保存失敗: ${error.message}`, "error");
+      } finally {
+        this.isBusy = false;
+      }
+    },
+    async deleteDx3Enemy() {
+      const id = String(this.enemySheet.ID || "").trim();
+      if (!id) return;
+      if (!window.confirm("このDX3エネミーを削除する？")) return;
+      try {
+        this.isBusy = true;
+        const data = await this.fetchDx3EnemyJson(this.buildDx3EnemyApiUrl("deleteDX3Enemy", { id }));
+        this.showDx3EnemyToast(data.message || "削除した", "info");
+        this.newDx3Enemy();
+        await this.loadDx3EnemyList();
+      } catch (error) {
+        console.error(error);
+        this.showDx3EnemyToast(`削除失敗: ${error.message}`, "error");
+      } finally {
+        this.isBusy = false;
+      }
+    },
+    shareDx3Enemy() {
+      if (!this.enemySheet.ID) return;
+      const url = new URL(window.location.href);
+      url.searchParams.set("mode", "enemy");
+      url.searchParams.set("enemy", this.enemySheet.ID);
+      navigator.clipboard.writeText(url.toString()).then(
+        () => this.showDx3EnemyToast("共有URLをコピーした", "info"),
+        () => this.showDx3EnemyToast("共有URLコピーに失敗", "error"),
+      );
+    },
+    openDx3EnemyView() {
+      if (!this.enemySheet.ID) return;
+      const url = new URL(window.location.href);
+      url.searchParams.set("mode", "enemy");
+      url.searchParams.set("enemy", this.enemySheet.ID);
+      window.open(url.toString(), "_blank", "noopener,noreferrer");
+    },
+    buildDx3EnemyCommands() {
+      this.syncDx3EnemySkillMap();
+      const lines = [];
+      const skillRows = Array.isArray(this.enemyData.skillRows) ? this.enemyData.skillRows : [];
+      skillRows.forEach((row) => {
+        const output = this.formatDx3EnemySkillOutput(row);
+        if (output) lines.push(output);
+      });
+      const combos = Array.isArray(this.comboDataList) ? this.comboDataList : [];
+      if (combos.length) {
+        if (lines.length) lines.push("");
+        lines.push("//▼コンボデータ");
+      }
+      const slashN = String.fromCharCode(92, 110);
+      combos.forEach((combo) => {
+        const header = String((combo.chatPalette && combo.chatPalette.header) || "").split(/\r?\n/).filter(Boolean).join(slashN);
+        const dice = String((combo.chatPalette && combo.chatPalette.diceFormula) || "").trim();
+        if (header) lines.push(header);
+        if (dice && combo.isMajorAction) lines.push(dice);
+      });
+      return lines.join("\n");
+    },
+    buildDx3EnemyKomaJson() {
+      this.syncDx3EnemySkillMap();
+      const name = String(this.enemySheet.name || "DX3エネミー").trim() || "DX3エネミー";
+      const data = this.normalizeDx3EnemyData(this.enemyData || {});
+      const breedLabel = this.getDx3EnemyBreedLabel(data);
+      const abilities = this.getDx3EnemyTotalAbilities(data);
+      const finalStats = this.getDx3EnemyFinalStats(data);
+      const syndromes = (data.syndromes || []).map((x) => String(x || "").trim()).filter(Boolean);
+      const memoParts = [];
+      if (data.nameKana) memoParts.push(`(${data.nameKana})`);
+      if (data.codename) memoParts.push(`コードネーム：${data.codename}${data.codenameKana ? `(${data.codenameKana})` : ""}`);
+      if (breedLabel || syndromes.length) memoParts.push(`シンドローム：${[breedLabel, ...syndromes].filter(Boolean).join("、")}`);
+      if (data.explanation) memoParts.push(String(data.explanation));
+      const skillParams = [];
+      (data.skillRows || []).forEach((row) => {
+        const label = this.getDx3EnemySkillLabel(row);
+        if (!label) return;
+        if (skillParams.some((p) => p.label === label)) return;
+        skillParams.push({ label, value: (Number(row.level) || 0) + (Number(row.mod) || 0) });
+      });
+      const hp = Number(finalStats.hp) || 0;
+      const status = data.hpAsDamage
+        ? [{ label: "与ダメ", value: 0, max: hp }]
+        : [{ label: "HP", value: hp, max: hp }];
+      const charJson = {
+        kind: "character",
+        data: {
+          name,
+          memo: memoParts.join("\n"),
+          initiative: Number(finalStats.initiative) || 0,
+          status,
+          params: [
+            { label: "肉体", value: Number(abilities.body) || 0 },
+            { label: "感覚", value: Number(abilities.sense) || 0 },
+            { label: "精神", value: Number(abilities.mind) || 0 },
+            { label: "社会", value: Number(abilities.social) || 0 },
+            { label: "装甲", value: Number(finalStats.armor) || 0 },
+            { label: "ガード", value: Number(data.guard) || 0 },
+            { label: "侵蝕率D", value: this.getErosionDice(finalStats.erosion) },
+            { label: "移動力", value: Number(finalStats.move) || 0 },
+            { label: "全力移動", value: (Number(finalStats.move) || 0) * 2 },
+            ...skillParams,
+          ],
+          faces: [],
+          color: "",
+          secret: !!data.secret,
+          hideStatus: !!data.hideStatus,
+          commands: this.buildDx3EnemyCommands(),
+        },
+      };
+      if (this.enemySheet.icon_url) charJson.data.iconUrl = this.enemySheet.icon_url;
+      return charJson;
+    },
+    exportDx3EnemyKomaJson() {
+      const text = JSON.stringify(this.buildDx3EnemyKomaJson());
+      navigator.clipboard.writeText(text).then(
+        () => this.showDx3EnemyToast("ココフォリア駒JSONをコピーした", "info"),
+        () => {
+          console.log(text);
+          this.showDx3EnemyToast("コピー失敗。コンソールに出した", "error");
+        },
+      );
+    },
     setEffectDisplayMode(mode) {
       if (mode !== "combo" && mode !== "detail") return;
       this.effectDisplayMode = mode;
+    },
+    comboPlaceholderName(index) {
+      return `コンボ${Number(index) + 1}`;
     },
     toggleEffectDisplayMode() {
       this.effectDisplayMode = this.effectDisplayMode === "combo" ? "detail" : "combo";

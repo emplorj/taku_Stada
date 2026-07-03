@@ -1601,16 +1601,25 @@
   margin-bottom: 5px;
 }
 
+.usage-guide a {
+  color: #87cefa;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.usage-guide a:hover {
+  color: #bfe8ff;
+}
+
+
 .math-pattern-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 15px;
   margin: 20px 0;
 }
 
 .math-pattern-box {
-  flex: 1 1 calc(33.333% - 10px); /* 3列表示にするためのflex-basis */
-  min-width: calc(33.333% - 10px); /* 3列表示にするための最小幅 */
   background-color: #3c3c3c;
   border: 1px solid #4a5c9a;
   border-radius: 8px;
@@ -1636,6 +1645,9 @@
 }
 
 .math-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
   background-color: #0d1a50;
   padding: 10px;
   border-radius: 4px;
@@ -1643,18 +1655,16 @@
 }
 
 .math-values div {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
   color: #bdc3c7;
   font-size: 0.9em;
-  margin-bottom: 4px;
-}
-
-.math-values div:last-child {
-  margin-bottom: 0;
+  white-space: nowrap;
 }
 
 .math-values strong {
   color: #ffc107;
-  float: right;
   font-size: 1.1em;
 }
 
@@ -4631,4 +4641,2765 @@
 }
 #dx3-app .coef-head-help-mark {
   display: none;
+}
+
+/* ==========================================================================
+   DX3 enemy mode v74
+   ========================================================================== */
+.dx3-mode-tabs {
+  display: inline-flex;
+  gap: 0.35rem;
+  margin: 0 0 0.8rem;
+  padding: 0.25rem;
+  border: 1px solid rgba(90, 170, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(5, 12, 36, 0.45);
+}
+.dx3-mode-tab {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  background: transparent;
+  color: #b7cff8;
+  font-weight: 800;
+  cursor: pointer;
+}
+.dx3-mode-tab.active {
+  border-color: #62c4ff;
+  background: linear-gradient(135deg, #145ec7, #1aa2ff);
+  color: #fff;
+}
+.dx3-enemy-mode-panel {
+  margin-bottom: 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+.dx3-enemy-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid rgba(98, 196, 255, 0.45);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(12, 26, 68, 0.9), rgba(21, 42, 94, 0.82));
+}
+.enemy-action-left,
+.enemy-action-right,
+.enemy-action-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+.enemy-action-right { margin-left: auto; }
+.enemy-action-meta { flex: 1 1 100%; }
+.dx3-enemy-action-bar .action-btn {
+  min-height: 2.25rem;
+  border: 1px solid rgba(160, 210, 255, 0.5);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  color: #eaf6ff;
+  background: rgba(25, 52, 110, 0.85);
+  cursor: pointer;
+  font-weight: 800;
+}
+.dx3-enemy-action-bar .action-btn.is-main { background: #1b7fd1; }
+.dx3-enemy-action-bar .action-btn.is-copy { background: #248b62; }
+.dx3-enemy-action-bar .action-btn.is-danger { background: #963638; }
+.dx3-enemy-action-bar .action-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.action-meta-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #dcefff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+.action-meta-field input,
+.enemy-basic-grid input,
+.enemy-ability-grid input,
+.enemy-memo-field textarea,
+.enemy-search-row input {
+  border: 1px solid rgba(115, 173, 255, 0.55);
+  border-radius: 5px;
+  background: rgba(7, 19, 55, 0.92);
+  color: #f3f8ff;
+  padding: 0.38rem 0.5rem;
+  box-sizing: border-box;
+}
+.action-meta-field input { width: 12rem; }
+.action-meta-field.is-icon input { width: min(34vw, 22rem); }
+.public-switch-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.public-switch-text {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(160, 210, 255, 0.45);
+  color: #eaf6ff;
+  background: rgba(11, 30, 72, 0.9);
+  font-weight: 800;
+}
+.dx3-enemy-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: 0.8rem;
+  align-items: start;
+}
+.dx3-enemy-list-pane,
+.dx3-enemy-editor-pane {
+  border: 1px solid rgba(98, 196, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(12, 22, 52, 0.62);
+  padding: 0.75rem;
+}
+.enemy-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.enemy-list-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #79d5ff;
+}
+.enemy-list-count { color: #b7cff8; font-size: 0.8rem; }
+.enemy-search-row { margin: 0.55rem 0; }
+.enemy-search-row input { width: 100%; }
+.enemy-list-scroll {
+  display: grid;
+  gap: 0.45rem;
+  max-height: 18rem;
+  overflow: auto;
+}
+.dx3-enemy-list-card {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem;
+  border: 1px solid rgba(95, 151, 235, 0.35);
+  border-radius: 6px;
+  background: rgba(17, 36, 83, 0.78);
+  color: #eaf6ff;
+  cursor: pointer;
+}
+.dx3-enemy-list-card.active {
+  border-color: #ffd966;
+  box-shadow: 0 0 0 1px rgba(255, 217, 102, 0.45);
+}
+.enemy-list-main-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.enemy-public-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+.enemy-public-badge.is-public { background: #275f42; color: #d9ffe8; }
+.enemy-public-badge.is-private { background: #5a3538; color: #ffdce0; }
+.enemy-list-sub-row { color: #a9bee6; font-size: 0.74rem; }
+.enemy-basic-grid,
+.enemy-ability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 0.65rem;
+}
+.enemy-basic-grid label,
+.enemy-ability-grid label,
+.enemy-memo-field {
+  display: grid;
+  gap: 0.25rem;
+  color: #dcefff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+.enemy-basic-grid input,
+.enemy-ability-grid input { width: 100%; }
+.enemy-memo-field textarea {
+  width: 100%;
+  min-height: 5rem;
+  resize: vertical;
+}
+@media (max-width: 900px) {
+  .dx3-enemy-layout { grid-template-columns: 1fr; }
+  .enemy-action-right { margin-left: 0; }
+  .action-meta-field input,
+  .action-meta-field.is-icon input { width: min(100%, 18rem); }
+}
+
+/* ==========================================================================
+   DX3 enemy mode - DX敵テンプレ寄せ
+   ========================================================================== */
+.dx3-enemy-template-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(98, 196, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(6, 17, 48, 0.72);
+  color: #cfe6ff;
+  font-size: 0.88rem;
+}
+.dx3-enemy-template-note strong { color: #79d5ff; }
+.dx3-enemy-mode-panel .dx3-enemy-layout { grid-template-columns: 1fr; }
+.dx3-enemy-mode-panel .dx3-enemy-list-pane { display: none; }
+.dx3-enemy-template-pane {
+  display: grid;
+  gap: 0.85rem;
+}
+.enemy-template-top-grid,
+.enemy-syndrome-grid,
+.enemy-template-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.8rem, 1fr));
+  gap: 0.6rem;
+}
+.enemy-template-top-grid label,
+.enemy-syndrome-grid label,
+.enemy-template-stat-grid label {
+  display: grid;
+  gap: 0.25rem;
+  color: #dcefff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+.enemy-template-top-grid input,
+.enemy-syndrome-grid input,
+.enemy-template-stat-grid input,
+.enemy-skill-table input,
+.enemy-skill-table select {
+  width: 100%;
+  border: 1px solid rgba(115, 173, 255, 0.55);
+  border-radius: 5px;
+  background: rgba(7, 19, 55, 0.92);
+  color: #f3f8ff;
+  padding: 0.38rem 0.5rem;
+  box-sizing: border-box;
+}
+.enemy-template-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+.enemy-text-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.7rem;
+}
+.enemy-text-grid .enemy-memo-field textarea {
+  min-height: 6.25rem;
+}
+.enemy-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+.enemy-section-head h3 {
+  margin: 0;
+  color: #79d5ff;
+  font-size: 1.05rem;
+}
+.enemy-skill-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(98, 196, 255, 0.25);
+  border-radius: 8px;
+}
+.enemy-skill-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  background: rgba(6, 17, 48, 0.56);
+}
+.enemy-skill-table th,
+.enemy-skill-table td {
+  border-bottom: 1px solid rgba(98, 196, 255, 0.18);
+  padding: 0.35rem;
+  vertical-align: middle;
+}
+.enemy-skill-table th {
+  color: #9bddff;
+  font-size: 0.76rem;
+  text-align: left;
+  background: rgba(15, 35, 88, 0.84);
+  white-space: nowrap;
+}
+.enemy-skill-table td:nth-child(1) { width: 8rem; }
+.enemy-skill-table td:nth-child(2) { width: 8rem; }
+.enemy-skill-table td:nth-child(3) { width: 6.2rem; }
+.enemy-skill-table td:nth-child(4),
+.enemy-skill-table td:nth-child(5),
+.enemy-skill-table td:nth-child(6) { width: 4.2rem; }
+.enemy-skill-output {
+  min-width: 20rem;
+  color: #eaf6ff;
+  font-family: var(--font-mono, Consolas, monospace);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+.small-button.danger {
+  border-color: rgba(255, 150, 150, 0.7);
+  color: #ffd7d7;
+  background: rgba(120, 26, 26, 0.8);
+}
+@media (max-width: 720px) {
+  .enemy-text-grid { grid-template-columns: 1fr; }
+  .enemy-template-top-grid,
+  .enemy-syndrome-grid,
+  .enemy-template-stat-grid { grid-template-columns: repeat(auto-fit, minmax(7.2rem, 1fr)); }
+}
+
+
+/* ==========================================================================
+   DX3 enemy mode - shared enemy tool header / compact flags
+   ========================================================================== */
+.dx3-enemies-page .dx3-enemy-common-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgba(98, 196, 255, 0.38);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(12, 26, 68, 0.92), rgba(21, 42, 94, 0.78));
+}
+.dx3-enemies-page .dx3-enemy-common-header h2 {
+  margin: 0;
+  color: #ffd966;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.45);
+}
+.dx3-enemies-page .dx3-enemy-header-note {
+  color: #b7cff8;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar {
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 0;
+}
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-left,
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-right,
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-right {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-meta {
+  flex: 1 1 100%;
+  row-gap: 0.35rem;
+}
+.dx3-enemies-page .enemy-compact-flags {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.dx3-enemies-page .enemy-compact-flag {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  line-height: 1;
+}
+.dx3-enemies-page .enemy-compact-flag input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  position: absolute;
+}
+.dx3-enemies-page .enemy-compact-flag span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.55rem;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid rgba(160, 210, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(11, 30, 72, 0.6);
+  color: #b7cff8;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.dx3-enemies-page .enemy-compact-flag input:checked + span {
+  border-color: rgba(94, 255, 143, 0.72);
+  background: rgba(23, 130, 63, 0.84);
+  color: #f1fff5;
+}
+.dx3-enemies-page .enemy-template-flags {
+  display: none;
+}
+.dx3-enemies-page .enemy-skill-table {
+  min-width: 900px;
+}
+.dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+  min-width: 10rem;
+}
+@media (max-width: 900px) {
+  .dx3-enemies-page .dx3-enemy-action-bar .action-bar-right {
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+}
+
+
+/* ==========================================================================
+   DX3 enemy mode - community list at bottom
+   ========================================================================== */
+.dx3-enemies-page .dx3-enemy-community-pane {
+  margin-top: 1rem;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+}
+.dx3-enemies-page .dx3-enemy-community-list-pane {
+  padding: 0.8rem;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-title {
+  gap: 0.45rem;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .list-head h2 {
+  margin: 0;
+  font-size: 1.28rem;
+  letter-spacing: 0.04em;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .sort-chip,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-show-all-btn,
+.dx3-enemies-page .dx3-enemy-community-pane .pager-btn {
+  border: 1px solid rgba(214, 184, 130, 0.34);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(43, 38, 34, 0.96), rgba(25, 20, 18, 0.96));
+  color: #f6eee3;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0.24rem 0.62rem;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .sort-chip.is-active,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-show-all-btn:hover,
+.dx3-enemies-page .dx3-enemy-community-pane .pager-btn:not(:disabled):hover {
+  border-color: rgba(247, 215, 122, 0.78);
+  background: linear-gradient(180deg, rgba(118, 78, 12, 0.98), rgba(65, 43, 11, 0.98));
+  color: #ffffff;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .pager-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-field-select,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
+  font-family: inherit;
+  font-size: 0.86rem;
+  padding: 0.28rem 0.45rem;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
+  width: 4.2em !important;
+  min-width: 4.2em !important;
+  max-width: 4.2em !important;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input::-webkit-outer-spin-button,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input {
+  width: 100%;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-count,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-pager-info,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-controls {
+  font-family: inherit;
+  font-weight: 800;
+}
+.dx3-enemies-page .dx3-enemy-community-head h2 {
+  margin: 0;
+  color: #79d5ff;
+  font-size: 1.08rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.dx3-enemies-page .dx3-enemy-community-controls {
+  margin-top: 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+.dx3-enemies-page .dx3-enemy-community-controls .enemy-search-row {
+  flex: 1 1 18rem;
+  margin: 0;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-row {
+  gap: 0.55rem;
+  margin-top: 0.55rem;
+  width: 100%;
+}
+.dx3-enemies-page .dx3-enemy-community-list {
+  margin-top: 0.55rem;
+  max-height: 22rem;
+  padding-top: 0.55rem;
+}
+.dx3-enemies-page .dx3-enemy-community-empty {
+  margin: 0.6rem 0 0;
+  color: #b7cff8;
+  font-size: 0.86rem;
+}
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-class-tag {
+  margin-left: auto;
+  color: #ffd966;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   DX3 enemy mode - community list AR2E-style skin
+   ========================================================================== */
+.dx3-enemies-page {
+  --dx3-enemy-accent: var(--color-dx3, #cc4125);
+  --dx3-enemy-accent-rgb: 204, 65, 37;
+  --dx3-enemy-card-bg: #101827;
+  --dx3-enemy-card-bg-soft: #1b2437;
+  --dx3-enemy-border: rgba(204, 65, 37, 0.45);
+  --dx3-enemy-text: #f8fafc;
+  --dx3-enemy-muted: #a8b3c7;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane {
+  margin-top: 1.1rem;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-title {
+  color: #fff8f4;
+  background:
+    linear-gradient(90deg, rgba(var(--dx3-enemy-accent-rgb), 0.78) 0%, rgba(68, 23, 18, 0.9) 54%, rgba(16, 20, 32, 0.92) 100%);
+  text-shadow: 0 2px 0 #000, 0 0 10px rgba(var(--dx3-enemy-accent-rgb), 0.38);
+}
+
+.dx3-enemies-page .dx3-enemy-community-list-pane {
+  border: 1px solid rgba(var(--dx3-enemy-accent-rgb), 0.34);
+  border-top: none;
+  background:
+    radial-gradient(700px 180px at 8% 0%, rgba(var(--dx3-enemy-accent-rgb), 0.16), transparent 62%),
+    linear-gradient(180deg, rgba(21, 28, 44, 0.96) 0%, rgba(10, 14, 24, 0.96) 100%);
+  color: var(--dx3-enemy-text);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 10px 22px rgba(0,0,0,0.35);
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .list-head h2 {
+  margin: 0;
+  color: #fff1ec;
+  text-shadow: 0 0 8px rgba(var(--dx3-enemy-accent-rgb), 0.4);
+  font-size: 1.28rem;
+  letter-spacing: 0.04em;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-count,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-pager-info,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-controls {
+  color: #ffd5cb;
+  font-family: inherit;
+  font-weight: 800;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .sort-chip,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-show-all-btn,
+.dx3-enemies-page .dx3-enemy-community-pane .pager-btn {
+  border: 1px solid rgba(var(--dx3-enemy-accent-rgb), 0.46);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+  color: #fff1ec;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0.24rem 0.62rem;
+  box-shadow: 1px 1px 0 #000;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .sort-chip.is-active,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-show-all-btn:hover,
+.dx3-enemies-page .dx3-enemy-community-pane .pager-btn:not(:disabled):hover {
+  border-color: #ff9b85;
+  background: linear-gradient(180deg, var(--dx3-enemy-accent) 0%, #7e2618 100%);
+  color: #fff;
+  box-shadow: 1px 1px 0 #000, 0 0 10px rgba(var(--dx3-enemy-accent-rgb), 0.42);
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .pager-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-field-select,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
+  border: 1px solid rgba(var(--dx3-enemy-accent-rgb), 0.42);
+  background: #071124;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 0.86rem;
+  padding: 0.32rem 0.5rem;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-field-select {
+  min-width: 7.2rem;
+  border-right: none;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input {
+  width: 100%;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
+  width: 3.2em !important;
+  min-width: 3.2em !important;
+  max-width: 3.2em !important;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input::-webkit-outer-spin-button,
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-row {
+  gap: 0.55rem;
+  margin-top: 0.55rem;
+  width: 100%;
+}
+
+.dx3-enemies-page .dx3-enemy-community-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+  max-height: 42vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.dx3-enemies-page .dx3-enemy-community-list .enemy-list-item {
+  margin: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-community-list .enemy-list-item.is-active .enemy-list-card {
+  border-color: #ff9b85;
+  box-shadow: 0 0 0 1px rgba(255, 155, 133, 0.55), 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.dx3-enemies-page .dx3-enemy-list-card.enemy-list-card {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(var(--dx3-enemy-accent-rgb), 0.36);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: default;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, rgba(var(--dx3-enemy-accent-rgb), 0.12) 0%, rgba(16, 24, 39, 0.12) 48%),
+    linear-gradient(180deg, #182236 0%, #080d18 100%);
+  color: var(--dx3-enemy-text);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card.enemy-list-card:hover {
+  border-color: rgba(255, 155, 133, 0.72);
+  box-shadow: 0 0 12px rgba(var(--dx3-enemy-accent-rgb), 0.24);
+}
+
+.dx3-enemies-page .dx3-enemy-list-card[data-enemy-type*="レネゲイドビーイング"],
+.dx3-enemies-page .dx3-enemy-list-card[data-enemy-type*="RB"] {
+  background:
+    linear-gradient(135deg, rgba(146, 80, 255, 0.16), rgba(16, 24, 39, 0.08)),
+    linear-gradient(180deg, #1a2238 0%, #090d18 100%);
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-side-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.dx3-enemies-page .dx3-erosion-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 155, 133, 0.65);
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--dx3-enemy-accent) 0%, #55170f 100%);
+  color: #fff7f4;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.26);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+  flex: 0 0 auto;
+}
+
+.dx3-enemies-page .dx3-erosion-badge .erosion-label {
+  font-size: 0.6rem;
+  margin-bottom: -2px;
+  line-height: 1;
+}
+
+.dx3-enemies-page .dx3-erosion-badge .erosion-value {
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.34rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 155, 133, 0.38);
+  background: #101827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #ffb2a1;
+  flex: 0 0 auto;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-icon-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-icon-wrap i {
+  font-size: 1rem;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-content-main {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-upper-info,
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-lower-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-name {
+  font-size: 0.98rem;
+  font-weight: 900;
+  color: #fff8f4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-meta-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.6rem;
+  padding: 0 0.5rem;
+  border: 1px solid rgba(255, 155, 133, 0.25);
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #f8fafc;
+  font-size: 0.72rem;
+  line-height: 1;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-lower-info {
+  margin-top: 0;
+  font-size: 0.78rem;
+  color: var(--dx3-enemy-muted);
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-side-right-group {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  flex: 0 0 auto;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-meta-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-class-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.6rem;
+  padding: 0 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 155, 133, 0.52);
+  background: linear-gradient(135deg, rgba(var(--dx3-enemy-accent-rgb), 0.86), rgba(88, 24, 15, 0.9));
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-public-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.6rem;
+  padding: 0 0.55rem;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-public-badge.is-public {
+  background: #256341;
+  color: #e5fff1;
+  border-color: #4f9c70;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-public-badge.is-private {
+  background: #4c1d25;
+  color: #ffe4e9;
+  border-color: #9f5b67;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-time-tag {
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1rem;
+  line-height: 1;
+  color: #78869d;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  display: block;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-bg-icon {
+  position: absolute;
+  bottom: -18px;
+  right: 8%;
+  font-size: 6rem;
+  color: var(--dx3-enemy-accent);
+  opacity: 0.11;
+  pointer-events: none;
+  z-index: 0;
+  transform: rotate(-10deg);
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-btns-row {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn {
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  padding: 2px 0 4px;
+  font-size: 0.62rem;
+  font-weight: 900;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1.1;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn i {
+  font-size: 1rem;
+  margin-bottom: -8px;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn.is-view {
+  background: linear-gradient(135deg, #9a6a13 0%, #4a3210 100%);
+  color: #fff7d6;
+  border: 1px solid #d9a21f;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn.is-load {
+  background: linear-gradient(135deg, var(--dx3-enemy-accent) 0%, #5a180f 100%);
+  color: #fff;
+  border: 1px solid #ff8d78;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn.is-output {
+  background: linear-gradient(135deg, #37468d 0%, #252a3a 100%);
+  color: #dbe4ff;
+  border: 1px solid #4a59a4;
+}
+
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.12);
+}
+
+.dx3-enemies-page .dx3-enemy-community-empty {
+  margin: 0.6rem 0 0;
+  color: #ffd5cb;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .dx3-enemy-list-card .enemy-list-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .dx3-enemies-page .dx3-enemy-list-card .enemy-list-side-right-group {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .dx3-enemies-page .dx3-enemy-list-card .enemy-list-meta-column {
+    align-items: flex-start;
+  }
+}
+
+
+/* DX3 enemy sample button */
+.dx3-enemy-common-header {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.dx3-enemy-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.dx3-enemy-title-block h2 {
+  margin: 0;
+}
+.dx3-enemy-sample-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+.dx3-enemy-sample-btn {
+  border-color: color-mix(in srgb, var(--color-dx3, #cc4125) 70%, #fff 10%);
+  background: linear-gradient(135deg, rgba(204, 65, 37, 0.26), rgba(20, 24, 34, 0.92));
+  color: #fff7f4;
+  white-space: nowrap;
+}
+.dx3-enemy-sample-note {
+  color: rgba(255, 238, 232, 0.72);
+  font-size: 0.76rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .dx3-enemy-common-header,
+  .dx3-enemy-sample-actions {
+    justify-content: flex-start;
+  }
+  .dx3-enemy-sample-actions {
+    margin-left: 0;
+  }
+  .dx3-enemy-sample-note {
+    white-space: normal;
+  }
+}
+
+/* DX3 enemy ruby/name and ability breakdown */
+.dx3-enemies-page .enemy-ruby-field {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 0.12rem;
+  color: #dcefff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  min-width: 0;
+}
+.dx3-enemies-page .enemy-ruby-field-name,
+.dx3-enemies-page .enemy-ruby-field-code {
+  grid-column: span 2;
+}
+.dx3-enemies-page .enemy-ruby-label {
+  line-height: 1.1;
+}
+.dx3-enemies-page .enemy-ruby-input {
+  height: 1.25rem;
+  min-height: 1.25rem;
+  padding: 0.08rem 0.38rem !important;
+  font-size: 0.68rem;
+  color: #a9c6ff !important;
+  background: rgba(7, 19, 55, 0.55) !important;
+  border-color: rgba(115, 173, 255, 0.28) !important;
+}
+.dx3-enemies-page .enemy-main-input {
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+.dx3-enemies-page .enemy-auto-dice-field {
+  position: relative;
+}
+.dx3-enemies-page .enemy-auto-dice-field input[readonly] {
+  color: #ffe08a;
+  background: rgba(7, 19, 55, 0.62);
+  border-style: dashed;
+}
+.dx3-enemies-page .enemy-auto-dice-field span {
+  font-size: 0.66rem;
+  color: #92a8d7;
+  font-weight: 700;
+}
+.dx3-enemies-page .enemy-ability-breakdown {
+  border: 1px solid rgba(115, 173, 255, 0.28);
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  background: rgba(6, 17, 48, 0.45);
+}
+.dx3-enemies-page .enemy-ability-breakdown-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.45rem;
+  color: #79d5ff;
+  font-weight: 900;
+}
+
+.dx3-enemies-page .enemy-ability-erosion-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid rgba(204, 65, 37, 0.42);
+  border-radius: 999px;
+  background: rgba(204, 65, 37, 0.12);
+  color: #ffd8cf;
+  font-size: 0.72rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.dx3-enemies-page .enemy-ability-erosion-toggle input {
+  width: auto;
+  margin: 0;
+  accent-color: var(--color-dx3, #cc4125);
+}
+.dx3-enemies-page .enemy-ability-breakdown-head small {
+  color: #a8b3c7;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.dx3-enemies-page .enemy-ability-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.dx3-enemies-page .enemy-ability-card {
+  display: grid;
+  grid-template-columns: minmax(2.8rem, auto) repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.35rem;
+  padding: 0.45rem;
+  border: 1px solid rgba(204, 65, 37, 0.25);
+  border-radius: 6px;
+  background: rgba(11, 21, 54, 0.72);
+}
+.dx3-enemies-page .enemy-ability-name {
+  align-self: center;
+  color: var(--color-dx3, #cc4125);
+  font-size: 1rem;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(204, 65, 37, 0.35);
+}
+.dx3-enemies-page .enemy-ability-card label {
+  display: grid;
+  gap: 0.16rem;
+  color: #cfe6ff;
+  font-size: 0.66rem;
+  font-weight: 800;
+  min-width: 0;
+}
+.dx3-enemies-page .enemy-ability-card input {
+  width: 100%;
+  min-width: 0;
+  text-align: right;
+  border: 1px solid rgba(115, 173, 255, 0.55);
+  border-radius: 5px;
+  background: rgba(7, 19, 55, 0.92);
+  color: #f3f8ff;
+  padding: 0.28rem 0.38rem;
+  box-sizing: border-box;
+}
+.dx3-enemies-page .enemy-ability-card input[readonly] {
+  color: #ffe08a;
+  background: rgba(7, 19, 55, 0.55);
+  border-color: rgba(115, 173, 255, 0.24);
+}
+.dx3-enemies-page .enemy-secondary-stat-grid {
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+}
+@media (max-width: 1100px) {
+  .dx3-enemies-page .enemy-ability-breakdown-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .dx3-enemies-page .enemy-ruby-field-name,
+  .dx3-enemies-page .enemy-ruby-field-code {
+    grid-column: auto;
+  }
+  .dx3-enemies-page .enemy-ability-breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+  .dx3-enemies-page .enemy-ability-card {
+    grid-template-columns: 3.2rem repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* v86: DX3 enemy ability stacking matrix */
+.dx3-enemies-page .enemy-ability-matrix-block {
+  overflow: hidden;
+}
+
+.dx3-enemies-page .enemy-ability-matrix-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.dx3-enemies-page .enemy-ability-matrix {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.82rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix th,
+.dx3-enemies-page .enemy-ability-matrix td {
+  border: 1px solid rgba(115, 173, 255, 0.34);
+  padding: 0.18rem;
+  background: rgba(7, 19, 55, 0.58);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.dx3-enemies-page .enemy-ability-matrix thead th {
+  background: linear-gradient(180deg, rgba(204, 65, 37, 0.58), rgba(88, 24, 18, 0.78));
+  color: #fff7f3;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label-head {
+  width: 15.5rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+  width: 15.5rem;
+  text-align: left;
+  color: #f5fbff;
+  background: rgba(45, 58, 88, 0.88);
+  font-weight: 900;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+  display: inline-block;
+  margin-right: 0.35rem;
+  white-space: nowrap;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label input[type="text"] {
+  width: min(9.5rem, 100%);
+  min-width: 7rem;
+  height: 1.75rem;
+  padding: 0.18rem 0.35rem;
+  border: 1px solid rgba(115, 173, 255, 0.55);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.dx3-enemies-page .enemy-ability-matrix input[type="number"],
+.dx3-enemies-page .enemy-ability-matrix input[readonly] {
+  width: 100%;
+  min-width: 0;
+  height: 1.75rem;
+  padding: 0.15rem 0.3rem;
+  box-sizing: border-box;
+  text-align: right;
+  border: 1px solid rgba(115, 173, 255, 0.52);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111827;
+  font-family: var(--font-latin-ui, "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.dx3-enemies-page .enemy-ability-matrix input[readonly] {
+  background: rgba(210, 215, 224, 0.9);
+  color: #111827;
+  border-color: rgba(71, 85, 105, 0.6);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .syndrome-source-row th,
+.dx3-enemies-page .enemy-ability-matrix .syndrome-source-row td {
+  background: rgba(16, 30, 72, 0.74);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .syndrome-source-row.is-optional th,
+.dx3-enemies-page .enemy-ability-matrix .syndrome-source-row.is-optional td {
+  background: rgba(28, 33, 45, 0.82);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .manual-source-row th,
+.dx3-enemies-page .enemy-ability-matrix .manual-source-row td {
+  background: rgba(39, 47, 65, 0.82);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .manual-source-row.is-base th,
+.dx3-enemies-page .enemy-ability-matrix .manual-source-row.is-base td {
+  background: rgba(58, 67, 88, 0.9);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .stat-muted-cell input[readonly] {
+  background: rgba(35, 42, 58, 0.75);
+  color: transparent;
+  border-color: rgba(71, 85, 105, 0.35);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-total-row th,
+.dx3-enemies-page .enemy-ability-matrix .ability-total-row td {
+  background: rgba(87, 23, 16, 0.9);
+  border-color: rgba(255, 190, 176, 0.48);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
+  background: #061337;
+  color: #ffe08a;
+  border-color: rgba(255, 224, 138, 0.44);
+}
+
+.dx3-enemies-page .enemy-ability-matrix .erosion-total-cell {
+  position: relative;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .erosion-total-cell small {
+  position: absolute;
+  right: 0.28rem;
+  bottom: -0.08rem;
+  color: #79d5ff;
+  font-size: 0.58rem;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.dx3-enemies-page .enemy-breed-grid {
+  grid-template-columns: minmax(12rem, 24rem);
+}
+
+@media (max-width: 720px) {
+  .dx3-enemies-page .enemy-ability-matrix {
+    min-width: 760px;
+    font-size: 0.76rem;
+  }
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: 12.5rem;
+  }
+}
+
+/* v87: DX3 enemy ability matrix compact layout */
+.dx3-enemies-page .enemy-auto-breed-field input[readonly] {
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2937;
+  cursor: default;
+}
+
+.dx3-enemies-page .enemy-ability-matrix-wrap {
+  overflow-x: visible;
+}
+
+.dx3-enemies-page .enemy-ability-matrix {
+  width: min(100%, 720px);
+  min-width: 0;
+  max-width: 720px;
+  table-layout: fixed;
+  font-size: 0.8rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+  width: 12.2rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix th,
+.dx3-enemies-page .enemy-ability-matrix td {
+  padding: 0.14rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix thead th {
+  font-weight: 700;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+  font-weight: 700;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label input[type="text"] {
+  width: 8.5rem;
+  min-width: 0;
+  height: 1.55rem;
+  font-weight: 600;
+}
+
+.dx3-enemies-page .enemy-ability-matrix input[type="number"],
+.dx3-enemies-page .enemy-ability-matrix input[readonly],
+.dx3-enemies-page .enemy-stat-stack-grid input[type="number"],
+.dx3-enemies-page .enemy-stat-stack-grid strong {
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-stretch: normal;
+  font-variant-numeric: tabular-nums;
+  font-weight: 300;
+  letter-spacing: 0;
+}
+
+.dx3-enemies-page .enemy-ability-matrix input[type="number"],
+.dx3-enemies-page .enemy-ability-matrix input[readonly] {
+  height: 1.55rem;
+  padding: 0.08rem 0.25rem;
+  font-size: 0.92rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
+  font-weight: 300;
+  color: #ffe08a;
+}
+
+.dx3-enemies-page .enemy-stat-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-card {
+  border: 1px solid rgba(115, 173, 255, 0.32);
+  border-left: 3px solid var(--color-dx3, #cc4125);
+  border-radius: 6px;
+  background: rgba(7, 19, 55, 0.58);
+  padding: 0.38rem 0.45rem;
+  min-width: 0;
+}
+
+.dx3-enemies-page .enemy-stat-stack-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  color: #dff3ff;
+  font-weight: 700;
+  font-size: 0.78rem;
+  line-height: 1;
+  margin-bottom: 0.32rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-title small {
+  color: #79d5ff;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(2.1rem, auto);
+  align-items: center;
+  gap: 0.18rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula span {
+  color: #9fc5e8;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula input {
+  min-width: 0;
+  width: 100%;
+  height: 1.55rem;
+  padding: 0.08rem 0.22rem;
+  text-align: right;
+  border: 1px solid rgba(115, 173, 255, 0.52);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111827;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula input[readonly] {
+  background: rgba(226, 232, 240, 0.92);
+  color: #111827;
+  cursor: default;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 1.55rem;
+  padding: 0.08rem 0.32rem;
+  border: 1px solid rgba(255, 224, 138, 0.44);
+  border-radius: 3px;
+  background: #061337;
+  color: #ffe08a;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 720px) {
+  .dx3-enemies-page .enemy-ability-matrix {
+    width: 100%;
+    min-width: 520px;
+    font-size: 0.74rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-wrap {
+    overflow-x: auto;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: 10.5rem;
+  }
+}
+
+/* v89: DX3 enemy ability matrix numeric compacting */
+.dx3-enemies-page .enemy-ability-matrix {
+  width: min(100%, 560px);
+  max-width: 560px;
+  font-size: 0.78rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+  width: 10.2rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix th,
+.dx3-enemies-page .enemy-ability-matrix td {
+  padding: 1px 2px;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+  padding-inline: 3px;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+  margin-right: 0.18rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label input[type="text"] {
+  width: 7.2rem;
+  height: 1.45rem;
+  padding: 1px 6px;
+  font-size: 0.78rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix input[type="number"],
+.dx3-enemies-page .enemy-ability-matrix input[readonly] {
+  height: 1.45rem;
+  padding: 1px 2px;
+  font-size: 1.12rem;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
+  font-size: 1.16rem;
+  font-weight: 300;
+}
+
+@media (max-width: 720px) {
+  .dx3-enemies-page .enemy-ability-matrix {
+    width: min(100%, 520px);
+    max-width: 520px;
+    font-size: 0.74rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: 9.4rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label input[type="text"] {
+    width: 6.5rem;
+  }
+}
+
+/* v90: DX3 enemy ability table closer to ytsheet compact stacking */
+.dx3-enemies-page .enemy-ability-matrix-block {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(12rem, 22rem);
+  gap: 0.55rem 0.7rem;
+  align-items: start;
+  overflow: visible;
+}
+
+.dx3-enemies-page .enemy-ability-breakdown-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+}
+
+.dx3-enemies-page .enemy-auto-breed-chip {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid rgba(204, 65, 37, 0.65);
+  border-radius: 999px;
+  background: rgba(204, 65, 37, 0.18);
+  color: #fff7f3;
+  font-size: 0.72rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.dx3-enemies-page .enemy-auto-breed-chip strong {
+  color: #ffe08a;
+  font-weight: 700;
+}
+
+.dx3-enemies-page .enemy-ability-matrix-wrap {
+  grid-column: 1;
+  width: 360px;
+  max-width: 100%;
+  overflow-x: visible;
+}
+
+.dx3-enemies-page .enemy-ability-matrix {
+  width: 360px;
+  max-width: 360px;
+  min-width: 0;
+  font-size: 0.72rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+  width: 8.2rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix th,
+.dx3-enemies-page .enemy-ability-matrix td {
+  padding: 1px 1px;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+  padding-inline: 2px;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+  display: block;
+  margin: 0 0 1px;
+  line-height: 1.05;
+}
+
+.dx3-enemies-page .enemy-syndrome-select {
+  width: 7.6rem;
+  height: 1.35rem;
+  min-width: 0;
+  padding: 0 1rem 0 0.18rem;
+  border: 1px solid rgba(115, 173, 255, 0.55);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #1f2937;
+  font-size: 0.72rem;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .enemy-ability-matrix input[type="number"],
+.dx3-enemies-page .enemy-ability-matrix input[readonly] {
+  height: 1.35rem;
+  padding: 1px 1px;
+  font-size: 1.08rem;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
+  font-size: 1.12rem;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-stat-stack-grid {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.34rem;
+  margin-top: 0;
+  align-self: start;
+}
+
+.dx3-enemies-page .enemy-stat-stack-card {
+  padding: 0.3rem 0.38rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-title {
+  margin-bottom: 0.2rem;
+  font-size: 0.74rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula {
+  grid-template-columns: minmax(2.8rem, 1fr) auto minmax(2.6rem, 1fr) auto minmax(2.6rem, auto);
+  gap: 0.14rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula input {
+  height: 1.35rem;
+  padding: 1px 2px;
+  font-size: 0.98rem;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula strong {
+  min-height: 1.35rem;
+  padding: 1px 0.28rem;
+  font-size: 0.98rem;
+  font-weight: 300;
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    grid-template-columns: 1fr;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .enemy-stat-stack-grid {
+    grid-column: 1;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix {
+    width: 360px;
+    max-width: 360px;
+  }
+}
+
+/* v91: DX3 enemy ability/stat compact refinements */
+.dx3-enemies-page .enemy-ability-breakdown-head .enemy-auto-breed-chip {
+  display: none;
+}
+
+.dx3-enemies-page .enemy-ability-matrix {
+  width: 360px;
+  max-width: 360px;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+  width: 8.1rem;
+}
+
+.dx3-enemies-page .enemy-ability-matrix input[type="number"],
+.dx3-enemies-page .enemy-ability-matrix input[readonly] {
+  height: 1.42rem;
+  padding: 1px 2px;
+  font-size: 1.22rem;
+  line-height: 1;
+  font-weight: 300;
+  text-align: right;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
+  font-size: 1.26rem;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-ability-matrix .ability-total-row .ability-row-label span {
+  color: #ffe08a;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.dx3-enemies-page .enemy-stat-stack-grid {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.32rem;
+  margin-top: 0;
+  align-self: start;
+}
+
+.dx3-enemies-page .enemy-stat-stack-card {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.24rem 0.36rem;
+  min-height: 1.85rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-title {
+  margin: 0;
+  justify-content: flex-start;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula {
+  display: grid;
+  grid-template-columns: 3.25rem auto 2.7rem auto 2.8rem;
+  align-items: center;
+  justify-content: end;
+  gap: 0.14rem;
+  min-width: 0;
+}
+
+.dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+  grid-template-columns: 3.25rem auto 2.8rem 2.3rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula input {
+  width: 100%;
+  min-width: 0;
+  height: 1.42rem;
+  padding: 1px 2px;
+  font-size: 1.12rem;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula strong {
+  min-height: 1.42rem;
+  padding: 1px 0.22rem;
+  font-size: 1.12rem;
+  line-height: 1;
+  font-weight: 300;
+  min-width: 0;
+  width: 100%;
+}
+
+.dx3-enemies-page .enemy-erosion-dice-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.42rem;
+  min-width: 2.2rem;
+  padding: 1px 0.28rem;
+  border: 1px solid rgba(121, 213, 255, 0.55);
+  border-radius: 4px;
+  background: rgba(13, 26, 80, 0.85);
+  color: #79d5ff;
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.04rem;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-stat-stack-card {
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+  }
+}
+
+/* v92: DX3 enemy skill table compact + ability/stat height alignment */
+.dx3-enemies-page .enemy-skill-table {
+  width: 100%;
+  min-width: 760px;
+  table-layout: auto;
+}
+
+.dx3-enemies-page .enemy-skill-table th,
+.dx3-enemies-page .enemy-skill-table td {
+  padding: 0.18rem 0.22rem;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(1) {
+  width: 5.4em;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(2) {
+  width: 6.1em;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(3) {
+  width: 4.9em;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(4),
+.dx3-enemies-page .enemy-skill-table td:nth-child(5),
+.dx3-enemies-page .enemy-skill-table td:nth-child(6) {
+  width: 3.05em;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+  width: min(22vw, 18rem);
+}
+
+.dx3-enemies-page .enemy-skill-action-head,
+.dx3-enemies-page .enemy-skill-action-cell {
+  width: 2.5em;
+  min-width: 2.5em;
+  text-align: center;
+}
+
+.dx3-enemies-page .enemy-skill-table input,
+.dx3-enemies-page .enemy-skill-table select {
+  height: 2.05rem;
+  padding: 0.08rem 0.25rem;
+  border-radius: 4px;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(4) input,
+.dx3-enemies-page .enemy-skill-table td:nth-child(5) input,
+.dx3-enemies-page .enemy-skill-table td:nth-child(6) input {
+  padding-inline: 0.08rem;
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.16rem;
+  font-weight: 300;
+  line-height: 1;
+  text-align: right;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(1) input,
+.dx3-enemies-page .enemy-skill-table td:nth-child(2) input,
+.dx3-enemies-page .enemy-skill-table td:nth-child(3) select {
+  font-size: 0.88rem;
+}
+
+.dx3-enemies-page .enemy-skill-output {
+  min-width: 18rem;
+  font-size: 0.78rem;
+}
+
+.dx3-enemies-page .enemy-skill-delete-btn {
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+}
+
+.dx3-enemies-page .enemy-ability-matrix-block {
+  align-items: stretch;
+}
+
+.dx3-enemies-page .enemy-ability-matrix-wrap,
+.dx3-enemies-page .enemy-stat-stack-grid {
+  align-self: stretch;
+}
+
+.dx3-enemies-page .enemy-ability-matrix,
+.dx3-enemies-page .enemy-ability-matrix tbody {
+  height: 100%;
+}
+
+.dx3-enemies-page .enemy-ability-matrix tr {
+  height: 20%;
+}
+
+.dx3-enemies-page .enemy-stat-stack-grid {
+  height: 100%;
+  grid-auto-rows: 1fr;
+}
+
+.dx3-enemies-page .enemy-stat-stack-card {
+  min-height: 0;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .dx3-enemies-page .enemy-skill-table {
+    min-width: 700px;
+  }
+
+  .dx3-enemies-page .enemy-skill-output {
+    min-width: 15rem;
+  }
+}
+
+
+/* v93: 固定技能の指定欄を消し、技能名+指定の2列ぶんを固定ラベルで使う */
+.dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td:nth-child(1) {
+  width: 11.5em;
+}
+
+.dx3-enemies-page .enemy-skill-fixed-label,
+.dx3-enemies-page .enemy-skill-fixed-name {
+  color: #e9f4ff;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.dx3-enemies-page .enemy-skill-fixed-label {
+  padding-left: 0.45rem !important;
+  vertical-align: middle;
+}
+
+.dx3-enemies-page .enemy-skill-fixed-label span,
+.dx3-enemies-page .enemy-skill-fixed-name {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.05rem;
+}
+
+.dx3-enemies-page .enemy-skill-table tr:not(.is-fixed-skill-row) td:nth-child(1) input,
+.dx3-enemies-page .enemy-skill-table tr:not(.is-fixed-skill-row) td:nth-child(2) input {
+  min-width: 0;
+}
+
+/* v94: 知識追加、技能色分け、折りたたみ見出しの矢印位置調整 */
+.dx3-enemies-page .dx3-collapsible-summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-left: 1.35rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.dx3-enemies-page .dx3-collapsible-summary::-webkit-details-marker {
+  display: none;
+}
+
+.dx3-enemies-page .dx3-collapsible-summary::marker {
+  content: "";
+}
+
+.dx3-enemies-page .dx3-collapsible-summary::before {
+  content: "▶";
+  position: absolute;
+  left: 0.15rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.9rem;
+  text-align: center;
+  color: #dceeff;
+  font-size: 0.82rem;
+  line-height: 1;
+  transition: transform 0.16s ease;
+}
+
+.dx3-enemies-page details[open] > .dx3-collapsible-summary::before {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.dx3-enemies-page .dx3-collapsible-summary h3 {
+  margin: 0;
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group="body"] {
+  --dx3-skill-row-rgb: 204, 65, 37;
+  --dx3-skill-row-accent: #cc4125;
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group="sense"] {
+  --dx3-skill-row-rgb: 50, 145, 114;
+  --dx3-skill-row-accent: #55d6a7;
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group="mind"] {
+  --dx3-skill-row-rgb: 80, 125, 210;
+  --dx3-skill-row-accent: #7fb3ff;
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group="social"] {
+  --dx3-skill-row-rgb: 218, 164, 64;
+  --dx3-skill-row-accent: #ffd26a;
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] td {
+  background: linear-gradient(90deg, rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.16), rgba(6, 15, 46, 0.18));
+  border-top-color: rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.34);
+  border-bottom-color: rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.18);
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] td:first-child,
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group].is-fixed-skill-row .enemy-skill-fixed-label {
+  border-left: 3px solid var(--dx3-skill-row-accent, var(--color-dx3, #cc4125));
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] select,
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] input {
+  border-color: rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.58);
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] .enemy-skill-output,
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] .enemy-skill-fixed-label span,
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] .enemy-skill-fixed-name {
+  color: #f6fbff;
+  text-shadow: 0 0 6px rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.2);
+}
+
+/* v95: DX3 enemy compact numeric controls and tighter skill/ability layout */
+.dx3-enemies-page .dx3-enemy-template-pane input[type="number"]::-webkit-outer-spin-button,
+.dx3-enemies-page .dx3-enemy-template-pane input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-template-pane input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.dx3-enemies-page .enemy-ability-matrix-block {
+  grid-template-columns: minmax(0, 360px) minmax(0, 17rem);
+  gap: 0.45rem 0.6rem;
+  width: max-content;
+  max-width: 100%;
+}
+
+.dx3-enemies-page .enemy-ability-matrix-wrap {
+  width: 360px;
+  max-width: 100%;
+}
+
+.dx3-enemies-page .enemy-ability-matrix {
+  width: 360px;
+  max-width: 360px;
+  min-width: 0;
+}
+
+.dx3-enemies-page .enemy-stat-stack-grid {
+  width: min(17rem, 100%);
+}
+
+.dx3-enemies-page .enemy-stat-stack-card {
+  grid-template-columns: 2.4rem minmax(0, 1fr);
+  gap: 0.22rem;
+  padding: 0.2rem 0.3rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-title {
+  font-size: 0.74rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula {
+  grid-template-columns: 2.55rem auto 2.25rem auto 2.35rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+  grid-template-columns: 2.55rem auto 2.35rem 2rem;
+}
+
+.dx3-enemies-page .enemy-stat-stack-formula input,
+.dx3-enemies-page .enemy-stat-stack-formula strong,
+.dx3-enemies-page .enemy-erosion-dice-chip {
+  height: 1.5rem;
+  min-height: 1.5rem;
+  padding: 1px 2px;
+  font-size: 1.16rem;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-erosion-dice-chip {
+  min-width: 2rem;
+  padding-inline: 0.18rem;
+}
+
+.dx3-enemies-page .enemy-skill-table {
+  min-width: 640px;
+  table-layout: fixed;
+}
+
+.dx3-enemies-page .enemy-skill-table th,
+.dx3-enemies-page .enemy-skill-table td {
+  padding: 0.12rem 0.16rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(1),
+.dx3-enemies-page .enemy-skill-table td:nth-child(1),
+.dx3-enemies-page .enemy-skill-table th:nth-child(2),
+.dx3-enemies-page .enemy-skill-table td:nth-child(2) {
+  width: 5em;
+}
+
+.dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td:nth-child(1) {
+  width: 10em;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(3),
+.dx3-enemies-page .enemy-skill-table td:nth-child(3) {
+  width: 4.6em;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(4),
+.dx3-enemies-page .enemy-skill-table td:nth-child(4),
+.dx3-enemies-page .enemy-skill-table th:nth-child(5),
+.dx3-enemies-page .enemy-skill-table td:nth-child(5),
+.dx3-enemies-page .enemy-skill-table th:nth-child(6),
+.dx3-enemies-page .enemy-skill-table td:nth-child(6) {
+  width: 2.4em;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(7),
+.dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+  width: 22em;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(8),
+.dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+  width: 15em;
+}
+
+.dx3-enemies-page .enemy-skill-action-head,
+.dx3-enemies-page .enemy-skill-action-cell {
+  width: 2.2em;
+  min-width: 2.2em;
+}
+
+.dx3-enemies-page .enemy-skill-table input,
+.dx3-enemies-page .enemy-skill-table select {
+  height: 2.18rem;
+  padding: 1px 2px;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(4) input,
+.dx3-enemies-page .enemy-skill-table td:nth-child(5) input,
+.dx3-enemies-page .enemy-skill-table td:nth-child(6) input {
+  height: 2.18rem;
+  padding: 1px 1px;
+  font-size: 1.28rem;
+  font-weight: 300;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(1) input,
+.dx3-enemies-page .enemy-skill-table td:nth-child(2) input,
+.dx3-enemies-page .enemy-skill-table td:nth-child(3) select,
+.dx3-enemies-page .enemy-skill-fixed-label span,
+.dx3-enemies-page .enemy-skill-fixed-name {
+  font-size: 0.84rem;
+}
+
+.dx3-enemies-page .enemy-skill-output {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .enemy-stat-stack-grid {
+    width: 100%;
+  }
+
+  .dx3-enemies-page .enemy-skill-table {
+    min-width: 620px;
+  }
+}
+
+/* v96: 能力値・HP と技能を横並びで試す */
+.dx3-enemies-page .dx3-enemy-ability-skill-grid {
+  display: grid;
+  grid-template-columns: max-content minmax(34rem, 1fr);
+  gap: 0.7rem;
+  align-items: start;
+  margin-top: 0.75rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section,
+.dx3-enemies-page .enemy-skill-block {
+  min-width: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown {
+  margin-top: 0.45rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown-head {
+  margin-bottom: 0.35rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown-head > span {
+  display: none;
+}
+
+.dx3-enemies-page .enemy-skill-block .enemy-skill-table-wrap {
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 1280px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    width: max-content;
+    max-width: 100%;
+  }
+}
+
+/* v97: 能力値・HPカラム内は縦積み、侵蝕率D表記を 3D 形式へ */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+  display: grid;
+  grid-template-columns: minmax(0, 360px);
+  gap: 0.45rem;
+  width: 360px;
+  max-width: 100%;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+  width: 360px;
+  max-width: 100%;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.28rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+  grid-template-columns: 2.7rem minmax(0, 1fr);
+  min-height: 1.8rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+  justify-content: end;
+  grid-template-columns: 3rem auto 2rem auto 2.4rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+  grid-template-columns: 3rem auto 2.4rem 2.4rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: 300;
+  font-size: 1.2rem;
+  height: 1.55rem;
+  min-height: 1.55rem;
+  padding: 1px 2px;
+  text-align: right;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+  min-width: 2.35rem;
+  color: #ffd966;
+  border-color: rgba(255, 217, 102, 0.75);
+  background: rgba(255, 217, 102, 0.08);
+  font-style: normal;
+  text-align: center;
+}
+
+@media (max-width: 1280px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    width: 360px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    width: 100%;
+  }
+}
+
+/* v98: 能力値・HPの重なり解消と数値フォント再調整 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown-head {
+  display: none;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+  display: grid;
+  grid-template-columns: minmax(0, 360px);
+  gap: 0.48rem;
+  width: 360px;
+  max-width: 100%;
+  align-items: start;
+  overflow: visible;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+  grid-column: 1;
+  width: 360px;
+  max-width: 100%;
+  align-self: start;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix tbody {
+  height: auto;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix tr {
+  height: auto;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: auto;
+  gap: 0.34rem;
+  margin-top: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+  min-height: 0;
+  height: auto;
+  overflow: visible;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly],
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+  height: 1.62rem;
+  padding: 1px 2px;
+  font-size: 1.3rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-total-row input[readonly] {
+  font-size: 1.34rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+  height: 1.62rem;
+  min-height: 1.62rem;
+  padding: 1px 2px;
+  font-size: 1.28rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+  grid-template-columns: 3.1rem auto 2.15rem auto 2.55rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+  grid-template-columns: 3.1rem auto 2.55rem 2.55rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+  justify-content: center;
+  color: #ffd966;
+  border-color: rgba(255, 217, 102, 0.78);
+  background: rgba(255, 217, 102, 0.09);
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    width: 100%;
+  }
+}
+
+
+/* v100: 技能表の数値欄はHTML側のクラスで直接指定する。
+   colspan行でnth-childがずれるため、Lv/追加D/修正のinputにだけ当てる。 */
+.dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell {
+  width: 2.35em;
+  min-width: 2.35em;
+  max-width: 2.35em;
+  padding-inline: 2px;
+}
+
+.dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 2.18rem;
+  min-height: 2.18rem;
+  padding: 1px 1px;
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.28rem;
+  font-weight: 300;
+  line-height: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"]::-webkit-outer-spin-button,
+.dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+/* v101: DX3 enemy ability/skill color polish and erosion display trim */
+.dx3-enemies-page .enemy-ability-matrix th:nth-child(2),
+.dx3-enemies-page .enemy-ability-matrix td:nth-child(2) {
+  background-image: linear-gradient(90deg, rgba(204, 65, 37, 0.18), rgba(204, 65, 37, 0.05));
+}
+
+.dx3-enemies-page .enemy-ability-matrix th:nth-child(3),
+.dx3-enemies-page .enemy-ability-matrix td:nth-child(3) {
+  background-image: linear-gradient(90deg, rgba(50, 145, 114, 0.18), rgba(50, 145, 114, 0.05));
+}
+
+.dx3-enemies-page .enemy-ability-matrix th:nth-child(4),
+.dx3-enemies-page .enemy-ability-matrix td:nth-child(4) {
+  background-image: linear-gradient(90deg, rgba(80, 125, 210, 0.18), rgba(80, 125, 210, 0.05));
+}
+
+.dx3-enemies-page .enemy-ability-matrix th:nth-child(5),
+.dx3-enemies-page .enemy-ability-matrix td:nth-child(5) {
+  background-image: linear-gradient(90deg, rgba(218, 164, 64, 0.18), rgba(218, 164, 64, 0.05));
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] .enemy-skill-ability-cell {
+  background: linear-gradient(90deg, rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.24), rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.09));
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] .enemy-skill-ability-cell select {
+  background: rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.14);
+  color: #f7fbff;
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] .enemy-skill-ability-cell select:focus {
+  box-shadow: 0 0 0 1px rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.36);
+}
+
+.dx3-enemies-page .enemy-skill-table tr[data-skill-group] .enemy-skill-ability-cell option {
+  background: #0b1744;
+  color: #eef6ff;
+}
+
+.dx3-enemies-page .enemy-skill-fixed-label {
+  padding-left: 0.22rem;
+}
+
+.dx3-enemies-page .enemy-skill-fixed-label span,
+.dx3-enemies-page .enemy-skill-fixed-name {
+  padding-left: 0;
+  justify-content: flex-start;
+}
+
+.dx3-enemies-page .enemy-skill-table tr:not(.is-fixed-skill-row) td:nth-child(1) input,
+.dx3-enemies-page .enemy-skill-table tr:not(.is-fixed-skill-row) td:nth-child(2) input {
+  padding-inline: 0.22rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+  grid-template-columns: minmax(4.6rem, 1fr) 2.9rem;
+  justify-content: end;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula input {
+  min-width: 4.6rem;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-erosion-dice-chip {
+  min-width: 2.55rem;
+  color: #ffd966;
+  border-color: rgba(255, 217, 102, 0.82);
+  background: rgba(255, 217, 102, 0.12);
+}
+
+/* v102: 侵蝕率欄は横に伸ばしすぎず、通常2要素ぶん程度にする */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+  grid-template-columns: 6.1rem 2.55rem;
+  justify-content: end;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula input {
+  width: 6.1rem;
+  min-width: 0;
+  max-width: 6.1rem;
+}
+
+/* v103: 技能追加ボタンを見出し横へ移動し、技能表の列幅をcolgroupで固定する */
+.dx3-enemies-page .enemy-skill-summary {
+  align-items: center;
+}
+
+.dx3-enemies-page .enemy-skill-summary-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.dx3-enemies-page .enemy-skill-summary .enemy-skill-add-btn {
+  min-height: 1.7rem;
+  height: 1.7rem;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid rgba(204, 65, 37, 0.85);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(204, 65, 37, 0.24), rgba(76, 18, 18, 0.42));
+  color: #fff6f2;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+.dx3-enemies-page .enemy-skill-summary .enemy-skill-add-btn:hover:not(:disabled) {
+  border-color: rgba(255, 146, 112, 0.95);
+  background: linear-gradient(180deg, rgba(204, 65, 37, 0.36), rgba(96, 24, 20, 0.54));
+}
+
+.dx3-enemies-page .enemy-skill-table {
+  table-layout: fixed;
+}
+
+.dx3-enemies-page .enemy-skill-col-name {
+  width: 5.2em;
+}
+
+.dx3-enemies-page .enemy-skill-col-spec {
+  width: 5.2em;
+}
+
+.dx3-enemies-page .enemy-skill-col-ability {
+  width: 4.8em;
+}
+
+.dx3-enemies-page .enemy-skill-col-num {
+  width: 2.45em;
+}
+
+.dx3-enemies-page .enemy-skill-col-output {
+  width: 28em;
+}
+
+.dx3-enemies-page .enemy-skill-col-note {
+  width: auto;
+}
+
+.dx3-enemies-page .enemy-skill-col-action {
+  width: 2.7em;
+}
+
+.dx3-enemies-page .enemy-skill-table th,
+.dx3-enemies-page .enemy-skill-table td {
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .enemy-skill-fixed-label {
+  padding-inline: 0.22rem;
+}
+
+.dx3-enemies-page .enemy-skill-fixed-label span,
+.dx3-enemies-page .enemy-skill-fixed-name {
+  box-sizing: border-box;
+  min-height: 2.18rem;
+  padding: 1px 0.22rem;
+  border: 1px solid transparent;
+  justify-content: flex-start;
+}
+
+.dx3-enemies-page .enemy-skill-action-head,
+.dx3-enemies-page .enemy-skill-action-cell {
+  width: 2.7em;
+  min-width: 2.7em;
+  max-width: 2.7em;
+}
+
+.dx3-enemies-page .enemy-skill-action-cell:empty::before {
+  content: "";
+  display: block;
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+/* v104: 折りたたみ時も能力値・HP / 技能の横幅が暴れないように固定 */
+.dx3-enemies-page .dx3-enemy-ability-skill-grid {
+  grid-template-columns: minmax(360px, 360px) minmax(34rem, 1fr);
+  align-items: start;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section {
+  width: 360px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section > .dx3-collapsible-summary,
+.dx3-enemies-page .enemy-skill-block > .dx3-collapsible-summary {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section:not([open]) {
+  min-height: 2.1rem;
+}
+
+.dx3-enemies-page .enemy-skill-block:not([open]) {
+  min-height: 2.1rem;
+}
+
+@media (max-width: 1280px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    width: 360px;
+    max-width: 100%;
+  }
+}
+
+/* v105: 侵蝕率にも = を表示し、3DチップはDが読めるUIフォントにする */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+  grid-template-columns: 6.1rem auto 2.9rem;
+  align-items: center;
+  justify-content: end;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-equals {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0.75rem;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-erosion-dice-chip {
+  min-width: 2.9rem;
+  font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: center;
 }
