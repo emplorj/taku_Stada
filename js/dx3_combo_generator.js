@@ -162,6 +162,50 @@ new Vue({
       情報: "社会",
       調達: "社会",
     },
+    enemySkillNameOptions: [
+      "運転:",
+      "運転:二輪",
+      "運転:四輪",
+      "運転:船舶",
+      "運転:航空機",
+      "運転:馬",
+      "運転:多脚戦車",
+      "運転:宇宙船",
+      "芸術:",
+      "芸術:音楽",
+      "芸術:歌唱",
+      "芸術:演技",
+      "芸術:絵画",
+      "芸術:写真",
+      "芸術:彫刻",
+      "芸術:ゲーム",
+      "知識:",
+      "知識:レネゲイド",
+      "知識:医療",
+      "知識:心理",
+      "知識:機械工学",
+      "知識:機械操作",
+      "知識:オカルト",
+      "知識:遺産",
+      "情報:",
+      "情報:UGN",
+      "情報:FH",
+      "情報:ゼノス",
+      "情報:噂話",
+      "情報:裏社会",
+      "情報:警察",
+      "情報:軍事",
+      "情報:学問",
+      "情報:ウェブ",
+      "情報:メディア",
+      "情報:ビジネス",
+    ],
+    enemySkillSpecDefaults: {
+      運転: "四輪",
+      芸術: "音楽",
+      知識: "レネゲイド",
+      情報: "裏社会",
+    },
     dropdownOptions: {
       difficulty: ["-", "自動成功", "対決", "効果参照"],
       skill: [
@@ -893,21 +937,32 @@ new Vue({
           this.skillToAbilityMap[skill] ||
           "肉体";
 
-        // 詳細情報（ヘッダー用）には計算結果を残す
-        const details = [
-          `侵蝕値:${totalCost}`,
-          `タイミング:${timing}`,
-          `技能:${skill}`,
-          `難易度:${difficulty}`,
-          `対象:${target}`,
-          `射程:${range}`,
-          `攻撃力:${this.formatDiceString({
-            dice: finalAtkDice,
-            fixed: finalAtkFixed,
-          })}`,
-          `達成値:${finalAchieve}`, // 念のためここにも記載
-          `C値:${finalCrit}`,
-        ].join("　");
+        // 詳細情報（ヘッダー用）には計算結果を残す。
+        // エネミー出力ではCSVテンプレートに合わせ、侵蝕値/難易度/達成値は省いて簡潔にする。
+        const attackText = this.formatDiceString({
+          dice: finalAtkDice,
+          fixed: finalAtkFixed,
+        });
+        const details = this.appMode === "enemy"
+          ? [
+              `タイミング:${timing}`,
+              `技能:${skill}`,
+              `対象:${target}`,
+              `射程:${range}`,
+              `ATK:${attackText}`,
+              `C値:${finalCrit}`,
+            ].join("　")
+          : [
+              `侵蝕値:${totalCost}`,
+              `タイミング:${timing}`,
+              `技能:${skill}`,
+              `難易度:${difficulty}`,
+              `対象:${target}`,
+              `射程:${range}`,
+              `攻撃力:${attackText}`,
+              `達成値:${finalAchieve}`,
+              `C値:${finalCrit}`,
+            ].join("　");
 
         const effectDescription =
           currentCombo.effectDescriptionMode === "manual"
@@ -1242,7 +1297,14 @@ new Vue({
     getDx3EnemySyndromeRows(data = null) {
       const src = data || this.enemyData || {};
       const names = Array.isArray(src.syndromes) ? src.syndromes : ["", "", ""];
-      return [0, 1, 2].map((index) => this.getDx3EnemySyndromeRow(names[index] || ""));
+      const normalized = [0, 1, 2].map((index) => this.normalizeSyndromeName(names[index] || ""));
+      const rows = [0, 1, 2].map((index) => this.getDx3EnemySyndromeRow(normalized[index] || ""));
+      // ピュアブリード時は、能力値計算と同じくシンドローム①を2回分扱う。
+      // 表示上もシンドローム②行に同じ値を出し、なぜ2倍になるかを見えるようにする。
+      if (normalized[0] && !normalized[1]) {
+        rows[1] = { ...rows[0] };
+      }
+      return rows;
     },
     getDx3EnemySyndromeAbilityBase(data = null) {
       const src = data || this.enemyData || {};
@@ -1470,123 +1532,132 @@ new Vue({
     createSpringKyojiSampleSet() {
       const effects = [
         this.createDx3EnemySampleEffect({
-          name: "コンセントレイト：キュマイラ",
+          name: "渇きの主",
           level: 2,
-          maxLevel: 3,
-          timing: "メジャー",
-          skill: "シンドローム",
-          difficulty: "-",
-          target: "-",
-          range: "-",
-          cost: "2",
-          effect: "C値を下げる。エネミーテスト用のサンプル。",
-          notes: "C値補正の確認用",
-          critPerLevel: -1,
-          critMin: 7,
-        }),
-        this.createDx3EnemySampleEffect({
-          name: "獣の力",
-          level: 3,
           maxLevel: 5,
           timing: "メジャー",
           skill: "白兵",
           target: "単体",
+          range: "至近",
+          effect: "このエフェクトを組み合わせた白兵攻撃では、対象の装甲値を無視してダメージを算出する。命中した場合、あなたのHPを[LV×4]点回復する。ただし、この攻撃は素手か《赫き剣》によるものでなければならない。",
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "吸収",
+          level: 2,
+          maxLevel: 3,
+          timing: "メジャー",
+          skill: "白兵/射撃",
+          target: "-",
           range: "武器",
-          cost: "2",
-          effect: "白兵攻撃の攻撃力を上げる。",
+          effect: "このエフェクトを組み合わせた攻撃で1点でもHPダメージを与えた場合、そのラウンドの間、対象が行なうあらゆる判定のダイスを-LV個する。",
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "オールレンジ",
+          level: 2,
+          maxLevel: 5,
+          timing: "メジャー",
+          skill: "白兵/射撃",
+          target: "-",
+          range: "武器",
+          effect: "このエフェクトを組み合わせた判定のダイスを+LV個する。",
+          dicePerLevel: 1,
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "イージスの盾",
+          level: 2,
+          maxLevel: 3,
+          timing: "オート",
+          skill: "-",
+          target: "-",
+          range: "至近",
+          effect: "あなたがガードを行なう際に宣言する。このガードの間、あなたのガード値を+(LV)Dする。",
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "獣の力",
+          level: 2,
+          maxLevel: 5,
+          timing: "メジャー",
+          skill: "白兵",
+          target: "-",
+          range: "武器",
+          effect: "このエフェクトを組み合わせた白兵攻撃の攻撃力を+[LV×2]する。",
           attackPerLevel: 2,
         }),
         this.createDx3EnemySampleEffect({
-          name: "伸縮腕",
-          level: 1,
-          maxLevel: 3,
-          timing: "メジャー",
-          skill: "白兵",
-          target: "単体",
-          range: "視界",
-          cost: "2",
-          effect: "白兵攻撃の射程を視界にする。テスト用にダイス-1を入れている。",
-          diceBase: -1,
+          name: "破壊の爪",
+          level: 2,
+          maxLevel: 5,
+          timing: "マイナー",
+          skill: "-",
+          target: "自身",
+          range: "至近",
+          effect: "そのシーンの間あなたの素手のデータを以下のように変更する。\n種別：白兵　技能：＜白兵＞\n命中：0　攻撃力：[LV×2+8]\nガード値：1　射程：至近",
         }),
         this.createDx3EnemySampleEffect({
-          name: "血の宴",
-          level: 1,
-          maxLevel: 3,
-          timing: "メジャー",
-          skill: "シンドローム",
-          target: "範囲(選択)",
-          range: "-",
-          cost: "3",
-          limit: "シナリオLV回",
-          effect: "攻撃対象を範囲(選択)にする。",
-        }),
-        this.createDx3EnemySampleEffect({
-          name: "完全獣化",
+          name: "ハンティングスタイル",
           level: 2,
           maxLevel: 3,
           timing: "マイナー",
           skill: "-",
-          difficulty: "自動成功",
           target: "自身",
           range: "至近",
-          cost: "6",
-          effect: "シーン中、肉体判定ダイスを増やす。",
-          diceBase: 2,
-          dicePerLevel: 1,
+          effect: "あなたは戦闘移動を行なう。この移動では、離脱を行なえる。また、移動中に他のエンゲージに接触しても移動を終える必要はなく、封鎖の影響も受けない。このエフェクトは1シーンにLV回まで使用できる。",
         }),
         this.createDx3EnemySampleEffect({
-          name: "破壊の爪",
+          name: "コンセントレイト：キュマイラ",
+          level: 3,
+          maxLevel: 3,
+          timing: "メジャー",
+          skill: "シンドローム",
+          target: "-",
+          range: "-",
+          effect: "組み合わせた判定のクリティカル値を-LVする(下限値7)。",
+          critPerLevel: -1,
+          critMin: 7,
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "蘇生復活",
           level: 1,
-          maxLevel: 10,
-          timing: "マイナー",
+          maxLevel: 1,
+          timing: "オート",
           skill: "-",
-          difficulty: "自動成功",
           target: "自身",
           range: "至近",
-          cost: "3",
-          effect: "素手データを戦闘用に変更する。サンプルでは武器攻撃力8として扱う。",
+          effect: "重圧を受けていても使用可能。このエネミーが戦闘不能、死亡となった時に使用する。戦闘不能、死亡を回復し、このエネミーのHPを1点まで回復する。このエフェクトは1シナリオに1回まで使用できる。",
+        }),
+        this.createDx3EnemySampleEffect({
+          name: "瞬間退場",
+          level: 1,
+          maxLevel: 3,
+          timing: "オート",
+          skill: "-",
+          target: "自身",
+          range: "至近",
+          effect: "いつでも使用できる。このエフェクトを使用することで、このエネミーはシーンから退場する。このエフェクトは侵蝕率でレベルアップせず、1シナリオにLV回まで使用できる。",
         }),
       ];
       const combos = [
         {
           ...this.createDefaultCombo(),
-          name: "獣化",
-          effectNames: [{ name: "完全獣化", showInComboName: true }, { name: "破壊の爪", showInComboName: true }],
-          baseAbility: { skill: "白兵", statOverride: "肉体" },
-          flavor: "姿を変え、腕を異形の凶器に変える。",
-          manualTiming: "マイナー",
+          name: "不屈の一撃",
+          effectNames: [
+            { name: "吸収", showInComboName: true },
+            { name: "オールレンジ", showInComboName: true },
+            { name: "イージスの盾", showInComboName: true },
+            { name: "破壊の爪", showInComboName: true },
+            { name: "渇きの主", showInComboName: true },
+          ],
+          atk_weapon: 14,
+          baseAbility: { skill: "-", statOverride: "肉体" },
+          flavor: "ふははは！ 受けるダメージを減らしたいなら装甲値を上げるのが一番楽だぞ！ もっとも、私の《渇きの主》のように装甲値を無視する手段を持つ者も多いがなぁ！",
+          manualEffectDescription: "《破壊の爪》による白兵攻撃。装甲値を無視してダメージを与える。命中した場合、自身のHPを[Lv×4]点回復。1点でもHPダメージを与えた場合、そのラウンドの間、対象の行なうあらゆる判定のダイスを2個する。",
+          effectDescriptionMode: "manual",
+          manualTiming: "メジャー",
           timingMode: "manual",
-          manualTarget: "自身",
+          manualTarget: "単体",
           targetMode: "manual",
           manualRange: "至近",
           rangeMode: "manual",
-        },
-        {
-          ...this.createDefaultCombo(),
-          name: "ディアボロス・クラッシュ",
-          effectNames: [
-            { name: "コンセントレイト：キュマイラ", showInComboName: true },
-            { name: "獣の力", showInComboName: true },
-            { name: "伸縮腕", showInComboName: true },
-          ],
-          appliedBuffs: ["獣化"],
-          atk_weapon: 8,
-          baseAbility: { skill: "白兵", statOverride: "肉体" },
-          flavor: "異形化した腕を伸ばし、遠間から叩き潰す。",
-        },
-        {
-          ...this.createDefaultCombo(),
-          name: "ディアボロス・ブラッドスイング",
-          effectNames: [
-            { name: "コンセントレイト：キュマイラ", showInComboName: true },
-            { name: "獣の力", showInComboName: true },
-            { name: "伸縮腕", showInComboName: true },
-            { name: "血の宴", showInComboName: true },
-          ],
-          appliedBuffs: ["獣化"],
-          atk_weapon: 8,
-          baseAbility: { skill: "白兵", statOverride: "肉体" },
-          flavor: "血と異形の腕を振るい、複数対象をまとめて薙ぎ払う。",
         },
       ];
       return { effects, combos };
@@ -1603,46 +1674,44 @@ new Vue({
       this.enemySheet = {
         ID: "",
         author: rememberedAuthor,
-        name: "春日恭二",
+        name: "春日恭二（作例）",
         class_type: "トライブリード",
         is_public: true,
-        memo: "サンプルデータ",
-        icon_url: "",
+        memo: "kasuga.csv由来のサンプルデータ",
+        icon_url: "https://storage.ccfolia-cdn.net/users/kdAUSi9vTpPfd45w6r6mUySCu4A3/files/660ee8f2c902d5d80ae94ae923243f27b5afcd19bbd3b69d18d0f15dfd5d82a8",
         time: "",
       };
       this.enemyData = this.normalizeDx3EnemyData({
-        nameKana: "カスガ キョウジ",
+        nameKana: "カスガ　キョウジ",
         codename: "ディアボロス",
         codenameKana: "",
         breed: "トライブリード",
         syndromes: ["キュマイラ", "エグザイル", "ブラム＝ストーカー"],
-        explanation: "DX3エネミー作成モードのテスト用サンプル。公式データではなく、入力・係数・駒出力の確認用。",
-        tactics: "マイナーで獣化してから、白兵コンボで攻撃する想定。範囲版は複数対象の出力確認用。",
-        hp: 72,
-        initiative: 8,
-        armor: 5,
-        guard: 3,
-        move: 14,
+        explanation: "悪魔の名を持つFHエージェント。N市にいるオーヴァード候補者を選別し、FHに連れて帰る任務の途中。",
+        tactics: "最初のマイナーで《破壊の爪》+《ハンティングスタイル》を使用。白兵武器を作りつつ、PCの人数がもっとも多いエンゲージへ移動する。\nメジャーでは「不屈の一撃」を使用して、射程内にいるPCの中から、ランダムに1体を選択して攻撃する。\n攻撃に対しては、《イージスの盾》を使用してガードを行なう。《破壊の爪》を使用してからのガード値は1+2Dである。\nミドルの戦闘では一度HPが0になったら《蘇生復活》を使用し、即座に《瞬間退場》でいなくなる。",
+        hp: 40,
+        initiative: 12,
+        armor: 0,
+        guard: 1,
+        move: 17,
         erosion: 120,
-        statBase: { hp: 30, erosion: 120, initiative: 5, armor: 5, move: 10 },
+        statBase: { hp: 30, erosion: 120, initiative: 5, armor: 0, move: 10 },
         statGrowth: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
-        statOther: { hp: 36, erosion: 0, initiative: 2, armor: 0, move: 1 },
+        statOther: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
         addErosionDiceToAbilityTotal: false,
         abilityAdds: { body: 0, sense: 0, mind: 0, social: 0 },
         abilityGrowth: { body: 0, sense: 0, mind: 0, social: 0 },
-        abilityOther: { body: 2, sense: 1, mind: 2, social: 1 },
+        abilityOther: { body: 0, sense: 0, mind: 0, social: 0 },
         skillRows: [
-          { name: "白兵", spec: "", ability: "肉体", level: 5, dice: 0, mod: 0, note: "メイン攻撃" },
-          { name: "回避", spec: "", ability: "肉体", level: 2, dice: 0, mod: 0, note: "" },
+          { name: "白兵", spec: "", ability: "肉体", level: 4, dice: 0, mod: 0, note: "" },
+          { name: "回避", spec: "", ability: "肉体", level: 3, dice: 0, mod: 0, note: "" },
           { name: "射撃", spec: "", ability: "感覚", level: 0, dice: 0, mod: 0, note: "" },
-          { name: "知覚", spec: "", ability: "感覚", level: 1, dice: 0, mod: 0, note: "" },
-          { name: "RC", spec: "", ability: "精神", level: 0, dice: 0, mod: 0, note: "" },
+          { name: "知覚", spec: "", ability: "感覚", level: 3, dice: 0, mod: 0, note: "" },
+          { name: "RC", spec: "", ability: "精神", level: 4, dice: 0, mod: 0, note: "" },
           { name: "意志", spec: "", ability: "精神", level: 3, dice: 0, mod: 0, note: "" },
-          { name: "知識", spec: "レネゲイド", ability: "精神", level: 2, dice: 0, mod: 0, note: "" },
-          { name: "交渉", spec: "", ability: "社会", level: 1, dice: 0, mod: 0, note: "" },
-          { name: "調達", spec: "", ability: "社会", level: 1, dice: 0, mod: 0, note: "" },
-          { name: "情報", spec: "裏社会", ability: "社会", level: 2, dice: 0, mod: 0, note: "" },
-          { name: "情報", spec: "FH", ability: "社会", level: 2, dice: 0, mod: 0, note: "追加技能テスト", isCustom: true },
+          { name: "交渉", spec: "", ability: "社会", level: 0, dice: 0, mod: 0, note: "" },
+          { name: "調達", spec: "", ability: "社会", level: 0, dice: 0, mod: 0, note: "" },
+          { name: "情報", spec: "裏社会", ability: "社会", level: 1, dice: 0, mod: 0, note: "" },
         ],
       });
       this.effects = sample.effects;
@@ -1785,6 +1854,23 @@ new Vue({
       this.enemyData.skillRows.splice(index, 1);
       this.syncDx3EnemySkillMap();
     },
+    handleDx3EnemySkillNameChange(row) {
+      if (!row || !row.isCustom) return;
+      const rawName = String(row.name || "").trim();
+      const parts = rawName.split(/[：:]/);
+      const name = String(parts[0] || "").trim();
+      const selectedSpec = parts.length > 1 ? String(parts.slice(1).join(":") || "").trim() : "";
+      const ability = this.skillToAbilityMap && this.skillToAbilityMap[name];
+      const spec = this.enemySkillSpecDefaults && this.enemySkillSpecDefaults[name];
+      if (name && name !== rawName) this.$set(row, "name", name);
+      if (ability) this.$set(row, "ability", ability);
+      if (parts.length > 1) {
+        this.$set(row, "spec", selectedSpec);
+      } else if (spec) {
+        this.$set(row, "spec", spec);
+      }
+      this.syncDx3EnemySkillMap();
+    },
     isDx3EnemyFixedNoSpecSkill(row) {
       const name = String((row && row.name) || "").trim();
       if (!name || (row && row.isCustom)) return false;
@@ -1813,6 +1899,55 @@ new Vue({
       const dicePart = dice ? `${dice > 0 ? "+" : ""}${dice}` : "";
       const fixedPart = fixed ? `${fixed > 0 ? "+" : ""}${fixed}` : "+0";
       return `({${ability}}+{侵蝕率D}${dicePart})DX${fixedPart} 【${ability}】〈${label}〉`;
+    },
+    async copyDx3EnemyClipboardText(text) {
+      const value = String(text == null ? "" : text);
+      const shared = this.getEnemiesSharedApi();
+      if (shared && typeof shared.writeClipboardText === "function") {
+        await shared.writeClipboardText(value);
+        return;
+      }
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+        await navigator.clipboard.writeText(value);
+        return;
+      }
+      const textarea = document.createElement("textarea");
+      textarea.value = value;
+      textarea.setAttribute("readonly", "readonly");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (!ok) throw new Error("clipboard unavailable");
+    },
+    async copyDx3EnemySkillOutput(row, event) {
+      const shared = this.getEnemiesSharedApi();
+      const getMessage = (key, fallback) =>
+        shared && typeof shared.getMessage === "function" ? shared.getMessage(key) : fallback;
+      const text = this.formatDx3EnemySkillOutput(row);
+      if (!text) {
+        this.showDx3EnemyToast(getMessage("skillOutputCopyEmpty", "コピーする技能出力がない"), "error");
+        return;
+      }
+      const button = event && event.currentTarget;
+      const originalHtml = button ? button.innerHTML : "";
+      try {
+        await this.copyDx3EnemyClipboardText(text);
+        if (button) {
+          button.innerHTML = '<i class="fa-solid fa-check"></i>';
+          button.disabled = true;
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.disabled = false;
+          }, 900);
+        }
+        this.showDx3EnemyToast(getMessage("skillOutputCopySuccess", "技能出力をコピーした"), "info");
+      } catch (_error) {
+        console.log(text);
+        this.showDx3EnemyToast(getMessage("skillOutputCopyFailedConsole", "技能出力コピーに失敗。コンソールに出力する"), "error");
+      }
     },
     buildDx3EnemyApiUrl(action, params = {}) {
       const shared = this.getEnemiesSharedApi();
@@ -1843,12 +1978,27 @@ new Vue({
         return shared.fetchApiJson(url, init);
       }
       const response = await fetch(url, init || undefined);
-      const data = await response.json().catch(() => null);
-      if (!response.ok) {
-        throw new Error((data && data.message) || `APIエラー HTTP ${response.status}`);
-      }
+      const data = await this.readJsonResponse(response, "DX3エネミーAPI");
       if (!data || data.status === "error") {
         throw new Error((data && data.message) || "API応答が不正");
+      }
+      return data;
+    },
+    async readJsonResponse(response, label = "API") {
+      const text = await response.text();
+      let data = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch (parseError) {
+        const preview = String(text || "").replace(/[\r\n\t ]+/g, " ").trim().slice(0, 260);
+        const responseUrl = String(response && response.url ? response.url : "");
+        const gasEchoHint = responseUrl.includes("script.googleusercontent.com/macros/echo")
+          ? "GASの実行結果URLにリダイレクトされています。デプロイ権限、例外ページ、またはHTML応答を確認してください。"
+          : "JSONではなくHTML/テキストが返っている可能性があります。";
+        throw new Error(`${label}がJSONを返しませんでした。${gasEchoHint}${preview ? ` 応答先頭: ${preview}` : ""}`);
+      }
+      if (!response.ok) {
+        throw new Error((data && data.message) || `${label} HTTP ${response.status}`);
       }
       return data;
     },
@@ -2111,15 +2261,18 @@ new Vue({
       if (this.enemySheet.icon_url) charJson.data.iconUrl = this.enemySheet.icon_url;
       return charJson;
     },
-    exportDx3EnemyKomaJson() {
+    async exportDx3EnemyKomaJson() {
+      const shared = this.getEnemiesSharedApi();
+      const getMessage = (key, fallback) =>
+        shared && typeof shared.getMessage === "function" ? shared.getMessage(key) : fallback;
       const text = JSON.stringify(this.buildDx3EnemyKomaJson());
-      navigator.clipboard.writeText(text).then(
-        () => this.showDx3EnemyToast("ココフォリア駒JSONをコピーした", "info"),
-        () => {
-          console.log(text);
-          this.showDx3EnemyToast("コピー失敗。コンソールに出した", "error");
-        },
-      );
+      try {
+        await this.copyDx3EnemyClipboardText(text);
+        this.showDx3EnemyToast(getMessage("komaJsonCopySuccess", "ココフォリアコマ出力をコピーした"), "info");
+      } catch (_error) {
+        console.log(text);
+        this.showDx3EnemyToast(getMessage("komaJsonCopyFailedConsole", "コマ出力コピーに失敗。コンソールに出力する"), "error");
+      }
     },
     setEffectDisplayMode(mode) {
       if (mode !== "combo" && mode !== "detail") return;
@@ -2528,6 +2681,7 @@ new Vue({
     },
     getActionableInferenceKeys(target) {
       if (!target) return [];
+      if (target._inferenceAccepted) return [];
       this.ensureCoefficientValues(target);
       const suggestions = this.inferEffectTextCoefficients(target);
       return Object.keys(suggestions).filter((key) => {
@@ -2554,6 +2708,7 @@ new Vue({
       this.$set(target, "values", this.cloneCoefficientValues(target._lastInferenceBackup));
       this.$delete(target, "_lastInferenceBackup");
       this.$set(target, "_hasAutoUpdate", false);
+      this.$set(target, "_inferenceAccepted", false);
       this.showStatus(`${target.name || "この行"} の係数を推定前に戻しました。`);
     },
     openRowEffectInference(target, overwrite = false) {
@@ -2564,6 +2719,9 @@ new Vue({
       if (suggestionKeys.length === 0) {
         this.showStatus(`${target.name || "この行"} から反映できる係数候補がありません。`, true);
         return;
+      }
+      if (target._inferenceAccepted && !overwrite) {
+        overwrite = true;
       }
       if (!overwrite && this.getActionableInferenceKeys(target).length === 0) {
         this.showStatus(`${target.name || "この行"} は既に反映済み、または未設定推定では変更不要です。`, true);
@@ -2579,6 +2737,23 @@ new Vue({
         targetName: target.name || "この行",
         overwrite,
         suggestions,
+      };
+    },
+    acceptPendingInferenceCurrentValues() {
+      const target = this.pendingInference.target;
+      if (!target) {
+        this.cancelRowEffectInference();
+        return;
+      }
+      this.$set(target, "_inferenceCandidate", false);
+      this.$set(target, "_inferenceAccepted", true);
+      this.showStatus(`${target.name || "この行"} は現在の係数を正として扱います。必要なら「再推定」できます。`);
+      this.pendingInference = {
+        show: false,
+        target: null,
+        targetName: "",
+        overwrite: false,
+        suggestions: {},
       };
     },
     cancelRowEffectInference() {
@@ -2606,6 +2781,7 @@ new Vue({
       if (updatedKeys.length > 0) {
         this.$set(target, "_lastInferenceBackup", backup);
         this.$set(target, "_hasAutoUpdate", true);
+        this.$set(target, "_inferenceAccepted", false);
         this.showStatus(`${target.name || "この行"} の係数を推定しました。違う場合は「戻す」で推定前に戻せます。`);
       } else {
         this.showStatus(`${target.name || "この行"} は推定候補がありますが、既存の係数を上書きしませんでした。`, true);
@@ -2635,6 +2811,7 @@ new Vue({
         const updatedTabs = this.applyInferredCoefficientsToEffect(target, overwrite);
         const updatedKeys = Object.keys(updatedTabs);
         if (updatedKeys.length > 0) {
+          this.$set(target, "_inferenceAccepted", false);
           updatedEffectCount += 1;
           updatedFieldCount += updatedKeys.length;
         }
@@ -3022,7 +3199,7 @@ new Vue({
             shareUrl: this.shareUrl,
           }),
         });
-        const result = await response.json();
+        const result = await this.readJsonResponse(response, "GAS保存API");
         if (result.status !== "success")
           throw new Error(result.message || "不明なエラー");
         this.showStatus("保存が完了しました！");
@@ -3076,7 +3253,7 @@ new Vue({
             id: dbId,
           }),
         });
-        const result = await response.json();
+        const result = await this.readJsonResponse(response, "GAS削除API");
         if (result.status === "success") {
           this.showStatus("削除しました。");
         } else if (result.status === "not_found") {
@@ -3131,7 +3308,7 @@ new Vue({
           const url = new URL(this.gasWebAppUrl);
           url.searchParams.append("id", id);
           const response = await fetch(url);
-          result = await response.json();
+          result = await this.readJsonResponse(response, "GAS読込API");
           if (result.status === "success") {
             if (this.characterSheetUrl !== id) this.characterSheetUrl = id;
             break;
@@ -3410,7 +3587,7 @@ new Vue({
         if (!response.ok) {
           throw new Error(`${label} ステータス: ${response.status}`);
         }
-        return await response.json();
+        return await this.readJsonResponse(response, label);
       };
       try {
         return await fetchJson(yutoJsonUrl, "直接取得");
@@ -3571,7 +3748,7 @@ new Vue({
       gasUrl.searchParams.append("action", "import");
       gasUrl.searchParams.append("url", url);
       const response = await fetch(gasUrl);
-      const result = await response.json();
+      const result = await this.readJsonResponse(response, "キャラクター保管所引用API");
       if (result.status === "success") {
         const normalizeRecursively = (obj) => {
           if (typeof obj === "string") {

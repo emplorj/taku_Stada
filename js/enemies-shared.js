@@ -4,6 +4,10 @@
   const MESSAGE_TEMPLATES = Object.freeze({
     komaJsonCopySuccess:
       "ココフォリアコマ出力をコピーした！これを盤面でペーストだ！",
+    komaJsonCopyFailedConsole: "コマ出力コピーに失敗。コンソールに出力する",
+    skillOutputCopySuccess: "技能出力をコピーした",
+    skillOutputCopyEmpty: "コピーする技能出力がない",
+    skillOutputCopyFailedConsole: "技能出力コピーに失敗。コンソールに出力する",
     clipboardCopyFailedConsole: "コピー失敗。コンソールに出力する",
     saveRequestSending: "保存要求を送信中…",
     saveAsInProgress: "別名保存中…",

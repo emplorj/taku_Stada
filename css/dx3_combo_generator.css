@@ -4380,6 +4380,45 @@
   text-align: right;
 }
 
+/* v68: 係数欄はATKも含めて基本数値を右揃えに統一する */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"],
+#dx3-app .combo-source-table-v34 .coef-cell input[type="number"],
+#dx3-app .combo-source-table-v34 .coef-current-box,
+#dx3-app .coefficient-panel-row input[type="text"],
+#dx3-app .coefficient-panel-row input[type="number"],
+#dx3-app .coef-limit-field input[type="number"] {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* v69: エネミーのコンボ概要では侵蝕値枠を出さないため、9項目用に詰める */
+body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+.combo-stats-bar.is-enemy-combo-stats {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+@media (max-width: 1400px) {
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas:
+      "dice crit achieve"
+      "target range timing"
+      "skill ability attack";
+  }
+}
+
+@media (max-width: 1000px) {
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-areas:
+      "dice dice dice dice crit crit crit crit achieve achieve achieve achieve"
+      "target target target target range range range range timing timing timing timing"
+      "skill skill skill skill ability ability ability ability attack attack attack attack";
+  }
+}
+
 
 /* v57: coefficient/detail tabs do not change on hover; row-level inference controls */
 .display-mode-toggle button:hover {
@@ -6082,7 +6121,6 @@
 .dx3-enemies-page .enemy-ability-matrix input[readonly] {
   height: 1.55rem;
   padding: 0.08rem 0.25rem;
-  font-size: 0.92rem;
 }
 
 .dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
@@ -6225,13 +6263,11 @@
 .dx3-enemies-page .enemy-ability-matrix input[readonly] {
   height: 1.45rem;
   padding: 1px 2px;
-  font-size: 1.12rem;
   line-height: 1;
   font-weight: 300;
 }
 
 .dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
-  font-size: 1.16rem;
   font-weight: 300;
 }
 
@@ -6341,13 +6377,11 @@
 .dx3-enemies-page .enemy-ability-matrix input[readonly] {
   height: 1.35rem;
   padding: 1px 1px;
-  font-size: 1.08rem;
   line-height: 1;
   font-weight: 300;
 }
 
 .dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
-  font-size: 1.12rem;
   font-weight: 300;
 }
 
@@ -6428,14 +6462,12 @@
 .dx3-enemies-page .enemy-ability-matrix input[readonly] {
   height: 1.42rem;
   padding: 1px 2px;
-  font-size: 1.22rem;
   line-height: 1;
   font-weight: 300;
   text-align: right;
 }
 
 .dx3-enemies-page .enemy-ability-matrix .ability-total-row input[readonly] {
-  font-size: 1.26rem;
   font-weight: 300;
 }
 
@@ -6735,11 +6767,7 @@
   --dx3-skill-row-accent: #ffd26a;
 }
 
-.dx3-enemies-page .enemy-skill-table tr[data-skill-group] td {
-  background: linear-gradient(90deg, rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.16), rgba(6, 15, 46, 0.18));
-  border-top-color: rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.34);
-  border-bottom-color: rgba(var(--dx3-skill-row-rgb, 204, 65, 37), 0.18);
-}
+
 
 .dx3-enemies-page .enemy-skill-table tr[data-skill-group] td:first-child,
 .dx3-enemies-page .enemy-skill-table tr[data-skill-group].is-fixed-skill-row .enemy-skill-fixed-label {
@@ -7093,11 +7121,9 @@
 .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
   height: 1.62rem;
   padding: 1px 2px;
-  font-size: 1.3rem;
 }
 
 .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-total-row input[readonly] {
-  font-size: 1.34rem;
 }
 
 .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
@@ -7327,6 +7353,24 @@
   justify-content: flex-start;
 }
 
+/* v104: 固定技能（colspan=2）だけ二重パディングで左位置がずれるため、通常技能名セルと揃える */
+.dx3-enemies-page .enemy-skill-fixed-label {
+  padding-inline: 0 !important;
+}
+
+.dx3-enemies-page .enemy-skill-fixed-label span {
+  padding-left: 0.22rem;
+}
+
+/* v105: 「知識」「情報」はtd側とspan側の余白が重なっていたため、固定技能名と左端を揃える */
+.dx3-enemies-page .enemy-skill-table tr:not(.is-fixed-skill-row) td:first-child:has(.enemy-skill-fixed-name) {
+  padding-inline: 0 !important;
+}
+
+.dx3-enemies-page .enemy-skill-table tr:not(.is-fixed-skill-row) td:first-child .enemy-skill-fixed-name {
+  padding-left: 0.22rem;
+}
+
 .dx3-enemies-page .enemy-skill-action-head,
 .dx3-enemies-page .enemy-skill-action-cell {
   width: 2.7em;
@@ -7380,26 +7424,6045 @@
 
 /* v105: 侵蝕率にも = を表示し、3DチップはDが読めるUIフォントにする */
 .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
-  grid-template-columns: 6.1rem auto 2.9rem;
+  grid-template-columns: 6.1rem auto 2.55rem;
   align-items: center;
   justify-content: end;
 }
 
 .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-equals {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0.75rem;
-  color: #cbd5e1;
-  font-size: 0.95rem;
+  color: #9fc5e8;
+  font-size: 0.72rem;
+  font-weight: 400;
   line-height: 1;
+  text-align: center;
 }
 
 .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-erosion-dice-chip {
-  min-width: 2.9rem;
+  box-sizing: border-box;
+  width: 2.55rem;
+  min-width: 2.55rem;
+  max-width: 2.55rem;
+  justify-content: flex-end;
   font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
   font-size: 1.02rem;
   font-weight: 800;
   letter-spacing: 0.02em;
+  text-align: right;
+}
+
+/* ======================================================================
+   v001 mobile baseline: DX3 combo generator smartphone containment
+   目的:
+   - スマホ幅でページ全体が横にはみ出すのを止める
+   - コンボカード、ステータスバー、コピー欄、モーダル、係数パネルを縦積みにする
+   - 係数/詳細テーブルは無理に潰さず、枠内横スクロールに閉じ込める
+   ====================================================================== */
+
+body.dx3-combo-page,
+body.dx3-combo-page * {
+  box-sizing: border-box;
+}
+
+body.dx3-combo-page {
+  overflow-x: hidden;
+}
+
+body.dx3-combo-page .table-wrapper,
+body.dx3-combo-page .compact-table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+body.dx3-combo-page #dx3-app {
+  max-width: 100%;
+  min-width: 0;
+}
+
+body.dx3-combo-page input,
+body.dx3-combo-page select,
+body.dx3-combo-page textarea,
+body.dx3-combo-page button {
+  max-width: 100%;
+}
+
+@media (max-width: 760px) {
+  body.dx3-combo-page .main-content {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    padding: 10px;
+    overflow-x: hidden;
+  }
+
+  body.dx3-combo-page .plain-text-block,
+  body.dx3-combo-page #dx3-app.plain-text-block {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  body.dx3-combo-page .main-header h1 {
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  body.dx3-combo-page .main-header .subtitle {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  body.dx3-combo-page .usage-guide summary {
+    padding: 12px;
+  }
+
+  body.dx3-combo-page .usage-guide .content-wrapper {
+    padding: 12px;
+  }
+
+  body.dx3-combo-page .math-pattern-container {
+    grid-template-columns: 1fr;
+  }
+
+  body.dx3-combo-page .top-info-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  body.dx3-combo-page .db-sync-block,
+  body.dx3-combo-page .character-info-grid {
+    padding: 10px;
+  }
+
+  body.dx3-combo-page .db-url-input,
+  body.dx3-combo-page .character-info-grid label,
+  body.dx3-combo-page .xp-fields-group label {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 5px;
+    white-space: normal;
+  }
+
+  body.dx3-combo-page .db-buttons,
+  body.dx3-combo-page .sheet-source-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .db-buttons button,
+  body.dx3-combo-page .sheet-source-actions button,
+  body.dx3-combo-page .display-mode-toggle {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  body.dx3-combo-page .display-mode-toggle {
+    grid-column: 1 / -1;
+  }
+
+  body.dx3-combo-page .xp-fields-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  body.dx3-combo-page .sheet-source-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  body.dx3-combo-page .sheet-source-note {
+    font-size: 0.86rem;
+  }
+
+  body.dx3-combo-page .section-title {
+    margin-top: 18px;
+    margin-bottom: 10px;
+    font-size: 1.12rem;
+    line-height: 1.35;
+  }
+
+  body.dx3-combo-page .combo-block {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    margin-bottom: 14px;
+  }
+
+  body.dx3-combo-page .combo-header {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto auto;
+    gap: 7px;
+    align-items: center;
+  }
+
+  body.dx3-combo-page .combo-name-input {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  body.dx3-combo-page .limit-chip {
+    margin-right: 0;
+    justify-self: start;
+  }
+
+  body.dx3-combo-page .combo-level-select {
+    grid-column: 2 / -1;
+    justify-self: end;
+    margin: 0;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page .combo-header .move-btn,
+  body.dx3-combo-page .combo-header .copy-btn,
+  body.dx3-combo-page .combo-header .delete-btn {
+    min-width: 36px;
+    padding: 7px 9px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "dice crit"
+      "achieve cost"
+      "target target"
+      "range range"
+      "timing timing"
+      "skill ability"
+      "attack attack";
+    gap: 1px;
+    border: 1px solid #555;
+    background-color: #555;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item {
+    min-width: 0;
+    min-height: 42px;
+    padding: 7px 6px;
+    border: 0;
+    background-color: #3c3c3c;
+    font-size: 0.86rem;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(1) { grid-area: dice; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(2) { grid-area: crit; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(3) { grid-area: achieve; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(4) { grid-area: target; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(5) { grid-area: range; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(6) { grid-area: timing; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(7) { grid-area: skill; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(8) { grid-area: ability; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(9) { grid-area: attack; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(10) { grid-area: cost; }
+
+  body.dx3-combo-page .stat-item.target-setting,
+  body.dx3-combo-page .stat-item.range-setting,
+  body.dx3-combo-page .stat-item.timing-setting,
+  body.dx3-combo-page .base-ability-input {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+    gap: 5px;
+  }
+
+  body.dx3-combo-page .stat-item span,
+  body.dx3-combo-page .base-ability-input span {
+    display: grid;
+    grid-template-columns: 4.8em minmax(0, 1fr);
+    gap: 5px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .stat-item.timing-setting span {
+    grid-template-columns: 5.8em minmax(0, 1fr);
+  }
+
+  body.dx3-combo-page .stat-item .input-with-dropdown,
+  body.dx3-combo-page .stat-item .input-with-dropdown input,
+  body.dx3-combo-page .base-ability-input select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .stat-item .mode-toggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  body.dx3-combo-page .stat-item .mode-toggle button {
+    min-width: 0;
+    padding: 5px 4px;
+  }
+
+  body.dx3-combo-page .effect-select-button {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.45;
+  }
+
+  body.dx3-combo-page .combo-details-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  body.dx3-combo-page .combo-textarea-wrapper .textarea-header {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  body.dx3-combo-page .combo-textarea-wrapper .header-controls {
+    align-items: stretch;
+  }
+
+  body.dx3-combo-page .advanced-parsing-switch {
+    justify-content: flex-start;
+    white-space: normal;
+  }
+
+  body.dx3-combo-page .copy-container textarea {
+    min-height: 70px;
+    padding-right: 10px;
+    word-break: break-word;
+  }
+
+  body.dx3-combo-page .copy-container .dice-formula-textarea {
+    min-height: 54px;
+  }
+
+  body.dx3-combo-page .copy-container button {
+    position: static;
+    width: 100%;
+    margin: 6px 0 0;
+    justify-content: center;
+  }
+
+  body.dx3-combo-page .floating-panel,
+  body.dx3-combo-page #dx3-app .floating-panel {
+    position: fixed;
+    left: 6px;
+    right: 6px;
+    top: 8px;
+    bottom: auto;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+    transform: none;
+    overflow-y: auto;
+  }
+
+  body.dx3-combo-page .floating-panel .panel-body,
+  body.dx3-combo-page #dx3-app .floating-panel .panel-body {
+    max-height: none;
+    overflow-y: visible;
+    padding: 10px;
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-head,
+  body.dx3-combo-page #dx3-app .coefficient-panel-row {
+    grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-row-tools {
+    grid-column: 2 / 4;
+    flex-wrap: wrap;
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-row input[type="text"],
+  body.dx3-combo-page #dx3-app .coefficient-panel-row input[type="number"] {
+    width: 100%;
+    max-width: none;
+  }
+
+  body.dx3-combo-page .modal-overlay {
+    align-items: flex-start;
+    justify-content: center;
+    padding: 8px;
+    overflow-y: auto;
+  }
+
+  body.dx3-combo-page .modal-content {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+  }
+
+  body.dx3-combo-page .modal-header,
+  body.dx3-combo-page .modal-footer {
+    padding: 10px;
+  }
+
+  body.dx3-combo-page .modal-body {
+    padding: 10px;
+  }
+
+  body.dx3-combo-page .modal-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.dx3-combo-page .modal-tabs button {
+    min-width: max-content;
+    flex: 0 0 auto;
+  }
+
+  body.dx3-combo-page .modal-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  body.dx3-combo-page .modal-footer button {
+    width: 100%;
+    padding: 10px;
+  }
+
+  body.dx3-combo-page .effect-select-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.dx3-combo-page .effect-select-toolbar .toolbar-label {
+    grid-column: 1 / -1;
+  }
+
+  body.dx3-combo-page .effect-select-modal label,
+  body.dx3-combo-page .item-select-label {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  body.dx3-combo-page .show-in-combo-btn {
+    min-width: 58px;
+    padding: 5px 8px;
+  }
+
+  body.dx3-combo-page .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page .xp-fields-group,
+  body.dx3-combo-page .db-buttons,
+  body.dx3-combo-page .sheet-source-actions,
+  body.dx3-combo-page .modal-footer,
+  body.dx3-combo-page .effect-select-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  body.dx3-combo-page .combo-header {
+    grid-template-columns: 1fr auto auto auto;
+  }
+
+  body.dx3-combo-page .combo-level-select {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  body.dx3-combo-page .combo-stats-bar {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "dice"
+      "crit"
+      "achieve"
+      "cost"
+      "target"
+      "range"
+      "timing"
+      "skill"
+      "ability"
+      "attack";
+  }
+}
+
+/* ========================================================================== 
+   DX3 mobile patch v002
+   - 係数/詳細/アイテム表をスマホではカード化
+   - 1～3桁の数値入力・短い選択項目は2列グリッドに圧縮
+   ========================================================================== */
+
+@media (max-width: 760px) {
+  body.dx3-combo-page .compact-table-wrapper,
+  body.dx3-combo-page .table-wrapper {
+    overflow-x: visible;
+  }
+
+  body.dx3-combo-page .combo-source-table,
+  body.dx3-combo-page .effects-table,
+  body.dx3-combo-page .items-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    white-space: normal;
+  }
+
+  body.dx3-combo-page .combo-source-table colgroup,
+  body.dx3-combo-page .effects-table colgroup,
+  body.dx3-combo-page .items-table colgroup,
+  body.dx3-combo-page .combo-source-table thead,
+  body.dx3-combo-page .effects-table thead,
+  body.dx3-combo-page .items-table thead {
+    display: none;
+  }
+
+  body.dx3-combo-page .combo-source-table tbody,
+  body.dx3-combo-page .effects-table tbody,
+  body.dx3-combo-page .items-table tbody {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .combo-source-table tr,
+  body.dx3-combo-page .effects-table tr,
+  body.dx3-combo-page .items-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 8px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #4a5c9a;
+    border-radius: 8px;
+    background: rgba(12, 24, 72, 0.88);
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .combo-source-table td,
+  body.dx3-combo-page .effects-table td,
+  body.dx3-combo-page .items-table td {
+    display: grid;
+    grid-template-columns: 4.6em minmax(0, 1fr);
+    gap: 5px;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-sizing: border-box;
+    white-space: normal;
+  }
+
+  body.dx3-combo-page .combo-source-table td::before,
+  body.dx3-combo-page .effects-table td::before,
+  body.dx3-combo-page .items-table td::before {
+    content: "";
+    color: #87cefa;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    opacity: 0.95;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page .combo-source-table input,
+  body.dx3-combo-page .combo-source-table textarea,
+  body.dx3-combo-page .effects-table input,
+  body.dx3-combo-page .effects-table textarea,
+  body.dx3-combo-page .items-table input,
+  body.dx3-combo-page .items-table textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .combo-source-table textarea,
+  body.dx3-combo-page .effects-table textarea,
+  body.dx3-combo-page .items-table textarea {
+    min-height: 4.8em;
+    line-height: 1.45;
+  }
+
+  body.dx3-combo-page .combo-source-table .input-with-dropdown,
+  body.dx3-combo-page .effects-table .input-with-dropdown,
+  body.dx3-combo-page .items-table .input-with-dropdown {
+    min-width: 0;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .combo-source-table .source-name-cell,
+  body.dx3-combo-page .combo-source-table .source-effect-cell,
+  body.dx3-combo-page .combo-source-table .source-note-cell,
+  body.dx3-combo-page .effects-table td:nth-child(1),
+  body.dx3-combo-page .effects-table td:nth-child(11),
+  body.dx3-combo-page .effects-table td:nth-child(12),
+  body.dx3-combo-page .effects-table td:nth-child(13),
+  body.dx3-combo-page .items-table td:nth-child(1),
+  body.dx3-combo-page .items-table td:nth-child(11),
+  body.dx3-combo-page .items-table td:nth-child(12) {
+    grid-column: 1 / -1;
+  }
+
+  body.dx3-combo-page .combo-source-table .source-name-cell,
+  body.dx3-combo-page .effects-table td:nth-child(1),
+  body.dx3-combo-page .items-table td:nth-child(1) {
+    grid-template-columns: 3.2em minmax(0, 1fr);
+  }
+
+  body.dx3-combo-page .combo-source-table .source-effect-cell,
+  body.dx3-combo-page .combo-source-table .source-note-cell,
+  body.dx3-combo-page .effects-table td:nth-child(11),
+  body.dx3-combo-page .effects-table td:nth-child(12),
+  body.dx3-combo-page .items-table td:nth-child(11) {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  body.dx3-combo-page .combo-source-table .source-effect-cell::before,
+  body.dx3-combo-page .combo-source-table .source-note-cell::before,
+  body.dx3-combo-page .effects-table td:nth-child(11)::before,
+  body.dx3-combo-page .effects-table td:nth-child(12)::before,
+  body.dx3-combo-page .items-table td:nth-child(11)::before {
+    margin-bottom: -2px;
+  }
+
+  body.dx3-combo-page .combo-source-table .source-name-infer-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 5px;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .combo-source-table .coef-row-infer-btn,
+  body.dx3-combo-page .combo-source-table .coef-row-undo-btn {
+    min-width: 3.2em;
+    padding: 5px 7px;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page .combo-source-table .coef-cell,
+  body.dx3-combo-page .combo-source-table .coef-current-cell,
+  body.dx3-combo-page .effects-table td:nth-child(2),
+  body.dx3-combo-page .effects-table td:nth-child(3),
+  body.dx3-combo-page .effects-table td:nth-child(9),
+  body.dx3-combo-page .items-table td:nth-child(2),
+  body.dx3-combo-page .items-table td:nth-child(5),
+  body.dx3-combo-page .items-table td:nth-child(6),
+  body.dx3-combo-page .items-table td:nth-child(7),
+  body.dx3-combo-page .items-table td:nth-child(9),
+  body.dx3-combo-page .items-table td:nth-child(10) {
+    grid-template-columns: 3.7em minmax(0, 1fr);
+  }
+
+  body.dx3-combo-page .combo-source-table .coef-cell input,
+  body.dx3-combo-page .combo-source-table .source-level-cell input,
+  body.dx3-combo-page .effects-table td:nth-child(2) input,
+  body.dx3-combo-page .effects-table td:nth-child(3) input,
+  body.dx3-combo-page .effects-table td:nth-child(9) input,
+  body.dx3-combo-page .items-table td:nth-child(2) input,
+  body.dx3-combo-page .items-table td:nth-child(5) input,
+  body.dx3-combo-page .items-table td:nth-child(6) input,
+  body.dx3-combo-page .items-table td:nth-child(7) input,
+  body.dx3-combo-page .items-table td:nth-child(9) input,
+  body.dx3-combo-page .items-table td:nth-child(10) input {
+    min-height: 34px;
+    padding: 5px 6px;
+    text-align: right;
+  }
+
+  body.dx3-combo-page .combo-source-table .coef-current-box {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 5px 7px;
+    border: 1px solid #4a5c9a;
+    border-radius: 4px;
+    background-color: rgba(60, 60, 60, 0.92);
+    box-sizing: border-box;
+    font-family: var(--font-latin-ui, monospace);
+    font-variant-numeric: tabular-nums;
+  }
+
+  body.dx3-combo-page .combo-source-table .coef-current-cell::after {
+    content: "";
+  }
+
+  body.dx3-combo-page .effects-table .action-cell,
+  body.dx3-combo-page .items-table .action-cell {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  body.dx3-combo-page .effects-table .action-cell::before,
+  body.dx3-combo-page .items-table .action-cell::before {
+    grid-column: 1 / -1;
+  }
+
+  body.dx3-combo-page .effects-table .action-cell button,
+  body.dx3-combo-page .items-table .action-cell button {
+    min-height: 36px;
+  }
+
+  body.dx3-combo-page .effects-table .action-cell .setting-btn,
+  body.dx3-combo-page .items-table .action-cell .setting-btn {
+    width: 100%;
+  }
+
+  /* 係数表: 列ラベル */
+  body.dx3-combo-page .combo-source-table td:nth-child(1)::before { content: "名称"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(2)::before { content: "Lv"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(3)::before { content: "タイミング"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(4)::before { content: "D固定"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(5)::before { content: "D/Lv"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(6)::before { content: "D現在"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(7)::before { content: "達固定"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(8)::before { content: "達/Lv"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(9)::before { content: "達現在"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(10)::before { content: "ATK固"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(11)::before { content: "ATK/Lv"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(12)::before { content: "ATK上限"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(13)::before { content: "ATK現在"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(14)::before { content: "C固定"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(15)::before { content: "C/Lv"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(16)::before { content: "C下限"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(17)::before { content: "C現在"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(18)::before { content: "効果"; }
+  body.dx3-combo-page .combo-source-table td:nth-child(19)::before { content: "備考"; }
+
+  /* 詳細表: 列ラベル */
+  body.dx3-combo-page .effects-table td:nth-child(1)::before { content: "名称"; }
+  body.dx3-combo-page .effects-table td:nth-child(2)::before { content: "Lv"; }
+  body.dx3-combo-page .effects-table td:nth-child(3)::before { content: "最大Lv"; }
+  body.dx3-combo-page .effects-table td:nth-child(4)::before { content: "タイミング"; }
+  body.dx3-combo-page .effects-table td:nth-child(5)::before { content: "技能"; }
+  body.dx3-combo-page .effects-table td:nth-child(6)::before { content: "難易度"; }
+  body.dx3-combo-page .effects-table td:nth-child(7)::before { content: "対象"; }
+  body.dx3-combo-page .effects-table td:nth-child(8)::before { content: "射程"; }
+  body.dx3-combo-page .effects-table td:nth-child(9)::before { content: "侵蝕"; }
+  body.dx3-combo-page .effects-table td:nth-child(10)::before { content: "制限"; }
+  body.dx3-combo-page .effects-table td:nth-child(11)::before { content: "効果"; }
+  body.dx3-combo-page .effects-table td:nth-child(12)::before { content: "備考"; }
+  body.dx3-combo-page .effects-table td:nth-child(13)::before { content: "設定"; }
+
+  /* アイテム表: 列ラベル */
+  body.dx3-combo-page .items-table td:nth-child(1)::before { content: "名称"; }
+  body.dx3-combo-page .items-table td:nth-child(2)::before { content: "Lv"; }
+  body.dx3-combo-page .items-table td:nth-child(3)::before { content: "種別"; }
+  body.dx3-combo-page .items-table td:nth-child(4)::before { content: "技能"; }
+  body.dx3-combo-page .items-table td:nth-child(5)::before { content: "命中"; }
+  body.dx3-combo-page .items-table td:nth-child(6)::before { content: "攻撃"; }
+  body.dx3-combo-page .items-table td:nth-child(7)::before { content: "ガード"; }
+  body.dx3-combo-page .items-table td:nth-child(8)::before { content: "射程"; }
+  body.dx3-combo-page .items-table td:nth-child(9)::before { content: "侵蝕"; }
+  body.dx3-combo-page .items-table td:nth-child(10)::before { content: "経験点"; }
+  body.dx3-combo-page .items-table td:nth-child(11)::before { content: "備考"; }
+  body.dx3-combo-page .items-table td:nth-child(12)::before { content: "設定"; }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page .combo-source-table tr,
+  body.dx3-combo-page .effects-table tr,
+  body.dx3-combo-page .items-table tr {
+    gap: 5px 6px;
+    padding: 8px;
+  }
+
+  body.dx3-combo-page .combo-source-table td,
+  body.dx3-combo-page .effects-table td,
+  body.dx3-combo-page .items-table td {
+    grid-template-columns: 3.9em minmax(0, 1fr);
+  }
+
+  body.dx3-combo-page .combo-source-table .coef-cell,
+  body.dx3-combo-page .combo-source-table .coef-current-cell,
+  body.dx3-combo-page .effects-table td:nth-child(2),
+  body.dx3-combo-page .effects-table td:nth-child(3),
+  body.dx3-combo-page .effects-table td:nth-child(9),
+  body.dx3-combo-page .items-table td:nth-child(2),
+  body.dx3-combo-page .items-table td:nth-child(5),
+  body.dx3-combo-page .items-table td:nth-child(6),
+  body.dx3-combo-page .items-table td:nth-child(7),
+  body.dx3-combo-page .items-table td:nth-child(9),
+  body.dx3-combo-page .items-table td:nth-child(10) {
+    grid-template-columns: 3.3em minmax(0, 1fr);
+  }
+
+  body.dx3-combo-page .combo-source-table td::before,
+  body.dx3-combo-page .effects-table td::before,
+  body.dx3-combo-page .items-table td::before {
+    font-size: 0.72rem;
+  }
+}
+
+/* ========================================================================== 
+   DX3 mobile patch v003
+   - エフェクト/係数/アイテム表はカード化せず、表のまま横スクロールに戻す
+   - スマホでキャラクター情報とコンボ上部ステータスを2列圧縮
+   ========================================================================== */
+
+@media (max-width: 760px) {
+  /* 表はカード化しない。ページ全体ではなく、table-wrapper 内だけ横スクロールさせる。 */
+  body.dx3-combo-page .compact-table-wrapper,
+  body.dx3-combo-page .table-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  body.dx3-combo-page .combo-source-table,
+  body.dx3-combo-page .effects-table,
+  body.dx3-combo-page .items-table {
+    display: table;
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page .combo-source-table {
+    min-width: 1180px;
+  }
+
+  body.dx3-combo-page .effects-table {
+    min-width: 1080px;
+  }
+
+  body.dx3-combo-page .items-table {
+    min-width: 980px;
+  }
+
+  body.dx3-combo-page .combo-source-table colgroup,
+  body.dx3-combo-page .effects-table colgroup,
+  body.dx3-combo-page .items-table colgroup {
+    display: table-column-group;
+  }
+
+  body.dx3-combo-page .combo-source-table thead,
+  body.dx3-combo-page .effects-table thead,
+  body.dx3-combo-page .items-table thead {
+    display: table-header-group;
+  }
+
+  body.dx3-combo-page .combo-source-table tbody,
+  body.dx3-combo-page .effects-table tbody,
+  body.dx3-combo-page .items-table tbody {
+    display: table-row-group;
+    width: auto;
+  }
+
+  body.dx3-combo-page .combo-source-table tr,
+  body.dx3-combo-page .effects-table tr,
+  body.dx3-combo-page .items-table tr {
+    display: table-row;
+    width: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  body.dx3-combo-page .combo-source-table th,
+  body.dx3-combo-page .combo-source-table td,
+  body.dx3-combo-page .effects-table th,
+  body.dx3-combo-page .effects-table td,
+  body.dx3-combo-page .items-table th,
+  body.dx3-combo-page .items-table td {
+    display: table-cell;
+    width: auto;
+    min-width: 0;
+    padding: 6px 7px;
+    border: 1px solid #2a3c7d;
+    background: transparent;
+    box-sizing: border-box;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page .combo-source-table th,
+  body.dx3-combo-page .effects-table th,
+  body.dx3-combo-page .items-table th {
+    background-color: #1a2c6d;
+  }
+
+  body.dx3-combo-page .combo-source-table td::before,
+  body.dx3-combo-page .effects-table td::before,
+  body.dx3-combo-page .items-table td::before,
+  body.dx3-combo-page .combo-source-table .source-effect-cell::before,
+  body.dx3-combo-page .combo-source-table .source-note-cell::before,
+  body.dx3-combo-page .effects-table td:nth-child(11)::before,
+  body.dx3-combo-page .effects-table td:nth-child(12)::before,
+  body.dx3-combo-page .items-table td:nth-child(11)::before {
+    content: none;
+    display: none;
+  }
+
+  body.dx3-combo-page .combo-source-table input,
+  body.dx3-combo-page .combo-source-table textarea,
+  body.dx3-combo-page .effects-table input,
+  body.dx3-combo-page .effects-table textarea,
+  body.dx3-combo-page .items-table input,
+  body.dx3-combo-page .items-table textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .combo-source-table textarea,
+  body.dx3-combo-page .effects-table textarea,
+  body.dx3-combo-page .items-table textarea {
+    min-height: 42px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+
+  body.dx3-combo-page .combo-source-table .source-name-infer-wrap {
+    display: grid;
+    grid-template-columns: minmax(10em, 1fr) auto auto;
+    gap: 5px;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .combo-source-table .coef-current-box {
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 5px 7px;
+    border: 1px solid #4a5c9a;
+    border-radius: 4px;
+    background-color: rgba(60, 60, 60, 0.92);
+    box-sizing: border-box;
+    font-family: var(--font-latin-ui, monospace);
+    font-variant-numeric: tabular-nums;
+  }
+
+  body.dx3-combo-page .effects-table .action-cell,
+  body.dx3-combo-page .items-table .action-cell {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  body.dx3-combo-page .effects-table .action-cell .setting-btn,
+  body.dx3-combo-page .items-table .action-cell .setting-btn {
+    width: auto;
+  }
+
+  /* キャラクター情報: 短い数値欄を2列化。名前だけ全幅。 */
+  body.dx3-combo-page .character-info-grid {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  body.dx3-combo-page .character-info-grid #char-name-label {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .character-info-grid .xp-fields-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .character-info-grid .xp-fields-group label {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+    align-items: stretch;
+    width: auto;
+    min-width: 0;
+    font-size: 0.78rem;
+  }
+
+  body.dx3-combo-page .character-info-grid input {
+    min-width: 0;
+    min-height: 34px;
+    padding: 5px 7px;
+  }
+
+  body.dx3-combo-page .character-info-grid input[type="number"] {
+    text-align: right;
+  }
+
+  /* コンボステータス: 数値・短い選択を2列に圧縮。 */
+  body.dx3-combo-page .combo-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "dice crit"
+      "achieve attack"
+      "cost cost"
+      "target range"
+      "timing timing"
+      "skill ability";
+    gap: 4px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item {
+    min-width: 0;
+    min-height: 42px;
+    padding: 7px 6px;
+    border: 1px solid #555;
+    background-color: #3c3c3c;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 0.86rem;
+    line-height: 1.2;
+    overflow: hidden;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(1) { grid-area: dice; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(2) { grid-area: crit; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(3) { grid-area: achieve; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(4) { grid-area: target; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(5) { grid-area: range; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(6) { grid-area: timing; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(7) { grid-area: skill; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(8) { grid-area: ability; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(9) { grid-area: attack; }
+  body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(10) { grid-area: cost; }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .base-ability-input {
+    flex-direction: column;
+    gap: 5px;
+    justify-content: stretch;
+    align-items: stretch;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item span {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 5px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .timing-setting span {
+    grid-template-columns: 4.8em minmax(0, 1fr);
+  }
+
+  body.dx3-combo-page .combo-stats-bar .base-ability-input span {
+    display: block;
+    width: auto;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .input-with-dropdown,
+  body.dx3-combo-page .combo-stats-bar select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item span .input-with-dropdown input,
+  body.dx3-combo-page .combo-stats-bar select {
+    width: 100%;
+    min-height: 30px;
+    padding: 4px 6px;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .mode-toggle button {
+    min-width: 0;
+    padding: 4px 3px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page .combo-source-table tr,
+  body.dx3-combo-page .effects-table tr,
+  body.dx3-combo-page .items-table tr {
+    display: table-row;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  body.dx3-combo-page .combo-source-table td,
+  body.dx3-combo-page .effects-table td,
+  body.dx3-combo-page .items-table td {
+    display: table-cell;
+    grid-template-columns: none;
+    padding: 6px 7px;
+    border: 1px solid #2a3c7d;
+  }
+
+  body.dx3-combo-page .character-info-grid .xp-fields-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting {
+    min-height: 92px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    min-height: 74px;
+  }
+}
+
+/* ==========================================================================
+   DX3 mobile patch v004
+   - 対象/射程を1行コンパクト化
+   - コンボLvと並び替えボタンを同一行に圧縮
+   ========================================================================== */
+@media (max-width: 760px) {
+  /* コンボヘッダー: 名前の下に Lv / ↑↓ / 複製 / 削除を1行で並べる */
+  body.dx3-combo-page .combo-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+    gap: 6px;
+    align-items: center;
+    justify-content: stretch;
+  }
+
+  body.dx3-combo-page .combo-header .combo-name-input {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+
+  body.dx3-combo-page .combo-header .limit-chip {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin: 0;
+  }
+
+  body.dx3-combo-page .combo-header .combo-level-select {
+    grid-column: 1;
+    min-width: 0;
+    width: 100%;
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 0.82rem;
+  }
+
+  body.dx3-combo-page .combo-header .combo-level-select select {
+    width: 100%;
+    min-width: 0;
+    min-height: 30px;
+    padding: 3px 5px;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .combo-header .move-btn,
+  body.dx3-combo-page .combo-header .copy-btn,
+  body.dx3-combo-page .combo-header .delete-btn {
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    min-height: 30px;
+    padding: 5px 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .combo-header .move-btn:nth-of-type(1) { grid-column: 2; }
+  body.dx3-combo-page .combo-header .move-btn:nth-of-type(2) { grid-column: 3; }
+  body.dx3-combo-page .combo-header .copy-btn { grid-column: 4; }
+  body.dx3-combo-page .combo-header .delete-btn { grid-column: 5; }
+
+  /* 対象/射程: 1行で「ラベル + 入力 + 自動/手動」を収める */
+  body.dx3-combo-page .combo-stats-bar {
+    grid-template-areas:
+      "dice crit"
+      "achieve attack"
+      "cost cost"
+      "target target"
+      "range range"
+      "timing timing"
+      "skill ability";
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting {
+    min-height: 40px;
+    padding: 5px 6px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(86px, 0.78fr);
+    gap: 5px;
+    align-items: center;
+    justify-content: stretch;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span {
+    display: contents;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting > span::before,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span::before {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting > span::before { content: "対象:"; }
+  body.dx3-combo-page .combo-stats-bar .range-setting > span::before { content: "射程:"; }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span {
+    font-size: 0;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown,
+  body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown {
+    min-width: 0;
+    width: 100%;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown input,
+  body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown input {
+    min-height: 30px;
+    padding: 4px 6px;
+    text-align: center;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle button,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle button {
+    min-height: 30px;
+    padding: 3px 4px;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page .combo-header {
+    grid-template-columns: minmax(0, 1fr) 34px 34px 34px 34px;
+    gap: 5px;
+  }
+
+  body.dx3-combo-page .combo-header .move-btn,
+  body.dx3-combo-page .combo-header .copy-btn,
+  body.dx3-combo-page .combo-header .delete-btn {
+    width: 34px;
+    min-width: 34px;
+    max-width: 34px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting {
+    min-height: 38px;
+    grid-template-columns: auto minmax(0, 1fr) minmax(74px, 0.72fr);
+    gap: 4px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    min-height: 0;
+  }
+}
+
+/* ============================================================================
+   DX3 mobile patch v005
+   - 対象/射程/タイミングのラベル消失を修正
+   - ▼を入力文字と重ならない左側インジケータに変更
+   - 対象/射程/タイミングを1行コンパクト表示
+   ============================================================================ */
+@media (max-width: 760px) {
+  body.dx3-combo-page .combo-stats-bar {
+    grid-template-areas:
+      "dice crit"
+      "achieve attack"
+      "cost cost"
+      "target target"
+      "range range"
+      "timing timing"
+      "skill ability";
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(82px, 0.42fr);
+    gap: 6px;
+    align-items: center;
+    justify-content: stretch;
+    min-height: 40px;
+    padding: 5px 6px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 5px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    font-size: 0.86rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting > span::before,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span::before,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span::before {
+    content: none;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown,
+  body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .input-with-dropdown {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown input,
+  body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown input,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .input-with-dropdown input {
+    width: 100%;
+    min-width: 0;
+    min-height: 30px;
+    padding: 4px 8px 4px 24px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .dropdown-arrow,
+  body.dx3-combo-page .combo-stats-bar .range-setting .dropdown-arrow,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .dropdown-arrow {
+    display: inline-flex;
+    left: 7px;
+    right: auto;
+    width: 12px;
+    justify-content: center;
+    transform: translateY(-50%);
+    pointer-events: auto;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle button,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle button,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle button {
+    min-width: 0;
+    min-height: 30px;
+    padding: 3px 2px;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    grid-template-columns: minmax(0, 1fr) 76px;
+    gap: 4px;
+    min-height: 38px;
+    padding: 5px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    gap: 4px;
+    font-size: 0.82rem;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    font-size: 0.78rem;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle button,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle button,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle button {
+    font-size: 0.64rem;
+  }
+}
+
+/* ============================================================================
+   DX3 mobile patch v006
+   - エフェクト選択モーダルをスマホ幅で最適化
+   - 左上ハンバーガーメニューは表示したまま、モーダル本文と競合しない余白を確保
+   - 一括選択ツールバー、選択行、フッターをコンパクト化
+   ============================================================================ */
+@media (max-width: 760px) {
+  body.dx3-combo-page .modal-overlay {
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10px 8px 10px 16px;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .modal-content.effect-select-modal {
+    width: calc(100vw - 30px);
+    max-width: none;
+    max-height: calc(100dvh - 20px);
+    margin: 0 0 0 6px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* ハンバーガーの表示領域を左上に残す。ボタンは隠さず、タイトルだけ右へ逃がす。 */
+  body.dx3-combo-page .effect-select-modal .modal-header {
+    min-height: 54px;
+    padding: 9px 10px 9px 58px;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 34px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  body.dx3-combo-page .effect-select-modal .modal-header h3 {
+    min-width: 0;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  body.dx3-combo-page .effect-select-modal .close-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+  }
+
+  body.dx3-combo-page .effect-select-modal .modal-body {
+    padding: 8px 10px;
+  }
+
+  body.dx3-combo-page .effect-select-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #4a5c9a;
+    border-radius: 6px;
+    background: rgba(13, 26, 80, 0.42);
+  }
+
+  body.dx3-combo-page .effect-select-toolbar .toolbar-label {
+    flex: 0 0 auto;
+    margin-right: 2px;
+    font-weight: 700;
+    color: #87cefa;
+  }
+
+  body.dx3-combo-page .effect-select-toolbar button {
+    flex: 0 0 auto;
+    min-height: 30px;
+    padding: 4px 9px;
+    font-size: 0.78rem;
+    line-height: 1.15;
+    border-radius: 5px;
+  }
+
+  body.dx3-combo-page .effect-select-modal .option-group {
+    margin-bottom: 8px;
+  }
+
+  body.dx3-combo-page .effect-select-modal .option-group strong {
+    margin: 0 0 5px;
+    padding: 6px 0 5px;
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+
+  body.dx3-combo-page .effect-select-modal label.item-select-label {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    gap: 8px;
+    min-height: 36px;
+    padding: 6px 8px;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .effect-select-modal label.item-select-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    justify-self: center;
+  }
+
+  body.dx3-combo-page .effect-select-modal label.item-select-label span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+  }
+
+  body.dx3-combo-page .effect-select-modal .buff-section-header {
+    min-height: 42px;
+    padding: 9px 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    gap: 8px;
+    align-items: center;
+  }
+
+  body.dx3-combo-page .effect-select-modal .buff-section-header span {
+    min-width: 0;
+    line-height: 1.3;
+  }
+
+  body.dx3-combo-page .effect-select-modal .buff-list {
+    max-height: 140px;
+    padding: 6px 10px 10px;
+  }
+
+  body.dx3-combo-page .effect-select-modal .modal-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  body.dx3-combo-page .effect-select-modal .modal-footer button {
+    min-height: 40px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page .modal-content.effect-select-modal {
+    width: calc(100vw - 26px);
+    margin-left: 5px;
+  }
+
+  body.dx3-combo-page .effect-select-modal .modal-header {
+    padding-left: 56px;
+  }
+
+  body.dx3-combo-page .effect-select-toolbar {
+    gap: 5px;
+    padding: 7px;
+  }
+
+  body.dx3-combo-page .effect-select-toolbar button {
+    padding: 4px 8px;
+    font-size: 0.74rem;
+  }
+}
+
+/* ============================================================================
+   DX3 mobile patch v007
+   - スマホのエフェクト「係数 / 詳細」表はカード化せず、常時見える横スクロール表として固定
+   - 列幅を明示して、input / textarea / dropdown がセル外へはみ出す事故を抑制
+   ============================================================================ */
+@media (max-width: 760px) {
+  body.dx3-combo-page .compact-table-wrapper,
+  body.dx3-combo-page .table-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    padding-bottom: 13px;
+    scrollbar-width: thin;
+    scrollbar-color: #87cefa rgba(13, 26, 80, 0.95);
+    scrollbar-gutter: stable;
+  }
+
+  body.dx3-combo-page .compact-table-wrapper::-webkit-scrollbar,
+  body.dx3-combo-page .table-wrapper::-webkit-scrollbar {
+    display: block;
+    height: 11px;
+  }
+
+  body.dx3-combo-page .compact-table-wrapper::-webkit-scrollbar-track,
+  body.dx3-combo-page .table-wrapper::-webkit-scrollbar-track {
+    background: rgba(13, 26, 80, 0.95);
+    border: 1px solid rgba(74, 92, 154, 0.75);
+    border-radius: 999px;
+  }
+
+  body.dx3-combo-page .compact-table-wrapper::-webkit-scrollbar-thumb,
+  body.dx3-combo-page .table-wrapper::-webkit-scrollbar-thumb {
+    background: #87cefa;
+    border: 2px solid rgba(13, 26, 80, 0.95);
+    border-radius: 999px;
+  }
+
+  body.dx3-combo-page .combo-source-table,
+  body.dx3-combo-page .effects-table,
+  body.dx3-combo-page .items-table {
+    table-layout: fixed;
+    width: auto;
+    max-width: none;
+  }
+
+  /* 係数表: 列を広めに確保。スマホでは横スクロール前提。 */
+  body.dx3-combo-page .combo-source-table {
+    min-width: 1820px;
+  }
+
+  body.dx3-combo-page .combo-source-table .combo-col-name { width: 210px; }
+  body.dx3-combo-page .combo-source-table .combo-col-lv { width: 58px; }
+  body.dx3-combo-page .combo-source-table .combo-col-timing { width: 132px; }
+  body.dx3-combo-page .combo-source-table .combo-col-coef { width: 64px; }
+  body.dx3-combo-page .combo-source-table .combo-col-current { width: 74px; }
+  body.dx3-combo-page .combo-source-table .combo-col-effect { width: 330px; }
+  body.dx3-combo-page .combo-source-table .combo-col-note { width: 250px; }
+
+  /* 詳細表: 効果と備考を潰さず、他は操作できる最小幅にする。 */
+  body.dx3-combo-page .effects-table {
+    min-width: 1620px;
+  }
+
+  body.dx3-combo-page .effects-table th:nth-child(1),
+  body.dx3-combo-page .effects-table td:nth-child(1) { width: 180px; }
+  body.dx3-combo-page .effects-table th:nth-child(2),
+  body.dx3-combo-page .effects-table td:nth-child(2) { width: 58px; }
+  body.dx3-combo-page .effects-table th:nth-child(3),
+  body.dx3-combo-page .effects-table td:nth-child(3) { width: 72px; }
+  body.dx3-combo-page .effects-table th:nth-child(4),
+  body.dx3-combo-page .effects-table td:nth-child(4) { width: 128px; }
+  body.dx3-combo-page .effects-table th:nth-child(5),
+  body.dx3-combo-page .effects-table td:nth-child(5) { width: 128px; }
+  body.dx3-combo-page .effects-table th:nth-child(6),
+  body.dx3-combo-page .effects-table td:nth-child(6) { width: 112px; }
+  body.dx3-combo-page .effects-table th:nth-child(7),
+  body.dx3-combo-page .effects-table td:nth-child(7) { width: 122px; }
+  body.dx3-combo-page .effects-table th:nth-child(8),
+  body.dx3-combo-page .effects-table td:nth-child(8) { width: 96px; }
+  body.dx3-combo-page .effects-table th:nth-child(9),
+  body.dx3-combo-page .effects-table td:nth-child(9) { width: 72px; }
+  body.dx3-combo-page .effects-table th:nth-child(10),
+  body.dx3-combo-page .effects-table td:nth-child(10) { width: 96px; }
+  body.dx3-combo-page .effects-table th:nth-child(11),
+  body.dx3-combo-page .effects-table td:nth-child(11) { width: 330px; }
+  body.dx3-combo-page .effects-table th:nth-child(12),
+  body.dx3-combo-page .effects-table td:nth-child(12) { width: 250px; }
+  body.dx3-combo-page .effects-table th:nth-child(13),
+  body.dx3-combo-page .effects-table td:nth-child(13) { width: 84px; }
+
+  body.dx3-combo-page .combo-source-table th,
+  body.dx3-combo-page .combo-source-table td,
+  body.dx3-combo-page .effects-table th,
+  body.dx3-combo-page .effects-table td,
+  body.dx3-combo-page .items-table th,
+  body.dx3-combo-page .items-table td {
+    overflow: hidden;
+  }
+
+  body.dx3-combo-page .combo-source-table input,
+  body.dx3-combo-page .combo-source-table textarea,
+  body.dx3-combo-page .effects-table input,
+  body.dx3-combo-page .effects-table textarea,
+  body.dx3-combo-page .items-table input,
+  body.dx3-combo-page .items-table textarea,
+  body.dx3-combo-page .combo-source-table .input-with-dropdown,
+  body.dx3-combo-page .effects-table .input-with-dropdown,
+  body.dx3-combo-page .items-table .input-with-dropdown {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .combo-source-table textarea,
+  body.dx3-combo-page .effects-table textarea,
+  body.dx3-combo-page .items-table textarea {
+    overflow: auto;
+    white-space: pre-wrap;
+  }
+
+  body.dx3-combo-page .combo-source-table .coef-current-box {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.dx3-combo-page .combo-source-table .source-name-infer-wrap {
+    grid-template-columns: minmax(0, 1fr) 42px 42px;
+  }
+
+  body.dx3-combo-page .coef-row-infer-btn,
+  body.dx3-combo-page .coef-row-undo-btn {
+    min-width: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page .compact-table-wrapper,
+  body.dx3-combo-page .table-wrapper {
+    margin-left: 0;
+    margin-right: 0;
+    padding-bottom: 14px;
+  }
+
+  body.dx3-combo-page .compact-table-wrapper::-webkit-scrollbar,
+  body.dx3-combo-page .table-wrapper::-webkit-scrollbar {
+    height: 12px;
+  }
+
+  body.dx3-combo-page .combo-source-table th,
+  body.dx3-combo-page .combo-source-table td,
+  body.dx3-combo-page .effects-table th,
+  body.dx3-combo-page .effects-table td,
+  body.dx3-combo-page .items-table th,
+  body.dx3-combo-page .items-table td {
+    padding: 6px;
+  }
+}
+
+/* ============================================================================
+   DX3 mobile patch v008
+   - 詳細設定の係数パネルをスマホで読みやすく再整形
+   - 固定値 / Lv毎 / 最大 / 下限の入力欄をセル内に収める
+   - パネル本体を画面内に固定し、ボックスのはみ出しを抑制
+   ============================================================================ */
+@media (max-width: 760px) {
+  body.dx3-combo-page #dx3-app .floating-panel {
+    position: fixed !important;
+    top: 58px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 76px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .floating-panel .panel-header {
+    min-height: 42px;
+    padding: 8px 10px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  body.dx3-combo-page #dx3-app .floating-panel .panel-header h3 {
+    min-width: 0;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page #dx3-app .floating-panel .close-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+  }
+
+  body.dx3-combo-page #dx3-app .floating-panel .panel-body {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .panel-source-text {
+    margin-bottom: 8px;
+  }
+
+  body.dx3-combo-page #dx3-app .panel-source-content {
+    max-height: 4.8em;
+    line-height: 1.4;
+  }
+
+  body.dx3-combo-page #dx3-app .panel-quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+
+  body.dx3-combo-page #dx3-app .panel-quick-actions button {
+    min-height: 38px;
+    padding: 7px 8px;
+    font-size: 0.86rem;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-table {
+    border: 1px solid #4a5c9a;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(13, 26, 80, 0.45);
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-head {
+    display: grid;
+    grid-template-columns: 68px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+    padding: 6px 8px;
+    background: rgba(26, 44, 109, 0.95);
+    border-bottom: 1px solid #4a5c9a;
+    font-size: 0.78rem;
+    color: #bfe8ff;
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-head span:nth-child(4) {
+    display: none;
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-row {
+    display: grid;
+    grid-template-columns: 68px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+    align-items: center;
+    min-height: 0;
+    padding: 8px;
+    border-bottom: 1px solid rgba(74, 92, 154, 0.65);
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-row:last-child {
+    border-bottom: none;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-row-label {
+    grid-column: 1;
+    align-self: start;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-row-label strong {
+    font-size: 0.94rem;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-chip.auto,
+  body.dx3-combo-page #dx3-app .coef-chip.relevant {
+    display: none;
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-row input[type="text"],
+  body.dx3-combo-page #dx3-app .coefficient-panel-row input[type="number"] {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    height: 32px;
+    padding: 4px 7px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    line-height: 1.15;
+    text-align: right;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-row-tools {
+    grid-column: 2 / 4;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 0;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-help-text {
+    font-size: 0.76rem;
+    line-height: 1.1;
+    opacity: 0.72;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-limit-field {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 6px;
+    align-items: center;
+    flex: 1 1 116px;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-limit-field > span,
+  body.dx3-combo-page #dx3-app .coef-min-field > span {
+    min-width: 0;
+    font-size: 0.82rem;
+    color: #b8d7ef;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-limit-field input[type="number"] {
+    width: 100%;
+    max-width: none;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-min-field {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+    margin-top: 0;
+  }
+
+  body.dx3-combo-page #dx3-app .coef-min-field input[type="number"] {
+    width: 100%;
+    max-width: none;
+  }
+
+  body.dx3-combo-page #dx3-app .panel-footer-actions {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 10px;
+    background: linear-gradient(to bottom, rgba(60, 60, 60, 0), #3c3c3c 24%);
+  }
+
+  body.dx3-combo-page #dx3-app .panel-footer-actions button {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page #dx3-app .floating-panel {
+    left: 30px !important;
+    right: 8px !important;
+    top: 54px !important;
+    max-height: calc(100dvh - 68px);
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-head,
+  body.dx3-combo-page #dx3-app .coefficient-panel-row {
+    grid-template-columns: 62px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  body.dx3-combo-page #dx3-app .coefficient-panel-row {
+    padding: 7px 6px;
+  }
+
+  body.dx3-combo-page #dx3-app .panel-quick-actions button {
+    font-size: 0.82rem;
+  }
+}
+
+/* ============================================================================
+   DX3 mobile patch v009
+   - 読み込み完了 / 確認系モーダルをスマホでハンバーガーと共存
+   - confirmation-modal / updateOptions の高さとフッター配置を安定化
+   ============================================================================ */
+@media (max-width: 760px) {
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal {
+    position: fixed;
+    top: 52px;
+    left: 38px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 64px);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-header {
+    min-height: 44px;
+    padding: 8px 10px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-header h3 {
+    min-width: 0;
+    margin: 0;
+    padding-left: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .close-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    flex: 0 0 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-body {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 14px 10px;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-body p {
+    margin: 0;
+    padding: 0;
+    font-size: 0.93rem;
+    line-height: 1.65;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-footer {
+    position: sticky;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+    flex-shrink: 0;
+    background: #232323;
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-footer button {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 420px) {
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal {
+    top: 50px;
+    left: 32px;
+    right: 6px;
+    max-height: calc(100dvh - 58px);
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-header h3 {
+    font-size: 0.96rem;
+  }
+
+  body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-body {
+    padding: 12px 10px;
+  }
+}
+
+/* v010: 760px超〜1280pxの1カラム帯では、能力値表とHP計算を横並びにする */
+@media (min-width: 761px) and (max-width: 1280px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    display: grid;
+    grid-template-columns: minmax(320px, 360px) minmax(300px, 340px);
+    gap: 0.65rem;
+    width: min(100%, 720px);
+    max-width: 100%;
+    align-items: start;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+    grid-column: 1;
+    width: 360px;
+    max-width: 100%;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    grid-column: 2;
+    width: 340px;
+    max-width: 100%;
+    margin-top: 0;
+  }
+}
+
+/* かなり狭いタブレット幅では、横並びを維持しつつ少しだけ詰める */
+@media (min-width: 761px) and (max-width: 880px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    grid-template-columns: minmax(300px, 340px) minmax(280px, 320px);
+    width: min(100%, 670px);
+    gap: 0.5rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+    width: 340px;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    width: 320px;
+  }
+}
+
+/* 760px以下はスマホ優先で従来通り縦積み */
+@media (max-width: 760px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    grid-column: 1;
+    width: 100%;
+  }
+}
+
+/* v011: 800〜1250px帯の能力値/HP重なり解消と技能表の圧縮 */
+@media (min-width: 761px) and (max-width: 1280px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 20rem);
+    grid-template-areas:
+      "head head"
+      "matrix stats";
+    width: 100%;
+    max-width: 46.5rem;
+    gap: 0.5rem;
+    overflow: hidden;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown-head {
+    grid-area: head;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+    grid-area: matrix;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-gutter: stable;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+    min-width: 20rem;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+    padding-inline: 0.16rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 8.2rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"] {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    grid-area: stats;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    margin-top: 0;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card {
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card .enemy-stat-stack-title {
+    min-width: 2.8rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-formula {
+    min-width: 0;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 920px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    grid-template-columns: minmax(0, 1fr) minmax(17rem, 18.5rem);
+    max-width: 43.5rem;
+    gap: 0.42rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 7.6rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+    min-width: 18.8rem;
+  }
+}
+
+/* 技能表は中幅以下で「出力」を狭め、表全体を軽くする */
+@media (max-width: 1280px) {
+  .dx3-enemies-page .enemy-skill-table-wrap {
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .dx3-enemies-page .enemy-skill-table {
+    min-width: 45rem;
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name {
+    width: 4.6em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-spec {
+    width: 4.8em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-ability {
+    width: 4.3em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-num {
+    width: 2.25em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output {
+    width: 14.5em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-note {
+    width: 8em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-action {
+    width: 2.4em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th,
+  .dx3-enemies-page .enemy-skill-table td {
+    padding-inline: 0.22rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-output-cell,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dx3-enemies-page .enemy-skill-table input,
+  .dx3-enemies-page .enemy-skill-table select {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 880px) {
+  .dx3-enemies-page .enemy-skill-table {
+    min-width: 41rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output {
+    width: 11.5em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-note {
+    width: 6.5em;
+  }
+}
+
+/* v012: スマホ最狭時のDX3エネミー技能表圧縮 */
+@media (max-width: 520px) {
+  .dx3-enemies-page .enemy-skill-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .dx3-enemies-page .enemy-skill-table {
+    min-width: 36rem;
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name {
+    width: 3.5em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-spec {
+    width: 3.8em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-ability {
+    width: 3.6em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-num {
+    width: 2em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output {
+    width: 8.5em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-note {
+    width: 5.2em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-action {
+    width: 1.9em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th,
+  .dx3-enemies-page .enemy-skill-table td {
+    padding: 0.08rem 0.1rem;
+    font-size: 0.72rem;
+    line-height: 1.16;
+  }
+
+  .dx3-enemies-page .enemy-skill-table input,
+  .dx3-enemies-page .enemy-skill-table select {
+    height: 1.92rem;
+    min-height: 1.92rem;
+    padding: 1px 2px;
+    font-size: 0.78rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(4) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(5) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(6) input,
+  .dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+    height: 1.92rem;
+    min-height: 1.92rem;
+    padding: 0 1px;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(1) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(2) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(3) select,
+  .dx3-enemies-page .enemy-skill-fixed-label span,
+  .dx3-enemies-page .enemy-skill-fixed-name {
+    font-size: 0.75rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-output,
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-output-cell,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    font-size: 0.68rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 430px) {
+  .dx3-enemies-page .enemy-skill-table {
+    min-width: 33.5rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name {
+    width: 3.05em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-spec {
+    width: 3.35em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-ability {
+    width: 3.25em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-num {
+    width: 1.78em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output {
+    width: 7.2em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-note {
+    width: 4.4em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-action {
+    width: 1.65em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th,
+  .dx3-enemies-page .enemy-skill-table td {
+    padding: 0.06rem 0.07rem;
+    font-size: 0.66rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table input,
+  .dx3-enemies-page .enemy-skill-table select {
+    height: 1.74rem;
+    min-height: 1.74rem;
+    padding: 0 1px;
+    font-size: 0.7rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(4) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(5) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(6) input,
+  .dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+    height: 1.74rem;
+    min-height: 1.74rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(1) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(2) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(3) select,
+  .dx3-enemies-page .enemy-skill-fixed-label span,
+  .dx3-enemies-page .enemy-skill-fixed-name {
+    font-size: 0.68rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-ability-cell select {
+    text-align: center;
+    text-align-last: center;
+  }
+
+  .dx3-enemies-page .enemy-skill-output,
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-output-cell,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    font-size: 0.62rem;
+  }
+}
+
+/* v013: 414px前後のDX3エネミー画面の余白圧縮と能力値/HPの収まり改善 */
+@media (max-width: 520px) {
+  body.dx3-combo-page .main-content {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  body.dx3-combo-page .plain-text-block,
+  body.dx3-combo-page #dx3-app.plain-text-block {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .dx3-enemies-page .dx3-enemy-list-pane,
+  .dx3-enemies-page .dx3-enemy-editor-pane,
+  .dx3-enemies-page .dx3-enemy-template-pane,
+  .dx3-enemies-page .dx3-collapsible-section {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .dx3-enemies-page .dx3-collapsible-summary {
+    padding-left: 0.15rem;
+    padding-right: 0.15rem;
+    gap: 0.35rem;
+  }
+
+  .dx3-enemies-page .dx3-collapsible-summary h3 {
+    font-size: 1rem;
+  }
+
+  .dx3-enemies-page .dx3-collapsible-summary > span {
+    font-size: 0.78rem;
+    text-align: right;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    padding: 0.42rem 0.38rem;
+    gap: 0.45rem;
+    overflow: hidden;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 6.7rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+    padding: 0.08rem 0.08rem;
+    font-size: 0.72rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label span {
+    font-size: 0.68rem;
+    line-height: 1.05;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    height: 1.45rem;
+    min-height: 1.45rem;
+    padding: 0 1.05rem 0 0.18rem;
+    font-size: 0.68rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    height: 1.45rem;
+    min-height: 1.45rem;
+    padding: 0 0.14rem;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    width: 100%;
+    max-width: 100%;
+    gap: 0.32rem;
+    overflow: hidden;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    display: grid;
+    grid-template-columns: 4.4rem minmax(0, 1fr);
+    gap: 0.28rem;
+    min-width: 0;
+    padding: 0.22rem 0.28rem;
+    align-items: center;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-title {
+    min-width: 0;
+    font-size: 0.76rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+    display: grid;
+    grid-template-columns: minmax(2.4rem, 1fr) 0.55rem minmax(2.05rem, 0.8fr) 0.55rem minmax(2.25rem, 0.85fr);
+    gap: 0.18rem;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(4.4rem, 1fr) 0.55rem minmax(2.45rem, 0.7fr);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    height: 1.55rem;
+    min-height: 1.55rem;
+    padding: 0 0.18rem;
+    font-size: 0.98rem;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula span,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-equals {
+    min-width: 0;
+    font-size: 0.72rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 430px) {
+  body.dx3-combo-page .main-content {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  body.dx3-combo-page .plain-text-block,
+  body.dx3-combo-page #dx3-app.plain-text-block {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .dx3-enemies-page .dx3-enemy-list-pane,
+  .dx3-enemies-page .dx3-enemy-editor-pane,
+  .dx3-enemies-page .dx3-enemy-template-pane,
+  .dx3-enemies-page .dx3-collapsible-section {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    padding: 0.34rem 0.28rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 6.25rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+    padding: 0.055rem 0.055rem;
+    font-size: 0.66rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label span,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    font-size: 0.63rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    height: 1.34rem;
+    min-height: 1.34rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    grid-template-columns: 3.8rem minmax(0, 1fr);
+    padding: 0.18rem 0.22rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-title {
+    font-size: 0.68rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+    grid-template-columns: minmax(2.15rem, 1fr) 0.45rem minmax(1.75rem, 0.78fr) 0.45rem minmax(1.9rem, 0.82fr);
+    gap: 0.13rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(3.8rem, 1fr) 0.45rem minmax(2.1rem, 0.7fr);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    height: 1.42rem;
+    min-height: 1.42rem;
+    font-size: 0.86rem;
+  }
+}
+
+/* v014: 能力値/HPの横幅はv013維持。最狭時に詰めすぎた縦幅だけ戻す */
+@media (max-width: 520px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    height: 1.56rem;
+    min-height: 1.56rem;
+    line-height: normal;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    height: 1.58rem;
+    min-height: 1.58rem;
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: normal;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    padding-top: 0.28rem;
+    padding-bottom: 0.28rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    height: 1.66rem;
+    min-height: 1.66rem;
+    font-size: 1rem;
+    line-height: normal;
+  }
+}
+
+@media (max-width: 430px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    height: 1.5rem;
+    min-height: 1.5rem;
+    line-height: normal;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    height: 1.58rem;
+    min-height: 1.58rem;
+    font-size: 0.96rem;
+    line-height: normal;
+  }
+}
+
+/* v015: 能力値/HPの横幅は維持しつつ、縦幅・数字視認性を戻す */
+@media (max-width: 520px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    font-family: var(--font-latin-ui), "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-weight: 300;
+    line-height: 1.2;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    height: 1.72rem;
+    min-height: 1.72rem;
+    font-size: 0.72rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    height: 1.74rem;
+    min-height: 1.74rem;
+    padding-top: 0.04rem;
+    padding-bottom: 0.04rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    padding-top: 0.34rem;
+    padding-bottom: 0.34rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    height: 1.82rem;
+    min-height: 1.82rem;
+    font-size: 1.08rem;
+    padding-top: 0.04rem;
+    padding-bottom: 0.04rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    height: 1.66rem;
+    min-height: 1.66rem;
+    font-size: 0.69rem;
+    font-weight: 300;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    height: 1.68rem;
+    min-height: 1.68rem;
+    font-weight: 300;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    padding-top: 0.32rem;
+    padding-bottom: 0.32rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    height: 1.76rem;
+    min-height: 1.76rem;
+    font-weight: 300;
+  }
+}
+
+
+/* v016: 技能表の数値欄はスマホでも基準フォントサイズを維持する */
+@media (max-width: 520px) {
+  .dx3-enemies-page .enemy-skill-table td:nth-child(4) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(5) input,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(6) input,
+  .dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+    font-size: 1.28rem;
+    font-weight: 300;
+  }
+}
+
+/* v017: 414px前後で能力値・HPブロックが右に逃げる問題を抑制 */
+@media (max-width: 430px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    padding-left: 0.22rem;
+    padding-right: 0.22rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 5.65rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+    padding-left: 0.04rem;
+    padding-right: 0.04rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    grid-template-columns: 3.1rem minmax(0, 1fr);
+    gap: 0.18rem;
+    padding-left: 0.22rem;
+    padding-right: 0.22rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-title {
+    font-size: 0.72rem;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+    grid-template-columns: minmax(0, 1.2fr) 0.36rem minmax(0, 0.95fr) 0.36rem minmax(0, 1.05fr);
+    gap: 0.09rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(0, 1.8fr) 0.36rem minmax(0, 1fr);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding-left: 0.12rem;
+    padding-right: 0.12rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula span,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-equals {
+    min-width: 0;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 5.25rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    grid-template-columns: 2.9rem minmax(0, 1fr);
+    gap: 0.14rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+    grid-template-columns: minmax(0, 1.15fr) 0.32rem minmax(0, 0.9fr) 0.32rem minmax(0, 1fr);
+    gap: 0.07rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(0, 1.75fr) 0.32rem minmax(0, 1fr);
+  }
+}
+
+/* v018: 360px前後でエネミー編集ボックスが縮まらない問題を補正 */
+@media (max-width: 380px) {
+  body.dx3-combo-page,
+  body.dx3-combo-page .main-content,
+  body.dx3-combo-page #dx3-app,
+  body.dx3-combo-page .plain-text-block,
+  body.dx3-combo-page #dx3-app.plain-text-block,
+  .dx3-enemies-page .dx3-enemy-mode-panel,
+  .dx3-enemies-page .dx3-enemy-layout,
+  .dx3-enemies-page .dx3-enemy-editor-pane,
+  .dx3-enemies-page .dx3-enemy-template-pane,
+  .dx3-enemies-page .dx3-collapsible-section,
+  .dx3-enemies-page .dx3-enemy-action-bar,
+  .dx3-enemies-page .enemy-template-top-grid,
+  .dx3-enemies-page .enemy-text-grid,
+  .dx3-enemies-page .enemy-ability-breakdown,
+  .dx3-enemies-page .enemy-ability-matrix-block,
+  .dx3-enemies-page .enemy-skill-table-wrap {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page .main-content {
+    width: 100%;
+    min-width: 0;
+    padding-left: 3px;
+    padding-right: 3px;
+    overflow-x: clip;
+  }
+
+  body.dx3-combo-page .plain-text-block,
+  body.dx3-combo-page #dx3-app.plain-text-block {
+    width: 100%;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .dx3-enemies-page .dx3-enemy-editor-pane,
+  .dx3-enemies-page .dx3-enemy-template-pane,
+  .dx3-enemies-page .dx3-collapsible-section {
+    width: 100%;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .dx3-enemies-page .dx3-enemy-action-bar {
+    width: 100%;
+    overflow: hidden;
+    gap: 0.32rem;
+  }
+
+  .dx3-enemies-page .enemy-action-left,
+  .dx3-enemies-page .enemy-action-right,
+  .dx3-enemies-page .enemy-action-meta {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .enemy-action-left,
+  .dx3-enemies-page .enemy-action-right {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.34rem;
+  }
+
+  .dx3-enemies-page .enemy-action-left .action-btn,
+  .dx3-enemies-page .enemy-action-right .action-btn {
+    width: 100%;
+    min-width: 0;
+    padding-left: 0.34rem;
+    padding-right: 0.34rem;
+    white-space: nowrap;
+  }
+
+  .dx3-enemies-page .enemy-action-left .action-btn i,
+  .dx3-enemies-page .enemy-action-right .action-btn i {
+    margin-right: 0.16rem;
+  }
+
+  .dx3-enemies-page .action-bar-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .dx3-enemies-page .action-meta-field,
+  .dx3-enemies-page .action-meta-field input,
+  .dx3-enemies-page .action-meta-field.is-icon input {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .dx3-enemies-page .enemy-template-top-grid,
+  .dx3-enemies-page .enemy-text-grid {
+    grid-template-columns: 1fr;
+    gap: 0.38rem;
+  }
+
+  .dx3-enemies-page .enemy-ruby-field-name,
+  .dx3-enemies-page .enemy-ruby-field-code {
+    grid-column: auto;
+  }
+
+  .dx3-enemies-page .enemy-ruby-field,
+  .dx3-enemies-page .enemy-memo-field,
+  .dx3-enemies-page .enemy-ruby-field input,
+  .dx3-enemies-page .enemy-memo-field textarea {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-basic-section .enemy-memo-field textarea {
+    min-height: 4.35rem;
+  }
+}
+
+@media (max-width: 360px) {
+  body.dx3-combo-page .main-content {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  body.dx3-combo-page .plain-text-block,
+  body.dx3-combo-page #dx3-app.plain-text-block,
+  .dx3-enemies-page .dx3-enemy-editor-pane,
+  .dx3-enemies-page .dx3-enemy-template-pane,
+  .dx3-enemies-page .dx3-collapsible-section {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .dx3-enemies-page .enemy-action-left,
+  .dx3-enemies-page .enemy-action-right {
+    gap: 0.28rem;
+  }
+
+  .dx3-enemies-page .enemy-action-left .action-btn,
+  .dx3-enemies-page .enemy-action-right .action-btn {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    font-size: 0.78rem;
+  }
+}
+
+/* ==========================================================================
+   v019: 349px前後でエネミー編集ペインが viewport より広くなる問題を固定
+   - 目的: 親/子グリッドの min-content による押し広げを止める
+   - 方針: 最狭帯だけ、幅の基準を percentage ではなく viewport clamp に寄せる
+   ========================================================================== */
+@media (max-width: 430px) {
+  body.dx3-combo-page,
+  body.dx3-combo-page * {
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  body.dx3-combo-page .main-content {
+    width: 100%;
+    max-width: 100vw;
+    min-width: 0;
+    margin-left: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+    overflow-x: clip;
+  }
+
+  body.dx3-combo-page .plain-text-block,
+  body.dx3-combo-page #dx3-app.plain-text-block {
+    width: auto;
+    max-width: calc(100dvw - 8px);
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow-x: clip;
+  }
+
+  body.dx3-combo-page #dx3-app,
+  body.dx3-combo-page .dx3-enemy-mode-panel,
+  body.dx3-combo-page .dx3-enemy-common-header,
+  body.dx3-combo-page .dx3-enemy-action-bar,
+  body.dx3-combo-page .dx3-enemy-editor-pane,
+  body.dx3-combo-page .dx3-enemy-template-pane,
+  body.dx3-combo-page .dx3-collapsible-section,
+  body.dx3-combo-page .dx3-enemy-basic-section,
+  body.dx3-combo-page .dx3-enemy-ability-section,
+  body.dx3-combo-page .enemy-skill-block {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .dx3-enemy-editor-pane,
+  body.dx3-combo-page .dx3-enemy-template-pane {
+    justify-self: stretch;
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow-x: clip;
+  }
+
+  body.dx3-combo-page .dx3-enemy-template-pane,
+  body.dx3-combo-page .dx3-enemy-mode-panel,
+  body.dx3-combo-page .enemy-template-top-grid,
+  body.dx3-combo-page .enemy-text-grid,
+  body.dx3-combo-page .dx3-enemy-ability-skill-grid,
+  body.dx3-combo-page .enemy-ability-breakdown,
+  body.dx3-combo-page .enemy-ability-matrix-block,
+  body.dx3-combo-page .enemy-stat-stack-grid {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  body.dx3-combo-page .enemy-template-top-grid,
+  body.dx3-combo-page .enemy-text-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.dx3-combo-page .enemy-ruby-field,
+  body.dx3-combo-page .enemy-memo-field,
+  body.dx3-combo-page .enemy-ruby-field input,
+  body.dx3-combo-page .enemy-memo-field textarea,
+  body.dx3-combo-page .enemy-main-input,
+  body.dx3-combo-page .enemy-ruby-input {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  body.dx3-combo-page .dx3-enemy-action-bar,
+  body.dx3-combo-page .enemy-action-left,
+  body.dx3-combo-page .enemy-action-right,
+  body.dx3-combo-page .enemy-action-meta {
+    min-width: 0;
+    max-width: 100%;
+    overflow: clip;
+  }
+
+  body.dx3-combo-page .enemy-action-left,
+  body.dx3-combo-page .enemy-action-right {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.dx3-combo-page .dx3-enemy-action-bar .action-btn {
+    min-width: 0;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.dx3-combo-page .dx3-collapsible-summary {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  body.dx3-combo-page .dx3-collapsible-summary > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 360px) {
+  body.dx3-combo-page .main-content {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  body.dx3-combo-page .plain-text-block,
+  body.dx3-combo-page #dx3-app.plain-text-block {
+    max-width: calc(100dvw - 4px);
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  body.dx3-combo-page .dx3-enemy-editor-pane,
+  body.dx3-combo-page .dx3-enemy-template-pane {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
+
+/* ==========================================================================
+   v023: enemy control/export bars use enemies_view_common; DX3 keeps texture only
+   ========================================================================== */
+body.dx3-combo-page.dx3-enemies-page {
+  --enemy-control-bg:
+    linear-gradient(135deg, rgba(9, 22, 68, 0.94), rgba(16, 39, 96, 0.86)),
+    repeating-linear-gradient(90deg, rgba(98, 196, 255, 0.055) 0 2px, rgba(7, 19, 55, 0.035) 2px 6px);
+  --enemy-control-border: rgba(98, 196, 255, 0.46);
+  --enemy-export-bg:
+    linear-gradient(135deg, rgba(9, 38, 58, 0.94), rgba(19, 98, 86, 0.84)),
+    repeating-linear-gradient(90deg, rgba(99, 255, 215, 0.07) 0 2px, rgba(7, 32, 40, 0.05) 2px 6px);
+  --enemy-export-border: rgba(99, 255, 215, 0.45);
+  --enemy-control-text: #eaf6ff;
+  --enemy-control-muted: #b7cff8;
+  --enemy-control-button-bg: rgba(25, 52, 110, 0.86);
+  --enemy-control-button-border: rgba(160, 210, 255, 0.52);
+  --enemy-compact-chip-bg: rgba(13, 26, 80, 0.55);
+  --enemy-compact-chip-border: rgba(135, 206, 250, 0.38);
+  --enemy-compact-chip-text: #d6ecff;
+  --enemy-compact-chip-checked-text: #fff2bf;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row .action-btn {
+  background: #248b62;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-btn.is-main { background: #1b7fd1; }
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-btn.is-copy { background: #248b62; }
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-btn.is-danger { background: #963638; }
+
+/* ===========================================================================
+   v025: use common export bar shape; DX3 only supplies texture/colors.
+   Also widen the syndrome-name column on the narrow enemy ability table.
+   =========================================================================== */
+body.dx3-combo-page.dx3-enemies-page {
+  --enemy-control-bg:
+    linear-gradient(135deg, rgba(9, 22, 68, 0.94), rgba(16, 39, 96, 0.86)),
+    repeating-linear-gradient(90deg, rgba(98, 196, 255, 0.055) 0 2px, rgba(7, 19, 55, 0.035) 2px 6px);
+  --enemy-control-border: rgba(98, 196, 255, 0.46);
+  --enemy-export-bg:
+    linear-gradient(135deg, rgba(9, 38, 58, 0.94), rgba(19, 98, 86, 0.84)),
+    repeating-linear-gradient(90deg, rgba(99, 255, 215, 0.07) 0 2px, rgba(7, 32, 40, 0.05) 2px 6px);
+  --enemy-export-border: rgba(99, 255, 215, 0.45);
+  --enemy-control-text: #eaf6ff;
+  --enemy-control-muted: #b7cff8;
+  --enemy-control-button-bg: rgba(25, 52, 110, 0.86);
+  --enemy-control-button-border: rgba(160, 210, 255, 0.52);
+  --enemy-compact-chip-text: #d6ecff;
+  --enemy-compact-chip-checked-text: #fff2bf;
+}
+
+/* Remove the DX3-side second capsule; common owns the export bar structure. */
+body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row .enemy-compact-flag {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row .action-btn {
+  background: #248b62;
+}
+
+@media (min-width: 360px) and (max-width: 520px) {
+  body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row {
+    flex-wrap: wrap;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row .enemy-compact-flags {
+    flex: 1 1 auto;
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.28rem 0.4rem;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row .enemy-compact-flag:first-child {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 430px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 6.45rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: calc((100% - 6.45rem) / 4);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+    padding-left: 0.025rem;
+    padding-right: 0.025rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    padding-left: 0.04rem;
+    padding-right: 0.04rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    padding-left: 0.16rem;
+    padding-right: 0.75rem;
+    font-size: 0.68rem;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 390px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 6.25rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: calc((100% - 6.25rem) / 4);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    font-size: 0.66rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 6.05rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: calc((100% - 6.05rem) / 4);
+  }
+}
+
+/* ===========================================================================
+   v038: section XP badges with readable mobile presentation
+   =========================================================================== */
+
+body.dx3-combo-page .section-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.28rem 0.55rem;
+  min-width: 0;
+}
+
+body.dx3-combo-page .section-title-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28em;
+  min-width: 0;
+}
+
+body.dx3-combo-page .section-title .xp-display,
+body.dx3-combo-page .section-title .section-xp-badge {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18rem 0.38rem;
+  flex: 0 0 auto;
+  min-height: 1.7rem;
+  margin-left: 0;
+  padding: 0.16rem 0.56rem;
+  border: 1px solid rgba(135, 206, 250, 0.5);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(16, 38, 92, 0.96), rgba(9, 24, 70, 0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 0 0 1px rgba(0, 0, 0, 0.18);
+  color: #d6ecff;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+body.dx3-combo-page .section-title .xp-label {
+  color: #a8d7ff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+body.dx3-combo-page .section-title .xp-value {
+  color: #ffd966;
+  font-family: var(--font-latin-ui), "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.04rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+body.dx3-combo-page .section-title .xp-display.is-subtle .xp-value {
+  color: #d6ecff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+@media (max-width: 520px) {
+  body.dx3-combo-page .section-title {
+    align-items: flex-start;
+    font-size: 1.02rem;
+    line-height: 1.18;
+    gap: 0.32rem 0.45rem;
+  }
+
+  body.dx3-combo-page .section-title .xp-display,
+  body.dx3-combo-page .section-title .section-xp-badge {
+    min-height: 1.85rem;
+    padding: 0.18rem 0.58rem;
+  }
+
+  body.dx3-combo-page .section-title .xp-label {
+    font-size: 0.74rem;
+  }
+
+  body.dx3-combo-page .section-title .xp-value {
+    font-size: 1.12rem;
+  }
+}
+
+@media (max-width: 430px) {
+  body.dx3-combo-page .section-title .xp-display,
+  body.dx3-combo-page .section-title .section-xp-badge {
+    flex-basis: 100%;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 0.02rem;
+  }
+}
+
+/* The syndrome selector is more valuable than the numeric columns on mobile. */
+@media (max-width: 430px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+    padding-left: 0.12rem;
+    padding-right: 0.12rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 7.65rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: calc((100% - 7.65rem) / 4);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+    padding-left: 0.01rem;
+    padding-right: 0.01rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    padding-left: 0.08rem;
+    padding-right: 0.08rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label span {
+    letter-spacing: -0.04em;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-left: 0.12rem;
+    padding-right: 0.12rem;
+    font-size: 0.69rem;
+    letter-spacing: -0.05em;
+    text-overflow: clip;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: none;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-left: 0.02rem;
+    padding-right: 0.02rem;
+    letter-spacing: -0.04em;
+  }
+}
+
+@media (max-width: 390px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 7.4rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: calc((100% - 7.4rem) / 4);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    font-size: 0.68rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+  }
+}
+
+@media (max-width: 360px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: 7.15rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: calc((100% - 7.15rem) / 4);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    font-size: 0.66rem;
+  }
+
+}
+
+
+/* ===========================================================================
+   v037: consolidated mobile ability matrix/stat formula overrides
+   ---------------------------------------------------------------------------
+   Consolidates the v027-v036 mobile overrides into one block to avoid
+   conflicting column, padding, alignment and letter-spacing rules.
+   =========================================================================== */
+@media (max-width: 430px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+    padding-right: 0.18rem;
+    overflow-x: visible;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+    table-layout: fixed;
+    width: calc(100% - 0.18rem);
+    max-width: calc(100% - 0.18rem);
+    margin-right: 0.18rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: 2.4rem;
+    min-width: 2.4rem;
+    max-width: 2.4rem;
+    padding-inline: 1px;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 9.6rem);
+    min-width: 0;
+    padding-left: 0.12rem;
+    padding-right: 0.1rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label span {
+    margin-right: 0.12rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    font-size: 0.72rem;
+    padding-left: 0.12rem;
+    padding-right: 0.02rem;
+    text-overflow: ellipsis;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 1.62rem;
+    min-height: 1.62rem;
+    padding-inline: 0.14rem;
+    font-size: 1.28rem;
+    font-weight: 300;
+    line-height: 1.08;
+    letter-spacing: 0;
+    text-align: right;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .syndrome-source-row.is-locked .ability-row-label,
+  .dx3-enemies-page .dx3-enemy-ability-section .syndrome-source-row.is-locked td {
+    opacity: 0.62;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .syndrome-source-row.is-locked .enemy-syndrome-select {
+    cursor: not-allowed;
+    background-color: rgba(226, 232, 240, 0.76);
+    color: rgba(15, 23, 42, 0.62);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+    padding-right: 0.08rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    grid-template-columns: 2.9rem minmax(0, 1fr);
+    gap: 0.16rem;
+    padding-left: 0.18rem;
+    padding-right: 0.18rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+    grid-template-columns: minmax(0, 1.32fr) 0.3rem minmax(0, 1fr) minmax(0, 1.22fr);
+    gap: 0.08rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-right: 0;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(0, 1.76fr) minmax(0, 1.18fr);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula .enemy-stat-equals {
+    display: none;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding-inline: 0.12rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.12rem;
+    white-space: nowrap;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    justify-content: center;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong::before,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip::before {
+    content: "=";
+    color: rgba(220, 235, 255, 0.72);
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula .enemy-stat-operator {
+    min-width: 0;
+    font-size: 0.72rem;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 390px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: 2.34rem;
+    min-width: 2.34rem;
+    max-width: 2.34rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 9.36rem);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+    padding-right: 0.14rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+    width: calc(100% - 0.14rem);
+    max-width: calc(100% - 0.14rem);
+    margin-right: 0.14rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td:not(:first-child) {
+    width: 2.28rem;
+    min-width: 2.28rem;
+    max-width: 2.28rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 9.12rem);
+    padding-left: 0.1rem;
+    padding-right: 0.08rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+    font-size: 0.68rem;
+    padding-left: 0.1rem;
+    padding-right: 0;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    padding-inline: 0.12rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    padding-left: 0.16rem;
+    padding-right: 0.16rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+    grid-template-columns: minmax(0, 1.32fr) 0.26rem minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 0.06rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(0, 1.72fr) minmax(0, 1.16fr);
+  }
+}
+
+
+/* ===========================================================================
+   v039: center section XP badge text
+   =========================================================================== */
+
+body.dx3-combo-page .section-title .xp-display,
+body.dx3-combo-page .section-title .section-xp-badge {
+  place-items: center;
+  place-content: center;
   text-align: center;
+}
+
+body.dx3-combo-page .section-title .xp-label,
+body.dx3-combo-page .section-title .xp-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1em;
+  line-height: 1;
+  text-align: center;
+}
+
+/* ===========================================================================
+   v040: compact combo status row at intermediate widths; lower XP badge label
+   =========================================================================== */
+
+@media (min-width: 761px) and (max-width: 1500px) {
+  body.dx3-combo-page .combo-block {
+    padding-inline: 12px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar {
+    display: grid;
+    grid-template-columns:
+      minmax(4.4rem, 0.62fr)
+      minmax(4.4rem, 0.62fr)
+      minmax(5.2rem, 0.72fr)
+      minmax(7.4rem, 0.95fr)
+      minmax(7.4rem, 0.95fr)
+      minmax(8.6rem, 1.08fr)
+      minmax(7.4rem, 0.95fr)
+      minmax(7.0rem, 0.88fr)
+      minmax(5.0rem, 0.68fr)
+      minmax(5.0rem, 0.68fr);
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item {
+    min-width: 0;
+    flex: 1 1 auto;
+    padding: 6px 4px;
+    gap: 3px;
+    font-size: 0.82rem;
+    line-height: 1.1;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item span {
+    gap: 3px;
+    min-width: 0;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .base-ability-input {
+    flex-basis: auto;
+    flex-grow: 1;
+    min-width: 0;
+    padding-inline: 4px;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .input-with-dropdown {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item span .input-with-dropdown input,
+  body.dx3-combo-page .combo-stats-bar .stat-item span input.manual-input,
+  body.dx3-combo-page .combo-stats-bar select {
+    width: 100%;
+    min-width: 0;
+    min-height: 28px;
+    padding: 3px 5px;
+    box-sizing: border-box;
+    font-size: 0.78rem;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .base-ability-input select {
+    min-width: 0;
+    max-width: 6.2rem;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .mode-toggle {
+    flex: 0 1 auto;
+    min-width: 3.6rem;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .mode-toggle button {
+    min-width: 0;
+    padding: 3px 4px;
+    font-size: 0.66rem;
+    line-height: 1.05;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1280px) {
+  body.dx3-combo-page .combo-stats-bar {
+    grid-template-columns:
+      minmax(4.1rem, 0.55fr)
+      minmax(4.1rem, 0.55fr)
+      minmax(4.8rem, 0.65fr)
+      minmax(6.4rem, 0.85fr)
+      minmax(6.4rem, 0.85fr)
+      minmax(7.4rem, 1fr)
+      minmax(6.8rem, 0.82fr)
+      minmax(6.2rem, 0.78fr)
+      minmax(4.5rem, 0.62fr)
+      minmax(4.5rem, 0.62fr);
+  }
+
+  body.dx3-combo-page .combo-stats-bar .stat-item {
+    padding-inline: 3px;
+    font-size: 0.78rem;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .mode-toggle {
+    min-width: 3.2rem;
+  }
+
+  body.dx3-combo-page .combo-stats-bar .mode-toggle button {
+    padding-inline: 3px;
+    font-size: 0.62rem;
+  }
+}
+
+body.dx3-combo-page .section-title .xp-label {
+  transform: translateY(2px);
+}
+
+/* ===========================================================================
+   v041: desktop/tablet ability and stat numerals use the same numeric scale
+   ---------------------------------------------------------------------------
+   Mobile already keeps ability numbers at 1.28rem. The 761px+ intermediate
+   layout was still inheriting smaller table text, so numeric readability dropped.
+   =========================================================================== */
+@media (min-width: 431px) {
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"],
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+    height: 1.82rem;
+    min-height: 1.82rem;
+    padding-block: 1px;
+    padding-inline: 0.28rem;
+    font-size: 1.28rem;
+    font-weight: 300;
+    line-height: 1;
+    text-align: right;
+    font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-variant-numeric: tabular-nums;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    height: 1.82rem;
+    min-height: 1.82rem;
+    padding-block: 1px;
+    padding-inline: 0.28rem;
+    font-size: 1.28rem;
+    font-weight: 300;
+    line-height: 1;
+    font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-variant-numeric: tabular-nums;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+    justify-content: center;
+  }
+
+  .dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+    font-size: 1.28rem;
+    font-weight: 300;
+    line-height: 1;
+  }
+}
+
+/* ===========================================================================
+   v042: desktop ability/skill balance. Shrink the mostly empty Output column,
+   then spend the recovered width on the ability block and left skill columns.
+   =========================================================================== */
+@media (min-width: 1501px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(392px, 392px) minmax(0, 1fr);
+    gap: 0.82rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    width: 392px;
+    max-width: 392px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    grid-template-columns: minmax(0, 392px);
+    width: 392px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .enemy-ability-matrix {
+    width: 392px;
+    max-width: 392px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 10.4rem);
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.6rem;
+  }
+
+  .dx3-enemies-page .enemy-syndrome-select {
+    font-size: 0.78rem;
+    padding-inline: 0.18rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name {
+    width: 6.0em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-spec {
+    width: 6.0em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-ability {
+    width: 5.2em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-num {
+    width: 2.55em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output {
+    width: 18em;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-note {
+    width: auto;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-action {
+    width: 2.7em;
+  }
+
+  .dx3-enemies-page .enemy-skill-output {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.76rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 18em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+    width: auto;
+  }
+}
+
+@media (min-width: 1501px) and (max-width: 1760px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(384px, 384px) minmax(0, 1fr);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section,
+  .dx3-enemies-page .enemy-ability-matrix-block,
+  .dx3-enemies-page .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .enemy-ability-matrix {
+    width: 384px;
+    max-width: 384px;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 16em;
+  }
+}
+
+/* ===========================================================================
+   v043: wide desktop ability panel expansion
+   ---------------------------------------------------------------------------
+   On full desktop widths, recover space from the sparse skill output column and
+   spend it on the ability/HP column. The stat stack cards also stretch to the
+   widened column so HP/erosion/initiative formulas stop feeling compressed.
+   =========================================================================== */
+@media (min-width: 1501px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(460px, 460px) minmax(0, 1fr);
+    gap: 0.86rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    width: 460px;
+    max-width: 460px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block,
+  .dx3-enemies-page .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .enemy-ability-matrix,
+  .dx3-enemies-page .enemy-stat-stack-grid,
+  .dx3-enemies-page .enemy-stat-stack-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 11.2rem);
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.8rem;
+  }
+
+  .dx3-enemies-page .enemy-syndrome-select {
+    font-size: 0.82rem;
+    padding-inline: 0.22rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card {
+    padding-inline: 0.52rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-formula {
+    grid-template-columns: minmax(4.6rem, 1.25fr) 0.7rem minmax(3.2rem, 0.85fr) 0.7rem minmax(4.4rem, 0.95fr);
+    gap: 0.22rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(5.4rem, 1.4fr) 0.7rem minmax(4.4rem, 0.95fr);
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-formula input,
+  .dx3-enemies-page .enemy-stat-stack-formula strong,
+  .dx3-enemies-page .enemy-erosion-dice-chip {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 12.5em;
+  }
+
+  .dx3-enemies-page .enemy-skill-output {
+    font-size: 0.74rem;
+  }
+}
+
+@media (min-width: 1501px) and (max-width: 1760px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(430px, 430px) minmax(0, 1fr);
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    width: 430px;
+    max-width: 430px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 10.8rem);
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.7rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 11.5em;
+  }
+}
+
+/* ===========================================================================
+   v044: full-width desktop ability/skill rebalance
+   ---------------------------------------------------------------------------
+   At full desktop width, keep the ability matrix and stat stack connected in
+   one wide block, let syndrome selects use the recovered width, and give the
+   skill output column enough room for custom Information skills.
+   =========================================================================== */
+@media (min-width: 1761px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(700px, 720px) minmax(0, 1fr);
+    gap: 0.65rem;
+    align-items: start;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    grid-template-areas:
+      "ability-head ability-head"
+      "ability-matrix ability-stats";
+    gap: 0.52rem;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .dx3-enemies-page .enemy-ability-breakdown-head {
+    grid-area: ability-head;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-wrap {
+    grid-area: ability-matrix;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-grid {
+    grid-area: ability-stats;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    align-self: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.42rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: auto;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.55rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 0.04rem;
+    line-height: 1.05;
+  }
+
+  .dx3-enemies-page .enemy-syndrome-select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 1.42rem;
+    padding-inline: 0.26rem 1rem;
+    font-size: 0.76rem;
+    line-height: 1.1;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-inline: 0.48rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-formula {
+    grid-template-columns: minmax(3.8rem, 1.15fr) 0.65rem minmax(2.75rem, 0.8fr) 0.65rem minmax(3.4rem, 0.9fr);
+    gap: 0.18rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(4.6rem, 1.35fr) 0.65rem minmax(3.5rem, 0.9fr);
+  }
+
+  .dx3-enemies-page .enemy-skill-table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name { width: 5.8em; }
+  .dx3-enemies-page .enemy-skill-col-spec { width: 5.8em; }
+  .dx3-enemies-page .enemy-skill-col-ability { width: 4.8em; }
+  .dx3-enemies-page .enemy-skill-col-num { width: 2.45em; }
+  .dx3-enemies-page .enemy-skill-col-output { width: 20em; }
+  .dx3-enemies-page .enemy-skill-col-note { width: auto; }
+  .dx3-enemies-page .enemy-skill-col-action { width: 2.6em; }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 20em;
+  }
+
+  .dx3-enemies-page .enemy-skill-output {
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.74rem;
+  }
+}
+
+@media (min-width: 1501px) and (max-width: 1760px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(480px, 500px) minmax(0, 1fr);
+    gap: 0.72rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 0.04rem;
+  }
+
+  .dx3-enemies-page .enemy-syndrome-select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 1.42rem;
+    padding-inline: 0.24rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 17em;
+  }
+}
+
+
+/* v047: wide desktop re-balance for ability/skill block
+   - narrow the left pane slightly
+   - keep syndrome selects aligned and stretched
+   - pull skill name/spec columns closer together
+   - reduce excess width in output column to free space */
+@media (min-width: 1501px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    gap: 0.48rem;
+    align-items: start;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    padding-inline: 0.22rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+    margin-bottom: 0.06rem;
+  }
+
+  .dx3-enemies-page .enemy-syndrome-select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0.04rem 0 0;
+    box-sizing: border-box;
+    justify-self: stretch;
+    align-self: stretch;
+    padding-inline: 0.28rem 1rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name { width: 4.85em; }
+  .dx3-enemies-page .enemy-skill-col-spec { width: 4.55em; }
+  .dx3-enemies-page .enemy-skill-col-ability { width: 4.55em; }
+  .dx3-enemies-page .enemy-skill-col-output { width: 17.6em; }
+  .dx3-enemies-page .enemy-skill-col-action { width: 2.45em; }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 17.6em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td:nth-child(1) {
+    width: 9.4em;
+  }
+
+  .dx3-enemies-page .enemy-skill-fixed-label {
+    padding-left: 0.34rem !important;
+  }
+}
+
+@media (min-width: 1761px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(670px, 688px) minmax(0, 1fr);
+    gap: 0.48rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 688px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    grid-template-columns: minmax(0, 1.14fr) minmax(0, 0.86fr);
+    gap: 0.42rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.46rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card {
+    padding-inline: 0.42rem;
+  }
+}
+
+@media (min-width: 1501px) and (max-width: 1760px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(416px, 424px) minmax(0, 1fr);
+    gap: 0.52rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 424px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 10.15rem);
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.52rem;
+  }
+}
+
+/* ===========================================================================
+   v048: fix 1920px overlap in ability/HP block
+   ---------------------------------------------------------------------------
+   v047 narrowed the wide layout, but the 1761px+ rule still split the ability
+   matrix and stat cards into two columns. At 1920px this can make the HP cards
+   overlap the syndrome table. Full desktop now uses a narrower left pane and
+   a vertical ability -> HP stack, while keeping syndrome selects stretched.
+   =========================================================================== */
+@media (min-width: 1761px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(520px, 540px) minmax(0, 1fr);
+    gap: 0.52rem;
+    align-items: start;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    width: 100%;
+    max-width: 540px;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: none;
+    gap: 0.45rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-ability-breakdown-head,
+  .dx3-enemies-page .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .enemy-stat-stack-grid {
+    grid-area: auto;
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .enemy-ability-matrix,
+  .dx3-enemies-page .enemy-stat-stack-grid,
+  .dx3-enemies-page .enemy-stat-stack-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-wrap {
+    overflow-x: visible;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix {
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 10.1rem);
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.52rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    padding-inline: 0.22rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+    display: block;
+    margin: 0 0 0.06rem;
+    line-height: 1.05;
+  }
+
+  .dx3-enemies-page .enemy-syndrome-select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    height: 1.45rem;
+    padding-inline: 0.28rem 1rem;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-grid {
+    margin-top: 0.38rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.42rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card {
+    padding-inline: 0.46rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-formula {
+    grid-template-columns: minmax(4.9rem, 1.2fr) 0.68rem minmax(3.25rem, 0.82fr) 0.68rem minmax(4.15rem, 0.95fr);
+    gap: 0.22rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(5.7rem, 1.35fr) 0.68rem minmax(4.15rem, 0.95fr);
+  }
+}
+
+@media (min-width: 1501px) {
+  .dx3-enemies-page .enemy-skill-table th,
+  .dx3-enemies-page .enemy-skill-table td {
+    padding-left: 0.13rem;
+    padding-right: 0.13rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name { width: 4.65em; }
+  .dx3-enemies-page .enemy-skill-col-spec { width: 4.35em; }
+  .dx3-enemies-page .enemy-skill-col-ability { width: 4.45em; }
+  .dx3-enemies-page .enemy-skill-col-output { width: 17.2em; }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 17.2em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td:nth-child(1) {
+    width: 9em;
+  }
+}
+
+
+/* ===========================================================================
+   v049: 1920px balance + purebreed display rows
+   ---------------------------------------------------------------------------
+   Keep the full desktop layout vertical in the ability pane, reduce the gap
+   between ability/HP and skills, and tune the left pane so its height and visual
+   rhythm are closer to the skill table. JS separately mirrors syndrome 1 into
+   syndrome 2 display values while only one syndrome is selected.
+   =========================================================================== */
+@media (min-width: 1761px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(500px, 520px) minmax(0, 1fr);
+    gap: 0.28rem;
+    align-items: start;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 520px;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown,
+  .dx3-enemies-page .enemy-skill-block .enemy-skill-table-wrap {
+    margin-top: 0.28rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    gap: 0.32rem;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 9.8rem);
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.45rem;
+  }
+
+  .dx3-enemies-page .enemy-syndrome-select {
+    height: 1.44rem;
+    margin-top: 0.02rem;
+    padding-inline: 0.26rem 0.95rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-grid {
+    margin-top: 0.28rem;
+    gap: 0.34rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card {
+    padding-inline: 0.42rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-formula {
+    grid-template-columns: minmax(4.65rem, 1.2fr) 0.62rem minmax(3.05rem, 0.82fr) 0.62rem minmax(3.95rem, 0.95fr);
+    gap: 0.18rem;
+  }
+
+  .dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+    grid-template-columns: minmax(5.35rem, 1.35fr) 0.62rem minmax(3.95rem, 0.95fr);
+  }
+}
+
+@media (min-width: 1501px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    gap: 0.32rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th,
+  .dx3-enemies-page .enemy-skill-table td {
+    padding-left: 0.10rem;
+    padding-right: 0.10rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name { width: 4.45em; }
+  .dx3-enemies-page .enemy-skill-col-spec { width: 4.15em; }
+  .dx3-enemies-page .enemy-skill-col-ability { width: 4.35em; }
+  .dx3-enemies-page .enemy-skill-col-output { width: 16.8em; }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 16.8em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td:nth-child(1) {
+    width: 8.6em;
+  }
+}
+
+/* ===========================================================================
+   v050: close ability/skill gap and fit the skill table on desktop
+   ---------------------------------------------------------------------------
+   The desktop pane still had too much perceived dead space and the skill table
+   could create a horizontal scrollbar. Compress the note/output side first,
+   then keep the ability pane narrow enough to expose the full skill table.
+   =========================================================================== */
+@media (min-width: 1501px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(472px, 492px) minmax(0, 1fr);
+    gap: 0.16rem;
+    align-items: start;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 492px;
+  }
+
+  .dx3-enemies-page .enemy-skill-block {
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-skill-block .enemy-skill-table-wrap {
+    margin-left: 0;
+    overflow-x: hidden;
+  }
+
+  .dx3-enemies-page .enemy-skill-table {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th,
+  .dx3-enemies-page .enemy-skill-table td {
+    padding-left: 0.08rem;
+    padding-right: 0.08rem;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name { width: 4.35em; }
+  .dx3-enemies-page .enemy-skill-col-spec { width: 4.0em; }
+  .dx3-enemies-page .enemy-skill-col-ability { width: 4.2em; }
+  .dx3-enemies-page .enemy-skill-col-num { width: 2.15em; }
+  .dx3-enemies-page .enemy-skill-col-output { width: 14.8em; }
+  .dx3-enemies-page .enemy-skill-col-note { width: 9.2em; }
+  .dx3-enemies-page .enemy-skill-col-action { width: 2.1em; }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) { width: 14.8em; }
+  .dx3-enemies-page .enemy-skill-table td:nth-child(8) { width: 9.2em; }
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9) { width: 2.1em; }
+
+  .dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td:nth-child(1) {
+    width: 8.35em;
+  }
+
+  .dx3-enemies-page .enemy-skill-output {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.72rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table input,
+  .dx3-enemies-page .enemy-skill-table select {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(8) input {
+    padding-left: 0.18rem;
+    padding-right: 0.18rem;
+  }
+}
+
+@media (min-width: 1761px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(488px, 504px) minmax(0, 1fr);
+    gap: 0.16rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 504px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 9.7rem);
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.42rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output { width: 15.2em; }
+  .dx3-enemies-page .enemy-skill-col-note { width: 9.5em; }
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) { width: 15.2em; }
+  .dx3-enemies-page .enemy-skill-table td:nth-child(8) { width: 9.5em; }
+}
+
+
+/* v051: widen right skill column on desktop
+   Shift width budget from the left ability block and inter-column gap to the right skill table.
+   Keep the ability table readable, but prioritize full skill-table visibility at 1920px. */
+@media (min-width: 1501px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    gap: 0.28rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-block {
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-skill-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .dx3-enemies-page .enemy-skill-table {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: fixed;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-name { width: 4.75em; }
+  .dx3-enemies-page .enemy-skill-col-spec { width: 4.35em; }
+  .dx3-enemies-page .enemy-skill-col-ability { width: 4.35em; }
+  .dx3-enemies-page .enemy-skill-col-num { width: 2.18em; }
+  .dx3-enemies-page .enemy-skill-col-output { width: 15.8em; }
+  .dx3-enemies-page .enemy-skill-col-note { width: auto; }
+  .dx3-enemies-page .enemy-skill-col-action { width: 2.25em; }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 15.8em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+    width: auto;
+  }
+
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+    width: 2.25em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th,
+  .dx3-enemies-page .enemy-skill-table td {
+    padding-left: 0.11rem;
+    padding-right: 0.11rem;
+  }
+}
+
+@media (min-width: 1761px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(494px, 508px) minmax(0, 1fr);
+    gap: 0.28rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 508px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label-head,
+  .dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+    width: calc(100% - 10.1rem);
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix th:not(.ability-row-label-head),
+  .dx3-enemies-page .enemy-ability-matrix td:not(:first-child) {
+    width: 2.52rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 16.2em;
+  }
+}
+
+@media (min-width: 1501px) and (max-width: 1760px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(398px, 408px) minmax(0, 1fr);
+    gap: 0.32rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 408px;
+  }
+}
+
+
+/* v052: remove the dead space between ability/HP and skill table on desktop
+   The previous wide layout reserved a left column wider than the actual
+   ability matrix, so the skill table started too far to the right. */
+@media (min-width: 1501px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    column-gap: 0.22rem;
+    gap: 0.22rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    justify-self: start;
+    width: auto;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block {
+    justify-self: start;
+  }
+
+  .dx3-enemies-page .enemy-skill-block {
+    justify-self: stretch;
+    min-width: 0;
+  }
+
+  .dx3-enemies-page .enemy-skill-table-wrap {
+    margin-left: 0;
+  }
+}
+
+@media (min-width: 1761px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(368px, 376px) minmax(0, 1fr);
+    column-gap: 0.22rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 376px;
+  }
+
+  .dx3-enemies-page .enemy-ability-matrix-block,
+  .dx3-enemies-page .enemy-ability-matrix-wrap,
+  .dx3-enemies-page .enemy-ability-matrix,
+  .dx3-enemies-page .enemy-stat-stack-grid,
+  .dx3-enemies-page .enemy-stat-stack-card {
+    max-width: 100%;
+  }
+
+  .dx3-enemies-page .enemy-skill-col-output,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 17.2em;
+  }
+}
+
+@media (min-width: 1501px) and (max-width: 1760px) {
+  .dx3-enemies-page .dx3-enemy-ability-skill-grid {
+    grid-template-columns: minmax(368px, 376px) minmax(0, 1fr);
+    column-gap: 0.24rem;
+  }
+
+  .dx3-enemies-page .dx3-enemy-ability-section {
+    max-width: 376px;
+  }
+}
+
+
+/* v053: 能力値/HP と 技能のパネル高さを揃える */
+.dx3-enemies-page .dx3-enemy-ability-skill-grid {
+  align-items: stretch;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section,
+.dx3-enemies-page .enemy-skill-block {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section[open],
+.dx3-enemies-page .enemy-skill-block[open] {
+  height: 100%;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section > .enemy-ability-matrix-block,
+.dx3-enemies-page .enemy-skill-block > .enemy-skill-table-wrap {
+  flex: 1 1 auto;
+}
+
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block,
+.dx3-enemies-page .enemy-skill-block .enemy-skill-table-wrap {
+  box-sizing: border-box;
+}
+
+
+/* v054: skill output copy button */
+.dx3-enemies-page .enemy-skill-output-cell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.dx3-enemies-page .enemy-skill-output-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dx3-enemies-page .enemy-skill-output-copy-btn {
+  width: 1.9rem;
+  min-width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.dx3-enemies-page .enemy-skill-output-copy-btn i {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-skill-output-copy-btn {
+    width: 2rem;
+    min-width: 2rem;
+    height: 2rem;
+  }
+}
+
+
+/* v055: 技能コピーを備考右へ移動し、DX3側にもコピー通知を表示 */
+.dx3-enemies-page .enemy-skill-output-cell {
+  display: table-cell;
+  min-width: 0;
+  vertical-align: middle;
+}
+
+.dx3-enemies-page .enemy-skill-note-copy-cell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.dx3-enemies-page .enemy-skill-note-copy-cell input[type="text"] {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn,
+.dx3-enemies-page .enemy-skill-output-copy-btn {
+  width: 1.8rem;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 1px solid rgba(126, 226, 168, 0.95);
+  border-radius: 5px;
+  background: linear-gradient(180deg, #2aa778 0%, #197852 100%);
+  color: #f7fffb;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 2px rgba(0,0,0,0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn:hover:not(:disabled),
+.dx3-enemies-page .enemy-skill-output-copy-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn:disabled,
+.dx3-enemies-page .enemy-skill-output-copy-btn:disabled {
+  opacity: 0.82;
+  cursor: default;
+  transform: none;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn i,
+.dx3-enemies-page .enemy-skill-output-copy-btn i {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.copy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.35rem;
+  z-index: 12000;
+  max-width: min(92vw, 30rem);
+  padding: 0.68rem 1rem;
+  border: 1px solid rgba(126, 226, 168, 0.8);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(31, 139, 91, 0.96), rgba(21, 92, 64, 0.96));
+  color: #f7fffb;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: center;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.36);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.6rem);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.copy-toast.is-show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.copy-toast.is-error {
+  border-color: rgba(255, 150, 150, 0.85);
+  background: linear-gradient(180deg, rgba(156, 55, 58, 0.96), rgba(106, 34, 38, 0.96));
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-skill-copy-btn,
+  .dx3-enemies-page .enemy-skill-output-copy-btn {
+    width: 2rem;
+    min-width: 2rem;
+    height: 2rem;
+  }
+}
+
+
+/* v056: align skill copy action column and use shared toast appearance */
+.dx3-enemies-page .enemy-skill-col-action {
+  width: 3.2rem;
+}
+
+.dx3-enemies-page .enemy-skill-note-cell {
+  min-width: 0;
+}
+
+.dx3-enemies-page .enemy-skill-note-cell input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .enemy-skill-action-cell.enemy-skill-copy-action-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.24rem;
+  min-width: 0;
+  padding-inline: 0.18rem;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn {
+  width: 1.65rem;
+  min-width: 1.65rem;
+  height: 1.65rem;
+  min-height: 1.65rem;
+  padding: 0;
+  border-radius: 5px;
+  border: 1px solid rgba(160, 210, 255, 0.52);
+  background: rgba(25, 52, 110, 0.86);
+  color: #eaf6ff;
+  box-shadow: none;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn:hover:not(:disabled) {
+  background: #248b62;
+  border-color: rgba(126, 226, 168, 0.95);
+  filter: none;
+  transform: translateY(-1px);
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn i {
+  font-size: 0.78rem;
+}
+
+.dx3-enemies-page .enemy-skill-delete-btn {
+  width: 1.65rem;
+  min-width: 1.65rem;
+  height: 1.65rem;
+  min-height: 1.65rem;
+  padding: 0;
+}
+
+/* v055 のDX3専用トーストを共通表示へ戻す */
+.dx3-enemies-page .copy-toast,
+.copy-toast {
+  left: auto;
+  right: 18px;
+  bottom: 18px;
+  transform: translateX(120%);
+  background: rgba(32, 40, 58, 0.94);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  max-width: min(92vw, 480px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+.dx3-enemies-page .copy-toast.is-show,
+.copy-toast.is-show {
+  transform: translateX(0);
+}
+
+.dx3-enemies-page .copy-toast.is-error,
+.copy-toast.is-error {
+  background: rgba(120, 26, 26, 0.94);
+  border-color: rgba(255, 170, 170, 0.7);
+}
+
+@media (min-width: 1501px) {
+  .dx3-enemies-page .enemy-skill-col-note { width: 13.5em; }
+  .dx3-enemies-page .enemy-skill-table td:nth-child(8) { width: 13.5em; }
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9) { width: 3.2rem; }
+}
+
+
+/* v057: 技能表の操作列を固定幅化し、コピー/削除ボタンがセル幅いっぱいに伸びる問題を止める */
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-action,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-col-action,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell,
+.dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+  width: 4.9rem;
+  min-width: 4.9rem;
+  max-width: 4.9rem;
+}
+
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+  padding-inline: 0.2rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.dx3-enemies-page .enemy-skill-action-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn,
+.dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn,
+.dx3-enemies-page .enemy-skill-copy-btn,
+.dx3-enemies-page .enemy-skill-delete-btn {
+  flex: 0 0 1.82rem;
+  width: 1.82rem;
+  min-width: 1.82rem;
+  max-width: 1.82rem;
+  height: 1.82rem;
+  min-height: 1.82rem;
+  padding: 0;
+  border-radius: 0.36rem;
+  gap: 0;
+  line-height: 1;
+}
+
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn i,
+.dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn i,
+.dx3-enemies-page .enemy-skill-copy-btn i,
+.dx3-enemies-page .enemy-skill-delete-btn i {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+@media (min-width: 1501px) {
+  .dx3-enemies-page .enemy-skill-col-action,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+    width: 4.9rem;
+    min-width: 4.9rem;
+    max-width: 4.9rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-action,
+  .dx3-enemies-page .enemy-skill-table th.enemy-skill-col-action,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell,
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+    width: 4.5rem;
+    min-width: 4.5rem;
+    max-width: 4.5rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-action-wrap .action-btn,
+  .dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn,
+  .dx3-enemies-page .enemy-skill-copy-btn,
+  .dx3-enemies-page .enemy-skill-delete-btn {
+    flex-basis: 1.65rem;
+    width: 1.65rem;
+    min-width: 1.65rem;
+    max-width: 1.65rem;
+    height: 1.65rem;
+    min-height: 1.65rem;
+  }
+}
+
+
+/* v058: 技能表の出力/備考/操作を密着させ、操作ボタンの伸長を完全に止める */
+.dx3-enemies-page .enemy-skill-table {
+  table-layout: fixed;
+}
+
+.dx3-enemies-page .enemy-skill-table th,
+.dx3-enemies-page .enemy-skill-table td {
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(7),
+.dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+  padding-right: 0.06rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(8),
+.dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+  padding-left: 0.06rem;
+  padding-right: 0.06rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(9),
+.dx3-enemies-page .enemy-skill-table td:nth-child(9),
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-action,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+  width: 3.55rem;
+  min-width: 3.55rem;
+  max-width: 3.55rem;
+  padding-left: 0.08rem;
+  padding-right: 0.08rem;
+}
+
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.dx3-enemies-page .enemy-skill-action-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.16rem;
+  width: max-content;
+  min-width: 0;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn,
+.dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn,
+.dx3-enemies-page .enemy-skill-action-wrap .small-square-btn,
+.dx3-enemies-page .enemy-skill-copy-btn,
+.dx3-enemies-page .enemy-skill-delete-btn {
+  flex: 0 0 1.55rem;
+  inline-size: 1.55rem;
+  width: 1.55rem;
+  min-width: 1.55rem;
+  max-width: 1.55rem;
+  block-size: 1.55rem;
+  height: 1.55rem;
+  min-height: 1.55rem;
+  max-height: 1.55rem;
+  padding: 0;
+  margin: 0;
+  border-radius: 0.32rem;
+  gap: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn i,
+.dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn i,
+.dx3-enemies-page .enemy-skill-action-wrap .small-square-btn i,
+.dx3-enemies-page .enemy-skill-copy-btn i,
+.dx3-enemies-page .enemy-skill-delete-btn i {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+/* 出力文字は大きくしない。数値入力の1.28rem指定に巻き込まれないよう固定する */
+.dx3-enemies-page .enemy-skill-output,
+.dx3-enemies-page .enemy-skill-output-text,
+.dx3-enemies-page .enemy-skill-table td:nth-child(7),
+.dx3-enemies-page .enemy-skill-table td:nth-child(7) * {
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+
+.dx3-enemies-page .enemy-skill-output,
+.dx3-enemies-page .enemy-skill-output-text {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 1501px) {
+  .dx3-enemies-page .enemy-skill-table th:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-action,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+    width: 3.55rem;
+    min-width: 3.55rem;
+    max-width: 3.55rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th:nth-child(7),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    padding-right: 0.04rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th:nth-child(8),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+    padding-inline: 0.04rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-skill-table th:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-action,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+    width: 3.35rem;
+    min-width: 3.35rem;
+    max-width: 3.35rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-action-wrap {
+    gap: 0.12rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-action-wrap .action-btn,
+  .dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn,
+  .dx3-enemies-page .enemy-skill-action-wrap .small-square-btn,
+  .dx3-enemies-page .enemy-skill-copy-btn,
+  .dx3-enemies-page .enemy-skill-delete-btn {
+    flex-basis: 1.42rem;
+    inline-size: 1.42rem;
+    width: 1.42rem;
+    min-width: 1.42rem;
+    max-width: 1.42rem;
+    block-size: 1.42rem;
+    height: 1.42rem;
+    min-height: 1.42rem;
+    max-height: 1.42rem;
+  }
+}
+
+
+/* v059: 技能コピーと削除を別列化。コピーは「複製」ではなく判定式コピーに見える表現へ変更 */
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-copy-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell {
+  width: 2.6rem;
+  min-width: 2.6rem;
+  max-width: 2.6rem;
+}
+
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-delete-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+  width: 2.35rem;
+  min-width: 2.35rem;
+  max-width: 2.35rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-copy-head,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-delete-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+  padding-inline: 0.08rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+  overflow: visible;
+}
+
+.dx3-enemies-page .enemy-skill-table td:nth-child(9),
+.dx3-enemies-page .enemy-skill-table td:nth-child(10) {
+  padding-inline: 0.08rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(9),
+.dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+  width: 2.6rem;
+  min-width: 2.6rem;
+  max-width: 2.6rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(10),
+.dx3-enemies-page .enemy-skill-table td:nth-child(10) {
+  width: 2.35rem;
+  min-width: 2.35rem;
+  max-width: 2.35rem;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn,
+.dx3-enemies-page .enemy-skill-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.72rem;
+  min-width: 1.72rem;
+  max-width: 1.72rem;
+  height: 1.72rem;
+  min-height: 1.72rem;
+  max-height: 1.72rem;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  border-radius: 0.34rem;
+  box-sizing: border-box;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn {
+  flex-direction: column;
+  gap: 0;
+  color: #dff4ff;
+  background: linear-gradient(180deg, #244a84 0%, #183260 100%);
+  border: 1px solid rgba(128, 190, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #2d5c9e 0%, #1c4077 100%);
+  border-color: rgba(160, 215, 255, 0.95);
+  transform: translateY(-1px);
+  filter: none;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn i {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 0.85;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn-label {
+  display: block;
+  margin: -0.02rem 0 0;
+  padding: 0;
+  font-size: 0.52rem;
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: 0;
+  color: #eef8ff;
+}
+
+.dx3-enemies-page .enemy-skill-delete-btn {
+  color: #fff;
+  border: 1px solid rgba(255, 122, 122, 0.8);
+  background: linear-gradient(180deg, #e74c3c 0%, #b83228 100%);
+}
+
+.dx3-enemies-page .enemy-skill-delete-btn i {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+/* v058以前の操作列指定を無効化する。9列目固定はコピー列、10列目固定は削除列として扱う。 */
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-action,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-col-action,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+@media (min-width: 1501px) {
+  .dx3-enemies-page .enemy-skill-table th:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell {
+    width: 2.6rem;
+    min-width: 2.6rem;
+    max-width: 2.6rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th:nth-child(10),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(10),
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+    width: 2.35rem;
+    min-width: 2.35rem;
+    max-width: 2.35rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-skill-table th:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell {
+    width: 2.35rem;
+    min-width: 2.35rem;
+    max-width: 2.35rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th:nth-child(10),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(10),
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+    width: 2.2rem;
+    min-width: 2.2rem;
+    max-width: 2.2rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-copy-btn,
+  .dx3-enemies-page .enemy-skill-delete-btn {
+    width: 1.55rem;
+    min-width: 1.55rem;
+    max-width: 1.55rem;
+    height: 1.55rem;
+    min-height: 1.55rem;
+    max-height: 1.55rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-copy-btn-label {
+    font-size: 0.48rem;
+  }
+}
+
+
+.dx3-enemies-page .enemy-skill-table {
+  table-layout: fixed;
+}
+
+/* 判定と削除は隣接した小列として扱う */
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-copy-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell {
+  width: 2.28rem;
+  min-width: 2.28rem;
+  max-width: 2.28rem;
+}
+
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-delete-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+  width: 2.08rem;
+  min-width: 2.08rem;
+  max-width: 2.08rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-copy-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell {
+  padding-right: 0.02rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-delete-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+  padding-left: 0.02rem;
+}
+
+.dx3-enemies-page .enemy-skill-copy-btn,
+.dx3-enemies-page .enemy-skill-delete-btn {
+  width: 1.6rem;
+  min-width: 1.6rem;
+  max-width: 1.6rem;
+  height: 1.6rem;
+  min-height: 1.6rem;
+  max-height: 1.6rem;
+}
+
+/* 削除ボタンが無い固定行でも列幅だけ取り、判定列との距離を広げない */
+.dx3-enemies-page .enemy-skill-delete-cell:empty {
+  padding-inline: 0.02rem;
+}
+
+/* v059以前のnth-child指定より後勝ちで、9列目=判定、10列目=削除に再固定 */
+.dx3-enemies-page .enemy-skill-table th:nth-child(9),
+.dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+  width: 2.28rem;
+  min-width: 2.28rem;
+  max-width: 2.28rem;
+}
+
+.dx3-enemies-page .enemy-skill-table th:nth-child(10),
+.dx3-enemies-page .enemy-skill-table td:nth-child(10) {
+  width: 2.08rem;
+  min-width: 2.08rem;
+  max-width: 2.08rem;
+}
+
+@media (min-width: 1501px) {
+  .dx3-enemies-page .enemy-skill-table th:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell {
+    width: 2.28rem;
+    min-width: 2.28rem;
+    max-width: 2.28rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table th:nth-child(10),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(10),
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+    width: 2.08rem;
+    min-width: 2.08rem;
+    max-width: 2.08rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy,
+  .dx3-enemies-page .enemy-skill-table th.enemy-skill-copy-head,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell,
+  .dx3-enemies-page .enemy-skill-table th:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+    width: 2.12rem;
+    min-width: 2.12rem;
+    max-width: 2.12rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete,
+  .dx3-enemies-page .enemy-skill-table th.enemy-skill-delete-head,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell,
+  .dx3-enemies-page .enemy-skill-table th:nth-child(10),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(10) {
+    width: 1.96rem;
+    min-width: 1.96rem;
+    max-width: 1.96rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-copy-btn,
+  .dx3-enemies-page .enemy-skill-delete-btn {
+    width: 1.48rem;
+    min-width: 1.48rem;
+    max-width: 1.48rem;
+    height: 1.48rem;
+    min-height: 1.48rem;
+    max-height: 1.48rem;
+  }
+}
+
+
+/* セルの被せ色を弱め、62%の山が見えるようにする */
+
+
+/* 後半ピークを殺さないため、セルの被せはさらに薄くする */
+
+
+/* グラデーションのボーダーを見せるため、セルの被せ色は最小限にする */
+
+
+
+
+/* ==========================================================================
+   DX3 enemy skill row gradient - consolidated
+   --------------------------------------------------------------------------
+   旧v060〜v065系の個別追記を整理し、tr[data-skill-group] の背景を一本化。
+   ボーダー:
+     0%   : 0.90  強い属性色
+     24%  : 0.35  一度落とす
+     62%  : 0.70  後半の山
+     100% : 0.10  紺へ抜く
+   ========================================================================== */
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group="body"] {
+  background:
+    linear-gradient(90deg,
+      rgba(128, 22, 40, 0.90) 0%,
+      rgba(128, 22, 40, 0.35) 24%,
+      rgba(128, 22, 40, 0.70) 62%,
+      rgba(15, 29, 76, 0.10) 100%);
+}
+
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group="sense"] {
+  background:
+    linear-gradient(90deg,
+      rgba(0, 105, 118, 0.90) 0%,
+      rgba(0, 105, 118, 0.35) 24%,
+      rgba(0, 105, 118, 0.70) 62%,
+      rgba(15, 29, 76, 0.10) 100%);
+}
+
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group="mind"] {
+  background:
+    linear-gradient(90deg,
+      rgba(39, 82, 157, 0.90) 0%,
+      rgba(39, 82, 157, 0.35) 24%,
+      rgba(39, 82, 157, 0.70) 62%,
+      rgba(15, 29, 76, 0.10) 100%);
+}
+
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group="social"] {
+  background:
+    linear-gradient(90deg,
+      rgba(154, 113, 31, 0.90) 0%,
+      rgba(154, 113, 31, 0.35) 24%,
+      rgba(154, 113, 31, 0.70) 62%,
+      rgba(15, 29, 76, 0.10) 100%);
+}
+
+
+/* ==========================================================================
+   DX3 enemy skill row gradient v067 - field overlay fix
+   --------------------------------------------------------------------------
+   v066でtr背景は整理できたが、能力select/Lv系inputの濃紺背景が強すぎて
+   グラデーションが局所的に断絶して見えるため、技能表内だけ背景を透過寄りにする。
+   ========================================================================== */
+
+
+/* 技能表内の入力欄・selectは、行グラデーションを見せるため半透明に寄せる */
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group] input,
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group] select {
+  background-color: rgba(5, 14, 42, 0.42);
+}
+
+/* 能力selectは属性色の上に乗るため、少しだけ明るい透明色にする */
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group] .enemy-skill-ability-cell select {
+  background-color: rgba(5, 14, 42, 0.30);
+}
+
+/* 数値欄は暗い矩形に見えやすいのでさらに薄める。ただし視認性のため境界は残す */
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group] .enemy-skill-num-input {
+  background-color: rgba(5, 14, 42, 0.34);
+}
+
+/* 備考欄も行色を完全に殺さない */
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group] .enemy-skill-note-cell input[type="text"] {
+  background-color: rgba(5, 14, 42, 0.38);
+}
+
+/* 固定技能名や指定欄の内部表示も暗い面で切れないようにする */
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group] .enemy-skill-fixed-label span,
+.dx3-enemies-page .enemy-skill-table tbody tr[data-skill-group] .enemy-skill-fixed-name {
+  background-color: transparent;
+}
+
+/* v070: 能力/ステータスと技能を1つの折りたたみ内に統合 */
+.dx3-enemies-page .dx3-enemy-ability-skill-grid {
+  display: block !important;
+}
+
+.dx3-enemies-page .dx3-enemy-profile-section {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.dx3-enemies-page .dx3-enemy-profile-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 376px) minmax(0, 1fr);
+  gap: 0.35rem;
+  align-items: stretch;
+}
+
+.dx3-enemies-page .dx3-enemy-profile-section .enemy-ability-breakdown,
+.dx3-enemies-page .dx3-enemy-profile-section .enemy-skill-block {
+  min-width: 0;
+  margin-top: 0.28rem;
+}
+
+.dx3-enemies-page .dx3-enemy-profile-section .enemy-skill-block {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dx3-enemies-page .dx3-enemy-profile-section .enemy-skill-summary {
+  min-height: 2.1rem;
+  padding: 0.42rem 0.55rem;
+  box-sizing: border-box;
+}
+
+.dx3-enemies-page .dx3-enemy-profile-section .enemy-skill-table-wrap {
+  flex: 1 1 auto;
+  margin-top: 0.28rem;
+}
+
+#dx3-app .coef-row-infer-btn.is-accepted {
+  background: #5a6268;
+  color: #e8f2ff;
+  border-color: rgba(232, 242, 255, 0.35);
+}
+
+#dx3-app .coef-row-infer-btn.is-accepted::after {
+  content: "✓";
+  margin-left: 0.25em;
+  color: #9be7b4;
+}
+
+#dx3-app .inference-accept-current-btn {
+  background-color: #5a6268;
+}
+
+@media (max-width: 1280px) {
+  .dx3-enemies-page .dx3-enemy-profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* v060: 固定技能(colspan=2)と指定あり技能(知識/情報など)の技能名ラベル左端を統一する */
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-fixed-label,
+.dx3-enemies-page .enemy-skill-table td:has(> .enemy-skill-fixed-name) {
+  padding-inline: 0 !important;
+}
+
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-fixed-label > span,
+.dx3-enemies-page .enemy-skill-table td > .enemy-skill-fixed-name {
+  display: inline-flex;
+  width: 100%;
+  min-height: 2.18rem;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1px 0.22rem !important;
+  box-sizing: border-box;
+}
+
+/* v061: 技能名列を3文字程度まで詰め、空いた幅を出力/操作列へ回す */
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-name,
+.dx3-enemies-page .enemy-skill-table th:nth-child(1),
+.dx3-enemies-page .enemy-skill-table td:nth-child(1) {
+  width: 4.15em;
+}
+
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-spec,
+.dx3-enemies-page .enemy-skill-table th:nth-child(2),
+.dx3-enemies-page .enemy-skill-table td:nth-child(2) {
+  width: 4.05em;
+}
+
+.dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td.enemy-skill-fixed-label {
+  width: 8.2em !important;
+}
+
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-output,
+.dx3-enemies-page .enemy-skill-table th:nth-child(7),
+.dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+  width: 18.1em;
+}
+
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-note,
+.dx3-enemies-page .enemy-skill-table th:nth-child(8),
+.dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+  width: auto;
+}
+
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-copy-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell,
+.dx3-enemies-page .enemy-skill-table th:nth-child(9),
+.dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+  width: 2.45rem;
+  min-width: 2.45rem;
+  max-width: 2.45rem;
+}
+
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete,
+.dx3-enemies-page .enemy-skill-table th.enemy-skill-delete-head,
+.dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell,
+.dx3-enemies-page .enemy-skill-table th:nth-child(10),
+.dx3-enemies-page .enemy-skill-table td:nth-child(10) {
+  width: 2.25rem;
+  min-width: 2.25rem;
+  max-width: 2.25rem;
+}
+
+@media (max-width: 760px) {
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-name,
+  .dx3-enemies-page .enemy-skill-table th:nth-child(1),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(1) {
+    width: 3.85em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-spec,
+  .dx3-enemies-page .enemy-skill-table th:nth-child(2),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(2) {
+    width: 3.6em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td.enemy-skill-fixed-label {
+    width: 7.45em !important;
+  }
+
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-output,
+  .dx3-enemies-page .enemy-skill-table th:nth-child(7),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+    width: 8.6em;
+  }
+
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy,
+  .dx3-enemies-page .enemy-skill-table th.enemy-skill-copy-head,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell,
+  .dx3-enemies-page .enemy-skill-table th:nth-child(9),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+    width: 2.25rem;
+    min-width: 2.25rem;
+    max-width: 2.25rem;
+  }
+
+  .dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete,
+  .dx3-enemies-page .enemy-skill-table th.enemy-skill-delete-head,
+  .dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell,
+  .dx3-enemies-page .enemy-skill-table th:nth-child(10),
+  .dx3-enemies-page .enemy-skill-table td:nth-child(10) {
+    width: 2.1rem;
+    min-width: 2.1rem;
+    max-width: 2.1rem;
+  }
 }

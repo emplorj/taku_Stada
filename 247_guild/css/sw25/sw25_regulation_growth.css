@@ -275,7 +275,6 @@
   padding: 1px 2px;
   font-size: 1.2rem;
   line-height: 1.1;
-  text-align: right;
 }
 
 #panel-regulation-growth .priority-select {
@@ -298,13 +297,7 @@
   width: 5.2rem;
 }
 
-/* v65: 初期ステータス行ラベルを中央配置し、数値の太さを300に統一 */
-#panel-regulation-growth .initial-status-label {
-  transform: none;
-  justify-self: center;
-  align-self: center;
-  width: 100%;
-  padding-right: 0;
+#panel-regulation-growth #stats-grid-container .initial-stat-input {
   text-align: center;
 }
 

@@ -8610,3 +8610,125 @@ body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :i
     font-size: 0.64rem !important;
   }
 }
+
+
+/* v024: action/export bars use common layout; this file only supplies Nechronica texture. */
+body.nechronica-enemies-page {
+  --enemy-control-bg: linear-gradient(180deg, rgba(42, 37, 43, 0.94), rgba(29, 25, 31, 0.96));
+  --enemy-control-border: var(--sheet-border, #3f3945);
+  --enemy-export-bg: linear-gradient(180deg, rgba(58, 24, 33, 0.9), rgba(31, 25, 29, 0.96));
+  --enemy-export-border: rgba(123, 29, 42, 0.78);
+  --enemy-control-text: #dfd9ce;
+  --enemy-control-muted: rgba(223, 217, 206, 0.72);
+  --enemy-control-button-bg: #1c181b;
+  --enemy-control-button-border: var(--sheet-border, #3f3945);
+}
+
+body.nechronica-enemies-page .enemy-control-bar :is(.action-btn, .small-square-btn) {
+  color: #dfd9ce;
+}
+
+
+/* v024: common-compatible structure override. Keep this after legacy rules while old duplicates remain. */
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+  .editor-pane > .enemy-control-bar {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 0 0.65rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--enemy-control-border);
+  border-radius: 6px;
+  background: var(--enemy-control-bg);
+  color: var(--enemy-control-text);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.55rem;
+  overflow-x: visible;
+  white-space: normal;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+  .editor-pane > .enemy-export-bar {
+  background: var(--enemy-export-bg);
+  border-color: var(--enemy-export-border);
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+  .enemy-action-bar > .action-bar-left,
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+  .enemy-action-bar > .action-bar-right,
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+  .enemy-action-bar .action-bar-meta {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+  .enemy-action-bar > .action-bar-right {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+  .enemy-export-bar :is(.koma-output-options, .import-json-inline, .koma-import-inline) {
+  min-width: 0;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+@media (max-width: 520px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+    .editor-pane > .enemy-action-bar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.42rem;
+    padding: 0.55rem;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+    .enemy-action-bar > :is(.action-bar-left, .action-bar-right) {
+    display: contents;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+    .enemy-action-bar :is(.action-btn, .small-square-btn) {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.15rem;
+    padding: 0.38rem 0.45rem;
+    font-size: 0.86rem;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+    .enemy-action-bar .action-bar-meta {
+    grid-column: 1 / -1;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.38rem;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+    .editor-pane > .enemy-export-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.42rem;
+    padding: 0.55rem;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+    .enemy-export-bar > .action-btn,
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
+    .enemy-export-bar :is(.koma-output-options, .import-json-inline, .koma-import-inline) {
+    width: 100%;
+  }
+}
