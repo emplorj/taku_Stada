@@ -100,6 +100,16 @@
     return formatDateParts(d);
   }
 
+  function normalizePublicFlag(value, fallback = true) {
+    if (value === true || value === 1) return true;
+    if (value === false || value === 0) return false;
+    const text = String(value == null ? "" : value).trim().toLowerCase();
+    if (!text) return !!fallback;
+    if (["true", "1", "yes", "y", "on", "公開"].includes(text)) return true;
+    if (["false", "0", "no", "n", "off", "非公開"].includes(text)) return false;
+    return !!fallback;
+  }
+
   function normalizeTimingText(timing) {
     return String(timing || "").trim();
   }
@@ -585,7 +595,7 @@
     selectedId = "",
     allowSelectedFallback = false,
   } = {}) {
-    if (isPublic === true) return true;
+    if (normalizePublicFlag(isPublic, true)) return true;
     const mine =
       String(myAuthor || "").trim() !== "" &&
       String(enemyAuthor || "") === String(myAuthor || "");
@@ -808,6 +818,7 @@
     nowText,
     nowIsoLocal,
     formatDateTime,
+    normalizePublicFlag,
     normalizeTimingText,
     isRepeatableTiming,
     canUseUsedStatusForTiming,

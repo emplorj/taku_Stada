@@ -938,6 +938,63 @@
 .item-select-label.is-excluded .show-in-combo-btn {
   text-decoration: none; /* ボタンのテキストには打ち消し線を適用しない */
 }
+
+.selected-order-group {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.selected-order-help,
+.selected-order-empty {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.selected-order-list {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.selected-order-row {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 0.45rem 0.55rem;
+}
+
+.selected-order-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selected-order-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.selected-order-move-btn {
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  height: 1.8rem;
+  justify-content: center;
+  min-width: 1.8rem;
+  padding: 0;
+}
+
+.selected-order-move-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
 .show-in-combo-btn {
   background-color: #6c757d;
   color: white;
@@ -5332,6 +5389,7 @@ body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
 
 .dx3-enemies-page .dx3-enemy-community-pane .enemy-search-field-select {
   min-width: 7.2rem;
+  height: 2.35rem;
   border-right: none;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
@@ -5339,8 +5397,15 @@ body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
 
 .dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input {
   width: 100%;
+  height: 2.35rem;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-reload-btn {
+  min-height: 2.35rem;
+  padding-block: 0.32rem;
+  white-space: nowrap;
 }
 
 .dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
@@ -9083,37 +9148,86 @@ body.dx3-combo-page button {
   body.dx3-combo-page .combo-source-table .combo-col-effect { width: 330px; }
   body.dx3-combo-page .combo-source-table .combo-col-note { width: 250px; }
 
-  /* 詳細表: 効果と備考を潰さず、他は操作できる最小幅にする。 */
+  /* 詳細表: 画面に収まりやすい幅へ圧縮する。効果と備考だけ少し広め。 */
   body.dx3-combo-page .effects-table {
-    min-width: 1620px;
+    min-width: 1280px;
   }
 
   body.dx3-combo-page .effects-table th:nth-child(1),
-  body.dx3-combo-page .effects-table td:nth-child(1) { width: 180px; }
+  body.dx3-combo-page .effects-table td:nth-child(1) { width: 150px; }
   body.dx3-combo-page .effects-table th:nth-child(2),
-  body.dx3-combo-page .effects-table td:nth-child(2) { width: 58px; }
+  body.dx3-combo-page .effects-table td:nth-child(2) { width: 50px; }
   body.dx3-combo-page .effects-table th:nth-child(3),
-  body.dx3-combo-page .effects-table td:nth-child(3) { width: 72px; }
+  body.dx3-combo-page .effects-table td:nth-child(3) { width: 58px; }
   body.dx3-combo-page .effects-table th:nth-child(4),
-  body.dx3-combo-page .effects-table td:nth-child(4) { width: 128px; }
+  body.dx3-combo-page .effects-table td:nth-child(4) { width: 104px; }
   body.dx3-combo-page .effects-table th:nth-child(5),
-  body.dx3-combo-page .effects-table td:nth-child(5) { width: 128px; }
+  body.dx3-combo-page .effects-table td:nth-child(5) { width: 104px; }
   body.dx3-combo-page .effects-table th:nth-child(6),
-  body.dx3-combo-page .effects-table td:nth-child(6) { width: 112px; }
+  body.dx3-combo-page .effects-table td:nth-child(6) { width: 92px; }
   body.dx3-combo-page .effects-table th:nth-child(7),
-  body.dx3-combo-page .effects-table td:nth-child(7) { width: 122px; }
+  body.dx3-combo-page .effects-table td:nth-child(7) { width: 96px; }
   body.dx3-combo-page .effects-table th:nth-child(8),
-  body.dx3-combo-page .effects-table td:nth-child(8) { width: 96px; }
+  body.dx3-combo-page .effects-table td:nth-child(8) { width: 78px; }
   body.dx3-combo-page .effects-table th:nth-child(9),
-  body.dx3-combo-page .effects-table td:nth-child(9) { width: 72px; }
+  body.dx3-combo-page .effects-table td:nth-child(9) { width: 64px; }
   body.dx3-combo-page .effects-table th:nth-child(10),
-  body.dx3-combo-page .effects-table td:nth-child(10) { width: 96px; }
+  body.dx3-combo-page .effects-table td:nth-child(10) { width: 82px; }
   body.dx3-combo-page .effects-table th:nth-child(11),
-  body.dx3-combo-page .effects-table td:nth-child(11) { width: 330px; }
+  body.dx3-combo-page .effects-table td:nth-child(11) { width: 240px; }
   body.dx3-combo-page .effects-table th:nth-child(12),
-  body.dx3-combo-page .effects-table td:nth-child(12) { width: 250px; }
+  body.dx3-combo-page .effects-table td:nth-child(12) { width: 190px; }
   body.dx3-combo-page .effects-table th:nth-child(13),
-  body.dx3-combo-page .effects-table td:nth-child(13) { width: 84px; }
+  body.dx3-combo-page .effects-table td:nth-child(13) { width: 72px; }
+
+  /* エネミー用の詳細表は侵蝕値列がないため、列番号が1つ詰まる。 */
+  body.dx3-combo-page .effects-table.is-enemy-detail-table {
+    min-width: 1220px;
+  }
+
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(1),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(1) { width: 140px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(2),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(2) { width: 48px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(3),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(3) { width: 56px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(4),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(4) { width: 96px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(5),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(5) { width: 96px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(6),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(6) { width: 84px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(7),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(7) { width: 88px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(8),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(8) { width: 74px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(9),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(9) { width: 74px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(10),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(10) { width: 320px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(11),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(11) { width: 160px; }
+  body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(12),
+  body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(12) { width: 64px; }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th:last-child,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell {
+    width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell {
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell .setting-btn,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell .delete-btn {
+    margin: 0 1px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
 
   body.dx3-combo-page .combo-source-table th,
   body.dx3-combo-page .combo-source-table td,
@@ -13312,6 +13426,130 @@ body.dx3-combo-page .section-title .xp-label {
   align-items: stretch;
 }
 
+.dx3-enemies-page .enemy-xp-conversion-card {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+  padding: 0.18rem 0.28rem;
+  border: 1px solid rgba(255, 224, 138, 0.38);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(90, 32, 12, 0.82), rgba(16, 30, 72, 0.78));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.dx3-enemies-page .enemy-xp-conversion-title {
+  color: #ffe08a;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.dx3-enemies-page .enemy-xp-conversion-grid {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  margin: 0;
+}
+
+.dx3-enemies-page .enemy-xp-conversion-grid > div {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12rem;
+  padding: 0.12rem 0.24rem;
+  border: 1px solid rgba(115, 173, 255, 0.26);
+  border-radius: 999px;
+  background: rgba(5, 14, 42, 0.48);
+  text-align: center;
+}
+
+.dx3-enemies-page .enemy-xp-conversion-grid > div.is-total {
+  border-color: rgba(255, 224, 138, 0.52);
+  background: rgba(132, 49, 17, 0.52);
+}
+
+.dx3-enemies-page .enemy-xp-conversion-grid > div.is-skill {
+  margin-inline: 0.18rem 0.08rem;
+  border-color: rgba(110, 190, 255, 0.58);
+  background: rgba(19, 62, 118, 0.58);
+  box-shadow: -0.35rem 0 0 -0.28rem rgba(255, 224, 138, 0.74);
+}
+
+.dx3-enemies-page .enemy-syndrome-select,
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+  font-size: 1rem !important;
+}
+
+.dx3-enemies-page .enemy-xp-conversion-grid dt {
+  margin: 0;
+  color: #b9d9ff;
+  font-size: 0.62rem;
+}
+
+.dx3-enemies-page .enemy-xp-conversion-grid dd {
+  margin: 0;
+  color: #fff4bf;
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.dx3-enemies-page .enemy-xp-help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  background: rgba(255, 224, 138, 0.22);
+  color: #ffe08a;
+  font-size: 0.72rem;
+  font-weight: 900;
+  cursor: help;
+  outline: none;
+}
+
+.dx3-enemies-page .enemy-xp-conversion-note {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  width: min(32rem, 78vw);
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(255, 224, 138, 0.45);
+  border-radius: 0.42rem;
+  background: rgba(7, 16, 43, 0.96);
+  color: rgba(234, 243, 255, 0.92);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.38);
+  opacity: 0;
+  transform: translateY(-0.25rem);
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.dx3-enemies-page .enemy-xp-conversion-card:hover .enemy-xp-conversion-note,
+.dx3-enemies-page .enemy-xp-conversion-card:focus-within .enemy-xp-conversion-note {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (max-width: 520px) {
+  .dx3-enemies-page .enemy-xp-conversion-card {
+    flex-wrap: wrap;
+    border-radius: 0.55rem;
+  }
+
+  .dx3-enemies-page .enemy-xp-conversion-grid {
+    flex-wrap: wrap;
+  }
+}
+
 .dx3-enemies-page .dx3-enemy-profile-section .enemy-ability-breakdown,
 .dx3-enemies-page .dx3-enemy-profile-section .enemy-skill-block {
   min-width: 0;
@@ -13466,3 +13704,887 @@ body.dx3-combo-page .section-title .xp-label {
     max-width: 2.1rem;
   }
 }
+
+/* ==========================================================================
+   v070: エネミー詳細/係数モードの効果列を広げる
+   --------------------------------------------------------------------------
+   ・詳細表は colgroup + class ベースで幅を管理
+   ・係数表は combo-col-effect を広げ、noteを圧縮
+   ・設定列はボタンが入るだけの固定幅にする
+   ========================================================================== */
+
+/* 詳細表示: エネミー時だけ効果列を主役にする */
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 1320px;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-name { width: 10rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-level { width: 3.5rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-max-level { width: 4.2rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-timing { width: 7.2rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-skill { width: 6.8rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-difficulty { width: 6rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-target { width: 5.8rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-range { width: 5.2rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-limit { width: 5.2rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-effect { width: 32rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-note { width: 16rem; }
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-actions { width: 5.4rem; }
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-head,
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-cell {
+  width: 32rem !important;
+  min-width: 32rem !important;
+  max-width: 32rem !important;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-head,
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-cell {
+  width: 16rem !important;
+  min-width: 16rem !important;
+  max-width: 16rem !important;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th:last-child,
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell {
+  width: 5.4rem !important;
+  min-width: 5.4rem !important;
+  max-width: 5.4rem !important;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell {
+  display: table-cell !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding-inline: 0.22rem !important;
+  white-space: nowrap;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell .setting-btn,
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell .delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: 0.04rem;
+  padding: 0.42rem 0.38rem;
+  min-width: 0;
+  line-height: 1;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell .setting-btn {
+  max-width: 2.8rem;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-cell textarea,
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-cell textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.7rem;
+  height: 3rem;
+  box-sizing: border-box;
+  line-height: 1.32;
+  resize: vertical;
+}
+
+/* 係数表示: 効果列を広げ、備考を少し絞る */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 1640px;
+  max-width: none;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-effect {
+  width: 30rem;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-note {
+  width: 13rem;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell {
+  width: 30rem !important;
+  min-width: 30rem !important;
+  max-width: 30rem !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+  width: 13rem !important;
+  min-width: 13rem !important;
+  max-width: 13rem !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell textarea,
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 3rem;
+  height: 3.15rem;
+  line-height: 1.32;
+  resize: vertical;
+}
+
+@media (max-width: 900px) {
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+    width: 1320px;
+    min-width: 1320px;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-head,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-cell {
+    width: 28rem !important;
+    min-width: 28rem !important;
+    max-width: 28rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-head,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-cell {
+    width: 13rem !important;
+    min-width: 13rem !important;
+    max-width: 13rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 {
+    width: 1560px;
+    min-width: 1560px;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell {
+    width: 26rem !important;
+    min-width: 26rem !important;
+    max-width: 26rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+    width: 12rem !important;
+    min-width: 12rem !important;
+    max-width: 12rem !important;
+  }
+}
+
+/* ==========================================================================
+   v071: エフェクト/イージーエフェクトの並べ替え
+   --------------------------------------------------------------------------
+   AR2Eの行ドラッグと同系統のドラッグハンドルを、係数表示/詳細表示の両方へ追加。
+   ========================================================================== */
+
+body.dx3-combo-page #dx3-app .effect-row-handle-head,
+body.dx3-combo-page #dx3-app .effect-row-handle-cell {
+  width: 2.1rem !important;
+  min-width: 2.1rem !important;
+  max-width: 2.1rem !important;
+  padding-inline: 0.16rem !important;
+  text-align: center;
+  vertical-align: middle;
+}
+
+body.dx3-combo-page #dx3-app .effect-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.52rem;
+  height: 1.72rem;
+  border: 1px solid rgba(135, 206, 250, 0.55);
+  border-radius: 0.34rem;
+  background: rgba(10, 26, 72, 0.84);
+  color: #87cefa;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+body.dx3-combo-page #dx3-app .effect-drag-handle:hover {
+  border-color: rgba(135, 206, 250, 0.95);
+  background: rgba(26, 55, 128, 0.92);
+}
+
+body.dx3-combo-page #dx3-app .effect-drag-handle:active {
+  cursor: grabbing;
+}
+
+body.dx3-combo-page #dx3-app .effects-table tr.is-dragging,
+body.dx3-combo-page #dx3-app .combo-source-table tr.is-dragging {
+  opacity: 0.56;
+}
+
+body.dx3-combo-page #dx3-app .effects-table tr.is-drag-over,
+body.dx3-combo-page #dx3-app .combo-source-table tr.is-drag-over {
+  outline: 2px solid rgba(135, 206, 250, 0.85);
+  outline-offset: -2px;
+}
+
+/* 係数表示: ハンドル列追加ぶんの幅を明示 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-handle {
+  width: 2.1rem;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 {
+  min-width: 1675px;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-effect {
+  width: 31rem;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell {
+  width: 31rem !important;
+  min-width: 31rem !important;
+  max-width: 31rem !important;
+}
+
+/* 詳細表示: ハンドル列追加ぶんの幅を明示 */
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-handle {
+  width: 2.1rem;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+  min-width: 1355px;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-effect {
+  width: 33rem;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-head,
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-cell {
+  width: 33rem !important;
+  min-width: 33rem !important;
+  max-width: 33rem !important;
+}
+
+@media (max-width: 900px) {
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 {
+    width: 1600px;
+    min-width: 1600px;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell {
+    width: 27rem !important;
+    min-width: 27rem !important;
+    max-width: 27rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+    width: 1355px;
+    min-width: 1355px;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-head,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-cell {
+    width: 29rem !important;
+    min-width: 29rem !important;
+    max-width: 29rem !important;
+  }
+}
+
+/* ==========================================================================
+   v072: エフェクト並べ替えハンドルの列感を消す
+   --------------------------------------------------------------------------
+   ・専用列を廃止し、名称セル内にハンドルを内包
+   ・ハンドルの枠線/ボタン感を消す
+   ・名称欄の左に自然に置く
+   ========================================================================== */
+
+body.dx3-combo-page #dx3-app .effect-row-handle-head,
+body.dx3-combo-page #dx3-app .effect-row-handle-cell {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+body.dx3-combo-page #dx3-app .source-name-infer-wrap,
+body.dx3-combo-page #dx3-app .effect-name-inline-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.34rem;
+  min-width: 0;
+  width: 100%;
+}
+
+body.dx3-combo-page #dx3-app .source-name-infer-wrap > input,
+body.dx3-combo-page #dx3-app .effect-name-inline-wrap > input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+body.dx3-combo-page #dx3-app .effect-drag-handle,
+body.dx3-combo-page #dx3-app .effect-drag-handle-inline {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  min-width: 1.15rem;
+  max-width: 1.15rem;
+  height: 1.65rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: rgba(135, 206, 250, 0.86);
+  font-size: 1.08rem;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  opacity: 0.82;
+}
+
+body.dx3-combo-page #dx3-app .effect-drag-handle:hover,
+body.dx3-combo-page #dx3-app .effect-drag-handle-inline:hover {
+  background: transparent;
+  border: 0;
+  color: #b8e7ff;
+  opacity: 1;
+  filter: drop-shadow(0 0 3px rgba(135, 206, 250, 0.45));
+}
+
+body.dx3-combo-page #dx3-app .effect-drag-handle:active,
+body.dx3-combo-page #dx3-app .effect-drag-handle-inline:active {
+  cursor: grabbing;
+}
+
+/* ハンドル列廃止ぶん、テーブルの必要幅を少し戻す */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 {
+  min-width: 1640px;
+}
+
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+  min-width: 1320px;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-handle,
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-handle {
+  width: 0 !important;
+}
+
+@media (max-width: 900px) {
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 {
+    width: 1560px;
+    min-width: 1560px;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+    width: 1320px;
+    min-width: 1320px;
+  }
+}
+
+/* ==========================================================================
+   v073: 係数表示の横幅をスクロールバーなし寄りへ再調整
+   --------------------------------------------------------------------------
+   v072で効果列が広くなりすぎたため、PC幅では表全体を100%内に収める。
+   スマホ/狭幅では横スクロール維持。
+   ========================================================================== */
+
+@media (min-width: 901px) {
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: fixed;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-name {
+    width: 11.2rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-lv {
+    width: 3.5rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-timing {
+    width: 7.1rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-coef {
+    width: 3.25rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-current {
+    width: 3.45rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-effect {
+    width: auto;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-note {
+    width: 13rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+    width: 13rem !important;
+    min-width: 13rem !important;
+    max-width: 13rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell {
+    width: auto;
+    min-width: 0;
+    padding-inline: 0.22rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell input[type="text"],
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-inline: 0.28rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-current-box {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell textarea,
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell textarea {
+    min-height: 2.75rem;
+    height: 3rem;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper {
+    overflow-x: hidden;
+  }
+}
+
+/* 中幅では備考を少し削って、効果列を残す */
+@media (min-width: 901px) and (max-width: 1380px) {
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-name {
+    width: 10rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-timing {
+    width: 6.3rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-coef {
+    width: 2.95rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-current {
+    width: 3.1rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-note,
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+    width: 10.5rem !important;
+    min-width: 10.5rem !important;
+    max-width: 10.5rem !important;
+  }
+}
+
+/* ==========================================================================
+   v074: 係数表示のはみ出し抑制と列欠け対策
+   --------------------------------------------------------------------------
+   v073のPC幅100%化だけでは、過去の nth-child / textarea 幅指定が残って
+   効果・備考・設定周辺が押し出される場合がある。
+   PCでは表を親幅に収め、効果/備考/設定を確実に画面内へ入れる。
+   ========================================================================== */
+
+@media (min-width: 901px) {
+  body.dx3-combo-page #dx3-app .compact-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 th,
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 td {
+    box-sizing: border-box;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: hidden;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-name {
+    width: 11rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-lv {
+    width: 3.15rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-timing {
+    width: 6.35rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-coef {
+    width: 2.6rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-current {
+    width: 2.82rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-effect {
+    width: auto;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-note {
+    width: clamp(8.5rem, 14vw, 12rem);
+  }
+
+  /* 旧CSSの th/td nth-child 幅固定を後勝ちで解除する */
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-cell {
+    width: 11rem !important;
+    min-width: 0 !important;
+    max-width: 11rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-level-cell {
+    width: 3.15rem !important;
+    min-width: 0 !important;
+    max-width: 3.15rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-short-cell {
+    width: 6.35rem !important;
+    min-width: 0 !important;
+    max-width: 6.35rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-inline: 0.12rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell input[type="text"],
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell input[type="number"],
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-current-box {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-inline: 0.18rem !important;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-inline: 0.18rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+    width: clamp(8.5rem, 14vw, 12rem) !important;
+    min-width: 0 !important;
+    max-width: 12rem !important;
+    padding-inline: 0.18rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell textarea,
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell textarea {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    min-height: 2.55rem;
+    height: 2.75rem;
+    resize: vertical;
+    overflow: auto;
+  }
+
+  /* 係数表に設定列が存在する版でも、列が画面外へ逃げないようにする */
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 th:last-child:has(+ *),
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 td:last-child {
+    max-width: 5.4rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .action-cell,
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 td.action-cell {
+    width: 5.4rem !important;
+    min-width: 0 !important;
+    max-width: 5.4rem !important;
+    padding-inline: 0.18rem !important;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .action-cell .setting-btn,
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .action-cell .delete-btn {
+    min-width: 0;
+    padding-inline: 0.38rem;
+  }
+}
+
+/* 係数表の実効幅が狭い環境向け。効果列を残すため、固定列をさらに詰める。 */
+@media (min-width: 901px) and (max-width: 1500px) {
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-name {
+    width: 9.2rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-lv {
+    width: 2.9rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-timing {
+    width: 5.7rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-coef {
+    width: 2.34rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-current {
+    width: 2.55rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-note {
+    width: 8.2rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-cell {
+    width: 9.2rem !important;
+    max-width: 9.2rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-level-cell {
+    width: 2.9rem !important;
+    max-width: 2.9rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-short-cell {
+    width: 5.7rem !important;
+    max-width: 5.7rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+    width: 8.2rem !important;
+    max-width: 8.2rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap {
+    gap: 0.2rem;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-row-infer-btn,
+  body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-row-undo-btn {
+    padding-inline: 0.28rem;
+    font-size: 0.68rem;
+  }
+}
+
+/* ==========================================================================
+   v075: エネミー詳細表示の横はみ出し修正
+   --------------------------------------------------------------------------
+   v070-v074で効果列/備考列に固定remを強く当てすぎていたため、
+   詳細表示テーブルが親幅を超えていた。
+   PC幅では固定列を圧縮し、効果列を「残り幅」へ戻す。
+   狭幅/スマホでは横スクロールを維持する。
+   ========================================================================== */
+
+@media (min-width: 901px) {
+  body.dx3-combo-page #dx3-app .table-wrapper:has(.effects-table.is-enemy-detail-table) {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td {
+    box-sizing: border-box;
+    min-width: 0 !important;
+    overflow: hidden;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-name {
+    width: 9.5rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-level {
+    width: 3.15rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-max-level {
+    width: 3.6rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-timing {
+    width: 6.4rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-skill {
+    width: 5.9rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-difficulty {
+    width: 5.2rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-target {
+    width: 4.8rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-range {
+    width: 4.6rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-limit {
+    width: 4.7rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-effect {
+    width: auto;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-note {
+    width: clamp(8.5rem, 14vw, 13rem);
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-actions {
+    width: 5.0rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-head,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-cell {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-head,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-cell {
+    width: clamp(8.5rem, 14vw, 13rem) !important;
+    min-width: 0 !important;
+    max-width: 13rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th:last-child,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell {
+    width: 5.0rem !important;
+    min-width: 0 !important;
+    max-width: 5.0rem !important;
+    padding-inline: 0.18rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table input,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table select,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table textarea,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .input-with-dropdown,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .input-with-dropdown input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table textarea {
+    display: block;
+    min-height: 2.55rem;
+    height: 2.75rem;
+    line-height: 1.32;
+    resize: vertical;
+    overflow: auto;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .setting-btn,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .delete-btn {
+    min-width: 0;
+    padding-inline: 0.34rem;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1500px) {
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-name {
+    width: 8.4rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-level {
+    width: 2.85rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-max-level {
+    width: 3.25rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-timing {
+    width: 5.6rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-skill {
+    width: 5.2rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-difficulty {
+    width: 4.6rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-target {
+    width: 4.3rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-range {
+    width: 4.1rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-limit {
+    width: 4.2rem;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-note,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-head,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-cell {
+    width: 9.2rem !important;
+    max-width: 9.2rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-actions,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th:last-child,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell,
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell {
+    width: 4.6rem !important;
+    max-width: 4.6rem !important;
+  }
+}
+
+@media (max-width: 900px) {
+  body.dx3-combo-page #dx3-app .table-wrapper:has(.effects-table.is-enemy-detail-table) {
+    overflow-x: auto;
+  }
+
+  body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+    width: 1320px;
+    min-width: 1320px;
+  }
+}
+

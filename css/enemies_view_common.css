@@ -206,6 +206,36 @@
   flex-wrap: wrap;
 }
 
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .enemy-list-reload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 0.38rem 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(70, 96, 130, 0.92), rgba(42, 55, 78, 0.92));
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
+  transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .enemy-list-reload-btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .enemy-list-reload-btn:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
 :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .enemy-sort-row {
   margin-top: 0.35rem;
 }
@@ -246,6 +276,12 @@
 :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .enemy-search-row {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+}
+
+:is(.satasupe-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .enemy-search-row .search-input-group {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .enemy-search-field-select {
@@ -259,6 +295,7 @@
 
 :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-time-tag {
   font-family: var(--font-latin-ui, "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif);
+  font-size: 1rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   line-height: 1;
@@ -366,7 +403,7 @@
   }
 
   :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-list-time-tag {
-    font-size: 0.72rem !important;
+    font-size: 1rem !important;
     text-align: left !important;
   }
 

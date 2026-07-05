@@ -667,6 +667,13 @@ function formatDateTimeDisplay(isoLike) {
   return String(isoLike || "-");
 }
 
+function isPublicEnemy(value) {
+  const sharedApi = getEnemiesShared();
+  return typeof sharedApi.normalizePublicFlag === "function"
+    ? sharedApi.normalizePublicFlag(value, true)
+    : !(value === false || String(value).toLowerCase() === "false" || String(value) === "0");
+}
+
 function createEmptyManeuver() {
   return {
     id: `man_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
@@ -1459,7 +1466,7 @@ function renderEnemyList() {
   const targets = state.enemies.filter((e) => {
     if (isNoNameServantPlaceholder(e)) return false;
     const isMine = myAuthor && String(e.author || "") === String(myAuthor);
-    if (!state.adminMode && !e.is_public && !isMine) return false;
+    if (!state.adminMode && !isPublicEnemy(e.is_public) && !isMine) return false;
     if (!q) return true;
     const fields = {
       name: String(e.name || "").toLowerCase(),
@@ -1625,7 +1632,7 @@ function renderEnemyList() {
       const copyData = buildKomaCharacterJson(enemy);
       try {
         await writeClipboardText(JSON.stringify(copyData));
-        showToast("チャパレをコピーしました", "info");
+        showKomaJsonCopySuccessToast();
         const btn = event.currentTarget;
         if (btn instanceof HTMLButtonElement) {
           const originalText = btn.textContent;
@@ -3647,7 +3654,7 @@ function handleSummaryTableClick(event) {
     );
     writeClipboardText(text)
       .then(() => {
-        showToast("チャパレをコピーしました", "info");
+        showKomaJsonCopySuccessToast();
       })
       .catch(() => {
         showToast(message("clipboardCopyFailedConsole"), "error");
@@ -4733,7 +4740,7 @@ function setupEvents() {
       const pretty = JSON.stringify(out, null, 0);
       writeClipboardText(pretty)
         .then(() => {
-          showToast("チャパレをコピーしました", "info");
+          showKomaJsonCopySuccessToast();
         })
         .catch(() => {
           showToast(message("clipboardCopyFailedConsole"), "error");

@@ -609,7 +609,6 @@
               >
                 <summary class="dx3-collapsible-summary">
                   <h3>能力・ステータス・技能</h3>
-                  <span>能力値、HP系、技能をまとめて編集</span>
                 </summary>
                 <div class="dx3-enemy-profile-grid">
                 <div class="enemy-ability-breakdown enemy-ability-matrix-block">
@@ -753,6 +752,31 @@
                 >
                   <div class="enemy-skill-summary-main">
                     <h3>技能</h3>
+                    <div class="enemy-xp-conversion-card" aria-label="経験点換算">
+                      <span class="enemy-xp-conversion-title">経験点換算</span>
+                      <dl class="enemy-xp-conversion-grid">
+                        <div>
+                          <dt>能力</dt>
+                          <dd>{{ dx3EnemyXpConversion.ability }}</dd>
+                        </div>
+                        <div class="is-skill">
+                          <dt>技能</dt>
+                          <dd>{{ dx3EnemyXpConversion.skill }}</dd>
+                        </div>
+                        <div>
+                          <dt>エフェクト</dt>
+                          <dd>{{ dx3EnemyXpConversion.effect }}</dd>
+                        </div>
+                        <div class="is-total">
+                          <dt>合計</dt>
+                          <dd>{{ dx3EnemyXpConversion.total }}</dd>
+                        </div>
+                      </dl>
+                      <span class="enemy-xp-help-icon" tabindex="0" aria-label="経験点換算ルール">?</span>
+                      <p class="enemy-xp-conversion-note" role="tooltip">
+                        能力は現在値1～10が10点、11～20が20点、21以上が30点。技能は合計-9点開始で、運転/芸術/知識/情報は0～5が1点、その他は2点、以降は3/5/10点刻み。エフェクトはLv1を15点・以降+5点で換算。
+                      </p>
+                    </div>
                     <button
                       type="button"
                       class="action-btn is-sub enemy-skill-add-btn"
@@ -980,13 +1004,9 @@
             <span class="section-title-main"
               ><i class="fa-solid fa-bolt"></i> エフェクト</span
             >
-            <span class="xp-display section-xp-badge" v-if="appMode === 'pc'"
+            <span class="xp-display section-xp-badge"
               ><span class="xp-label">使用経験点</span
               ><strong class="xp-value">{{ effectXp }}</strong></span
-            >
-            <span class="xp-display section-xp-badge is-subtle" v-else
-              ><span class="xp-label">用途</span
-              ><strong class="xp-value">エネミー用</strong></span
             >
           </h2>
           <div
@@ -1016,8 +1036,7 @@
                 <col class="combo-col-note" />
               </colgroup>
               <thead>
-                <tr>
-                  <th rowspan="3">名称</th>
+                <tr>                  <th rowspan="3">名称</th>
                   <th rowspan="3">Lv</th>
                   <th rowspan="3">タイミング</th>
                   <th colspan="14" class="coefficient-main-head">
@@ -1200,6 +1219,17 @@
                 >
                   <td class="source-name-cell source-name-with-infer">
                     <div class="source-name-infer-wrap">
+                      <span
+                        class="effect-drag-handle effect-drag-handle-inline"
+                        draggable="true"
+                        title="このエフェクトをドラッグで並べ替え"
+                        aria-label="このエフェクトをドラッグで並べ替え"
+                        @dragstart="startEffectDrag($event, 'effects', index)"
+                        @dragover.prevent="dragOverEffectRow($event)"
+                        @dragleave="dragLeaveEffectRow($event)"
+                        @drop.prevent="dropEffectRow($event, 'effects', index)"
+                        @dragend="endEffectDrag"
+                      >⠿</span>
                       <input
                         type="text"
                         :value="effect.name"
@@ -1386,10 +1416,27 @@
             </table>
           </div>
           <div v-else class="table-wrapper">
-            <table class="dx3-table effects-table">
+            <table
+              class="dx3-table effects-table"
+              :class="{ 'is-enemy-detail-table': appMode === 'enemy' }"
+            >
+              <colgroup class="effect-detail-colgroup">
+                <col class="effect-detail-col-name" />
+                <col class="effect-detail-col-level" />
+                <col class="effect-detail-col-max-level" />
+                <col class="effect-detail-col-timing" />
+                <col class="effect-detail-col-skill" />
+                <col class="effect-detail-col-difficulty" />
+                <col class="effect-detail-col-target" />
+                <col class="effect-detail-col-range" />
+                <col v-if="appMode !== 'enemy'" class="effect-detail-col-cost" />
+                <col class="effect-detail-col-limit" />
+                <col class="effect-detail-col-effect" />
+                <col class="effect-detail-col-note" />
+                <col class="effect-detail-col-actions" />
+              </colgroup>
               <thead>
-                <tr>
-                  <th>名称</th>
+                <tr>                  <th>名称</th>
                   <th>Lv</th>
                   <th>最大Lv</th>
                   <th>タイミング</th>
@@ -1399,8 +1446,9 @@
                   <th>射程</th>
                   <th v-if="appMode !== 'enemy'">侵蝕値</th>
                   <th>制限</th>
-                  <th>効果</th>
+                  <th class="effect-detail-effect-head">効果</th>
                   <th
+                    class="effect-detail-note-head"
                     title="コンボ作成・係数推定用の補足メモです。このツール内のメモとして使います。"
                   >
                     備考
@@ -1413,13 +1461,26 @@
                   v-for="(effect, index) in effects"
                   :class="{ 'is-inference-candidate': effect._inferenceCandidate }"
                 >
-                  <td>
-                    <input
-                      type="text"
-                      :value="effect.name"
-                      :readonly="!effectFieldsEditable"
+                  <td class="effect-detail-name-cell">
+                    <div class="effect-name-inline-wrap">
+                      <span
+                        class="effect-drag-handle effect-drag-handle-inline"
+                        draggable="true"
+                        title="このエフェクトをドラッグで並べ替え"
+                        aria-label="このエフェクトをドラッグで並べ替え"
+                        @dragstart="startEffectDrag($event, 'effects', index)"
+                        @dragover.prevent="dragOverEffectRow($event)"
+                        @dragleave="dragLeaveEffectRow($event)"
+                        @drop.prevent="dropEffectRow($event, 'effects', index)"
+                        @dragend="endEffectDrag"
+                      >⠿</span>
+                      <input
+                        type="text"
+                        :value="effect.name"
+                        :readonly="!effectFieldsEditable"
                       @change="updateNameAndSync('effects', index, $event.target.value)"
                     />
+                    </div>
                   </td>
                   <td class="text-right">
                     <input
@@ -1490,19 +1551,19 @@
                       :disabled="!effectFieldsEditable"
                     ></input-with-dropdown>
                   </td>
-                  <td>
+                  <td class="effect-detail-effect-cell">
                     <textarea
                       v-model="effect.effect"
                       :readonly="!effectFieldsEditable"
                     ></textarea>
                   </td>
-                  <td>
+                  <td class="effect-detail-note-cell">
                     <textarea
                       v-model="effect.notes"
                       :readonly="!effectFieldsEditable"
                     ></textarea>
                   </td>
-                  <td class="action-cell">
+                  <td class="action-cell effect-detail-action-cell">
                     <button
                       @click.stop="openEffectPanel($event, effect, 'effect', index)"
                       class="setting-btn"
@@ -1569,8 +1630,7 @@
                 <col class="combo-col-note" />
               </colgroup>
               <thead>
-                <tr>
-                  <th rowspan="3">名称</th>
+                <tr>                  <th rowspan="3">名称</th>
                   <th rowspan="3">Lv</th>
                   <th rowspan="3">タイミング</th>
                   <th colspan="14" class="coefficient-main-head">
@@ -1753,6 +1813,17 @@
                 >
                   <td class="source-name-cell source-name-with-infer">
                     <div class="source-name-infer-wrap">
+                      <span
+                        class="effect-drag-handle effect-drag-handle-inline"
+                        draggable="true"
+                        title="このイージーエフェクトをドラッグで並べ替え"
+                        aria-label="このイージーエフェクトをドラッグで並べ替え"
+                        @dragstart="startEffectDrag($event, 'easyEffects', index)"
+                        @dragover.prevent="dragOverEffectRow($event)"
+                        @dragleave="dragLeaveEffectRow($event)"
+                        @drop.prevent="dropEffectRow($event, 'easyEffects', index)"
+                        @dragend="endEffectDrag"
+                      >⠿</span>
                       <input
                         type="text"
                         :value="ee.name"
@@ -1929,10 +2000,27 @@
             </table>
           </div>
           <div v-else class="table-wrapper">
-            <table class="dx3-table effects-table">
+            <table
+              class="dx3-table effects-table"
+              :class="{ 'is-enemy-detail-table': appMode === 'enemy' }"
+            >
+              <colgroup class="effect-detail-colgroup">
+                <col class="effect-detail-col-name" />
+                <col class="effect-detail-col-level" />
+                <col class="effect-detail-col-max-level" />
+                <col class="effect-detail-col-timing" />
+                <col class="effect-detail-col-skill" />
+                <col class="effect-detail-col-difficulty" />
+                <col class="effect-detail-col-target" />
+                <col class="effect-detail-col-range" />
+                <col v-if="appMode !== 'enemy'" class="effect-detail-col-cost" />
+                <col class="effect-detail-col-limit" />
+                <col class="effect-detail-col-effect" />
+                <col class="effect-detail-col-note" />
+                <col class="effect-detail-col-actions" />
+              </colgroup>
               <thead>
-                <tr>
-                  <th>名称</th>
+                <tr>                  <th>名称</th>
                   <th>Lv</th>
                   <th>最大Lv</th>
                   <th>タイミング</th>
@@ -1942,8 +2030,9 @@
                   <th>射程</th>
                   <th v-if="appMode !== 'enemy'">侵蝕値</th>
                   <th>制限</th>
-                  <th>効果</th>
+                  <th class="effect-detail-effect-head">効果</th>
                   <th
+                    class="effect-detail-note-head"
                     title="コンボ作成・係数推定用の補足メモです。このツール内のメモとして使います。"
                   >
                     備考
@@ -1956,13 +2045,26 @@
                   v-for="(ee, index) in easyEffects"
                   :class="{ 'is-inference-candidate': ee._inferenceCandidate }"
                 >
-                  <td>
-                    <input
-                      type="text"
-                      :value="ee.name"
-                      :readonly="!effectFieldsEditable"
+                  <td class="effect-detail-name-cell">
+                    <div class="effect-name-inline-wrap">
+                      <span
+                        class="effect-drag-handle effect-drag-handle-inline"
+                        draggable="true"
+                        title="このイージーエフェクトをドラッグで並べ替え"
+                        aria-label="このイージーエフェクトをドラッグで並べ替え"
+                        @dragstart="startEffectDrag($event, 'easyEffects', index)"
+                        @dragover.prevent="dragOverEffectRow($event)"
+                        @dragleave="dragLeaveEffectRow($event)"
+                        @drop.prevent="dropEffectRow($event, 'easyEffects', index)"
+                        @dragend="endEffectDrag"
+                      >⠿</span>
+                      <input
+                        type="text"
+                        :value="ee.name"
+                        :readonly="!effectFieldsEditable"
                       @change="updateNameAndSync('easyEffects', index, $event.target.value)"
                     />
+                    </div>
                   </td>
                   <td class="text-right">
                     <input
@@ -2033,19 +2135,19 @@
                       :disabled="!effectFieldsEditable"
                     ></input-with-dropdown>
                   </td>
-                  <td>
+                  <td class="effect-detail-effect-cell">
                     <textarea
                       v-model="ee.effect"
                       :readonly="!effectFieldsEditable"
                     ></textarea>
                   </td>
-                  <td>
+                  <td class="effect-detail-note-cell">
                     <textarea
                       v-model="ee.notes"
                       :readonly="!effectFieldsEditable"
                     ></textarea>
                   </td>
-                  <td class="action-cell">
+                  <td class="action-cell effect-detail-action-cell">
                     <button
                       @click.stop="openEffectPanel($event, ee, 'easy', index)"
                       class="setting-btn"
@@ -2182,7 +2284,7 @@
                     />
                   </td>
                   <td><textarea v-model="item.notes"></textarea></td>
-                  <td class="action-cell">
+                  <td class="action-cell effect-detail-action-cell">
                     <button
                       @click.stop="openEffectPanel($event, item, 'item', index)"
                       class="setting-btn"
@@ -2634,11 +2736,11 @@
                     aria-hidden="true"
                   ></i>
                   <span class="enemy-list-row">
-                    <span class="enemy-list-side-left">
-                      <span class="enemy-metric-badge dx3-erosion-badge">
-                        <span class="erosion-label">侵</span>
+                      <span class="enemy-list-side-left">
+                        <span class="enemy-metric-badge dx3-erosion-badge">
+                        <span class="erosion-label">経験点</span>
                         <span class="erosion-value"
-                          >{{ dx3EnemyListErosion(enemy) }}</span
+                          >{{ dx3EnemyListXpTotal(enemy) }}</span
                         >
                       </span>
                       <span class="enemy-list-icon-wrap">
@@ -2662,14 +2764,7 @@
                         >
                         <span class="enemy-list-meta-tags">
                           <span class="enemy-list-meta-tag is-stat"
-                            >HP {{ dx3EnemyListValue(enemy, 'hp', '-') }}</span
-                          >
-                          <span class="enemy-list-meta-tag is-stat"
                             >行動 {{ dx3EnemyListValue(enemy, 'initiative', '-')
-                            }}</span
-                          >
-                          <span class="enemy-list-meta-tag is-stat"
-                            >装甲 {{ dx3EnemyListValue(enemy, 'armor', '-')
                             }}</span
                           >
                         </span>
@@ -2699,7 +2794,7 @@
                           >
                         </span>
                         <span class="enemy-list-time-tag"
-                          >{{ enemy.time || '-' }}</span
+                          >{{ formatDx3EnemyListTime(enemy.time) }}</span
                         >
                       </span>
                       <span class="enemy-list-btns-row">
@@ -2943,6 +3038,42 @@
                   />
                   <span>{{ item.name }} ({{ item.type }})</span>
                 </label>
+              </div>
+              <div class="option-group selected-order-group">
+                <strong>選択中の並び順</strong>
+                <p class="selected-order-help">
+                  宣言・効果解説に出す順番を調整できます。
+                </p>
+                <div v-if="getTempSourceSelectionList().length" class="selected-order-list">
+                  <div
+                    v-for="(row, orderIndex) in getTempSourceSelectionList()"
+                    :key="row.type + ':' + row.name + ':' + orderIndex"
+                    class="selected-order-row"
+                  >
+                    <span class="selected-order-label">{{ getTempSourceSelectionLabel(row) }}</span>
+                    <div class="selected-order-actions">
+                      <button
+                        type="button"
+                        class="selected-order-move-btn"
+                        @click.stop="moveTempSourceSelection(row, -1)"
+                        :disabled="orderIndex === 0"
+                        title="上へ移動"
+                      >
+                        <i class="fa-solid fa-arrow-up"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="selected-order-move-btn"
+                        @click.stop="moveTempSourceSelection(row, 1)"
+                        :disabled="orderIndex === getTempSourceSelectionList().length - 1"
+                        title="下へ移動"
+                      >
+                        <i class="fa-solid fa-arrow-down"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p v-else class="selected-order-empty">まだ何も選択されていません。</p>
               </div>
               <!-- Buff section moved -->
             </div>

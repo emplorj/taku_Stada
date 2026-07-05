@@ -86,6 +86,7 @@
     komaExportModeSelect: document.getElementById("komaExportModeSelect"),
     deleteEnemyButton: document.getElementById("deleteEnemyButton"),
     reloadEnemyListButton: document.getElementById("reloadEnemyListButton"),
+    enemyListReloadButton: document.getElementById("enemyListReloadButton"),
     importJsonInput: document.getElementById("importJsonInput"),
     enemyList: document.getElementById("enemyList"),
     enemySearchInput: document.getElementById("enemySearchInput"),
@@ -306,6 +307,13 @@
     }
     const s = String(value || "").trim();
     return s || "-";
+  }
+
+  function isPublicEnemy(value) {
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.normalizePublicFlag === "function"
+      ? sharedApi.normalizePublicFlag(value, true)
+      : !(value === false || String(value).toLowerCase() === "false" || String(value) === "0");
   }
 
   function deepClone(v) {
@@ -821,7 +829,7 @@
       author,
       name: String(e.name || "").trim() || "無題",
       class_type: String(e.class_type || "general").trim() || "general",
-      is_public: !!e.is_public,
+      is_public: isPublicEnemy(e.is_public),
       memo: String(e.memo || ""),
       data: e.data && typeof e.data === "object" ? e.data : { sheet: {} },
       icon_url: String(e.icon_url || "").trim(),
@@ -882,11 +890,11 @@
       const canView = state.adminMode ||
         (typeof shared.canViewEnemyByVisibility === "function"
           ? shared.canViewEnemyByVisibility({
-              isPublic: !!e.is_public,
+              isPublic: isPublicEnemy(e.is_public),
               enemyAuthor: e.author,
               myAuthor,
             })
-          : !!e.is_public ||
+            : isPublicEnemy(e.is_public) ||
             (myAuthor && String(e.author || "") === String(myAuthor)));
       if (!canView) {
         return false;
@@ -939,7 +947,6 @@
       const iconUrl = String(enemy.icon_url || "").trim();
       const classification = String(getByPath(sheet, "classification") || "-").trim() || "-";
       const attribute = String(getByPath(sheet, "attribute") || "-").trim() || "-";
-      const hp = getByPath(sheet, "hp") || 0;
       const initiative = getByPath(sheet, "initiative") || 0;
 
       const li = document.createElement("li");
@@ -968,7 +975,6 @@
                 <span class="enemy-list-name">${escapeHtml(name)}</span>
                 <span class="enemy-list-meta-tags">
                   ${attrHtml}
-                  <span class="enemy-list-meta-tag is-stat">HP ${escapeHtml(String(hp))}</span>
                   <span class="enemy-list-meta-tag is-stat">行動 ${escapeHtml(String(initiative))}</span>
                 </span>
               </span>
@@ -3854,6 +3860,8 @@
     bindOutsideFormMetaInput(el.fieldAuthor, (e) => {
       rememberAuthor(e.target && e.target.value ? e.target.value : "");
       markDirty();
+      state.page = 1;
+      renderEnemyList();
     });
     bindOutsideFormMetaInput(el.fieldIconUrl, () => {
       markDirty();
@@ -3935,8 +3943,7 @@
         }
       });
     }
-    if (el.reloadEnemyListButton) {
-      el.reloadEnemyListButton.addEventListener("click", async () => {
+    const handleReloadEnemyList = async () => {
         const selected = getSelectedEnemy();
         const selectedIsUnsaved = selected && isUnsavedEnemy(selected);
         let preserveCurrentUnsaved = false;
@@ -3967,8 +3974,9 @@
         } catch (e) {
           setStatus(`読込失敗: ${e.message || "error"}`);
         }
-      });
-    }
+    };
+    if (el.reloadEnemyListButton) el.reloadEnemyListButton.addEventListener("click", handleReloadEnemyList);
+    if (el.enemyListReloadButton) el.enemyListReloadButton.addEventListener("click", handleReloadEnemyList);
     if (el.exportKomaJsonButton) {
       el.exportKomaJsonButton.addEventListener("click", async () => {
         try {

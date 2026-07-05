@@ -144,6 +144,7 @@ new Vue({
     activeModalTab: "dice",
     modalTabs: [],
     isEffectSelectModalOpen: false,
+    effectDragState: { listName: "", index: -1 },
     editingComboIndex: -1,
     tempSelectedEffects: [],
     tempSelectedItems: [],
@@ -448,13 +449,21 @@ new Vue({
     dx3EnemyDisplayAbilities() {
       return this.getDx3EnemyTotalAbilities(this.enemyData);
     },
+    dx3EnemyXpConversion() {
+      return this.getDx3EnemyXpConversion();
+    },
     dx3EnemyErosionDice() {
       const stats = this.getDx3EnemyFinalStats(this.enemyData);
       return this.getErosionDice(stats.erosion);
     },
     filteredDx3EnemyList() {
       const q = String(this.enemySearch || "").trim().toLowerCase();
-      const list = Array.isArray(this.dx3EnemyList) ? this.dx3EnemyList : [];
+      const myAuthor = String((this.enemySheet && this.enemySheet.author) || "").trim();
+      const list = (Array.isArray(this.dx3EnemyList) ? this.dx3EnemyList : []).filter((enemy) => {
+        if (!enemy) return false;
+        if (this.isDx3EnemyPublic(enemy.is_public)) return true;
+        return myAuthor && String(enemy.author || "") === myAuthor;
+      });
       if (!q) return list;
       const fieldMap = {
         name: ["name"],
@@ -936,6 +945,7 @@ new Vue({
           currentCombo.baseAbility.statOverride ||
           this.skillToAbilityMap[skill] ||
           "肉体";
+        const enemySkillDisplay = this.appMode === "enemy" && skill === "-" ? attributeName : skill;
 
         // 詳細情報（ヘッダー用）には計算結果を残す。
         // エネミー出力ではCSVテンプレートに合わせ、侵蝕値/難易度/達成値は省いて簡潔にする。
@@ -955,7 +965,7 @@ new Vue({
           : [
               `侵蝕値:${totalCost}`,
               `タイミング:${timing}`,
-              `技能:${skill}`,
+              `技能:${enemySkillDisplay}`,
               `難易度:${difficulty}`,
               `対象:${target}`,
               `射程:${range}`,
@@ -993,7 +1003,7 @@ new Vue({
         }
 
         // 5. ◆コンボ名 (攻撃力などは含めない)
-        diceFormula += ` ◆${comboDisplayName}`;
+        diceFormula += this.appMode === "enemy" ? ` ${comboDisplayName}` : ` ◆${comboDisplayName}`;
 
         const hasHiddenBuffs = allSelectedSources.some((s) => {
           const effectData = (currentCombo.effectNames || []).find(
@@ -1061,6 +1071,9 @@ new Vue({
         try { localStorage.setItem("dx3EnemiesAuthor", String(this.enemySheet.author || "").trim()); } catch (_e) {}
       },
       deep: true,
+    },
+    "enemySheet.author"() {
+      this.dx3EnemyPage = 1;
     },
     enemyData: { handler: "setDataDirty", deep: true },
     characterName: { handler: "setDataDirty", deep: true },
@@ -1193,6 +1206,18 @@ new Vue({
   methods: {
     getEnemiesSharedApi() {
       return (typeof window !== "undefined" && (window.EnemiesShared || window.NechronicaShared)) || {};
+    },
+    formatDx3EnemyListTime(value) {
+      const shared = this.getEnemiesSharedApi();
+      return shared && typeof shared.formatDateTime === "function"
+        ? shared.formatDateTime(value, { emptyValue: "-", fallbackRawOnInvalid: false })
+        : String(value || "-").replace(/\sGMT[\s\S]*$/, "");
+    },
+    isDx3EnemyPublic(value) {
+      const shared = this.getEnemiesSharedApi();
+      return shared && typeof shared.normalizePublicFlag === "function"
+        ? shared.normalizePublicFlag(value, true)
+        : !(value === false || String(value).toLowerCase() === "false" || String(value) === "0");
     },
     showDx3EnemyToast(message, kind = "info") {
       const shared = this.getEnemiesSharedApi();
@@ -1345,6 +1370,79 @@ new Vue({
         social: (Number(base.social) || 0) + (Number(other.social) || 0),
       };
     },
+    getDx3EnemyAbilityXp(data = null) {
+      const base = this.getDx3EnemySyndromeAbilityBase(data);
+      const total = this.getDx3EnemyTotalAbilities(data);
+      return ["body", "sense", "mind", "social"].reduce((sum, key) => {
+        const diff = (Number(total[key]) || 0) - (Number(base[key]) || 0);
+        if (diff <= 0) return sum;
+        const start = Number(base[key]) || 0;
+        let cost = 0;
+        for (let i = 0; i < diff; i += 1) {
+          cost += this.getDx3EnemyAbilityLevelUpCost(start + i);
+        }
+        return sum + cost;
+      }, 0);
+    },
+    getDx3EnemyAbilityLevelUpCost(currentLevel) {
+      const level = Math.max(0, Math.trunc(Number(currentLevel) || 0));
+      if (level <= 10) return 10;
+      if (level <= 20) return 20;
+      return 30;
+    },
+    isDx3EnemyCheapSkill(row) {
+      const name = String(row && row.name || "").trim();
+      return ["運転", "芸術", "知識", "情報"].some((prefix) => name === prefix || name.startsWith(`${prefix}:`) || name.startsWith(`${prefix}：`));
+    },
+    getDx3EnemySkillLevelUpCost(currentLevel, row = null) {
+      const level = Math.max(0, Math.trunc(Number(currentLevel) || 0));
+      if (level <= 5) return this.isDx3EnemyCheapSkill(row) ? 1 : 2;
+      if (level <= 10) return 3;
+      if (level <= 20) return 5;
+      return 10;
+    },
+    getDx3EnemySkillXp(data = null) {
+      const src = data || this.enemyData || {};
+      const rows = Array.isArray(src.skillRows) ? src.skillRows : [];
+      return rows.reduce((sum, row) => {
+        const level = Math.max(0, Math.trunc(Number(row && row.level) || 0));
+        let cost = 0;
+        for (let current = 0; current < level; current += 1) {
+          cost += this.getDx3EnemySkillLevelUpCost(current, row);
+        }
+        return sum + cost;
+      }, -9);
+    },
+    getDx3EnemyEffectXp() {
+      const calc = (list, isEasy = false) => (Array.isArray(list) ? list : []).reduce((sum, effect) => {
+        const name = String(effect && effect.name || "").trim();
+        const level = Math.max(0, Math.trunc(Number(effect && effect.level) || 0));
+        if (!name || level <= 0 || this.isEssentialEffect(name)) return sum;
+        return sum + (isEasy ? level * 2 : 15 + Math.max(0, level - 1) * 5);
+      }, 0);
+      return calc(this.effects, false) + calc(this.easyEffects, true);
+    },
+    getDx3EnemyEffectXpFromData(data = null) {
+      const src = data || {};
+      const calc = (list, isEasy = false) => (Array.isArray(list) ? list : []).reduce((sum, effect) => {
+        const name = String(effect && effect.name || "").trim();
+        const level = Math.max(0, Math.trunc(Number(effect && effect.level) || 0));
+        if (!name || level <= 0 || this.isEssentialEffect(name)) return sum;
+        return sum + (isEasy ? level * 2 : 15 + Math.max(0, level - 1) * 5);
+      }, 0);
+      return calc(src.effects, false) + calc(src.easyEffects, true);
+    },
+    getDx3EnemyXpConversion(data = null) {
+      const ability = this.getDx3EnemyAbilityXp(data || this.enemyData);
+      const skill = this.getDx3EnemySkillXp(data || this.enemyData);
+      const effect = data ? this.getDx3EnemyEffectXpFromData(data) : this.getDx3EnemyEffectXp();
+      return {
+        ability,
+        skill,
+        effect,
+        total: ability + skill + effect,
+      };
+    },
     getDx3EnemyStatSet(data = null, key = "statBase") {
       const src = data || this.enemyData || {};
       const defaults = key === "statBase"
@@ -1472,7 +1570,7 @@ new Vue({
         abilities: { body: 0, sense: 0, mind: 0, social: 0 },
         abilityAdds: { body: 0, sense: 0, mind: 0, social: 0 },
         abilityGrowth: { body: 0, sense: 0, mind: 0, social: 0 },
-        abilityOther: { body: 0, sense: 0, mind: 0, social: 0 },
+        abilityOther: { body: 1, sense: 1, mind: 8, social: 0 },
         statBase: { hp: 30, erosion: 100, initiative: 5, armor: 0, move: 10 },
         statGrowth: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
         statOther: { hp: 0, erosion: 0, initiative: 0, armor: 0, move: 0 },
@@ -2005,7 +2103,7 @@ new Vue({
     async loadDx3EnemyList() {
       const url = this.buildDx3EnemyApiUrl("listDX3Enemies", { includePrivate: "true" });
       const data = await this.fetchDx3EnemyJson(url);
-      this.dx3EnemyList = Array.isArray(data.enemies) ? data.enemies : [];
+      this.dx3EnemyList = Array.isArray(data.enemies) ? data.enemies.map((enemy) => this.normalizeDx3EnemyRecord(enemy)) : [];
       this.dx3EnemyPage = Math.min(this.dx3EnemyCurrentPage, this.dx3EnemyTotalPages);
       return this.dx3EnemyList;
     },
@@ -2044,7 +2142,7 @@ new Vue({
         author: String(src.author || "").trim(),
         name: String(src.name || "").trim(),
         class_type: String(src.class_type || "ジャーム").trim() || "ジャーム",
-        is_public: src.is_public !== false && String(src.is_public).toLowerCase() !== "false",
+        is_public: this.isDx3EnemyPublic(src.is_public),
         memo: String(src.memo || ""),
         icon_url: String(src.icon_url || "").trim(),
         time: String(src.time || "").trim(),
@@ -2060,6 +2158,10 @@ new Vue({
     dx3EnemyListErosion(enemy) {
       const value = this.dx3EnemyListValue(enemy, "erosion", "-");
       return String(value || "-").replace(/%$/, "");
+    },
+    dx3EnemyListXpTotal(enemy) {
+      const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+      return this.getDx3EnemyXpConversion(data).total;
     },
     dx3EnemyCreditLabel(author) {
       const text = String(author || "").trim();
@@ -2194,14 +2296,13 @@ new Vue({
         const output = this.formatDx3EnemySkillOutput(row);
         if (output) lines.push(output);
       });
-      const combos = Array.isArray(this.comboDataList) ? this.comboDataList : [];
-      if (combos.length) {
-        if (lines.length) lines.push("");
-        lines.push("//▼コンボデータ");
-      }
-      const slashN = String.fromCharCode(92, 110);
+      const combos = Array.isArray(this.processedCombos) ? this.processedCombos : [];
+      if (combos.length && lines.length) lines.push("");
       combos.forEach((combo) => {
-        const header = String((combo.chatPalette && combo.chatPalette.header) || "").split(/\r?\n/).filter(Boolean).join(slashN);
+        const header = String((combo.chatPalette && combo.chatPalette.header) || "")
+          .split(/\r?\n/)
+          .filter(Boolean)
+          .join("\\n");
         const dice = String((combo.chatPalette && combo.chatPalette.diceFormula) || "").trim();
         if (header) lines.push(header);
         if (dice && combo.isMajorAction) lines.push(dice);
@@ -2217,21 +2318,15 @@ new Vue({
       const finalStats = this.getDx3EnemyFinalStats(data);
       const syndromes = (data.syndromes || []).map((x) => String(x || "").trim()).filter(Boolean);
       const memoParts = [];
+      memoParts.push("", "───");
       if (data.nameKana) memoParts.push(`(${data.nameKana})`);
       if (data.codename) memoParts.push(`コードネーム：${data.codename}${data.codenameKana ? `(${data.codenameKana})` : ""}`);
-      if (breedLabel || syndromes.length) memoParts.push(`シンドローム：${[breedLabel, ...syndromes].filter(Boolean).join("、")}`);
+      if (syndromes.length) memoParts.push(`シンドローム：${syndromes.join("、")}`);
       if (data.explanation) memoParts.push(String(data.explanation));
-      const skillParams = [];
-      (data.skillRows || []).forEach((row) => {
-        const label = this.getDx3EnemySkillLabel(row);
-        if (!label) return;
-        if (skillParams.some((p) => p.label === label)) return;
-        skillParams.push({ label, value: (Number(row.level) || 0) + (Number(row.mod) || 0) });
-      });
       const hp = Number(finalStats.hp) || 0;
       const status = data.hpAsDamage
-        ? [{ label: "与ダメ", value: 0, max: hp }]
-        : [{ label: "HP", value: hp, max: hp }];
+        ? [{ label: "与ダメ", value: "0", max: String(hp) }]
+        : [{ label: "HP", value: String(hp), max: String(hp) }];
       const charJson = {
         kind: "character",
         data: {
@@ -2240,16 +2335,14 @@ new Vue({
           initiative: Number(finalStats.initiative) || 0,
           status,
           params: [
-            { label: "肉体", value: Number(abilities.body) || 0 },
-            { label: "感覚", value: Number(abilities.sense) || 0 },
-            { label: "精神", value: Number(abilities.mind) || 0 },
-            { label: "社会", value: Number(abilities.social) || 0 },
-            { label: "装甲", value: Number(finalStats.armor) || 0 },
-            { label: "ガード", value: Number(data.guard) || 0 },
-            { label: "侵蝕率D", value: this.getErosionDice(finalStats.erosion) },
-            { label: "移動力", value: Number(finalStats.move) || 0 },
-            { label: "全力移動", value: (Number(finalStats.move) || 0) * 2 },
-            ...skillParams,
+            { label: "肉体", value: String(Number(abilities.body) || 0) },
+            { label: "感覚", value: String(Number(abilities.sense) || 0) },
+            { label: "精神", value: String(Number(abilities.mind) || 0) },
+            { label: "社会", value: String(Number(abilities.social) || 0) },
+            { label: "装甲", value: String(Number(finalStats.armor) || 0) },
+            { label: "侵蝕率D", value: String(this.getErosionDice(finalStats.erosion)) },
+            { label: "移動力", value: String(Number(finalStats.move) || 0) },
+            { label: "全力移動", value: String((Number(finalStats.move) || 0) * 2) },
           ],
           faces: [],
           color: "",
@@ -2268,7 +2361,7 @@ new Vue({
       const text = JSON.stringify(this.buildDx3EnemyKomaJson());
       try {
         await this.copyDx3EnemyClipboardText(text);
-        this.showDx3EnemyToast(getMessage("komaJsonCopySuccess", "ココフォリアコマ出力をコピーした"), "info");
+        this.showDx3EnemyToast(getMessage("komaJsonCopySuccess", "komaJsonCopySuccess"), "info");
       } catch (_error) {
         console.log(text);
         this.showDx3EnemyToast(getMessage("komaJsonCopyFailedConsole", "コマ出力コピーに失敗。コンソールに出力する"), "error");
@@ -2514,11 +2607,16 @@ new Vue({
       const classifyTarget = (context, suffix = "") => {
         const c = String(context || "").toUpperCase();
         const sfx = String(suffix || "").toUpperCase();
+        if (/シナリオ|シーン|ラウンド|回まで|回使用|使用回数|回復|HP|ＨＰ/.test(context)) return null;
+        // 「命中した場合」「命中時」は条件文であって、命中修正ではない。
+        // 例: 《渇きの主》の「命中した場合、HPを[LV×4]点回復する」を
+        // 「命中+[LV×4]」として誤推定しないようにする。
+        if (/命中(?:した|時|時に|した場合|した時|すれば|すると|後)/.test(context)) return null;
         if (/C値|Ｃ値|クリティカル|コンセントレイト|リフレックス/.test(context)) return "crit";
         if (/攻撃力|ATK|ＡＴＫ|ダメージ|攻撃の/.test(context)) return "attack";
         if (/達成値|命中達成値|判定値/.test(context)) return "achieve";
         if (/ダイス|判定のダイス/.test(context)) return "dice";
-        if (/命中/.test(context)) return "accuracy";
+        if (/命中(?:修正|値|判定|達成値|[+\-＋－]|を|に|:|：)/.test(context)) return "accuracy";
         if (/ガード|装甲/.test(context)) return "guard";
         if (/DX|個/.test(sfx)) return "dice";
         return null;
@@ -3901,6 +3999,67 @@ new Vue({
 
       return false;
     },
+
+    getEffectDragList(listName) {
+      if (listName === "effects") return this.effects;
+      if (listName === "easyEffects") return this.easyEffects;
+      return null;
+    },
+    startEffectDrag(event, listName, index) {
+      const list = this.getEffectDragList(listName);
+      const fromIndex = Number(index);
+      if (!Array.isArray(list) || fromIndex < 0 || fromIndex >= list.length) return;
+      this.effectDragState = { listName, index: fromIndex };
+      const row = event && event.currentTarget ? event.currentTarget.closest("tr") : null;
+      if (row) row.classList.add("is-dragging");
+      if (event && event.dataTransfer) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", `${listName}:${fromIndex}`);
+        if (row) event.dataTransfer.setDragImage(row, 24, 12);
+      }
+    },
+    dragOverEffectRow(event) {
+      const row = event && event.currentTarget ? event.currentTarget.closest("tr") : null;
+      if (row) row.classList.add("is-drag-over");
+    },
+    dragLeaveEffectRow(event) {
+      const row = event && event.currentTarget ? event.currentTarget.closest("tr") : null;
+      if (row) row.classList.remove("is-drag-over");
+    },
+    dropEffectRow(event, listName, toIndex) {
+      const drag = this.effectDragState || {};
+      const fromIndex = Number(drag.index);
+      const destIndex = Number(toIndex);
+      const row = event && event.currentTarget ? event.currentTarget.closest("tr") : null;
+      if (row) row.classList.remove("is-drag-over");
+      if (drag.listName !== listName) {
+        this.endEffectDrag();
+        return;
+      }
+      this.moveEffectRow(listName, fromIndex, destIndex);
+      this.endEffectDrag();
+    },
+    endEffectDrag() {
+      this.effectDragState = { listName: "", index: -1 };
+      this.$nextTick(() => {
+        const root = this.$el || document;
+        root.querySelectorAll(".effects-table tr.is-dragging, .combo-source-table tr.is-dragging")
+          .forEach((row) => row.classList.remove("is-dragging"));
+        root.querySelectorAll(".effects-table tr.is-drag-over, .combo-source-table tr.is-drag-over")
+          .forEach((row) => row.classList.remove("is-drag-over"));
+      });
+    },
+    moveEffectRow(listName, fromIndex, toIndex) {
+      const list = this.getEffectDragList(listName);
+      const from = Number(fromIndex);
+      const to = Number(toIndex);
+      if (!Array.isArray(list) || !Number.isInteger(from) || !Number.isInteger(to)) return false;
+      if (from < 0 || to < 0 || from >= list.length || to >= list.length || from === to) return false;
+      const item = list.splice(from, 1)[0];
+      list.splice(to, 0, item);
+      this.setDataDirty();
+      return true;
+    },
     addEffect() {
       this.effects.push(this.createDefaultEffect());
     },
@@ -4304,17 +4463,51 @@ new Vue({
       this.tempSelectedEffects = [];
       this.tempSelectedItems = [];
     },
+    getTempSourceSelectionList() {
+      const rows = [];
+      (this.tempSelectedEffects || []).forEach((effect) => {
+        if (effect && effect.name) rows.push({ type: "effect", name: effect.name, source: effect });
+      });
+      (this.tempSelectedItems || []).forEach((item) => {
+        if (item && item.name) rows.push({ type: "item", name: item.name, source: item });
+      });
+      return rows;
+    },
+    getTempSourceSelectionLabel(row) {
+      if (!row || !row.source) return "";
+      const source = row.source;
+      if (row.type === "item") return `${source.name} (${source.type || "アイテム"})`;
+      return `${source.name} (${source.timing || "-"})`;
+    },
+    moveTempSourceSelection(row, direction) {
+      if (!row || !row.name) return;
+      const list = row.type === "item" ? this.tempSelectedItems : this.tempSelectedEffects;
+      if (!Array.isArray(list)) return;
+      const index = list.findIndex((source) => source && source.name === row.name);
+      const nextIndex = index + Number(direction || 0);
+      if (index < 0 || nextIndex < 0 || nextIndex >= list.length) return;
+      const moved = list.splice(index, 1)[0];
+      list.splice(nextIndex, 0, moved);
+    },
     confirmEffectSelection() {
       if (this.editingComboIndex !== -1) {
         const combo = this.combos[this.editingComboIndex];
 
         // エフェクトとアイテムの選択を更新
-        const effectNames = this.tempSelectedEffects.map((effect) => ({
-          name: effect.name,
-        }));
-        const itemNames = this.tempSelectedItems.map((item) => ({
-          name: item.name,
-        }));
+        const effectNames = this.tempSelectedEffects.map((effect) => {
+          const previous = (combo.effectNames || []).find((item) => item && item.name === effect.name);
+          return {
+            name: effect.name,
+            showInComboName: previous && previous.showInComboName === false ? false : true,
+          };
+        });
+        const itemNames = this.tempSelectedItems.map((item) => {
+          const previous = (combo.itemNames || []).find((data) => data && data.name === item.name);
+          return {
+            name: item.name,
+            showInComboName: previous && previous.showInComboName === false ? false : true,
+          };
+        });
         this.$set(combo, "effectNames", effectNames);
         this.$set(combo, "itemNames", itemNames);
         this.$set(combo, "appliedBuffs", this.tempSelectedBuffs); // バフの選択を更新

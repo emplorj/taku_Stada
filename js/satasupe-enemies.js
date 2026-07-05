@@ -32,6 +32,8 @@
     saveAsEnemyButton: document.getElementById("saveAsEnemyButton"),
     shareEnemyButton: document.getElementById("shareEnemyButton"),
     deleteEnemyButton: document.getElementById("deleteEnemyButton"),
+    reloadEnemyListButton: document.getElementById("reloadEnemyListButton"),
+    enemyListReloadButton: document.getElementById("enemyListReloadButton"),
     exportJsonButton: document.getElementById("exportJsonButton"),
     exportKomaJsonButton: document.getElementById("exportKomaJsonButton"),
     importJsonInput: document.getElementById("importJsonInput"),
@@ -478,6 +480,13 @@
     return typeof sharedApi.nowText === "function"
       ? sharedApi.nowText()
       : new Date().toLocaleString("ja-JP");
+  }
+
+  function isPublicEnemy(value) {
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.normalizePublicFlag === "function"
+      ? sharedApi.normalizePublicFlag(value, true)
+      : !(value === false || String(value).toLowerCase() === "false" || String(value) === "0");
   }
 
   function getNextSequentialId() {
@@ -1572,11 +1581,11 @@
       const canView = state.adminMode ||
         (typeof shared.canViewEnemyByVisibility === "function"
           ? shared.canViewEnemyByVisibility({
-              isPublic: !!s.is_public,
+              isPublic: isPublicEnemy(s.is_public),
               enemyAuthor: s.author,
               myAuthor,
             })
-          : !!s.is_public ||
+          : isPublicEnemy(s.is_public) ||
             (myAuthor && String((s && s.author) || "") === String(myAuthor)));
       if (!canView) {
         return false;
@@ -3754,6 +3763,24 @@
     }
     if (el.addHistoryButton)
       el.addHistoryButton.addEventListener("click", () => addRow("history"));
+
+    const handleReloadEnemyList = async () => {
+      const selectedId = state.selectedId;
+      try {
+        setStatus("DB再読込中…");
+        await loadFromDb();
+        if (selectedId && state.sheets.some((sheet) => String(sheet.id) === String(selectedId))) {
+          state.selectedId = selectedId;
+        }
+        renderAll();
+        setStatus("DB再読込完了", "ok");
+      } catch (error) {
+        console.warn("[satasupe] DB再読込失敗:", error);
+        setStatus("DB再読込失敗", "error");
+      }
+    };
+    if (el.reloadEnemyListButton) el.reloadEnemyListButton.addEventListener("click", handleReloadEnemyList);
+    if (el.enemyListReloadButton) el.enemyListReloadButton.addEventListener("click", handleReloadEnemyList);
 
     document.addEventListener("keydown", (event) => {
       const key = String(event.key || "").toLowerCase();
