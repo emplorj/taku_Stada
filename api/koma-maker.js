@@ -158,6 +158,7 @@ const DX3_COMBO_GAS_WEBAPP_URL =
   "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
 
 const comboPaletteCache = new Map();
+const comboDataCache = new Map();
 
 // -----------------------------------------------------------------------------
 // SW2.5 吸収済みマスタ群
@@ -1627,10 +1628,10 @@ function createComboPaletteFromData(comboData) {
   return palette.trim();
 }
 
-async function getComboPaletteByUrl(sheetUrl) {
+async function getComboDataByUrl(sheetUrl) {
   const key = normalizeSheetUrl(sheetUrl);
-  if (!key) return "";
-  if (comboPaletteCache.has(key)) return comboPaletteCache.get(key);
+  if (!key) return null;
+  if (comboDataCache.has(key)) return comboDataCache.get(key);
 
   try {
     const u = new URL(DX3_COMBO_GAS_WEBAPP_URL);
@@ -1645,25 +1646,60 @@ async function getComboPaletteByUrl(sheetUrl) {
     });
 
     if (!res.ok) {
-      comboPaletteCache.set(key, "");
-      return "";
+      comboDataCache.set(key, null);
+      return null;
     }
 
     const json = await res.json();
     if (!json || json.status !== "success" || !json.data) {
-      comboPaletteCache.set(key, "");
-      return "";
+      comboDataCache.set(key, null);
+      return null;
     }
 
-    const palette = createComboPaletteFromData(json.data);
-    comboPaletteCache.set(key, palette || "");
-    return palette || "";
+    comboDataCache.set(key, json.data);
+    return json.data;
   } catch (_) {
-    comboPaletteCache.set(key, "");
-    return "";
+    comboDataCache.set(key, null);
+    return null;
   }
 }
 
+function getPcScenarioStatusesFromComboData(comboData) {
+  const rows = comboData && Array.isArray(comboData.pcScenarioStatuses)
+    ? comboData.pcScenarioStatuses
+    : [];
+  const standardLabels = new Set(["HP", "侵蝕率", "ロイス", "侵蝕率D", "財産点"]);
+  const seen = new Set();
+  const statuses = [];
+
+  rows.forEach((row) => {
+    const src = row && typeof row === "object" ? row : {};
+    const label = cleanText(src.label || src.name);
+    if (!label || standardLabels.has(label) || seen.has(label)) return;
+
+    const rawValue = src.value ?? src.current ?? src.max ?? src.count;
+    let value = toInt(rawValue, 1);
+    if (!Number.isFinite(value) || value <= 0) value = 1;
+
+    // コンボジェネレーター側で保存した回数だけを採用する。
+    // 効果文からの再検出はしない。ココフォリアstatus形式では value/max が必要なので、回数/回数で出す。
+    statuses.push({ label, value, max: value });
+    seen.add(label);
+  });
+
+  return statuses;
+}
+
+async function getComboPaletteByUrl(sheetUrl) {
+  const key = normalizeSheetUrl(sheetUrl);
+  if (!key) return "";
+  if (comboPaletteCache.has(key)) return comboPaletteCache.get(key);
+
+  const comboData = await getComboDataByUrl(sheetUrl);
+  const palette = createComboPaletteFromData(comboData);
+  comboPaletteCache.set(key, palette || "");
+  return palette || "";
+}
 async function fetchRawHtml(url) {
   const res = await fetch(url, {
     redirect: "follow",
@@ -2217,7 +2253,7 @@ function createDxMemoFromJson(sheetData, roiceData) {
   return lines.join("\n");
 }
 
-async function getDataDX(source, url, img, opt, additionalPalette, comboPalette) {
+async function getDataDX(source, url, img, opt, additionalPalette, comboPalette, comboStatuses = []) {
   if (source && typeof source === "object") {
     const sheetData = source;
     const roice = createDxRoiceFromJson(sheetData);
@@ -2237,6 +2273,8 @@ async function getDataDX(source, url, img, opt, additionalPalette, comboPalette)
           { label: "侵蝕率", value: toInt(sheetData.NP6), max: 100 },
           { label: "侵蝕率D", value: 0, max: 3 },
           { label: "ロイス", value: roice.value, max: roice.max },
+          { label: "財産点", value: toInt(sheetData.money), max: toInt(sheetData.money) },
+          ...comboStatuses,
         ],
         params: [
           { label: "肉体", value: toZeroString(sheetData.NP1) },
@@ -2288,6 +2326,8 @@ async function getDataDX(source, url, img, opt, additionalPalette, comboPalette)
         { label: "HP", value: data.hp, max: data.hp },
         { label: "侵蝕率", value: data.erosion, max: 100 },
         { label: "ロイス", value: roice.value, max: roice.max },
+        { label: "財産点", value: toInt(pickInputById(html, "money", "0")), max: toInt(pickInputById(html, "money", "0")) },
+        ...comboStatuses,
       ],
       params: [
         { label: "肉体", value: data.body },
@@ -3147,9 +3187,12 @@ async function processSheetData(formData) {
   let eff = [[1, 2]];
   let itemLimits = null;
   let itemSections = null;
+  let comboFound = false;
 
   if (system === "DX3") {
-    const comboPalette = await getComboPaletteByUrl(url);
+    const comboData = await getComboDataByUrl(url);
+    const comboPalette = createComboPaletteFromData(comboData);
+    const comboStatuses = getPcScenarioStatusesFromComboData(comboData);
     outObj = await getDataDX(
       dx3Source,
       url,
@@ -3157,9 +3200,11 @@ async function processSheetData(formData) {
       opt,
       additionalPalette,
       comboPalette || "",
+      comboStatuses,
     );
-    message = comboPalette
-      ? `ククク、${charName}よ。任務に向かえ。コンボデータもcommands末尾に追加したぞ。`
+    comboFound = !!(comboPalette || comboStatuses.length);
+    message = comboFound
+      ? `ククク、${charName}よ。任務に向かえ。コンボデータもcommands/statusに追加したぞ。`
       : `ククク、${charName}よ。任務に向かえ。`;
     eff = getEffectDX(dx3Source);
   } else if (system === "SW25") {
@@ -3201,7 +3246,7 @@ async function processSheetData(formData) {
     eff,
     itemLimits,
     itemSections,
-    comboFound: false,
+    comboFound,
   };
 }
 

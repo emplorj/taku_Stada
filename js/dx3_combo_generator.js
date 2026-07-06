@@ -528,6 +528,50 @@ new Vue({
         : [];
       return saved.length ? this.normalizeDx3SyndromeList(saved) : this.inferCharacterSyndromesFromCurrentSources();
     },
+    activeDx3SyndromeThemeKeys() {
+      const source = this.appMode === "enemy"
+        ? (this.enemyData && Array.isArray(this.enemyData.syndromes) ? this.enemyData.syndromes : [])
+        : this.characterSyndromeTags;
+      return this.normalizeDx3SyndromeList(source)
+        .map((name) => this.dx3SyndromeColorKey(name))
+        .filter((key) => key && key !== "unknown")
+        .filter((key, index, list) => list.indexOf(key) === index)
+        .slice(0, 3);
+    },
+    dx3SyndromeThemeStyle() {
+      const palette = {
+        "angel-halo": ["rgba(255,252,232,0.26)", "rgba(174,151,95,0.18)", "rgba(255,255,246,0.46)"],
+        balor: ["rgba(95,61,171,0.28)", "rgba(25,18,73,0.34)", "rgba(176,143,255,0.42)"],
+        "black-dog": ["rgba(255,235,0,0.24)", "rgba(18,18,16,0.30)", "rgba(255,249,78,0.46)"],
+        "bram-stoker": ["rgba(177,21,54,0.30)", "rgba(62,5,22,0.34)", "rgba(255,112,133,0.42)"],
+        chimera: ["rgba(187,113,35,0.28)", "rgba(78,41,13,0.32)", "rgba(255,181,90,0.42)"],
+        exile: ["rgba(250,247,232,0.30)", "rgba(165,153,124,0.22)", "rgba(255,252,235,0.48)"],
+        hanuman: ["rgba(174,237,54,0.24)", "rgba(29,141,123,0.26)", "rgba(211,255,112,0.42)"],
+        morpheus: ["rgba(219,184,85,0.25)", "rgba(91,70,25,0.28)", "rgba(255,218,116,0.42)"],
+        neumann: ["rgba(72,149,232,0.26)", "rgba(22,54,118,0.30)", "rgba(146,207,255,0.42)"],
+        orcus: ["rgba(67,156,91,0.26)", "rgba(25,79,44,0.30)", "rgba(132,228,151,0.40)"],
+        salamandra: ["rgba(226,70,46,0.28)", "rgba(88,19,13,0.32)", "rgba(255,132,92,0.42)"],
+        solaris: ["rgba(101,222,45,0.24)", "rgba(48,102,35,0.30)", "rgba(181,255,126,0.40)"],
+        ouroboros: ["rgba(81,51,120,0.30)", "rgba(16,13,29,0.36)", "rgba(170,135,230,0.38)"],
+        azathoth: ["rgba(125,35,153,0.30)", "rgba(32,7,53,0.36)", "rgba(212,118,255,0.38)"],
+        mistilteinn: ["rgba(50,170,142,0.26)", "rgba(16,84,71,0.30)", "rgba(118,235,205,0.40)"],
+        gleipnir: ["rgba(95,112,133,0.28)", "rgba(34,43,58,0.34)", "rgba(176,193,213,0.40)"],
+      };
+      const keys = this.activeDx3SyndromeThemeKeys;
+      if (!keys.length) return {};
+      const colors = keys.map((key) => palette[key] || palette.gleipnir);
+      const primary = colors[0];
+      const stops = colors.map((set, index) => {
+        const pos = keys.length === 1 ? 50 : Math.round((index / Math.max(keys.length - 1, 1)) * 100);
+        return `${set[0]} ${pos}%`;
+      }).join(", ");
+      return {
+        "--dx3-active-syndrome-a": primary[0],
+        "--dx3-active-syndrome-b": primary[1],
+        "--dx3-active-syndrome-border": primary[2],
+        "--dx3-active-syndrome-gradient": `linear-gradient(135deg, ${stops})`,
+      };
+    },
     characterAbilitySummary() {
       const values = this.normalizeDx3AbilitySet(this.characterAbilities);
       return this.dx3EnemyAbilityDefs.map((def) => ({ ...def, value: values[def.key] }));
@@ -559,11 +603,12 @@ new Vue({
       this.getDetectedPcScenarioCounters().forEach((counter, index) => {
         const override = this.getPcScenarioCounterOverride(counter.key);
         if (override.hidden) return;
+        const count = this.getPcScenarioCounterCount({ ...counter, manual: false });
         counters.push({
           ...counter,
           name: override.name || counter.name,
-          max: counter.max,
-          value: this.pcScenarioCounterCurrent(counter.key, counter.max),
+          max: count,
+          value: count,
           memo: override.memo !== undefined ? override.memo : counter.memo,
           order: this.getPcScenarioCounterOrder(counter.key, index),
         });
@@ -579,7 +624,7 @@ new Vue({
           name: normalized.name,
           level: "",
           max: normalized.max,
-          value: normalized.current,
+          value: normalized.max,
           memo: normalized.memo,
           manual: true,
           order,
@@ -597,7 +642,7 @@ new Vue({
     },
     pcKomaStatusOutputText() {
       const rows = this.pcKomaStatusRows;
-      return rows.length ? rows.map((row) => `${row.label}[${row.value}/${row.max}]`).join("\n") : "";
+      return rows.length ? rows.map((row) => `${row.label}[${row.value}/${row.value}]`).join("\n") : "";
     },
     filteredDx3EnemyList() {
       const q = String(this.enemySearch || "").trim().toLowerCase();
@@ -1687,10 +1732,12 @@ new Vue({
       const result = {};
       Object.keys(src).forEach((key) => {
         const row = src[key] && typeof src[key] === "object" ? src[key] : {};
+        const maxRaw = Number(row.max ?? row.count);
         result[key] = {
           hidden: !!row.hidden,
           memo: row.memo === undefined ? undefined : String(row.memo || ""),
           name: row.name === undefined ? undefined : String(row.name || ""),
+          max: Number.isFinite(maxRaw) && maxRaw > 0 ? Math.trunc(maxRaw) : undefined,
           order: Number.isFinite(Number(row.order)) ? Number(row.order) : undefined,
         };
       });
@@ -1715,6 +1762,47 @@ new Vue({
       const order = Number(this.getPcScenarioCounterOverride(key).order);
       return Number.isFinite(order) ? order : fallback;
     },
+    getPcScenarioCounterName(counter = {}) {
+      if (counter.manual) {
+        const row = this.pcScenarioManualCounters[counter.sourceIndex];
+        return String((row && row.name) || "");
+      }
+      const override = this.getPcScenarioCounterOverride(counter.key);
+      return override.name !== undefined ? String(override.name || "") : String(counter.name || "");
+    },
+    setPcScenarioCounterName(counter = {}, value = "") {
+      if (counter.manual) {
+        const row = this.pcScenarioManualCounters[counter.sourceIndex];
+        if (row) this.$set(row, "name", String(value || ""));
+        return;
+      }
+      this.setPcScenarioCounterOverride(counter.key, { name: String(value || "") });
+    },
+    getPcScenarioCounterCount(counter = {}) {
+      if (counter.manual) {
+        const row = this.pcScenarioManualCounters[counter.sourceIndex];
+        return this.normalizePcScenarioManualCounter(row, counter.sourceIndex).max;
+      }
+      const override = this.getPcScenarioCounterOverride(counter.key);
+      const overrideMax = Number(override.max);
+      if (Number.isFinite(overrideMax) && overrideMax > 0) return Math.trunc(overrideMax);
+      const raw = Number(counter.max ?? counter.value ?? 1);
+      return Number.isFinite(raw) && raw > 0 ? Math.trunc(raw) : 1;
+    },
+    setPcScenarioCounterCount(counter = {}, value = "") {
+      const raw = Number(value);
+      const n = Number.isFinite(raw) && raw > 0 ? Math.trunc(raw) : 1;
+      if (counter.manual) {
+        const row = this.pcScenarioManualCounters[counter.sourceIndex];
+        if (row) {
+          this.$set(row, "max", n);
+          this.$set(row, "current", n);
+        }
+        return;
+      }
+      this.setPcScenarioCounterOverride(counter.key, { max: n });
+      this.$set(this.pcScenarioCounterValues, counter.key, n);
+    },
     getPcScenarioCounterMemo(counter = {}) {
       if (counter.manual) {
         const row = this.pcScenarioManualCounters[counter.sourceIndex];
@@ -1736,14 +1824,12 @@ new Vue({
       return { id, name: "", current: 1, max: 1, memo: "" };
     },
     normalizePcScenarioManualCounter(row = {}, index = 0) {
-      const maxRaw = Number(row && row.max);
+      const maxRaw = Number((row && (row.max ?? row.count ?? row.current)));
       const max = Number.isFinite(maxRaw) && maxRaw > 0 ? Math.trunc(maxRaw) : 1;
-      const currentRaw = Number(row && row.current);
-      const current = Number.isFinite(currentRaw) ? Math.min(Math.max(0, Math.trunc(currentRaw)), max) : max;
       return {
         id: String((row && row.id) || `manual:${index}`),
         name: String((row && row.name) || "").trim(),
-        current,
+        current: max,
         max,
         memo: String((row && row.memo) || "").trim(),
       };
@@ -1774,28 +1860,27 @@ new Vue({
     },
     pcScenarioCounterCurrent(counterOrKey, max) {
       if (counterOrKey && typeof counterOrKey === "object") {
-        if (counterOrKey.manual) {
-          const row = this.pcScenarioManualCounters[counterOrKey.sourceIndex];
-          return this.normalizePcScenarioManualCounter(row, counterOrKey.sourceIndex).current;
-        }
-        return this.pcScenarioCounterCurrent(counterOrKey.key, counterOrKey.max);
+        return this.getPcScenarioCounterCount(counterOrKey);
       }
       const key = String(counterOrKey || "");
+      const override = this.getPcScenarioCounterOverride(key);
+      const overrideMax = Number(override.max);
+      if (Number.isFinite(overrideMax) && overrideMax > 0) return Math.trunc(overrideMax);
       const raw = this.pcScenarioCounterValues && this.pcScenarioCounterValues[key];
       const value = raw === undefined || raw === null || raw === "" ? Number(max) : Number(raw);
-      if (!Number.isFinite(value)) return Number(max) || 0;
-      return Math.min(Math.max(0, Math.trunc(value)), Number(max) || 0);
+      if (!Number.isFinite(value) || value <= 0) return Number(max) || 1;
+      return Math.trunc(value);
     },
     setPcScenarioCounterValue(counterOrKey, value, max) {
       const counter = counterOrKey && typeof counterOrKey === "object" ? counterOrKey : null;
-      const limit = Number(max ?? (counter && counter.max) ?? 0) || 0;
-      const n = Math.min(Math.max(0, Math.trunc(Number(value) || 0)), limit);
-      if (counter && counter.manual) {
-        const row = this.pcScenarioManualCounters[counter.sourceIndex];
-        if (row) this.$set(row, "current", n);
+      if (counter) {
+        this.setPcScenarioCounterCount(counter, value);
         return;
       }
-      const key = counter ? counter.key : String(counterOrKey || "");
+      const key = String(counterOrKey || "");
+      const raw = Number(value);
+      const n = Number.isFinite(raw) && raw > 0 ? Math.trunc(raw) : 1;
+      this.setPcScenarioCounterOverride(key, { max: n });
       this.$set(this.pcScenarioCounterValues, key, n);
     },
     normalizeManualCounterMax(index) {
@@ -1803,9 +1888,7 @@ new Vue({
       if (!row) return;
       const normalized = this.normalizePcScenarioManualCounter(row, index);
       this.$set(row, "max", normalized.max);
-      const currentRaw = Number(row.current);
-      const current = Number.isFinite(currentRaw) ? currentRaw : normalized.max;
-      this.$set(row, "current", Math.min(Math.max(0, Math.trunc(current)), normalized.max));
+      this.$set(row, "current", normalized.max);
     },
     movePcScenarioCounter(counter = {}, direction = 0) {
       const rows = this.pcScenarioCounters;
@@ -1896,7 +1979,7 @@ new Vue({
           order: this.getPcScenarioCounterOrder(counter.key, index),
         });
         if (checked && this.pcScenarioCounterValues[counter.key] === undefined) {
-          this.$set(this.pcScenarioCounterValues, counter.key, counter.max);
+          this.$set(this.pcScenarioCounterValues, counter.key, this.getPcScenarioCounterCount(counter));
         }
       });
       this.closePcScenarioRefreshModal();
@@ -1904,12 +1987,13 @@ new Vue({
     buildPcKomaStatusRows() {
       const rows = [];
       this.pcScenarioCounters.forEach((counter) => {
-        const name = String(counter.name || "").trim();
+        const name = String(this.getPcScenarioCounterName(counter) || counter.name || "").trim();
         if (!name) return;
+        const count = this.getPcScenarioCounterCount(counter);
         rows.push({
           label: name,
-          value: this.pcScenarioCounterCurrent(counter, counter.max),
-          max: Number(counter.max) || 0,
+          value: count,
+          max: count,
         });
       });
       return rows;

@@ -351,9 +351,9 @@ function getApiCandidates() {
         { url: new URL("./api/koma-maker", window.location.href).toString(), kind: "vercel" },
       ];
 
-  // まずVercel/同一オリジンAPIを使い、GASは最後のフォールバックにする。
-  // GAS版は軽量版の場合があり、SW2.5等をDX3に誤判定しやすい。
-  const candidates = [...externalCandidates, ...sameOriginCandidates, ...gasCandidates];
+  // GAS側の更新を反映するため、通常はGAS版を最優先で使う。
+  // GAS版が未対応として返したシステムだけ、下の postToKomaMakerApi() で次候補へフォールバックする。
+  const candidates = [...gasCandidates, ...externalCandidates, ...sameOriginCandidates];
   const seen = new Set();
   return candidates.filter((candidate) => {
     if (!candidate || !candidate.url || seen.has(candidate.url)) return false;
@@ -416,6 +416,15 @@ async function postToKomaMakerApi(formData) {
       if (!data) throw new Error(`APIの応答がJSONではない: ${endpointUrl}`);
       if (data.status === "error") {
         throw new Error(data.message || `APIエラー: ${endpointUrl}`);
+      }
+      if (
+        endpoint &&
+        endpoint.kind === "gas" &&
+        String(data.out || "").includes("エラー発生") &&
+        String(data.message || "").includes("対応していない")
+      ) {
+        lastError = new Error(`GAS版未対応のため次候補へフォールバック: ${endpointUrl}`);
+        continue;
       }
       setProgressAtLeast(90, true);
       return data;

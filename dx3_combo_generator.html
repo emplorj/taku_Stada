@@ -271,7 +271,12 @@
         </div>
       </script>
 
-      <div id="dx3-app" class="plain-text-block" v-cloak>
+      <div
+        id="dx3-app"
+        class="plain-text-block"
+        :style="dx3SyndromeThemeStyle"
+        v-cloak
+      >
         <section class="dx3-mode-tabs" role="tablist" aria-label="モード切替">
           <button
             type="button"
@@ -551,7 +556,6 @@
                     <col class="col-row-drag">
                     <col class="col-resource-name">
                     <col class="col-resource-current">
-                    <col class="col-resource-max">
                     <col class="col-resource-memo">
                     <col class="col-row-actions">
                   </colgroup>
@@ -559,8 +563,7 @@
                     <tr>
                       <th></th>
                       <th>名称</th>
-                      <th>現在</th>
-                      <th>最大</th>
+                      <th>回数</th>
                       <th>メモ</th>
                       <th></th>
                     </tr>
@@ -587,31 +590,19 @@
                       </td>
                       <td class="cell-resource-name" data-label="名称">
                         <input
-                          v-if="counter.manual"
                           type="text"
-                          v-model="pcScenarioManualCounters[counter.sourceIndex].name"
+                          :value="getPcScenarioCounterName(counter)"
+                          @input="setPcScenarioCounterName(counter, $event.target.value)"
                           placeholder="フェイト / 回数制限名"
                         />
-                        <span v-else>{{ counter.name }}</span>
                       </td>
-                      <td class="cell-resource-current" data-label="現在">
+                      <td class="cell-resource-current" data-label="回数">
                         <input
-                          type="number"
-                          min="0"
-                          :max="counter.max"
-                          :value="pcScenarioCounterCurrent(counter, counter.max)"
-                          @input="setPcScenarioCounterValue(counter, $event.target.value, counter.max)"
-                        />
-                      </td>
-                      <td class="cell-resource-max numeric-font" data-label="最大">
-                        <input
-                          v-if="counter.manual"
                           type="number"
                           min="1"
-                          v-model.number="pcScenarioManualCounters[counter.sourceIndex].max"
-                          @input="normalizeManualCounterMax(counter.sourceIndex)"
+                          :value="getPcScenarioCounterCount(counter)"
+                          @input="setPcScenarioCounterCount(counter, $event.target.value)"
                         />
-                        <span v-else class="numeric-font">{{ counter.max }}</span>
                       </td>
                       <td class="cell-resource-memo" data-label="メモ">
                         <input
@@ -632,7 +623,7 @@
                   </tbody>
                   <tbody v-else>
                     <tr>
-                      <td colspan="6" class="pc-scenario-empty">候補なし。追加または再取得で作成できます。</td>
+                      <td colspan="5" class="pc-scenario-empty">候補なし。追加または再取得で作成できます。</td>
                     </tr>
                   </tbody>
                 </table>
@@ -3414,7 +3405,7 @@
                     v-model="pcScenarioRefreshModal.selections[candidate.key]"
                   />
                   <span class="refresh-name">{{ candidate.name }}</span>
-                  <span class="refresh-max numeric-font">max {{ candidate.max }}</span>
+                  <span class="refresh-max numeric-font">回数 {{ candidate.max }}</span>
                   <span class="refresh-source">{{ candidate.sourceLabel }} Lv{{ candidate.level }}</span>
                 </label>
                 <p v-if="!pcScenarioRefreshCandidates().length" class="pc-scenario-empty">

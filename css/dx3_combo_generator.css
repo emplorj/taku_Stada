@@ -5725,6 +5725,21 @@ body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
   text-overflow: ellipsis;
 }
 
+body.dx3-combo-page #dx3-app.plain-text-block {
+  background:
+    radial-gradient(circle at 10% 0%, var(--dx3-active-syndrome-a, rgba(52, 152, 219, 0.12)), transparent 30rem),
+    radial-gradient(circle at 100% 12%, var(--dx3-active-syndrome-b, rgba(155, 89, 182, 0.10)), transparent 34rem),
+    var(--dx3-active-syndrome-gradient, linear-gradient(135deg, rgba(13, 26, 80, 0.0), rgba(13, 26, 80, 0.0))),
+    #1f2f75;
+  border-color: var(--dx3-active-syndrome-border, #2a3c7d);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+body.dx3-combo-page #dx3-app .section-title {
+  border-bottom-color: color-mix(in srgb, var(--dx3-active-syndrome-border, #2a3c7d) 64%, #2a3c7d);
+  text-shadow: 0 0 10px var(--dx3-active-syndrome-a, rgba(52, 152, 219, 0.18));
+}
+
 .dx3-enemies-page .dx3-syndrome-tag[data-syndrome="angel-halo"] {
   --dx3-syndrome-bg-start: rgba(255, 252, 232, 0.98);
   --dx3-syndrome-bg-mid: rgba(232, 221, 185, 0.96);
@@ -5762,9 +5777,12 @@ body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
 }
 
 .dx3-enemies-page .dx3-syndrome-tag[data-syndrome="exile"] {
-  --dx3-syndrome-bg-start: rgba(183, 83, 154, 0.94);
-  --dx3-syndrome-bg-end: rgba(68, 24, 83, 0.95);
-  --dx3-syndrome-border: rgba(255, 153, 225, 0.6);
+  --dx3-syndrome-bg-start: rgba(250, 247, 232, 0.98);
+  --dx3-syndrome-bg-mid: rgba(225, 217, 194, 0.96);
+  --dx3-syndrome-bg-end: rgba(165, 153, 124, 0.94);
+  --dx3-syndrome-border: rgba(255, 252, 235, 0.86);
+  --dx3-syndrome-text: #2a2418;
+  --dx3-syndrome-inner: rgba(255, 253, 239, 0.58);
 }
 
 .dx3-enemies-page .dx3-syndrome-tag[data-syndrome="hanuman"] {
@@ -18485,4 +18503,153 @@ body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-handle 
     padding-inline: 0.16rem !important;
     font-size: 0.86rem !important;
   }
+}
+
+
+/* v136: シナリオ回数を「回数」1項目に整理。出力は 回数/回数 */
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable {
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-row-drag {
+  width: 2rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-name {
+  width: 34% !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-current {
+  width: 3.35rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-memo {
+  width: auto !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-row-actions {
+  width: 2.35rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+  box-sizing: border-box !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current {
+  width: 3.35rem !important;
+  min-width: 3.35rem !important;
+  max-width: 3.35rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  text-align: center !important;
+  font-family: var(--font-latin-ui) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name input,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 旧CSSの最大列・スラッシュ用指定を無効化 */
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-max {
+  display: none !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* スマホ: 1行目 drag / 名称 / 削除、2行目 回数 / メモ */
+@media (max-width: 760px) {
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable colgroup,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable thead {
+    display: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tbody,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    display: block;
+    width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    display: grid !important;
+    grid-template-columns: 1.7rem 3.35rem minmax(0, 1fr) 2.15rem !important;
+    gap: 0.28rem !important;
+    align-items: center !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable td {
+    display: block !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name {
+    grid-column: 2 / 4 !important;
+    grid-row: 1 / 2 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell {
+    grid-column: 4 / 5 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo {
+    grid-column: 3 / 5 !important;
+    grid-row: 2 / 3 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name input {
+    height: 1.85rem !important;
+    min-height: 1.85rem !important;
+  }
+}
+
+/* 再取得モーダルの表記も「max」ではなく「回数」に寄せる */
+body.dx3-combo-page #dx3-app .pc-scenario-refresh-row .refresh-max {
+  min-width: 4.2rem;
 }
