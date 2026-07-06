@@ -340,10 +340,25 @@
             </div>
           </div>
           <div class="character-info-grid">
-            <label id="char-name-label"
-              >キャラクター名:
-              <input type="text" v-model="characterName" placeholder="PC名"
-            /></label>
+            <div class="pc-character-name-row">
+              <label id="char-name-label"
+                >PC名:
+                <input type="text" v-model="characterName" placeholder="PC名"
+              /></label>
+              <span class="pc-syndrome-summary-inline">
+                <span class="pc-summary-label">シンドローム:</span>
+                <span class="pc-syndrome-tag-list" v-if="characterSyndromeTags.length">
+                  <span
+                    v-for="syndrome in characterSyndromeTags"
+                    :key="syndrome"
+                    class="enemy-list-class-tag dx3-syndrome-tag pc-syndrome-tag"
+                    :data-syndrome="dx3SyndromeColorKey(syndrome)"
+                    >{{ syndrome }}</span
+                  >
+                </span>
+                <span class="pc-syndrome-placeholder" v-else>キャラ読込で表示</span>
+              </span>
+            </div>
 
             <!-- 経験点項目をグループ化するdivを追加 -->
             <div class="xp-fields-group">
@@ -375,8 +390,242 @@
               /></label>
             </div>
           </div>
-          <!-- <p>タグをこの位置に移動 -->
+
+                    <!-- <p>タグをこの位置に移動 -->
         </div>
+
+        <section class="pc-play-state-panel" v-if="appMode === 'pc'">
+          <header class="pc-play-state-header">
+            <div class="pc-play-state-title-block">
+              <h2><i class="fa-solid fa-heart-crack"></i> ロイス・シナリオ回数</h2>
+              <span class="pc-play-state-note">ロイスとシナリオ回数をサクッと整理する場所。キャラシには反映されないから、セッション用のメモ感覚で使う。</span>
+            </div>
+            <div class="pc-play-state-summary">
+              <span v-for="option in visibleLoisStatusOptions()" :key="'summary-' + option.key">
+                {{ option.icon }}{{ loisCounts[option.key] || 0 }}
+              </span>
+            </div>
+          </header>
+
+          <div class="pc-play-state-grid">
+            <section class="pc-lois-editor">
+              <div class="pc-subsection-head">
+                <h3>ロイス状態</h3>
+                <div class="pc-lois-counts">
+                  <span v-for="option in visibleLoisStatusOptions()" :key="'count-' + option.key">
+                    {{ option.icon }} {{ option.label }} {{ loisCounts[option.key] || 0 }}
+                  </span>
+                </div>
+              </div>
+
+              <p class="pc-help-text pc-lois-tool-note">
+                ここでロイスを作って、コピーして、ココフォリア上で宣言するといい感じ。ココフォリアのコマやメモから貼れば、ロイス行だけ拾える。ここには保存されないから、最後はココフォリア側に貼って管理する。
+              </p>
+
+              <div class="pc-lois-import">
+                <textarea
+                  v-model="loisImportText"
+                  placeholder="ココフォリアのコマやメモ欄から貼り付け&#10;1. 😀：仲宗根 流依　◯親近感/猜疑心&#10;2. 😀：仁科アリサ　好奇心/◯不安&#10;&#10;関係ないメモが混ざってても、ロイス行だけ拾う。"
+                ></textarea>
+                <div class="pc-lois-import-actions pc-lois-import-actions-bottom">
+                  <button type="button" class="small-button" @click="importLoisText">
+                    テキストから取込
+                  </button>
+                </div>
+              </div>
+
+              <datalist id="lois-positive-options">
+                <option v-for="emotion in loisPositiveOptions" :key="'pos-list-' + emotion" :value="emotion"></option>
+              </datalist>
+              <datalist id="lois-negative-options">
+                <option v-for="emotion in loisNegativeOptions" :key="'neg-list-' + emotion" :value="emotion"></option>
+              </datalist>
+
+              <div class="pc-lois-list">
+                <div class="pc-lois-row is-rich" v-for="(row, index) in loisRows" :key="'lois-' + index">
+                  <span class="pc-lois-index">{{ index + 1 }}</span>
+                  <select class="pc-lois-status-select" v-model="row.status">
+                    <option
+                      v-for="option in loisStatusOptions"
+                      :key="option.key"
+                      :value="option.key"
+                    >
+                      {{ option.icon }} {{ option.label }}
+                    </option>
+                  </select>
+                  <input class="pc-lois-name-input" type="text" v-model="row.name" placeholder="対象名" />
+                  <div v-if="!isEmotionlessLoisStatus(row.status)" class="pc-lois-emotion-pair">
+                    <button
+                      type="button"
+                      class="pc-lois-primary-btn"
+                      :class="{ active: row.primary === 'pos' }"
+                      @click="row.primary = row.primary === 'pos' ? 'none' : 'pos'"
+                      title="ポジティブ側を表にする"
+                    >
+                      〇
+                    </button>
+                    <input
+                      class="pc-lois-emotion-input"
+                      type="text"
+                      v-model="row.pos"
+                      list="lois-positive-options"
+                      placeholder="P自由"
+                      title="ポジティブ感情"
+                    />
+                    <span class="pc-lois-slash">/</span>
+                    <button
+                      type="button"
+                      class="pc-lois-primary-btn"
+                      :class="{ active: row.primary === 'neg' }"
+                      @click="row.primary = row.primary === 'neg' ? 'none' : 'neg'"
+                      title="ネガティブ側を表にする"
+                    >
+                      〇
+                    </button>
+                    <input
+                      class="pc-lois-emotion-input"
+                      type="text"
+                      v-model="row.neg"
+                      list="lois-negative-options"
+                      placeholder="N自由"
+                      title="ネガティブ感情"
+                    />
+                  </div>
+                  <div v-else class="pc-lois-no-emotion-note">Dロイスは感情なし</div>
+                  <button
+                    type="button"
+                    class="small-copy-btn pc-lois-row-copy-btn"
+                    @click="copyToClipboard(formatLoisLineText(row, index), $event)"
+                    title="このロイス行をコピー"
+                    aria-label="このロイス行をコピー"
+                  >
+                    <i class="fa-solid fa-copy"></i>
+                  </button>
+                  <button type="button" class="delete-btn" @click="removeLoisRow(index)" title="削除">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="add-btn pc-inline-add"
+                @click="addLoisRow('lois')"
+                :disabled="loisRows.length >= 7"
+                :title="loisRows.length >= 7 ? 'ロイス枠は最大7枠' : 'ロイスを追加'"
+              >
+                <i class="fa-solid fa-plus"></i> ロイス追加
+              </button>
+
+              <div class="copy-container pc-lois-output">
+                <div class="copy-label">ロイス出力</div>
+                <textarea readonly :value="loisLineOutputText"></textarea>
+                <button type="button" @click="copyToClipboard(loisLineOutputText, $event)" title="ロイス行だけをコピー">
+                  <i class="fa-solid fa-paste"></i><span class="copy-button-text">コピー</span>
+                </button>
+                <button type="button" class="secondary" @click="copyToClipboard(loisImportText, $event)" title="貼り付け欄の全体をコピー">
+                  <i class="fa-solid fa-copy"></i><span class="copy-button-text">全体コピー</span>
+                </button>
+              </div>
+            </section>
+
+            <section class="pc-scenario-counter-editor resource-mini-block dx3-scenario-resource-block">
+              <div class="mini-block-head pc-scenario-resource-head">
+                <span>シナリオ回数</span>
+                <div class="pc-scenario-head-actions">
+                  <button type="button" class="small-square-btn is-mini" @click="openPcScenarioRefreshModal">
+                    <i class="fa-solid fa-rotate-right"></i> 再取得
+                  </button>
+                  <button type="button" class="small-square-btn is-mini" @click="addPcScenarioManualCounter">
+                    <i class="fa-solid fa-plus"></i> 追加
+                  </button>
+                </div>
+              </div>
+              <p class="pc-help-text">
+                シナリオ中に何回使えるかをメモる場所。キャラシから読んだ候補も、自分で足した行もここでまとめて管理できる。
+              </p>
+
+              <div class="table-wrap resource-table-wrap pc-scenario-resource-wrap">
+                <table class="asian-table mini-resource-table pc-scenario-resource-table" id="pcScenarioResourcesTable">
+                  <colgroup>
+                    <col class="col-resource-name">
+                    <col class="col-resource-current">
+                    <col class="col-resource-max">
+                    <col class="col-resource-memo">
+                    <col class="col-row-actions">
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>名称</th>
+                      <th>現在</th>
+                      <th>最大</th>
+                      <th>メモ</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody v-if="pcScenarioCounters.length">
+                    <tr v-for="counter in pcScenarioCounters" :key="counter.key" :class="{ 'is-manual-counter': counter.manual }">
+                      <td class="cell-resource-name" data-label="名称">
+                        <input
+                          v-if="counter.manual"
+                          type="text"
+                          v-model="pcScenarioManualCounters[counter.sourceIndex].name"
+                          placeholder="フェイト / 回数制限名"
+                        />
+                        <span v-else>{{ counter.name }}</span>
+                      </td>
+                      <td class="cell-resource-current" data-label="現在">
+                        <input
+                          type="number"
+                          min="0"
+                          :max="counter.max"
+                          :value="pcScenarioCounterCurrent(counter, counter.max)"
+                          @input="setPcScenarioCounterValue(counter, $event.target.value, counter.max)"
+                        />
+                      </td>
+                      <td class="cell-resource-max numeric-font" data-label="最大">
+                        <input
+                          v-if="counter.manual"
+                          type="number"
+                          min="1"
+                          v-model.number="pcScenarioManualCounters[counter.sourceIndex].max"
+                          @input="normalizeManualCounterMax(counter.sourceIndex)"
+                        />
+                        <span v-else class="numeric-font">{{ counter.max }}</span>
+                      </td>
+                      <td class="cell-resource-memo" data-label="メモ">
+                        <input
+                          type="text"
+                          :value="getPcScenarioCounterMemo(counter)"
+                          @input="setPcScenarioCounterMemo(counter, $event.target.value)"
+                          placeholder="ここでのメモはコマには反映されない"
+                        />
+                      </td>
+                      <td class="row-actions-cell" data-label="">
+                        <div class="row-action-wrap">
+                          <button type="button" class="move-btn mini-move-btn" @click="movePcScenarioCounter(counter, -1)" title="上へ" aria-label="上へ">
+                            <i class="fa-solid fa-chevron-up"></i>
+                          </button>
+                          <button type="button" class="move-btn mini-move-btn" @click="movePcScenarioCounter(counter, 1)" title="下へ" aria-label="下へ">
+                            <i class="fa-solid fa-chevron-down"></i>
+                          </button>
+                          <button type="button" class="delete-btn" @click="removePcScenarioCounter(counter)" title="削除" aria-label="削除">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tbody v-else>
+                    <tr>
+                      <td colspan="5" class="pc-scenario-empty">候補なし。追加または再取得で作成できます。</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
 
         <section class="dx3-enemy-mode-panel" v-if="appMode === 'enemy'">
           <header class="dx3-enemy-common-header pane-header">
@@ -2438,12 +2687,15 @@
                 </button>
               </div>
             </div>
-            <div class="stat-item base-ability-input">
+            <div
+              class="stat-item base-ability-input combo-skill-select-cell"
+              :class="{ 'needs-skill-select': shouldWarnComboSkill(index, combo) }"
+            >
               <span>使用技能:</span>
-              <!-- ▼▼▼ 変更: @changeを追加 ▼▼▼ -->
               <select
                 v-model="combos[index].baseAbility.skill"
                 @change="updateComboAbility(index)"
+                :aria-invalid="shouldWarnComboSkill(index, combo) ? 'true' : 'false'"
               >
                 <option
                   v-for="opt in dropdownOptions.baseSkillSelect"
@@ -2452,15 +2704,20 @@
                   {{ opt }}
                 </option>
               </select>
+              <small v-if="shouldWarnComboSkill(index, combo)" class="combo-skill-warning">
+                メジャーなら使用技能を選んでください
+              </small>
             </div>
             <div class="stat-item base-ability-input">
               <span>能力値:</span>
               <select v-model="combos[index].baseAbility.statOverride">
-                <!-- ▼▼▼ 変更: 「自動」のoptionを削除 ▼▼▼ -->
-                <option value="肉体">肉体</option>
-                <option value="感覚">感覚</option>
-                <option value="精神">精神</option>
-                <option value="社会">社会</option>
+                <option
+                  v-for="opt in dropdownOptions.abilitySelect"
+                  :key="opt"
+                  :value="opt"
+                >
+                  {{ opt }}
+                </option>
               </select>
             </div>
 
@@ -2782,15 +3039,11 @@
                       <span class="enemy-list-meta-column">
                         <span class="enemy-list-badge-row">
                           <span
-                            class="enemy-public-badge"
-                            :class="enemy.is_public === false || String(enemy.is_public).toLowerCase() === 'false' ? 'is-private' : 'is-public'"
-                          >
-                            {{ enemy.is_public === false ||
-                            String(enemy.is_public).toLowerCase() === 'false' ?
-                            '非公開' : '公開' }}
-                          </span>
-                          <span class="enemy-list-class-tag"
-                            >{{ enemy.class_type || '種別未設定' }}</span
+                            v-for="syndrome in dx3EnemyListSyndromes(enemy)"
+                            :key="syndrome"
+                            class="enemy-list-class-tag dx3-syndrome-tag"
+                            :data-syndrome="dx3SyndromeColorKey(syndrome)"
+                            >{{ syndrome }}</span
                           >
                         </span>
                         <span class="enemy-list-time-tag"
@@ -3113,6 +3366,42 @@
                 キャンセル
               </button>
               <button @click.stop="confirmEffectSelection">決定</button>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="pcScenarioRefreshModal.show" class="modal-overlay">
+          <div class="modal-content pc-scenario-refresh-modal" @click.stop>
+            <div class="modal-header">
+              <h3>シナリオ回数の再取得</h3>
+              <button @click="closePcScenarioRefreshModal" class="close-btn" title="閉じる">×</button>
+            </div>
+            <div class="modal-body">
+              <p class="pc-help-text">
+                現在のエフェクト・イージー・アイテムから検出した候補です。反映する行だけ選んでください。手動追加行はこの操作では消しません。
+              </p>
+              <div class="pc-scenario-refresh-list">
+                <label
+                  class="pc-scenario-refresh-row"
+                  v-for="candidate in pcScenarioRefreshCandidates()"
+                  :key="'refresh-' + candidate.key"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="pcScenarioRefreshModal.selections[candidate.key]"
+                  />
+                  <span class="refresh-name">{{ candidate.name }}</span>
+                  <span class="refresh-max numeric-font">max {{ candidate.max }}</span>
+                  <span class="refresh-source">{{ candidate.sourceLabel }} Lv{{ candidate.level }}</span>
+                </label>
+                <p v-if="!pcScenarioRefreshCandidates().length" class="pc-scenario-empty">
+                  再取得できる候補はありません。
+                </p>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button @click="closePcScenarioRefreshModal" class="cancel-btn">キャンセル</button>
+              <button @click="applyPcScenarioRefreshSelection">反映</button>
             </div>
           </div>
         </div>

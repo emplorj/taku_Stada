@@ -130,6 +130,72 @@ new Vue({
     isDirty: false,
     isInitializing: true,
     characterName: "",
+    characterSyndromes: [],
+    characterAbilities: { body: 0, sense: 0, mind: 0, social: 0 },
+    characterSkills: [],
+    loisRows: [],
+    loisImportText: "",
+    pcScenarioCounterValues: {},
+    pcScenarioManualCounters: [],
+    pcScenarioCounterOverrides: {},
+    pcScenarioRefreshModal: { show: false, selections: {} },
+    loisStatusOptions: [
+      { key: "lois", label: "ロイス", icon: "😀" },
+      { key: "scenarioLois", label: "シナリオロイス", icon: "📖" },
+      { key: "dlois", label: "Dロイス", icon: "💥" },
+      { key: "titus", label: "タイタス", icon: "😡" },
+      { key: "sublimation", label: "昇華", icon: "⚫" },
+      { key: "slois", label: "Sロイス", icon: "💕" },
+    ],
+    loisPositiveOptions: [
+      "傾倒",
+      "好奇心",
+      "憧憬",
+      "尊敬",
+      "連帯感",
+      "慈愛",
+      "感服",
+      "純愛",
+      "友情",
+      "慕情",
+      "同情",
+      "遺志",
+      "庇護",
+      "幸福感",
+      "信頼",
+      "執着",
+      "親近感",
+      "誠意",
+      "好意",
+      "有為",
+      "尽力",
+      "懐旧",
+    ],
+    loisNegativeOptions: [
+      "侮蔑",
+      "食傷",
+      "脅威",
+      "嫉妬",
+      "悔悟",
+      "恐怖",
+      "不安",
+      "劣等感",
+      "疎外感",
+      "恥辱",
+      "憐憫",
+      "偏愛",
+      "憎悪",
+      "隔意",
+      "嫌悪",
+      "猜疑心",
+      "嫌気",
+      "不信感",
+      "不快感",
+      "憤懣",
+      "敵愾心",
+      "無関心",
+    ],
+    loisMaxRows: 7,
     totalXp: 130,
     otherXp: 0,
     effects: [],
@@ -234,6 +300,7 @@ new Vue({
       ],
 
       baseSkillSelect: ["-", "白兵", "射撃", "RC", "交渉"],
+      abilitySelect: ["肉体", "感覚", "精神", "社会"],
       timing: [
         "オート",
         "マイナー",
@@ -455,6 +522,83 @@ new Vue({
     dx3EnemyErosionDice() {
       const stats = this.getDx3EnemyFinalStats(this.enemyData);
       return this.getErosionDice(stats.erosion);
+    },
+    characterSyndromeTags() {
+      const saved = Array.isArray(this.characterSyndromes)
+        ? this.characterSyndromes.map((name) => String(name || "").trim()).filter(Boolean)
+        : [];
+      return saved.length ? this.normalizeDx3SyndromeList(saved) : this.inferCharacterSyndromesFromCurrentSources();
+    },
+    characterAbilitySummary() {
+      const values = this.normalizeDx3AbilitySet(this.characterAbilities);
+      return this.dx3EnemyAbilityDefs.map((def) => ({ ...def, value: values[def.key] }));
+    },
+    loisCounts() {
+      const counts = { lois: 0, scenarioLois: 0, dlois: 0, titus: 0, sublimation: 0, slois: 0 };
+      (Array.isArray(this.loisRows) ? this.loisRows : []).forEach((row) => {
+        const name = String((row && row.name) || "").trim();
+        const status = String((row && row.status) || "lois");
+        if (!name || counts[status] === undefined) return;
+        counts[status] += 1;
+      });
+      return counts;
+    },
+    loisLineOutputText() {
+      const rows = (Array.isArray(this.loisRows) ? this.loisRows : [])
+        .slice(0, this.loisMaxRows || 7)
+        .map((row) => this.normalizeLoisRow(row))
+        .filter((row) => row.name);
+      return rows.map((row, index) => this.formatLoisLineText(row, index)).join("\n");
+    },
+    loisOutputText() {
+      const header = "😀 ロイス/📖 シナリオロイス/💥 Dロイス/😡 タイタス/⚫ 昇華/💕 Sロイス";
+      if (!this.loisLineOutputText) return header;
+      return [header, this.loisLineOutputText].join("\n");
+    },
+    pcScenarioCounters() {
+      const counters = [];
+      this.getDetectedPcScenarioCounters().forEach((counter, index) => {
+        const override = this.getPcScenarioCounterOverride(counter.key);
+        if (override.hidden) return;
+        counters.push({
+          ...counter,
+          name: override.name || counter.name,
+          max: counter.max,
+          value: this.pcScenarioCounterCurrent(counter.key, counter.max),
+          memo: override.memo !== undefined ? override.memo : counter.memo,
+          order: this.getPcScenarioCounterOrder(counter.key, index),
+        });
+      });
+      (Array.isArray(this.pcScenarioManualCounters) ? this.pcScenarioManualCounters : []).forEach((row, index) => {
+        const normalized = this.normalizePcScenarioManualCounter(row, index);
+        const order = this.getPcScenarioCounterOrder(normalized.id || `manual:${index}`, 10000 + index);
+        counters.push({
+          key: normalized.id || `manual:${index}`,
+          type: "manual",
+          sourceLabel: "手動",
+          sourceIndex: index,
+          name: normalized.name,
+          level: "",
+          max: normalized.max,
+          value: normalized.current,
+          memo: normalized.memo,
+          manual: true,
+          order,
+        });
+      });
+      return counters.sort((a, b) => {
+        const ao = Number(a.order);
+        const bo = Number(b.order);
+        if (Number.isFinite(ao) && Number.isFinite(bo) && ao !== bo) return ao - bo;
+        return String(a.key || "").localeCompare(String(b.key || ""), "ja", { numeric: true, sensitivity: "base" });
+      });
+    },
+    pcKomaStatusRows() {
+      return this.buildPcKomaStatusRows();
+    },
+    pcKomaStatusOutputText() {
+      const rows = this.pcKomaStatusRows;
+      return rows.length ? rows.map((row) => `${row.label}[${row.value}/${row.max}]`).join("\n") : "";
     },
     filteredDx3EnemyList() {
       const q = String(this.enemySearch || "").trim().toLowerCase();
@@ -943,7 +1087,7 @@ new Vue({
         // 手動で指定されていればそれを、なければ技能から自動判別、それもなければデフォルト(肉体)
         const attributeName =
           currentCombo.baseAbility.statOverride ||
-          this.skillToAbilityMap[skill] ||
+          this.getAbilityBySkill(skill) ||
           "肉体";
         const enemySkillDisplay = this.appMode === "enemy" && skill === "-" ? attributeName : skill;
 
@@ -994,7 +1138,7 @@ new Vue({
 
         // 3. +{技能}
         if (skill !== "-") {
-          diceFormula += `+{${skill}}`;
+          diceFormula += this.shouldUseZeroForBaseSkill(skill) ? "+0" : `+{${skill}}`;
         }
 
         // 4. +達成値ボーナス
@@ -1077,6 +1221,11 @@ new Vue({
     },
     enemyData: { handler: "setDataDirty", deep: true },
     characterName: { handler: "setDataDirty", deep: true },
+    characterSyndromes: { handler: "setDataDirty", deep: true },
+    characterAbilities: { handler: "setDataDirty", deep: true },
+    pcScenarioCounterValues: { handler: "setDataDirty", deep: true },
+    pcScenarioManualCounters: { handler: "setDataDirty", deep: true },
+    pcScenarioCounterOverrides: { handler: "setDataDirty", deep: true },
     totalXp: { handler: "setDataDirty", deep: true },
     otherXp: { handler: "setDataDirty", deep: true },
     effects: {
@@ -1260,6 +1409,461 @@ new Vue({
       if (n < 260) return 5;
       if (n < 300) return 6;
       return 7;
+    },
+    createDefaultLoisRow(status = "lois") {
+      return { status, name: "", pos: "", neg: "", primary: "none" };
+    },
+    normalizeLoisRows(rows = []) {
+      return (Array.isArray(rows) ? rows : [])
+        .map((row) => this.normalizeLoisRow(row))
+        .filter((row) => row.name)
+        .slice(0, this.loisMaxRows || 7);
+    },
+    normalizeLoisRow(row = {}) {
+      return {
+        status: this.normalizeLoisStatus((row && row.status) || "lois"),
+        name: String((row && row.name) || "").trim(),
+        pos: String((row && (row.pos || row.positive || row.roicePos)) || "").trim(),
+        neg: String((row && (row.neg || row.negative || row.roiceNeg)) || "").trim(),
+        primary: this.normalizeLoisPrimary(row && (row.primary || row.mainEmotion || row.stronger)),
+      };
+    },
+    isEmotionlessLoisStatus(status) {
+      return this.normalizeLoisStatus(status) === "dlois";
+    },
+    visibleLoisStatusOptions() {
+      return (Array.isArray(this.loisStatusOptions) ? this.loisStatusOptions : [])
+        .filter((option) => Number(this.loisCounts[option.key] || 0) > 0);
+    },
+    normalizeLoisStatus(status) {
+      const raw = String(status || "").trim().replace(/\ufe0f/g, "");
+      const byIcon = {
+        "😀": "lois",
+        "📖": "scenarioLois",
+        "💥": "dlois",
+        "😡": "titus",
+        "⚫": "sublimation",
+        "●": "sublimation",
+        "💕": "slois",
+        "❤": "slois",
+        "♥": "slois",
+      };
+      if (byIcon[raw]) return byIcon[raw];
+      const compact = raw.toLowerCase().replace(/[\s　／/・:：]+/g, "");
+      if (compact.includes("シナリオロイス") || compact.includes("ｼﾅﾘｵﾛｲｽ") || compact === "scenariolois") return "scenarioLois";
+      if (compact.includes("dロイス") || compact.includes("ｄロイス") || compact === "dlois") return "dlois";
+      if (compact.includes("タイタス") || compact === "titus") return "titus";
+      if (compact.includes("昇華") || compact === "sublimation") return "sublimation";
+      if (compact.includes("sロイス") || compact.includes("ｓロイス") || compact === "slois") return "slois";
+      return "lois";
+    },
+    normalizeLoisPrimary(value) {
+      const raw = String(value || "").trim().toLowerCase();
+      if (["pos", "positive", "p", "表", "ポジティブ", "陽", "〇pos", "○pos", "◯pos"].includes(raw)) return "pos";
+      if (["neg", "negative", "n", "裏", "ネガティブ", "陰", "〇neg", "○neg", "◯neg"].includes(raw)) return "neg";
+      return "none";
+    },
+    loisStatusIcon(status, primary = "none") {
+      const normalized = this.normalizeLoisStatus(status);
+      const option = this.loisStatusOptions.find((item) => item.key === normalized) || this.loisStatusOptions[0];
+      return option.icon;
+    },
+    loisStatusLabel(status) {
+      const option = this.loisStatusOptions.find((item) => item.key === this.normalizeLoisStatus(status));
+      return option ? `${option.icon} ${option.label}` : "😀 ロイス";
+    },
+    formatLoisEmotionText(row = {}) {
+      if (this.isEmotionlessLoisStatus(row.status)) return "";
+      const pos = String(row.pos || "").trim();
+      const neg = String(row.neg || "").trim();
+      if (!pos && !neg) return "";
+      const primary = this.normalizeLoisPrimary(row.primary);
+      const posText = pos ? `${primary === "pos" ? "〇" : ""}${pos}` : "";
+      const negText = neg ? `${primary === "neg" ? "〇" : ""}${neg}` : "";
+      if (posText && negText) return `${posText}/${negText}`;
+      return posText || negText;
+    },
+    formatLoisRowText(row = {}) {
+      const normalized = this.normalizeLoisRow(row);
+      const icon = this.loisStatusIcon(normalized.status, normalized.primary);
+      const emotion = this.formatLoisEmotionText(normalized);
+      return `${icon}：${normalized.name}${emotion ? `　${emotion}` : ""}`;
+    },
+    formatLoisLineText(row = {}, index = 0) {
+      return `${Number(index) + 1}. ${this.formatLoisRowText(row)}`;
+    },
+    addLoisRow(status = "lois") {
+      if (!Array.isArray(this.loisRows)) this.loisRows = [];
+      if (this.loisRows.length >= (this.loisMaxRows || 7)) {
+        this.showStatus("ロイス枠は最大7枠です。", true);
+        return;
+      }
+      this.loisRows.push(this.createDefaultLoisRow(status));
+    },
+    removeLoisRow(index) {
+      this.loisRows.splice(index, 1);
+    },
+    applyLoisEmotion(row, key, value) {
+      if (!row) return;
+      this.$set(row, key, String(value || ""));
+    },
+    escapeLoisRegExp(value) {
+      return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    },
+    parseLoisNameAndEmotions(raw = "", fallbackPrimary = "none") {
+      let text = String(raw || "").trim();
+      let primary = this.normalizeLoisPrimary(fallbackPrimary);
+      let pos = "";
+      let neg = "";
+      if (!/[／/]/.test(text)) return { name: text, pos, neg, primary };
+
+      const parts = text.split(/[／/]/);
+      const negRaw = parts.pop().trim();
+      const left = parts.join("/").trim();
+      const posOptions = [...(this.loisPositiveOptions || [])].sort((a, b) => String(b).length - String(a).length);
+      const negOptions = [...(this.loisNegativeOptions || [])].sort((a, b) => String(b).length - String(a).length);
+      const posPattern = posOptions.map((value) => this.escapeLoisRegExp(value)).join("|");
+      const negPattern = negOptions.map((value) => this.escapeLoisRegExp(value)).join("|");
+
+      let name = left;
+      if (posPattern) {
+        const posMatch = left.match(new RegExp(`^(.*?)[\\s　]+([〇○◯]?\\s*(?:${posPattern}))$`));
+        if (posMatch) {
+          name = String(posMatch[1] || "").trim();
+          pos = String(posMatch[2] || "").trim();
+        }
+      }
+      if (!pos) {
+        const fallbackPosMatch = left.match(/^(.*?)[\s　]+([〇○◯]?\s*[^／/]+)$/);
+        if (fallbackPosMatch) {
+          name = String(fallbackPosMatch[1] || "").trim();
+          pos = String(fallbackPosMatch[2] || "").trim();
+        }
+      }
+
+      if (negPattern) {
+        const negMatch = negRaw.match(new RegExp(`^([〇○◯]?\\s*(?:${negPattern}))$`));
+        if (negMatch) neg = String(negMatch[1] || "").trim();
+      }
+      if (!neg) neg = negRaw;
+
+      if (/^[〇○◯]/.test(pos)) {
+        primary = "pos";
+        pos = pos.replace(/^[〇○◯]\s*/, "");
+      }
+      if (/^[〇○◯]/.test(neg)) {
+        primary = "neg";
+        neg = neg.replace(/^[〇○◯]\s*/, "");
+      }
+      return { name: name || text, pos, neg, primary };
+    },
+    importLoisText() {
+      const lines = String(this.loisImportText || "").split(/\r?\n/);
+      const parsed = [];
+      const maxRows = this.loisMaxRows || 7;
+      const iconPattern = "😀|📖|💥|😡|⚫|●|💕|❤|♥|😈";
+      const statusWordPattern = "シナリオロイス|ｼﾅﾘｵﾛｲｽ|Dロイス|Ｄロイス|タイタス|昇華|Sロイス|Ｓロイス|Eロイス|Ｅロイス|ロイス";
+      lines.forEach((line) => {
+        if (parsed.length >= maxRows) return;
+        let text = String(line || "").trim();
+        if (!text) return;
+        text = text.replace(/\ufe0f/g, "");
+        if (/コードネーム|ワークス|カヴァー|カバー/.test(text)) return;
+        if (/ロイス\s*[／/]/.test(text) && /タイタス/.test(text)) return;
+
+        let match = text.match(new RegExp(`^(?:\\d+[\\.．]\\s*)?(${iconPattern})\\s*[：:：]\\s*(.+)$`));
+        if (!match) {
+          match = text.match(new RegExp(`^(?:\\d+[\\.．]\\s*)?(${statusWordPattern})\\s*[：:：]\\s*(.+)$`, "i"));
+        }
+        if (!match) {
+          match = text.match(new RegExp(`^(?:\\d+[\\.．]\\s*)?(${iconPattern})\\s+(.+)$`));
+        }
+        if (!match) return;
+
+        const statusRaw = match[1];
+        const parsedBody = this.parseLoisNameAndEmotions(match[2], "none");
+        if (!parsedBody.name) return;
+        parsed.push({
+          status: this.normalizeLoisStatus(statusRaw),
+          name: parsedBody.name,
+          pos: parsedBody.pos,
+          neg: parsedBody.neg,
+          primary: parsedBody.primary,
+        });
+      });
+      if (!parsed.length) {
+        this.showStatus("ロイス行を読み取れませんでした。", true);
+        return;
+      }
+      this.loisRows = parsed.slice(0, maxRows);
+      this.showStatus(`ロイス欄を${this.loisRows.length}件取り込みました。`);
+    },
+    getScenarioCounterKey(type, source, index) {
+      const name = String((source && source.name) || "").trim() || `row${index + 1}`;
+      return `${type}:${name}:${index}`;
+    },
+    toFullWidthKana(value) {
+      const map = {
+        "ｱ": "ア", "ｲ": "イ", "ｳ": "ウ", "ｴ": "エ", "ｵ": "オ",
+        "ｶ": "カ", "ｷ": "キ", "ｸ": "ク", "ｹ": "ケ", "ｺ": "コ",
+        "ｻ": "サ", "ｼ": "シ", "ｽ": "ス", "ｾ": "セ", "ｿ": "ソ",
+        "ﾀ": "タ", "ﾁ": "チ", "ﾂ": "ツ", "ﾃ": "テ", "ﾄ": "ト",
+        "ﾅ": "ナ", "ﾆ": "ニ", "ﾇ": "ヌ", "ﾈ": "ネ", "ﾉ": "ノ",
+        "ﾊ": "ハ", "ﾋ": "ヒ", "ﾌ": "フ", "ﾍ": "ヘ", "ﾎ": "ホ",
+        "ﾏ": "マ", "ﾐ": "ミ", "ﾑ": "ム", "ﾒ": "メ", "ﾓ": "モ",
+        "ﾔ": "ヤ", "ﾕ": "ユ", "ﾖ": "ヨ",
+        "ﾗ": "ラ", "ﾘ": "リ", "ﾙ": "ル", "ﾚ": "レ", "ﾛ": "ロ",
+        "ﾜ": "ワ", "ｦ": "ヲ", "ﾝ": "ン",
+        "ｧ": "ァ", "ｨ": "ィ", "ｩ": "ゥ", "ｪ": "ェ", "ｫ": "ォ",
+        "ｯ": "ッ", "ｬ": "ャ", "ｭ": "ュ", "ｮ": "ョ",
+        "ｰ": "ー", "･": "・",
+      };
+      let text = String(value || "");
+      text = text.replace(/[ｦ-ﾟ]/g, (ch) => map[ch] || ch);
+      text = text
+        .replace(/カﾞ/g, "ガ").replace(/キﾞ/g, "ギ").replace(/クﾞ/g, "グ").replace(/ケﾞ/g, "ゲ").replace(/コﾞ/g, "ゴ")
+        .replace(/サﾞ/g, "ザ").replace(/シﾞ/g, "ジ").replace(/スﾞ/g, "ズ").replace(/セﾞ/g, "ゼ").replace(/ソﾞ/g, "ゾ")
+        .replace(/タﾞ/g, "ダ").replace(/チﾞ/g, "ヂ").replace(/ツﾞ/g, "ヅ").replace(/テﾞ/g, "デ").replace(/トﾞ/g, "ド")
+        .replace(/ハﾞ/g, "バ").replace(/ヒﾞ/g, "ビ").replace(/フﾞ/g, "ブ").replace(/ヘﾞ/g, "ベ").replace(/ホﾞ/g, "ボ")
+        .replace(/ハﾟ/g, "パ").replace(/ヒﾟ/g, "ピ").replace(/フﾟ/g, "プ").replace(/ヘﾟ/g, "ペ").replace(/ホﾟ/g, "ポ")
+        .replace(/ウﾞ/g, "ヴ");
+      return text;
+    },
+    getScenarioCounterMax(source) {
+      if (!source) return 0;
+      const rawText = [source.limit, source.effect, source.notes, source.source]
+        .map((value) => String(value || ""))
+        .filter(Boolean)
+        .join(" ");
+      const text = this.toFullWidthKana(rawText);
+      if (!text || !/シナリオ/.test(text)) return 0;
+      const level = Math.max(0, Number(source.level) || 0);
+      if (/(?:\[?\s*L[Vv]\s*\]?|ＬＶ|Lv|LV|レベル)\s*回/.test(text)) {
+        return Math.max(1, level);
+      }
+      const match = text.match(/(?:シナリオ[^0-9０-９]{0,12}|1シナリオ[^0-9０-９]{0,12})([0-9０-９]+)\s*回|([0-9０-９]+)\s*回[^。\n]{0,12}シナリオ/);
+      const raw = match ? (match[1] || match[2]) : "";
+      if (raw) {
+        const n = Number(String(raw).replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)));
+        if (Number.isFinite(n) && n > 0) return Math.trunc(n);
+      }
+      return 0;
+    },
+    getDetectedPcScenarioCounters() {
+      const lists = [
+        { type: "effect", label: "エフェクト", rows: Array.isArray(this.effects) ? this.effects : [] },
+        { type: "easyEffect", label: "イージー", rows: Array.isArray(this.easyEffects) ? this.easyEffects : [] },
+        { type: "item", label: "アイテム", rows: Array.isArray(this.items) ? this.items : [] },
+      ];
+      const detected = [];
+      lists.forEach((listInfo) => {
+        listInfo.rows.forEach((source, index) => {
+          const max = this.getScenarioCounterMax(source);
+          const name = String((source && source.name) || "").trim();
+          if (!name || !max) return;
+          const key = this.getScenarioCounterKey(listInfo.type, source, index);
+          detected.push({
+            key,
+            type: listInfo.type,
+            sourceLabel: listInfo.label,
+            sourceIndex: index,
+            name,
+            level: Number((source && source.level) || 0),
+            max,
+            value: this.pcScenarioCounterCurrent(key, max),
+            memo: `${listInfo.label} Lv${Number((source && source.level) || 0)}`,
+            manual: false,
+          });
+        });
+      });
+      return detected;
+    },
+    normalizePcScenarioCounterOverrides(value = {}) {
+      const src = value && typeof value === "object" ? value : {};
+      const result = {};
+      Object.keys(src).forEach((key) => {
+        const row = src[key] && typeof src[key] === "object" ? src[key] : {};
+        result[key] = {
+          hidden: !!row.hidden,
+          memo: row.memo === undefined ? undefined : String(row.memo || ""),
+          name: row.name === undefined ? undefined : String(row.name || ""),
+          order: Number.isFinite(Number(row.order)) ? Number(row.order) : undefined,
+        };
+      });
+      return result;
+    },
+    getPcScenarioCounterOverride(key) {
+      const map = this.pcScenarioCounterOverrides && typeof this.pcScenarioCounterOverrides === "object"
+        ? this.pcScenarioCounterOverrides
+        : {};
+      return map[String(key || "")] || {};
+    },
+    setPcScenarioCounterOverride(key, patch = {}) {
+      const k = String(key || "");
+      if (!k) return;
+      if (!this.pcScenarioCounterOverrides || typeof this.pcScenarioCounterOverrides !== "object") {
+        this.pcScenarioCounterOverrides = {};
+      }
+      const current = this.getPcScenarioCounterOverride(k);
+      this.$set(this.pcScenarioCounterOverrides, k, { ...current, ...patch });
+    },
+    getPcScenarioCounterOrder(key, fallback = 0) {
+      const order = Number(this.getPcScenarioCounterOverride(key).order);
+      return Number.isFinite(order) ? order : fallback;
+    },
+    getPcScenarioCounterMemo(counter = {}) {
+      if (counter.manual) {
+        const row = this.pcScenarioManualCounters[counter.sourceIndex];
+        return String((row && row.memo) || "");
+      }
+      const override = this.getPcScenarioCounterOverride(counter.key);
+      return override.memo !== undefined ? String(override.memo || "") : String(counter.memo || "");
+    },
+    setPcScenarioCounterMemo(counter = {}, value = "") {
+      if (counter.manual) {
+        const row = this.pcScenarioManualCounters[counter.sourceIndex];
+        if (row) this.$set(row, "memo", String(value || ""));
+        return;
+      }
+      this.setPcScenarioCounterOverride(counter.key, { memo: String(value || "") });
+    },
+    createDefaultPcScenarioManualCounter() {
+      const id = `manual:${Date.now()}:${Math.floor(Math.random() * 1000)}`;
+      return { id, name: "", current: 1, max: 1, memo: "" };
+    },
+    normalizePcScenarioManualCounter(row = {}, index = 0) {
+      const maxRaw = Number(row && row.max);
+      const max = Number.isFinite(maxRaw) && maxRaw > 0 ? Math.trunc(maxRaw) : 1;
+      const currentRaw = Number(row && row.current);
+      const current = Number.isFinite(currentRaw) ? Math.min(Math.max(0, Math.trunc(currentRaw)), max) : max;
+      return {
+        id: String((row && row.id) || `manual:${index}`),
+        name: String((row && row.name) || "").trim(),
+        current,
+        max,
+        memo: String((row && row.memo) || "").trim(),
+      };
+    },
+    normalizePcScenarioManualCounters(rows = []) {
+      return (Array.isArray(rows) ? rows : [])
+        .map((row, index) => this.normalizePcScenarioManualCounter(row, index))
+        .filter((row) => row.name || row.memo || row.max || row.current);
+    },
+    addPcScenarioManualCounter() {
+      if (!Array.isArray(this.pcScenarioManualCounters)) this.pcScenarioManualCounters = [];
+      this.pcScenarioManualCounters.push(this.createDefaultPcScenarioManualCounter());
+      this.$nextTick(() => {
+        const rows = this.$el ? this.$el.querySelectorAll("#pcScenarioResourcesTable tr.is-manual-counter input[type='text']") : [];
+        const last = rows && rows.length ? rows[rows.length - 1] : null;
+        if (last && typeof last.focus === "function") last.focus();
+      });
+    },
+    removePcScenarioManualCounter(index) {
+      this.pcScenarioManualCounters.splice(index, 1);
+    },
+    removePcScenarioCounter(counter = {}) {
+      if (counter.manual) {
+        this.removePcScenarioManualCounter(counter.sourceIndex);
+        return;
+      }
+      this.setPcScenarioCounterOverride(counter.key, { hidden: true });
+    },
+    pcScenarioCounterCurrent(counterOrKey, max) {
+      if (counterOrKey && typeof counterOrKey === "object") {
+        if (counterOrKey.manual) {
+          const row = this.pcScenarioManualCounters[counterOrKey.sourceIndex];
+          return this.normalizePcScenarioManualCounter(row, counterOrKey.sourceIndex).current;
+        }
+        return this.pcScenarioCounterCurrent(counterOrKey.key, counterOrKey.max);
+      }
+      const key = String(counterOrKey || "");
+      const raw = this.pcScenarioCounterValues && this.pcScenarioCounterValues[key];
+      const value = raw === undefined || raw === null || raw === "" ? Number(max) : Number(raw);
+      if (!Number.isFinite(value)) return Number(max) || 0;
+      return Math.min(Math.max(0, Math.trunc(value)), Number(max) || 0);
+    },
+    setPcScenarioCounterValue(counterOrKey, value, max) {
+      const counter = counterOrKey && typeof counterOrKey === "object" ? counterOrKey : null;
+      const limit = Number(max ?? (counter && counter.max) ?? 0) || 0;
+      const n = Math.min(Math.max(0, Math.trunc(Number(value) || 0)), limit);
+      if (counter && counter.manual) {
+        const row = this.pcScenarioManualCounters[counter.sourceIndex];
+        if (row) this.$set(row, "current", n);
+        return;
+      }
+      const key = counter ? counter.key : String(counterOrKey || "");
+      this.$set(this.pcScenarioCounterValues, key, n);
+    },
+    normalizeManualCounterMax(index) {
+      const row = this.pcScenarioManualCounters[index];
+      if (!row) return;
+      const normalized = this.normalizePcScenarioManualCounter(row, index);
+      this.$set(row, "max", normalized.max);
+      const currentRaw = Number(row.current);
+      const current = Number.isFinite(currentRaw) ? currentRaw : normalized.max;
+      this.$set(row, "current", Math.min(Math.max(0, Math.trunc(current)), normalized.max));
+    },
+    movePcScenarioCounter(counter = {}, direction = 0) {
+      const rows = this.pcScenarioCounters;
+      const keys = rows.map((row) => row.key);
+      const currentIndex = keys.indexOf(counter.key);
+      const nextIndex = currentIndex + Number(direction || 0);
+      if (currentIndex < 0 || nextIndex < 0 || nextIndex >= keys.length) return;
+      const moved = [...keys];
+      const [item] = moved.splice(currentIndex, 1);
+      moved.splice(nextIndex, 0, item);
+      moved.forEach((key, index) => this.setPcScenarioCounterOverride(key, { order: index }));
+    },
+    pcScenarioRefreshCandidates() {
+      return this.getDetectedPcScenarioCounters().map((counter, index) => ({
+        ...counter,
+        hidden: !!this.getPcScenarioCounterOverride(counter.key).hidden,
+        order: this.getPcScenarioCounterOrder(counter.key, index),
+      })).sort((a, b) => {
+        const ao = Number(a.order);
+        const bo = Number(b.order);
+        if (Number.isFinite(ao) && Number.isFinite(bo) && ao !== bo) return ao - bo;
+        return String(a.key || "").localeCompare(String(b.key || ""), "ja", { numeric: true, sensitivity: "base" });
+      });
+    },
+    openPcScenarioRefreshModal() {
+      const selections = {};
+      this.pcScenarioRefreshCandidates().forEach((counter) => {
+        selections[counter.key] = !counter.hidden;
+      });
+      this.pcScenarioRefreshModal = { show: true, selections };
+    },
+    closePcScenarioRefreshModal() {
+      this.pcScenarioRefreshModal = { show: false, selections: {} };
+    },
+    applyPcScenarioRefreshSelection() {
+      const selected = this.pcScenarioRefreshModal && this.pcScenarioRefreshModal.selections
+        ? this.pcScenarioRefreshModal.selections
+        : {};
+      this.getDetectedPcScenarioCounters().forEach((counter, index) => {
+        const checked = !!selected[counter.key];
+        this.setPcScenarioCounterOverride(counter.key, {
+          hidden: !checked,
+          order: this.getPcScenarioCounterOrder(counter.key, index),
+        });
+        if (checked && this.pcScenarioCounterValues[counter.key] === undefined) {
+          this.$set(this.pcScenarioCounterValues, counter.key, counter.max);
+        }
+      });
+      this.closePcScenarioRefreshModal();
+    },
+    buildPcKomaStatusRows() {
+      const rows = [];
+      this.pcScenarioCounters.forEach((counter) => {
+        const name = String(counter.name || "").trim();
+        if (!name) return;
+        rows.push({
+          label: name,
+          value: this.pcScenarioCounterCurrent(counter, counter.max),
+          max: Number(counter.max) || 0,
+        });
+      });
+      return rows;
     },
     getDx3SyndromeAbilityMap() {
       return {
@@ -2163,6 +2767,38 @@ new Vue({
       const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
       return this.getDx3EnemyXpConversion(data).total;
     },
+    dx3EnemyListSyndromes(enemy) {
+      const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+      const syndromes = Array.isArray(data.syndromes)
+        ? data.syndromes.map((name) => String(name || "").trim()).filter(Boolean)
+        : [];
+      return syndromes.length ? syndromes : ["シンドローム未設定"];
+    },
+    dx3SyndromeColorKey(name) {
+      const normalized = this.normalizeSyndromeName(name);
+      const compact = String(normalized || "").replace(/[\s　・･＝=ー－-]/g, "");
+      const keyMap = {
+        "エンジェルハィロゥ": "angel-halo",
+        "エンジェルハイロゥ": "angel-halo",
+        "バロール": "balor",
+        "ブラックドッグ": "black-dog",
+        "ブラムストーカー": "bram-stoker",
+        "ブラム＝ストーカー": "bram-stoker",
+        "キュマイラ": "chimera",
+        "エグザイル": "exile",
+        "ハヌマーン": "hanuman",
+        "モルフェウス": "morpheus",
+        "ノイマン": "neumann",
+        "オルクス": "orcus",
+        "サラマンダー": "salamandra",
+        "ソラリス": "solaris",
+        "ウロボロス": "ouroboros",
+        "アザトース": "azathoth",
+        "ミストルティン": "mistilteinn",
+        "グレイプニル": "gleipnir",
+      };
+      return keyMap[normalized] || keyMap[compact] || "unknown";
+    },
     dx3EnemyCreditLabel(author) {
       const text = String(author || "").trim();
       return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
@@ -2929,9 +3565,221 @@ new Vue({
     updateComboAbility(index) {
       const combo = this.combos[index];
       const skill = combo.baseAbility.skill;
-      // マップから能力値を引く（なければ肉体をデフォルトに）
-      const ability = this.skillToAbilityMap[skill] || "肉体";
-      this.$set(combo.baseAbility, "statOverride", ability);
+      const ability = this.getAbilityBySkill(skill);
+      this.$set(combo.baseAbility, "statOverride", ability || "");
+    },
+    normalizeDx3TimingText(value) {
+      return this.toFullWidthKana(String(value || ""))
+        .replace(/[\s　・･／/：:]+/g, "")
+        .trim();
+    },
+    isMajorActionTiming(value) {
+      const text = this.normalizeDx3TimingText(value);
+      return text.indexOf("メジャー") >= 0;
+    },
+    shouldWarnComboSkill(index, processedCombo = null) {
+      const combo = this.combos[index] || {};
+      const skill = String((combo.baseAbility && combo.baseAbility.skill) || "").trim();
+      if (skill && skill !== "-") return false;
+      const timing = processedCombo && processedCombo.timing !== undefined
+        ? processedCombo.timing
+        : (combo.timingMode === "manual" ? combo.manualTiming : "");
+      return this.isMajorActionTiming(timing);
+    },
+    getAbilityBySkill(skill) {
+      const s = String(skill || "")
+        .replace(/[〈〉【】]/g, "")
+        .replace(/\s+/g, "")
+        .trim();
+      if (!s || s === "-" || s === "シンドローム" || s === "効果参照") return "";
+      if (s.indexOf("白兵") === 0 || s.indexOf("回避") === 0 || s.indexOf("運転") === 0) return "肉体";
+      if (s.indexOf("射撃") === 0 || s.indexOf("知覚") === 0 || s.indexOf("芸術") === 0) return "感覚";
+      if (s.indexOf("RC") === 0 || s.indexOf("意志") === 0 || s.indexOf("知識") === 0) return "精神";
+      if (s.indexOf("交渉") === 0 || s.indexOf("調達") === 0 || s.indexOf("情報") === 0) return "社会";
+      return "";
+    },
+    getBaseSkillKind(skill) {
+      const s = String(skill || "").replace(/[〈〉【】]/g, "").trim();
+      const base = s.split(":")[0].split("：")[0].trim();
+      return ["運転", "芸術", "知識", "情報"].includes(base) ? base : "";
+    },
+    hasNamedSkillForBase(skill) {
+      const base = this.getBaseSkillKind(skill);
+      if (!base || String(skill || "").includes(":") || String(skill || "").includes("：")) return false;
+      return (Array.isArray(this.characterSkills) ? this.characterSkills : []).some((entry) => {
+        const label = String((entry && entry.label) || "").trim();
+        return label.indexOf(base + ":") === 0 || label.indexOf(base + "：") === 0;
+      });
+    },
+    shouldUseZeroForBaseSkill(skill) {
+      return this.hasNamedSkillForBase(skill);
+    },
+    normalizeDx3CharacterSkills(source = []) {
+      const result = [];
+      const push = (label, value = "0", kind = "") => {
+        const cleanLabel = String(label || "").trim();
+        if (!cleanLabel || cleanLabel === "-") return;
+        if (result.some((row) => row.label === cleanLabel)) return;
+        result.push({
+          label: cleanLabel,
+          value: this.toDx3ZeroString(value),
+          kind: kind || this.getBaseSkillKind(cleanLabel) || cleanLabel.split(":")[0] || cleanLabel,
+          ability: this.getAbilityBySkill(cleanLabel),
+        });
+      };
+
+      if (Array.isArray(source)) {
+        source.forEach((row) => {
+          if (typeof row === "string") {
+            push(row, "0");
+          } else if (row && typeof row === "object") {
+            push(row.label || row.name || row.skill, row.value ?? row.level ?? row.lv ?? "0", row.kind || "");
+          }
+        });
+      } else if (source && typeof source === "object") {
+        Object.keys(source).forEach((key) => push(key, source[key]));
+      }
+
+      return result;
+    },
+    toDx3ZeroString(value) {
+      const s = String(value ?? "").trim();
+      return s === "" ? "0" : s;
+    },
+    getDefaultDx3ComboSkillOptions() {
+      return ["-", "白兵", "射撃", "RC", "交渉", "回避", "知覚", "意志", "調達", "運転", "芸術", "知識", "情報"];
+    },
+    refreshDx3SkillOptions() {
+      const baseCombo = this.getDefaultDx3ComboSkillOptions();
+      const detailed = (Array.isArray(this.characterSkills) ? this.characterSkills : [])
+        .map((entry) => String((entry && entry.label) || "").trim())
+        .filter((label) => label && !baseCombo.includes(label));
+      const comboOptions = [...new Set([...baseCombo, ...detailed])];
+
+      this.$set(this.dropdownOptions, "baseSkillSelect", comboOptions);
+
+      const effectBase = Array.isArray(this.dropdownOptions.skill) ? this.dropdownOptions.skill : [];
+      const effectOptions = [...new Set([...effectBase, ...detailed])];
+      this.$set(this.dropdownOptions, "skill", effectOptions);
+    },
+    normalizeDx3AbilitySet(source = {}) {
+      const src = source && typeof source === "object" ? source : {};
+      const read = (key, label) => {
+        const value = src[key] ?? src[label];
+        const numberValue = Number(value);
+        return Number.isFinite(numberValue) ? numberValue : 0;
+      };
+      return {
+        body: read("body", "肉体"),
+        sense: read("sense", "感覚"),
+        mind: read("mind", "精神"),
+        social: read("social", "社会"),
+      };
+    },
+    normalizeDx3SyndromeList(source) {
+      const rawList = Array.isArray(source) ? source : [source];
+      const list = rawList
+        .flatMap((value) => String(value || "").split(/[／/、，,\n\r]+/))
+        .map((name) => this.normalizeSyndromeName(String(name || "").trim()))
+        .filter((name) => name && name !== "free" && name !== "その他（自由記入）");
+      return [...new Set(list)];
+    },
+    extractDx3SyndromesFromText(text) {
+      const raw = String(text || "");
+      if (!raw) return [];
+      const compactRaw = raw.replace(/[\s　・･＝=ー－-]/g, "");
+      const found = [];
+      this.dx3SyndromeNames.forEach((name) => {
+        const normalized = this.normalizeSyndromeName(name);
+        const compact = String(normalized || "").replace(/[\s　・･＝=ー－-]/g, "");
+        if (raw.includes(normalized) || compactRaw.includes(compact)) found.push(normalized);
+      });
+      return this.normalizeDx3SyndromeList(found);
+    },
+    inferCharacterSyndromesFromCurrentSources() {
+      const rows = [
+        ...(Array.isArray(this.effects) ? this.effects : []),
+        ...(Array.isArray(this.easyEffects) ? this.easyEffects : []),
+      ];
+      const sourceText = rows
+        .map((source) => [source && source.name, source && source.effect, source && source.notes].filter(Boolean).join("\n"))
+        .join("\n");
+      return this.extractDx3SyndromesFromText(sourceText);
+    },
+    pickImportedSyndromes(data = {}) {
+      const src = data && typeof data === "object" ? data : {};
+      const candidates = [];
+
+      if (Array.isArray(src.syndromes)) {
+        candidates.push(...src.syndromes);
+      } else if (src.syndromes || src.syndrome || src.syndromesText) {
+        candidates.push(src.syndromes || src.syndrome || src.syndromesText);
+      }
+
+      candidates.push(
+        src.syndrome1,
+        src.syndrome01,
+        src.Syndrome1,
+        src.syndromeA,
+        src.class1_name,
+        src.syndrome2,
+        src.syndrome02,
+        src.Syndrome2,
+        src.syndromeB,
+        src.class2_name,
+        src.syndrome3,
+        src.syndrome03,
+        src.Syndrome3,
+        src.syndromeC,
+        src.class3_name,
+      );
+
+      const fromImported = this.normalizeDx3SyndromeList(candidates);
+      if (fromImported.length) return fromImported;
+
+      // 旧保存データ向けの軽い保険。HTML再取得・HTML解析はGAS側へ寄せる。
+      const sourceRows = [
+        ...(Array.isArray(src.effects) ? src.effects : []),
+        ...(Array.isArray(src.easyEffects) ? src.easyEffects : []),
+      ];
+      const sourceText = sourceRows
+        .map((source) => [source && source.name, source && source.effect, source && source.notes].filter(Boolean).join("\n"))
+        .join("\n");
+      const textSources = [src.breed, src.class_type, src.characterType, src.profile, src.memo, src.sheetDescriptionM, src.sheetDescriptionS, sourceText]
+        .map((value) => String(value || ""))
+        .filter(Boolean)
+        .join("\n");
+      if (!textSources) return [];
+      return this.extractDx3SyndromesFromText(textSources);
+    },
+    pickImportedAbilities(data = {}) {
+      const src = data && typeof data === "object" ? data : {};
+      const direct = src.abilities || src.ability || src.params || {};
+      const abilities = this.normalizeDx3AbilitySet(direct);
+      [
+        ["body", "肉体", "Body", ["sttTotalBody", "NP1"]],
+        ["sense", "感覚", "Sense", ["sttTotalSense", "NP2"]],
+        ["mind", "精神", "Mind", ["sttTotalMind", "NP3"]],
+        ["social", "社会", "Social", ["sttTotalSocial", "NP4"]],
+      ].forEach(([key, label, en, aliases]) => {
+        const aliasValue = aliases.map((alias) => src[alias]).find((value) => value !== undefined && value !== null && value !== "");
+        const value = src[key] ?? src[label] ?? src[`base${en}`] ?? src[`ability${en}`] ?? aliasValue;
+        const numberValue = Number(value);
+        if (Number.isFinite(numberValue)) abilities[key] = numberValue;
+      });
+      return abilities;
+    },
+    applyImportedCharacterProfile(importedData = {}) {
+      this.characterSyndromes = this.pickImportedSyndromes(importedData);
+      this.characterAbilities = this.pickImportedAbilities(importedData);
+      this.characterSkills = this.normalizeDx3CharacterSkills(
+        importedData.characterSkills ||
+          importedData.skills ||
+          importedData.skillParams ||
+          importedData.params ||
+          [],
+      );
+      this.refreshDx3SkillOptions();
     },
     syncAllData(sourceType, sourceList) {
       if (this.isInitializing) return;
@@ -3274,8 +4122,23 @@ new Vue({
       this.isBusy = true;
       this.showStatus("保存中...", false, 0);
       this.generateShareUrl();
+      const normalizedSyndromes = this.normalizeDx3SyndromeList(this.characterSyndromes || []);
       const dataToSave = {
         characterName: this.characterName,
+        characterSyndromes: normalizedSyndromes,
+        syndromes: normalizedSyndromes,
+        syndrome1: normalizedSyndromes[0] || "",
+        syndrome2: normalizedSyndromes[1] || "",
+        syndrome3: normalizedSyndromes[2] || "",
+        class1_name: normalizedSyndromes[0] || "",
+        class2_name: normalizedSyndromes[1] || "",
+        class3_name: normalizedSyndromes[2] || "",
+        characterAbilities: this.characterAbilities,
+        characterSkills: this.normalizeDx3CharacterSkills(this.characterSkills || []),
+        pcScenarioCounterValues: this.pcScenarioCounterValues || {},
+        pcScenarioManualCounters: this.normalizePcScenarioManualCounters(this.pcScenarioManualCounters || []),
+        pcScenarioCounterOverrides: this.normalizePcScenarioCounterOverrides(this.pcScenarioCounterOverrides || {}),
+        pcScenarioStatuses: this.buildPcKomaStatusRows(),
         totalXp: this.totalXp,
         otherXp: this.otherXp,
         effects: this.effects,
@@ -3388,6 +4251,12 @@ new Vue({
       }
       const loadAbortSnapshot = {
         characterName: this.characterName,
+        characterSyndromes: JSON.parse(JSON.stringify(this.characterSyndromes || [])),
+        characterAbilities: JSON.parse(JSON.stringify(this.characterAbilities || {})),
+        characterSkills: JSON.parse(JSON.stringify(this.characterSkills || [])),
+        pcScenarioCounterValues: JSON.parse(JSON.stringify(this.pcScenarioCounterValues || {})),
+        pcScenarioManualCounters: JSON.parse(JSON.stringify(this.pcScenarioManualCounters || [])),
+        pcScenarioCounterOverrides: JSON.parse(JSON.stringify(this.pcScenarioCounterOverrides || {})),
         totalXp: this.totalXp,
         otherXp: this.otherXp,
         effects: JSON.parse(JSON.stringify(this.effects || [])),
@@ -3416,6 +4285,13 @@ new Vue({
         if (result.status === "success") {
           const d = result.data;
           this.characterName = d.characterName || "名称未設定";
+          this.characterSyndromes = this.pickImportedSyndromes(d);
+          this.characterAbilities = this.normalizeDx3AbilitySet(d.characterAbilities || d.abilities || {});
+          this.characterSkills = this.normalizeDx3CharacterSkills(d.characterSkills || d.skills || d.params || []);
+          this.refreshDx3SkillOptions();
+          this.pcScenarioCounterValues = { ...((d.pcScenarioCounterValues && typeof d.pcScenarioCounterValues === "object") ? d.pcScenarioCounterValues : {}) };
+          this.pcScenarioManualCounters = this.normalizePcScenarioManualCounters(d.pcScenarioManualCounters || d.pcScenarioCounters || []);
+          this.pcScenarioCounterOverrides = this.normalizePcScenarioCounterOverrides(d.pcScenarioCounterOverrides || {});
           this.totalXp = d.totalXp || 130;
           this.otherXp = d.otherXp || 0;
           this.effects = (d.effects || []).map((e) => ({
@@ -3467,6 +4343,13 @@ new Vue({
 
           if (updateType === "abort") {
             this.characterName = loadAbortSnapshot.characterName;
+            this.characterSyndromes = loadAbortSnapshot.characterSyndromes;
+            this.characterAbilities = loadAbortSnapshot.characterAbilities;
+            this.characterSkills = loadAbortSnapshot.characterSkills;
+            this.refreshDx3SkillOptions();
+            this.pcScenarioCounterValues = loadAbortSnapshot.pcScenarioCounterValues;
+            this.pcScenarioManualCounters = loadAbortSnapshot.pcScenarioManualCounters;
+            this.pcScenarioCounterOverrides = loadAbortSnapshot.pcScenarioCounterOverrides;
             this.totalXp = loadAbortSnapshot.totalXp;
             this.otherXp = loadAbortSnapshot.otherXp;
             this.effects = loadAbortSnapshot.effects;
@@ -3589,6 +4472,7 @@ new Vue({
           return;
         }
         this.characterName = importedData.characterName;
+        this.applyImportedCharacterProfile(importedData);
         this.totalXp = importedData.totalXp;
         if (!mergeMode) {
           this.otherXp = 0;
@@ -3831,6 +4715,9 @@ new Vue({
         characterName: this.normalizeImportedString(
           jsonData.characterName || jsonData.pc_name
         ),
+        syndromes: this.pickImportedSyndromes(jsonData),
+        abilities: this.pickImportedAbilities(jsonData),
+        characterSkills: this.normalizeDx3CharacterSkills(jsonData.characterSkills || jsonData.skills || []),
         totalXp: parseInt(jsonData.expTotal, 10) || 130,
         expTotal: parseInt(jsonData.expTotal, 10) || undefined,
         expUsed: parseInt(jsonData.expUsed, 10) || undefined,
@@ -3866,7 +4753,15 @@ new Vue({
           }
           return obj;
         };
-        return normalizeRecursively(result.data);
+        const data = normalizeRecursively(result.data);
+        const syndromes = this.pickImportedSyndromes(data);
+        if (syndromes.length) {
+          data.syndromes = syndromes;
+        }
+        data.characterSkills = this.normalizeDx3CharacterSkills(
+          data.characterSkills || data.skills || data.skillParams || data.params || [],
+        );
+        return data;
       } else {
         throw new Error(
           result.message || "キャラクター保管所の解析に失敗しました。"
