@@ -2535,10 +2535,6 @@
   padding-bottom: 7px;
 }
 
-#dx3-app .character-info-grid input[readonly] {
-  font-weight: 600;
-}
-
 
 /* v12: coefficient panel inference/visibility fixes */
 .floating-panel {
@@ -5989,16 +5985,112 @@ body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
   margin-left: auto;
 }
 .dx3-enemy-sample-btn {
-  border-color: color-mix(in srgb, var(--color-dx3, #cc4125) 70%, #fff 10%);
-  background: linear-gradient(135deg, rgba(204, 65, 37, 0.26), rgba(20, 24, 34, 0.92));
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.58rem;
+  min-height: 2.65rem;
+  padding: 0.18rem 0.78rem 0.18rem 0.22rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 190, 120, 0.78);
+  background:
+    radial-gradient(circle at 16% 20%, rgba(255, 236, 170, 0.34), transparent 30%),
+    linear-gradient(135deg, rgba(138, 36, 26, 0.96), rgba(41, 19, 33, 0.98) 48%, rgba(10, 17, 38, 0.96));
   color: #fff7f4;
   white-space: nowrap;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 8px 18px rgba(0, 0, 0, 0.28);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row .dx3-enemy-sample-btn.enemy-action-btn {
+  border-color: rgba(255, 190, 120, 0.78);
+  background:
+    radial-gradient(circle at 16% 20%, rgba(255, 236, 170, 0.34), transparent 30%),
+    linear-gradient(135deg, rgba(138, 36, 26, 0.96), rgba(41, 19, 33, 0.98) 48%, rgba(10, 17, 38, 0.96));
+  color: #fff7f4;
+}
+.dx3-enemy-sample-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.18) 42%, transparent 62%);
+  transform: translateX(-120%);
+  transition: transform 0.45s ease;
+}
+.dx3-enemy-sample-btn:hover::after,
+.dx3-enemy-sample-btn:focus-visible::after {
+  transform: translateX(120%);
+}
+.dx3-enemy-sample-avatar {
+  position: relative;
+  z-index: 1;
+  order: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.45rem;
+  height: 2.25rem;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  flex: 0 0 auto;
+}
+.dx3-enemy-sample-avatar::after {
+  content: "";
+  position: absolute;
+  inset: -0.28rem -0.72rem -0.28rem -0.28rem;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 58%, rgba(18, 10, 28, 0.4));
+}
+.dx3-enemy-sample-avatar img {
+  width: auto;
+  height: 15rem;
+  object-fit: cover;
+  object-position: center top;
+  transform: translate(1rem, 4.5rem);
+  filter: drop-shadow(0 0.25rem 0.35rem rgba(0, 0, 0, 0.45));
+}
+.dx3-enemy-sample-btn-text {
+  position: relative;
+  z-index: 3;
+  order: 1;
+  display: inline-grid;
+  gap: 0.08rem;
+  line-height: 1;
+  text-align: left;
+  padding: 0.1rem 0.2rem;
+  border-left: 2px solid rgba(255, 224, 160, 0.88);
+  background: linear-gradient(90deg, rgba(42, 12, 18, 0.82), rgba(42, 12, 18, 0));
+}
+.dx3-enemy-sample-kicker {
+  color: rgba(255, 224, 160, 0.9);
+  font-size: 0.54rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 0 #3a120e, 0 0 4px rgba(0, 0, 0, 0.95), 1px 1px 0 rgba(0, 0, 0, 0.9);
+}
+.dx3-enemy-sample-name {
+  transform: translateY(0.08rem);
+  color: #ffffff;
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  -webkit-text-stroke: 0.35px rgba(52, 13, 13, 0.95);
+  text-shadow: 0 1px 0 #3a120e, 0 0 5px rgba(0, 0, 0, 0.95), 1px 1px 0 rgba(0, 0, 0, 0.9);
 }
 .dx3-enemy-sample-note {
   color: rgba(255, 238, 232, 0.72);
   font-size: 0.76rem;
   line-height: 1.2;
   white-space: nowrap;
+}
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-sample-actions .dx3-koma-help {
+  font-size: 0.68rem;
+  line-height: 1.25;
+  opacity: 0.82;
 }
 @media (max-width: 760px) {
   .dx3-enemy-common-header,
@@ -14098,14 +14190,33 @@ body.dx3-combo-page #dx3-app .effect-drag-handle:active {
 }
 
 body.dx3-combo-page #dx3-app .effects-table tr.is-dragging,
-body.dx3-combo-page #dx3-app .combo-source-table tr.is-dragging {
+body.dx3-combo-page #dx3-app .combo-source-table tr.is-dragging,
+body.dx3-combo-page #dx3-app .pc-scenario-resource-table tr.is-dragging {
   opacity: 0.56;
 }
 
 body.dx3-combo-page #dx3-app .effects-table tr.is-drag-over,
-body.dx3-combo-page #dx3-app .combo-source-table tr.is-drag-over {
+body.dx3-combo-page #dx3-app .combo-source-table tr.is-drag-over,
+body.dx3-combo-page #dx3-app .pc-scenario-resource-table tr.is-drag-over {
   outline: 2px solid rgba(135, 206, 250, 0.85);
   outline-offset: -2px;
+}
+
+body.dx3-combo-page #dx3-app .pc-scenario-drag-cell {
+  width: 1.8rem;
+  min-width: 1.8rem;
+  max-width: 1.8rem;
+  padding-inline: 0.12rem;
+  text-align: center;
+}
+
+body.dx3-combo-page #dx3-app .pc-scenario-resource-table tr:not(.is-manual-counter) .pc-scenario-drag-cell {
+  opacity: 0.35;
+}
+
+body.dx3-combo-page #dx3-app .pc-scenario-drag-handle {
+  width: 1.35rem;
+  height: 1.55rem;
 }
 
 /* 係数表示: ハンドル列追加ぶんの幅を明示 */
@@ -15707,9 +15818,8 @@ body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-det
   height: 2rem;
   font-family: var(--font-latin-ui);
   font-variant-numeric: tabular-nums;
-  font-size: 1.24rem;
+  font-size: 1.25rem;
   line-height: 1;
-  font-weight: 600;
   text-align: right;
 }
 
@@ -16429,5 +16539,1950 @@ body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-det
   .dx3-combo-page .pc-lois-output.copy-container > button,
   .dx3-combo-page .pc-lois-output.copy-container > button.secondary {
     justify-self: stretch;
+  }
+}
+
+
+/* v112: エフェクト表を横スライドできるようにする */
+.dx3-combo-page .effects-table {
+  min-width: 92rem;
+  width: max-content;
+}
+
+.dx3-combo-page .effects-table,
+.dx3-combo-page .effects-table th,
+.dx3-combo-page .effects-table td {
+  box-sizing: border-box;
+}
+
+/* エフェクト/イージーエフェクト表の外側で横スクロールを受ける */
+.dx3-combo-page .table-wrapper:has(.effects-table) {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+  padding-bottom: 0.45rem;
+}
+
+/* :has 非対応環境向け。表そのものの親にスクロールを逃がす */
+.dx3-combo-page .effects-table {
+  display: table;
+}
+
+.dx3-combo-page .effects-table td:nth-child(11),
+.dx3-combo-page .effects-table td:nth-child(12) {
+  white-space: normal;
+}
+
+.dx3-combo-page .effects-table td:nth-child(11) textarea,
+.dx3-combo-page .effects-table td:nth-child(12) textarea {
+  min-width: 18rem;
+  white-space: pre-wrap;
+}
+
+/* スクロール可能なことが分かりやすいように下バーを見せる */
+.dx3-combo-page .table-wrapper:has(.effects-table)::-webkit-scrollbar {
+  height: 10px;
+}
+
+.dx3-combo-page .table-wrapper:has(.effects-table)::-webkit-scrollbar-track {
+  background: rgba(13, 26, 80, 0.65);
+  border-radius: 999px;
+}
+
+.dx3-combo-page .table-wrapper:has(.effects-table)::-webkit-scrollbar-thumb {
+  background: rgba(135, 206, 250, 0.55);
+  border-radius: 999px;
+}
+
+.dx3-combo-page .table-wrapper:has(.effects-table)::-webkit-scrollbar-thumb:hover {
+  background: rgba(135, 206, 250, 0.78);
+}
+
+/* 画面が狭い時は表を無理に詰めず、横スライド前提にする */
+@media (max-width: 1200px) {
+  .dx3-combo-page .effects-table {
+    min-width: 88rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .dx3-combo-page .effects-table {
+    min-width: 84rem;
+  }
+
+  .dx3-combo-page .table-wrapper:has(.effects-table) {
+    margin-inline: -0.25rem;
+    padding-inline: 0.25rem;
+  }
+}
+
+
+/* v113: エフェクト表の通常幅は画面内に収め、必要な時だけ横スクロール */
+#dx3-app .table-wrapper,
+#dx3-app .compact-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+/* v112 の width:max-content / 92rem を打ち消す。
+   デスクトップ通常幅では 1410px 前後に戻して、右端が画面外へ出ないようにする。 */
+#dx3-app .effects-table {
+  table-layout: fixed;
+  width: 1410px;
+  min-width: 1410px;
+  max-width: none;
+}
+
+/* 画面に余裕がある時だけ、表を親幅いっぱいまで伸ばす */
+@media (min-width: 1700px) {
+  #dx3-app .effects-table {
+    width: 100%;
+    min-width: 1410px;
+  }
+}
+
+/* 狭い画面ではページ全体ではなく wrapper 内だけを横スライド */
+@media (max-width: 1500px) {
+  #dx3-app .table-wrapper:has(.effects-table),
+  #dx3-app .table-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  #dx3-app .effects-table {
+    width: 1410px;
+    min-width: 1410px;
+    max-width: none;
+  }
+}
+
+/* v112で付けた広すぎる効果/備考の最低幅を抑える */
+#dx3-app .effects-table td:nth-child(11) textarea,
+#dx3-app .effects-table td:nth-child(12) textarea {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 横スクロールバーは表の下だけに出す */
+#dx3-app .table-wrapper:has(.effects-table) {
+  scrollbar-gutter: stable;
+  padding-bottom: 0.35rem;
+}
+
+#dx3-app .table-wrapper:has(.effects-table)::-webkit-scrollbar {
+  height: 9px;
+}
+
+#dx3-app .table-wrapper:has(.effects-table)::-webkit-scrollbar-track {
+  background: rgba(13, 26, 80, 0.65);
+  border-radius: 999px;
+}
+
+#dx3-app .table-wrapper:has(.effects-table)::-webkit-scrollbar-thumb {
+  background: rgba(135, 206, 250, 0.55);
+  border-radius: 999px;
+}
+
+/* さらに狭い時は少しだけ圧縮した幅にする。
+   それでも入らない分だけ横スクロール。 */
+@media (max-width: 1200px) {
+  #dx3-app .effects-table {
+    width: 1320px;
+    min-width: 1320px;
+  }
+
+  #dx3-app .effects-table th:nth-child(1),
+  #dx3-app .effects-table td:nth-child(1) { width: 140px; min-width: 140px; max-width: 140px; }
+  #dx3-app .effects-table th:nth-child(4),
+  #dx3-app .effects-table td:nth-child(4) { width: 104px; min-width: 104px; max-width: 104px; }
+  #dx3-app .effects-table th:nth-child(5),
+  #dx3-app .effects-table td:nth-child(5) { width: 102px; min-width: 102px; max-width: 102px; }
+  #dx3-app .effects-table th:nth-child(6),
+  #dx3-app .effects-table td:nth-child(6) { width: 94px; min-width: 94px; max-width: 94px; }
+  #dx3-app .effects-table th:nth-child(11),
+  #dx3-app .effects-table td:nth-child(11) { width: 270px; min-width: 270px; max-width: 270px; }
+  #dx3-app .effects-table th:nth-child(12),
+  #dx3-app .effects-table td:nth-child(12) { width: 150px; min-width: 150px; max-width: 150px; }
+}
+
+/* v114: table-wrapper / compact-table-wrapper の右端欠け対策
+   係数表示（combo-source-table）は列数が多いため、PC幅でも無理に100%へ圧縮すると
+   右端の効果・備考列がクリップされる。compact-table-wrapper 内で横スクロールさせ、
+   表全体を確実に表示できるようにする。 */
+body.dx3-combo-page #dx3-app .table-wrapper,
+body.dx3-combo-page #dx3-app .compact-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto !important;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 {
+  table-layout: fixed !important;
+  width: 1530px !important;
+  min-width: 1530px !important;
+  max-width: none !important;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 th,
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 td {
+  box-sizing: border-box;
+}
+
+/* v114.1: 旧 nth-child 幅指定が v34 の係数列に誤爆していたため解除する。
+   v34 は colgroup（combo-col-*）で列幅を管理する。 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 th:nth-child(5),
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 td:nth-child(5) {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper::-webkit-scrollbar,
+body.dx3-combo-page #dx3-app .table-wrapper::-webkit-scrollbar {
+  height: 10px;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper::-webkit-scrollbar-track,
+body.dx3-combo-page #dx3-app .table-wrapper::-webkit-scrollbar-track {
+  background: rgba(13, 26, 80, 0.65);
+  border-radius: 999px;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper::-webkit-scrollbar-thumb,
+body.dx3-combo-page #dx3-app .table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(135, 206, 250, 0.58);
+  border-radius: 999px;
+}
+
+@media (max-width: 900px) {
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 {
+    width: 1530px !important;
+    min-width: 1530px !important;
+  }
+}
+
+/* v115: 1920px級の画面では横スクロールなしで全体表示する。
+   PCコンボ係数表示は colgroup の合計が 100% になるよう割合で管理する。 */
+@media (min-width: 1600px) {
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-name {
+    width: 10%;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-lv {
+    width: 3%;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-timing {
+    width: 6.5%;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-coef {
+    width: 2.5%;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-current {
+    width: 3%;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-effect {
+    width: 25%;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-note {
+    width: 18.5%;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 .source-effect-cell {
+    width: 25% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 .source-note-cell {
+    width: 18.5% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+}
+
+
+/* v118: スマホでも section-title の使用経験点を横並びにする */
+@media (max-width: 560px) {
+  .dx3-combo-page .section-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 0.45rem;
+    width: 100%;
+    min-width: 0;
+    font-size: 1.08rem;
+    line-height: 1.1;
+    margin-top: 1rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .dx3-combo-page .section-title .xp-display,
+  .dx3-combo-page .section-title > .xp-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    margin-left: 0;
+    white-space: nowrap;
+    font-size: 0.66rem;
+    line-height: 1;
+    padding: 0.18rem 0.5rem;
+    border-radius: 999px;
+  }
+
+  .dx3-combo-page .section-title i {
+    flex: 0 0 auto;
+  }
+
+  .dx3-combo-page .section-title::after {
+    content: "";
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+
+/* v120: スマホ上部フォームの横はみ出し修正 */
+@media (max-width: 560px) {
+  body.dx3-combo-page,
+  body.dx3-combo-page #dx3-app,
+  body.dx3-combo-page #dx3-app .main-content,
+  body.dx3-combo-page #dx3-app .top-info-wrapper,
+  body.dx3-combo-page #dx3-app .db-sync-block,
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  body.dx3-combo-page #dx3-app .top-info-wrapper {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.65rem !important;
+    align-items: stretch !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-sync-block,
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.55rem !important;
+    padding: 0.65rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-url-input,
+  body.dx3-combo-page #dx3-app .pc-character-name-row,
+  body.dx3-combo-page #dx3-app .character-info-grid label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.3rem !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-url-input span,
+  body.dx3-combo-page #dx3-app .character-info-grid label > span,
+  body.dx3-combo-page #dx3-app .pc-summary-label {
+    min-width: 0 !important;
+    white-space: normal !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-url-input input,
+  body.dx3-combo-page #dx3-app .character-info-grid input,
+  body.dx3-combo-page #dx3-app .pc-character-name-row input {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* URL下の読込/保存/共有/削除ボタンは、文字で横幅を押し出さない */
+  body.dx3-combo-page #dx3-app .db-buttons {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.42rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    justify-content: stretch !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons button {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 2.15rem !important;
+    padding: 0.45rem 0.55rem !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons button i {
+    flex: 0 0 auto !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons button span,
+  body.dx3-combo-page #dx3-app .db-buttons button .button-text {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* PC名とシンドロームは同じ行にしない。狭い時はシンドロームを下へ逃がす */
+  body.dx3-combo-page #dx3-app .pc-character-name-row #char-name-label {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-syndrome-summary-inline {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: none !important;
+    gap: 0.35rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-syndrome-placeholder,
+  body.dx3-combo-page #dx3-app .pc-syndrome-tag-list {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-syndrome-placeholder {
+    justify-content: center !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* 経験点は2列カードにして、横幅と高さのバランスを取る */
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.22rem !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    text-align: right !important;
+    padding-inline: 0.45rem !important;
+  }
+}
+
+@media (max-width: 360px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+
+/* v121: スマホ上部の縦積みと section-title XP横並びの両立 */
+@media (max-width: 560px) {
+  /* 上部フォームは縦積み維持。ただし横幅だけを強制し、section-titleには干渉させない */
+  body.dx3-combo-page #dx3-app .top-info-wrapper,
+  body.dx3-combo-page #dx3-app .db-sync-block,
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  body.dx3-combo-page #dx3-app .top-info-wrapper {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-sync-block,
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons button {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-character-name-row,
+  body.dx3-combo-page #dx3-app .character-info-grid label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* ここから section-title 専用。既存の max-width:430px flex-basis:100% を最後に上書きする */
+  body.dx3-combo-page #dx3-app .section-title {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 0.42rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title > .section-title-main {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 6.4rem) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title > .section-title-main i {
+    flex: 0 0 auto !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title > .xp-display,
+  body.dx3-combo-page #dx3-app .section-title > .section-xp-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.28rem !important;
+    flex: 0 0 auto !important;
+    flex-basis: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 5.7rem !important;
+    margin: 0 !important;
+    padding: 0.18rem 0.46rem !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+    align-self: center !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title .xp-label,
+  body.dx3-combo-page #dx3-app .section-title .xp-value {
+    display: inline-flex !important;
+    align-items: center !important;
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title .xp-label {
+    transform: none !important;
+    font-size: 0.68rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title .xp-value {
+    font-size: 1.02rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title::after {
+    content: "" !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  body.dx3-combo-page #dx3-app .section-title {
+    gap: 0.3rem !important;
+    font-size: 0.98rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title > .section-title-main {
+    max-width: calc(100% - 6rem) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title > .xp-display,
+  body.dx3-combo-page #dx3-app .section-title > .section-xp-badge {
+    min-width: 5.45rem !important;
+    padding-inline: 0.36rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title .xp-label {
+    font-size: 0.62rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .section-title .xp-value {
+    font-size: 0.95rem !important;
+  }
+}
+
+
+/* v122: db-sync-block / character-info-grid の横並びを復帰 */
+@media (min-width: 561px) {
+  body.dx3-combo-page #dx3-app .top-info-wrapper {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr) !important;
+    gap: 15px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-sync-block,
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-sync-block {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-url-input {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-url-input input {
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons button {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-character-name-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-character-name-row #char-name-label {
+    flex: 1 1 auto !important;
+    min-width: 12rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-syndrome-summary-inline {
+    flex: 0 1 26rem !important;
+    width: auto !important;
+    min-width: 16rem !important;
+    max-width: 26rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 15px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* 中幅でPC名+シンドロームだけ苦しい場合は、その行だけ縦に逃がす */
+@media (min-width: 561px) and (max-width: 1050px) {
+  body.dx3-combo-page #dx3-app .pc-character-name-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.45rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-character-name-row #char-name-label,
+  body.dx3-combo-page #dx3-app .pc-syndrome-summary-inline {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+/* スマホだけはv121の縦積みを維持 */
+@media (max-width: 560px) {
+  body.dx3-combo-page #dx3-app .top-info-wrapper {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+
+/* v123: スマホでも上部2ブロックを横並びに戻す */
+@media (max-width: 560px) {
+  body.dx3-combo-page #dx3-app .top-info-wrapper {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr) !important;
+    gap: 0.45rem !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-sync-block,
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0.5rem !important;
+    gap: 0.42rem !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-url-input,
+  body.dx3-combo-page #dx3-app .pc-character-name-row,
+  body.dx3-combo-page #dx3-app .character-info-grid label,
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.22rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    align-items: stretch !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-url-input span,
+  body.dx3-combo-page #dx3-app .character-info-grid label > span,
+  body.dx3-combo-page #dx3-app .pc-summary-label {
+    font-size: 0.72rem !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-url-input input,
+  body.dx3-combo-page #dx3-app .character-info-grid input,
+  body.dx3-combo-page #dx3-app .pc-character-name-row input {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 2rem !important;
+    padding: 0.35rem 0.45rem !important;
+    box-sizing: border-box !important;
+    font-size: 0.82rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.32rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 1.9rem !important;
+    padding: 0.34rem 0.38rem !important;
+    font-size: 0.78rem !important;
+    line-height: 1 !important;
+    gap: 0.28rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-buttons button i {
+    flex: 0 0 auto !important;
+    font-size: 0.9em !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-character-name-row #char-name-label,
+  body.dx3-combo-page #dx3-app .pc-syndrome-summary-inline {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-syndrome-summary-inline {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.2rem !important;
+    flex: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-syndrome-placeholder {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 1.55rem !important;
+    padding: 0 0.35rem !important;
+    font-size: 0.62rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.38rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    text-align: right !important;
+    font-size: 1rem !important;
+    line-height: 1.05 !important;
+  }
+}
+
+/* 360px未満は2カラムが破綻しやすいので縦積みに戻す */
+@media (max-width: 359px) {
+  body.dx3-combo-page #dx3-app .top-info-wrapper {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* v124: スマホの section-title 内「使用経験点」を少し下げる */
+@media (max-width: 560px) {
+  body.dx3-combo-page #dx3-app .section-title .xp-label {
+    position: relative !important;
+    top: 1px !important;
+    transform: translateY(1px) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  body.dx3-combo-page #dx3-app .section-title .xp-label {
+    top: 1px !important;
+    transform: translateY(1px) !important;
+  }
+}
+
+
+/* v125: スマホ時は xp-fields-group のラベルを左、数値欄を右に配置 */
+@media (max-width: 560px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.42rem 0.5rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(4.4rem, 5rem) !important;
+    gap: 0.4rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    font-size: 0.76rem !important;
+    line-height: 1.15 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 1.95rem !important;
+    text-align: right !important;
+    font-size: 1.25rem !important;
+    padding: 0.2rem 0.42rem !important;
+  }
+}
+
+@media (max-width: 359px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    grid-template-columns: minmax(0, 1fr) minmax(4.2rem, 4.8rem) !important;
+  }
+}
+
+
+/* v126: スマホ時、経験点4項目を2列のままラベル左・数値右にする */
+@media (max-width: 560px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.42rem 0.5rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 3.45rem !important;
+    gap: 0.28rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    font-size: 0.7rem !important;
+    line-height: 1.15 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    width: 3.45rem !important;
+    min-width: 3.45rem !important;
+    max-width: 3.45rem !important;
+    height: 1.85rem !important;
+    padding: 0.18rem 0.32rem !important;
+    text-align: right !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* かなり狭くても、まず2列維持。数値欄だけさらに詰める */
+@media (max-width: 380px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.38rem 0.4rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    grid-template-columns: minmax(0, 1fr) 3.2rem !important;
+    gap: 0.22rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+    font-size: 0.66rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    width: 3.2rem !important;
+    min-width: 3.2rem !important;
+    max-width: 3.2rem !important;
+    padding-inline: 0.24rem !important;
+  }
+}
+
+/* 320px級だけは破綻回避で1列 */
+@media (max-width: 319px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    grid-template-columns: minmax(0, 1fr) 3.45rem !important;
+  }
+}
+
+
+/* 半端な横幅では経験点4項目を2列にして、ラベルと数値の重なりを防ぐ */
+@media (min-width: 561px) and (max-width: 1250px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem 0.65rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: minmax(4.5rem, 1fr) minmax(4.2rem, 5.2rem) !important;
+    gap: 0.45rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    white-space: normal !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label > span {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+    line-height: 1.15 !important;
+    font-size: 0.78rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 5.2rem !important;
+    justify-self: end !important;
+    text-align: right !important;
+    font-weight: 400 !important;
+    padding-inline: 0.45rem !important;
+  }
+}
+
+/* かなり余裕がある幅では元の横一列に戻す。ただし太字にはしない */
+@media (min-width: 1251px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    font-weight: 400 !important;
+  }
+}
+
+
+/* v128: シナリオ回数テーブルの列ずれ修正 */
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: separate;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-row-drag {
+  width: 2rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-name {
+  width: 28% !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-current,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-max {
+  width: 3.05rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-memo {
+  width: auto !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-row-actions {
+  width: 2.35rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable th,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable td {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable th:first-child,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+  width: 2rem !important;
+  min-width: 2rem !important;
+  max-width: 2rem !important;
+  padding-inline: 0.1rem !important;
+  text-align: center !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name {
+  min-width: 0 !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max {
+  width: 3.05rem !important;
+  min-width: 3.05rem !important;
+  max-width: 3.05rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell {
+  width: 2.35rem !important;
+  min-width: 2.35rem !important;
+  max-width: 2.35rem !important;
+  padding-inline: 0.12rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name input,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name > span,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo > span {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max input,
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max span {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-action-wrap {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0 !important;
+  width: 100% !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-handle {
+  margin-inline: auto !important;
+}
+
+/* スマホカード化時も6列前提の配置にする */
+@media (max-width: 760px) {
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable colgroup,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable thead {
+    display: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tbody,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    display: block;
+    width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    display: grid !important;
+    grid-template-columns: 1.8rem minmax(0, 1fr) 2.8rem 2.8rem 2.15rem !important;
+    gap: 0.3rem !important;
+    align-items: center !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable td {
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name {
+    grid-column: 2 / 5 !important;
+    grid-row: 1 / 2 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell {
+    grid-column: 5 / 6 !important;
+    grid-row: 1 / 2 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max {
+    grid-column: 3 / 4 !important;
+    grid-row: 2 / 3 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo {
+    grid-column: 1 / 6 !important;
+    grid-row: 3 / 4 !important;
+  }
+}
+
+
+/* v129: スマホのシナリオ回数を「現在/最大 メモ」横並びにする */
+@media (max-width: 760px) {
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    grid-template-columns: 1.8rem 3rem 0.55rem 3rem minmax(0, 1fr) !important;
+    gap: 0.3rem !important;
+    align-items: center !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name {
+    grid-column: 2 / 5 !important;
+    grid-row: 1 / 2 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell {
+    grid-column: 5 / 6 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    position: relative !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+    content: "/" !important;
+    position: absolute !important;
+    right: -0.42rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: rgba(238, 246, 255, 0.78) !important;
+    font-family: var(--font-latin-ui) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max {
+    grid-column: 4 / 5 !important;
+    grid-row: 2 / 3 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo {
+    grid-column: 5 / 6 !important;
+    grid-row: 2 / 3 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max span {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 1.85rem !important;
+    min-height: 1.85rem !important;
+    padding-inline: 0.22rem !important;
+    text-align: center !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 1.85rem !important;
+    min-height: 1.85rem !important;
+    padding-inline: 0.45rem !important;
+  }
+
+  /* 以前のカード用小ラベルが残っている場合は非表示 */
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::before,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max::before,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo::before {
+    content: none !important;
+    display: none !important;
+  }
+}
+
+@media (max-width: 380px) {
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    grid-template-columns: 1.55rem 2.65rem 0.45rem 2.65rem minmax(0, 1fr) !important;
+    gap: 0.24rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+    right: -0.34rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max span {
+    font-size: 0.95rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+    padding-inline: 0.34rem !important;
+  }
+}
+
+
+/* v130: スマホのシナリオ回数で名称欄を広げ、候補なし表示の縦文字化を防ぐ */
+@media (max-width: 760px) {
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    grid-template-columns: 1.7rem minmax(0, 1fr) 0.5rem 2.8rem 2.15rem !important;
+    gap: 0.28rem !important;
+    align-items: center !important;
+  }
+
+  /* 1段目: drag / 名称 / 削除。名称は可変列を使って横に伸ばす */
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name {
+    grid-column: 2 / 5 !important;
+    grid-row: 1 / 2 !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell {
+    grid-column: 5 / 6 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+  }
+
+  /* 2段目: 現在 / 最大 メモ */
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    position: relative !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+    content: "/" !important;
+    position: absolute !important;
+    right: -0.38rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: rgba(238, 246, 255, 0.78) !important;
+    font-family: var(--font-latin-ui) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max {
+    grid-column: 4 / 5 !important;
+    grid-row: 2 / 3 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo {
+    grid-column: 5 / 6 !important;
+    grid-row: 2 / 3 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name > span,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    writing-mode: horizontal-tb !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* 候補なし行はカードグリッドに乗せず、全文を横書きで表示 */
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tbody:not([style*="display: none"]) tr:has(.pc-scenario-empty) {
+    display: block !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-empty {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0.55rem 0.65rem !important;
+    box-sizing: border-box !important;
+    writing-mode: horizontal-tb !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.45 !important;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 380px) {
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    grid-template-columns: 1.55rem minmax(0, 1fr) 0.45rem 2.55rem 2rem !important;
+    gap: 0.22rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+    right: -0.32rem !important;
+  }
+}
+
+
+/* v131: スマホのシナリオ回数2行目を 現在 / 最大 / メモ で揃える */
+@media (max-width: 760px) {
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    grid-template-columns: 1.7rem 3rem 0.5rem 3rem minmax(0, 1fr) 2.15rem !important;
+    gap: 0.28rem !important;
+    align-items: center !important;
+  }
+
+  /* 1行目: drag / 名称 / 削除 */
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name {
+    grid-column: 2 / 6 !important;
+    grid-row: 1 / 2 !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell {
+    grid-column: 6 / 7 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+  }
+
+  /* 2行目: 現在 / 最大 / メモ */
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+    content: "/" !important;
+    position: absolute !important;
+    right: -0.38rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: rgba(238, 246, 255, 0.78) !important;
+    font-family: var(--font-latin-ui) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max {
+    grid-column: 4 / 5 !important;
+    grid-row: 2 / 3 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo {
+    grid-column: 5 / 7 !important;
+    grid-row: 2 / 3 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max input,
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max span {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 1.85rem !important;
+    min-height: 1.85rem !important;
+    padding-inline: 0.22rem !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 1.85rem !important;
+    min-height: 1.85rem !important;
+    padding-inline: 0.42rem !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 380px) {
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+    grid-template-columns: 1.55rem 2.8rem 0.45rem 2.8rem minmax(0, 1fr) 2rem !important;
+    gap: 0.22rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+    right: -0.32rem !important;
+  }
+}
+
+
+/* v133: 現行CSS基準。中幅の経験点欄を2〜3桁入力幅で安定化 */
+@media (min-width: 561px) and (max-width: 1380px) {
+  body.dx3-combo-page #dx3-app .top-info-wrapper {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.45fr) !important;
+    gap: 0.75rem !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .db-sync-block,
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid {
+    gap: 0.62rem !important;
+    padding: 0.75rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-character-name-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(11rem, 0.78fr) !important;
+    gap: 0.55rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-character-name-row #char-name-label,
+  body.dx3-combo-page #dx3-app .pc-syndrome-summary-inline {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-syndrome-summary-inline {
+    flex: none !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem 0.6rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group label,
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 3.35rem !important;
+    gap: 0.3rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.15 !important;
+    font-size: 0.78rem !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"],
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    width: 3.35rem !important;
+    min-width: 3.35rem !important;
+    max-width: 3.35rem !important;
+    height: 1.9rem !important;
+    justify-self: end !important;
+    text-align: right !important;
+    padding: 0.18rem 0.3rem !important;
+    font-weight: 400 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* ちょうど詰まりやすい 1150〜1380px はPC名/シンドロームを縦に逃がして、経験点を守る */
+@media (min-width: 561px) and (max-width: 1380px) {
+  body.dx3-combo-page #dx3-app .pc-character-name-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .pc-syndrome-summary-inline {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    gap: 0.35rem !important;
+  }
+}
+
+/* 余裕がある幅でも、経験点数値欄は無駄に広げない */
+@media (min-width: 1381px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.6rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 3.4rem !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    width: 3.4rem !important;
+    min-width: 3.4rem !important;
+    max-width: 3.4rem !important;
+    justify-self: end !important;
+    padding-inline: 0.32rem !important;
+    font-weight: 400 !important;
+  }
+}
+
+/* スマホ側も、数値欄は2〜3桁幅を維持 */
+@media (max-width: 560px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group label,
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    grid-template-columns: minmax(0, 1fr) 3.25rem !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"],
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    width: 3.25rem !important;
+    min-width: 3.25rem !important;
+    max-width: 3.25rem !important;
+    font-weight: 400 !important;
+  }
+}
+
+
+/* v134: 経験点欄はラベルを削らず、数値ボックス側をさらに縮める */
+@media (min-width: 561px) and (max-width: 1380px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group,
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem 0.7rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label,
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: max-content 2.75rem !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+    justify-content: start !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    font-size: 0.78rem !important;
+    font-weight: 400 !important;
+    line-height: 1.1 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label > span,
+  body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+    min-width: max-content !important;
+    width: max-content !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"],
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    width: 2.75rem !important;
+    min-width: 2.75rem !important;
+    max-width: 2.75rem !important;
+    height: 1.85rem !important;
+    justify-self: start !important;
+    text-align: right !important;
+    padding: 0.16rem 0.24rem !important;
+    font-weight: 400 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* さらに詰まりやすい幅だけ、ボックスを2.55remまで落とす */
+@media (min-width: 561px) and (max-width: 1160px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label,
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    grid-template-columns: max-content 2.55rem !important;
+    gap: 0.28rem !important;
+    font-size: 0.74rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"],
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    width: 2.55rem !important;
+    min-width: 2.55rem !important;
+    max-width: 2.55rem !important;
+    padding-inline: 0.2rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* 余裕がある幅でも数値ボックスを必要以上に広げない */
+@media (min-width: 1381px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    grid-template-columns: max-content 2.9rem !important;
+    gap: 0.38rem !important;
+    white-space: nowrap !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    width: 2.9rem !important;
+    min-width: 2.9rem !important;
+    max-width: 2.9rem !important;
+    padding-inline: 0.24rem !important;
+    font-weight: 400 !important;
+  }
+}
+
+
+/* v135: 経験点の数値ボックスは基本伸ばし、重なりそうな幅だけ強く縮める */
+@media (min-width: 1381px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.6rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: max-content minmax(3.2rem, 1fr) !important;
+    gap: 0.4rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    width: 100% !important;
+    min-width: 3.2rem !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    padding-inline: 0.36rem !important;
+    font-weight: 400 !important;
+  }
+}
+
+/* 中幅: 2列にしつつ、ボックスは残り幅いっぱい伸ばす */
+@media (min-width: 1161px) and (max-width: 1380px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group,
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem 0.7rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label,
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: max-content minmax(3rem, 1fr) !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    font-size: 0.78rem !important;
+    font-weight: 400 !important;
+    line-height: 1.1 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label > span,
+  body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+    min-width: max-content !important;
+    width: max-content !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"],
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    width: 100% !important;
+    min-width: 3rem !important;
+    max-width: none !important;
+    height: 1.85rem !important;
+    justify-self: stretch !important;
+    text-align: right !important;
+    padding: 0.16rem 0.3rem !important;
+    font-weight: 400 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* つまりやすい幅: ボックスの縮小量を増やす */
+@media (min-width: 561px) and (max-width: 1160px) {
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group,
+  body.dx3-combo-page #dx3-app .xp-fields-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.4rem 0.55rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label,
+  body.dx3-combo-page #dx3-app .xp-fields-group label {
+    display: grid !important;
+    grid-template-columns: max-content minmax(2.35rem, 1fr) !important;
+    gap: 0.24rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    font-size: 0.74rem !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label > span,
+  body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+    min-width: max-content !important;
+    width: max-content !important;
+    white-space: nowrap !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"],
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+    width: 100% !important;
+    min-width: 2.35rem !important;
+    max-width: none !important;
+    height: 1.8rem !important;
+    justify-self: stretch !important;
+    padding-inline: 0.18rem !important;
+    font-size: 0.88rem !important;
+    font-weight: 400 !important;
+  }
+}
+
+/* スマホは既存の2列感を残しつつ、狭いほどボックスを強めに縮める */
+@media (max-width: 560px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group label,
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    grid-template-columns: max-content minmax(2.55rem, 1fr) !important;
+    gap: 0.24rem !important;
+    white-space: nowrap !important;
+    font-weight: 400 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"],
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    width: 100% !important;
+    min-width: 2.55rem !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    font-weight: 400 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  body.dx3-combo-page #dx3-app .xp-fields-group label,
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+    grid-template-columns: max-content minmax(2.25rem, 1fr) !important;
+    gap: 0.18rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"],
+  body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+    min-width: 2.25rem !important;
+    padding-inline: 0.16rem !important;
+    font-size: 0.86rem !important;
   }
 }

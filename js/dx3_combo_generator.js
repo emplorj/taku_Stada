@@ -1131,13 +1131,18 @@ new Vue({
 
         // 1. (能力値+侵蝕率D+ダイスボーナス)DX(C値)
         // ユーザー要望: ({精神}+{侵蝕率D}+0)DX7 の形式
-        let diceFormula = `({${attributeName}}+{侵蝕率D}${
+        const commandVariable = (name) => {
+          const value = String(name || "").trim();
+          return value ? `{${value}}` : "";
+        };
+
+        let diceFormula = `(${commandVariable(attributeName)}+${commandVariable("侵蝕率D")}${
           finalDice >= 0 ? "+" : ""
         }${finalDice})DX${finalCrit}`;
 
         // 3. +{技能}
         if (skill !== "-") {
-          diceFormula += this.shouldUseZeroForBaseSkill(skill) ? "+0" : `+{${skill}}`;
+          diceFormula += this.appMode !== "enemy" && this.shouldUseZeroForBaseSkill(skill) ? "+0" : `+${commandVariable(skill)}`;
         }
 
         // 4. +達成値ボーナス
@@ -1813,6 +1818,51 @@ new Vue({
       moved.splice(nextIndex, 0, item);
       moved.forEach((key, index) => this.setPcScenarioCounterOverride(key, { order: index }));
     },
+    startPcScenarioCounterDrag(event, index) {
+      const counter = this.pcScenarioCounters[Number(index)];
+      if (!counter || !counter.manual) return;
+      this.pcScenarioCounterDragState = { index: Number(index) };
+      const row = event && event.currentTarget ? event.currentTarget.closest("tr") : null;
+      if (row) row.classList.add("is-dragging");
+      if (event && event.dataTransfer) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", String(index));
+      }
+    },
+    dragOverPcScenarioCounterRow(event) {
+      const row = event && event.currentTarget ? event.currentTarget.closest("tr") : null;
+      if (row) row.classList.add("is-drag-over");
+    },
+    dragLeavePcScenarioCounterRow(event) {
+      const row = event && event.currentTarget ? event.currentTarget.closest("tr") : null;
+      if (row) row.classList.remove("is-drag-over");
+    },
+    dropPcScenarioCounterRow(event, toIndex) {
+      const drag = this.pcScenarioCounterDragState || {};
+      const fromIndex = Number(drag.index);
+      const destIndex = Number(toIndex);
+      const draggedCounter = this.pcScenarioCounters[fromIndex];
+      const row = event && event.currentTarget ? event.currentTarget.closest("tr") : null;
+      if (row) row.classList.remove("is-drag-over");
+      if (!draggedCounter || !draggedCounter.manual || !Number.isInteger(fromIndex) || !Number.isInteger(destIndex) || fromIndex === destIndex) {
+        this.endPcScenarioCounterDrag();
+        return;
+      }
+      const keys = this.pcScenarioCounters.map((counter) => counter.key);
+      const moved = [...keys];
+      const [item] = moved.splice(fromIndex, 1);
+      moved.splice(destIndex, 0, item);
+      moved.forEach((key, index) => this.setPcScenarioCounterOverride(key, { order: index }));
+      this.endPcScenarioCounterDrag();
+    },
+    endPcScenarioCounterDrag() {
+      this.pcScenarioCounterDragState = null;
+      this.$nextTick(() => {
+        const root = this.$el || document;
+        root.querySelectorAll(".pc-scenario-resource-table tr.is-dragging, .pc-scenario-resource-table tr.is-drag-over")
+          .forEach((row) => row.classList.remove("is-dragging", "is-drag-over"));
+      });
+    },
     pcScenarioRefreshCandidates() {
       return this.getDetectedPcScenarioCounters().map((counter, index) => ({
         ...counter,
@@ -2349,7 +2399,7 @@ new Vue({
             { name: "渇きの主", showInComboName: true },
           ],
           atk_weapon: 14,
-          baseAbility: { skill: "-", statOverride: "肉体" },
+          baseAbility: { skill: "白兵", statOverride: "肉体" },
           flavor: "ふははは！ 受けるダメージを減らしたいなら装甲値を上げるのが一番楽だぞ！ もっとも、私の《渇きの主》のように装甲値を無視する手段を持つ者も多いがなぁ！",
           manualEffectDescription: "《破壊の爪》による白兵攻撃。装甲値を無視してダメージを与える。命中した場合、自身のHPを[Lv×4]点回復。1点でもHPダメージを与えた場合、そのラウンドの間、対象の行なうあらゆる判定のダイスを2個する。",
           effectDescriptionMode: "manual",
@@ -2596,10 +2646,23 @@ new Vue({
       const label = this.getDx3EnemySkillLabel(row);
       if (!label) return "";
       const dice = Number((row && row.dice) || 0);
-      const fixed = (Number((row && row.level) || 0) + Number((row && row.mod) || 0));
+      const mod = Number((row && row.mod) || 0);
       const dicePart = dice ? `${dice > 0 ? "+" : ""}${dice}` : "";
-      const fixedPart = fixed ? `${fixed > 0 ? "+" : ""}${fixed}` : "+0";
-      return `({${ability}}+{侵蝕率D}${dicePart})DX${fixedPart} 【${ability}】〈${label}〉`;
+      const modPart = mod ? `${mod > 0 ? "+" : ""}${mod}` : "";
+      return `({${ability}}+{侵蝕率D}${dicePart})DX+{${label}}${modPart}`;
+    },
+    buildDx3EnemySkillParams(data = null) {
+      const src = data || this.enemyData || {};
+      const skillRows = Array.isArray(src.skillRows) ? src.skillRows : [];
+      const seen = new Set();
+      const params = [];
+      skillRows.forEach((row) => {
+        const label = this.getDx3EnemySkillLabel(row);
+        if (!label || seen.has(label)) return;
+        seen.add(label);
+        params.push({ label, value: String(Number((row && row.level) || 0) || 0) });
+      });
+      return params;
     },
     async copyDx3EnemyClipboardText(text) {
       const value = String(text == null ? "" : text);
@@ -2976,6 +3039,7 @@ new Vue({
             { label: "社会", value: String(Number(abilities.social) || 0) },
             { label: "装甲", value: String(Number(finalStats.armor) || 0) },
             { label: "侵蝕率D", value: String(this.getErosionDice(finalStats.erosion)) },
+            ...this.buildDx3EnemySkillParams(data),
             { label: "移動力", value: String(Number(finalStats.move) || 0) },
             { label: "全力移動", value: String((Number(finalStats.move) || 0) * 2) },
           ],

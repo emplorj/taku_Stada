@@ -419,13 +419,13 @@
               </div>
 
               <p class="pc-help-text pc-lois-tool-note">
-                ここでロイスを作って、コピーして、ココフォリア上で宣言するといい感じ。ココフォリアのコマやメモから貼れば、ロイス行だけ拾える。ここには保存されないから、最後はココフォリア側に貼って管理する。
+                ここでロイスを作って、コピーして、ココフォリア上で宣言するといい感じ。ココフォリアのコマやメモを直接貼れば、ロイス行だけ拾える。ここには保存されないから、最後はココフォリア側に貼って管理する。
               </p>
 
               <div class="pc-lois-import">
                 <textarea
                   v-model="loisImportText"
-                  placeholder="ココフォリアのコマやメモ欄から貼り付け&#10;1. 😀：仲宗根 流依　◯親近感/猜疑心&#10;2. 😀：仁科アリサ　好奇心/◯不安&#10;&#10;関係ないメモが混ざってても、ロイス行だけ拾う。"
+                  placeholder="ココフォリアのコマやメモ欄から貼り付け、関係ないメモが混ざってても、ロイス行だけ拾うヨ！&#10;1. 😀：仁科ミカ　◯尊敬/猜疑心&#10;2. 😀：仁科アリサ　好奇心/◯不安"
                 ></textarea>
                 <div class="pc-lois-import-actions pc-lois-import-actions-bottom">
                   <button type="button" class="small-button" @click="importLoisText">
@@ -469,7 +469,7 @@
                       type="text"
                       v-model="row.pos"
                       list="lois-positive-options"
-                      placeholder="P自由"
+                      placeholder="ポジ"
                       title="ポジティブ感情"
                     />
                     <span class="pc-lois-slash">/</span>
@@ -487,7 +487,7 @@
                       type="text"
                       v-model="row.neg"
                       list="lois-negative-options"
-                      placeholder="N自由"
+                      placeholder="ネガ"
                       title="ネガティブ感情"
                     />
                   </div>
@@ -548,6 +548,7 @@
               <div class="table-wrap resource-table-wrap pc-scenario-resource-wrap">
                 <table class="asian-table mini-resource-table pc-scenario-resource-table" id="pcScenarioResourcesTable">
                   <colgroup>
+                    <col class="col-row-drag">
                     <col class="col-resource-name">
                     <col class="col-resource-current">
                     <col class="col-resource-max">
@@ -556,6 +557,7 @@
                   </colgroup>
                   <thead>
                     <tr>
+                      <th></th>
                       <th>名称</th>
                       <th>現在</th>
                       <th>最大</th>
@@ -564,7 +566,25 @@
                     </tr>
                   </thead>
                   <tbody v-if="pcScenarioCounters.length">
-                    <tr v-for="counter in pcScenarioCounters" :key="counter.key" :class="{ 'is-manual-counter': counter.manual }">
+                    <tr
+                      v-for="(counter, counterIndex) in pcScenarioCounters"
+                      :key="counter.key"
+                      :class="{ 'is-manual-counter': counter.manual }"
+                      @dragover.prevent="dragOverPcScenarioCounterRow"
+                      @dragleave="dragLeavePcScenarioCounterRow"
+                      @drop.prevent="dropPcScenarioCounterRow($event, counterIndex)"
+                    >
+                      <td class="pc-scenario-drag-cell" data-label="">
+                        <span
+                          v-if="counter.manual"
+                          draggable="true"
+                          title="このシナリオ回数をドラッグで並べ替え"
+                          aria-label="このシナリオ回数をドラッグで並べ替え"
+                          class="effect-drag-handle effect-drag-handle-inline pc-scenario-drag-handle"
+                          @dragstart="startPcScenarioCounterDrag($event, counterIndex)"
+                          @dragend="endPcScenarioCounterDrag"
+                        >⠿</span>
+                      </td>
                       <td class="cell-resource-name" data-label="名称">
                         <input
                           v-if="counter.manual"
@@ -603,12 +623,6 @@
                       </td>
                       <td class="row-actions-cell" data-label="">
                         <div class="row-action-wrap">
-                          <button type="button" class="move-btn mini-move-btn" @click="movePcScenarioCounter(counter, -1)" title="上へ" aria-label="上へ">
-                            <i class="fa-solid fa-chevron-up"></i>
-                          </button>
-                          <button type="button" class="move-btn mini-move-btn" @click="movePcScenarioCounter(counter, 1)" title="下へ" aria-label="下へ">
-                            <i class="fa-solid fa-chevron-down"></i>
-                          </button>
                           <button type="button" class="delete-btn" @click="removePcScenarioCounter(counter)" title="削除" aria-label="削除">
                             <i class="fa-solid fa-trash"></i>
                           </button>
@@ -618,7 +632,7 @@
                   </tbody>
                   <tbody v-else>
                     <tr>
-                      <td colspan="5" class="pc-scenario-empty">候補なし。追加または再取得で作成できます。</td>
+                      <td colspan="6" class="pc-scenario-empty">候補なし。追加または再取得で作成できます。</td>
                     </tr>
                   </tbody>
                 </table>
@@ -638,16 +652,9 @@
                 >DX敵テンプレ寄せ。キャラシ読込なしでここで作る。</span
               >
             </div>
-            <div class="dx3-enemy-sample-actions" aria-label="サンプルデータ">
-              <button
-                type="button"
-                class="action-btn is-sub dx3-enemy-sample-btn"
-                @click="loadDx3EnemySpringKyojiSample"
-              >
-                <i class="fa-solid fa-flask"></i> 春日恭二サンプル
-              </button>
-              <span class="dx3-enemy-sample-note"
-                >テスト用のエフェクト・コンボを一括投入</span
+            <div class="dx3-enemy-sample-actions" aria-label="コマ出力補足">
+              <span class="koma-import-help dx3-koma-help"
+                >※ココフォリア用の駒JSONを出力します。公開設定・作者・立ち絵URLは下の保存情報で管理します。</span
               >
             </div>
           </header>
@@ -684,9 +691,25 @@
                 >
               </span>
             </div>
-            <span class="koma-import-help dx3-koma-help"
-              >※ココフォリア用の駒JSONを出力します。公開設定・作者・立ち絵URLは下の保存情報で管理します。</span
-            >
+            <div class="dx3-enemy-sample-actions" aria-label="サンプルデータ">
+              <button
+                type="button"
+                class="action-btn is-sub dx3-enemy-sample-btn enemy-action-btn"
+                @click="loadDx3EnemySpringKyojiSample"
+              >
+                <span class="dx3-enemy-sample-avatar" aria-hidden="true">
+                  <img
+                    src="https://storage.ccfolia-cdn.net/users/kdAUSi9vTpPfd45w6r6mUySCu4A3/files/660ee8f2c902d5d80ae94ae923243f27b5afcd19bbd3b69d18d0f15dfd5d82a8"
+                    alt=""
+                    loading="lazy"
+                  />
+                </span>
+                <span class="dx3-enemy-sample-btn-text">
+                  <span class="dx3-enemy-sample-kicker">NPC SAMPLE</span>
+                  <span class="dx3-enemy-sample-name">春日恭二</span>
+                </span>
+              </button>
+            </div>
           </div>
 
           <section
