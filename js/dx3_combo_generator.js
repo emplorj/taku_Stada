@@ -1,5 +1,4 @@
 // dx3_combo_generator.js
-console.log("dx3_combo_generator.js loaded and executed.");
 
 Vue.component("input-with-dropdown", {
   template: "#input-with-dropdown-template",
