@@ -1727,35 +1727,84 @@ async function fetchSatasupeDisplayJson(sheetUrl) {
   }
 }
 
+
+function cleanText(value) {
+  if (value === null || value === undefined) return "";
+  return String(value)
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .trim();
+}
+
+function toZeroString(value) {
+  const s = cleanText(value);
+  return s === "" ? "0" : s;
+}
+
+function firstText() {
+  for (let i = 0; i < arguments.length; i++) {
+    const s = cleanText(arguments[i]);
+    if (s) return s;
+  }
+  return "";
+}
+
+function arrayOrEmpty(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function dedupeParams(params) {
+  const seen = {};
+  const result = [];
+  params.forEach((p) => {
+    if (!p || !p.label) return;
+    if (seen[p.label]) return;
+    seen[p.label] = true;
+    result.push(p);
+  });
+  return result;
+}
+
+function toCharasheetJsonUrl(url) {
+  const m = String(url).match(/charasheet\.vampire-blood\.net\/(\d+)/);
+  if (!m) throw new Error("キャラクター保管所のIDを取得できません。");
+  return `https://charasheet.vampire-blood.net/${m[1]}.js`;
+}
+
+function parseMaybeJsonp(text) {
+  let s = String(text || "").trim();
+  if (!s) throw new Error("JSONの取得結果が空です。");
+  const firstBrace = s.indexOf("{");
+  const lastBrace = s.lastIndexOf("}");
+  if (firstBrace > 0 && lastBrace > firstBrace) {
+    s = s.slice(firstBrace, lastBrace + 1);
+  }
+  return JSON.parse(s);
+}
+
+async function fetchDxJsonFromUrl(url) {
+  const jsonUrl = toCharasheetJsonUrl(url);
+  const res = await fetch(jsonUrl, {
+    redirect: "follow",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+      Accept: "application/json,text/plain,*/*",
+    },
+  });
+  if (!res.ok) throw new Error(`DX3 JSON取得に失敗したぞ (HTTP ${res.status})`);
+  return parseMaybeJsonp(await res.text());
+}
+
 async function fetchAndIdentifySystem(url) {
   const lower = String(url || "").toLowerCase();
 
-  // URLベースの判定を優先（誤検出防止）
-  if (
-    lower.includes("swordworld") ||
-    lower.includes("sw2") ||
-    lower.includes("sw25")
-  ) {
-    const html = await fetchRawHtml(url);
-    return { system: "SW25", html };
-  }
-
-  if (
-    lower.includes("nechronica") ||
-    lower.includes("necro") ||
-    lower.includes("nechronicle")
-  ) {
-    const html = await fetchRawHtml(url);
-    if (html.includes("Power_name[]") || html.includes("V_Power_hantei[]")) {
-      return { system: "Nechronica", html };
-    }
-    try {
-      return { system: "Nechronica", html: await fetchViaPhantom(url) };
-    } catch (_) {
-      return { system: "Nechronica", html };
-    }
-  }
-
+  // サタスペは appspot の display?ajax=1 を使う。
   if (lower.includes("satasupe") || lower.includes("appspot.com")) {
     let html;
     try {
@@ -1767,14 +1816,61 @@ async function fetchAndIdentifySystem(url) {
     return { system: "Satasupe", html, satasupeData };
   }
 
-  const html = await fetchRawHtml(url);
-  if (html.includes("ダブルクロス")) return { system: "DX3", html };
+  // キャラクター保管所は .js JSON の game を最優先で見る。
+  // NP1 などはSW2.5にも存在するため、DX3判定に使わない。
+  if (lower.includes("charasheet.vampire-blood.net")) {
+    try {
+      const sheetData = await fetchDxJsonFromUrl(url);
+      const game = cleanText(sheetData && sheetData.game).toLowerCase();
 
-  // ネクロニカは専用フォーム要素を必須条件にして誤判定を防ぐ
-  if (
-    html.includes("ネクロニカ") &&
-    (html.includes("Power_name[]") || html.includes("V_Power_hantei[]"))
-  ) {
+      // キャラクター保管所のシステム判定は game を正とする。
+      // 例: "dx3", "swordworld2", "nechro"
+      if (game === "dx3") {
+        return { system: "DX3", html: "", dx3Data: sheetData };
+      }
+
+      if (game === "swordworld2") {
+        const html = await fetchRawHtml(url);
+        return { system: "SW25", html };
+      }
+
+      if (game === "nechro") {
+        const html = await fetchRawHtml(url);
+        return { system: "Nechronica", html };
+      }
+
+      // game があるのに上記と一致しない場合は、NP1 等でDX3扱いしない。
+      if (game) {
+        return { system: "Unknown", html: "" };
+      }
+
+      // game が空の古いDX3 JSONだけ、DX3固有項目で判定する。
+      if (
+        sheetData.effect_name !== undefined ||
+        sheetData.roice_name !== undefined ||
+        sheetData.works_name !== undefined
+      ) {
+        return { system: "DX3", html: "", dx3Data: sheetData };
+      }
+
+      // game が空の古いネクロニカJSON用の保険。
+      if (sheetData.Power_name !== undefined || sheetData.Act_Total !== undefined) {
+        const html = await fetchRawHtml(url);
+        return { system: "Nechronica", html };
+      }
+    } catch (_) {
+      // JSON取得に失敗した場合だけHTMLパースへフォールバックする。
+    }
+  }
+
+  // URLベースの判定。JSONが取れない形式や旧URL用。
+  if (lower.includes("swordworld") || lower.includes("sw2") || lower.includes("sw25")) {
+    const html = await fetchRawHtml(url);
+    return { system: "SW25", html };
+  }
+
+  if (lower.includes("nechronica") || lower.includes("necro") || lower.includes("nechronicle")) {
+    const html = await fetchRawHtml(url);
     if (html.includes("Power_name[]") || html.includes("V_Power_hantei[]")) {
       return { system: "Nechronica", html };
     }
@@ -1785,6 +1881,11 @@ async function fetchAndIdentifySystem(url) {
     }
   }
 
+  const html = await fetchRawHtml(url);
+  if (html.includes("ダブルクロス")) return { system: "DX3", html };
+  if (html.includes("ネクロニカ") && (html.includes("Power_name[]") || html.includes("V_Power_hantei[]"))) {
+    return { system: "Nechronica", html };
+  }
   if (html.includes("ソードワールド") || html.includes("swordworld")) {
     return { system: "SW25", html };
   }
@@ -1802,7 +1903,14 @@ function getNameBySystem(html, system) {
   return name || "(名前取得失敗)";
 }
 
-function getEffectDX(html) {
+function getEffectDX(source) {
+  if (source && typeof source === "object") {
+    const names = arrayOrEmpty(source.effect_name).map(cleanText).filter(Boolean);
+    const levels = arrayOrEmpty(source.effect_lv).map(cleanText).filter((v) => v !== "");
+    return [names, levels];
+  }
+
+  const html = String(source || "");
   const names = pickAllByName(html, "effect_name[]");
   const levels = pickAllByName(html, "effect_lv[]");
   const hyou = [
@@ -1838,6 +1946,114 @@ function getEffectDX(html) {
   return [names, formatted];
 }
 
+function getDxName(sheetData) {
+  return firstText(sheetData.pc_name, sheetData.koma_name, sheetData.data_title, "(名前未設定)");
+}
+
+function getDxSkillParamsFromJson(sheetData) {
+  const tokugi = arrayOrEmpty(sheetData.skill_tokugi);
+  const namedSkills = getDxNamedSkillsFromJson(sheetData);
+  const hasNamed = {};
+  namedSkills.forEach((skill) => {
+    hasNamed[skill.kind] = true;
+  });
+
+  const params = [
+    { label: "白兵", value: toZeroString(tokugi[0]) },
+    { label: "回避", value: toZeroString(tokugi[1]) },
+    ...(hasNamed["運転"] ? [] : [{ label: "運転", value: toZeroString(tokugi[2]) }]),
+    { label: "射撃", value: toZeroString(tokugi[3]) },
+    { label: "知覚", value: toZeroString(tokugi[4]) },
+    ...(hasNamed["芸術"] ? [] : [{ label: "芸術", value: toZeroString(tokugi[5]) }]),
+    { label: "RC", value: toZeroString(tokugi[6]) },
+    { label: "意志", value: toZeroString(tokugi[7]) },
+    ...(hasNamed["知識"] ? [] : [{ label: "知識", value: toZeroString(tokugi[8]) }]),
+    { label: "交渉", value: toZeroString(tokugi[9]) },
+    { label: "調達", value: toZeroString(tokugi[10]) },
+    ...(hasNamed["情報"] ? [] : [{ label: "情報", value: toZeroString(tokugi[11]) }]),
+  ];
+
+  namedSkills.forEach((skill) => {
+    params.push({ label: skill.label, value: skill.value });
+  });
+
+  return dedupeParams(params);
+}
+
+function getDxNamedSkillsFromJson(sheetData) {
+  const tokugi = arrayOrEmpty(sheetData.skill_tokugi);
+  const memo = arrayOrEmpty(sheetData.skill_memo);
+  const skillIds = Array.isArray(sheetData.V_skill_id)
+    ? sheetData.V_skill_id
+    : Array.isArray(sheetData.skill_id)
+      ? sheetData.skill_id
+      : [];
+
+  const result = [];
+  const baseNamedIndexes = { 2: "運転", 5: "芸術", 8: "知識", 11: "情報" };
+  Object.keys(baseNamedIndexes).forEach((indexText) => {
+    const i = Number(indexText);
+    const kind = baseNamedIndexes[i];
+    const name = cleanText(memo[i]);
+    if (!name) return;
+    result.push({ kind, label: `${kind}:${name}`, value: toZeroString(tokugi[i]) });
+  });
+
+  const skillKindMap = { "1": "運転", "2": "芸術", "3": "知識", "4": "情報" };
+  const baseSkillCount = 12;
+  for (let i = baseSkillCount; i < tokugi.length; i++) {
+    const kindId = cleanText(skillIds[i - baseSkillCount]);
+    const kind = skillKindMap[kindId];
+    const name = cleanText(memo[i]);
+    if (!kind || !name) continue;
+    result.push({ kind, label: `${kind}:${name}`, value: toZeroString(tokugi[i]) });
+  }
+  return result;
+}
+
+function groupDxNamedSkillsByKind(sheetData) {
+  const grouped = { "運転": [], "芸術": [], "知識": [], "情報": [] };
+  getDxNamedSkillsFromJson(sheetData).forEach((skill) => {
+    if (grouped[skill.kind]) grouped[skill.kind].push(skill);
+  });
+  return grouped;
+}
+
+function createDxBaseOrZeroLine(ability, kind, namedSkills) {
+  const hasNamed = namedSkills[kind] && namedSkills[kind].length;
+  const mod = hasNamed ? "0" : `{${kind}}`;
+  return `({${ability}}+{侵蝕率D})DX+${mod} ${ability}〈${kind}〉`;
+}
+
+function createDxNamedSkillLines(ability, kind, namedSkills) {
+  const list = namedSkills[kind] || [];
+  return list.map((skill) => `({${ability}}+{侵蝕率D})DX+{${skill.label}} ${ability}〈${skill.label}〉`);
+}
+
+function createDxChapaleFromJson(sheetData) {
+  const namedSkills = groupDxNamedSkillsByKind(sheetData);
+  return [
+    "ステータス 肉体:{肉体} 感覚:{感覚} 精神:{精神} 社会:{社会}",
+    "({肉体}+{侵蝕率D})DX+{白兵} 肉体〈白兵〉",
+    "({肉体}+{侵蝕率D})DX+{回避} 肉体〈回避〉",
+    createDxBaseOrZeroLine("肉体", "運転", namedSkills),
+    ...createDxNamedSkillLines("肉体", "運転", namedSkills),
+    "({感覚}+{侵蝕率D})DX+{射撃} 感覚〈射撃〉",
+    "({感覚}+{侵蝕率D})DX+{知覚} 感覚〈知覚〉",
+    createDxBaseOrZeroLine("感覚", "芸術", namedSkills),
+    ...createDxNamedSkillLines("感覚", "芸術", namedSkills),
+    "({精神}+{侵蝕率D})DX+{RC} 精神〈RC〉",
+    "({精神}+{侵蝕率D})DX+{意志} 精神〈意志〉",
+    createDxBaseOrZeroLine("精神", "知識", namedSkills),
+    ...createDxNamedSkillLines("精神", "知識", namedSkills),
+    "({社会}+{侵蝕率D})DX+{交渉} 社会〈交渉〉",
+    "({社会}+{侵蝕率D})DX+{調達} 社会〈調達〉",
+    createDxBaseOrZeroLine("社会", "情報", namedSkills),
+    ...createDxNamedSkillLines("社会", "情報", namedSkills),
+    "1D リザレクト",
+  ].join("\n");
+}
+
 function createDxChapale() {
   return [
     "【ステータス】肉体:{肉体} 感覚:{感覚} 精神:{精神} 社会:{社会}",
@@ -1849,30 +2065,194 @@ function createDxChapale() {
   ].join("\n");
 }
 
-function createDxRoice(html) {
-  const names = pickAllByName(html, "roice_name[]").filter(
-    (v) => v && !v.includes("checkbox"),
-  );
-  const types = pickAllByName(html, "roice_type[]");
+function normalizeDxRoiceEmotion(value, id) {
+  const text = cleanText(value);
+  const emotionId = cleanText(id);
+  if (!text) return "";
+  if (emotionId === "0") return "";
+  if (text === "←自由選択") return "";
+  if (text.includes("自由選択")) return "";
+  return text;
+}
+
+function formatDxRoiceEmotionText(posText, negText, posChecked, negChecked) {
+  const pos = cleanText(posText);
+  const neg = cleanText(negText);
+  if (!pos && !neg) return "";
+  let posOut = pos;
+  let negOut = neg;
+  if (pos && posChecked) posOut = `◯${pos}`;
+  if (neg && negChecked) negOut = `◯${neg}`;
+  if (posOut && negOut) return `${posOut}/${negOut}`;
+  return posOut || negOut;
+}
+
+function detectDxRoiceMainEmotionFromMemo(memoText, posText, negText) {
+  const memo = cleanText(memoText);
+  const pos = cleanText(posText);
+  const neg = cleanText(negText);
+  if (!memo) return "";
+  const normalizedMemo = memo
+    .replace(/[〇○]/g, "◯")
+    .replace(/[：]/g, ":")
+    .replace(/\s+/g, "");
+  const posHit = pos ? isDxRoiceEmotionMainInMemo(normalizedMemo, pos) : false;
+  const negHit = neg ? isDxRoiceEmotionMainInMemo(normalizedMemo, neg) : false;
+  if (posHit && !negHit) return "pos";
+  if (negHit && !posHit) return "neg";
+  return "";
+}
+
+function isDxRoiceEmotionMainInMemo(normalizedMemo, emotion) {
+  const e = escapeRegExpForDxRoice(cleanText(emotion));
+  if (!e) return false;
+  const patterns = [
+    new RegExp(`表[:：]?${e}`),
+    new RegExp(`${e}が表`),
+    new RegExp(`${e}を表`),
+    new RegExp(`${e}表`),
+    new RegExp(`${e}が強い`),
+    new RegExp(`${e}のほうが強い`),
+    new RegExp(`${e}の方が強い`),
+    new RegExp(`${e}寄り`),
+    new RegExp(`◯${e}`),
+  ];
+  return patterns.some((re) => re.test(normalizedMemo));
+}
+
+function escapeRegExpForDxRoice(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function isDxRoiceEmotionChecked(sheetData, side, index) {
+  const keys =
+    side === "pos"
+      ? ["roice_pos_input", "roice_pos_checked", "roice_pos_main", "roice_pos_omote"]
+      : ["roice_neg_input", "roice_neg_checked", "roice_neg_main", "roice_neg_omote"];
+  for (let i = 0; i < keys.length; i++) {
+    if (isDxRoiceCheckValueAt(sheetData && sheetData[keys[i]], index)) return true;
+  }
+  return false;
+}
+
+function isDxRoiceCheckValueAt(value, index) {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) return isTruthyCheckValue(value[index]);
+  if (typeof value === "object") {
+    return isTruthyCheckValue(value[index]) || isTruthyCheckValue(value[String(index)]);
+  }
+  const text = cleanText(value);
+  if (!text) return false;
+  if (isTruthyCheckValue(text)) return true;
+  const tokens = text.split(/[,\s|/]+/).map((x) => x.trim()).filter(Boolean);
+  return tokens.includes(String(index));
+}
+
+function isTruthyCheckValue(value) {
+  const text = cleanText(value).toLowerCase();
+  return text === "1" || text === "true" || text === "checked" || text === "on";
+}
+
+function createDxRoiceFromJson(sheetData) {
+  const types = arrayOrEmpty(sheetData.roice_type);
+  const names = arrayOrEmpty(sheetData.roice_name);
+  const pos = arrayOrEmpty(sheetData.roice_pos);
+  const neg = arrayOrEmpty(sheetData.roice_neg);
+  const posIds = arrayOrEmpty(sheetData.roice_pos_id);
+  const negIds = arrayOrEmpty(sheetData.roice_neg_id);
+  const memos = arrayOrEmpty(sheetData.roice_memo);
+
   let roiceMemo = "😀 ロイス/😡 タイタス/💥 Dロイス/💕 Sロイス\n";
   let roiceCount = 0;
   let roiceMax = 7;
-  names.forEach((name, i) => {
-    roiceCount += 1;
-    const t = types[i] || "0";
+
+  names.forEach((nameRaw, index) => {
+    const name = cleanText(nameRaw);
+    if (!name) return;
+    roiceCount++;
+
     let icon = "😀";
-    if (t === "1") {
+    const type = cleanText(types[index]);
+    if (type === "1") {
       icon = "💥";
-      roiceMax -= 1;
-    } else if (t === "2") {
+      roiceMax--;
+    } else if (type === "2") {
       icon = "💕";
     }
-    roiceMemo += `${i + 1}. ${icon}：${name}\n`;
+
+    const posText = normalizeDxRoiceEmotion(pos[index], posIds[index]);
+    const negText = normalizeDxRoiceEmotion(neg[index], negIds[index]);
+    const memoText = cleanText(memos[index]);
+    const memoMainSide = detectDxRoiceMainEmotionFromMemo(memoText, posText, negText);
+    const posChecked =
+      memoMainSide === "pos" ? true : memoMainSide === "neg" ? false : isDxRoiceEmotionChecked(sheetData, "pos", index);
+    const negChecked =
+      memoMainSide === "neg" ? true : memoMainSide === "pos" ? false : isDxRoiceEmotionChecked(sheetData, "neg", index);
+    const emotionText = formatDxRoiceEmotionText(posText, negText, posChecked, negChecked);
+
+    roiceMemo += `${index + 1}. ${icon}：${name}`;
+    if (emotionText) roiceMemo += `　${emotionText}`;
+    roiceMemo += "\n";
   });
-  return { memo: roiceMemo, value: roiceCount, max: roiceMax };
+
+  return { memo: roiceMemo.trim(), value: roiceCount, max: roiceMax };
 }
 
-async function getDataDX(html, url, img, opt, additionalPalette, comboPalette) {
+function createDxMemoFromJson(sheetData, roiceData) {
+  const lines = [];
+  lines.push(`コードネーム：${cleanText(sheetData.pc_codename)}`);
+  lines.push(`ワークス：${cleanText(sheetData.works_name)}　カヴァー：${cleanText(sheetData.cover_name)}`);
+  const syndrome = [cleanText(sheetData.class1_name), cleanText(sheetData.class2_name), cleanText(sheetData.class3_name)]
+    .filter(Boolean)
+    .join("/");
+  if (syndrome) lines.push(`シンドローム：${syndrome}`);
+  const ageSex = [cleanText(sheetData.age), cleanText(sheetData.sex)].filter(Boolean).join(" / ");
+  if (ageSex) lines.push(`年齢/性別：${ageSex}`);
+  if (cleanText(sheetData.pc_making_memo)) {
+    lines.push("");
+    lines.push(cleanText(sheetData.pc_making_memo));
+  }
+  lines.push("");
+  lines.push(roiceData.memo);
+  return lines.join("\n");
+}
+
+async function getDataDX(source, url, img, opt, additionalPalette, comboPalette) {
+  if (source && typeof source === "object") {
+    const sheetData = source;
+    const roice = createDxRoiceFromJson(sheetData);
+    let commands = opt[1] ? createDxChapaleFromJson(sheetData) : "";
+    if (opt[1] && comboPalette) commands += (commands ? "\n" : "") + comboPalette;
+    if (additionalPalette) commands += (commands ? "\n" : "") + additionalPalette;
+
+    const out = {
+      kind: "character",
+      data: {
+        name: getDxName(sheetData),
+        memo: opt[0] ? createDxMemoFromJson(sheetData, roice) : "",
+        initiative: toInt(sheetData.NP7),
+        externalUrl: url,
+        status: [
+          { label: "HP", value: toInt(sheetData.NP5), max: toInt(sheetData.NP5) },
+          { label: "侵蝕率", value: toInt(sheetData.NP6), max: 100 },
+          { label: "侵蝕率D", value: 0, max: 3 },
+          { label: "ロイス", value: roice.value, max: roice.max },
+        ],
+        params: [
+          { label: "肉体", value: toZeroString(sheetData.NP1) },
+          { label: "感覚", value: toZeroString(sheetData.NP2) },
+          { label: "精神", value: toZeroString(sheetData.NP3) },
+          { label: "社会", value: toZeroString(sheetData.NP4) },
+          ...getDxSkillParamsFromJson(sheetData),
+        ],
+        commands,
+      },
+    };
+    if (img) out.data.iconUrl = img;
+    return out;
+  }
+
+  const html = String(source || "");
   const data = {
     name: pickInputById(
       html,
@@ -2735,7 +3115,8 @@ async function processSheetData(formData) {
   const url = formData.sheet;
   const img = formData.img;
   const plName = String(formData.plName || "").trim();
-  const opt = [formData.nomemo !== "true", formData.nochp !== "true"];
+  const isTrueOption = (value) => value === true || String(value || "").toLowerCase() === "true";
+  const opt = [!isTrueOption(formData.nomemo), !isTrueOption(formData.nochp)];
   const additionalPalette = formData.additionalPalette || "";
 
   if (!url || !String(url).trim()) {
@@ -2746,7 +3127,7 @@ async function processSheetData(formData) {
     };
   }
 
-  const { system, html, satasupeData } = await fetchAndIdentifySystem(url);
+  const { system, html, satasupeData, dx3Data } = await fetchAndIdentifySystem(url);
   if (system === "Unknown") {
     return {
       message:
@@ -2756,7 +3137,11 @@ async function processSheetData(formData) {
     };
   }
 
-  const charName = getNameBySystem(html, system);
+  const dx3Source = dx3Data || html;
+  const charName =
+    system === "DX3" && dx3Data
+      ? getDxName(dx3Data)
+      : getNameBySystem(html, system);
   let outObj;
   let message = "";
   let eff = [[1, 2]];
@@ -2766,7 +3151,7 @@ async function processSheetData(formData) {
   if (system === "DX3") {
     const comboPalette = await getComboPaletteByUrl(url);
     outObj = await getDataDX(
-      html,
+      dx3Source,
       url,
       img,
       opt,
@@ -2776,7 +3161,7 @@ async function processSheetData(formData) {
     message = comboPalette
       ? `ククク、${charName}よ。任務に向かえ。コンボデータもcommands末尾に追加したぞ。`
       : `ククク、${charName}よ。任務に向かえ。`;
-    eff = getEffectDX(html);
+    eff = getEffectDX(dx3Source);
   } else if (system === "SW25") {
     outObj = getDataSW25(html, url, img);
     message = `${charName}、帝国の鉢巻へようこそ！`;

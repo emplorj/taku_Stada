@@ -253,6 +253,8 @@ function copyTextWithToast(text, successMessage, emptyMessage = "") {
 }
 
 const PL_NAME_STORAGE_KEY = "komaMakerPlName";
+const DEFAULT_GAS_KOMA_MAKER_API_URL =
+  "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
 const DEFAULT_VERCEL_API_BASES = ["https://taku-stada.vercel.app"];
 
 if (plNameInput) {
@@ -317,11 +319,25 @@ function getApiCandidates() {
   const isGitHubPages = window.location.hostname.endsWith("github.io");
   const defaultBases = DEFAULT_VERCEL_API_BASES.map(normalizeBaseUrl).filter(Boolean);
 
+  const gasCandidates = [
+    {
+      url: DEFAULT_GAS_KOMA_MAKER_API_URL,
+      kind: "gas",
+    },
+  ];
+
   const externalCandidates = [
-    configuredBase ? `${configuredBase}/api/koma-maker` : null,
-    ...defaultBases.map((b) => `${b}/api/koma-maker`),
+    configuredBase
+      ? {
+          url: configuredBase.includes("script.google.com/")
+            ? configuredBase
+            : `${configuredBase}/api/koma-maker`,
+          kind: configuredBase.includes("script.google.com/") ? "gas" : "vercel",
+        }
+      : null,
+    ...defaultBases.map((b) => ({ url: `${b}/api/koma-maker`, kind: "vercel" })),
     guessedBase && !isInvalidApiBase(guessedBase)
-      ? `${guessedBase}/api/koma-maker`
+      ? { url: `${guessedBase}/api/koma-maker`, kind: "vercel" }
       : null,
   ].filter(Boolean);
 
@@ -330,13 +346,38 @@ function getApiCandidates() {
   const sameOriginCandidates = isGitHubPages
     ? []
     : [
-        new URL("/api/koma-maker", window.location.origin).toString(),
-        new URL("../api/koma-maker", window.location.href).toString(),
-        new URL("./api/koma-maker", window.location.href).toString(),
+        { url: new URL("/api/koma-maker", window.location.origin).toString(), kind: "vercel" },
+        { url: new URL("../api/koma-maker", window.location.href).toString(), kind: "vercel" },
+        { url: new URL("./api/koma-maker", window.location.href).toString(), kind: "vercel" },
       ];
 
-  const candidates = [...externalCandidates, ...sameOriginCandidates];
-  return [...new Set(candidates)];
+  // まずVercel/同一オリジンAPIを使い、GASは最後のフォールバックにする。
+  // GAS版は軽量版の場合があり、SW2.5等をDX3に誤判定しやすい。
+  const candidates = [...externalCandidates, ...sameOriginCandidates, ...gasCandidates];
+  const seen = new Set();
+  return candidates.filter((candidate) => {
+    if (!candidate || !candidate.url || seen.has(candidate.url)) return false;
+    seen.add(candidate.url);
+    return true;
+  });
+}
+
+function buildKomaMakerApiRequest(candidate, formData) {
+  const isGas = candidate && candidate.kind === "gas";
+  if (isGas) {
+    return {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      cache: "no-store",
+      body: JSON.stringify({ tool: "komaMaker", data: formData }),
+    };
+  }
+  return {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+    body: JSON.stringify(formData),
+  };
 }
 
 async function postToKomaMakerApi(formData) {
@@ -345,12 +386,12 @@ async function postToKomaMakerApi(formData) {
 
   for (const endpoint of endpoints) {
     try {
+      const endpointUrl = endpoint && endpoint.url ? endpoint.url : String(endpoint || "");
       setProgressAtLeast(18, true);
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        endpointUrl,
+        buildKomaMakerApiRequest(endpoint, formData),
+      );
       setProgressAtLeast(78, true);
 
       let data = null;
@@ -360,7 +401,7 @@ async function postToKomaMakerApi(formData) {
       } catch (_) {}
 
       if (response.status === 404) {
-        lastError = new Error(`APIエラー (HTTP 404): ${endpoint}`);
+        lastError = new Error(`APIエラー (HTTP 404): ${endpointUrl}`);
         continue;
       }
 
@@ -368,11 +409,14 @@ async function postToKomaMakerApi(formData) {
         const message =
           data && data.message
             ? data.message
-            : `APIエラー (HTTP ${response.status}): ${endpoint}`;
+            : `APIエラー (HTTP ${response.status}): ${endpointUrl}`;
         throw new Error(message);
       }
 
-      if (!data) throw new Error(`APIの応答がJSONではない: ${endpoint}`);
+      if (!data) throw new Error(`APIの応答がJSONではない: ${endpointUrl}`);
+      if (data.status === "error") {
+        throw new Error(data.message || `APIエラー: ${endpointUrl}`);
+      }
       setProgressAtLeast(90, true);
       return data;
     } catch (error) {
@@ -380,7 +424,9 @@ async function postToKomaMakerApi(formData) {
     }
   }
   const error = lastError || new Error("APIエンドポイントの解決に失敗した。");
-  error.attemptedEndpoints = endpoints;
+  error.attemptedEndpoints = endpoints.map((endpoint) =>
+    endpoint && endpoint.url ? endpoint.url : String(endpoint || ""),
+  );
   throw error;
 }
 
@@ -395,19 +441,19 @@ async function submitSheetData(formData) {
 
     if (window.location.hostname.endsWith("github.io")) {
       const suggestedBase = normalizeBaseUrl(
-        getConfiguredApiBase() || DEFAULT_VERCEL_API_BASES[0] || guessVercelApiBaseFromPath(),
+        getConfiguredApiBase() || DEFAULT_GAS_KOMA_MAKER_API_URL,
       );
       const helpUrl = new URL(window.location.href);
       if (suggestedBase) helpUrl.searchParams.set("apiBase", suggestedBase);
 
       throw new Error(
-        "GitHub Pages 上では同一オリジンに /api が無いため、Vercel 側 API ベースURL指定が必要。" +
+        "GAS版 KomaMaker API への接続に失敗した。" +
           ` 推奨: ${helpUrl.toString()}` +
           attempted,
       );
     }
 
-    throw new Error("/api/koma-maker が動く環境で開いてくれ。" + attempted);
+    throw new Error("KomaMaker API への接続に失敗した。" + attempted);
   }
 }
 
