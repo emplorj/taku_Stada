@@ -1,0 +1,1919 @@
+/* dx3_effects_21_coefficients.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 930-933 */
+.floating-panel .input-group input {
+max-width: 42px;
+  text-align: right;
+}
+
+/* source lines 1964-1968 */
+.coefficient-cell {
+min-width: 240px;
+  white-space: normal;
+  vertical-align: top;
+}
+
+/* source lines 1969-1978 */
+.coefficient-summary {
+color: #e8f2ff;
+  font-size: 0.78em;
+  line-height: 1.25;
+  margin-bottom: 5px;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* source lines 1979-1983 */
+.coefficient-inline-grid {
+display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 5px;
+}
+
+/* source lines 1984-1992 */
+.coefficient-inline-grid label {
+display: grid;
+  grid-template-columns: 3.8em 2.6em 2.6em 2.6em;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.75em;
+  color: #bdc3c7;
+  min-width: 0;
+}
+
+/* source lines 1993-1996 */
+.coefficient-inline-grid label span {
+white-space: nowrap;
+  color: #87cefa;
+}
+
+/* source lines 1997-2003 */
+.coefficient-inline-grid input {
+min-width: 0;
+  width: 100%;
+  padding: 3px 4px;
+  text-align: right;
+  font-size: 0.95em;
+}
+
+/* source lines 2004-2006 */
+.coefficient-inline-grid label:not(:has(input:nth-of-type(3))) {
+grid-template-columns: 3.8em 2.6em 2.6em;
+}
+
+/* source lines 2031-2033 */
+@media (max-width: 900px) {
+.coefficient-cell {
+min-width: 220px;
+}
+
+}
+
+/* source lines 2034-2036 */
+@media (max-width: 900px) {
+.coefficient-inline-grid {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* source lines 2064-2072 */
+.coefficient-cell {
+width: 150px;
+  min-width: 150px;
+  max-width: 180px;
+  padding: 6px 8px;
+  white-space: normal;
+  box-sizing: border-box;
+  vertical-align: top;
+}
+
+/* source lines 2073-2083 */
+.coefficient-summary {
+display: block;
+  max-width: 164px;
+  min-height: 1.4em;
+  margin: 0;
+  color: #e8f2ff;
+  font-size: 0.82em;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* source lines 2084-2086 */
+.coefficient-inline-grid {
+display: none !important;
+}
+
+/* source lines 2172-2177 */
+.coefficient-panel-table {
+border: 1px solid #4a5c9a;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(13, 26, 80, 0.55);
+}
+
+/* source lines 2179-2185 */
+.coefficient-panel-head, .coefficient-panel-row {
+display: grid;
+  grid-template-columns: minmax(86px, 1.1fr) 84px 84px minmax(104px, 1.2fr);
+  align-items: center;
+  gap: 8px;
+}
+
+/* source lines 2187-2194 */
+.coefficient-panel-head {
+padding: 7px 10px;
+  background: #1a2c6d;
+  color: #87cefa;
+  font-weight: bold;
+  font-size: 0.86em;
+  border-bottom: 1px solid #4a5c9a;
+}
+
+/* source lines 2196-2199 */
+.coefficient-panel-row {
+padding: 8px 10px;
+  border-bottom: 1px solid rgba(74, 92, 154, 0.65);
+}
+
+/* source lines 2201-2203 */
+.coefficient-panel-row:last-child {
+border-bottom: none;
+}
+
+/* source lines 2205-2207 */
+.coefficient-panel-row.dimmed {
+opacity: 0.58;
+}
+
+/* source lines 2209-2211 */
+.coefficient-panel-row.auto-detected {
+background: rgba(255, 235, 59, 0.08);
+}
+
+/* source lines 2213-2218 */
+.coef-row-label {
+display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* source lines 2220-2222 */
+.coef-row-label strong {
+white-space: nowrap;
+}
+
+/* source lines 2224-2234 */
+.coef-chip {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6em;
+  padding: 1px 5px;
+  border-radius: 999px;
+  font-size: 0.72em;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+
+/* source lines 2236-2240 */
+.coef-chip.auto {
+color: #332700;
+  background: #ffeb3b;
+  border-color: #fff176;
+}
+
+/* source lines 2242-2246 */
+.coef-chip.relevant {
+color: #d6ecff;
+  border-color: rgba(135, 206, 250, 0.5);
+  background: rgba(52, 152, 219, 0.22);
+}
+
+/* source lines 2248-2259 */
+.coefficient-panel-row input[type="number"] {
+width: 100%;
+  max-width: none;
+  min-width: 0;
+  background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+  padding: 5px 6px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  text-align: right;
+}
+
+/* source lines 2261-2267 */
+.coef-row-tools {
+display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  min-height: 28px;
+  align-items: center;
+}
+
+/* source lines 2269-2280 */
+.coef-row-tools .dice-toggle-btn, .coef-min-field .dice-toggle-btn, .coefficient-panel-row .dice-toggle-btn {
+min-height: 25px;
+  border-radius: 4px;
+  border: 1px solid #6c757d;
+  padding: 3px 6px;
+  background-color: #58606a;
+  color: #e5e5e5;
+  cursor: pointer;
+  font-size: 0.76em;
+}
+
+/* source lines 2282-2286 */
+.coefficient-panel-row .dice-toggle-btn.active {
+background-color: #2ecc71;
+  border-color: #7ee2a8;
+  color: white;
+}
+
+/* source lines 2288-2294 */
+.coef-min-field {
+display: grid;
+  grid-template-columns: auto minmax(42px, 1fr);
+  gap: 5px;
+  align-items: center;
+  font-size: 0.86em;
+}
+
+/* source lines 2316-2318 */
+@media (max-width: 640px) {
+.coefficient-panel-head {
+display: none;
+}
+
+}
+
+/* source lines 2319-2322 */
+@media (max-width: 640px) {
+.coefficient-panel-row {
+grid-template-columns: 72px 1fr 1fr;
+    gap: 6px;
+}
+
+}
+
+/* source lines 2323-2325 */
+@media (max-width: 640px) {
+.coefficient-panel-row .coef-row-label {
+grid-column: 1 / 4;
+}
+
+}
+
+/* source lines 2326-2329 */
+@media (max-width: 640px) {
+.coef-row-tools, .coef-min-field {
+grid-column: 1 / 4;
+}
+
+}
+
+/* source lines 2505-2518 */
+#dx3-app .effects-table td:nth-child(2) input, #dx3-app .effects-table td:nth-child(3) input, #dx3-app .effects-table td:nth-child(9) input, #dx3-app .effects-table td:nth-child(10) input, #dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"], #dx3-app .combo-source-table-v34 .source-level-cell input[type="number"], #dx3-app .combo-source-table-v34 .source-level-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-current-box {
+font-size: 1.2rem;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+/* source lines 2544-2547 */
+.coefficient-panel-head, .coefficient-panel-row {
+grid-template-columns: minmax(92px, 1fr) minmax(92px, 0.9fr) minmax(92px, 0.9fr) minmax(118px, 1.1fr);
+}
+
+/* source lines 2549-2557 */
+.coefficient-panel-row input[type="number"], .coef-min-field input[type="number"] {
+font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.14em;
+  line-height: 1.2;
+  min-height: 32px;
+  padding: 5px 8px;
+}
+
+/* source lines 2559-2561 */
+.coefficient-panel-row .coef-row-label strong {
+font-size: 1.02em;
+}
+
+/* source lines 2568-2570 */
+@media (max-width: 640px) {
+.coefficient-panel-head {
+display: none;
+}
+
+}
+
+/* source lines 2571-2574 */
+@media (max-width: 640px) {
+.coefficient-panel-row {
+grid-template-columns: 1fr 1fr;
+    gap: 6px 8px;
+}
+
+}
+
+/* source lines 2575-2577 */
+@media (max-width: 640px) {
+.coefficient-panel-row .coef-row-label {
+grid-column: 1 / -1;
+}
+
+}
+
+/* source lines 2578-2580 */
+@media (max-width: 640px) {
+.coef-row-tools {
+grid-column: 1 / -1;
+}
+
+}
+
+/* source lines 2589-2592 */
+.coefficient-panel-head, .coefficient-panel-row {
+grid-template-columns: minmax(86px, 1fr) 4.6rem 4.6rem minmax(160px, 1.25fr);
+}
+
+/* source lines 2594-2607 */
+.coefficient-panel-row input[type="number"], .coef-min-field input[type="number"], .coef-limit-field input[type="number"] {
+width: 4.4rem;
+  max-width: 4.4rem;
+  min-width: 0;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.08em;
+  line-height: 1.15;
+  min-height: 30px;
+  padding: 4px 6px;
+  text-align: right;
+}
+
+/* source lines 2609-2615 */
+.coef-row-tools {
+display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  min-height: 0;
+}
+
+/* source lines 2617-2626 */
+.coef-unit-switch, .coef-limit-field, .coef-min-field {
+display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 26px;
+  font-size: 0.82em;
+  color: #cfe8ff;
+}
+
+/* source lines 2628-2634 */
+.coef-unit-switch > span, .coef-limit-field > span, .coef-min-field > span {
+min-width: 3.2em;
+  color: #b8d7ef;
+  font-weight: 600;
+}
+
+/* source lines 2636-2642 */
+.coef-unit-switch .dice-toggle-btn, .coefficient-panel-row .dice-toggle-btn {
+min-width: 2.2em;
+  min-height: 24px;
+  padding: 2px 6px;
+  font-size: 0.82em;
+}
+
+/* source lines 2644-2647 */
+.coef-limit-field input[type="number"] {
+width: 4.2rem;
+  max-width: 4.2rem;
+}
+
+/* source lines 2649-2651 */
+.coef-min-field {
+display: flex;
+}
+
+/* source lines 2654-2659 */
+@media (max-width: 640px) {
+.coefficient-panel-row input[type="number"], .coef-min-field input[type="number"], .coef-limit-field input[type="number"] {
+width: 4rem;
+    max-width: 4rem;
+}
+
+}
+
+/* source lines 2660-2664 */
+@media (max-width: 640px) {
+.coef-row-tools {
+grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+}
+
+/* source lines 2671-2675 */
+#dx3-app .coefficient-panel-head, #dx3-app .coefficient-panel-row {
+grid-template-columns: 86px 74px 74px minmax(74px, 0.8fr);
+  gap: 8px;
+}
+
+/* source lines 2676-2678 */
+#dx3-app .coefficient-panel-row {
+padding: 7px 10px;
+}
+
+/* source lines 2679-2695 */
+#dx3-app .coefficient-panel-row input[type="text"], #dx3-app .coefficient-panel-row input[type="number"] {
+width: 100%;
+  max-width: 76px;
+  min-width: 0;
+  background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+  padding: 5px 6px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  text-align: right;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.04em;
+  line-height: 1.15;
+}
+
+/* source lines 2696-2698 */
+#dx3-app .coefficient-panel-row input[type="text"]::placeholder {
+color: rgba(238, 238, 238, 0.38);
+}
+
+/* source lines 2699-2703 */
+#dx3-app .coef-row-tools {
+min-height: 0;
+  gap: 6px;
+  align-items: center;
+}
+
+/* source lines 2704-2709 */
+#dx3-app .coef-help-text {
+color: #b7c7e8;
+  font-size: 0.78em;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+/* source lines 2710-2717 */
+#dx3-app .coef-limit-field, #dx3-app .coef-min-field {
+display: grid;
+  grid-template-columns: auto 4.5rem;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.86em;
+}
+
+/* source lines 2718-2721 */
+#dx3-app .coef-limit-field input[type="number"], #dx3-app .coef-min-field input[type="number"] {
+max-width: 4.5rem;
+}
+
+/* source lines 2722-2724 */
+#dx3-app .coef-unit-switch {
+display: none !important;
+}
+
+/* source lines 2726-2728 */
+@media (max-width: 640px) {
+#dx3-app .coefficient-panel-row {
+grid-template-columns: 72px 1fr 1fr;
+}
+
+}
+
+/* source lines 2729-2732 */
+@media (max-width: 640px) {
+#dx3-app .coefficient-panel-row input[type="text"], #dx3-app .coefficient-panel-row input[type="number"] {
+max-width: none;
+}
+
+}
+
+/* source lines 2737-2740 */
+#dx3-app .coefficient-panel-head, #dx3-app .coefficient-panel-row {
+grid-template-columns: 86px 66px 66px minmax(128px, 1fr);
+}
+
+/* source lines 2741-2747 */
+#dx3-app .coefficient-panel-row input[type="text"], #dx3-app .coefficient-panel-row input[type="number"] {
+max-width: 66px;
+  height: 32px;
+  padding: 4px 6px;
+  font-size: 1.08em;
+}
+
+/* source lines 2748-2752 */
+#dx3-app .coefficient-panel-row input[type="number"]::-webkit-outer-spin-button, #dx3-app .coefficient-panel-row input[type="number"]::-webkit-inner-spin-button {
+-webkit-appearance: none;
+  margin: 0;
+}
+
+/* source lines 2753-2756 */
+#dx3-app .coefficient-panel-row input[type="number"] {
+appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* source lines 2757-2762 */
+#dx3-app .coef-row-tools {
+display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* source lines 2763-2765 */
+#dx3-app .coef-row-tools.has-limit {
+justify-content: flex-start;
+}
+
+/* source lines 2766-2772 */
+#dx3-app .coef-help-text {
+flex: 0 0 auto;
+  min-width: 4.6em;
+  font-size: 0.82em;
+  color: #b7c7e8;
+  white-space: nowrap;
+}
+
+/* source lines 2773-2781 */
+#dx3-app .coef-limit-field, #dx3-app .coef-min-field {
+display: inline-grid;
+  grid-template-columns: auto 4rem;
+  gap: 5px;
+  align-items: center;
+  font-size: 0.86em;
+  white-space: nowrap;
+}
+
+/* source lines 2782-2785 */
+#dx3-app .coef-limit-field input[type="number"], #dx3-app .coef-min-field input[type="number"] {
+max-width: 4rem;
+}
+
+/* source lines 2787-2790 */
+@media (max-width: 640px) {
+#dx3-app .coefficient-panel-head, #dx3-app .coefficient-panel-row {
+grid-template-columns: 74px 1fr 1fr;
+}
+
+}
+
+/* source lines 2791-2794 */
+@media (max-width: 640px) {
+#dx3-app .coef-row-tools {
+grid-column: 2 / 4;
+    padding-top: 2px;
+}
+
+}
+
+/* source lines 2795-2798 */
+@media (max-width: 640px) {
+#dx3-app .coefficient-panel-row input[type="text"], #dx3-app .coefficient-panel-row input[type="number"] {
+max-width: none;
+}
+
+}
+
+/* source lines 2824-2828 */
+#dx3-app .coefficient-panel-head, #dx3-app .coefficient-panel-row {
+grid-template-columns: 82px 58px 58px minmax(118px, 1fr);
+  gap: 7px;
+}
+
+/* source lines 2829-2831 */
+#dx3-app .coefficient-panel-head {
+padding: 7px 9px;
+}
+
+/* source lines 2832-2835 */
+#dx3-app .coefficient-panel-row {
+min-height: 42px;
+  padding: 6px 9px;
+}
+
+/* source lines 2836-2841 */
+#dx3-app .coef-row-label {
+display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* source lines 2842-2844 */
+#dx3-app .coef-row-label strong {
+font-size: 0.95em;
+}
+
+/* source lines 2845-2847 */
+#dx3-app .coef-chip.relevant {
+display: none;
+}
+
+/* source lines 2848-2851 */
+#dx3-app .coef-chip.auto {
+font-size: 0.68em;
+  padding: 1px 5px;
+}
+
+/* source lines 2852-2858 */
+#dx3-app .coefficient-panel-row input[type="text"], #dx3-app .coefficient-panel-row input[type="number"] {
+max-width: 58px;
+  height: 28px;
+  padding: 3px 5px;
+  font-size: 1em;
+}
+
+/* source lines 2859-2866 */
+#dx3-app .coef-row-tools {
+display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  min-width: 0;
+  flex-wrap: nowrap;
+}
+
+/* source lines 2867-2872 */
+#dx3-app .coef-help-text {
+flex: 0 0 auto;
+  min-width: auto;
+  font-size: 0.78em;
+  opacity: 0.82;
+}
+
+/* source lines 2873-2879 */
+#dx3-app .coef-limit-field, #dx3-app .coef-min-field {
+display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82em;
+}
+
+/* source lines 2880-2883 */
+#dx3-app .coef-limit-field input[type="number"], #dx3-app .coef-min-field input[type="number"] {
+max-width: 52px;
+}
+
+/* source lines 2891-2894 */
+@media (max-width: 640px) {
+#dx3-app .coefficient-panel-head, #dx3-app .coefficient-panel-row {
+grid-template-columns: 70px 1fr 1fr;
+}
+
+}
+
+/* source lines 2895-2897 */
+@media (max-width: 640px) {
+#dx3-app .coef-row-tools {
+grid-column: 2 / 4;
+}
+
+}
+
+/* source lines 3071-3075 */
+#dx3-app .coefficient-panel-head, #dx3-app .coefficient-panel-row {
+grid-template-columns: 72px 64px 64px minmax(128px, 1fr);
+  gap: 7px;
+}
+
+/* source lines 3077-3080 */
+#dx3-app .coefficient-panel-row {
+min-height: 38px;
+  padding: 5px 8px;
+}
+
+/* source lines 3082-3088 */
+#dx3-app .coefficient-panel-row input[type="text"], #dx3-app .coefficient-panel-row input[type="number"] {
+width: 3.8rem;
+  max-width: 3.8rem;
+  height: 26px;
+  padding: 2px 5px;
+}
+
+/* source lines 3090-3094 */
+#dx3-app .coef-limit-field input[type="number"], #dx3-app .coef-min-field input[type="number"] {
+width: 3.6rem;
+  max-width: 3.6rem;
+}
+
+/* source lines 3220-3222 */
+.btn-coef-infer {
+background: #2f7ed8;
+}
+
+/* source lines 3223-3225 */
+.btn-coef-infer.danger {
+background: #7c4d9d;
+}
+
+/* source lines 3298-3301 */
+#dx3-app .compact-coefficient-cell {
+vertical-align: top;
+  white-space: normal;
+}
+
+/* source lines 3302-3307 */
+#dx3-app .inline-coefficient-editor {
+display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 6px;
+  align-items: center;
+}
+
+/* source lines 3308-3316 */
+#dx3-app .inline-coefficient-editor label {
+display: grid;
+  grid-template-columns: 3.2em minmax(0, 1fr) minmax(0, 1fr);
+  gap: 3px;
+  align-items: center;
+  margin: 0;
+  font-size: 0.78em;
+  color: #dce8ff;
+}
+
+/* source lines 3317-3321 */
+#dx3-app .inline-coefficient-editor label span {
+color: #87cefa;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* source lines 3322-3330 */
+#dx3-app .inline-coefficient-editor input[type="text"], #dx3-app .inline-coefficient-editor input[type="number"] {
+min-width: 0;
+  width: 100%;
+  padding: 3px 4px;
+  text-align: right;
+  font-size: 0.86em;
+  box-sizing: border-box;
+}
+
+/* source lines 3331-3334 */
+#dx3-app .inline-coefficient-editor input[readonly] {
+opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* source lines 3335-3337 */
+#dx3-app .inline-coefficient-editor label:nth-child(4) {
+grid-template-columns: 3.2em minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* source lines 3338-3345 */
+#dx3-app .inline-coefficient-tools {
+grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* source lines 3346-3353 */
+#dx3-app .inline-coefficient-summary {
+min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #b8c7dd;
+  font-size: 0.78em;
+}
+
+/* source lines 3362-3364 */
+@media (max-width: 900px) {
+#dx3-app .inline-coefficient-editor {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* source lines 3388-3391 */
+#dx3-app .compact-coefficient-cell {
+vertical-align: middle;
+  white-space: normal;
+}
+
+/* source lines 3392-3397 */
+#dx3-app .inline-coefficient-editor {
+display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+/* source lines 3398-3406 */
+#dx3-app .inline-coefficient-editor label {
+display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: 0.82em;
+  color: #dce8ff;
+  min-width: 122px;
+}
+
+/* source lines 3407-3412 */
+#dx3-app .inline-coefficient-editor label span {
+color: #87cefa;
+  text-align: right;
+  white-space: nowrap;
+  min-width: 3.1em;
+}
+
+/* source lines 3413-3421 */
+#dx3-app .inline-coefficient-editor input[type="text"], #dx3-app .inline-coefficient-editor input[type="number"] {
+min-width: 0;
+  width: 42px;
+  padding: 3px 4px;
+  text-align: right;
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+/* source lines 3422-3424 */
+#dx3-app .inline-coefficient-editor label.crit-coef {
+min-width: 168px;
+}
+
+/* source lines 3425-3427 */
+#dx3-app .inline-coefficient-editor label.crit-coef input {
+width: 38px;
+}
+
+/* source lines 3428-3431 */
+#dx3-app .inline-coefficient-tools, #dx3-app .inline-coefficient-summary {
+display: none;
+}
+
+/* source lines 3500-3503 */
+#dx3-app .compact-coefficient-cell {
+vertical-align: top;
+  white-space: normal;
+}
+
+/* source lines 3504-3512 */
+#dx3-app .inline-coefficient-box {
+display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: 1px solid #4a5c9a;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: rgba(13, 26, 80, 0.28);
+}
+
+/* source lines 3513-3520 */
+#dx3-app .inline-coefficient-head, #dx3-app .inline-coefficient-row {
+display: grid;
+  grid-template-columns: 72px 72px 72px minmax(120px, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 5px 7px;
+}
+
+/* source lines 3521-3528 */
+#dx3-app .inline-coefficient-head {
+background-color: #1a2c6d;
+  color: #87cefa;
+  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-size: 0.82em;
+  text-align: center;
+  border-bottom: 1px solid #4a5c9a;
+}
+
+/* source lines 3529-3532 */
+#dx3-app .inline-coefficient-row {
+min-height: 32px;
+  border-bottom: 1px solid rgba(74, 92, 154, 0.48);
+}
+
+/* source lines 3533-3535 */
+#dx3-app .inline-coefficient-row:last-child {
+border-bottom: none;
+}
+
+/* source lines 3536-3541 */
+#dx3-app .inline-coefficient-row .coef-row-label {
+color: #dce8ff;
+  font-weight: bold;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* source lines 3542-3552 */
+#dx3-app .inline-coefficient-box input[type="text"], #dx3-app .inline-coefficient-box input[type="number"], #dx3-app .coefficient-panel-row input[type="text"], #dx3-app .coefficient-panel-row input[type="number"] {
+width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+  padding: 4px 5px;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+/* source lines 3553-3556 */
+#dx3-app .inline-coefficient-box input[readonly] {
+opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* source lines 3557-3561 */
+#dx3-app .inline-coefficient-box .coef-help-text {
+color: #9aa9bf;
+  font-size: 0.82em;
+  white-space: nowrap;
+}
+
+/* source lines 3562-3568 */
+#dx3-app .inline-coefficient-box .mini-setting-btn {
+justify-self: start;
+  width: 64px;
+  min-width: 64px;
+  padding: 5px 7px;
+  font-size: 0.8em;
+}
+
+/* source lines 3569-3576 */
+#dx3-app .inline-coefficient-box .coef-min-inline {
+display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #9aa9bf;
+  font-size: 0.82em;
+  white-space: nowrap;
+}
+
+/* source lines 3577-3581 */
+#dx3-app .inline-coefficient-box .coef-min-inline input {
+width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+}
+
+/* source lines 3582-3584 */
+#dx3-app .floating-panel .input-group input {
+max-width: 64px;
+}
+
+/* source lines 3594-3598 */
+@media (max-width: 900px) {
+#dx3-app .inline-coefficient-head, #dx3-app .inline-coefficient-row {
+grid-template-columns: 68px 68px 68px minmax(110px, 1fr);
+    gap: 6px;
+}
+
+}
+
+/* source lines 3693-3696 */
+#dx3-app .combo-source-table-v34 .coefficient-main-head {
+background-color: #183278;
+  letter-spacing: 0.06em;
+}
+
+/* source lines 3697-3702 */
+#dx3-app .combo-source-table-v34 .coef-cell {
+width: 58px;
+  min-width: 58px;
+  padding: 5px 4px;
+  text-align: center;
+}
+
+/* source lines 3703-3711 */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
+width: 52px;
+  min-width: 52px;
+  max-width: 52px;
+  padding: 4px 5px;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+/* source lines 3712-3715 */
+#dx3-app .combo-source-table-v34 .coef-cell input[readonly] {
+opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* source lines 3833-3837 */
+#dx3-app .combo-source-table-v34 .coef-cell {
+width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+}
+
+/* source lines 3838-3843 */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
+width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+/* source lines 4128-4130 */
+#dx3-app .combo-source-table-v34 .coef-cell-with-current {
+vertical-align: middle;
+}
+
+/* source lines 4132-4144 */
+#dx3-app .combo-source-table-v34 .coef-current {
+margin-top: 3px;
+  padding: 1px 2px;
+  border-radius: 3px;
+  background: rgba(135, 206, 250, 0.08);
+  color: #87cefa;
+  font-size: 0.72em;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* source lines 4146-4148 */
+#dx3-app .combo-source-table-v34 .coef-current:empty {
+display: none;
+}
+
+/* source lines 4157-4163 */
+#dx3-app .combo-source-table-v34 .coef-current-cell {
+width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* source lines 4164-4182 */
+#dx3-app .combo-source-table-v34 .coef-current-box {
+width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 4px 3px;
+  border: 1px solid rgba(135, 206, 250, 0.35);
+  border-radius: 4px;
+  background: rgba(135, 206, 250, 0.08);
+  color: #87cefa;
+  font-weight: 700;
+  font-size: 0.85em;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* source lines 4204-4209 */
+#dx3-app .combo-source-table-v34 .coef-cell {
+width: 46px;
+  min-width: 46px;
+  max-width: 46px;
+  padding: 5px 3px;
+}
+
+/* source lines 4210-4216 */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
+width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  padding: 4px 3px;
+}
+
+/* source lines 4217-4222 */
+#dx3-app .combo-source-table-v34 .coef-current-cell {
+width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  padding: 5px 3px;
+}
+
+/* source lines 4223-4229 */
+#dx3-app .combo-source-table-v34 .coef-current-box {
+width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  padding: 4px 2px;
+  font-size: 0.82em;
+}
+
+/* source lines 4300-4305 */
+#dx3-app .combo-source-table-v34 .coef-cell {
+width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  padding: 4px 2px;
+}
+
+/* source lines 4306-4315 */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
+width: 38px;
+  min-width: 38px;
+  max-width: 38px;
+  padding: 3px 2px;
+  font-size: 0.86em;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+/* source lines 4316-4321 */
+#dx3-app .combo-source-table-v34 .coef-current-cell {
+width: 54px;
+  min-width: 54px;
+  max-width: 54px;
+  padding: 4px 2px;
+}
+
+/* source lines 4322-4330 */
+#dx3-app .combo-source-table-v34 .coef-current-box {
+width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  padding: 3px 2px;
+  font-size: 0.84em;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+/* source lines 4357-4367 */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"], #dx3-app .combo-source-table-v34 .source-level-cell input[type="number"], #dx3-app .combo-source-table-v34 .source-level-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-current-box {
+font-size: 1.2rem;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* source lines 4383-4389 */
+#dx3-app .combo-source-table-v34 .coef-cell, #dx3-app .combo-source-table-v34 .coef-current-cell {
+width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+  padding: 5px 4px;
+}
+
+/* source lines 4390-4401 */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
+width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+  padding: 4px 5px;
+  font-size: 1.2rem;
+  line-height: normal;
+  font-weight: 400;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+/* source lines 4402-4412 */
+#dx3-app .combo-source-table-v34 .coef-current-box {
+width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+  padding: 4px 5px;
+  font-size: 1.2rem;
+  line-height: normal;
+  font-weight: 400;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+/* source lines 4444-4449 */
+#dx3-app .combo-source-table-v34 .coef-cell {
+width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  padding: 5px 2px;
+}
+
+/* source lines 4450-4455 */
+#dx3-app .combo-source-table-v34 .coef-current-cell {
+width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  padding: 5px 2px;
+}
+
+/* source lines 4456-4462 */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
+width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  padding: 4px 3px;
+}
+
+/* source lines 4463-4468 */
+#dx3-app .combo-source-table-v34 .coef-current-box {
+width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  padding: 4px 3px;
+}
+
+/* source lines 4479-4484 */
+#dx3-app .combo-source-table-v34 .coef-cell.coef-cell-numeric {
+width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  padding: 5px 1px;
+}
+
+/* source lines 4485-4492 */
+#dx3-app .combo-source-table-v34 .coef-cell.coef-cell-numeric input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell.coef-cell-numeric input[type="number"] {
+width: 34px;
+  min-width: 34px;
+  max-width: 34px;
+  padding: 4px 2px;
+  text-align: right;
+}
+
+/* source lines 4493-4498 */
+#dx3-app .combo-source-table-v34 .coef-current-cell.coef-current-cell-numeric {
+width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  padding: 5px 1px;
+}
+
+/* source lines 4499-4506 */
+#dx3-app .combo-source-table-v34 .coef-current-cell.coef-current-cell-numeric .coef-current-box.coef-current-box-numeric {
+width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  margin: 0 auto;
+  padding: 4px 2px;
+  text-align: right;
+}
+
+/* source lines 4509-4517 */
+#dx3-app .combo-source-table-v34 .coef-cell input[type="text"], #dx3-app .combo-source-table-v34 .coef-cell input[type="number"], #dx3-app .combo-source-table-v34 .coef-current-box, #dx3-app .coefficient-panel-row input[type="text"], #dx3-app .coefficient-panel-row input[type="number"], #dx3-app .coef-limit-field input[type="number"] {
+text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* source lines 4573-4585 */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn {
+flex: 0 0 auto;
+  width: 42px;
+  min-width: 42px;
+  padding: 4px 5px;
+  border: 1px solid rgba(135, 206, 250, 0.45);
+  border-radius: 4px;
+  background: #2f7ed8;
+  color: #fff;
+  font-size: 0.78em;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+/* source lines 4586-4588 */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn:hover:not(:disabled) {
+opacity: 0.88;
+}
+
+/* source lines 4589-4592 */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn:disabled {
+opacity: 0.42;
+  cursor: not-allowed;
+}
+
+/* source lines 4599-4603 */
+#dx3-app .combo-source-table-v34 tr.is-inference-candidate .coef-row-infer-btn {
+background: #f39c12;
+  color: #111827;
+  font-weight: 700;
+}
+
+/* source lines 4646-4658 */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn, #dx3-app .combo-source-table-v34 .coef-row-undo-btn {
+position: relative;
+  flex: 0 0 auto;
+  width: 42px;
+  min-width: 42px;
+  padding: 4px 5px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.78em;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+/* source lines 4659-4664 */
+#dx3-app .combo-source-table-v34 .coef-row-undo-btn {
+width: 42px;
+  min-width: 42px;
+  border: 1px solid rgba(255, 193, 7, 0.5);
+  background: #6c5f35;
+}
+
+/* source lines 4665-4667 */
+#dx3-app .combo-source-table-v34 .coef-row-undo-btn:hover {
+background: #8a7130;
+}
+
+/* source lines 4668-4679 */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn.has-inference-badge::after {
+content: "";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffeb3b;
+  border: 1px solid rgba(17, 24, 39, 0.75);
+  box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.16);
+}
+
+/* source lines 4683-4687 */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn.is-muted {
+background: #4b5563;
+  border-color: rgba(148, 163, 184, 0.45);
+  color: #d1d5db;
+}
+
+/* source lines 4688-4690 */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn.is-muted:hover:not(:disabled) {
+background: #5b6472;
+}
+
+/* source lines 4691-4697 */
+#dx3-app .combo-source-table-v34 .coef-row-infer-btn:disabled {
+background: #343a46;
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #8b95a5;
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* source lines 4700-4703 */
+#dx3-app .coef-help-head-row th {
+overflow: visible;
+  position: relative;
+}
+
+/* source lines 4704-4713 */
+#dx3-app .coef-head-help {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  position: relative;
+  min-width: 0;
+  cursor: help;
+  outline: none;
+}
+
+/* source lines 4714-4727 */
+#dx3-app .coef-head-help-mark {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(205, 218, 255, 0.65);
+  color: #dbe7ff;
+  background: rgba(15, 28, 82, 0.88);
+  font-size: 0.68rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* source lines 4728-4750 */
+#dx3-app .coef-head-popover {
+display: none;
+  position: absolute;
+  z-index: 80;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 260px;
+  min-width: 190px;
+  padding: 8px 9px;
+  border: 1px solid rgba(152, 177, 255, 0.75);
+  border-radius: 8px;
+  background: rgba(8, 16, 45, 0.98);
+  color: #eef3ff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.36);
+  text-align: left;
+  white-space: normal;
+  line-height: 1.45;
+  font-size: 0.78rem;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+/* source lines 4751-4760 */
+#dx3-app .coef-head-popover::after {
+content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  border-width: 7px 6px 0 6px;
+  border-style: solid;
+  border-color: rgba(8, 16, 45, 0.98) transparent transparent transparent;
+}
+
+/* source lines 4761-4765 */
+#dx3-app .coef-head-help:hover .coef-head-popover, #dx3-app .coef-head-help:focus .coef-head-popover, #dx3-app .coef-head-help:focus-within .coef-head-popover {
+display: block;
+}
+
+/* source lines 4766-4770 */
+#dx3-app .coef-example {
+color: #dbe7ff;
+  font-family: var(--font-latin-ui), var(--font-body);
+  font-weight: 700;
+}
+
+/* source lines 4771-4774 */
+#dx3-app .coef-highlight {
+color: #ffd166;
+  font-weight: 800;
+}
+
+/* source lines 4776-4780 */
+@media (max-width: 720px) {
+#dx3-app .coef-head-popover {
+max-width: 220px;
+    min-width: 170px;
+    font-size: 0.74rem;
+}
+
+}
+
+/* source lines 4781-4785 */
+@media (max-width: 720px) {
+#dx3-app .coef-head-help-mark {
+width: 0.82rem;
+    height: 0.82rem;
+    font-size: 0.62rem;
+}
+
+}
+
+/* source lines 4789-4794 */
+#dx3-app .coefficient-head-note {
+margin-left: 0.55rem;
+  color: rgba(214, 226, 255, 0.72);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* source lines 4795-4799 */
+#dx3-app .coef-head-help {
+gap: 0;
+  padding: 0 1px 2px;
+  border-bottom: 1px dotted rgba(205, 218, 255, 0.58);
+}
+
+/* source lines 4800-4805 */
+#dx3-app .coef-head-help:hover, #dx3-app .coef-head-help:focus, #dx3-app .coef-head-help:focus-within {
+color: #ffffff;
+  border-bottom-color: #ffd166;
+}
+
+/* source lines 4806-4808 */
+#dx3-app .coef-head-help-mark {
+display: none;
+}
+
+/* source lines 8154-8158 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-head, body.dx3-combo-page #dx3-app .coefficient-panel-row {
+grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+}
+
+}
+
+/* source lines 8160-8163 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-row-tools {
+grid-column: 2 / 4;
+    flex-wrap: wrap;
+}
+
+}
+
+/* source lines 8165-8169 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-row input[type="text"], body.dx3-combo-page #dx3-app .coefficient-panel-row input[type="number"] {
+width: 100%;
+    max-width: none;
+}
+
+}
+
+/* source lines 8425-8430 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .coef-row-infer-btn, body.dx3-combo-page .combo-source-table .coef-row-undo-btn {
+min-width: 3.2em;
+    padding: 5px 7px;
+    white-space: nowrap;
+}
+
+}
+
+/* source lines 8432-8444 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .coef-cell, body.dx3-combo-page .combo-source-table .coef-current-cell, body.dx3-combo-page .effects-table td:nth-child(2), body.dx3-combo-page .effects-table td:nth-child(3), body.dx3-combo-page .effects-table td:nth-child(9), body.dx3-combo-page .items-table td:nth-child(2), body.dx3-combo-page .items-table td:nth-child(5), body.dx3-combo-page .items-table td:nth-child(6), body.dx3-combo-page .items-table td:nth-child(7), body.dx3-combo-page .items-table td:nth-child(9), body.dx3-combo-page .items-table td:nth-child(10) {
+grid-template-columns: 3.7em minmax(0, 1fr);
+}
+
+}
+
+/* source lines 8446-8460 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .coef-cell input, body.dx3-combo-page .combo-source-table .source-level-cell input, body.dx3-combo-page .effects-table td:nth-child(2) input, body.dx3-combo-page .effects-table td:nth-child(3) input, body.dx3-combo-page .effects-table td:nth-child(9) input, body.dx3-combo-page .items-table td:nth-child(2) input, body.dx3-combo-page .items-table td:nth-child(5) input, body.dx3-combo-page .items-table td:nth-child(6) input, body.dx3-combo-page .items-table td:nth-child(7) input, body.dx3-combo-page .items-table td:nth-child(9) input, body.dx3-combo-page .items-table td:nth-child(10) input {
+min-height: 34px;
+    padding: 5px 6px;
+    text-align: right;
+}
+
+}
+
+/* source lines 8462-8474 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .coef-current-box {
+min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 5px 7px;
+    border: 1px solid #4a5c9a;
+    border-radius: 4px;
+    background-color: rgba(60, 60, 60, 0.92);
+    box-sizing: border-box;
+    font-family: var(--font-latin-ui, monospace);
+    font-variant-numeric: tabular-nums;
+}
+
+}
+
+/* source lines 8476-8478 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .coef-current-cell::after {
+content: "";
+}
+
+}
+
+/* source lines 8568-8580 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-source-table .coef-cell, body.dx3-combo-page .combo-source-table .coef-current-cell, body.dx3-combo-page .effects-table td:nth-child(2), body.dx3-combo-page .effects-table td:nth-child(3), body.dx3-combo-page .effects-table td:nth-child(9), body.dx3-combo-page .items-table td:nth-child(2), body.dx3-combo-page .items-table td:nth-child(5), body.dx3-combo-page .items-table td:nth-child(6), body.dx3-combo-page .items-table td:nth-child(7), body.dx3-combo-page .items-table td:nth-child(9), body.dx3-combo-page .items-table td:nth-child(10) {
+grid-template-columns: 3.3em minmax(0, 1fr);
+}
+
+}
+
+/* source lines 8719-8731 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .coef-current-box {
+min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 5px 7px;
+    border: 1px solid #4a5c9a;
+    border-radius: 4px;
+    background-color: rgba(60, 60, 60, 0.92);
+    box-sizing: border-box;
+    font-family: var(--font-latin-ui, monospace);
+    font-variant-numeric: tabular-nums;
+}
+
+}
+
+/* source lines 9562-9566 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .coef-current-box {
+max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+}
+
+/* source lines 9572-9578 */
+@media (max-width: 760px) {
+body.dx3-combo-page .coef-row-infer-btn, body.dx3-combo-page .coef-row-undo-btn {
+min-width: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+    white-space: nowrap;
+}
+
+}
+
+/* source lines 9683-9688 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-table {
+border: 1px solid #4a5c9a;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(13, 26, 80, 0.45);
+}
+
+}
+
+/* source lines 9690-9699 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-head {
+display: grid;
+    grid-template-columns: 68px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+    padding: 6px 8px;
+    background: rgba(26, 44, 109, 0.95);
+    border-bottom: 1px solid #4a5c9a;
+    font-size: 0.78rem;
+    color: #bfe8ff;
+}
+
+}
+
+/* source lines 9701-9703 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-head span:nth-child(4) {
+display: none;
+}
+
+}
+
+/* source lines 9705-9714 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-row {
+display: grid;
+    grid-template-columns: 68px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+    align-items: center;
+    min-height: 0;
+    padding: 8px;
+    border-bottom: 1px solid rgba(74, 92, 154, 0.65);
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 9716-9718 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-row:last-child {
+border-bottom: none;
+}
+
+}
+
+/* source lines 9720-9727 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-row-label {
+grid-column: 1;
+    align-self: start;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+}
+
+/* source lines 9729-9733 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-row-label strong {
+font-size: 0.94rem;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+}
+
+/* source lines 9735-9738 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-chip.auto, body.dx3-combo-page #dx3-app .coef-chip.relevant {
+display: none;
+}
+
+}
+
+/* source lines 9740-9751 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-row input[type="text"], body.dx3-combo-page #dx3-app .coefficient-panel-row input[type="number"] {
+width: 100%;
+    max-width: none;
+    min-width: 0;
+    height: 32px;
+    padding: 4px 7px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    line-height: 1.15;
+    text-align: right;
+}
+
+}
+
+/* source lines 9753-9762 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-row-tools {
+grid-column: 2 / 4;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 0;
+}
+
+}
+
+/* source lines 9764-9768 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-help-text {
+font-size: 0.76rem;
+    line-height: 1.1;
+    opacity: 0.72;
+}
+
+}
+
+/* source lines 9770-9777 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-limit-field {
+display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 6px;
+    align-items: center;
+    flex: 1 1 116px;
+    min-width: 0;
+}
+
+}
+
+/* source lines 9779-9784 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-limit-field > span, body.dx3-combo-page #dx3-app .coef-min-field > span {
+min-width: 0;
+    font-size: 0.82rem;
+    color: #b8d7ef;
+}
+
+}
+
+/* source lines 9786-9789 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-limit-field input[type="number"] {
+width: 100%;
+    max-width: none;
+}
+
+}
+
+/* source lines 9791-9799 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-min-field {
+grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+    margin-top: 0;
+}
+
+}
+
+/* source lines 9801-9804 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .coef-min-field input[type="number"] {
+width: 100%;
+    max-width: none;
+}
+
+}
+
+/* source lines 9830-9834 */
+@media (max-width: 420px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-head, body.dx3-combo-page #dx3-app .coefficient-panel-row {
+grid-template-columns: 62px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+}
+
+}
+
+/* source lines 9836-9838 */
+@media (max-width: 420px) {
+body.dx3-combo-page #dx3-app .coefficient-panel-row {
+padding: 7px 6px;
+}
+
+}
+
+/* source lines 13876-13880 */
+#dx3-app .coef-row-infer-btn.is-accepted {
+background: #5a6268;
+  color: #e8f2ff;
+  border-color: rgba(232, 242, 255, 0.35);
+}
+
+/* source lines 14452-14456 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell {
+width: auto;
+    min-width: 0;
+    padding-inline: 0.22rem;
+}
+
+}
+
+/* source lines 14458-14464 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell input[type="text"], body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell input[type="number"] {
+width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-inline: 0.28rem;
+}
+
+}
+
+/* source lines 14466-14470 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-current-box {
+width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 14587-14592 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell {
+width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-inline: 0.12rem !important;
+}
+
+}
+
+/* source lines 14594-14602 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell input[type="text"], body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-cell input[type="number"], body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-current-box {
+width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-inline: 0.18rem !important;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 14704-14708 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-row-infer-btn, body.dx3-combo-page #dx3-app .combo-source-table-v34 .coef-row-undo-btn {
+padding-inline: 0.28rem;
+    font-size: 0.68rem;
+}
+
+}
+
+/* source lines 16934-16943 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap > .coef-row-infer-btn, body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap > .coef-row-undo-btn {
+flex: 0 0 auto;
+  align-self: stretch;
+  height: auto;
+  min-width: 0;
+  padding-inline: 0.3rem;
+  font-size: 0.7rem;
+  box-sizing: border-box;
+}
+
+/* source lines 16945-16947 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap > .coef-row-undo-btn {
+width: auto;
+}
+

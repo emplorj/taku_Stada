@@ -1,0 +1,360 @@
+/* dx3_00_tokens_base.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 84-93 */
+@keyframes slideIn {
+from {
+    transform: translate(-50%, 100px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+/* source lines 95-104 */
+@keyframes slideOut {
+from {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, 100px);
+    opacity: 0;
+  }
+}
+
+/* source lines 106-125 */
+.toast-notification {
+position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px 30px;
+  border-radius: 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.2em;
+  font-weight: bold;
+  z-index: 10000;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  border: 2px solid;
+  animation: slideIn 0.3s ease-out forwards, slideOut 0.3s ease-in 1.7s forwards;
+  min-width: 300px;
+  justify-content: center;
+}
+
+/* source lines 127-130 */
+.toast-notification.success {
+background: linear-gradient(135deg, #2ecc71, #28b463);
+  border-color: #a3e9a4;
+}
+
+/* source lines 132-135 */
+.toast-notification.error {
+background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border-color: #f5b7b1;
+}
+
+/* source lines 137-139 */
+.toast-notification i {
+font-size: 1.5em;
+}
+
+/* source lines 1686-1690 */
+.summary-content {
+display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* source lines 1692-1696 */
+.summary-content h2 {
+margin: 0;
+  font-size: 1.2em;
+  color: #87cefa;
+}
+
+/* source lines 1698-1703 */
+.summary-content .subtitle {
+margin: 0;
+  font-size: 0.9em;
+  color: #bdc3c7;
+  font-weight: normal;
+}
+
+/* source lines 1744-1749 */
+.math-pattern-container {
+display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+/* source lines 1751-1757 */
+.math-pattern-box {
+background-color: #3c3c3c;
+  border: 1px solid #4a5c9a;
+  border-radius: 8px;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+/* source lines 1759-1766 */
+.math-pattern-box h5 {
+margin: 0 0 10px 0;
+  color: #87cefa;
+  font-size: 1.1em;
+  border-bottom: 1px dashed #555;
+  padding-bottom: 5px;
+  font-family: "Corporate-Logo-Bold", sans-serif;
+}
+
+/* source lines 1768-1774 */
+.math-pattern-box p {
+padding: 0;
+  margin: 0 0 15px 0;
+  font-size: 0.9em;
+  color: #eee;
+  line-height: 1.4;
+}
+
+/* source lines 1776-1784 */
+.math-values {
+display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  background-color: #0d1a50;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #2a3c7d;
+}
+
+/* source lines 1786-1793 */
+.math-values div {
+display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  color: #bdc3c7;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+/* source lines 1795-1798 */
+.math-values strong {
+color: #ffc107;
+  font-size: 1.1em;
+}
+
+/* source lines 1800-1809 */
+.final-message {
+margin-top: 30px;
+  text-align: center;
+  font-weight: bold;
+  color: #2ecc71;
+  padding: 15px;
+  border: 1px dashed #2ecc71;
+  border-radius: 8px;
+  background-color: rgba(46, 204, 113, 0.1);
+}
+
+/* source lines 1862-1869 */
+@keyframes flash-highlight {
+0% {
+    background-color: rgba(255, 235, 59, 0.4);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* source lines 1875-1888 */
+@keyframes glow-pulse {
+0% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+    border-color: #ffc107;
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 193, 7, 0);
+    border-color: #ffeb3b;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    border-color: #ffc107;
+  }
+}
+
+/* source lines 1939-1941 */
+.text-muted {
+color: #999;
+}
+
+/* source lines 1942-1944 */
+.text-small {
+font-size: 0.85em;
+}
+
+/* source lines 5728-5736 */
+body.dx3-combo-page #dx3-app.plain-text-block {
+background:
+    radial-gradient(circle at 10% 0%, var(--dx3-active-syndrome-a, rgba(52, 152, 219, 0.12)), transparent 30rem),
+    radial-gradient(circle at 100% 12%, var(--dx3-active-syndrome-b, rgba(155, 89, 182, 0.10)), transparent 34rem),
+    var(--dx3-active-syndrome-gradient, linear-gradient(135deg, rgba(13, 26, 80, 0.0), rgba(13, 26, 80, 0.0))),
+    #1f2f75;
+  border-color: var(--dx3-active-syndrome-border, #2a3c7d);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+/* source lines 7826-7829 */
+body.dx3-combo-page, body.dx3-combo-page * {
+box-sizing: border-box;
+}
+
+/* source lines 7831-7833 */
+body.dx3-combo-page {
+overflow-x: hidden;
+}
+
+/* source lines 7844-7847 */
+body.dx3-combo-page #dx3-app {
+max-width: 100%;
+  min-width: 0;
+}
+
+/* source lines 12953-12972 */
+.copy-toast {
+position: fixed;
+  left: 50%;
+  bottom: 1.35rem;
+  z-index: 12000;
+  max-width: min(92vw, 30rem);
+  padding: 0.68rem 1rem;
+  border: 1px solid rgba(126, 226, 168, 0.8);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(31, 139, 91, 0.96), rgba(21, 92, 64, 0.96));
+  color: #f7fffb;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: center;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.36);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.6rem);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+/* source lines 12974-12977 */
+.copy-toast.is-show {
+opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* source lines 12979-12982 */
+.copy-toast.is-error {
+border-color: rgba(255, 150, 150, 0.85);
+  background: linear-gradient(180deg, rgba(156, 55, 58, 0.96), rgba(106, 34, 38, 0.96));
+}
+
+/* source lines 14168-14176 */
+body.dx3-combo-page #dx3-app .effect-row-handle-head, body.dx3-combo-page #dx3-app .effect-row-handle-cell {
+width: 2.1rem !important;
+  min-width: 2.1rem !important;
+  max-width: 2.1rem !important;
+  padding-inline: 0.16rem !important;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* source lines 14178-14193 */
+body.dx3-combo-page #dx3-app .effect-drag-handle {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.52rem;
+  height: 1.72rem;
+  border: 1px solid rgba(135, 206, 250, 0.55);
+  border-radius: 0.34rem;
+  background: rgba(10, 26, 72, 0.84);
+  color: #87cefa;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+/* source lines 14195-14198 */
+body.dx3-combo-page #dx3-app .effect-drag-handle:hover {
+border-color: rgba(135, 206, 250, 0.95);
+  background: rgba(26, 55, 128, 0.92);
+}
+
+/* source lines 14200-14202 */
+body.dx3-combo-page #dx3-app .effect-drag-handle:active {
+cursor: grabbing;
+}
+
+/* source lines 14306-14315 */
+body.dx3-combo-page #dx3-app .effect-row-handle-head, body.dx3-combo-page #dx3-app .effect-row-handle-cell {
+display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* source lines 14317-14324 */
+body.dx3-combo-page #dx3-app .source-name-infer-wrap, body.dx3-combo-page #dx3-app .effect-name-inline-wrap {
+display: flex;
+  align-items: center;
+  gap: 0.34rem;
+  min-width: 0;
+  width: 100%;
+}
+
+/* source lines 14332-14355 */
+body.dx3-combo-page #dx3-app .effect-drag-handle, body.dx3-combo-page #dx3-app .effect-drag-handle-inline {
+flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  min-width: 1.15rem;
+  max-width: 1.15rem;
+  height: 1.65rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: rgba(135, 206, 250, 0.86);
+  font-size: 1.08rem;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  opacity: 0.82;
+}
+
+/* source lines 14357-14364 */
+body.dx3-combo-page #dx3-app .effect-drag-handle:hover, body.dx3-combo-page #dx3-app .effect-drag-handle-inline:hover {
+background: transparent;
+  border: 0;
+  color: #b8e7ff;
+  opacity: 1;
+  filter: drop-shadow(0 0 3px rgba(135, 206, 250, 0.45));
+}
+
+/* source lines 14366-14369 */
+body.dx3-combo-page #dx3-app .effect-drag-handle:active, body.dx3-combo-page #dx3-app .effect-drag-handle-inline:active {
+cursor: grabbing;
+}
+

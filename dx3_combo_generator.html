@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DX3 コンボジェネレーター - 卓スタダ</title>
     <meta property="og:title" content="DX3 コンボジェネレーター - 卓スタダ" />
+    <script>
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var hasViewId = String(params.get("id") || params.get("enemy") || params.get("enemyId") || "").trim();
+          var mode = String(params.get("mode") || "").trim().toLowerCase();
+          if (hasViewId && mode !== "edit") document.documentElement.classList.add("is-dx3-enemy-view-boot");
+        } catch (_e) {}
+      })();
+    </script>
     <meta
       property="og:description"
       content="ダブルクロス3rdのキャラクターシートからデータを読み込み、コンボ計算とチャットパレット作成を効率化するツールです。"
@@ -741,10 +751,12 @@
                 <i class="fa-solid fa-share-nodes"></i> 共有
               </button>
               <button
+                id="openDx3EnemyViewButton"
                 type="button"
                 class="action-btn is-sub"
                 @click="openDx3EnemyView"
                 :disabled="!enemySheet.ID"
+                title="閲覧用画面を新しいタブで表示"
               >
                 <i class="fa-solid fa-eye"></i> 閲覧
               </button>
@@ -794,6 +806,46 @@
                 </span>
               </label>
             </div>
+          </section>
+
+          <section
+            class="enemy-view-pane dx3-enemy-view-pane"
+            :hidden="!dx3EnemyViewMode"
+            aria-live="polite"
+          >
+            <div class="enemy-view-toolbar">
+              <div class="enemy-view-toolbar-title">閲覧ページ</div>
+              <span class="enemy-view-id-badge" :hidden="!enemySheet.ID">ID: {{ enemySheet.ID }}</span>
+              <div class="enemy-view-toolbar-actions">
+                <label class="public-switch-label enemy-view-wide-switch">
+                  <span class="public-switch-wrap">
+                    <input class="switch" type="checkbox" v-model="dx3EnemyViewWide" />
+                    <span class="public-switch-text">ワイド</span>
+                  </span>
+                </label>
+                <button type="button" class="small-square-btn is-copy-chat" @click="dx3EnemyViewChatOpen = !dx3EnemyViewChatOpen">
+                  <i class="fa-solid fa-scroll"></i> チャパレ
+                </button>
+                <button type="button" class="small-square-btn is-copy-chat" @click="copyDx3EnemyViewKomaJson">
+                  <i class="fa-solid fa-dice-d20"></i> 駒出力
+                </button>
+                <a class="small-square-btn enemy-view-new-button" href="dx3_combo_generator.html?mode=enemy">
+                  <i class="fa-solid fa-file"></i> 新規作成
+                </a>
+              </div>
+            </div>
+            <div class="enemy-view-chat-palette-panel" v-show="dx3EnemyViewChatOpen">
+              <div class="enemy-view-chat-palette-actions">
+                <button type="button" class="small-square-btn is-copy-chat" @click="copyDx3EnemyViewKomaJson">
+                  <i class="fa-solid fa-dice-d20"></i> 駒出力コピー
+                </button>
+                <button type="button" class="small-square-btn is-copy-chat" @click="copyDx3EnemyViewCommands">
+                  <i class="fa-solid fa-copy"></i> チャパレコピー
+                </button>
+              </div>
+              <textarea class="enemy-view-chat-palette" readonly rows="8" :value="dx3EnemyViewCommands" aria-label="チャットパレット内容"></textarea>
+            </div>
+            <article class="enemy-view-content dx3-enemy-view-content" v-html="dx3EnemyViewHtml"></article>
           </section>
 
           <section class="dx3-enemy-editor-pane dx3-enemy-template-pane">

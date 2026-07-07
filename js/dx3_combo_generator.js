@@ -73,6 +73,11 @@ new Vue({
   data: {
     isGuideOpen: false,
     appMode: "pc",
+    dx3EnemyViewMode: false,
+    dx3EnemyViewWide: false,
+    dx3EnemyViewChatOpen: false,
+    dx3EnemyViewLoading: false,
+    dx3EnemyViewError: "",
     enemySheet: { ID: "", author: "", name: "", class_type: "DX3", is_public: true, memo: "", icon_url: "", time: "" },
     enemyData: {
       nameKana: "",
@@ -370,11 +375,15 @@ new Vue({
   created() {
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("mode") === "enemy") this.appMode = "enemy";
-      const enemyId = params.get("enemy") || params.get("enemyId");
+      const mode = String(params.get("mode") || "").trim().toLowerCase();
+      if (mode === "enemy") this.appMode = "enemy";
+      const enemyId = params.get("id") || params.get("enemy") || params.get("enemyId");
       if (enemyId) {
         this.appMode = "enemy";
         this.enemySheet.ID = String(enemyId);
+        this.dx3EnemyViewMode = mode !== "edit";
+        this.dx3EnemyViewChatOpen = mode !== "edit";
+        this.dx3EnemyViewLoading = mode !== "edit";
       }
       const rememberedAuthor = localStorage.getItem("dx3EnemiesAuthor") || "";
       if (rememberedAuthor) this.enemySheet.author = rememberedAuthor;
@@ -444,8 +453,13 @@ new Vue({
           if (this.enemySheet.ID) {
             const found = this.dx3EnemyList.find((enemy) => String(enemy.ID) === String(this.enemySheet.ID));
             if (found) this.loadDx3Enemy(found);
+            else if (this.dx3EnemyViewMode) this.dx3EnemyViewError = "指定されたエネミーデータが見つかりません。";
           }
-        }).catch(() => {});
+        }).catch((error) => {
+          if (this.dx3EnemyViewMode) this.dx3EnemyViewError = `エネミーデータの読み込みに失敗しました。${error && error.message ? error.message : ""}`;
+        }).finally(() => {
+          this.dx3EnemyViewLoading = false;
+        });
       }
       this.$nextTick(() => {
         this.isInitializing = false;
@@ -455,6 +469,7 @@ new Vue({
   },
   mounted() {
     window.addEventListener("beforeunload", this.handleBeforeUnload);
+    this.applyDx3EnemyViewMode();
   },
   beforeDestroy() {
     window.removeEventListener("beforeunload", this.handleBeforeUnload);
@@ -704,6 +719,12 @@ new Vue({
       const from = (this.dx3EnemyCurrentPage - 1) * size + 1;
       const to = Math.min(total, from + size - 1);
       return `${from}-${to} / ${total}件`;
+    },
+    dx3EnemyViewCommands() {
+      return this.buildDx3EnemyCommands();
+    },
+    dx3EnemyViewHtml() {
+      return this.buildDx3EnemyViewHtml();
     },
     availableBulkTimingOptions() {
       const options = [
@@ -1257,6 +1278,13 @@ new Vue({
     appMode(value) {
       if (value === "enemy") this.setupEnemyModeDefaults(false);
       if (value === "pc") this.effectFieldsEditable = false;
+      this.$nextTick(() => this.applyDx3EnemyViewMode());
+    },
+    dx3EnemyViewMode() {
+      this.$nextTick(() => this.applyDx3EnemyViewMode());
+    },
+    dx3EnemyViewWide() {
+      this.$nextTick(() => this.applyDx3EnemyViewMode());
     },
     enemySheet: {
       handler() {
@@ -1431,6 +1459,45 @@ new Vue({
         return;
       }
       if (message) console[kind === "error" ? "warn" : "log"](message);
+    },
+    escapeHtml(value) {
+      return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    },
+    nl2br(value) {
+      return this.escapeHtml(value).replace(/\r?\n/g, "<br>");
+    },
+    getDx3EnemyUrlId() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        return String(params.get("id") || params.get("enemy") || params.get("enemyId") || "").trim();
+      } catch (_e) {
+        return "";
+      }
+    },
+    buildDx3EnemyViewUrl(enemyId, edit = false) {
+      const id = String(enemyId || "").trim();
+      if (!id) return "";
+      const url = new URL(window.location.href);
+      url.searchParams.set("id", id);
+      url.searchParams.delete("enemy");
+      url.searchParams.delete("enemyId");
+      if (edit) url.searchParams.set("mode", "edit");
+      else url.searchParams.delete("mode");
+      url.hash = "";
+      return url.toString();
+    },
+    applyDx3EnemyViewMode() {
+      const active = !!this.dx3EnemyViewMode;
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.toggle("is-dx3-enemy-view-boot", active);
+        document.body.classList.toggle("is-enemy-view-mode", active);
+        document.body.classList.toggle("is-enemy-view-wide", active && !!this.dx3EnemyViewWide);
+      }
     },
     switchAppMode(mode) {
       if (mode !== "pc" && mode !== "enemy") return;
@@ -2886,7 +2953,18 @@ new Vue({
     },
     normalizeDx3EnemyRecord(enemy) {
       const src = enemy && typeof enemy === "object" ? enemy : {};
-      const data = src.data && typeof src.data === "object" ? src.data : {};
+      let data = {};
+      if (src.data && typeof src.data === "object") {
+        data = src.data;
+      } else if (typeof src.data === "string") {
+        try {
+          const parsed = JSON.parse(src.data);
+          data = parsed && typeof parsed === "object" ? parsed : {};
+        } catch (error) {
+          console.warn("DX3 enemy data parse failed", src.ID || src.name || "", error);
+          data = {};
+        }
+      }
       return {
         ID: String(src.ID || "").trim(),
         author: String(src.author || "").trim(),
@@ -3055,20 +3133,108 @@ new Vue({
     },
     shareDx3Enemy() {
       if (!this.enemySheet.ID) return;
-      const url = new URL(window.location.href);
-      url.searchParams.set("mode", "enemy");
-      url.searchParams.set("enemy", this.enemySheet.ID);
-      navigator.clipboard.writeText(url.toString()).then(
+      const url = this.buildDx3EnemyViewUrl(this.enemySheet.ID, false);
+      navigator.clipboard.writeText(url).then(
         () => this.showDx3EnemyToast("共有URLをコピーした", "info"),
         () => this.showDx3EnemyToast("共有URLコピーに失敗", "error"),
       );
     },
     openDx3EnemyView() {
       if (!this.enemySheet.ID) return;
-      const url = new URL(window.location.href);
-      url.searchParams.set("mode", "enemy");
-      url.searchParams.set("enemy", this.enemySheet.ID);
-      window.open(url.toString(), "_blank", "noopener,noreferrer");
+      const url = this.buildDx3EnemyViewUrl(this.enemySheet.ID, false);
+      window.open(url, "_blank", "noopener,noreferrer");
+    },
+    async copyDx3EnemyViewCommands() {
+      const text = this.buildDx3EnemyCommands();
+      if (!String(text || "").trim()) return;
+      try {
+        await this.copyDx3EnemyClipboardText(text);
+        this.showDx3EnemyToast("チャパレをコピーした", "info");
+      } catch (_error) {
+        this.showDx3EnemyToast("チャパレコピーに失敗", "error");
+      }
+    },
+    async copyDx3EnemyViewKomaJson() {
+      await this.exportDx3EnemyKomaJson();
+    },
+    buildDx3EnemyViewHtml() {
+      const esc = (value) => this.escapeHtml(value);
+      const br = (value) => this.nl2br(value);
+      if (this.dx3EnemyViewLoading) {
+        return `<section class="enemy-view-block enemy-view-loading dx3-enemy-view-loading"><h2>DX3エネミーを読み込み中...</h2><p>保存済みデータを取得しています。</p></section>`;
+      }
+      if (this.dx3EnemyViewError) {
+        return `<section class="enemy-view-block enemy-view-loading"><h2>閲覧できません</h2><p>${esc(this.dx3EnemyViewError)}</p></section>`;
+      }
+      if (!this.enemySheet.ID) {
+        return `<section class="enemy-view-block enemy-view-loading">エネミー情報を読み込み中...</section>`;
+      }
+      if (this.enemySheet.is_public === false) {
+        return `<section class="enemy-view-block enemy-view-loading"><h2>このエネミーは非公開です</h2><p>公開設定のエネミーデータのみ閲覧できます。</p></section>`;
+      }
+
+      const data = this.normalizeDx3EnemyData(this.enemyData || {});
+      const name = esc(this.enemySheet.name || "DX3エネミー");
+      const kana = esc(data.nameKana || "");
+      const code = esc(data.codename || "");
+      const codeKana = esc(data.codenameKana || "");
+      const breed = esc(this.getDx3EnemyBreedLabel(data) || this.enemySheet.class_type || "DX3");
+      const finalStats = this.getDx3EnemyFinalStats(data);
+      const abilities = this.getDx3EnemyTotalAbilities(data);
+      const xp = this.getDx3EnemyXpConversion(data);
+      const syndromes = (Array.isArray(data.syndromes) ? data.syndromes : []).map((x) => String(x || "").trim()).filter(Boolean);
+      const iconUrl = String(this.enemySheet.icon_url || "").trim();
+      const syndromeTags = syndromes.length
+        ? syndromes.map((syndrome) => `<span class="enemy-list-class-tag dx3-syndrome-tag" data-syndrome="${esc(this.dx3SyndromeColorKey(syndrome))}">${esc(syndrome)}</span>`).join("")
+        : `<span class="enemy-list-class-tag dx3-syndrome-tag" data-syndrome="unknown">シンドローム未設定</span>`;
+      const statCards = [
+        ["HP", finalStats.hp],
+        ["侵蝕", finalStats.erosion],
+        ["侵蝕率D", this.getErosionDice(finalStats.erosion)],
+        ["行動値", finalStats.initiative],
+        ["装甲", finalStats.armor],
+        ["移動", finalStats.move],
+      ].map(([label, value]) => `<article class="enemy-view-stat"><span>${esc(label)}</span><strong>${esc(value)}</strong></article>`).join("");
+      const abilityCards = [
+        ["肉体", abilities.body],
+        ["感覚", abilities.sense],
+        ["精神", abilities.mind],
+        ["社会", abilities.social],
+      ].map(([label, value]) => `<article class="enemy-view-stat is-ability"><span>${esc(label)}</span><strong>${esc(value)}</strong></article>`).join("");
+      const skillRows = (Array.isArray(data.skillRows) ? data.skillRows : [])
+        .filter((row) => row && (Number(row.level) || Number(row.dice) || Number(row.mod) || String(row.note || "").trim()))
+        .map((row) => `<tr><th>${esc(row.name || "-")}${row.spec ? `:${esc(row.spec)}` : ""}</th><td>${esc(row.ability || "-")}</td><td>${esc(row.level || 0)}</td><td>${esc(this.formatDx3EnemySkillOutput(row) || "-")}</td><td>${esc(row.note || "")}</td></tr>`)
+        .join("") || `<tr><td colspan="5">表示する技能なし</td></tr>`;
+      const effectRows = (Array.isArray(this.effects) ? this.effects : [])
+        .filter((effect) => effect && String(effect.name || "").trim())
+        .map((effect) => `<tr><th>${esc(effect.name)}</th><td>${esc(effect.level || 1)}</td><td>${esc(effect.timing || "-")}</td><td>${br(effect.effect || "")}</td></tr>`)
+        .join("") || `<tr><td colspan="4">表示するエフェクトなし</td></tr>`;
+      const comboRows = (Array.isArray(this.processedCombos) ? this.processedCombos : [])
+        .filter((combo) => combo && String(combo.name || "").trim())
+        .map((combo) => `<section class="enemy-view-subblock dx3-enemy-view-combo"><h3>${esc(combo.name)}</h3><p class="enemy-view-meta-line">${esc(combo.compositionText || "-")}</p><dl><div><dt>タイミング</dt><dd>${esc(combo.timing || "-")}</dd></div><div><dt>対象</dt><dd>${esc(combo.target || "-")}</dd></div><div><dt>射程</dt><dd>${esc(combo.range || "-")}</dd></div><div><dt>ダイス</dt><dd>${esc(combo.totalDice)}</dd></div><div><dt>C値</dt><dd>${esc(combo.finalCrit)}</dd></div><div><dt>達成値</dt><dd>${esc(combo.totalAchieve)}</dd></div><div><dt>ATK</dt><dd>${esc(combo.totalAtk)}</dd></div></dl><pre>${esc((combo.chatPalette && [combo.chatPalette.header, combo.chatPalette.diceFormula].filter(Boolean).join("\n")) || "")}</pre></section>`)
+        .join("");
+      const editUrl = this.buildDx3EnemyViewUrl(this.enemySheet.ID, true);
+
+      return `
+        <section class="enemy-view-hero dx3-enemy-view-hero ${iconUrl ? "has-image" : "has-no-image"}">
+          ${iconUrl ? `<div class="enemy-view-portrait"><img src="${esc(iconUrl)}" alt=""></div>` : ""}
+          <div class="enemy-view-hero-main">
+            <div class="enemy-view-kicker">DX3rd ENEMY / ${breed}</div>
+            <h2>${name}</h2>
+            ${kana ? `<p class="enemy-view-reading">${kana}</p>` : ""}
+            ${code ? `<p class="enemy-view-codename">“${code}”${codeKana ? ` <small>${codeKana}</small>` : ""}</p>` : ""}
+            <div class="enemy-view-tag-row">${syndromeTags}</div>
+            <p class="enemy-view-meta-line">${esc(this.dx3EnemyCreditLabel(this.enemySheet.author))}: ${esc(this.enemySheet.author || "-")} / 経験点換算 ${esc(xp.total)}</p>
+            <p class="enemy-view-actions"><a class="small-square-btn" href="${esc(editUrl)}"><i class="fa-solid fa-pen-to-square"></i> 編集で開く</a></p>
+          </div>
+        </section>
+        <section class="enemy-view-block dx3-enemy-view-stats"><h3>ステータス</h3><div class="enemy-view-stat-grid">${statCards}${abilityCards}</div></section>
+        ${data.explanation ? `<section class="enemy-view-block"><h3>解説</h3><p>${br(data.explanation)}</p></section>` : ""}
+        <section class="enemy-view-block"><h3>技能</h3><div class="enemy-view-table-wrap"><table class="enemy-view-table"><thead><tr><th>技能</th><th>能力</th><th>Lv</th><th>判定式</th><th>備考</th></tr></thead><tbody>${skillRows}</tbody></table></div></section>
+        <section class="enemy-view-block"><h3>エフェクト</h3><div class="enemy-view-table-wrap"><table class="enemy-view-table"><thead><tr><th>名称</th><th>Lv</th><th>タイミング</th><th>効果</th></tr></thead><tbody>${effectRows}</tbody></table></div></section>
+        ${comboRows ? `<section class="enemy-view-block"><h3>コンボ</h3>${comboRows}</section>` : ""}
+        ${data.tactics ? `<section class="enemy-view-block"><h3>立ち回りメモ</h3><p>${br(data.tactics)}</p></section>` : ""}
+      `;
     },
     buildDx3EnemyCommands() {
       this.syncDx3EnemySkillMap();
@@ -4320,6 +4486,7 @@ new Vue({
       }
     },
     handleBeforeUnload(e) {
+      if (this.dx3EnemyViewMode) return;
       if (this.isDirty) {
         e.preventDefault();
         e.returnValue = "";

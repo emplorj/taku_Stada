@@ -1,0 +1,10 @@
+/* dx3_enemy_42_combo.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 4520-4523 */
+body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+

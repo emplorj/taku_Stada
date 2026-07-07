@@ -1,0 +1,2402 @@
+/* dx3_effects_20_tables.css
+   Phase18 v019: partial_simplify declarations removed.
+   important_review is left untouched.
+*/
+
+/* kept/simplified from v018 lines 7-9 */
+.effects-table td:nth-child(1) {
+min-width: 150px;
+}
+
+/* kept/simplified from v018 lines 12-14 */
+.effects-table td:nth-child(2), .effects-table td:nth-child(3) {
+width: 40px;
+}
+
+/* kept/simplified from v018 lines 17-19 */
+.effects-table td:nth-child(4), .effects-table td:nth-child(5), .effects-table td:nth-child(6), .effects-table td:nth-child(7), .effects-table td:nth-child(8) {
+min-width: 90px;
+}
+
+/* kept/simplified from v018 lines 22-24 */
+.effects-table td:nth-child(9) {
+width: 60px;
+}
+
+/* kept/simplified from v018 lines 27-29 */
+.effects-table td:nth-child(10) {
+width: 80px;
+}
+
+/* kept/simplified from v018 lines 32-34 */
+.effects-table td:nth-child(13) {
+width: 80px;
+}
+
+/* kept/simplified from v018 lines 37-51 */
+.effect-select-button {
+display: block;
+  width: 100%;
+  background-color: #0d1a50;
+  color: #eee;
+  border: 1px solid #4a5c9a;
+  border-radius: 4px;
+  padding: 10px;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 10px;
+}
+
+/* kept/simplified from v018 lines 54-56 */
+.effect-select-button:hover {
+background-color: #1a2c6d;
+}
+
+/* kept/simplified from v018 lines 59-61 */
+.effect-select-button i {
+margin-right: 8px;
+}
+
+/* kept/simplified from v018 lines 64-66 */
+.effect-select-modal .option-group {
+margin-bottom: 10px;
+}
+
+/* kept/simplified from v018 lines 69-75 */
+.effect-select-modal .option-group strong {
+color: #87cefa;
+  display: block;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #4a5c9a;
+}
+
+/* kept/simplified from v018 lines 78-84 */
+.effect-select-modal label {
+display: block;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+/* kept/simplified from v018 lines 87-89 */
+.effect-select-modal label:hover {
+background-color: #2c3e50;
+}
+
+/* kept/simplified from v018 lines 92-94 */
+.effect-select-modal input[type="checkbox"] {
+margin-right: 8px;
+}
+
+/* kept/simplified from v018 lines 97-101 */
+.effect-select-modal label.disabled {
+color: #666;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* kept/simplified from v018 lines 104-106 */
+.effect-select-modal label.disabled:hover {
+background-color: transparent;
+}
+
+/* kept/simplified from v018 lines 109-113 */
+#dx3-app .effects-table td:nth-child(1) {
+width: 158px;
+  min-width: 142px;
+  max-width: 180px;
+}
+
+/* kept/simplified from v018 lines 116-121 */
+#dx3-app .effects-table td:nth-child(2), #dx3-app .effects-table td:nth-child(3) {
+width: 54px !important;
+  min-width: 54px !important;
+  max-width: 58px !important;
+  text-align: center;
+}
+
+/* kept/simplified from v018 lines 124-128 */
+#dx3-app .effects-table td:nth-child(4), #dx3-app .effects-table td:nth-child(5), #dx3-app .effects-table td:nth-child(6) {
+width: 104px;
+  min-width: 92px !important;
+  max-width: 112px;
+}
+
+/* kept/simplified from v018 lines 131-135 */
+#dx3-app .effects-table td:nth-child(7) {
+width: 86px;
+  min-width: 78px !important;
+  max-width: 96px;
+}
+
+/* kept/simplified from v018 lines 138-142 */
+#dx3-app .effects-table td:nth-child(8) {
+width: 82px;
+  min-width: 72px !important;
+  max-width: 92px;
+}
+
+/* kept/simplified from v018 lines 145-149 */
+#dx3-app .effects-table td:nth-child(9) {
+width: 62px !important;
+  min-width: 56px !important;
+  max-width: 68px !important;
+}
+
+/* kept/simplified from v018 lines 152-156 */
+#dx3-app .effects-table td:nth-child(10) {
+width: 82px !important;
+  min-width: 72px !important;
+  max-width: 92px !important;
+}
+
+/* kept/simplified from v018 lines 159-164 */
+#dx3-app .effects-table td:nth-child(11) {
+white-space: normal !important;
+}
+
+/* kept/simplified from v018 lines 167-172 */
+#dx3-app .effects-table td:nth-child(12) {
+white-space: normal !important;
+}
+
+/* kept/simplified from v018 lines 175-179 */
+#dx3-app .effects-table td:nth-child(13) {
+width: 82px !important;
+  min-width: 82px !important;
+  max-width: 90px !important;
+}
+
+/* kept/simplified from v018 lines 182-185 */
+#dx3-app .effects-table td:nth-child(11) textarea, #dx3-app .effects-table td:nth-child(12) textarea, #dx3-app .items-table td:nth-child(11) textarea {
+min-height: 40px;
+  line-height: 1.25;
+}
+
+/* kept/simplified from v018 lines 188-194 */
+#dx3-app .effects-table td:nth-child(9) input, #dx3-app .effects-table td:nth-child(10) input, #dx3-app .items-table td:nth-child(5) input, #dx3-app .items-table td:nth-child(6) input, #dx3-app .items-table td:nth-child(7) input, #dx3-app .items-table td:nth-child(9) input, #dx3-app .items-table td:nth-child(10) input {
+font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.06em;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+/* kept/simplified from v018 lines 197-207 */
+#dx3-app .effect-select-toolbar {
+display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 8px;
+  border: 1px solid #4a5c9a;
+  border-radius: 6px;
+  background: rgba(26, 44, 109, 0.45);
+}
+
+/* kept/simplified from v018 lines 210-214 */
+#dx3-app .effect-select-toolbar .toolbar-label {
+color: #87cefa;
+  font-weight: bold;
+  margin-right: 2px;
+}
+
+/* kept/simplified from v018 lines 217-226 */
+#dx3-app .effect-select-toolbar button {
+border: 1px solid #4a5c9a;
+  border-radius: 5px;
+  background: #263b88;
+  color: #f0f8ff;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 0.86em;
+  line-height: 1.1;
+}
+
+/* kept/simplified from v018 lines 229-231 */
+#dx3-app .effect-select-toolbar button:hover {
+background: #3498db;
+}
+
+/* kept/simplified from v018 lines 234-236 */
+#dx3-app .effect-select-toolbar .clear-selection-btn {
+background: #6c757d;
+}
+
+/* kept/simplified from v018 lines 239-249 */
+.sheet-source-controls {
+display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: rgba(44, 44, 44, 0.95);
+  border: 1px solid #2a3c7d;
+  border-radius: 8px;
+}
+
+/* kept/simplified from v018 lines 252-259 */
+.sheet-source-note {
+display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  color: #e8edf8;
+  line-height: 1.45;
+}
+
+/* kept/simplified from v018 lines 262-264 */
+.sheet-source-note strong {
+color: #87cefa;
+}
+
+/* kept/simplified from v018 lines 267-270 */
+.sheet-source-note span {
+color: #cbd5e1;
+  font-size: 0.9em;
+}
+
+/* kept/simplified from v018 lines 273-278 */
+.sheet-source-actions {
+display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* kept/simplified from v018 lines 281-291 */
+.sheet-source-actions button {
+border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity .2s, transform .2s;
+}
+
+/* kept/simplified from v018 lines 294-297 */
+.sheet-source-actions button:hover:not(:disabled) {
+opacity: .85;
+  transform: translateY(-1px);
+}
+
+/* kept/simplified from v018 lines 300-303 */
+.sheet-source-actions button:disabled {
+opacity: .5;
+  cursor: not-allowed;
+}
+
+/* kept/simplified from v018 lines 307-310 */
+@media (max-width: 900px) {
+.sheet-source-controls {
+flex-direction: column;
+    align-items: stretch;
+}
+
+}
+
+/* kept/simplified from v018 lines 316-319 */
+@media (max-width: 900px) {
+.sheet-source-actions {
+justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+}
+
+/* kept/simplified from v018 lines 324-326 */
+.compact-table-wrapper {
+overflow-x: auto;
+}
+
+/* kept/simplified from v018 lines 329-332 */
+.combo-source-table {
+table-layout: fixed;
+  min-width: 980px;
+}
+
+/* kept/simplified from v018 lines 335-337 */
+.combo-source-table th:nth-child(1), .combo-source-table td:nth-child(1) {
+width: 190px;
+}
+
+/* kept/simplified from v018 lines 340-342 */
+.combo-source-table th:nth-child(2), .combo-source-table td:nth-child(2) {
+width: 52px;
+}
+
+/* kept/simplified from v018 lines 345-347 */
+.combo-source-table th:nth-child(3), .combo-source-table td:nth-child(3) {
+width: 110px;
+}
+
+/* kept/simplified from v018 lines 350-352 */
+.combo-source-table th:nth-child(4), .combo-source-table td:nth-child(4) {
+width: 120px;
+}
+
+/* kept/simplified from v018 lines 355-357 */
+.combo-source-table th:nth-child(5), .combo-source-table td:nth-child(5) {
+width: 70px;
+}
+
+/* kept/simplified from v018 lines 360-362 */
+.combo-source-table th:nth-child(6), .combo-source-table td:nth-child(6) {
+width: auto;
+}
+
+/* kept/simplified from v018 lines 365-367 */
+.combo-source-table th:nth-child(7), .combo-source-table td:nth-child(7) {
+width: 90px;
+}
+
+/* kept/simplified from v018 lines 370-374 */
+.combo-source-table .source-name-cell, .combo-source-table .source-short-cell, .combo-source-table .source-cost-cell {
+overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* kept/simplified from v018 lines 377-381 */
+.combo-source-table .source-effect-cell {
+white-space: normal;
+  line-height: 1.35;
+  vertical-align: top;
+}
+
+/* kept/simplified from v018 lines 384-389 */
+.combo-source-table .source-effect-cell small {
+display: block;
+  margin-top: 3px;
+  color: #b8c7dd;
+  opacity: 0.9;
+}
+
+/* kept/simplified from v018 lines 393-395 */
+@media (max-width: 1000px) {
+.sheet-source-actions {
+flex-wrap: wrap;
+}
+
+}
+
+/* kept/simplified from v018 lines 400-404 */
+#dx3-app .combo-source-table .source-name-cell, #dx3-app .combo-source-table .source-short-cell, #dx3-app .combo-source-table .source-level-cell {
+white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* kept/simplified from v018 lines 407-411 */
+#dx3-app .combo-source-table .source-name-cell input, #dx3-app .combo-source-table .source-short-cell input, #dx3-app .combo-source-table .source-level-cell input, #dx3-app .combo-source-table .source-effect-cell textarea {
+width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 414-417 */
+#dx3-app .combo-source-table .source-effect-cell {
+vertical-align: top;
+  white-space: normal;
+}
+
+/* kept/simplified from v018 lines 420-424 */
+#dx3-app .combo-source-table .source-effect-cell textarea {
+min-height: 92px;
+  resize: vertical;
+  white-space: normal;
+}
+
+/* kept/simplified from v018 lines 428-431 */
+@media (max-width: 900px) {
+#dx3-app .combo-source-table th:nth-child(4), #dx3-app .combo-source-table td:nth-child(4) {
+width: 520px;
+    min-width: 520px;
+}
+
+}
+
+/* kept/simplified from v018 lines 436-439 */
+#dx3-app .combo-source-table .source-effect-cell, #dx3-app .combo-source-table .source-note-cell {
+vertical-align: top;
+  white-space: normal;
+}
+
+/* kept/simplified from v018 lines 442-449 */
+#dx3-app .combo-source-table .source-effect-cell textarea, #dx3-app .combo-source-table .source-note-cell textarea {
+width: 100%;
+  min-width: 0;
+  min-height: 96px;
+  resize: vertical;
+  box-sizing: border-box;
+  white-space: normal;
+}
+
+/* kept/simplified from v018 lines 452-454 */
+#dx3-app .combo-source-table .source-note-cell textarea {
+min-height: 96px;
+}
+
+/* kept/simplified from v018 lines 457-459 */
+#dx3-app .combo-source-table th[title] {
+cursor: help;
+}
+
+/* kept/simplified from v018 lines 463-466 */
+@media (max-width: 900px) {
+#dx3-app .combo-source-table th:nth-child(5), #dx3-app .combo-source-table td:nth-child(5) {
+width: 460px;
+    min-width: 460px;
+}
+
+}
+
+/* kept/simplified from v018 lines 471-473 */
+#dx3-app .combo-source-table-v34 th, #dx3-app .combo-source-table-v34 td {
+vertical-align: middle;
+}
+
+/* kept/simplified from v018 lines 476-479 */
+#dx3-app .combo-source-table-v34 th:nth-child(1), #dx3-app .combo-source-table-v34 td:nth-child(1) {
+width: 170px;
+  min-width: 170px;
+}
+
+/* kept/simplified from v018 lines 482-485 */
+#dx3-app .combo-source-table-v34 th:nth-child(2), #dx3-app .combo-source-table-v34 td:nth-child(2) {
+width: 54px;
+  min-width: 54px;
+}
+
+/* kept/simplified from v018 lines 488-491 */
+#dx3-app .combo-source-table-v34 th:nth-child(3), #dx3-app .combo-source-table-v34 td:nth-child(3) {
+width: 112px;
+  min-width: 112px;
+}
+
+/* kept/simplified from v018 lines 494-498 */
+#dx3-app .combo-source-table-v34 .source-name-cell, #dx3-app .combo-source-table-v34 .source-short-cell, #dx3-app .combo-source-table-v34 .source-level-cell {
+white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* kept/simplified from v018 lines 501-505 */
+#dx3-app .combo-source-table-v34 .source-name-cell input, #dx3-app .combo-source-table-v34 .source-short-cell input, #dx3-app .combo-source-table-v34 .source-level-cell input {
+width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 508-510 */
+#dx3-app .combo-source-table-v34 th[title] {
+cursor: help;
+}
+
+/* kept/simplified from v018 lines 513-515 */
+#dx3-app .combo-source-table-v34 .source-note-cell textarea {
+min-width: 0;
+}
+
+/* kept/simplified from v018 lines 518-520 */
+#dx3-app .combo-source-table-v34 .source-effect-cell, #dx3-app .combo-source-table-v34 .source-note-cell {
+vertical-align: middle;
+}
+
+/* kept/simplified from v018 lines 523-527 */
+#dx3-app .effects-table input, #dx3-app .effects-table textarea, #dx3-app .effects-table .input-with-dropdown {
+width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 530-532 */
+#dx3-app .effects-table td:nth-child(11), #dx3-app .effects-table td:nth-child(12) {
+white-space: normal;
+}
+
+/* kept/simplified from v018 lines 535-542 */
+#dx3-app .effects-table td:nth-child(11) textarea, #dx3-app .effects-table td:nth-child(12) textarea {
+padding: 5px;
+}
+
+/* kept/simplified from v018 lines 545-547 */
+#dx3-app .compact-table-wrapper, #dx3-app .table-wrapper {
+max-width: 100%;
+}
+
+/* kept/simplified from v018 lines 551-554 */
+@media (max-width: 900px) {
+#dx3-app .compact-table-wrapper, #dx3-app .table-wrapper {
+overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+}
+
+/* kept/simplified from v018 lines 560-562 */
+@media (min-width: 901px) {
+#dx3-app .table-wrapper:has(> .effects-table) {
+overflow-x: visible;
+}
+
+}
+
+/* kept/simplified from v018 lines 568-573 */
+@media (min-width: 901px) {
+#dx3-app .effects-table {
+table-layout: fixed;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+}
+
+/* kept/simplified from v018 lines 579-581 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th, #dx3-app .effects-table td {
+box-sizing: border-box;
+}
+
+}
+
+/* kept/simplified from v018 lines 587-589 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(1), #dx3-app .effects-table td:nth-child(1) {
+width: 10.8%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 595-597 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(2), #dx3-app .effects-table td:nth-child(2) {
+width: 4.0%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 603-605 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(3), #dx3-app .effects-table td:nth-child(3) {
+width: 4.4%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 611-613 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(4), #dx3-app .effects-table td:nth-child(4) {
+width: 8.0%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 619-621 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(5), #dx3-app .effects-table td:nth-child(5) {
+width: 7.8%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 627-629 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(6), #dx3-app .effects-table td:nth-child(6) {
+width: 7.1%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 635-637 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(7), #dx3-app .effects-table td:nth-child(7) {
+width: 6.4%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 643-645 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(8), #dx3-app .effects-table td:nth-child(8) {
+width: 6.0%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 651-653 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(9), #dx3-app .effects-table td:nth-child(9) {
+width: 5.0%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 659-661 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(10), #dx3-app .effects-table td:nth-child(10) {
+width: 6.1%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 667-669 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(11), #dx3-app .effects-table td:nth-child(11) {
+width: 20.7%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 675-677 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(12), #dx3-app .effects-table td:nth-child(12) {
+width: 10.7%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 683-685 */
+@media (min-width: 901px) {
+#dx3-app .effects-table th:nth-child(13), #dx3-app .effects-table td:nth-child(13) {
+width: 6.0%; min-width: 0; max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 690-694 */
+#dx3-app .combo-source-table-v34 .source-short-cell .input-with-dropdown input {
+width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 697-700 */
+#dx3-app .combo-source-table-v34 .source-name-cell input[readonly], #dx3-app .combo-source-table-v34 .source-level-cell input[readonly], #dx3-app .combo-source-table-v34 .source-short-cell input[disabled] {
+opacity: 0.72;
+  cursor: default;
+}
+
+/* kept/simplified from v018 lines 703-708 */
+#dx3-app .combo-source-table-v34 th {
+padding-left: 3px;
+  padding-right: 3px;
+  font-size: 0.78em;
+  line-height: 1.15;
+}
+
+/* kept/simplified from v018 lines 711-714 */
+#dx3-app .combo-source-table-v34 td {
+padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* kept/simplified from v018 lines 717-721 */
+#dx3-app .combo-source-table-v34 .source-name-cell {
+width: 180px;
+  min-width: 180px;
+  max-width: 180px;
+}
+
+/* kept/simplified from v018 lines 724-728 */
+#dx3-app .combo-source-table-v34 .source-short-cell {
+width: 106px;
+  min-width: 106px;
+  max-width: 106px;
+}
+
+/* kept/simplified from v018 lines 731-737 */
+#dx3-app .combo-source-table-v34 .source-level-cell input[type="number"], #dx3-app .combo-source-table-v34 .source-level-cell input[type="text"] {
+font-size: 1.2rem;
+  line-height: normal;
+  font-weight: 400;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+/* kept/simplified from v018 lines 740-742 */
+#dx3-app .combo-source-table-v34 .source-name-with-infer {
+vertical-align: middle;
+}
+
+/* kept/simplified from v018 lines 745-751 */
+#dx3-app .combo-source-table-v34 .source-name-infer-wrap {
+display: flex;
+align-items: center;
+width: 100%;
+min-width: 0;
+}
+
+/* kept/simplified from v018 lines 754-757 */
+#dx3-app .combo-source-table-v34 .source-name-infer-wrap input {
+flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* kept/simplified from v018 lines 760-763 */
+#dx3-app .combo-source-table-v34 tr.is-inference-candidate td {
+background: rgba(255, 235, 59, 0.10);
+  box-shadow: inset 0 0 0 1px rgba(255, 235, 59, 0.28);
+}
+
+/* kept/simplified from v018 lines 771-777 */
+body.dx3-combo-page .table-wrapper, body.dx3-combo-page .compact-table-wrapper {
+max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* kept/simplified from v018 lines 781-786 */
+@media (max-width: 760px) {
+body.dx3-combo-page .db-buttons, body.dx3-combo-page .sheet-source-actions {
+display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+}
+
+}
+
+/* kept/simplified from v018 lines 792-797 */
+@media (max-width: 760px) {
+body.dx3-combo-page .sheet-source-controls {
+display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+}
+
+}
+
+/* kept/simplified from v018 lines 803-805 */
+@media (max-width: 760px) {
+body.dx3-combo-page .sheet-source-note {
+font-size: 0.86rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 811-816 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-button {
+white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.45;
+}
+
+}
+
+/* kept/simplified from v018 lines 822-825 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-toolbar {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+}
+
+/* kept/simplified from v018 lines 831-833 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-toolbar .toolbar-label {
+grid-column: 1 / -1;
+}
+
+}
+
+/* kept/simplified from v018 lines 839-844 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal label, body.dx3-combo-page .item-select-label {
+display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+}
+
+}
+
+/* kept/simplified from v018 lines 850-852 */
+@media (max-width: 420px) {
+body.dx3-combo-page .xp-fields-group, body.dx3-combo-page .db-buttons, body.dx3-combo-page .sheet-source-actions, body.dx3-combo-page .modal-footer, body.dx3-combo-page .effect-select-toolbar {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* kept/simplified from v018 lines 858-860 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table colgroup, body.dx3-combo-page .effects-table colgroup, body.dx3-combo-page .items-table colgroup, body.dx3-combo-page .combo-source-table thead, body.dx3-combo-page .effects-table thead, body.dx3-combo-page .items-table thead {
+display: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 866-871 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table tbody, body.dx3-combo-page .effects-table tbody, body.dx3-combo-page .items-table tbody {
+grid-template-columns: 1fr;
+gap: 10px;
+}
+
+}
+
+/* kept/simplified from v018 lines 877-887 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table tr, body.dx3-combo-page .effects-table tr, body.dx3-combo-page .items-table tr {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 6px 8px;
+box-sizing: border-box;
+}
+
+}
+
+/* kept/simplified from v018 lines 893-905 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td, body.dx3-combo-page .effects-table td, body.dx3-combo-page .items-table td {
+display: grid;
+    grid-template-columns: 4.6em minmax(0, 1fr);
+    gap: 5px;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-sizing: border-box;
+    white-space: normal;
+}
+
+}
+
+/* kept/simplified from v018 lines 911-918 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td::before, body.dx3-combo-page .effects-table td::before, body.dx3-combo-page .items-table td::before {
+content: "";
+    color: #87cefa;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    opacity: 0.95;
+    white-space: nowrap;
+}
+
+}
+
+/* kept/simplified from v018 lines 924-927 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .input-with-dropdown, body.dx3-combo-page .effects-table .input-with-dropdown, body.dx3-combo-page .items-table .input-with-dropdown {
+min-width: 0;
+    width: 100%;
+}
+
+}
+
+/* kept/simplified from v018 lines 933-935 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .source-name-cell, body.dx3-combo-page .combo-source-table .source-effect-cell, body.dx3-combo-page .combo-source-table .source-note-cell, body.dx3-combo-page .effects-table td:nth-child(1), body.dx3-combo-page .effects-table td:nth-child(11), body.dx3-combo-page .effects-table td:nth-child(12), body.dx3-combo-page .effects-table td:nth-child(13), body.dx3-combo-page .items-table td:nth-child(1), body.dx3-combo-page .items-table td:nth-child(11), body.dx3-combo-page .items-table td:nth-child(12) {
+grid-column: 1 / -1;
+}
+
+}
+
+/* kept/simplified from v018 lines 941-943 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .source-name-cell, body.dx3-combo-page .effects-table td:nth-child(1), body.dx3-combo-page .items-table td:nth-child(1) {
+grid-template-columns: 3.2em minmax(0, 1fr);
+}
+
+}
+
+/* kept/simplified from v018 lines 949-952 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .source-effect-cell, body.dx3-combo-page .combo-source-table .source-note-cell, body.dx3-combo-page .effects-table td:nth-child(11), body.dx3-combo-page .effects-table td:nth-child(12), body.dx3-combo-page .items-table td:nth-child(11) {
+grid-template-columns: 1fr;
+    align-items: stretch;
+}
+
+}
+
+/* kept/simplified from v018 lines 958-960 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .source-effect-cell::before, body.dx3-combo-page .combo-source-table .source-note-cell::before, body.dx3-combo-page .effects-table td:nth-child(11)::before, body.dx3-combo-page .effects-table td:nth-child(12)::before, body.dx3-combo-page .items-table td:nth-child(11)::before {
+margin-bottom: -2px;
+}
+
+}
+
+/* kept/simplified from v018 lines 966-971 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table .action-cell, body.dx3-combo-page .items-table .action-cell {
+grid-template-columns: 1fr auto;
+}
+
+}
+
+/* kept/simplified from v018 lines 977-979 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table .action-cell::before, body.dx3-combo-page .items-table .action-cell::before {
+grid-column: 1 / -1;
+}
+
+}
+
+/* kept/simplified from v018 lines 985-987 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table .action-cell button, body.dx3-combo-page .items-table .action-cell button {
+min-height: 36px;
+}
+
+}
+
+/* kept/simplified from v018 lines 993-995 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(1)::before {
+content: "名称";
+}
+
+}
+
+/* kept/simplified from v018 lines 1001-1003 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(2)::before {
+content: "Lv";
+}
+
+}
+
+/* kept/simplified from v018 lines 1009-1011 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(3)::before {
+content: "タイミング";
+}
+
+}
+
+/* kept/simplified from v018 lines 1017-1019 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(4)::before {
+content: "D固定";
+}
+
+}
+
+/* kept/simplified from v018 lines 1025-1027 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(5)::before {
+content: "D/Lv";
+}
+
+}
+
+/* kept/simplified from v018 lines 1033-1035 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(6)::before {
+content: "D現在";
+}
+
+}
+
+/* kept/simplified from v018 lines 1041-1043 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(7)::before {
+content: "達固定";
+}
+
+}
+
+/* kept/simplified from v018 lines 1049-1051 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(8)::before {
+content: "達/Lv";
+}
+
+}
+
+/* kept/simplified from v018 lines 1057-1059 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(9)::before {
+content: "達現在";
+}
+
+}
+
+/* kept/simplified from v018 lines 1065-1067 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(10)::before {
+content: "ATK固";
+}
+
+}
+
+/* kept/simplified from v018 lines 1073-1075 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(11)::before {
+content: "ATK/Lv";
+}
+
+}
+
+/* kept/simplified from v018 lines 1081-1083 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(12)::before {
+content: "ATK上限";
+}
+
+}
+
+/* kept/simplified from v018 lines 1089-1091 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(13)::before {
+content: "ATK現在";
+}
+
+}
+
+/* kept/simplified from v018 lines 1097-1099 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(14)::before {
+content: "C固定";
+}
+
+}
+
+/* kept/simplified from v018 lines 1105-1107 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(15)::before {
+content: "C/Lv";
+}
+
+}
+
+/* kept/simplified from v018 lines 1113-1115 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(16)::before {
+content: "C下限";
+}
+
+}
+
+/* kept/simplified from v018 lines 1121-1123 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(17)::before {
+content: "C現在";
+}
+
+}
+
+/* kept/simplified from v018 lines 1129-1131 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(18)::before {
+content: "効果";
+}
+
+}
+
+/* kept/simplified from v018 lines 1137-1139 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td:nth-child(19)::before {
+content: "備考";
+}
+
+}
+
+/* kept/simplified from v018 lines 1145-1147 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(1)::before {
+content: "名称";
+}
+
+}
+
+/* kept/simplified from v018 lines 1153-1155 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(2)::before {
+content: "Lv";
+}
+
+}
+
+/* kept/simplified from v018 lines 1161-1163 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(3)::before {
+content: "最大Lv";
+}
+
+}
+
+/* kept/simplified from v018 lines 1169-1171 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(4)::before {
+content: "タイミング";
+}
+
+}
+
+/* kept/simplified from v018 lines 1177-1179 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(5)::before {
+content: "技能";
+}
+
+}
+
+/* kept/simplified from v018 lines 1185-1187 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(6)::before {
+content: "難易度";
+}
+
+}
+
+/* kept/simplified from v018 lines 1193-1195 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(7)::before {
+content: "対象";
+}
+
+}
+
+/* kept/simplified from v018 lines 1201-1203 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(8)::before {
+content: "射程";
+}
+
+}
+
+/* kept/simplified from v018 lines 1209-1211 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(9)::before {
+content: "侵蝕";
+}
+
+}
+
+/* kept/simplified from v018 lines 1217-1219 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(10)::before {
+content: "制限";
+}
+
+}
+
+/* kept/simplified from v018 lines 1225-1227 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(11)::before {
+content: "効果";
+}
+
+}
+
+/* kept/simplified from v018 lines 1233-1235 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(12)::before {
+content: "備考";
+}
+
+}
+
+/* kept/simplified from v018 lines 1241-1243 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table td:nth-child(13)::before {
+content: "設定";
+}
+
+}
+
+/* kept/simplified from v018 lines 1249-1252 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-source-table tr, body.dx3-combo-page .effects-table tr, body.dx3-combo-page .items-table tr {
+gap: 5px 6px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1258-1260 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-source-table td::before, body.dx3-combo-page .effects-table td::before, body.dx3-combo-page .items-table td::before {
+font-size: 0.72rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1266-1268 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table colgroup, body.dx3-combo-page .effects-table colgroup, body.dx3-combo-page .items-table colgroup {
+display: table-column-group;
+}
+
+}
+
+/* kept/simplified from v018 lines 1274-1276 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table thead, body.dx3-combo-page .effects-table thead, body.dx3-combo-page .items-table thead {
+display: table-header-group;
+}
+
+}
+
+/* kept/simplified from v018 lines 1304-1314 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table th, body.dx3-combo-page .combo-source-table td, body.dx3-combo-page .effects-table th, body.dx3-combo-page .effects-table td, body.dx3-combo-page .items-table th, body.dx3-combo-page .items-table td {
+display: table-cell;
+    width: auto;
+    min-width: 0;
+    padding: 6px 7px;
+    border: 1px solid #2a3c7d;
+    background: transparent;
+    box-sizing: border-box;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+}
+
+/* kept/simplified from v018 lines 1320-1322 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table th, body.dx3-combo-page .effects-table th, body.dx3-combo-page .items-table th {
+background-color: #1a2c6d;
+}
+
+}
+
+/* kept/simplified from v018 lines 1328-1331 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table td::before, body.dx3-combo-page .effects-table td::before, body.dx3-combo-page .items-table td::before, body.dx3-combo-page .combo-source-table .source-effect-cell::before, body.dx3-combo-page .combo-source-table .source-note-cell::before, body.dx3-combo-page .effects-table td:nth-child(11)::before, body.dx3-combo-page .effects-table td:nth-child(12)::before, body.dx3-combo-page .items-table td:nth-child(11)::before {
+content: none;
+    display: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 1337-1342 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table .action-cell, body.dx3-combo-page .items-table .action-cell {
+justify-content: center;
+}
+
+}
+
+/* kept/simplified from v018 lines 1348-1353 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-source-table tr, body.dx3-combo-page .effects-table tr, body.dx3-combo-page .items-table tr {
+display: table-row;
+border: 0;
+background: transparent;
+}
+
+}
+
+/* kept/simplified from v018 lines 1359-1366 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-content.effect-select-modal {
+width: calc(100vw - 30px);
+    max-width: none;
+    max-height: calc(100dvh - 20px);
+    margin: 0 0 0 6px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+}
+
+/* kept/simplified from v018 lines 1372-1380 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .modal-header {
+min-height: 54px;
+    padding: 9px 10px 9px 58px;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 34px;
+    align-items: center;
+    gap: 8px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1386-1392 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .modal-header h3 {
+min-width: 0;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+    white-space: normal;
+}
+
+}
+
+/* kept/simplified from v018 lines 1398-1406 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .close-btn {
+width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1412-1414 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .modal-body {
+padding: 8px 10px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1420-1430 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-toolbar {
+flex-wrap: wrap;
+align-items: center;
+gap: 6px;
+padding: 8px;
+margin-bottom: 10px;
+border: 1px solid #4a5c9a;
+border-radius: 6px;
+background: rgba(13, 26, 80, 0.42);
+}
+
+}
+
+/* kept/simplified from v018 lines 1436-1441 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-toolbar .toolbar-label {
+flex: 0 0 auto;
+    margin-right: 2px;
+    font-weight: 700;
+    color: #87cefa;
+}
+
+}
+
+/* kept/simplified from v018 lines 1447-1454 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-toolbar button {
+flex: 0 0 auto;
+    min-height: 30px;
+    padding: 4px 9px;
+    font-size: 0.78rem;
+    line-height: 1.15;
+    border-radius: 5px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1460-1462 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .option-group {
+margin-bottom: 8px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1468-1473 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .option-group strong {
+margin: 0 0 5px;
+    padding: 6px 0 5px;
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+}
+
+/* kept/simplified from v018 lines 1479-1485 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal label.item-select-label {
+grid-template-columns: 24px minmax(0, 1fr) auto;
+    gap: 8px;
+    min-height: 36px;
+    padding: 6px 8px;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept/simplified from v018 lines 1491-1496 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal label.item-select-label input[type="checkbox"] {
+width: 16px;
+    height: 16px;
+    margin: 0;
+    justify-self: center;
+}
+
+}
+
+/* kept/simplified from v018 lines 1502-1506 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal label.item-select-label span {
+min-width: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+}
+
+}
+
+/* kept/simplified from v018 lines 1512-1519 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .buff-section-header {
+min-height: 42px;
+    padding: 9px 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    gap: 8px;
+    align-items: center;
+}
+
+}
+
+/* kept/simplified from v018 lines 1525-1528 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .buff-section-header span {
+min-width: 0;
+    line-height: 1.3;
+}
+
+}
+
+/* kept/simplified from v018 lines 1534-1537 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .buff-list {
+max-height: 140px;
+    padding: 6px 10px 10px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1543-1550 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .modal-footer {
+position: sticky;
+    bottom: 0;
+    z-index: 2;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1556-1559 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effect-select-modal .modal-footer button {
+min-height: 40px;
+    padding: 8px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1565-1568 */
+@media (max-width: 420px) {
+body.dx3-combo-page .modal-content.effect-select-modal {
+width: calc(100vw - 26px);
+    margin-left: 5px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1574-1576 */
+@media (max-width: 420px) {
+body.dx3-combo-page .effect-select-modal .modal-header {
+padding-left: 56px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1582-1585 */
+@media (max-width: 420px) {
+body.dx3-combo-page .effect-select-toolbar {
+gap: 5px;
+    padding: 7px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1591-1594 */
+@media (max-width: 420px) {
+body.dx3-combo-page .effect-select-toolbar button {
+padding: 4px 8px;
+    font-size: 0.74rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1600-1603 */
+@media (max-width: 760px) {
+body.dx3-combo-page .compact-table-wrapper::-webkit-scrollbar, body.dx3-combo-page .table-wrapper::-webkit-scrollbar {
+display: block;
+    height: 11px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1609-1613 */
+@media (max-width: 760px) {
+body.dx3-combo-page .compact-table-wrapper::-webkit-scrollbar-track, body.dx3-combo-page .table-wrapper::-webkit-scrollbar-track {
+background: rgba(13, 26, 80, 0.95);
+    border: 1px solid rgba(74, 92, 154, 0.75);
+    border-radius: 999px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1619-1623 */
+@media (max-width: 760px) {
+body.dx3-combo-page .compact-table-wrapper::-webkit-scrollbar-thumb, body.dx3-combo-page .table-wrapper::-webkit-scrollbar-thumb {
+background: #87cefa;
+    border: 2px solid rgba(13, 26, 80, 0.95);
+    border-radius: 999px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1629-1631 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .combo-col-name {
+width: 210px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1637-1639 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .combo-col-lv {
+width: 58px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1645-1647 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .combo-col-timing {
+width: 132px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1653-1655 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .combo-col-coef {
+width: 64px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1661-1663 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .combo-col-current {
+width: 74px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1669-1671 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .combo-col-effect {
+width: 330px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1677-1679 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table .combo-col-note {
+width: 250px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1685-1687 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(1), body.dx3-combo-page .effects-table td:nth-child(1) {
+width: 150px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1693-1695 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(2), body.dx3-combo-page .effects-table td:nth-child(2) {
+width: 50px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1701-1703 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(3), body.dx3-combo-page .effects-table td:nth-child(3) {
+width: 58px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1709-1711 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(4), body.dx3-combo-page .effects-table td:nth-child(4) {
+width: 104px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1717-1719 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(5), body.dx3-combo-page .effects-table td:nth-child(5) {
+width: 104px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1725-1727 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(6), body.dx3-combo-page .effects-table td:nth-child(6) {
+width: 92px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1733-1735 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(7), body.dx3-combo-page .effects-table td:nth-child(7) {
+width: 96px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1741-1743 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(8), body.dx3-combo-page .effects-table td:nth-child(8) {
+width: 78px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1749-1751 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(9), body.dx3-combo-page .effects-table td:nth-child(9) {
+width: 64px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1757-1759 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(10), body.dx3-combo-page .effects-table td:nth-child(10) {
+width: 82px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1765-1767 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(11), body.dx3-combo-page .effects-table td:nth-child(11) {
+width: 240px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1773-1775 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(12), body.dx3-combo-page .effects-table td:nth-child(12) {
+width: 190px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1781-1783 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table th:nth-child(13), body.dx3-combo-page .effects-table td:nth-child(13) {
+width: 72px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1789-1791 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table th, body.dx3-combo-page .combo-source-table td, body.dx3-combo-page .effects-table th, body.dx3-combo-page .effects-table td, body.dx3-combo-page .items-table th, body.dx3-combo-page .items-table td {
+overflow: hidden;
+}
+
+}
+
+/* kept/simplified from v018 lines 1797-1801 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-source-table input, body.dx3-combo-page .combo-source-table textarea, body.dx3-combo-page .effects-table input, body.dx3-combo-page .effects-table textarea, body.dx3-combo-page .items-table input, body.dx3-combo-page .items-table textarea, body.dx3-combo-page .combo-source-table .input-with-dropdown, body.dx3-combo-page .effects-table .input-with-dropdown, body.dx3-combo-page .items-table .input-with-dropdown {
+max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept/simplified from v018 lines 1807-1811 */
+@media (max-width: 420px) {
+body.dx3-combo-page .compact-table-wrapper, body.dx3-combo-page .table-wrapper {
+margin-left: 0;
+    margin-right: 0;
+    padding-bottom: 14px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1817-1819 */
+@media (max-width: 420px) {
+body.dx3-combo-page .compact-table-wrapper::-webkit-scrollbar, body.dx3-combo-page .table-wrapper::-webkit-scrollbar {
+height: 12px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1825-1827 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-source-table th, body.dx3-combo-page .combo-source-table td, body.dx3-combo-page .effects-table th, body.dx3-combo-page .effects-table td, body.dx3-combo-page .items-table th, body.dx3-combo-page .items-table td {
+padding: 6px;
+}
+
+}
+
+/* kept/simplified from v018 lines 1832-1834 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-note {
+width: 13rem;
+}
+
+/* kept/simplified from v018 lines 1837-1841 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+min-width: 13rem !important;
+}
+
+/* kept/simplified from v018 lines 1844-1852 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-effect-cell textarea, body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell textarea {
+width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 3rem;
+  height: 3.15rem;
+  line-height: 1.32;
+  resize: vertical;
+}
+
+/* kept/simplified from v018 lines 1856-1860 */
+@media (max-width: 900px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+width: 12rem !important;
+    min-width: 12rem !important;
+    max-width: 12rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 1865-1867 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-handle {
+width: 2.1rem;
+}
+
+/* kept/simplified from v018 lines 1871-1873 */
+@media (min-width: 901px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-name {
+width: 10rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1879-1881 */
+@media (min-width: 901px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-timing {
+width: 6.3rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1887-1889 */
+@media (min-width: 901px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-coef {
+width: 2.95rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1895-1897 */
+@media (min-width: 901px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-current {
+width: 3.1rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1903-1907 */
+@media (min-width: 901px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-note, body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+width: 10.5rem !important;
+    min-width: 10.5rem !important;
+    max-width: 10.5rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 1913-1918 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 th, body.dx3-combo-page #dx3-app .combo-source-table-v34 td {
+box-sizing: border-box;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: hidden;
+}
+
+}
+
+/* kept/simplified from v018 lines 1924-1928 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-cell {
+width: 11rem !important;
+    min-width: 0 !important;
+    max-width: 11rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 1934-1938 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-level-cell {
+width: 3.15rem !important;
+    min-width: 0 !important;
+    max-width: 3.15rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 1944-1948 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-short-cell {
+width: 6.35rem !important;
+    min-width: 0 !important;
+    max-width: 6.35rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 1954-1956 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 th:last-child:has(+ *), body.dx3-combo-page #dx3-app .combo-source-table-v34 td:last-child {
+max-width: 5.4rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1962-1969 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .action-cell, body.dx3-combo-page #dx3-app .combo-source-table-v34 td.action-cell {
+width: 5.4rem !important;
+    min-width: 0 !important;
+    max-width: 5.4rem !important;
+    padding-inline: 0.18rem !important;
+    white-space: nowrap;
+    text-align: center;
+}
+
+}
+
+/* kept/simplified from v018 lines 1975-1978 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .action-cell .setting-btn, body.dx3-combo-page #dx3-app .combo-source-table-v34 .action-cell .delete-btn {
+min-width: 0;
+    padding-inline: 0.38rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1984-1986 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-name {
+width: 9.2rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 1992-1994 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-lv {
+width: 2.9rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2000-2002 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-timing {
+width: 5.7rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2008-2010 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-coef {
+width: 2.34rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2016-2018 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-current {
+width: 2.55rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2024-2026 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 col.combo-col-note {
+width: 8.2rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2032-2035 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-cell {
+width: 9.2rem !important;
+    max-width: 9.2rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2041-2044 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-level-cell {
+width: 2.9rem !important;
+    max-width: 2.9rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2050-2053 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-short-cell {
+width: 5.7rem !important;
+    max-width: 5.7rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2059-2062 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+width: 8.2rem !important;
+    max-width: 8.2rem !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2068-2070 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap {
+gap: 0.2rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2089-2096 */
+#dx3-app .effects-table td:nth-child(11) textarea, #dx3-app .effects-table td:nth-child(12) textarea {
+white-space: pre-wrap;
+}
+
+/* kept/simplified from v018 lines 2099-2101 */
+#dx3-app .effects-table td:nth-child(12) textarea {
+min-width: 9rem;
+}
+
+/* kept/simplified from v018 lines 2104-2106 */
+#dx3-app .combo-source-table th:nth-child(18), #dx3-app .combo-source-table td:nth-child(18) {
+min-width: 22rem;
+}
+
+/* kept/simplified from v018 lines 2109-2111 */
+#dx3-app .combo-source-table th:nth-child(19), #dx3-app .combo-source-table td:nth-child(19) {
+min-width: 10rem;
+}
+
+/* kept/simplified from v018 lines 2115-2118 */
+@media (max-width: 1000px) {
+#dx3-app .effects-table td:nth-child(11), #dx3-app .effects-table td:nth-child(12) {
+min-width: 100% !important;
+    max-width: none !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2124-2126 */
+@media (max-width: 1000px) {
+#dx3-app .effects-table td:nth-child(11) textarea, #dx3-app .effects-table td:nth-child(12) textarea {
+min-height: 4.8rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2131-2134 */
+.dx3-combo-page .effects-table {
+min-width: 92rem;
+  width: max-content;
+}
+
+/* kept/simplified from v018 lines 2137-2139 */
+.dx3-combo-page .effects-table, .dx3-combo-page .effects-table th, .dx3-combo-page .effects-table td {
+box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 2142-2150 */
+.dx3-combo-page .table-wrapper:has(.effects-table) {
+width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+  padding-bottom: 0.45rem;
+}
+
+/* kept/simplified from v018 lines 2153-2155 */
+.dx3-combo-page .effects-table {
+display: table;
+}
+
+/* kept/simplified from v018 lines 2158-2160 */
+.dx3-combo-page .effects-table td:nth-child(11), .dx3-combo-page .effects-table td:nth-child(12) {
+white-space: normal;
+}
+
+/* kept/simplified from v018 lines 2163-2166 */
+.dx3-combo-page .effects-table td:nth-child(11) textarea, .dx3-combo-page .effects-table td:nth-child(12) textarea {
+min-width: 18rem;
+  white-space: pre-wrap;
+}
+
+/* kept/simplified from v018 lines 2169-2171 */
+.dx3-combo-page .table-wrapper:has(.effects-table)::-webkit-scrollbar {
+height: 10px;
+}
+
+/* kept/simplified from v018 lines 2174-2177 */
+.dx3-combo-page .table-wrapper:has(.effects-table)::-webkit-scrollbar-track {
+background: rgba(13, 26, 80, 0.65);
+  border-radius: 999px;
+}
+
+/* kept/simplified from v018 lines 2180-2183 */
+.dx3-combo-page .table-wrapper:has(.effects-table)::-webkit-scrollbar-thumb {
+background: rgba(135, 206, 250, 0.55);
+  border-radius: 999px;
+}
+
+/* kept/simplified from v018 lines 2186-2188 */
+.dx3-combo-page .table-wrapper:has(.effects-table)::-webkit-scrollbar-thumb:hover {
+background: rgba(135, 206, 250, 0.78);
+}
+
+/* kept/simplified from v018 lines 2192-2194 */
+@media (max-width: 1200px) {
+.dx3-combo-page .effects-table {
+min-width: 88rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2200-2202 */
+@media (max-width: 760px) {
+.dx3-combo-page .effects-table {
+min-width: 84rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2208-2211 */
+@media (max-width: 760px) {
+.dx3-combo-page .table-wrapper:has(.effects-table) {
+margin-inline: -0.25rem;
+    padding-inline: 0.25rem;
+}
+
+}
+
+/* kept/simplified from v018 lines 2216-2224 */
+#dx3-app .table-wrapper, #dx3-app .compact-table-wrapper {
+width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 2228-2231 */
+@media (min-width: 1700px) {
+#dx3-app .effects-table {
+width: 100%;
+    min-width: 1410px;
+}
+
+}
+
+/* kept/simplified from v018 lines 2237-2240 */
+@media (max-width: 1800px) {
+#dx3-app .table-wrapper:has(.effects-table), #dx3-app .table-wrapper {
+overflow-x: auto;
+    overflow-y: visible;
+}
+
+}
+
+/* kept/simplified from v018 lines 2246-2250 */
+@media (max-width: 1800px) {
+#dx3-app .effects-table {
+width: 1410px;
+    min-width: 1410px;
+    max-width: none;
+}
+
+}
+
+/* kept/simplified from v018 lines 2255-2259 */
+#dx3-app .effects-table td:nth-child(11) textarea, #dx3-app .effects-table td:nth-child(12) textarea {
+min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 2262-2265 */
+#dx3-app .table-wrapper:has(.effects-table) {
+scrollbar-gutter: stable;
+  padding-bottom: 0.35rem;
+}
+
+/* kept/simplified from v018 lines 2268-2270 */
+#dx3-app .table-wrapper:has(.effects-table)::-webkit-scrollbar {
+height: 9px;
+}
+
+/* kept/simplified from v018 lines 2273-2276 */
+#dx3-app .table-wrapper:has(.effects-table)::-webkit-scrollbar-track {
+background: rgba(13, 26, 80, 0.65);
+  border-radius: 999px;
+}
+
+/* kept/simplified from v018 lines 2279-2282 */
+#dx3-app .table-wrapper:has(.effects-table)::-webkit-scrollbar-thumb {
+background: rgba(135, 206, 250, 0.55);
+  border-radius: 999px;
+}
+
+/* kept/simplified from v018 lines 2286-2289 */
+@media (max-width: 1200px) {
+#dx3-app .effects-table {
+width: 1320px;
+    min-width: 1320px;
+}
+
+}
+
+/* kept/simplified from v018 lines 2295-2297 */
+@media (max-width: 1200px) {
+#dx3-app .effects-table th:nth-child(1), #dx3-app .effects-table td:nth-child(1) {
+width: 140px; min-width: 140px; max-width: 140px;
+}
+
+}
+
+/* kept/simplified from v018 lines 2303-2305 */
+@media (max-width: 1200px) {
+#dx3-app .effects-table th:nth-child(4), #dx3-app .effects-table td:nth-child(4) {
+width: 104px; min-width: 104px; max-width: 104px;
+}
+
+}
+
+/* kept/simplified from v018 lines 2311-2313 */
+@media (max-width: 1200px) {
+#dx3-app .effects-table th:nth-child(5), #dx3-app .effects-table td:nth-child(5) {
+width: 102px; min-width: 102px; max-width: 102px;
+}
+
+}
+
+/* kept/simplified from v018 lines 2319-2321 */
+@media (max-width: 1200px) {
+#dx3-app .effects-table th:nth-child(6), #dx3-app .effects-table td:nth-child(6) {
+width: 94px; min-width: 94px; max-width: 94px;
+}
+
+}
+
+/* kept/simplified from v018 lines 2327-2329 */
+@media (max-width: 1200px) {
+#dx3-app .effects-table th:nth-child(11), #dx3-app .effects-table td:nth-child(11) {
+width: 270px; min-width: 270px; max-width: 270px;
+}
+
+}
+
+/* kept/simplified from v018 lines 2335-2337 */
+@media (max-width: 1200px) {
+#dx3-app .effects-table th:nth-child(12), #dx3-app .effects-table td:nth-child(12) {
+width: 150px; min-width: 150px; max-width: 150px;
+}
+
+}
+
+/* kept/simplified from v018 lines 2342-2352 */
+body.dx3-combo-page #dx3-app .table-wrapper, body.dx3-combo-page #dx3-app .compact-table-wrapper {
+width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto !important;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 2355-2360 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 {
+table-layout: fixed !important;
+max-width: none !important;
+}
+
+/* kept/simplified from v018 lines 2363-2365 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 th, body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 td {
+box-sizing: border-box;
+}
+
+/* kept/simplified from v018 lines 2368-2372 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 th:nth-child(5), body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 td:nth-child(5) {
+width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+/* kept/simplified from v018 lines 2375-2377 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper::-webkit-scrollbar, body.dx3-combo-page #dx3-app .table-wrapper::-webkit-scrollbar {
+height: 10px;
+}
+
+/* kept/simplified from v018 lines 2380-2383 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper::-webkit-scrollbar-track, body.dx3-combo-page #dx3-app .table-wrapper::-webkit-scrollbar-track {
+background: rgba(13, 26, 80, 0.65);
+  border-radius: 999px;
+}
+
+/* kept/simplified from v018 lines 2386-2389 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper::-webkit-scrollbar-thumb, body.dx3-combo-page #dx3-app .table-wrapper::-webkit-scrollbar-thumb {
+background: rgba(135, 206, 250, 0.58);
+  border-radius: 999px;
+}
+
+/* kept/simplified from v018 lines 2393-2396 */
+@media (max-width: 900px) {
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 {
+width: 1530px !important;
+    min-width: 1530px !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2402-2406 */
+@media (min-width: 1600px) {
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 {
+max-width: 100% !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2412-2414 */
+@media (min-width: 1600px) {
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-lv {
+width: 3%;
+}
+
+}
+
+/* kept/simplified from v018 lines 2420-2424 */
+@media (min-width: 1600px) {
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 .source-effect-cell {
+width: 25% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2430-2434 */
+@media (min-width: 1600px) {
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 .source-note-cell {
+width: 18.5% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+
+}
+
+/* kept/simplified from v018 lines 2445-2447 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-name {
+width: 14rem !important;
+}
+
+/* kept/simplified from v018 lines 2450-2452 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-timing {
+width: 5.5rem !important;
+}
+
+/* kept/simplified from v018 lines 2455-2457 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-coef {
+width: 2.2rem !important;
+}
+
+/* kept/simplified from v018 lines 2460-2462 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-current {
+width: 2.45rem !important;
+}
+
+/* kept/simplified from v018 lines 2465-2467 */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-note {
+width: 8rem !important;
+}
+
+/* kept/simplified from v018 lines 2470-2473 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-cell {
+width: 14rem !important;
+  max-width: 14rem !important;
+}
+
+/* kept/simplified from v018 lines 2476-2479 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-short-cell {
+width: 5.5rem !important;
+  max-width: 5.5rem !important;
+}
+
+/* kept/simplified from v018 lines 2488-2491 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap {
+flex-wrap: nowrap;
+  gap: 0.22rem;
+}
+
+/* kept/simplified from v018 lines 2494-2496 */
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap > input {
+min-width: 4.4rem;
+}

@@ -1,0 +1,3016 @@
+/* dx3_enemy_43_responsive.css
+   Phase15 v016: removed !important from remove_candidate_visual only.
+   Layout/grid/width/display important declarations are left untouched.
+*/
+
+/* kept from v014 lines 8-14 */
+@media (max-width: 1400px) {
+body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+grid-template-columns: repeat(3, 1fr);
+    grid-template-areas:
+      "dice crit achieve"
+      "target range timing"
+      "skill ability attack";
+}
+
+}
+
+/* kept from v014 lines 20-26 */
+@media (max-width: 1000px) {
+body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+grid-template-columns: repeat(12, 1fr);
+    grid-template-areas:
+      "dice dice dice dice crit crit crit crit achieve achieve achieve achieve"
+      "target target target target range range range range timing timing timing timing"
+      "skill skill skill skill ability ability ability ability attack attack attack attack";
+}
+
+}
+
+/* kept from v014 lines 32-34 */
+@media (max-width: 900px) {
+.dx3-enemy-layout {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* kept from v014 lines 40-42 */
+@media (max-width: 900px) {
+.enemy-action-right {
+margin-left: 0;
+}
+
+}
+
+/* kept from v014 lines 48-50 */
+@media (max-width: 720px) {
+.enemy-text-grid {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* kept from v014 lines 56-58 */
+@media (max-width: 720px) {
+.enemy-template-top-grid, .enemy-syndrome-grid, .enemy-template-stat-grid {
+grid-template-columns: repeat(auto-fit, minmax(7.2rem, 1fr));
+}
+
+}
+
+/* DX3 enemy public view page */
+body.dx3-combo-page.is-enemy-view-mode :is(.dx3-mode-tabs, .top-info-wrapper, .pc-play-state-panel, .dx3-enemy-common-header, .dx3-koma-action-row, .dx3-enemy-action-bar, .dx3-enemy-editor-pane, .all-tables-container, .enemy-list-collapsible, .usage-guide) {
+  display: none !important;
+}
+
+body.dx3-combo-page.is-enemy-view-mode .main-content {
+  width: min(1280px, calc(100vw - 2rem)) !important;
+  max-width: min(1280px, calc(100vw - 2rem)) !important;
+  margin-inline: auto !important;
+}
+
+body.dx3-combo-page.is-enemy-view-mode.is-enemy-view-wide .main-content {
+  width: calc(100vw - 2rem) !important;
+  max-width: calc(100vw - 2rem) !important;
+}
+
+body.dx3-combo-page .dx3-enemy-view-pane[hidden] {
+  display: none !important;
+}
+
+body.dx3-combo-page .dx3-enemy-view-pane {
+  display: block;
+}
+
+body.dx3-combo-page .dx3-enemy-view-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+body.dx3-combo-page .dx3-enemy-view-hero.has-no-image {
+  grid-template-columns: 1fr;
+}
+
+body.dx3-combo-page .dx3-enemy-view-hero .enemy-view-portrait img {
+  width: 100%;
+  height: 100%;
+  max-height: 21rem;
+  object-fit: cover;
+  border-radius: 0.85rem;
+}
+
+body.dx3-combo-page .dx3-enemy-view-hero h2 {
+  margin: 0.25rem 0;
+  color: #f7fbff;
+  font-size: clamp(1.8rem, 4vw, 3.4rem);
+}
+
+body.dx3-combo-page .enemy-view-kicker,
+body.dx3-combo-page .enemy-view-reading,
+body.dx3-combo-page .enemy-view-codename,
+body.dx3-combo-page .enemy-view-meta-line {
+  color: #c8dcff;
+}
+
+body.dx3-combo-page .enemy-view-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.65rem 0;
+}
+
+body.dx3-combo-page .enemy-view-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.55rem;
+}
+
+body.dx3-combo-page .enemy-view-stat {
+  padding: 0.65rem;
+  border: 1px solid rgba(135, 206, 250, 0.32);
+  border-radius: 0.65rem;
+  background: rgba(7, 18, 54, 0.62);
+}
+
+body.dx3-combo-page .enemy-view-stat span {
+  display: block;
+  color: #9fcfff;
+  font-size: 0.82rem;
+}
+
+body.dx3-combo-page .enemy-view-stat strong {
+  color: #ffd966;
+  font-size: 1.45rem;
+}
+
+body.dx3-combo-page .enemy-view-table-wrap {
+  overflow-x: auto;
+}
+
+body.dx3-combo-page .enemy-view-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+body.dx3-combo-page .enemy-view-table th,
+body.dx3-combo-page .enemy-view-table td {
+  border: 1px solid rgba(135, 206, 250, 0.22);
+  padding: 0.5rem;
+  vertical-align: top;
+}
+
+body.dx3-combo-page .dx3-enemy-view-combo pre {
+  white-space: pre-wrap;
+  padding: 0.75rem;
+  border-radius: 0.65rem;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+body.dx3-combo-page .dx3-enemy-view-loading {
+  display: grid;
+  place-items: center;
+  min-height: 16rem;
+  text-align: center;
+}
+
+body.dx3-combo-page .dx3-enemy-view-loading h2::before {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.45em;
+  border: 0.16em solid rgba(135, 206, 250, 0.35);
+  border-top-color: #87cefa;
+  border-radius: 50%;
+  vertical-align: -0.08em;
+  animation: dx3EnemyViewSpin 0.8s linear infinite;
+}
+
+@keyframes dx3EnemyViewSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 760px) {
+  body.dx3-combo-page .dx3-enemy-view-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* kept from v014 lines 64-67 */
+@media (max-width: 900px) {
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-right {
+margin-left: 0;
+    justify-content: flex-start;
+}
+
+}
+
+/* kept from v014 lines 73-76 */
+@media (max-width: 760px) {
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-row {
+align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+}
+
+/* kept from v014 lines 82-87 */
+@media (max-width: 760px) {
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-side-right-group {
+width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+}
+
+/* kept from v014 lines 93-95 */
+@media (max-width: 760px) {
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-meta-column {
+align-items: flex-start;
+}
+
+}
+
+/* kept from v014 lines 101-103 */
+@media (max-width: 760px) {
+.dx3-enemy-common-header, .dx3-enemy-sample-actions {
+justify-content: flex-start;
+}
+
+}
+
+/* kept from v014 lines 109-111 */
+@media (max-width: 760px) {
+.dx3-enemy-sample-actions {
+margin-left: 0;
+}
+
+}
+
+/* kept from v014 lines 117-119 */
+@media (max-width: 760px) {
+.dx3-enemy-sample-note {
+white-space: normal;
+}
+
+}
+
+/* kept from v014 lines 125-127 */
+@media (max-width: 1100px) {
+.dx3-enemies-page .enemy-ability-breakdown-grid {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+}
+
+/* kept from v014 lines 133-135 */
+@media (max-width: 620px) {
+.dx3-enemies-page .enemy-ruby-field-name, .dx3-enemies-page .enemy-ruby-field-code {
+grid-column: auto;
+}
+
+}
+
+/* kept from v014 lines 141-143 */
+@media (max-width: 620px) {
+.dx3-enemies-page .enemy-ability-breakdown-grid {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* kept from v014 lines 149-151 */
+@media (max-width: 620px) {
+.dx3-enemies-page .enemy-ability-card {
+grid-template-columns: 3.2rem repeat(3, minmax(0, 1fr));
+}
+
+}
+
+/* kept from v014 lines 157-159 */
+@media (max-width: 720px) {
+.dx3-enemies-page .enemy-ability-matrix-wrap {
+overflow-x: auto;
+}
+
+}
+
+/* kept from v014 lines 165-167 */
+@media (max-width: 720px) {
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label input[type="text"] {
+width: 6.5rem;
+}
+
+}
+
+/* kept from v014 lines 173-175 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-ability-matrix-wrap, .dx3-enemies-page .enemy-stat-stack-grid {
+grid-column: 1;
+}
+
+}
+
+/* kept from v014 lines 181-184 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-ability-matrix-wrap {
+width: 100%;
+    overflow-x: auto;
+}
+
+}
+
+/* kept from v014 lines 190-193 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-ability-matrix {
+width: 360px;
+    max-width: 360px;
+}
+
+}
+
+/* kept from v014 lines 199-201 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-stat-stack-card {
+grid-template-columns: 2.6rem minmax(0, 1fr);
+}
+
+}
+
+/* kept from v014 lines 207-209 */
+@media (max-width: 900px) {
+.dx3-enemies-page .enemy-skill-table {
+min-width: 700px;
+}
+
+}
+
+/* kept from v014 lines 215-217 */
+@media (max-width: 900px) {
+.dx3-enemies-page .enemy-skill-output {
+min-width: 15rem;
+}
+
+}
+
+/* kept from v014 lines 223-225 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-ability-matrix-wrap, .dx3-enemies-page .enemy-stat-stack-grid {
+width: 100%;
+}
+
+}
+
+/* kept from v014 lines 231-233 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table {
+min-width: 620px;
+}
+
+}
+
+/* kept from v014 lines 239-242 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section {
+width: 360px;
+    max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 248-250 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table {
+min-width: 1220px;
+}
+
+}
+
+/* kept from v014 lines 256-258 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(1), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(1) {
+width: 140px;
+}
+
+}
+
+/* kept from v014 lines 264-266 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(2), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(2) {
+width: 48px;
+}
+
+}
+
+/* kept from v014 lines 272-274 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(3), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(3) {
+width: 56px;
+}
+
+}
+
+/* kept from v014 lines 280-282 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(4), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(4) {
+width: 96px;
+}
+
+}
+
+/* kept from v014 lines 288-290 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(5), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(5) {
+width: 96px;
+}
+
+}
+
+/* kept from v014 lines 296-298 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(6), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(6) {
+width: 84px;
+}
+
+}
+
+/* kept from v014 lines 304-306 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(7), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(7) {
+width: 88px;
+}
+
+}
+
+/* kept from v014 lines 312-314 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(8), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(8) {
+width: 74px;
+}
+
+}
+
+/* kept from v014 lines 320-322 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(9), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(9) {
+width: 74px;
+}
+
+}
+
+/* kept from v014 lines 328-330 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(10), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(10) {
+width: 320px;
+}
+
+}
+
+/* kept from v014 lines 336-338 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(11), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(11) {
+width: 160px;
+}
+
+}
+
+/* kept from v014 lines 344-346 */
+@media (max-width: 760px) {
+body.dx3-combo-page .effects-table.is-enemy-detail-table th:nth-child(12), body.dx3-combo-page .effects-table.is-enemy-detail-table td:nth-child(12) {
+width: 64px;
+}
+
+}
+
+/* kept from v014 lines 352-356 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th:last-child, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell {
+width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+}
+
+}
+
+/* kept from v014 lines 362-365 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell {
+padding-left: 3px;
+padding-right: 3px;
+}
+
+}
+
+/* kept from v014 lines 371-375 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell .setting-btn, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell .delete-btn {
+margin: 0 1px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+}
+
+/* kept from v014 lines 381-383 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-skill-grid {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* kept from v014 lines 389-392 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section {
+width: 100%;
+    max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 398-401 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+display: grid;
+align-items: start;
+}
+
+}
+
+/* kept from v014 lines 407-409 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+grid-column: 1;
+}
+
+}
+
+/* kept from v014 lines 415-417 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+grid-column: 2;
+}
+
+}
+
+/* kept from v014 lines 423-427 */
+@media (min-width: 761px) and (max-width: 880px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+grid-template-columns: minmax(300px, 340px) minmax(280px, 320px);
+    width: min(100%, 670px);
+    gap: 0.5rem;
+}
+
+}
+
+/* kept from v014 lines 433-435 */
+@media (min-width: 761px) and (max-width: 880px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+width: 340px;
+}
+
+}
+
+/* kept from v014 lines 441-443 */
+@media (min-width: 761px) and (max-width: 880px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+width: 320px;
+}
+
+}
+
+/* kept from v014 lines 449-452 */
+@media (max-width: 760px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+grid-template-columns: 1fr;
+    width: 100%;
+}
+
+}
+
+/* kept from v014 lines 458-461 */
+@media (max-width: 760px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+grid-column: 1;
+    width: 100%;
+}
+
+}
+
+/* kept from v014 lines 467-471 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+grid-template-areas: "head head"
+      "matrix stats";
+overflow: hidden;
+}
+
+}
+
+/* kept from v014 lines 477-480 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown-head {
+grid-area: head;
+    min-width: 0;
+}
+
+}
+
+/* kept from v014 lines 486-492 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+grid-area: matrix;
+min-width: 0;
+overflow-x: auto;
+overflow-y: hidden;
+scrollbar-gutter: stable;
+}
+
+}
+
+/* kept from v014 lines 498-502 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+min-width: 20rem;
+    width: 100%;
+    table-layout: fixed;
+}
+
+}
+
+/* kept from v014 lines 508-510 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th, .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+padding-inline: 0.16rem;
+}
+
+}
+
+/* kept from v014 lines 516-518 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head, .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+width: 8.2rem;
+}
+
+}
+
+/* kept from v014 lines 524-528 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"] {
+width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 534-538 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 544-547 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+grid-area: stats;
+min-width: 0;
+}
+
+}
+
+/* kept from v014 lines 553-555 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .enemy-stat-stack-card {
+min-width: 0;
+}
+
+}
+
+/* kept from v014 lines 561-563 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .enemy-stat-stack-card .enemy-stat-stack-title {
+min-width: 2.8rem;
+}
+
+}
+
+/* kept from v014 lines 569-571 */
+@media (min-width: 761px) and (max-width: 1280px) {
+.dx3-enemies-page .enemy-stat-stack-formula {
+min-width: 0;
+}
+
+}
+
+/* kept from v014 lines 577-581 */
+@media (min-width: 761px) and (max-width: 920px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+grid-template-columns: minmax(0, 1fr) minmax(17rem, 18.5rem);
+    max-width: 43.5rem;
+    gap: 0.42rem;
+}
+
+}
+
+/* kept from v014 lines 587-589 */
+@media (min-width: 761px) and (max-width: 920px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head, .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+width: 7.6rem;
+}
+
+}
+
+/* kept from v014 lines 595-597 */
+@media (min-width: 761px) and (max-width: 920px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+min-width: 18.8rem;
+}
+
+}
+
+/* kept from v014 lines 603-606 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-table-wrap {
+overflow-x: auto;
+    scrollbar-gutter: stable;
+}
+
+}
+
+/* kept from v014 lines 612-615 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-table {
+min-width: 45rem;
+    table-layout: fixed;
+}
+
+}
+
+/* kept from v014 lines 621-623 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-col-name {
+width: 4.6em;
+}
+
+}
+
+/* kept from v014 lines 629-631 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-col-spec {
+width: 4.8em;
+}
+
+}
+
+/* kept from v014 lines 637-639 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-col-ability {
+width: 4.3em;
+}
+
+}
+
+/* kept from v014 lines 645-647 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-col-num {
+width: 2.25em;
+}
+
+}
+
+/* kept from v014 lines 653-655 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-col-output {
+width: 14.5em;
+}
+
+}
+
+/* kept from v014 lines 661-663 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-col-note {
+width: 8em;
+}
+
+}
+
+/* kept from v014 lines 669-671 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-col-action {
+width: 2.4em;
+}
+
+}
+
+/* kept from v014 lines 677-679 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-table th, .dx3-enemies-page .enemy-skill-table td {
+padding-inline: 0.22rem;
+}
+
+}
+
+/* kept from v014 lines 685-690 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-table .enemy-skill-output-cell, .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+}
+
+/* kept from v014 lines 696-700 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .enemy-skill-table input, .dx3-enemies-page .enemy-skill-table select {
+min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 706-708 */
+@media (max-width: 880px) {
+.dx3-enemies-page .enemy-skill-table {
+min-width: 41rem;
+}
+
+}
+
+/* kept from v014 lines 714-716 */
+@media (max-width: 880px) {
+.dx3-enemies-page .enemy-skill-col-output {
+width: 11.5em;
+}
+
+}
+
+/* kept from v014 lines 722-724 */
+@media (max-width: 880px) {
+.dx3-enemies-page .enemy-skill-col-note {
+width: 6.5em;
+}
+
+}
+
+/* kept from v014 lines 730-734 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-table-wrap {
+max-width: 100%;
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+}
+
+}
+
+/* kept from v014 lines 740-743 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-table {
+min-width: 36rem;
+    table-layout: fixed;
+}
+
+}
+
+/* kept from v014 lines 749-751 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-col-name {
+width: 3.5em;
+}
+
+}
+
+/* kept from v014 lines 757-759 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-col-spec {
+width: 3.8em;
+}
+
+}
+
+/* kept from v014 lines 765-767 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-col-ability {
+width: 3.6em;
+}
+
+}
+
+/* kept from v014 lines 773-775 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-col-num {
+width: 2em;
+}
+
+}
+
+/* kept from v014 lines 781-783 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-col-output {
+width: 8.5em;
+}
+
+}
+
+/* kept from v014 lines 789-791 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-col-note {
+width: 5.2em;
+}
+
+}
+
+/* kept from v014 lines 797-799 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-col-action {
+width: 1.9em;
+}
+
+}
+
+/* kept from v014 lines 805-809 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-table th, .dx3-enemies-page .enemy-skill-table td {
+padding: 0.08rem 0.1rem;
+    font-size: 0.72rem;
+    line-height: 1.16;
+}
+
+}
+
+/* kept from v014 lines 815-820 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-table input, .dx3-enemies-page .enemy-skill-table select {
+height: 1.92rem;
+    min-height: 1.92rem;
+    padding: 1px 2px;
+    font-size: 0.78rem;
+}
+
+}
+
+/* kept from v014 lines 826-830 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-table td:nth-child(4) input, .dx3-enemies-page .enemy-skill-table td:nth-child(5) input, .dx3-enemies-page .enemy-skill-table td:nth-child(6) input, .dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+height: 1.92rem;
+    min-height: 1.92rem;
+    padding: 0 1px;
+}
+
+}
+
+/* kept from v014 lines 836-838 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-table td:nth-child(1) input, .dx3-enemies-page .enemy-skill-table td:nth-child(2) input, .dx3-enemies-page .enemy-skill-table td:nth-child(3) select, .dx3-enemies-page .enemy-skill-fixed-label span, .dx3-enemies-page .enemy-skill-fixed-name {
+font-size: 0.75rem;
+}
+
+}
+
+/* kept from v014 lines 844-849 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-output, .dx3-enemies-page .enemy-skill-table .enemy-skill-output-cell, .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+font-size: 0.68rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+}
+
+/* kept from v014 lines 855-857 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-table {
+min-width: 33.5rem;
+}
+
+}
+
+/* kept from v014 lines 863-865 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-col-name {
+width: 3.05em;
+}
+
+}
+
+/* kept from v014 lines 871-873 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-col-spec {
+width: 3.35em;
+}
+
+}
+
+/* kept from v014 lines 879-881 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-col-ability {
+width: 3.25em;
+}
+
+}
+
+/* kept from v014 lines 887-889 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-col-num {
+width: 1.78em;
+}
+
+}
+
+/* kept from v014 lines 895-897 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-col-output {
+width: 7.2em;
+}
+
+}
+
+/* kept from v014 lines 903-905 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-col-note {
+width: 4.4em;
+}
+
+}
+
+/* kept from v014 lines 911-913 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-col-action {
+width: 1.65em;
+}
+
+}
+
+/* kept from v014 lines 919-922 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-table th, .dx3-enemies-page .enemy-skill-table td {
+padding: 0.06rem 0.07rem;
+    font-size: 0.66rem;
+}
+
+}
+
+/* kept from v014 lines 928-933 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-table input, .dx3-enemies-page .enemy-skill-table select {
+height: 1.74rem;
+    min-height: 1.74rem;
+    padding: 0 1px;
+    font-size: 0.7rem;
+}
+
+}
+
+/* kept from v014 lines 939-942 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-table td:nth-child(4) input, .dx3-enemies-page .enemy-skill-table td:nth-child(5) input, .dx3-enemies-page .enemy-skill-table td:nth-child(6) input, .dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+height: 1.74rem;
+    min-height: 1.74rem;
+}
+
+}
+
+/* kept from v014 lines 948-950 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-table td:nth-child(1) input, .dx3-enemies-page .enemy-skill-table td:nth-child(2) input, .dx3-enemies-page .enemy-skill-table td:nth-child(3) select, .dx3-enemies-page .enemy-skill-fixed-label span, .dx3-enemies-page .enemy-skill-fixed-name {
+font-size: 0.68rem;
+}
+
+}
+
+/* kept from v014 lines 956-959 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-ability-cell select {
+text-align: center;
+    text-align-last: center;
+}
+
+}
+
+/* kept from v014 lines 965-967 */
+@media (max-width: 430px) {
+.dx3-enemies-page .enemy-skill-output, .dx3-enemies-page .enemy-skill-table .enemy-skill-output-cell, .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+font-size: 0.62rem;
+}
+
+}
+
+/* kept from v014 lines 973-976 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-list-pane, .dx3-enemies-page .dx3-enemy-editor-pane, .dx3-enemies-page .dx3-enemy-template-pane, .dx3-enemies-page .dx3-collapsible-section {
+padding-left: 7px;
+    padding-right: 7px;
+}
+
+}
+
+/* kept from v014 lines 982-986 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-collapsible-summary {
+padding-left: 0.15rem;
+    padding-right: 0.15rem;
+    gap: 0.35rem;
+}
+
+}
+
+/* kept from v014 lines 992-994 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-collapsible-summary h3 {
+font-size: 1rem;
+}
+
+}
+
+/* kept from v014 lines 1000-1003 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-collapsible-summary > span {
+font-size: 0.78rem;
+    text-align: right;
+}
+
+}
+
+/* kept from v014 lines 1009-1013 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-block {
+padding: 0.42rem 0.38rem;
+    gap: 0.45rem;
+    overflow: hidden;
+}
+
+}
+
+/* kept from v014 lines 1019-1023 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+}
+
+/* kept from v014 lines 1029-1033 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+}
+
+/* kept from v014 lines 1039-1041 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label-head, .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+width: 6.7rem;
+}
+
+}
+
+/* kept from v014 lines 1047-1050 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix th, .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix td {
+padding: 0.08rem 0.08rem;
+    font-size: 0.72rem;
+}
+
+}
+
+/* kept from v014 lines 1056-1059 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label span {
+font-size: 0.68rem;
+    line-height: 1.05;
+}
+
+}
+
+/* kept from v014 lines 1065-1067 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+padding: 0 1.05rem 0 0.18rem;
+}
+
+}
+
+/* kept from v014 lines 1073-1076 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"], .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+padding: 0 0.14rem;
+min-width: 0;
+}
+
+}
+
+/* kept from v014 lines 1082-1087 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+width: 100%;
+    max-width: 100%;
+    gap: 0.32rem;
+    overflow: hidden;
+}
+
+}
+
+/* kept from v014 lines 1093-1096 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-title {
+min-width: 0;
+    font-size: 0.76rem;
+}
+
+}
+
+/* kept from v014 lines 1102-1109 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+display: grid;
+    grid-template-columns: minmax(2.4rem, 1fr) 0.55rem minmax(2.05rem, 0.8fr) 0.55rem minmax(2.25rem, 0.85fr);
+    gap: 0.18rem;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+}
+
+}
+
+/* kept from v014 lines 1115-1117 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: minmax(4.4rem, 1fr) 0.55rem minmax(2.45rem, 0.7fr);
+}
+
+}
+
+/* kept from v014 lines 1123-1127 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+padding: 0 0.18rem;
+min-width: 0;
+box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 1133-1137 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula span, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-equals {
+min-width: 0;
+    font-size: 0.72rem;
+    text-align: center;
+}
+
+}
+
+/* kept from v014 lines 1143-1146 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-list-pane, .dx3-enemies-page .dx3-enemy-editor-pane, .dx3-enemies-page .dx3-enemy-template-pane, .dx3-enemies-page .dx3-collapsible-section {
+padding-left: 5px;
+    padding-right: 5px;
+}
+
+}
+
+/* kept from v014 lines 1152-1154 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label span, .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+font-size: 0.63rem;
+}
+
+}
+
+/* kept from v014 lines 1160-1162 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+line-height: normal;
+}
+
+}
+
+/* kept from v014 lines 1168-1170 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"], .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+line-height: normal;
+}
+
+}
+
+/* kept from v014 lines 1176-1178 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+line-height: normal;
+}
+
+}
+
+/* kept from v014 lines 1184-1188 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select, .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"], .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly], .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+font-family: var(--font-latin-ui), "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-weight: 300;
+    line-height: 1.2;
+}
+
+}
+
+/* kept from v014 lines 1194-1197 */
+@media (max-width: 520px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+padding-top: 0.04rem;
+padding-bottom: 0.04rem;
+}
+
+}
+
+/* kept from v014 lines 1203-1206 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-skill-table td:nth-child(4) input, .dx3-enemies-page .enemy-skill-table td:nth-child(5) input, .dx3-enemies-page .enemy-skill-table td:nth-child(6) input, .dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+font-size: 1.28rem;
+    font-weight: 300;
+}
+
+}
+
+/* kept from v014 lines 1212-1215 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula span, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-equals {
+min-width: 0;
+    font-size: 0.68rem;
+}
+
+}
+
+/* kept from v014 lines 1221-1224 */
+@media (max-width: 390px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+grid-template-columns: 2.9rem minmax(0, 1fr);
+    gap: 0.14rem;
+}
+
+}
+
+/* kept from v014 lines 1230-1233 */
+@media (max-width: 390px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+grid-template-columns: minmax(0, 1.15fr) 0.32rem minmax(0, 0.9fr) 0.32rem minmax(0, 1fr);
+    gap: 0.07rem;
+}
+
+}
+
+/* kept from v014 lines 1239-1241 */
+@media (max-width: 390px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: minmax(0, 1.75fr) 0.32rem minmax(0, 1fr);
+}
+
+}
+
+/* kept from v014 lines 1247-1251 */
+@media (max-width: 380px) {
+body.dx3-combo-page, body.dx3-combo-page .main-content, body.dx3-combo-page #dx3-app, body.dx3-combo-page .plain-text-block, body.dx3-combo-page #dx3-app.plain-text-block, .dx3-enemies-page .dx3-enemy-mode-panel, .dx3-enemies-page .dx3-enemy-layout, .dx3-enemies-page .dx3-enemy-editor-pane, .dx3-enemies-page .dx3-enemy-template-pane, .dx3-enemies-page .dx3-collapsible-section, .dx3-enemies-page .dx3-enemy-action-bar, .dx3-enemies-page .enemy-template-top-grid, .dx3-enemies-page .enemy-text-grid, .dx3-enemies-page .enemy-ability-breakdown, .dx3-enemies-page .enemy-ability-matrix-block, .dx3-enemies-page .enemy-skill-table-wrap {
+min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 1257-1261 */
+@media (max-width: 380px) {
+.dx3-enemies-page .dx3-enemy-editor-pane, .dx3-enemies-page .dx3-enemy-template-pane, .dx3-enemies-page .dx3-collapsible-section {
+width: 100%;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+}
+
+/* kept from v014 lines 1267-1271 */
+@media (max-width: 380px) {
+.dx3-enemies-page .dx3-enemy-action-bar {
+width: 100%;
+    overflow: hidden;
+    gap: 0.32rem;
+}
+
+}
+
+/* kept from v014 lines 1277-1282 */
+@media (max-width: 380px) {
+.dx3-enemies-page .enemy-action-left, .dx3-enemies-page .enemy-action-right, .dx3-enemies-page .enemy-action-meta {
+min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 1288-1292 */
+@media (max-width: 380px) {
+.dx3-enemies-page .enemy-action-left, .dx3-enemies-page .enemy-action-right {
+display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.34rem;
+}
+
+}
+
+/* kept from v014 lines 1298-1304 */
+@media (max-width: 380px) {
+.dx3-enemies-page .enemy-action-left .action-btn, .dx3-enemies-page .enemy-action-right .action-btn {
+width: 100%;
+    min-width: 0;
+    padding-left: 0.34rem;
+    padding-right: 0.34rem;
+    white-space: nowrap;
+}
+
+}
+
+/* kept from v014 lines 1310-1312 */
+@media (max-width: 380px) {
+.dx3-enemies-page .enemy-action-left .action-btn i, .dx3-enemies-page .enemy-action-right .action-btn i {
+margin-right: 0.16rem;
+}
+
+}
+
+/* kept from v014 lines 1318-1320 */
+@media (max-width: 380px) {
+.dx3-enemies-page .action-bar-meta {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* kept from v014 lines 1326-1330 */
+@media (max-width: 380px) {
+.dx3-enemies-page .action-meta-field, .dx3-enemies-page .action-meta-field input, .dx3-enemies-page .action-meta-field.is-icon input {
+min-width: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 1336-1339 */
+@media (max-width: 380px) {
+.dx3-enemies-page .enemy-template-top-grid, .dx3-enemies-page .enemy-text-grid {
+grid-template-columns: 1fr;
+    gap: 0.38rem;
+}
+
+}
+
+/* kept from v014 lines 1345-1347 */
+@media (max-width: 380px) {
+.dx3-enemies-page .enemy-ruby-field-name, .dx3-enemies-page .enemy-ruby-field-code {
+grid-column: auto;
+}
+
+}
+
+/* kept from v014 lines 1353-1357 */
+@media (max-width: 380px) {
+.dx3-enemies-page .enemy-ruby-field, .dx3-enemies-page .enemy-memo-field, .dx3-enemies-page .enemy-ruby-field input, .dx3-enemies-page .enemy-memo-field textarea {
+min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 1363-1365 */
+@media (max-width: 380px) {
+.dx3-enemies-page .dx3-enemy-basic-section .enemy-memo-field textarea {
+min-height: 4.35rem;
+}
+
+}
+
+/* kept from v014 lines 1371-1374 */
+@media (max-width: 360px) {
+body.dx3-combo-page .plain-text-block, body.dx3-combo-page #dx3-app.plain-text-block, .dx3-enemies-page .dx3-enemy-editor-pane, .dx3-enemies-page .dx3-enemy-template-pane, .dx3-enemies-page .dx3-collapsible-section {
+padding-left: 3px;
+    padding-right: 3px;
+}
+
+}
+
+/* kept from v014 lines 1380-1382 */
+@media (max-width: 360px) {
+.dx3-enemies-page .enemy-action-left, .dx3-enemies-page .enemy-action-right {
+gap: 0.28rem;
+}
+
+}
+
+/* kept from v014 lines 1388-1392 */
+@media (max-width: 360px) {
+.dx3-enemies-page .enemy-action-left .action-btn, .dx3-enemies-page .enemy-action-right .action-btn {
+padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    font-size: 0.78rem;
+}
+
+}
+
+/* kept from v014 lines 1398-1402 */
+@media (max-width: 430px) {
+body.dx3-combo-page #dx3-app, body.dx3-combo-page .dx3-enemy-mode-panel, body.dx3-combo-page .dx3-enemy-common-header, body.dx3-combo-page .dx3-enemy-action-bar, body.dx3-combo-page .dx3-enemy-editor-pane, body.dx3-combo-page .dx3-enemy-template-pane, body.dx3-combo-page .dx3-collapsible-section, body.dx3-combo-page .dx3-enemy-basic-section, body.dx3-combo-page .dx3-enemy-ability-section, body.dx3-combo-page .enemy-skill-block {
+width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+}
+
+/* kept from v014 lines 1408-1413 */
+@media (max-width: 430px) {
+body.dx3-combo-page .dx3-enemy-editor-pane, body.dx3-combo-page .dx3-enemy-template-pane {
+justify-self: stretch;
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow-x: clip;
+}
+
+}
+
+/* kept from v014 lines 1419-1422 */
+@media (max-width: 430px) {
+body.dx3-combo-page .dx3-enemy-template-pane, body.dx3-combo-page .dx3-enemy-mode-panel, body.dx3-combo-page .enemy-template-top-grid, body.dx3-combo-page .enemy-text-grid, body.dx3-combo-page .dx3-enemy-ability-skill-grid, body.dx3-combo-page .enemy-ability-breakdown, body.dx3-combo-page .enemy-ability-matrix-block, body.dx3-combo-page .enemy-stat-stack-grid {
+min-width: 0;
+    max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 1428-1430 */
+@media (max-width: 430px) {
+body.dx3-combo-page .enemy-template-top-grid, body.dx3-combo-page .enemy-text-grid {
+grid-template-columns: minmax(0, 1fr);
+}
+
+}
+
+/* kept from v014 lines 1436-1439 */
+@media (max-width: 430px) {
+body.dx3-combo-page .enemy-ruby-field, body.dx3-combo-page .enemy-memo-field, body.dx3-combo-page .enemy-ruby-field input, body.dx3-combo-page .enemy-memo-field textarea, body.dx3-combo-page .enemy-main-input, body.dx3-combo-page .enemy-ruby-input {
+min-width: 0;
+    max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 1445-1449 */
+@media (max-width: 430px) {
+body.dx3-combo-page .dx3-enemy-action-bar, body.dx3-combo-page .enemy-action-left, body.dx3-combo-page .enemy-action-right, body.dx3-combo-page .enemy-action-meta {
+min-width: 0;
+    max-width: 100%;
+    overflow: clip;
+}
+
+}
+
+/* kept from v014 lines 1455-1458 */
+@media (max-width: 430px) {
+body.dx3-combo-page .enemy-action-left, body.dx3-combo-page .enemy-action-right {
+display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+}
+
+/* kept from v014 lines 1464-1470 */
+@media (max-width: 430px) {
+body.dx3-combo-page .dx3-enemy-action-bar .action-btn {
+min-width: 0;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+}
+
+/* kept from v014 lines 1476-1479 */
+@media (max-width: 360px) {
+body.dx3-combo-page .dx3-enemy-editor-pane, body.dx3-combo-page .dx3-enemy-template-pane {
+padding-left: 4px;
+    padding-right: 4px;
+}
+
+}
+
+/* kept from v014 lines 1485-1487 */
+@media (min-width: 360px) and (max-width: 520px) {
+body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row {
+flex-wrap: wrap;
+}
+
+}
+
+/* kept from v014 lines 1493-1501 */
+@media (min-width: 360px) and (max-width: 520px) {
+body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row .enemy-compact-flags {
+flex: 1 1 auto;
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.28rem 0.4rem;
+}
+
+}
+
+/* kept from v014 lines 1507-1509 */
+@media (min-width: 360px) and (max-width: 520px) {
+body.dx3-combo-page.dx3-enemies-page .dx3-koma-action-row .enemy-compact-flag:first-child {
+grid-column: auto;
+}
+
+}
+
+/* kept from v014 lines 1515-1518 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label {
+padding-left: 0.08rem;
+    padding-right: 0.08rem;
+}
+
+}
+
+/* kept from v014 lines 1524-1526 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label span {
+letter-spacing: -0.04em;
+}
+
+}
+
+/* kept from v014 lines 1532-1535 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+box-sizing: border-box;
+    max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 1541-1544 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+padding-right: 0.18rem;
+    overflow-x: visible;
+}
+
+}
+
+/* kept from v014 lines 1550-1552 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix .ability-row-label span {
+margin-right: 0.12rem;
+}
+
+}
+
+/* kept from v014 lines 1558-1560 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .syndrome-source-row.is-locked .ability-row-label, .dx3-enemies-page .dx3-enemy-ability-section .syndrome-source-row.is-locked td {
+opacity: 0.62;
+}
+
+}
+
+/* kept from v014 lines 1566-1570 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .syndrome-source-row.is-locked .enemy-syndrome-select {
+cursor: not-allowed;
+    background-color: rgba(226, 232, 240, 0.76);
+    color: rgba(15, 23, 42, 0.62);
+}
+
+}
+
+/* kept from v014 lines 1576-1578 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-grid {
+padding-right: 0.08rem;
+}
+
+}
+
+/* kept from v014 lines 1584-1586 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula .enemy-stat-equals {
+display: none;
+}
+
+}
+
+/* kept from v014 lines 1592-1598 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.12rem;
+    white-space: nowrap;
+}
+
+}
+
+/* kept from v014 lines 1604-1606 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+justify-content: center;
+}
+
+}
+
+/* kept from v014 lines 1612-1619 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong::before, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip::before {
+content: "=";
+    color: rgba(220, 235, 255, 0.72);
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+}
+
+/* kept from v014 lines 1625-1629 */
+@media (max-width: 430px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula .enemy-stat-operator {
+min-width: 0;
+    font-size: 0.72rem;
+    justify-self: center;
+}
+
+}
+
+/* kept from v014 lines 1635-1637 */
+@media (max-width: 360px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix-wrap {
+padding-right: 0.14rem;
+}
+
+}
+
+/* kept from v014 lines 1643-1647 */
+@media (max-width: 360px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix {
+width: calc(100% - 0.14rem);
+    max-width: calc(100% - 0.14rem);
+    margin-right: 0.14rem;
+}
+
+}
+
+/* kept from v014 lines 1653-1655 */
+@media (max-width: 360px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"], .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+padding-inline: 0.12rem;
+}
+
+}
+
+/* kept from v014 lines 1661-1665 */
+@media (max-width: 360px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+grid-template-columns: 2.75rem minmax(0, 1fr);
+    padding-left: 0.16rem;
+    padding-right: 0.16rem;
+}
+
+}
+
+/* kept from v014 lines 1671-1674 */
+@media (max-width: 360px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+grid-template-columns: minmax(0, 1.32fr) 0.26rem minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 0.06rem;
+}
+
+}
+
+/* kept from v014 lines 1680-1682 */
+@media (max-width: 360px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: minmax(0, 1.72fr) minmax(0, 1.16fr);
+}
+
+}
+
+/* kept from v014 lines 1688-1700 */
+@media (min-width: 431px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[type="number"], .dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-matrix input[readonly] {
+height: 1.82rem;
+    min-height: 1.82rem;
+    padding-block: 1px;
+    padding-inline: 0.28rem;
+    font-size: 1.28rem;
+    font-weight: 300;
+    line-height: 1;
+    text-align: right;
+    font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-variant-numeric: tabular-nums;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 1706-1717 */
+@media (min-width: 431px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+height: 1.82rem;
+    min-height: 1.82rem;
+    padding-block: 1px;
+    padding-inline: 0.28rem;
+    font-size: 1.28rem;
+    font-weight: 300;
+    line-height: 1;
+    font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-variant-numeric: tabular-nums;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 1723-1727 */
+@media (min-width: 431px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+}
+
+/* kept from v014 lines 1733-1735 */
+@media (min-width: 431px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+justify-content: center;
+}
+
+}
+
+/* kept from v014 lines 1741-1745 */
+@media (min-width: 431px) {
+.dx3-enemies-page .enemy-skill-table tbody td.enemy-skill-num-cell > input.enemy-skill-num-input[type="number"] {
+font-size: 1.28rem;
+    font-weight: 300;
+    line-height: 1;
+}
+
+}
+
+/* kept from v014 lines 1751-1753 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-ability-matrix-block {
+grid-template-columns: minmax(0, 392px);
+}
+
+}
+
+/* kept from v014 lines 1759-1762 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-ability-matrix-wrap, .dx3-enemies-page .enemy-ability-matrix {
+width: 392px;
+    max-width: 392px;
+}
+
+}
+
+/* kept from v014 lines 1768-1771 */
+@media (min-width: 1501px) and (max-width: 1760px) {
+.dx3-enemies-page .dx3-enemy-ability-section, .dx3-enemies-page .enemy-ability-matrix-block, .dx3-enemies-page .enemy-ability-matrix-wrap, .dx3-enemies-page .enemy-ability-matrix {
+width: 384px;
+    max-width: 384px;
+}
+
+}
+
+/* kept from v014 lines 1777-1781 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-ability-matrix-block, .dx3-enemies-page .enemy-ability-matrix-wrap, .dx3-enemies-page .enemy-ability-matrix, .dx3-enemies-page .enemy-stat-stack-grid, .dx3-enemies-page .enemy-stat-stack-card {
+width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 1787-1790 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-stat-stack-grid {
+grid-template-columns: 1fr;
+    gap: 0.5rem;
+}
+
+}
+
+/* kept from v014 lines 1796-1798 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-stat-stack-card {
+padding-inline: 0.52rem;
+}
+
+}
+
+/* kept from v014 lines 1804-1807 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-stat-stack-formula {
+grid-template-columns: minmax(4.6rem, 1.25fr) 0.7rem minmax(3.2rem, 0.85fr) 0.7rem minmax(4.4rem, 0.95fr);
+    gap: 0.22rem;
+}
+
+}
+
+/* kept from v014 lines 1813-1815 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: minmax(5.4rem, 1.4fr) 0.7rem minmax(4.4rem, 0.95fr);
+}
+
+}
+
+/* kept from v014 lines 1821-1825 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-stat-stack-formula input, .dx3-enemies-page .enemy-stat-stack-formula strong, .dx3-enemies-page .enemy-erosion-dice-chip {
+min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 1831-1833 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-col-output, .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+width: 12.5em;
+}
+
+}
+
+/* kept from v014 lines 1839-1841 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-breakdown-head {
+grid-area: ability-head;
+}
+
+}
+
+/* kept from v014 lines 1847-1853 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-matrix-wrap {
+grid-area: ability-matrix;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: visible;
+}
+
+}
+
+/* kept from v014 lines 1859-1865 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-stat-stack-grid {
+grid-area: ability-stats;
+width: 100%;
+max-width: 100%;
+min-width: 0;
+align-self: stretch;
+}
+
+}
+
+/* kept from v014 lines 1871-1875 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-matrix {
+width: 100%;
+min-width: 0;
+max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 1881-1884 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+margin-right: 0;
+margin-bottom: 0.04rem;
+}
+
+}
+
+/* kept from v014 lines 1890-1893 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-syndrome-select {
+font-size: 0.76rem;
+line-height: 1.1;
+}
+
+}
+
+/* kept from v014 lines 1899-1903 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-skill-table {
+table-layout: fixed;
+    width: 100%;
+    min-width: 0;
+}
+
+}
+
+/* kept from v014 lines 1909-1911 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-skill-col-name {
+width: 5.8em;
+}
+
+}
+
+/* kept from v014 lines 1917-1919 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-skill-col-spec {
+width: 5.8em;
+}
+
+}
+
+/* kept from v014 lines 1925-1927 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-skill-col-ability {
+width: 4.8em;
+}
+
+}
+
+/* kept from v014 lines 1933-1935 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-skill-col-num {
+width: 2.45em;
+}
+
+}
+
+/* kept from v014 lines 1941-1943 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-skill-col-action {
+width: 2.6em;
+}
+
+}
+
+/* kept from v014 lines 1949-1956 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-skill-output {
+max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.74rem;
+}
+
+}
+
+/* kept from v014 lines 1962-1966 */
+@media (min-width: 1501px) and (max-width: 1760px) {
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+display: block;
+    margin-right: 0;
+    margin-bottom: 0.04rem;
+}
+
+}
+
+/* kept from v014 lines 1972-1979 */
+@media (min-width: 1501px) and (max-width: 1760px) {
+.dx3-enemies-page .enemy-syndrome-select {
+display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 1.42rem;
+    padding-inline: 0.24rem 1rem;
+    font-size: 0.75rem;
+}
+
+}
+
+/* kept from v014 lines 1985-1987 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-ability-matrix-block {
+max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 1993-1995 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+padding-inline: 0.22rem;
+}
+
+}
+
+/* kept from v014 lines 2001-2003 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+margin-bottom: 0.06rem;
+}
+
+}
+
+/* kept from v014 lines 2009-2011 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-fixed-label {
+padding-left: 0.34rem;
+}
+
+}
+
+/* kept from v014 lines 2017-2021 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-breakdown-head, .dx3-enemies-page .enemy-ability-matrix-wrap, .dx3-enemies-page .enemy-stat-stack-grid {
+grid-area: auto;
+    grid-column: auto;
+    grid-row: auto;
+}
+
+}
+
+/* kept from v014 lines 2027-2032 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-matrix-wrap, .dx3-enemies-page .enemy-ability-matrix, .dx3-enemies-page .enemy-stat-stack-grid, .dx3-enemies-page .enemy-stat-stack-card {
+width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 2038-2040 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-matrix-wrap {
+overflow-x: visible;
+}
+
+}
+
+/* kept from v014 lines 2046-2048 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label {
+padding-inline: 0.22rem;
+}
+
+}
+
+/* kept from v014 lines 2054-2056 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-matrix .ability-row-label span {
+margin: 0 0 0.06rem;
+}
+
+}
+
+/* kept from v014 lines 2062-2065 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-syndrome-select {
+margin: 0;
+box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 2071-2073 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown, .dx3-enemies-page .enemy-skill-block .enemy-skill-table-wrap {
+margin-top: 0.28rem;
+}
+
+}
+
+/* kept from v014 lines 2079-2081 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-syndrome-select {
+margin-top: 0.02rem;
+}
+
+}
+
+/* kept from v014 lines 2087-2090 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-block .enemy-skill-table-wrap {
+margin-left: 0;
+    overflow-x: hidden;
+}
+
+}
+
+/* kept from v014 lines 2096-2100 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-table input, .dx3-enemies-page .enemy-skill-table select {
+min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 2106-2109 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-table td:nth-child(8) input {
+padding-left: 0.18rem;
+    padding-right: 0.18rem;
+}
+
+}
+
+/* kept from v014 lines 2115-2117 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+width: 9.5em;
+}
+
+}
+
+/* kept from v014 lines 2123-2127 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-table-wrap {
+width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+}
+
+/* kept from v014 lines 2133-2135 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-ability-matrix-block {
+justify-self: start;
+}
+
+}
+
+/* kept from v014 lines 2141-2143 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-table-wrap {
+margin-left: 0;
+}
+
+}
+
+/* kept from v014 lines 2149-2151 */
+@media (min-width: 1761px) {
+.dx3-enemies-page .enemy-ability-matrix-block, .dx3-enemies-page .enemy-ability-matrix-wrap, .dx3-enemies-page .enemy-ability-matrix, .dx3-enemies-page .enemy-stat-stack-grid, .dx3-enemies-page .enemy-stat-stack-card {
+max-width: 100%;
+}
+
+}
+
+/* kept from v014 lines 2157-2161 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-output-copy-btn {
+width: 2rem;
+    min-width: 2rem;
+    height: 2rem;
+}
+
+}
+
+/* kept from v014 lines 2167-2171 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-copy-btn, .dx3-enemies-page .enemy-skill-output-copy-btn {
+width: 2rem;
+    min-width: 2rem;
+    height: 2rem;
+}
+
+}
+
+/* kept from v014 lines 2177-2181 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-col-action, .dx3-enemies-page .enemy-skill-table td:nth-child(9), .dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+width: 4.9rem;
+    min-width: 4.9rem;
+    max-width: 4.9rem;
+}
+
+}
+
+/* kept from v014 lines 2187-2191 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-action, .dx3-enemies-page .enemy-skill-table th.enemy-skill-col-action, .dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell, .dx3-enemies-page .enemy-skill-table td:nth-child(9) {
+width: 4.5rem;
+    min-width: 4.5rem;
+    max-width: 4.5rem;
+}
+
+}
+
+/* kept from v014 lines 2197-2204 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn, .dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn, .dx3-enemies-page .enemy-skill-copy-btn, .dx3-enemies-page .enemy-skill-delete-btn {
+flex-basis: 1.65rem;
+    width: 1.65rem;
+    min-width: 1.65rem;
+    max-width: 1.65rem;
+    height: 1.65rem;
+    min-height: 1.65rem;
+}
+
+}
+
+/* kept from v014 lines 2210-2214 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-table th:nth-child(9), .dx3-enemies-page .enemy-skill-table td:nth-child(9), .dx3-enemies-page .enemy-skill-table .enemy-skill-col-action, .dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+width: 3.55rem;
+    min-width: 3.55rem;
+    max-width: 3.55rem;
+}
+
+}
+
+/* kept from v014 lines 2220-2222 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-table th:nth-child(7), .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+padding-right: 0.04rem;
+}
+
+}
+
+/* kept from v014 lines 2228-2230 */
+@media (min-width: 1501px) {
+.dx3-enemies-page .enemy-skill-table th:nth-child(8), .dx3-enemies-page .enemy-skill-table td:nth-child(8) {
+padding-inline: 0.04rem;
+}
+
+}
+
+/* kept from v014 lines 2236-2240 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table th:nth-child(9), .dx3-enemies-page .enemy-skill-table td:nth-child(9), .dx3-enemies-page .enemy-skill-table .enemy-skill-col-action, .dx3-enemies-page .enemy-skill-table td.enemy-skill-action-cell {
+width: 3.35rem;
+    min-width: 3.35rem;
+    max-width: 3.35rem;
+}
+
+}
+
+/* kept from v014 lines 2246-2248 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-action-wrap {
+gap: 0.12rem;
+}
+
+}
+
+/* kept from v014 lines 2254-2264 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn, .dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn, .dx3-enemies-page .enemy-skill-action-wrap .small-square-btn, .dx3-enemies-page .enemy-skill-copy-btn, .dx3-enemies-page .enemy-skill-delete-btn {
+flex-basis: 1.42rem;
+    inline-size: 1.42rem;
+    width: 1.42rem;
+    min-width: 1.42rem;
+    max-width: 1.42rem;
+    block-size: 1.42rem;
+    height: 1.42rem;
+    min-height: 1.42rem;
+    max-height: 1.42rem;
+}
+
+}
+
+/* kept from v014 lines 2270-2274 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table th:nth-child(9), .dx3-enemies-page .enemy-skill-table td:nth-child(9), .dx3-enemies-page .enemy-skill-table .enemy-skill-col-copy, .dx3-enemies-page .enemy-skill-table td.enemy-skill-copy-cell {
+width: 2.35rem;
+    min-width: 2.35rem;
+    max-width: 2.35rem;
+}
+
+}
+
+/* kept from v014 lines 2280-2284 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table th:nth-child(10), .dx3-enemies-page .enemy-skill-table td:nth-child(10), .dx3-enemies-page .enemy-skill-table .enemy-skill-col-delete, .dx3-enemies-page .enemy-skill-table td.enemy-skill-delete-cell {
+width: 2.2rem;
+    min-width: 2.2rem;
+    max-width: 2.2rem;
+}
+
+}
+
+/* kept from v014 lines 2290-2292 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-copy-btn-label {
+font-size: 0.48rem;
+}
+
+}
+
+/* kept from v014 lines 2298-2301 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-xp-conversion-card {
+flex-wrap: wrap;
+    border-radius: 0.55rem;
+}
+
+}
+
+/* kept from v014 lines 2307-2309 */
+@media (max-width: 520px) {
+.dx3-enemies-page .enemy-xp-conversion-grid {
+flex-wrap: wrap;
+}
+
+}
+
+/* kept from v014 lines 2315-2317 */
+@media (max-width: 1280px) {
+.dx3-enemies-page .dx3-enemy-profile-grid {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* kept from v014 lines 2323-2325 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-name, .dx3-enemies-page .enemy-skill-table th:nth-child(1), .dx3-enemies-page .enemy-skill-table td:nth-child(1) {
+width: 3.85em;
+}
+
+}
+
+/* kept from v014 lines 2331-2333 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-spec, .dx3-enemies-page .enemy-skill-table th:nth-child(2), .dx3-enemies-page .enemy-skill-table td:nth-child(2) {
+width: 3.6em;
+}
+
+}
+
+/* kept from v014 lines 2339-2341 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table tr.is-fixed-skill-row td.enemy-skill-fixed-label {
+width: 7.45em !important;
+}
+
+}
+
+/* kept from v014 lines 2347-2349 */
+@media (max-width: 760px) {
+.dx3-enemies-page .enemy-skill-table .enemy-skill-col-output, .dx3-enemies-page .enemy-skill-table th:nth-child(7), .dx3-enemies-page .enemy-skill-table td:nth-child(7) {
+width: 8.6em;
+}
+
+}
+
+/* kept from v014 lines 2355-2359 */
+@media (max-width: 900px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-head, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-cell {
+width: 13rem !important;
+    min-width: 13rem !important;
+    max-width: 13rem !important;
+}
+
+}
+
+/* kept from v014 lines 2365-2370 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .table-wrapper:has(.effects-table.is-enemy-detail-table) {
+width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 2376-2381 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table {
+width: 100% !important;
+min-width: 0 !important;
+max-width: 100% !important;
+table-layout: fixed;
+}
+
+}
+
+/* kept from v014 lines 2387-2391 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td {
+box-sizing: border-box;
+    min-width: 0 !important;
+    overflow: hidden;
+}
+
+}
+
+/* kept from v014 lines 2397-2399 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-name {
+width: 9.5rem;
+}
+
+}
+
+/* kept from v014 lines 2405-2407 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-level {
+width: 3.15rem;
+}
+
+}
+
+/* kept from v014 lines 2413-2415 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-max-level {
+width: 3.6rem;
+}
+
+}
+
+/* kept from v014 lines 2421-2423 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-timing {
+width: 6.4rem;
+}
+
+}
+
+/* kept from v014 lines 2429-2431 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-skill {
+width: 5.9rem;
+}
+
+}
+
+/* kept from v014 lines 2437-2439 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-difficulty {
+width: 5.2rem;
+}
+
+}
+
+/* kept from v014 lines 2445-2447 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-target {
+width: 4.8rem;
+}
+
+}
+
+/* kept from v014 lines 2453-2455 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-range {
+width: 4.6rem;
+}
+
+}
+
+/* kept from v014 lines 2461-2463 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-limit {
+width: 4.7rem;
+}
+
+}
+
+/* kept from v014 lines 2469-2471 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-effect {
+width: auto;
+}
+
+}
+
+/* kept from v014 lines 2477-2479 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-note {
+width: clamp(8.5rem, 14vw, 13rem);
+}
+
+}
+
+/* kept from v014 lines 2485-2487 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-actions {
+width: 5.0rem;
+}
+
+}
+
+/* kept from v014 lines 2493-2497 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-head, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-effect-cell {
+width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+
+}
+
+/* kept from v014 lines 2503-2507 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-head, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-cell {
+width: clamp(8.5rem, 14vw, 13rem) !important;
+    min-width: 0 !important;
+    max-width: 13rem !important;
+}
+
+}
+
+/* kept from v014 lines 2513-2518 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th:last-child, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell {
+width: 5.0rem !important;
+min-width: 0 !important;
+max-width: 5.0rem !important;
+padding-inline: 0.18rem;
+}
+
+}
+
+/* kept from v014 lines 2524-2529 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table input, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table select, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table textarea, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .input-with-dropdown, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .input-with-dropdown input {
+width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+}
+
+}
+
+/* kept from v014 lines 2535-2542 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table textarea {
+display: block;
+    min-height: 2.55rem;
+    height: 2.75rem;
+    line-height: 1.32;
+    resize: vertical;
+    overflow: auto;
+}
+
+}
+
+/* kept from v014 lines 2548-2551 */
+@media (min-width: 901px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .setting-btn, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .delete-btn {
+min-width: 0;
+    padding-inline: 0.34rem;
+}
+
+}
+
+/* kept from v014 lines 2557-2559 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-name {
+width: 8.4rem;
+}
+
+}
+
+/* kept from v014 lines 2565-2567 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-level {
+width: 2.85rem;
+}
+
+}
+
+/* kept from v014 lines 2573-2575 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-max-level {
+width: 3.25rem;
+}
+
+}
+
+/* kept from v014 lines 2581-2583 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-timing {
+width: 5.6rem;
+}
+
+}
+
+/* kept from v014 lines 2589-2591 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-skill {
+width: 5.2rem;
+}
+
+}
+
+/* kept from v014 lines 2597-2599 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-difficulty {
+width: 4.6rem;
+}
+
+}
+
+/* kept from v014 lines 2605-2607 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-target {
+width: 4.3rem;
+}
+
+}
+
+/* kept from v014 lines 2613-2615 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-range {
+width: 4.1rem;
+}
+
+}
+
+/* kept from v014 lines 2621-2623 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-limit {
+width: 4.2rem;
+}
+
+}
+
+/* kept from v014 lines 2629-2632 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-note, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-head, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-note-cell {
+width: 9.2rem !important;
+    max-width: 9.2rem !important;
+}
+
+}
+
+/* kept from v014 lines 2638-2641 */
+@media (min-width: 901px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-detail-col-actions, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table th:last-child, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table .effect-detail-action-cell, body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table td.action-cell {
+width: 4.6rem !important;
+    max-width: 4.6rem !important;
+}
+
+}
+
+/* kept from v014 lines 2647-2649 */
+@media (max-width: 900px) {
+body.dx3-combo-page #dx3-app .table-wrapper:has(.effects-table.is-enemy-detail-table) {
+overflow-x: auto;
+}
+
+}
+
+/* kept from v014 lines 2655-2663 */
+@media (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve"
+      "target range timing"
+      "skill ability attack" !important;
+    overflow: visible;
+}
+
+}
+
+/* kept from v014 lines 2669-2671 */
+@media (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats .stat-item, .combo-stats-bar.is-enemy-combo-stats .stat-item {
+min-width: 0;
+}
+
+}
+
+/* kept from v014 lines 2677-2685 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit"
+      "achieve attack"
+      "target range"
+      "timing skill"
+      "ability ability" !important;
+}
+
+}
+
+/* kept from v014 lines 2691-2703 */
+@media (max-width: 520px) {
+body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+      "dice"
+      "crit"
+      "achieve"
+      "target"
+      "range"
+      "timing"
+      "skill"
+      "ability"
+      "attack" !important;
+}
+
+}
+
+/* kept from v014 lines 2709-2721 */
+@media (min-width: 1501px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats), body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+grid-template-columns:
+      minmax(4.2rem, 0.55fr)
+      minmax(4.2rem, 0.55fr)
+      minmax(5.2rem, 0.65fr)
+      minmax(8.4rem, 1fr)
+      minmax(8.0rem, 0.96fr)
+      minmax(9.4rem, 1.12fr)
+      minmax(7.2rem, 0.88fr)
+      minmax(7.0rem, 0.86fr)
+      minmax(4.8rem, 0.56fr)
+      minmax(4.8rem, 0.56fr) !important;
+}
+
+}
+
+/* kept from v014 lines 2727-2739 */
+@media (min-width: 1201px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats, body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+display: grid !important;
+    grid-template-columns:
+      minmax(4.4rem, 0.72fr)
+      minmax(4.4rem, 0.72fr)
+      minmax(5.4rem, 0.86fr)
+      minmax(8.6rem, 1.22fr)
+      minmax(8.2rem, 1.18fr) !important;
+    grid-template-areas:
+      "dice crit achieve target range"
+      "timing skill ability attack attack" !important;
+    overflow: hidden !important;
+}
+
+}
+
+/* kept from v014 lines 2745-2753 */
+@media (min-width: 901px) and (max-width: 1200px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats, body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target range timing timing"
+      "skill skill ability ability" !important;
+    overflow: hidden !important;
+}
+
+}
+
+/* kept from v014 lines 2759-2764 */
+@media (min-width: 1101px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats, body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve target target range"
+      "timing timing skill ability attack attack" !important;
+}
+
+}
+
+/* kept from v014 lines 2770-2777 */
+@media (min-width: 901px) and (max-width: 1100px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats), body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target target range range"
+      "timing timing skill ability"
+      "cost cost cost cost" !important;
+}
+
+}
+
+/* kept from v014 lines 2783-2789 */
+@media (min-width: 901px) and (max-width: 1100px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats, body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target target range range"
+      "timing timing skill ability" !important;
+}
+
+}
+
+/* kept from v014 lines 2795-2802 */
+@media (min-width: 1301px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats), body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+display: grid !important;
+grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+grid-template-areas: "dice dice crit crit achieve achieve target target target range range range"
+      "timing timing timing skill skill skill ability ability ability attack attack cost" !important;
+align-items: stretch;
+}
+
+}
+
+/* kept from v014 lines 2808-2815 */
+@media (min-width: 1301px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats, body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+display: grid !important;
+grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+grid-template-areas: "dice dice crit crit achieve achieve target target target range range range"
+      "timing timing timing skill skill skill ability ability ability attack attack attack" !important;
+align-items: stretch;
+}
+
+}
+
+/* kept from v014 lines 2821-2829 */
+@media (min-width: 1101px) and (max-width: 1300px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats), body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+display: grid !important;
+grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+grid-template-areas: "dice crit achieve attack attack cost"
+      "target target target range range range"
+      "timing timing skill skill ability ability" !important;
+align-items: stretch;
+}
+
+}
+
+/* kept from v014 lines 2835-2843 */
+@media (min-width: 1101px) and (max-width: 1300px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats, body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+display: grid !important;
+grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+grid-template-areas: "dice crit achieve attack attack attack"
+      "target target target range range range"
+      "timing timing skill skill ability ability" !important;
+align-items: stretch;
+}
+
+}
+
+/* kept from v014 lines 2849-2858 */
+@media (min-width: 761px) and (max-width: 1100px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats, body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats, .combo-stats-bar.is-enemy-combo-stats {
+display: grid !important;
+grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+grid-template-areas: "dice crit achieve attack"
+      "target target range range"
+      "timing timing skill skill"
+      "ability ability ability ability" !important;
+align-items: stretch;
+}
+
+}
+
+/* kept from v014 lines 2864-2877 */
+@media (min-width: 1800px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats), body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+grid-template-columns:
+      minmax(4.2rem, 0.54fr)
+      minmax(4.2rem, 0.54fr)
+      minmax(5.2rem, 0.66fr)
+      minmax(9.4rem, 1.18fr)
+      minmax(8.8rem, 1.1fr)
+      minmax(10.0rem, 1.25fr)
+      minmax(7.5rem, 0.92fr)
+      minmax(7.0rem, 0.86fr)
+      minmax(4.8rem, 0.58fr)
+      minmax(4.8rem, 0.58fr) !important;
+    grid-template-areas: "dice crit achieve target range timing skill ability attack cost" !important;
+}
+
+}

@@ -1,0 +1,1374 @@
+/* dx3_combo_11_stats_bar.css
+   Phase2 normalized module.
+   Exact duplicate selector/context/property declarations were collapsed to the final value.
+   Generated from Phase1 split; visual check required before deleting the original monolithic CSS.
+*/
+
+.combo-stats-bar {
+  display: flex;
+  background-color: #3c3c3c;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid #555;
+}
+
+.stat-item {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  color: #eee;
+  font-weight: bold;
+  border-right: 1px solid #555;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-item[title]:hover {
+  cursor: help;
+  background-color: #4f4f4f;
+}
+
+.stat-item.target-setting, .stat-item.range-setting, .stat-item.timing-setting {
+  flex-basis: 150px;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-item.timing-setting {
+  flex-basis: 200px;
+}
+
+.base-ability-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-basis: 100px;
+  flex-grow: 1;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.base-ability-input select, .base-ability-input input {
+  background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+  padding: 4px;
+  border-radius: 3px;
+}
+
+.base-ability-input input {
+  width: 60px;
+  text-align: right;
+}
+
+.mode-toggle button {
+  background-color: #444;
+  color: #ccc;
+  border: 1px solid #555;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
+.mode-toggle button.active {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.mode-toggle button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.mode-toggle button:last-child {
+  border-radius: 0 4px 4px 0;
+  border-left: none;
+}
+
+.combo-manual-settings .mode-toggle button {
+  padding: 5px 10px;
+  font-size: 0.85em;
+}
+
+.stat-item .setting-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  justify-content: center;
+}
+
+.stat-item span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.stat-item span .input-with-dropdown {
+  flex-grow: 1;
+}
+
+.stat-item span .input-with-dropdown input {
+  width: 80px;
+  text-align: center;
+  padding: 5px;
+}
+
+.stat-item span input.manual-input {
+  width: 80px;
+  min-width: 40px;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 5px;
+  border-radius: 3px;
+  background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+}
+
+.stat-item span input.manual-input[readonly], .stat-item .input-with-dropdown input:disabled {
+  background-color: #3c3c3c;
+  color: #bbb;
+  cursor: not-allowed;
+}
+
+.stat-item .mode-toggle {
+  display: flex;
+}
+
+.stat-item .mode-toggle button {
+  padding: 3px 6px;
+  font-size: 0.75em;
+}
+
+@media (max-width: 1400px) {
+.combo-stats-bar {
+  flex-wrap: wrap;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-areas: "dice crit achieve skill ability"
+      "target range timing attack cost";
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item {
+  border: 1px solid #555;
+  background-color: #3c3c3c;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9em;
+  flex-basis: auto;
+  min-width: 0;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(1) {
+  grid-area: dice;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(2) {
+  grid-area: crit;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(3) {
+  grid-area: achieve;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(4) {
+  grid-area: target;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(5) {
+  grid-area: range;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(6) {
+  grid-area: timing;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(7) {
+  grid-area: skill;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(8) {
+  grid-area: ability;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(9) {
+  grid-area: attack;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item:nth-child(10) {
+  grid-area: cost;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item.target-setting, .stat-item.range-setting, .stat-item.timing-setting {
+  flex-direction: column;
+  gap: 2px;
+}
+
+}
+
+@media (max-width: 1400px) {
+.stat-item .mode-toggle button {
+  padding: 1px 4px;
+  font-size: 0.7em;
+}
+
+}
+
+@media (max-width: 1000px) {
+.combo-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-areas: "dice dice dice dice crit crit crit crit achieve achieve achieve achieve"
+      "target target target target range range range range timing timing timing timing"
+      "skill skill skill ability ability ability cost cost cost attack attack attack";
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(1) {
+  grid-area: dice;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(2) {
+  grid-area: crit;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(3) {
+  grid-area: achieve;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(4) {
+  grid-area: target;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(5) {
+  grid-area: range;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(6) {
+  grid-area: timing;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(7) {
+  grid-area: skill;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(8) {
+  grid-area: ability;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(9) {
+  grid-area: attack;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item:nth-child(10) {
+  grid-area: cost;
+}
+
+}
+
+@media (max-width: 1000px) {
+.stat-item.target-setting, .stat-item.range-setting, .stat-item.timing-setting {
+  flex-direction: column;
+  gap: 2px;
+}
+
+}
+
+.display-mode-toggle {
+  display: inline-flex;
+  border: 1px solid #4a5c9a;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #1f1f1f;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.display-mode-toggle button {
+  border: none;
+  border-right: 1px solid #4a5c9a;
+  background: #2b334a;
+  color: #aebcda;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.85em;
+  white-space: nowrap;
+  transition: background .2s, color .2s, opacity .2s;
+}
+
+.display-mode-toggle button:last-child {
+  border-right: none;
+}
+
+.display-mode-toggle button.active {
+  background: #3498db;
+  color: #fff;
+  font-weight: bold;
+}
+
+@media (max-width: 1000px) {
+.display-mode-toggle {
+  width: 100%;
+}
+
+}
+
+@media (max-width: 1000px) {
+.display-mode-toggle button {
+  flex: 1;
+}
+
+}
+
+.display-mode-toggle button:hover {
+  background: #2b334a;
+  color: #aebcda;
+  transform: none;
+  opacity: 1;
+}
+
+.display-mode-toggle button.active:hover {
+  background: #3498db;
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .db-buttons button, body.dx3-combo-page .sheet-source-actions button, body.dx3-combo-page .display-mode-toggle {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .display-mode-toggle {
+  grid-column: 1 / -1;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar {
+  background-color: #555;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  grid-template-areas: "dice crit"
+      "achieve attack"
+      "cost cost"
+      "target target"
+      "range range"
+      "timing timing"
+      "skill ability";
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item {
+  white-space: normal;
+  min-width: 0;
+  min-height: 42px;
+  padding: 7px 6px;
+  border: 1px solid #555;
+  background-color: #3c3c3c;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 0.86rem;
+  line-height: 1.2;
+  overflow: hidden;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .stat-item.target-setting, body.dx3-combo-page .stat-item.range-setting, body.dx3-combo-page .stat-item.timing-setting, body.dx3-combo-page .base-ability-input {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: stretch;
+  gap: 5px;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .stat-item span, body.dx3-combo-page .base-ability-input span {
+  display: grid;
+  grid-template-columns: 4.8em minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .stat-item.timing-setting span {
+  grid-template-columns: 5.8em minmax(0, 1fr);
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .stat-item .input-with-dropdown, body.dx3-combo-page .stat-item .input-with-dropdown input, body.dx3-combo-page .base-ability-input select {
+  width: 100%;
+  min-width: 0;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .stat-item .mode-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .stat-item .mode-toggle button {
+  min-width: 0;
+  padding: 5px 4px;
+}
+
+}
+
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-stats-bar {
+  grid-template-areas: "dice"
+      "crit"
+      "achieve"
+      "cost"
+      "target"
+      "range"
+      "timing"
+      "skill"
+      "ability"
+      "attack";
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(1) {
+  grid-area: dice;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(2) {
+  grid-area: crit;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(3) {
+  grid-area: achieve;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(4) {
+  grid-area: target;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(5) {
+  grid-area: range;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(6) {
+  grid-area: timing;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(7) {
+  grid-area: skill;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(8) {
+  grid-area: ability;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(9) {
+  grid-area: attack;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(10) {
+  grid-area: cost;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .base-ability-input {
+  flex-direction: column;
+  gap: 5px;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item span {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .timing-setting span {
+  grid-template-columns: 4.8em minmax(0, 1fr);
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .base-ability-input span {
+  display: block;
+  width: auto;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .input-with-dropdown, body.dx3-combo-page .combo-stats-bar select {
+  width: 100%;
+  min-width: 0;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .stat-item span .input-with-dropdown input, body.dx3-combo-page .combo-stats-bar select {
+  width: 100%;
+  min-height: 30px;
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  width: 100%;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .mode-toggle button {
+  min-width: 0;
+  padding: 4px 3px;
+  font-size: 0.72rem;
+}
+
+}
+
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-stats-bar .timing-setting {
+  min-height: 74px;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting {
+  min-height: 40px;
+  padding: 5px 6px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(86px, 0.78fr);
+  gap: 5px;
+  align-items: center;
+  justify-content: stretch;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting > span, body.dx3-combo-page .combo-stats-bar .range-setting > span {
+  display: contents;
+  font-size: 0;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting > span::before, body.dx3-combo-page .combo-stats-bar .range-setting > span::before {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting > span::before {
+  content: "対象:";
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .range-setting > span::before {
+  content: "射程:";
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown, body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown {
+  min-width: 0;
+  width: 100%;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown input, body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown input {
+  min-height: 30px;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle {
+  width: 100%;
+  min-width: 0;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle button, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle button {
+  min-height: 30px;
+  padding: 3px 4px;
+  font-size: 0.68rem;
+}
+
+}
+
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting {
+  min-height: 38px;
+  grid-template-columns: auto minmax(0, 1fr) minmax(74px, 0.72fr);
+  gap: 4px;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(82px, 0.42fr);
+  gap: 6px;
+  align-items: center;
+  justify-content: stretch;
+  min-height: 40px;
+  padding: 5px 6px;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting > span, body.dx3-combo-page .combo-stats-bar .range-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting > span::before, body.dx3-combo-page .combo-stats-bar .range-setting > span::before, body.dx3-combo-page .combo-stats-bar .timing-setting > span::before {
+  content: none;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown, body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown, body.dx3-combo-page .combo-stats-bar .timing-setting .input-with-dropdown {
+  width: 100%;
+  min-width: 0;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown input, body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown input, body.dx3-combo-page .combo-stats-bar .timing-setting .input-with-dropdown input {
+  width: 100%;
+  min-width: 0;
+  min-height: 30px;
+  padding: 4px 8px 4px 24px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .dropdown-arrow, body.dx3-combo-page .combo-stats-bar .range-setting .dropdown-arrow, body.dx3-combo-page .combo-stats-bar .timing-setting .dropdown-arrow {
+  display: inline-flex;
+  left: 7px;
+  right: auto;
+  width: 12px;
+  justify-content: center;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  min-width: 0;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle button, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle button, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 3px 2px;
+  font-size: 0.68rem;
+}
+
+}
+
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  grid-template-columns: minmax(0, 1fr) 76px;
+  gap: 4px;
+  min-height: 38px;
+  padding: 5px;
+}
+
+}
+
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-stats-bar .target-setting > span, body.dx3-combo-page .combo-stats-bar .range-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  gap: 4px;
+  font-size: 0.82rem;
+}
+
+}
+
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  font-size: 0.78rem;
+}
+
+}
+
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle button, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle button, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle button {
+  font-size: 0.64rem;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar {
+  display: grid;
+  grid-template-columns: minmax(4.4rem, 0.62fr)
+      minmax(4.4rem, 0.62fr)
+      minmax(5.2rem, 0.72fr)
+      minmax(7.4rem, 0.95fr)
+      minmax(7.4rem, 0.95fr)
+      minmax(8.6rem, 1.08fr)
+      minmax(7.4rem, 0.95fr)
+      minmax(7.0rem, 0.88fr)
+      minmax(5.0rem, 0.68fr)
+      minmax(5.0rem, 0.68fr);
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .stat-item {
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 6px 4px;
+  gap: 3px;
+  font-size: 0.82rem;
+  line-height: 1.1;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .stat-item span {
+  gap: 3px;
+  min-width: 0;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .base-ability-input {
+  flex-basis: auto;
+  flex-grow: 1;
+  min-width: 0;
+  padding-inline: 4px;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .target-setting > span, body.dx3-combo-page .combo-stats-bar .range-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .input-with-dropdown {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .stat-item span .input-with-dropdown input, body.dx3-combo-page .combo-stats-bar .stat-item span input.manual-input, body.dx3-combo-page .combo-stats-bar select {
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  padding: 3px 5px;
+  box-sizing: border-box;
+  font-size: 0.78rem;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .base-ability-input select {
+  min-width: 0;
+  max-width: 6.2rem;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .mode-toggle {
+  flex: 0 1 auto;
+  min-width: 3.6rem;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-stats-bar .mode-toggle button {
+  min-width: 0;
+  padding: 3px 4px;
+  font-size: 0.66rem;
+  line-height: 1.05;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1280px) {
+body.dx3-combo-page .combo-stats-bar {
+  grid-template-columns: minmax(4.1rem, 0.55fr)
+      minmax(4.1rem, 0.55fr)
+      minmax(4.8rem, 0.65fr)
+      minmax(6.4rem, 0.85fr)
+      minmax(6.4rem, 0.85fr)
+      minmax(7.4rem, 1fr)
+      minmax(6.8rem, 0.82fr)
+      minmax(6.2rem, 0.78fr)
+      minmax(4.5rem, 0.62fr)
+      minmax(4.5rem, 0.62fr);
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1280px) {
+body.dx3-combo-page .combo-stats-bar .stat-item {
+  padding-inline: 3px;
+  font-size: 0.78rem;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1280px) {
+body.dx3-combo-page .combo-stats-bar .mode-toggle {
+  min-width: 3.2rem;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1280px) {
+body.dx3-combo-page .combo-stats-bar .mode-toggle button {
+  padding-inline: 3px;
+  font-size: 0.62rem;
+}
+
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar, body.dx3-combo-page .combo-stats-bar {
+  display: grid !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span, body.dx3-combo-page .combo-stats-bar .stat-item span {
+  min-width: 0 !important;
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item, body.dx3-combo-page .combo-stats-bar .stat-item {
+  font-size: 0.84rem !important;
+  padding: 6px 7px !important;
+  gap: 4px !important;
+  line-height: 1.1 !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  flex-direction: row !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 3.65rem !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span, body.dx3-combo-page .combo-stats-bar .stat-item span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .input-with-dropdown, body.dx3-combo-page .combo-stats-bar .input-with-dropdown {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: 7.2rem !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span .input-with-dropdown input, body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span input.manual-input, body.dx3-combo-page #dx3-app .combo-stats-bar select, body.dx3-combo-page .combo-stats-bar .stat-item span .input-with-dropdown input, body.dx3-combo-page .combo-stats-bar .stat-item span input.manual-input, body.dx3-combo-page .combo-stats-bar select {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 1.85rem !important;
+  min-height: 1.85rem !important;
+  padding: 3px 5px !important;
+  font-size: 0.82rem !important;
+  box-sizing: border-box !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .mode-toggle, body.dx3-combo-page .combo-stats-bar .mode-toggle {
+  flex: 0 0 auto !important;
+  width: 3.65rem !important;
+  min-width: 3.65rem !important;
+  max-width: 3.65rem !important;
+  justify-self: end !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .mode-toggle button, body.dx3-combo-page .combo-stats-bar .mode-toggle button {
+  padding: 3px 4px !important;
+  font-size: 0.66rem !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 4px 6px !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  padding: 6px 7px !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting > span, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting > span, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span, body.dx3-combo-page .combo-stats-bar .target-setting > span, body.dx3-combo-page .combo-stats-bar .range-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  gap: 4px !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+  width: auto !important;
+  min-width: 3.55rem !important;
+  flex: 0 0 auto !important;
+  justify-self: end !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  min-width: 0 !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  grid-template-columns: auto minmax(4.2rem, 1fr) !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 980px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 980px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+  justify-self: stretch !important;
+  width: 100% !important;
+}
+
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item[title]:hover, body.dx3-combo-page .combo-stats-bar .stat-item[title]:hover {
+  cursor: default !important;
+  background-color: #3c3c3c !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .mode-toggle button:hover, body.dx3-combo-page .combo-stats-bar .mode-toggle button:hover {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting > span, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting > span, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span, body.dx3-combo-page .combo-stats-bar .target-setting > span, body.dx3-combo-page .combo-stats-bar .range-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .input-with-dropdown, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .input-with-dropdown, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .input-with-dropdown, body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown, body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown, body.dx3-combo-page .combo-stats-bar .timing-setting .input-with-dropdown {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+  position: static !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
+  width: 3.65rem !important;
+  min-width: 3.65rem !important;
+  max-width: 3.65rem !important;
+  box-sizing: border-box !important;
+  z-index: auto !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle button, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle button, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle button, body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle button, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle button, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle button {
+  min-width: 0 !important;
+  padding: 3px 4px !important;
+  font-size: 0.66rem !important;
+  line-height: 1.05 !important;
+}
+
+@media (min-width: 981px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 3.65rem !important;
+  gap: 0.35rem !important;
+  align-items: center !important;
+}
+
+}
+
+@media (min-width: 981px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting > span, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting > span, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span, body.dx3-combo-page .combo-stats-bar .target-setting > span, body.dx3-combo-page .combo-stats-bar .range-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  gap: 0.25rem !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+}
+
+@media (min-width: 981px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  grid-template-columns: auto minmax(4.4rem, 1fr) !important;
+}
+
+}
+
+@media (min-width: 981px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+  justify-self: end !important;
+}
+
+}
+
+@media (max-width: 980px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting, body.dx3-combo-page .combo-stats-bar .target-setting, body.dx3-combo-page .combo-stats-bar .range-setting, body.dx3-combo-page .combo-stats-bar .timing-setting {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0.3rem !important;
+}
+
+}
+
+@media (max-width: 980px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle, body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item, body.dx3-combo-page .combo-stats-bar .stat-item {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(1), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(1) {
+  grid-area: dice !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(2), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(2) {
+  grid-area: crit !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(3), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(3) {
+  grid-area: achieve !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(4), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(4) {
+  grid-area: target !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(5), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(5) {
+  grid-area: range !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(6), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(6) {
+  grid-area: timing !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(7), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(7) {
+  grid-area: skill !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(8), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(8) {
+  grid-area: ability !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(9), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(9) {
+  grid-area: attack !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(10), body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(10) {
+  grid-area: cost !important;
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting > span, body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting > span, body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span, body.dx3-combo-page .combo-stats-bar .target-setting > span, body.dx3-combo-page .combo-stats-bar .range-setting > span, body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 0.3rem !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+}
+
+@media (min-width: 761px) and (max-width: 1799px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar .input-with-dropdown, body.dx3-combo-page .combo-stats-bar .input-with-dropdown, body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span .input-with-dropdown input, body.dx3-combo-page .combo-stats-bar .stat-item span .input-with-dropdown input, body.dx3-combo-page #dx3-app .combo-stats-bar select, body.dx3-combo-page .combo-stats-bar select {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .combo-stats-bar, body.dx3-combo-page .combo-stats-bar {
+  overflow: hidden !important;
+}
+
+}

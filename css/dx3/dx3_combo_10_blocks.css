@@ -1,0 +1,661 @@
+/* dx3_combo_10_blocks.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 494-500 */
+.combo-block {
+background-color: #2c2c2c;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #4a5c9a;
+}
+
+/* source lines 501-509 */
+.combo-header {
+display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #4a5c9a;
+  flex-wrap: wrap; /* スマホ対応用 */
+}
+
+/* source lines 512-523 */
+.combo-name-input {
+background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-size: 1.2em;
+  flex-grow: 1;
+  padding: 6px 5px 0px 5px; /* 上を8px、下を2pxにして文字を視覚的に下げる */
+  border-radius: 4px;
+  transition: all 0.2s;
+  order: 1; /* 前回の修正で追加済み */
+}
+
+/* source lines 532-535 */
+.combo-level-select {
+order: 3;
+  margin-right: 10px;
+}
+
+/* source lines 539-541 */
+.combo-header .move-btn:nth-of-type(1) {
+order: 4;
+}
+
+/* source lines 543-545 */
+.combo-header .move-btn:nth-of-type(2) {
+order: 5;
+}
+
+/* source lines 548-550 */
+.combo-header .copy-btn {
+order: 6;
+}
+
+/* source lines 553-555 */
+.combo-header .delete-btn {
+order: 7;
+}
+
+/* source lines 556-560 */
+.combo-name-input:focus, .combo-name-input:hover {
+border-color: #3498db;
+  background-color: #1a2c6d;
+}
+
+/* source lines 561-567 */
+.combo-level-select {
+margin-right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9em;
+}
+
+/* source lines 568-574 */
+.combo-level-select select {
+background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+  padding: 4px;
+  border-radius: 3px;
+}
+
+/* source lines 671-676 */
+.combo-details-grid {
+display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+/* source lines 677-688 */
+.combo-textarea-wrapper .textarea-header {
+display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #3c3c3c;
+  padding: 8px 10px;
+  border: 1px solid #555;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+/* source lines 694-698 */
+.combo-textarea-wrapper .header-controls {
+display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* source lines 699-710 */
+.combo-textarea-wrapper textarea {
+width: 100%;
+  min-height: 100px;
+  background-color: #0d1a50;
+  border: 1px solid #555;
+  color: #eee;
+  padding: 8px;
+  border-radius: 0 0 4px 4px;
+  resize: vertical;
+  border-top: none;
+  box-sizing: border-box;
+}
+
+/* source lines 731-735 */
+.combo-palette-display {
+background-color: #0d1a50;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+/* source lines 737-739 */
+.copy-container {
+position: relative;
+}
+
+/* source lines 740-745 */
+.copy-container {
+position: relative;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed #4a5c9a;
+  padding-bottom: 10px;
+}
+
+/* source lines 747-751 */
+.copy-container:last-child {
+border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* source lines 753-766 */
+.copy-container textarea {
+width: 100%;
+  background-color: transparent;
+  border: none;
+  color: #eee;
+  padding: 10px;
+  padding-right: 50px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  resize: none;
+  overflow: hidden;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+/* source lines 767-778 */
+.copy-container button {
+position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* source lines 780-782 */
+.copy-container .dice-formula-textarea {
+min-height: 40px;
+}
+
+/* source lines 783-785 */
+.copy-container button:hover {
+background-color: #2980b9;
+}
+
+/* source lines 786-789 */
+.copy-container button:disabled {
+background-color: #6aa84f;
+  cursor: not-allowed;
+}
+
+/* source lines 1341-1343 */
+@media (max-width: 1400px) {
+.combo-details-grid {
+grid-template-columns: 1fr;
+}
+
+}
+
+/* source lines 1358-1362 */
+@media (max-width: 1400px) {
+.combo-textarea-wrapper .header-controls {
+flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+}
+
+/* source lines 1365-1368 */
+@media (max-width: 1400px) {
+.combo-header {
+flex-wrap: nowrap; /* 折り返し禁止 */
+    gap: 5px;
+}
+
+}
+
+/* source lines 1369-1375 */
+@media (max-width: 1400px) {
+.combo-name-input {
+flex-basis: auto;
+    flex-grow: 1;
+    width: auto;
+    margin-bottom: 0;
+    order: 1;
+}
+
+}
+
+/* source lines 1381-1385 */
+@media (max-width: 1400px) {
+.combo-level-select {
+order: 3;
+    margin-right: 0;
+    flex-shrink: 0;
+}
+
+}
+
+/* source lines 1387-1389 */
+@media (max-width: 1400px) {
+.combo-header .delete-btn {
+order: 3;
+}
+
+}
+
+/* source lines 1390-1392 */
+@media (max-width: 1400px) {
+.combo-header .move-btn:nth-of-type(1) {
+order: 4;
+}
+
+}
+
+/* source lines 1393-1395 */
+@media (max-width: 1400px) {
+.combo-header .move-btn:nth-of-type(2) {
+order: 5;
+}
+
+}
+
+/* source lines 1396-1398 */
+@media (max-width: 1400px) {
+.combo-header .copy-btn {
+order: 6;
+}
+
+}
+
+/* source lines 1399-1401 */
+@media (max-width: 1400px) {
+.combo-header .delete-btn {
+order: 7;
+}
+
+}
+
+/* source lines 1402-1404 */
+@media (max-width: 1400px) {
+.combo-header button {
+flex-shrink: 0;
+}
+
+}
+
+/* source lines 1519-1523 */
+@media (max-width: 1000px) {
+.combo-header {
+flex-wrap: wrap;
+    justify-content: flex-end; /* 右寄せにして間隔を詰める */
+    gap: 8px; /* 適度な間隔 */
+}
+
+}
+
+/* source lines 1525-1529 */
+@media (max-width: 1000px) {
+.combo-name-input {
+flex-basis: 100%; /* 名前は常に1行占有 */
+    margin-bottom: 5px;
+    order: 1;
+}
+
+}
+
+/* source lines 1537-1541 */
+@media (max-width: 1000px) {
+.combo-level-select {
+order: 3;
+    flex-grow: 0; /* 勝手に伸びないようにする */
+    margin-right: 0; /* 右側の余白を削除してボタンとくっつける */
+}
+
+}
+
+/* source lines 1544-1548 */
+@media (max-width: 1000px) {
+.combo-header .move-btn, .combo-header .copy-btn, .combo-header .delete-btn {
+margin-left: 0;
+}
+
+}
+
+/* source lines 1947-1957 */
+.copy-label {
+display: inline-block;
+  margin: 0 0 4px 4px;
+  padding: 2px 8px;
+  border: 1px solid #4a5c9a;
+  border-radius: 999px;
+  background-color: rgba(52, 152, 219, 0.16);
+  color: #87cefa;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+/* source lines 1959-1961 */
+.copy-container .combined-palette-textarea {
+min-height: 140px;
+}
+
+/* source lines 2965-2967 */
+#dx3-app .copy-container textarea {
+padding-right: 76px;
+}
+
+/* source lines 2969-2976 */
+#dx3-app .copy-container button {
+display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 6px 9px;
+  font-size: 0.82em;
+  line-height: 1;
+}
+
+/* source lines 7963-7968 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-block {
+width: 100%;
+    min-width: 0;
+    padding: 10px;
+    margin-bottom: 14px;
+}
+
+}
+
+/* source lines 7970-7975 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header {
+display: grid;
+    grid-template-columns: 1fr auto auto auto auto;
+    gap: 7px;
+    align-items: center;
+}
+
+}
+
+/* source lines 7977-7983 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-name-input {
+grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+}
+
+/* source lines 7990-7996 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-level-select {
+grid-column: 2 / -1;
+    justify-self: end;
+    margin: 0;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+}
+
+/* source lines 7998-8003 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .move-btn, body.dx3-combo-page .combo-header .copy-btn, body.dx3-combo-page .combo-header .delete-btn {
+min-width: 36px;
+    padding: 7px 9px;
+}
+
+}
+
+/* source lines 8094-8098 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-details-grid {
+display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+}
+
+/* source lines 8100-8105 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-textarea-wrapper .textarea-header {
+display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    min-height: 0;
+}
+
+}
+
+/* source lines 8107-8109 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-textarea-wrapper .header-controls {
+align-items: stretch;
+}
+
+}
+
+/* source lines 8116-8120 */
+@media (max-width: 760px) {
+body.dx3-combo-page .copy-container textarea {
+min-height: 70px;
+    padding-right: 10px;
+    word-break: break-word;
+}
+
+}
+
+/* source lines 8122-8124 */
+@media (max-width: 760px) {
+body.dx3-combo-page .copy-container .dice-formula-textarea {
+min-height: 54px;
+}
+
+}
+
+/* source lines 8126-8131 */
+@media (max-width: 760px) {
+body.dx3-combo-page .copy-container button {
+position: static;
+    width: 100%;
+    margin: 6px 0 0;
+    justify-content: center;
+}
+
+}
+
+/* source lines 8250-8252 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-header {
+grid-template-columns: 1fr auto auto auto;
+}
+
+}
+
+/* source lines 8254-8257 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-level-select {
+grid-column: 1 / -1;
+    justify-self: start;
+}
+
+}
+
+/* source lines 8929-8935 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header {
+display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+    gap: 6px;
+    align-items: center;
+    justify-content: stretch;
+}
+
+}
+
+/* source lines 8937-8942 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .combo-name-input {
+grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+}
+
+/* source lines 8944-8948 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .limit-chip {
+grid-column: 1 / -1;
+    justify-self: start;
+    margin: 0;
+}
+
+}
+
+/* source lines 8950-8961 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .combo-level-select {
+grid-column: 1;
+    min-width: 0;
+    width: 100%;
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 0.82rem;
+}
+
+}
+
+/* source lines 8963-8969 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .combo-level-select select {
+width: 100%;
+    min-width: 0;
+    min-height: 30px;
+    padding: 3px 5px;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 8971-8983 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .move-btn, body.dx3-combo-page .combo-header .copy-btn, body.dx3-combo-page .combo-header .delete-btn {
+width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    min-height: 30px;
+    padding: 5px 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 8985-8985 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .move-btn:nth-of-type(1) {
+grid-column: 2;
+}
+
+}
+
+/* source lines 8986-8986 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .move-btn:nth-of-type(2) {
+grid-column: 3;
+}
+
+}
+
+/* source lines 8987-8987 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .copy-btn {
+grid-column: 4;
+}
+
+}
+
+/* source lines 8988-8988 */
+@media (max-width: 760px) {
+body.dx3-combo-page .combo-header .delete-btn {
+grid-column: 5;
+}
+
+}
+
+/* source lines 9062-9065 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-header {
+grid-template-columns: minmax(0, 1fr) 34px 34px 34px 34px;
+    gap: 5px;
+}
+
+}
+
+/* source lines 9067-9073 */
+@media (max-width: 420px) {
+body.dx3-combo-page .combo-header .move-btn, body.dx3-combo-page .combo-header .copy-btn, body.dx3-combo-page .combo-header .delete-btn {
+width: 34px;
+    min-width: 34px;
+    max-width: 34px;
+}
+
+}
+
+/* source lines 11681-11683 */
+@media (min-width: 761px) and (max-width: 1500px) {
+body.dx3-combo-page .combo-block {
+padding-inline: 12px;
+}
+
+}
+
+/* Phase5 v006: safe moves from dx3_99_compat_misc.css */
+/* compat source lines 36-39 */
+.limit-chip {
+order: 2;
+  margin-right: auto; /* 右側に余白を作って後続要素を右寄せにする */
+}
+
+/* compat source lines 152-164 */
+.limit-chip {
+background-color: #c0392b;
+  color: #fff;
+  font-size: 0.85em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-right: 10px;
+  font-weight: bold;
+  border: 1px solid #e74c3c;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}

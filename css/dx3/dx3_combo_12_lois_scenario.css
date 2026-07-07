@@ -1,0 +1,1517 @@
+/* dx3_combo_12_lois_scenario.css
+   Phase2 normalized module.
+   Exact duplicate selector/context/property declarations were collapsed to the final value.
+   Generated from Phase1 split; visual check required before deleting the original monolithic CSS.
+*/
+
+body.dx3-combo-page #dx3-app .effects-table tr.is-dragging, body.dx3-combo-page #dx3-app .combo-source-table tr.is-dragging, body.dx3-combo-page #dx3-app .pc-scenario-resource-table tr.is-dragging {
+  opacity: 0.56;
+}
+
+body.dx3-combo-page #dx3-app .effects-table tr.is-drag-over, body.dx3-combo-page #dx3-app .combo-source-table tr.is-drag-over, body.dx3-combo-page #dx3-app .pc-scenario-resource-table tr.is-drag-over {
+  outline: 2px solid rgba(135, 206, 250, 0.85);
+  outline-offset: -2px;
+}
+
+body.dx3-combo-page #dx3-app .pc-scenario-drag-cell {
+  width: 1.8rem;
+  min-width: 1.8rem;
+  max-width: 1.8rem;
+  padding-inline: 0.12rem;
+  text-align: center;
+}
+
+body.dx3-combo-page #dx3-app .pc-scenario-resource-table tr:not(.is-manual-counter) .pc-scenario-drag-cell {
+  opacity: 0.35;
+}
+
+body.dx3-combo-page #dx3-app .pc-scenario-drag-handle {
+  width: 1.35rem;
+  height: 1.55rem;
+}
+
+.pc-lois-editor, .pc-scenario-counter-editor {
+  min-width: 0;
+  padding: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.6rem;
+  background: rgba(15, 23, 42, 0.16);
+}
+
+.pc-lois-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+}
+
+.pc-lois-counts span, .pc-counter-source, .pc-counter-max {
+  color: var(--text-muted, #94a3b8);
+}
+
+.pc-lois-import {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: end;
+  margin-bottom: 0.55rem;
+}
+
+.pc-lois-import textarea {
+  min-height: 4.6rem;
+  resize: vertical;
+}
+
+.pc-lois-row, .pc-scenario-counter-row {
+  display: grid;
+  gap: 0.45rem;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.pc-lois-row {
+  grid-template-columns: 2rem minmax(7rem, 9rem) minmax(0, 1fr) auto;
+}
+
+.pc-scenario-counter-row {
+  grid-template-columns: minmax(0, 1fr) auto 4.2rem auto;
+}
+
+.pc-lois-index {
+  text-align: right;
+  color: var(--text-muted, #94a3b8);
+  font-variant-numeric: tabular-nums;
+}
+
+.pc-scenario-counter-row input {
+  text-align: right;
+}
+
+.pc-lois-output, .pc-koma-status-output {
+  margin-top: 0.65rem;
+}
+
+.pc-lois-output textarea, .pc-koma-status-output textarea {
+  min-height: 5rem;
+}
+
+@media (max-width: 900px) {
+.pc-lois-import {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+}
+
+@media (max-width: 900px) {
+.pc-lois-row {
+  grid-template-columns: 1.6rem minmax(6rem, 8rem) minmax(0, 1fr) auto;
+}
+
+}
+
+@media (max-width: 900px) {
+.pc-scenario-counter-row {
+  grid-template-columns: minmax(0, 1fr) 4rem auto;
+}
+
+}
+
+@media (max-width: 900px) {
+.pc-scenario-counter-row .pc-counter-source {
+  display: none;
+}
+
+}
+
+@media (max-width: 520px) {
+.pc-lois-row {
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+}
+
+}
+
+@media (max-width: 520px) {
+.pc-lois-row input {
+  grid-column: 2 / 4;
+}
+
+}
+
+.dx3-combo-page .pc-lois-editor, .dx3-combo-page .pc-scenario-counter-editor {
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 0.65rem;
+  border-color: rgba(74, 92, 154, 0.82);
+  background: rgba(13, 26, 80, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: 0.6rem;
+}
+
+.dx3-combo-page .pc-lois-import {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  margin-bottom: 0.38rem;
+}
+
+.dx3-combo-page .pc-lois-import textarea {
+  width: 100%;
+  resize: vertical;
+  box-sizing: border-box;
+  border-color: rgba(74, 92, 154, 0.9);
+  background: #0d1a50;
+  color: #eef6ff;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  min-height: 4.8rem;
+}
+
+.dx3-combo-page .pc-lois-list {
+  display: grid;
+  margin-top: 0.55rem;
+  gap: 0.28rem;
+}
+
+.dx3-combo-page .pc-lois-row {
+  display: grid;
+  grid-template-columns: 2rem minmax(7.5rem, 9rem) minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+  margin: 0;
+}
+
+.dx3-combo-page .pc-lois-index {
+  color: var(--text-muted, #94a3b8);
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  width: 1.15rem;
+  min-width: 1.15rem;
+  line-height: 1.95rem;
+  font-size: 0.98rem;
+}
+
+.dx3-combo-page .pc-scenario-resource-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.dx3-combo-page .pc-scenario-resource-table .col-resource-name {
+  width: auto;
+}
+
+.dx3-combo-page .pc-scenario-resource-table .col-resource-current, .dx3-combo-page .pc-scenario-resource-table .col-resource-max {
+  width: 4.5rem;
+}
+
+.dx3-combo-page .pc-scenario-resource-table .col-resource-memo {
+  width: 8.5rem;
+}
+
+.dx3-combo-page .pc-scenario-resource-table td, .dx3-combo-page .pc-scenario-resource-table th {
+  vertical-align: middle;
+}
+
+.dx3-combo-page .pc-scenario-resource-table input[type="number"] {
+  width: 100%;
+  text-align: right;
+}
+
+.dx3-combo-page .pc-scenario-empty {
+  text-align: center;
+  color: var(--text-muted, #94a3b8);
+  padding: 0.75rem;
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-row {
+  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+}
+
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-row input[type="text"] {
+  grid-column: 2 / 4;
+}
+
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-scenario-resource-table .col-resource-memo {
+  width: 6rem;
+}
+
+}
+
+.dx3-combo-page .pc-scenario-resource-table .col-row-actions {
+  width: 3rem;
+}
+
+.dx3-combo-page .pc-scenario-resource-table .cell-resource-name input, .dx3-combo-page .pc-scenario-resource-table .cell-resource-memo input {
+  width: 100%;
+  min-width: 0;
+}
+
+.dx3-combo-page .pc-scenario-resource-table .cell-resource-max input {
+  width: 100%;
+  text-align: right;
+}
+
+.dx3-combo-page .pc-scenario-resource-table tr.is-manual-counter {
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.dx3-combo-page .pc-scenario-actions {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.dx3-combo-page .pc-lois-status-select, .dx3-combo-page .pc-lois-name-input, .dx3-combo-page .pc-lois-emotion-select {
+  min-width: 0;
+  width: 100%;
+}
+
+.dx3-combo-page .pc-lois-emotion-pair {
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  grid-template-columns: 1.95rem minmax(0, 1fr) 0.5rem 1.95rem minmax(0, 1fr);
+  gap: 0.22rem;
+}
+
+.dx3-combo-page .pc-lois-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 0.35rem;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  line-height: 1;
+  border-color: rgba(74, 92, 154, 0.9);
+  background: #0d1a50;
+  height: 2.15rem;
+  min-width: 2.05rem;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.05rem;
+}
+
+.dx3-combo-page .pc-lois-primary-btn.active {
+  font-weight: 700;
+  border-color: rgba(135, 206, 250, 0.9);
+  background: rgba(56, 189, 248, 0.2);
+  color: #fff;
+}
+
+.dx3-combo-page .pc-lois-slash {
+  text-align: center;
+  color: var(--text-muted, #94a3b8);
+  font-size: 1.05rem;
+  line-height: 1.95rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-max, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max input, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max span {
+  letter-spacing: 0.02em;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .row-action-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  gap: 0.16rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .mini-move-btn, .dx3-combo-page #pcScenarioResourcesTable .delete-btn {
+  padding: 0;
+  width: 1.95rem;
+  min-width: 1.95rem;
+  height: 1.95rem;
+  border-radius: 5px;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .mini-move-btn {
+  background-color: #566b92;
+  color: #fff;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .mini-move-btn:hover {
+  background-color: #6f86b2;
+}
+
+.dx3-combo-page .pc-scenario-refresh-modal {
+  max-width: 680px;
+}
+
+.dx3-combo-page .pc-scenario-refresh-list {
+  display: grid;
+  gap: 0.45rem;
+  max-height: min(56vh, 30rem);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.dx3-combo-page .pc-scenario-refresh-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 5rem 8rem;
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(74, 92, 154, 0.72);
+  border-radius: 6px;
+  background: rgba(13, 26, 80, 0.46);
+}
+
+.dx3-combo-page .pc-scenario-refresh-row .refresh-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.dx3-combo-page .pc-scenario-refresh-row .refresh-max {
+  text-align: right;
+  color: #eef6ff;
+}
+
+.dx3-combo-page .pc-scenario-refresh-row .refresh-source {
+  color: #aebbd6;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 760px) {
+.dx3-combo-page #pcScenarioResourcesTable .row-actions-cell {
+  flex: 0 0 6rem;
+}
+
+}
+
+@media (max-width: 760px) {
+.dx3-combo-page .pc-scenario-refresh-row {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+}
+
+@media (max-width: 760px) {
+.dx3-combo-page .pc-scenario-refresh-row .refresh-max, .dx3-combo-page .pc-scenario-refresh-row .refresh-source {
+  grid-column: 2 / 3;
+  text-align: left;
+}
+
+}
+
+.dx3-combo-page .pc-lois-counts {
+  gap: 0.25rem 0.35rem;
+}
+
+.dx3-combo-page .pc-lois-counts span, .dx3-combo-page .pc-play-state-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.12rem;
+  padding: 0.12rem 0.35rem;
+  border: 1px solid rgba(135, 206, 250, 0.18);
+  border-radius: 999px;
+  background: rgba(5, 18, 54, 0.28);
+  color: #dbeafe;
+}
+
+.dx3-combo-page .pc-lois-tool-note {
+  margin: -0.1rem 0 0.55rem;
+  padding: 0.48rem 0.6rem;
+  border: 1px solid rgba(135, 206, 250, 0.24);
+  border-radius: 0.5rem;
+  background: rgba(56, 189, 248, 0.07);
+  line-height: 1.45;
+}
+
+.dx3-combo-page .pc-lois-row.is-rich {
+  background: rgba(5, 18, 54, 0.18);
+  padding-top: 0.32rem;
+  padding-bottom: 0.32rem;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.18rem 0.22rem;
+  gap: 0.28rem;
+  grid-template-columns: 1.15rem 7.7rem minmax(8.4rem, 1fr) minmax(15rem, 1.25fr) 1.95rem 1.95rem;
+  border-radius: 0.38rem;
+}
+
+.dx3-combo-page .pc-lois-row.is-rich input, .dx3-combo-page .pc-lois-row.is-rich select, .dx3-combo-page .pc-lois-emotion-select {
+  border: 1px solid #4a5c9a;
+  border-radius: 4px;
+  background-color: #0d1a50;
+  color: #eef6ff;
+}
+
+.dx3-combo-page .pc-lois-output textarea {
+  border-color: rgba(74, 92, 154, 0.9);
+  background: #0d1a50;
+  color: #eef6ff;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  grid-column: 1 / 4;
+  min-height: 4.2rem;
+}
+
+.dx3-combo-page .pc-scenario-head-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable {
+  border-collapse: separate;
+  table-layout: auto;
+  border-spacing: 0 0.26rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable thead th {
+  color: #87cefa;
+  border: 0;
+  background: transparent;
+  font-weight: 900;
+  padding-bottom: 0.16rem;
+  font-size: 0.82rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable tbody tr {
+  background: rgba(13, 26, 80, 0.44);
+}
+
+.dx3-combo-page #pcScenarioResourcesTable td {
+  border: 0;
+  padding: 0.08rem 0.14rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #4a5c9a;
+  border-radius: 4px;
+  background-color: #0d1a50;
+  color: #eef6ff;
+  min-height: 1.95rem;
+  height: 1.95rem;
+  padding: 0.18rem 0.32rem;
+  font-size: 0.94rem;
+}
+
+@media (max-width: 620px) {
+.dx3-combo-page .pc-lois-import {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+}
+
+@media (max-width: 620px) {
+.dx3-combo-page .pc-lois-import-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+}
+
+.dx3-combo-page .pc-lois-row.is-rich input, .dx3-combo-page .pc-lois-row.is-rich select, .dx3-combo-page .pc-lois-emotion-select, .dx3-combo-page #pcScenarioResourcesTable input {
+  min-height: 2.15rem;
+  padding: 0.28rem 0.45rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+.dx3-combo-page .pc-lois-name-input, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-name input, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-memo input {
+  font-size: 1.05rem;
+}
+
+.dx3-combo-page .pc-lois-status-select, .dx3-combo-page .pc-lois-emotion-select {
+  font-size: 1rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-current input, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max input, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max span {
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.08rem;
+  line-height: 1;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-name > span, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-memo > span, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max > span {
+  min-height: 2.15rem;
+  padding: 0.35rem 0.45rem;
+  line-height: 1.25;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .mini-move-btn, .dx3-combo-page #pcScenarioResourcesTable .delete-btn, .dx3-combo-page .pc-lois-row.is-rich .delete-btn {
+  width: 2.15rem;
+  min-width: 2.15rem;
+  height: 2.15rem;
+  padding: 0;
+}
+
+@media (max-width: 760px) {
+.dx3-combo-page .pc-lois-row.is-rich input, .dx3-combo-page .pc-lois-row.is-rich select, .dx3-combo-page .pc-lois-emotion-select, .dx3-combo-page #pcScenarioResourcesTable input {
+  min-height: 2.2rem;
+}
+
+}
+
+.dx3-combo-page .pc-lois-import-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  min-width: max-content;
+}
+
+.dx3-combo-page .pc-lois-import-actions .small-button {
+  min-width: 6.4rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(135, 206, 250, 0.48);
+  border-radius: 5px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.dx3-combo-page .pc-lois-import-actions .small-button:not(.secondary) {
+  background: linear-gradient(180deg, rgba(52, 152, 219, 0.92), rgba(29, 109, 172, 0.92));
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.dx3-combo-page .pc-lois-import-actions .small-button.secondary {
+  background: rgba(74, 92, 154, 0.82);
+  color: #eef6ff;
+}
+
+.dx3-combo-page .pc-lois-import-actions .small-button:hover {
+  filter: brightness(1.08);
+}
+
+.dx3-combo-page #pcScenarioResourcesTable col.col-row-actions {
+  width: 6.1rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-name {
+  min-width: 8.5rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-name > span, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-name input {
+  min-width: 8.5rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-current input, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max input {
+  padding-inline: 0.25rem;
+  text-align: right;
+  width: 2.9rem;
+  min-width: 2.9rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-memo {
+  min-width: 8rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-memo input {
+  min-width: 8rem;
+}
+
+@media (max-width: 900px) {
+.dx3-combo-page .pc-lois-import {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+}
+
+@media (max-width: 900px) {
+.dx3-combo-page .pc-lois-import-actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+}
+
+@media (max-width: 760px) {
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-name {
+  flex: 1 1 9.5rem;
+  min-width: 9.5rem;
+}
+
+}
+
+@media (max-width: 760px) {
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-current, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max {
+  flex: 0 0 3.35rem;
+  min-width: 3.35rem;
+}
+
+}
+
+@media (max-width: 760px) {
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-current input, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max input {
+  width: 3.15rem;
+  min-width: 3.15rem;
+}
+
+}
+
+@media (max-width: 760px) {
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-memo {
+  flex: 1 1 100%;
+}
+
+}
+
+.dx3-combo-page .pc-lois-row-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  min-width: 2.15rem;
+  height: 2.15rem;
+  padding: 0;
+  border: 1px solid rgba(135, 206, 250, 0.42);
+  border-radius: 6px;
+  background: rgba(52, 152, 219, 0.32);
+  color: #eef6ff;
+  cursor: pointer;
+}
+
+.dx3-combo-page .pc-lois-row-copy-btn:hover {
+  background: rgba(52, 152, 219, 0.48);
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-row.is-rich .pc-lois-status-select {
+  grid-column: 2 / 3;
+}
+
+}
+
+.dx3-combo-page .pc-lois-import-actions-bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-top: 0.28rem;
+}
+
+.dx3-combo-page .pc-lois-import-actions-bottom .small-button {
+  min-width: 8.2rem;
+}
+
+.dx3-combo-page .pc-lois-output {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.dx3-combo-page .pc-lois-output button.secondary {
+  background: rgba(74, 92, 154, 0.82);
+  color: #eef6ff;
+  grid-column: 2;
+  margin-left: 0;
+}
+
+.dx3-combo-page .pc-lois-emotion-input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #4a5c9a;
+  border-radius: 4px;
+  background-color: #0d1a50;
+  color: #eef6ff;
+}
+
+.dx3-combo-page .pc-lois-row.is-rich input.pc-lois-emotion-input {
+  min-height: 2.15rem;
+  padding: 0.28rem 0.45rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+@media (max-width: 980px) {
+.dx3-combo-page .pc-lois-row.is-rich .pc-lois-emotion-pair {
+  grid-column: 2 / 6;
+}
+
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-row.is-rich .pc-lois-name-input, .dx3-combo-page .pc-lois-row.is-rich .pc-lois-emotion-pair {
+  grid-column: 2 / 5;
+}
+
+}
+
+.dx3-combo-page .pc-lois-output .copy-label {
+  grid-column: 1 / 4;
+  margin-bottom: -0.1rem;
+}
+
+.dx3-combo-page .pc-lois-output button {
+  grid-row: 3;
+  min-height: 2rem;
+}
+
+.dx3-combo-page .pc-lois-no-emotion-note {
+  display: flex;
+  align-items: center;
+  min-height: 2.15rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px dashed rgba(135, 206, 250, 0.28);
+  border-radius: 0.45rem;
+  background: rgba(5, 18, 54, 0.28);
+  color: #aebbd6;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.dx3-combo-page .pc-play-state-summary:empty, .dx3-combo-page .pc-lois-counts:empty {
+  display: none;
+}
+
+@media (max-width: 980px) {
+.dx3-combo-page .pc-lois-row.is-rich .pc-lois-no-emotion-note {
+  grid-column: 2 / 6;
+}
+
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-row.is-rich .pc-lois-no-emotion-note {
+  grid-column: 2 / 5;
+}
+
+}
+
+.dx3-combo-page .pc-lois-tool-note, .dx3-combo-page .dx3-scenario-resource-block .pc-help-text {
+  margin-bottom: 0.42rem;
+  padding: 0.42rem 0.55rem;
+  line-height: 1.35;
+}
+
+.dx3-combo-page .pc-lois-row.is-rich input, .dx3-combo-page .pc-lois-row.is-rich select, .dx3-combo-page .pc-lois-emotion-input, .dx3-combo-page .pc-lois-emotion-select {
+  min-height: 1.95rem;
+  padding: 0.22rem 0.36rem;
+  font-size: 0.98rem;
+}
+
+.dx3-combo-page .pc-lois-status-select {
+  min-width: 7.3rem;
+}
+
+.dx3-combo-page .pc-lois-primary-btn, .dx3-combo-page .pc-lois-row-copy-btn, .dx3-combo-page .pc-lois-row.is-rich .delete-btn {
+  width: 1.95rem;
+  min-width: 1.95rem;
+  height: 1.95rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable col.col-resource-name {
+  width: 9.5rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable col.col-resource-current, .dx3-combo-page #pcScenarioResourcesTable col.col-resource-max {
+  width: 3.1rem;
+}
+
+.dx3-combo-page #pcScenarioResourcesTable .cell-resource-current, .dx3-combo-page #pcScenarioResourcesTable .cell-resource-max {
+  width: 3.1rem;
+  min-width: 3.1rem;
+}
+
+@media (max-width: 980px) {
+.dx3-combo-page .pc-lois-row.is-rich {
+  grid-template-columns: 1.1rem 7.6rem minmax(0, 1fr) 1.95rem 1.95rem;
+}
+
+}
+
+@media (max-width: 980px) {
+.dx3-combo-page .pc-lois-row.is-rich .pc-lois-emotion-pair, .dx3-combo-page .pc-lois-row.is-rich .pc-lois-no-emotion-note {
+  grid-column: 2 / 6;
+}
+
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-row.is-rich {
+  grid-template-columns: 1.05rem minmax(0, 1fr) 1.95rem 1.95rem;
+}
+
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-row.is-rich .pc-lois-name-input, .dx3-combo-page .pc-lois-row.is-rich .pc-lois-emotion-pair, .dx3-combo-page .pc-lois-row.is-rich .pc-lois-no-emotion-note {
+  grid-column: 2 / 5;
+}
+
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-scenario-head-actions {
+  gap: 0.25rem;
+}
+
+}
+
+.dx3-combo-page .pc-lois-output.copy-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "label copy full"
+    "text  text text";
+  align-items: center;
+  gap: 0.32rem 0.42rem;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  min-height: 0;
+}
+
+.dx3-combo-page .pc-lois-output.copy-container .copy-label {
+  grid-area: label;
+  margin: 0;
+  align-self: center;
+}
+
+.dx3-combo-page .pc-lois-output.copy-container textarea {
+  grid-area: text;
+  min-height: 3.2rem;
+  height: 3.2rem;
+  padding: 0.42rem 0.55rem;
+  padding-right: 0.55rem;
+  resize: vertical;
+}
+
+.dx3-combo-page .pc-lois-output.copy-container > button, .dx3-combo-page .pc-lois-output.copy-container > button.secondary {
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  grid-row: auto;
+  margin: 0;
+  min-height: 1.9rem;
+  height: 1.9rem;
+  padding: 0.28rem 0.62rem;
+  align-self: center;
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.dx3-combo-page .pc-lois-output.copy-container > button:first-of-type {
+  grid-area: copy;
+}
+
+.dx3-combo-page .pc-lois-output.copy-container > button.secondary {
+  grid-area: full;
+  background: rgba(74, 92, 154, 0.82);
+  color: #eef6ff;
+}
+
+.dx3-combo-page .pc-lois-editor {
+  padding-bottom: 0.8rem;
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-output.copy-container {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "label label"
+      "text  text"
+      "copy  full";
+}
+
+}
+
+@media (max-width: 560px) {
+.dx3-combo-page .pc-lois-output.copy-container > button, .dx3-combo-page .pc-lois-output.copy-container > button.secondary {
+  justify-self: stretch;
+}
+
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable {
+  max-width: 100% !important;
+  border-collapse: separate;
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-current, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-max {
+  width: 3.05rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable th, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable td {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable th:first-child, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+  width: 2rem !important;
+  min-width: 2rem !important;
+  max-width: 2rem !important;
+  padding-inline: 0.1rem !important;
+  text-align: center !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name {
+  min-width: 0 !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max {
+  width: 3.05rem !important;
+  min-width: 3.05rem !important;
+  max-width: 3.05rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell {
+  width: 2.35rem !important;
+  min-width: 2.35rem !important;
+  max-width: 2.35rem !important;
+  padding-inline: 0.12rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name > span, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo > span {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max span {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-action-wrap {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0 !important;
+  width: 100% !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-handle {
+  margin-inline: auto !important;
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable td {
+  width: auto !important;
+  display: block !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::before, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max::before, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo::before {
+  content: none !important;
+  display: none !important;
+}
+
+}
+
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max span {
+  font-size: 0.95rem !important;
+}
+
+}
+
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+  padding-inline: 0.34rem !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name > span, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  writing-mode: horizontal-tb !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tbody:not([style*="display: none"]) tr:has(.pc-scenario-empty) {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-empty {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding: 0.55rem 0.65rem !important;
+  box-sizing: border-box !important;
+  writing-mode: horizontal-tb !important;
+  white-space: normal !important;
+  word-break: keep-all !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.45 !important;
+  text-align: left !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current {
+  position: relative !important;
+  grid-column: 2 / 3 !important;
+  grid-row: 2 / 3 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+  content: "/" !important;
+  position: absolute !important;
+  right: -0.38rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: rgba(238, 246, 255, 0.78) !important;
+  font-family: var(--font-latin-ui) !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max {
+  grid-column: 4 / 5 !important;
+  grid-row: 2 / 3 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max span {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 1.85rem !important;
+  min-height: 1.85rem !important;
+  padding-inline: 0.22rem !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 1.85rem !important;
+  min-height: 1.85rem !important;
+  padding-inline: 0.42rem !important;
+  box-sizing: border-box !important;
+}
+
+}
+
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+  grid-template-columns: 1.55rem 2.8rem 0.45rem 2.8rem minmax(0, 1fr) 2rem !important;
+  gap: 0.22rem !important;
+}
+
+}
+
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+  right: -0.32rem !important;
+}
+
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-row-drag {
+  width: 2rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-name {
+  width: 34% !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-current {
+  width: 3.35rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-memo {
+  width: auto !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-row-actions {
+  width: 2.35rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+  box-sizing: border-box !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current {
+  width: 3.35rem !important;
+  min-width: 3.35rem !important;
+  max-width: 3.35rem !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  text-align: center !important;
+  font-family: var(--font-latin-ui) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-max, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable col.col-resource-max {
+  display: none !important;
+}
+
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::after {
+  content: none !important;
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable colgroup, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable thead {
+  display: none !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tbody, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+  display: block;
+  width: 100% !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable tr {
+  display: grid !important;
+  grid-template-columns: 1.7rem 3.35rem minmax(0, 1fr) 2.15rem !important;
+  gap: 0.28rem !important;
+  align-items: center !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .pc-scenario-drag-cell {
+  grid-column: 1 / 2 !important;
+  grid-row: 1 / 2 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name {
+  grid-column: 2 / 4 !important;
+  grid-row: 1 / 2 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .row-actions-cell {
+  grid-column: 4 / 5 !important;
+  grid-row: 1 / 2 !important;
+  justify-self: end !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo {
+  grid-column: 3 / 5 !important;
+  grid-row: 2 / 3 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+}
+
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-memo input, body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-name input {
+  height: 1.85rem !important;
+  min-height: 1.85rem !important;
+}
+
+}
+
+body.dx3-combo-page #dx3-app .pc-scenario-refresh-row .refresh-max {
+  min-width: 4.2rem;
+}
+
+/* Phase4 v005: moved from dx3_99_compat_misc.css */
+/* compat source lines 477-481 */
+.dx3-combo-page .pc-play-state-title-block h2, .dx3-combo-page .pc-subsection-head h3, .dx3-combo-page .dx3-scenario-resource-block .mini-block-head > span {
+color: #87cefa;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+/* compat source lines 495-501 */
+.dx3-combo-page .dx3-scenario-resource-block {
+border: 1px solid rgba(74, 92, 154, 0.88);
+  border-radius: 0.65rem;
+  background:
+    linear-gradient(180deg, rgba(26, 44, 109, 0.42), rgba(15, 26, 80, 0.22)),
+    rgba(15, 23, 42, 0.18);
+}
+
+/* compat source lines 504-512 */
+.dx3-combo-page .dx3-scenario-resource-block .mini-block-head {
+display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  margin-bottom: 0.55rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(135, 206, 250, 0.38);
+}
+
+/* compat source lines 515-517 */
+.dx3-combo-page .pc-subsection-head h3, .dx3-combo-page .dx3-scenario-resource-block .mini-block-head > span {
+font-size: 1.08rem;
+}
+
+/* compat source lines 546-549 */
+.dx3-combo-page .pc-subsection-head, .dx3-combo-page .dx3-scenario-resource-block .mini-block-head {
+margin-bottom: 0.42rem;
+  padding-bottom: 0.28rem;
+}
+
+/* compat source lines 558-560 */
+.dx3-combo-page .dx3-scenario-resource-block .mini-block-head {
+align-items: center;
+}
+
+/* compat source lines 563-577 */
+.dx3-combo-page .dx3-scenario-resource-block .small-square-btn.is-mini {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.85rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid rgba(135, 206, 250, 0.46);
+  border-radius: 5px;
+  background: linear-gradient(180deg, rgba(52, 152, 219, 0.88), rgba(29, 109, 172, 0.88));
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* compat source lines 580-583 */
+.dx3-combo-page .dx3-scenario-resource-block .small-square-btn.is-mini:first-child {
+background: rgba(74, 92, 154, 0.82);
+  border-color: rgba(135, 206, 250, 0.34);
+}
+
+/* compat source lines 586-588 */
+.dx3-combo-page .dx3-scenario-resource-block .small-square-btn.is-mini:hover {
+filter: brightness(1.08);
+}
+
+/* Phase5 v006: safe moves from dx3_99_compat_misc.css */
+/* compat source lines 270-276 */
+.pc-play-state-panel {
+margin-top: 0.75rem;
+  border: 1px solid var(--dx3-border, rgba(148, 163, 184, 0.35));
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.22);
+  overflow: hidden;
+}
+
+/* compat source lines 279-287 */
+.pc-play-state-panel > summary {
+display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.8rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* compat source lines 290-296 */
+.pc-play-state-panel > summary h2 {
+display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* compat source lines 299-302 */
+.pc-play-state-summary {
+font-size: 0.86rem;
+  opacity: 0.9;
+}
+
+/* compat source lines 305-310 */
+.pc-play-state-grid {
+display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+  gap: 0.75rem;
+  padding: 0 0.8rem 0.85rem;
+}
+
+/* compat source lines 348-357 */
+.dx3-combo-page .pc-play-state-panel {
+width: 100%;
+  max-width: none;
+  margin: 1rem 0 1.4rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.22);
+  box-sizing: border-box;
+}
+
+/* compat source lines 360-366 */
+.dx3-combo-page .pc-play-state-header {
+display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+/* compat source lines 369-375 */
+.dx3-combo-page .pc-play-state-title-block h2 {
+display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+/* compat source lines 378-383 */
+.dx3-combo-page .pc-play-state-note {
+display: block;
+  margin-top: 0.25rem;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.82rem;
+}
+
+/* compat source lines 386-392 */
+.dx3-combo-page .pc-play-state-summary {
+display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  white-space: nowrap;
+  font-size: 0.88rem;
+}
+
+/* compat source lines 395-400 */
+.dx3-combo-page .pc-play-state-grid {
+display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.85rem;
+  padding: 0;
+}
+
+/* compat source lines 403-406 */
+.dx3-combo-page .pc-play-state-summary span {
+display: inline-flex;
+  align-items: center;
+}
+
+/* compat source lines 420-425 */
+.dx3-combo-page .pc-play-state-panel {
+border-color: rgba(74, 92, 154, 0.88);
+  background:
+    linear-gradient(180deg, rgba(26, 44, 109, 0.46), rgba(15, 26, 80, 0.24)),
+    rgba(15, 23, 42, 0.2);
+}
+
+/* compat source lines 428-432 */
+.dx3-combo-page .pc-play-state-header {
+border-bottom: 1px solid rgba(135, 206, 250, 0.24);
+  padding-bottom: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+/* compat source lines 435-437 */
+.dx3-combo-page .pc-play-state-note, .dx3-combo-page .pc-help-text {
+color: #b8c5dc;
+}
+
+/* compat source lines 440-443 */
+.dx3-combo-page .pc-play-state-grid {
+grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 0.85rem;
+}
+
+/* compat source lines 461-463 */
+.dx3-combo-page .pc-play-state-grid {
+gap: 0.5rem;
+}

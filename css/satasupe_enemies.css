@@ -5751,24 +5751,6 @@ body.satasupe-enemies-page {
   }
 }
 
-/* Satasupe has its own side-menu/background skin in satasupe_style.css.
-   Keep those styles visible even in enemy view boot/view mode. */
-html.is-satasupe-enemy-view-boot #tableOfContents.side-menu,
-html.is-satasupe-enemy-view-boot .side-menu,
-body.satasupe-enemies-page.is-enemy-view-mode #tableOfContents.side-menu,
-body.satasupe-enemies-page.is-enemy-view-mode .side-menu {
-  display: block !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-}
-
-html.is-satasupe-enemy-view-boot .hamburger-menu,
-body.satasupe-enemies-page.is-enemy-view-mode .hamburger-menu,
-html.is-satasupe-enemy-view-boot .menu-overlay,
-body.satasupe-enemies-page.is-enemy-view-mode .menu-overlay {
-  visibility: visible !important;
-}
-
 /* Full-size action bar: keep it compact and one-line when width is available. */
 @media (min-width: 1280px) {
   body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {

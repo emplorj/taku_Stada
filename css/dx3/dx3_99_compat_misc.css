@@ -1,0 +1,345 @@
+/* dx3_99_compat_misc.css
+   Phase10 v011: compatibility layer only.
+   New feature CSS should not be added here.
+*/
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .advanced-parsing-switch
+*/
+.advanced-parsing-switch {
+font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .advanced-parsing-switch .switch
+*/
+.advanced-parsing-switch .switch {
+margin-right: 5px;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .hidden-buff-indicator
+*/
+.hidden-buff-indicator {
+font-weight: bold;
+  color: #ffc107;
+  background-color: rgba(255, 193, 7, 0.2);
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-left: 5px;
+  font-size: 0.8em;
+  border: 1px solid rgba(255, 193, 7, 0.5);
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-section
+*/
+.buff-section {
+border-top: 1px solid #4a5c9a;
+  background-color: #2c2c2c;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-section-header
+*/
+.buff-section-header {
+display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #87cefa;
+  transition: background-color 0.2s;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-section-header:hover
+*/
+.buff-section-header:hover {
+background-color: #3c3c3c;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-section-header i
+*/
+.buff-section-header i {
+transition: transform 0.2s ease-in-out;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-list
+*/
+.buff-list {
+max-height: 150px;
+  overflow-y: auto;
+  padding: 0 15px 15px 15px;
+  border-top: 1px solid #4a5c9a;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-list::-webkit-scrollbar
+*/
+.buff-list::-webkit-scrollbar {
+width: 8px;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-list::-webkit-scrollbar-track
+*/
+.buff-list::-webkit-scrollbar-track {
+background: #2c2c2c;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-list::-webkit-scrollbar-thumb
+*/
+.buff-list::-webkit-scrollbar-thumb {
+background-color: #555;
+  border-radius: 4px;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .buff-list::-webkit-scrollbar-thumb:hover
+*/
+.buff-list::-webkit-scrollbar-thumb:hover {
+background-color: #777;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: #dx3-app .inference-lead, #dx3-app .inference-note
+*/
+#dx3-app .inference-lead, #dx3-app .inference-note {
+color: #dce8ff;
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: #dx3-app .inference-note
+*/
+#dx3-app .inference-note {
+color: #b8c7dd;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: #dx3-app .inference-preview-list
+*/
+#dx3-app .inference-preview-list {
+display: grid;
+  gap: 8px;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: #dx3-app .inference-preview-row
+*/
+#dx3-app .inference-preview-row {
+display: grid;
+  grid-template-columns: 5.5em minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid rgba(74, 92, 154, 0.8);
+  border-radius: 6px;
+  background: rgba(13, 26, 80, 0.52);
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: #dx3-app .inference-preview-row strong
+*/
+#dx3-app .inference-preview-row strong {
+color: #87cefa;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: #dx3-app .inference-preview-row span
+*/
+#dx3-app .inference-preview-row span {
+color: #eef6ff;
+  font-family: var(--font-latin-ui), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .dx3-mode-tabs
+*/
+.dx3-mode-tabs {
+display: inline-flex;
+  gap: 0.35rem;
+  margin: 0 0 0.8rem;
+  padding: 0.25rem;
+  border: 1px solid rgba(90, 170, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(5, 12, 36, 0.45);
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .dx3-mode-tab
+*/
+.dx3-mode-tab {
+border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  background: transparent;
+  color: #b7cff8;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .dx3-mode-tab.active
+*/
+.dx3-mode-tab.active {
+border-color: #62c4ff;
+  background: linear-gradient(135deg, #145ec7, #1aa2ff);
+  color: #fff;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .action-meta-field
+*/
+.action-meta-field {
+display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #dcefff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .public-switch-wrap
+*/
+.public-switch-wrap {
+display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .public-switch-text
+*/
+.public-switch-text {
+display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(160, 210, 255, 0.45);
+  color: #eaf6ff;
+  background: rgba(11, 30, 72, 0.9);
+  font-weight: 800;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .pc-subsection-head
+*/
+.pc-subsection-head {
+display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.55rem;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .pc-subsection-head h3
+*/
+.pc-subsection-head h3 {
+margin: 0;
+  font-size: 0.95rem;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .pc-inline-add
+*/
+.pc-inline-add {
+margin-top: 0.25rem;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .pc-help-text
+*/
+.pc-help-text {
+margin: 0.1rem 0 0.6rem;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.82rem;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .dx3-combo-page .combo-skill-warning
+*/
+.dx3-combo-page .combo-skill-warning {
+flex: 1 1 100%;
+  color: #ffd966;
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .dx3-combo-page .pc-inline-add:disabled, .dx3-combo-page .pc-inline-add[disabled]
+*/
+.dx3-combo-page .pc-inline-add:disabled, .dx3-combo-page .pc-inline-add[disabled] {
+border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(51, 65, 85, 0.55);
+  color: rgba(226, 232, 240, 0.48);
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: grayscale(0.25);
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .dx3-combo-page .pc-inline-add:disabled i, .dx3-combo-page .pc-inline-add[disabled] i
+*/
+.dx3-combo-page .pc-inline-add:disabled i, .dx3-combo-page .pc-inline-add[disabled] i {
+opacity: 0.55;
+}
+
+/* compat keep: true_compat_or_global / risk=中
+   reason: HTML/JSで使われているが責務ファイルを自動判定できない。互換/グローバル補正として残す候補。
+   selector: .dx3-combo-page .pc-inline-add
+*/
+.dx3-combo-page .pc-inline-add {
+margin-top: 0.35rem;
+  margin-bottom: 0.28rem;
+}

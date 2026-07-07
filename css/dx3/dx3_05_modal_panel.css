@@ -1,0 +1,825 @@
+/* dx3_05_modal_panel.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 790-798 */
+.floating-panel {
+position: absolute;
+  z-index: 1001;
+  background-color: #3c3c3c;
+  border: 1px solid #555;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  width: 340px;
+}
+
+/* source lines 799-807 */
+.panel-header, .modal-header {
+display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #4a5c9a;
+  padding: 10px 15px;
+  flex-shrink: 0;
+}
+
+/* source lines 808-813 */
+.panel-header h3, .modal-header h3 {
+margin: 0;
+  color: #3498db;
+  font-size: 1.1em;
+}
+
+/* source lines 821-826 */
+.panel-body, .modal-body {
+padding: 15px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+/* source lines 827-838 */
+.modal-overlay {
+position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* source lines 839-849 */
+.modal-content {
+background-color: #2c2c2c;
+  padding: 0;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+/* source lines 850-854 */
+.modal-tabs {
+display: flex;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #4a5c9a;
+}
+
+/* source lines 855-863 */
+.modal-tabs button {
+background: none;
+  border: none;
+  color: #bdc3c7;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  flex-grow: 1;
+}
+
+/* source lines 864-867 */
+.modal-tabs button.active {
+color: #fff;
+  border-bottom-color: #3498db;
+}
+
+/* source lines 868-872 */
+.panel-grid {
+display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+/* source lines 873-878 */
+.panel-grid .input-group {
+display: grid;
+  grid-template-columns: 120px 1fr; /* ラベルの幅を固定し、入力フィールドが残りのスペースを埋める */
+  gap: 10px;
+  align-items: center;
+}
+
+/* source lines 879-885 */
+.panel-grid-crit .input-group, .modal-tab-content .input-group {
+display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* source lines 934-944 */
+.modal-footer {
+text-align: right;
+  margin-top: 0;
+  border-top: 1px solid #4a5c9a;
+  padding: 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background-color: #232323;
+  flex-shrink: 0;
+}
+
+/* source lines 945-951 */
+.modal-footer button {
+color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* source lines 952-954 */
+.modal-footer button.cancel-btn {
+background-color: #6c757d;
+}
+
+/* source lines 955-957 */
+.modal-footer button.cancel-btn:hover {
+background-color: #5a6268;
+}
+
+/* source lines 958-960 */
+.modal-footer button {
+background-color: #3498db;
+}
+
+/* source lines 961-963 */
+.modal-footer button:hover {
+background-color: #2980b9;
+}
+
+/* source lines 1505-1509 */
+@media (max-width: 1400px) {
+.confirmation-modal .modal-body p {
+white-space: pre-wrap;
+    color: #eee;
+    line-height: 1.6;
+}
+
+}
+
+/* source lines 1510-1512 */
+@media (max-width: 1400px) {
+.confirmation-modal .modal-footer {
+justify-content: flex-end;
+}
+
+}
+
+/* source lines 1826-1830 */
+.modal-tabs button.dimmed {
+opacity: 0.4;
+  background-color: transparent;
+  border-bottom-color: transparent;
+}
+
+/* source lines 1832-1835 */
+.modal-tabs button.dimmed:hover {
+opacity: 0.8; /* ホバー時は少し見えるように */
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* source lines 1837-1839 */
+.modal-tabs button.active.dimmed {
+opacity: 1; /* 選択されたらハッキリ表示 */
+}
+
+/* source lines 1841-1847 */
+.modal-tabs button.auto-detected {
+color: #ffeb3b; /* 黄色文字 */
+  text-shadow: 0 0 8px rgba(255, 235, 59, 0.6);
+  border-bottom-color: #ffeb3b;
+  position: relative;
+  overflow: hidden;
+}
+
+/* source lines 1849-1860 */
+.modal-tabs button.auto-detected::after {
+content: "Auto";
+  position: absolute;
+  top: 0;
+  right: 2px;
+  font-size: 0.6em;
+  background-color: #ffeb3b;
+  color: #333;
+  padding: 1px 3px;
+  border-radius: 0 0 0 4px;
+  font-weight: bold;
+}
+
+/* source lines 1871-1873 */
+.modal-tabs button.auto-detected {
+animation: flash-highlight 1.5s ease-out;
+}
+
+/* source lines 2007-2013 */
+.panel-quick-actions {
+display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #4a5c9a;
+}
+
+/* source lines 2014-2022 */
+.panel-quick-actions button {
+border: none;
+  border-radius: 5px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #fff;
+  background-color: #3498db;
+  font-size: 0.85em;
+}
+
+/* source lines 2023-2025 */
+.panel-quick-actions button.danger-light {
+background-color: #8e44ad;
+}
+
+/* source lines 2026-2028 */
+.panel-quick-actions button:hover {
+opacity: 0.85;
+}
+
+/* source lines 2131-2139 */
+.floating-panel {
+position: fixed;
+  width: min(560px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 2500;
+}
+
+/* source lines 2141-2144 */
+.floating-panel .panel-body {
+padding: 12px;
+  overflow-y: auto;
+}
+
+/* source lines 2146-2152 */
+.panel-source-text {
+border: 1px solid #4a5c9a;
+  border-radius: 6px;
+  background: rgba(13, 26, 80, 0.85);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+/* source lines 2154-2161 */
+.panel-source-title {
+padding: 6px 8px;
+  font-weight: bold;
+  color: #87cefa;
+  background: rgba(26, 44, 109, 0.95);
+  border-bottom: 1px solid #4a5c9a;
+  font-size: 0.86em;
+}
+
+/* source lines 2163-2170 */
+.panel-source-content {
+padding: 8px;
+  max-height: 5.4em;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-size: 0.9em;
+  line-height: 1.45;
+}
+
+/* source lines 2296-2300 */
+.panel-footer-actions {
+display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+/* source lines 2302-2309 */
+.panel-footer-actions button {
+color: #fff;
+  background: #3498db;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+/* source lines 2311-2313 */
+.panel-footer-actions button:hover {
+background: #2980b9;
+}
+
+/* source lines 2540-2542 */
+.floating-panel {
+width: min(620px, calc(100vw - 24px));
+}
+
+/* source lines 2563-2565 */
+.panel-source-content {
+max-height: 6.8em;
+}
+
+/* source lines 2585-2587 */
+.floating-panel {
+width: min(560px, calc(100vw - 24px));
+}
+
+/* source lines 2668-2670 */
+#dx3-app .floating-panel {
+max-width: calc(100vw - 24px);
+}
+
+/* source lines 2803-2805 */
+#dx3-app .floating-panel {
+width: min(580px, calc(100vw - 24px));
+}
+
+/* source lines 2806-2808 */
+#dx3-app .floating-panel .panel-body {
+padding: 10px 12px 12px;
+}
+
+/* source lines 2809-2811 */
+#dx3-app .panel-source-text {
+margin-bottom: 8px;
+}
+
+/* source lines 2812-2816 */
+#dx3-app .panel-source-content {
+max-height: 5.6em;
+  overflow-y: auto;
+  line-height: 1.45;
+}
+
+/* source lines 2817-2820 */
+#dx3-app .panel-quick-actions {
+margin-bottom: 8px;
+  padding-bottom: 8px;
+}
+
+/* source lines 2821-2823 */
+#dx3-app .panel-quick-actions button {
+padding: 7px 10px;
+}
+
+/* source lines 2884-2886 */
+#dx3-app .panel-footer-actions {
+padding-top: 10px;
+}
+
+/* source lines 2887-2889 */
+#dx3-app .panel-footer-actions button {
+padding: 8px 14px;
+}
+
+/* source lines 3055-3060 */
+#dx3-app .floating-panel {
+position: fixed !important;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+/* source lines 3062-3065 */
+#dx3-app .floating-panel .panel-body {
+overflow-y: visible !important;
+  flex: 0 1 auto;
+}
+
+/* source lines 3067-3069 */
+#dx3-app .panel-source-content {
+max-height: 4.5em;
+}
+
+/* source lines 3096-3098 */
+#dx3-app .modal-header .close-btn {
+line-height: 1;
+}
+
+/* source lines 3101-3103 */
+@media (max-height: 620px) {
+#dx3-app .floating-panel {
+overflow-y: auto;
+}
+
+}
+
+/* source lines 3104-3106 */
+@media (max-height: 620px) {
+#dx3-app .floating-panel .panel-body {
+overflow-y: visible !important;
+}
+
+}
+
+/* source lines 4604-4606 */
+#dx3-app .inference-modal {
+max-width: 560px;
+}
+
+/* source lines 8133-8145 */
+@media (max-width: 760px) {
+body.dx3-combo-page .floating-panel, body.dx3-combo-page #dx3-app .floating-panel {
+position: fixed;
+    left: 6px;
+    right: 6px;
+    top: 8px;
+    bottom: auto;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+    transform: none;
+    overflow-y: auto;
+}
+
+}
+
+/* source lines 8147-8152 */
+@media (max-width: 760px) {
+body.dx3-combo-page .floating-panel .panel-body, body.dx3-combo-page #dx3-app .floating-panel .panel-body {
+max-height: none;
+    overflow-y: visible;
+    padding: 10px;
+}
+
+}
+
+/* source lines 8171-8176 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-overlay {
+align-items: flex-start;
+    justify-content: center;
+    padding: 8px;
+    overflow-y: auto;
+}
+
+}
+
+/* source lines 8178-8182 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-content {
+width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+}
+
+}
+
+/* source lines 8184-8187 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-header, body.dx3-combo-page .modal-footer {
+padding: 10px;
+}
+
+}
+
+/* source lines 8189-8191 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-body {
+padding: 10px;
+}
+
+}
+
+/* source lines 8193-8196 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-tabs {
+overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+}
+
+/* source lines 8198-8201 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-tabs button {
+min-width: max-content;
+    flex: 0 0 auto;
+}
+
+}
+
+/* source lines 8203-8206 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-footer {
+display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+}
+
+/* source lines 8208-8211 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-footer button {
+width: 100%;
+    padding: 10px;
+}
+
+}
+
+/* source lines 9223-9229 */
+@media (max-width: 760px) {
+body.dx3-combo-page .modal-overlay {
+align-items: flex-start;
+    justify-content: center;
+    padding: 10px 8px 10px 16px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 9611-9623 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .floating-panel {
+position: fixed !important;
+    top: 58px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 76px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 9625-9630 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .floating-panel .panel-header {
+min-height: 42px;
+    padding: 8px 10px;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+}
+
+/* source lines 9632-9640 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .floating-panel .panel-header h3 {
+min-width: 0;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+}
+
+/* source lines 9642-9650 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .floating-panel .close-btn {
+width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+}
+
+}
+
+/* source lines 9652-9657 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .floating-panel .panel-body {
+min-height: 0;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 9659-9661 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .panel-source-text {
+margin-bottom: 8px;
+}
+
+}
+
+/* source lines 9663-9666 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .panel-source-content {
+max-height: 4.8em;
+    line-height: 1.4;
+}
+
+}
+
+/* source lines 9668-9674 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .panel-quick-actions {
+display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+}
+
+/* source lines 9676-9681 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .panel-quick-actions button {
+min-height: 38px;
+    padding: 7px 8px;
+    font-size: 0.86rem;
+    white-space: nowrap;
+}
+
+}
+
+/* source lines 9806-9813 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .panel-footer-actions {
+position: sticky;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 10px;
+    background: linear-gradient(to bottom, rgba(60, 60, 60, 0), #3c3c3c 24%);
+}
+
+}
+
+/* source lines 9815-9819 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .panel-footer-actions button {
+min-height: 40px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+}
+
+}
+
+/* source lines 9823-9828 */
+@media (max-width: 420px) {
+body.dx3-combo-page #dx3-app .floating-panel {
+left: 30px !important;
+    right: 8px !important;
+    top: 54px !important;
+    max-height: calc(100dvh - 68px);
+}
+
+}
+
+/* source lines 9840-9842 */
+@media (max-width: 420px) {
+body.dx3-combo-page #dx3-app .panel-quick-actions button {
+font-size: 0.82rem;
+}
+
+}
+
+/* source lines 9851-9864 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal {
+position: fixed;
+    top: 52px;
+    left: 38px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 64px);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 9866-9871 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-header {
+min-height: 44px;
+    padding: 8px 10px;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+}
+
+/* source lines 9873-9882 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-header h3 {
+min-width: 0;
+    margin: 0;
+    padding-left: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+}
+
+/* source lines 9884-9892 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .close-btn {
+width: 34px;
+    height: 34px;
+    padding: 0;
+    flex: 0 0 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+}
+
+/* source lines 9894-9899 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-body {
+min-height: 0;
+    overflow-y: auto;
+    padding: 14px 10px;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 9901-9908 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-body p {
+margin: 0;
+    padding: 0;
+    font-size: 0.93rem;
+    line-height: 1.65;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+}
+
+/* source lines 9910-9919 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-footer {
+position: sticky;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+    flex-shrink: 0;
+    background: #232323;
+}
+
+}
+
+/* source lines 9921-9927 */
+@media (max-width: 760px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-footer button {
+width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+}
+
+/* source lines 9931-9936 */
+@media (max-width: 420px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal {
+top: 50px;
+    left: 32px;
+    right: 6px;
+    max-height: calc(100dvh - 58px);
+}
+
+}
+
+/* source lines 9938-9940 */
+@media (max-width: 420px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-header h3 {
+font-size: 0.96rem;
+}
+
+}
+
+/* source lines 9942-9944 */
+@media (max-width: 420px) {
+body.dx3-combo-page #dx3-app .modal-content.confirmation-modal .modal-body {
+padding: 12px 10px;
+}
+
+}
+

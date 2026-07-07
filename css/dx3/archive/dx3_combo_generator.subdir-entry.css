@@ -1,9 +1,4 @@
-/* dx3_combo_generator.css
-   Placeable Phase18 v019 entry.
-   Active CSS entry: HTML links this file, and it imports css/dx3/*.css.
-   Combined CSS files are archived under css/archive/.
-*/
-
+/* dx3_combo_generator.css - Phase2 split entry for css/dx3/ subfolder placement */
 @import "./dx3/dx3_00_tokens_base.css";
 @import "./dx3/dx3_01_layout_top.css";
 @import "./dx3/dx3_02_common_buttons.css";

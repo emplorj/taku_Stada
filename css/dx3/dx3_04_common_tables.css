@@ -1,0 +1,97 @@
+/* dx3_04_common_tables.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 275-278 */
+.table-wrapper {
+overflow-x: auto;
+  margin-bottom: 15px;
+}
+
+/* source lines 279-283 */
+.dx3-table {
+width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+/* source lines 284-292 */
+.dx3-table th, .dx3-table td {
+border: 1px solid #2a3c7d;
+  padding: 8px;
+  text-align: left;
+  font-size: 0.9em;
+  vertical-align: middle;
+  position: relative;
+}
+
+/* source lines 293-295 */
+.dx3-table .text-right {
+text-align: right;
+}
+
+/* source lines 296-304 */
+.dx3-table th {
+background-color: #1a2c6d;
+  font-family: "Corporate-Logo-Bold", sans-serif;
+  color: #87cefa;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* source lines 473-478 */
+.action-cell {
+display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* source lines 2087-2090 */
+.action-cell {
+align-items: flex-start;
+  padding-top: 8px;
+}
+
+/* source lines 2115-2119 */
+.action-cell {
+align-items: center !important;
+  justify-content: center !important;
+  padding-top: 8px !important;
+}
+
+/* source lines 2475-2480 */
+#dx3-app .action-cell {
+gap: 6px;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap;
+}
+
+/* source lines 2984-2990 */
+#dx3-app .dx3-table th:last-child, #dx3-app .dx3-table td.action-cell {
+width: 98px !important;
+  min-width: 98px !important;
+  max-width: 98px !important;
+  box-sizing: border-box;
+}
+
+/* source lines 2992-2998 */
+#dx3-app .dx3-table td.action-cell {
+display: table-cell !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  padding: 6px 6px !important;
+}
+
+/* source lines 3263-3267 */
+.compact-action-cell {
+display: table-cell !important;
+  text-align: center;
+  vertical-align: middle;
+}
+

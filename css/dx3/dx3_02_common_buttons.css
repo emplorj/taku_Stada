@@ -1,0 +1,462 @@
+/* dx3_02_common_buttons.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 39-45 */
+.db-buttons {
+display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 100%; /* 親要素の幅に合わせる */
+  justify-content: flex-end; /* ボタンを右寄せにする */
+}
+
+/* source lines 46-58 */
+.db-buttons button {
+border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.9em;
+  color: white;
+}
+
+/* source lines 59-61 */
+.db-buttons button.btn-load {
+background-color: #3498db;
+}
+
+/* source lines 62-64 */
+.db-buttons button.btn-import {
+background-color: #9b59b6;
+}
+
+/* source lines 65-67 */
+.db-buttons button.btn-share {
+background-color: #f39c12;
+}
+
+/* source lines 68-70 */
+.db-buttons button.btn-save {
+background-color: #2ecc71;
+}
+
+/* source lines 71-73 */
+.db-buttons button.btn-delete {
+background-color: #e74c3c;
+}
+
+/* source lines 74-77 */
+.db-buttons button:hover:not(:disabled) {
+opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* source lines 78-82 */
+.db-buttons button:disabled {
+background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* source lines 421-432 */
+.add-btn, .delete-btn, .setting-btn, .move-btn, .copy-btn {
+color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 8px 10px;
+}
+
+/* source lines 433-436 */
+.add-btn {
+background-color: #3498db;
+  padding: 8px 15px;
+}
+
+/* source lines 437-439 */
+.delete-btn {
+background-color: #e74c3c;
+}
+
+/* source lines 440-442 */
+.delete-btn:hover {
+background-color: #c0392b;
+}
+
+/* source lines 443-445 */
+.setting-btn {
+background-color: #6c757d;
+}
+
+/* source lines 446-448 */
+.setting-btn:hover {
+background-color: #5a6268;
+}
+
+/* source lines 449-451 */
+.move-btn {
+background-color: #8e44ad;
+}
+
+/* source lines 452-454 */
+.move-btn:hover {
+background-color: #7b2a9e;
+}
+
+/* source lines 455-457 */
+.copy-btn {
+background-color: #1abc9c;
+}
+
+/* source lines 458-460 */
+.copy-btn:hover {
+background-color: #16a085;
+}
+
+/* source lines 462-467 */
+.delete-btn:disabled, .setting-btn:disabled, .move-btn:disabled {
+opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* source lines 468-472 */
+.delete-btn:disabled:hover, .setting-btn:disabled:hover, .move-btn:disabled:hover {
+background-color: initial;
+}
+
+/* source lines 1054-1064 */
+.selected-order-move-btn {
+align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  height: 1.8rem;
+  justify-content: center;
+  min-width: 1.8rem;
+  padding: 0;
+}
+
+/* source lines 1066-1069 */
+.selected-order-move-btn:disabled {
+cursor: not-allowed;
+  opacity: 0.35;
+}
+
+/* source lines 1890-1895 */
+.setting-btn.has-auto-update {
+animation: glow-pulse 2s infinite;
+  color: #ffeb3b;
+  border: 1px solid #ffc107;
+  position: relative;
+}
+
+/* source lines 1897-1912 */
+.setting-btn.has-auto-update::after {
+content: "!";
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #e74c3c;
+  color: white;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* source lines 2120-2126 */
+.setting-btn.has-auto-update::after {
+content: "●";
+  display: inline-block;
+  margin-left: 0.25em;
+  font-size: 0.72em;
+  color: #ffd966;
+}
+
+/* source lines 2333-2337 */
+#dx3-app .dx3-table input[type="number"]::-webkit-outer-spin-button, #dx3-app .dx3-table input[type="number"]::-webkit-inner-spin-button {
+-webkit-appearance: none;
+  margin: 0;
+}
+
+/* source lines 2482-2486 */
+#dx3-app .action-cell .setting-btn, #dx3-app .action-cell .delete-btn {
+padding: 7px 9px;
+  min-width: 0;
+}
+
+/* source lines 2520-2524 */
+#dx3-app .character-info-grid input[type="number"]::-webkit-outer-spin-button, #dx3-app .character-info-grid input[type="number"]::-webkit-inner-spin-button {
+-webkit-appearance: none;
+  margin: 0;
+}
+
+/* source lines 2978-2981 */
+#dx3-app .copy-button-text {
+font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: bold;
+}
+
+/* source lines 3000-3010 */
+#dx3-app .dx3-table td.action-cell .setting-btn, #dx3-app .dx3-table td.action-cell .delete-btn {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin: 0 2px;
+  padding: 7px 8px;
+  min-width: 0;
+  line-height: 1;
+}
+
+/* source lines 3162-3164 */
+.btn-sheet-refresh {
+background: #3498db;
+}
+
+/* source lines 3165-3167 */
+.btn-edit-toggle {
+background: #6c757d;
+}
+
+/* source lines 3168-3170 */
+.btn-edit-toggle.active {
+background: #9b59b6;
+}
+
+/* source lines 3268-3272 */
+.compact-action-cell .setting-btn {
+width: 74px;
+  padding: 6px 8px;
+  font-size: 0.85em;
+}
+
+/* source lines 3273-3276 */
+.compact-action-cell .setting-btn.has-auto-update, .action-cell .setting-btn.has-auto-update {
+box-shadow: 0 0 0 1px rgba(255, 235, 59, 0.55) inset;
+}
+
+/* source lines 3354-3360 */
+#dx3-app .mini-setting-btn {
+flex: 0 0 auto;
+  width: auto;
+  min-width: 44px;
+  padding: 4px 7px;
+  font-size: 0.78em;
+}
+
+/* source lines 3432-3437 */
+#dx3-app .mini-setting-btn {
+flex: 0 0 auto;
+  min-width: 46px;
+  padding: 4px 7px;
+  font-size: 0.78em;
+}
+
+/* source lines 5122-5126 */
+.small-button.danger {
+border-color: rgba(255, 150, 150, 0.7);
+  color: #ffd7d7;
+  background: rgba(120, 26, 26, 0.8);
+}
+
+/* source lines 7849-7854 */
+body.dx3-combo-page input, body.dx3-combo-page select, body.dx3-combo-page textarea, body.dx3-combo-page button {
+max-width: 100%;
+}
+
+/* source lines 8235-8238 */
+@media (max-width: 760px) {
+body.dx3-combo-page .add-btn {
+width: 100%;
+    justify-content: center;
+}
+
+}
+
+/* source lines 17089-17097 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.42rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    justify-content: stretch !important;
+}
+
+}
+
+/* source lines 17099-17109 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons button {
+width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 2.15rem !important;
+    padding: 0.45rem 0.55rem !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+}
+
+}
+
+/* source lines 17111-17113 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons button i {
+flex: 0 0 auto !important;
+}
+
+}
+
+/* source lines 17115-17120 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons button span, body.dx3-combo-page #dx3-app .db-buttons button .button-text {
+min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+}
+
+/* source lines 17211-17216 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17218-17221 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons button {
+width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17372-17380 */
+@media (min-width: 561px) {
+body.dx3-combo-page #dx3-app .db-buttons {
+display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17382-17387 */
+@media (min-width: 561px) {
+body.dx3-combo-page #dx3-app .db-buttons button {
+width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+}
+
+}
+
+/* source lines 17505-17511 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.32rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17513-17524 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons button {
+width: 100% !important;
+    min-width: 0 !important;
+    min-height: 1.9rem !important;
+    padding: 0.34rem 0.38rem !important;
+    font-size: 0.78rem !important;
+    line-height: 1 !important;
+    gap: 0.28rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+}
+
+/* source lines 17526-17529 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-buttons button i {
+flex: 0 0 auto !important;
+    font-size: 0.9em !important;
+}
+
+}
+
+/* Phase4 v005: moved from dx3_99_compat_misc.css */
+/* compat source lines 54-60 */
+.close-btn {
+background: none;
+  border: none;
+  color: #eee;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+/* compat source lines 63-74 */
+.show-in-combo-btn {
+background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 12px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 70px;
+  text-align: center;
+}
+
+/* compat source lines 77-80 */
+.show-in-combo-btn.active {
+background-color: #2ecc71;
+  box-shadow: 0 0 5px #2ecc71;
+}
+
+/* compat source lines 83-88 */
+.show-in-combo-btn:disabled {
+background-color: #444;
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+/* compat source lines 307-309 */
+#dx3-app .inference-accept-current-btn {
+background-color: #5a6268;
+}

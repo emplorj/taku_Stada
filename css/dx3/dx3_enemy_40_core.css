@@ -1,0 +1,2451 @@
+/* dx3_enemy_40_core.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 245-261 */
+.dx3-enemies-page .pc-syndrome-tag-list .enemy-list-class-tag {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.6rem;
+  padding: 0 8px;
+  border-radius: 3px;
+  border: 1px solid var(--dx3-syndrome-border, rgba(255, 155, 133, 0.52));
+  background: linear-gradient(135deg, var(--dx3-syndrome-bg-start, rgba(90, 130, 210, 0.86)), var(--dx3-syndrome-bg-mid, var(--dx3-syndrome-bg-end, rgba(24, 34, 78, 0.94))), var(--dx3-syndrome-bg-end, rgba(24, 34, 78, 0.94)));
+  color: var(--dx3-syndrome-text, #fff);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: var(--dx3-syndrome-text-shadow, none);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 0 0 1px var(--dx3-syndrome-inner, rgba(255,255,255,0.05));
+}
+
+/* source lines 4836-4840 */
+.dx3-enemy-mode-panel {
+margin-bottom: 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+/* source lines 4841-4850 */
+.dx3-enemy-action-bar {
+display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid rgba(98, 196, 255, 0.45);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(12, 26, 68, 0.9), rgba(21, 42, 94, 0.82));
+}
+
+/* source lines 4851-4858 */
+.enemy-action-left, .enemy-action-right, .enemy-action-meta {
+display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+/* source lines 4859-4859 */
+.enemy-action-right {
+margin-left: auto;
+}
+
+/* source lines 4860-4860 */
+.enemy-action-meta {
+flex: 1 1 100%;
+}
+
+/* source lines 4861-4870 */
+.dx3-enemy-action-bar .action-btn {
+min-height: 2.25rem;
+  border: 1px solid rgba(160, 210, 255, 0.5);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  color: #eaf6ff;
+  background: rgba(25, 52, 110, 0.85);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+/* source lines 4871-4871 */
+.dx3-enemy-action-bar .action-btn.is-main {
+background: #1b7fd1;
+}
+
+/* source lines 4872-4872 */
+.dx3-enemy-action-bar .action-btn.is-copy {
+background: #248b62;
+}
+
+/* source lines 4873-4873 */
+.dx3-enemy-action-bar .action-btn.is-danger {
+background: #963638;
+}
+
+/* source lines 4874-4874 */
+.dx3-enemy-action-bar .action-btn:disabled {
+opacity: 0.55; cursor: not-allowed;
+}
+
+/* source lines 4913-4918 */
+.dx3-enemy-layout {
+display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: 0.8rem;
+  align-items: start;
+}
+
+/* source lines 4919-4925 */
+.dx3-enemy-list-pane, .dx3-enemy-editor-pane {
+border: 1px solid rgba(98, 196, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(12, 22, 52, 0.62);
+  padding: 0.75rem;
+}
+
+/* source lines 4926-4931 */
+.enemy-list-head {
+display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* source lines 4932-4936 */
+.enemy-list-head h2 {
+margin: 0;
+  font-size: 1.05rem;
+  color: #79d5ff;
+}
+
+/* source lines 4937-4937 */
+.enemy-list-count {
+color: #b7cff8; font-size: 0.8rem;
+}
+
+/* source lines 4940-4945 */
+.enemy-list-scroll {
+display: grid;
+  gap: 0.45rem;
+  max-height: 18rem;
+  overflow: auto;
+}
+
+/* source lines 4946-4957 */
+.dx3-enemy-list-card {
+display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem;
+  border: 1px solid rgba(95, 151, 235, 0.35);
+  border-radius: 6px;
+  background: rgba(17, 36, 83, 0.78);
+  color: #eaf6ff;
+  cursor: pointer;
+}
+
+/* source lines 4958-4961 */
+.dx3-enemy-list-card.active {
+border-color: #ffd966;
+  box-shadow: 0 0 0 1px rgba(255, 217, 102, 0.45);
+}
+
+/* source lines 4968-4974 */
+.enemy-public-badge {
+flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+/* source lines 4975-4975 */
+.enemy-public-badge.is-public {
+background: #275f42; color: #d9ffe8;
+}
+
+/* source lines 4976-4976 */
+.enemy-public-badge.is-private {
+background: #5a3538; color: #ffdce0;
+}
+
+/* source lines 4996-5000 */
+.enemy-memo-field textarea {
+width: 100%;
+  min-height: 5rem;
+  resize: vertical;
+}
+
+/* source lines 5011-5022 */
+.dx3-enemy-template-note {
+display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(98, 196, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(6, 17, 48, 0.72);
+  color: #cfe6ff;
+  font-size: 0.88rem;
+}
+
+/* source lines 5023-5023 */
+.dx3-enemy-template-note strong {
+color: #79d5ff;
+}
+
+/* source lines 5024-5024 */
+.dx3-enemy-mode-panel .dx3-enemy-layout {
+grid-template-columns: 1fr;
+}
+
+/* source lines 5025-5025 */
+.dx3-enemy-mode-panel .dx3-enemy-list-pane {
+display: none;
+}
+
+/* source lines 5026-5029 */
+.dx3-enemy-template-pane {
+display: grid;
+  gap: 0.85rem;
+}
+
+/* source lines 5059-5064 */
+.enemy-template-flags {
+display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+/* source lines 5073-5079 */
+.enemy-section-head {
+display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+/* source lines 5080-5084 */
+.enemy-section-head h3 {
+margin: 0;
+  color: #79d5ff;
+  font-size: 1.05rem;
+}
+
+/* source lines 5115-5121 */
+.enemy-skill-output {
+min-width: 20rem;
+  color: #eaf6ff;
+  font-family: var(--font-mono, Consolas, monospace);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+/* source lines 5138-5148 */
+.dx3-enemies-page .dx3-enemy-common-header {
+display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgba(98, 196, 255, 0.38);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(12, 26, 68, 0.92), rgba(21, 42, 94, 0.78));
+}
+
+/* source lines 5149-5156 */
+.dx3-enemies-page .dx3-enemy-common-header h2 {
+margin: 0;
+  color: #ffd966;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.45);
+}
+
+/* source lines 5157-5161 */
+.dx3-enemies-page .dx3-enemy-header-note {
+color: #b7cff8;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* source lines 5162-5167 */
+.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar {
+justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 0;
+}
+
+/* source lines 5168-5176 */
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-left, .dx3-enemies-page .dx3-enemy-action-bar .action-bar-right, .dx3-enemies-page .dx3-enemy-action-bar .action-bar-meta {
+display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* source lines 5177-5180 */
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-right {
+margin-left: auto;
+  justify-content: flex-end;
+}
+
+/* source lines 5181-5184 */
+.dx3-enemies-page .dx3-enemy-action-bar .action-bar-meta {
+flex: 1 1 100%;
+  row-gap: 0.35rem;
+}
+
+/* source lines 5185-5191 */
+.dx3-enemies-page .enemy-compact-flags {
+display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* source lines 5192-5197 */
+.dx3-enemies-page .enemy-compact-flag {
+display: inline-flex;
+  align-items: center;
+  margin: 0;
+  line-height: 1;
+}
+
+/* source lines 5198-5203 */
+.dx3-enemies-page .enemy-compact-flag input {
+width: 0;
+  height: 0;
+  opacity: 0;
+  position: absolute;
+}
+
+/* source lines 5204-5216 */
+.dx3-enemies-page .enemy-compact-flag span {
+display: inline-flex;
+  align-items: center;
+  min-height: 1.55rem;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid rgba(160, 210, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(11, 30, 72, 0.6);
+  color: #b7cff8;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* source lines 5217-5221 */
+.dx3-enemies-page .enemy-compact-flag input:checked + span {
+border-color: rgba(94, 255, 143, 0.72);
+  background: rgba(23, 130, 63, 0.84);
+  color: #f1fff5;
+}
+
+/* source lines 5222-5224 */
+.dx3-enemies-page .enemy-template-flags {
+display: none;
+}
+
+/* source lines 5242-5245 */
+.dx3-enemies-page .dx3-enemy-community-pane {
+margin-top: 1rem;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+/* source lines 5246-5248 */
+.dx3-enemies-page .dx3-enemy-community-list-pane {
+padding: 0.8rem;
+}
+
+/* source lines 5249-5251 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-title {
+gap: 0.45rem;
+}
+
+/* source lines 5252-5256 */
+.dx3-enemies-page .dx3-enemy-community-pane .list-head h2 {
+margin: 0;
+  font-size: 1.28rem;
+  letter-spacing: 0.04em;
+}
+
+/* source lines 5257-5269 */
+.dx3-enemies-page .dx3-enemy-community-pane .sort-chip, .dx3-enemies-page .dx3-enemy-community-pane .enemy-show-all-btn, .dx3-enemies-page .dx3-enemy-community-pane .pager-btn {
+border: 1px solid rgba(214, 184, 130, 0.34);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(43, 38, 34, 0.96), rgba(25, 20, 18, 0.96));
+  color: #f6eee3;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0.24rem 0.62rem;
+}
+
+/* source lines 5270-5276 */
+.dx3-enemies-page .dx3-enemy-community-pane .sort-chip.is-active, .dx3-enemies-page .dx3-enemy-community-pane .enemy-show-all-btn:hover, .dx3-enemies-page .dx3-enemy-community-pane .pager-btn:not(:disabled):hover {
+border-color: rgba(247, 215, 122, 0.78);
+  background: linear-gradient(180deg, rgba(118, 78, 12, 0.98), rgba(65, 43, 11, 0.98));
+  color: #ffffff;
+}
+
+/* source lines 5277-5280 */
+.dx3-enemies-page .dx3-enemy-community-pane .pager-btn:disabled {
+opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* source lines 5281-5287 */
+.dx3-enemies-page .dx3-enemy-community-pane .search-input-group {
+display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+
+/* source lines 5288-5294 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-field-select, .dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input, .dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
+font-family: inherit;
+  font-size: 0.86rem;
+  padding: 0.28rem 0.45rem;
+}
+
+/* source lines 5295-5303 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
+width: 4.2em !important;
+  min-width: 4.2em !important;
+  max-width: 4.2em !important;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* source lines 5304-5308 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input::-webkit-outer-spin-button, .dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input::-webkit-inner-spin-button {
+-webkit-appearance: none;
+  margin: 0;
+}
+
+/* source lines 5309-5311 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input {
+width: 100%;
+}
+
+/* source lines 5312-5317 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-count, .dx3-enemies-page .dx3-enemy-community-pane .enemy-list-pager-info, .dx3-enemies-page .dx3-enemy-community-pane .enemy-list-controls {
+font-family: inherit;
+  font-weight: 800;
+}
+
+/* source lines 5318-5325 */
+.dx3-enemies-page .dx3-enemy-community-head h2 {
+margin: 0;
+  color: #79d5ff;
+  font-size: 1.08rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* source lines 5326-5332 */
+.dx3-enemies-page .dx3-enemy-community-controls {
+margin-top: 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+/* source lines 5342-5346 */
+.dx3-enemies-page .dx3-enemy-community-list {
+margin-top: 0.55rem;
+  max-height: 22rem;
+  padding-top: 0.55rem;
+}
+
+/* source lines 5347-5351 */
+.dx3-enemies-page .dx3-enemy-community-empty {
+margin: 0.6rem 0 0;
+  color: #b7cff8;
+  font-size: 0.86rem;
+}
+
+/* source lines 5352-5357 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-class-tag {
+margin-left: auto;
+  color: #ffd966;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+/* source lines 5362-5370 */
+.dx3-enemies-page {
+--dx3-enemy-accent: var(--color-dx3, #cc4125);
+  --dx3-enemy-accent-rgb: 204, 65, 37;
+  --dx3-enemy-card-bg: #101827;
+  --dx3-enemy-card-bg-soft: #1b2437;
+  --dx3-enemy-border: rgba(204, 65, 37, 0.45);
+  --dx3-enemy-text: #f8fafc;
+  --dx3-enemy-muted: #a8b3c7;
+}
+
+/* source lines 5372-5375 */
+.dx3-enemies-page .dx3-enemy-community-pane {
+margin-top: 1.1rem;
+  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+/* source lines 5377-5382 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-title {
+color: #fff8f4;
+  background:
+    linear-gradient(90deg, rgba(var(--dx3-enemy-accent-rgb), 0.78) 0%, rgba(68, 23, 18, 0.9) 54%, rgba(16, 20, 32, 0.92) 100%);
+  text-shadow: 0 2px 0 #000, 0 0 10px rgba(var(--dx3-enemy-accent-rgb), 0.38);
+}
+
+/* source lines 5384-5392 */
+.dx3-enemies-page .dx3-enemy-community-list-pane {
+border: 1px solid rgba(var(--dx3-enemy-accent-rgb), 0.34);
+  border-top: none;
+  background:
+    radial-gradient(700px 180px at 8% 0%, rgba(var(--dx3-enemy-accent-rgb), 0.16), transparent 62%),
+    linear-gradient(180deg, rgba(21, 28, 44, 0.96) 0%, rgba(10, 14, 24, 0.96) 100%);
+  color: var(--dx3-enemy-text);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 10px 22px rgba(0,0,0,0.35);
+}
+
+/* source lines 5394-5400 */
+.dx3-enemies-page .dx3-enemy-community-pane .list-head h2 {
+margin: 0;
+  color: #fff1ec;
+  text-shadow: 0 0 8px rgba(var(--dx3-enemy-accent-rgb), 0.4);
+  font-size: 1.28rem;
+  letter-spacing: 0.04em;
+}
+
+/* source lines 5402-5408 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-count, .dx3-enemies-page .dx3-enemy-community-pane .enemy-list-pager-info, .dx3-enemies-page .dx3-enemy-community-pane .enemy-list-controls {
+color: #ffd5cb;
+  font-family: inherit;
+  font-weight: 800;
+}
+
+/* source lines 5410-5423 */
+.dx3-enemies-page .dx3-enemy-community-pane .sort-chip, .dx3-enemies-page .dx3-enemy-community-pane .enemy-show-all-btn, .dx3-enemies-page .dx3-enemy-community-pane .pager-btn {
+border: 1px solid rgba(var(--dx3-enemy-accent-rgb), 0.46);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+  color: #fff1ec;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0.24rem 0.62rem;
+  box-shadow: 1px 1px 0 #000;
+}
+
+/* source lines 5425-5432 */
+.dx3-enemies-page .dx3-enemy-community-pane .sort-chip.is-active, .dx3-enemies-page .dx3-enemy-community-pane .enemy-show-all-btn:hover, .dx3-enemies-page .dx3-enemy-community-pane .pager-btn:not(:disabled):hover {
+border-color: #ff9b85;
+  background: linear-gradient(180deg, var(--dx3-enemy-accent) 0%, #7e2618 100%);
+  color: #fff;
+  box-shadow: 1px 1px 0 #000, 0 0 10px rgba(var(--dx3-enemy-accent-rgb), 0.42);
+}
+
+/* source lines 5434-5437 */
+.dx3-enemies-page .dx3-enemy-community-pane .pager-btn:disabled {
+opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* source lines 5439-5445 */
+.dx3-enemies-page .dx3-enemy-community-pane .search-input-group {
+display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+
+/* source lines 5447-5456 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-field-select, .dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input, .dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
+border: 1px solid rgba(var(--dx3-enemy-accent-rgb), 0.42);
+  background: #071124;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 0.86rem;
+  padding: 0.32rem 0.5rem;
+}
+
+/* source lines 5458-5464 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-field-select {
+min-width: 7.2rem;
+  height: 2.35rem;
+  border-right: none;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+/* source lines 5466-5471 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-search-input {
+width: 100%;
+  height: 2.35rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* source lines 5473-5477 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-list-reload-btn {
+min-height: 2.35rem;
+  padding-block: 0.32rem;
+  white-space: nowrap;
+}
+
+/* source lines 5479-5487 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input {
+width: 3.2em !important;
+  min-width: 3.2em !important;
+  max-width: 3.2em !important;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* source lines 5489-5493 */
+.dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input::-webkit-outer-spin-button, .dx3-enemies-page .dx3-enemy-community-pane .enemy-page-size-input::-webkit-inner-spin-button {
+-webkit-appearance: none;
+  margin: 0;
+}
+
+/* source lines 5501-5510 */
+.dx3-enemies-page .dx3-enemy-community-list {
+list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+  max-height: 42vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* source lines 5512-5514 */
+.dx3-enemies-page .dx3-enemy-community-list .enemy-list-item {
+margin: 0;
+}
+
+/* source lines 5516-5519 */
+.dx3-enemies-page .dx3-enemy-community-list .enemy-list-item.is-active .enemy-list-card {
+border-color: #ff9b85;
+  box-shadow: 0 0 0 1px rgba(255, 155, 133, 0.55), 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* source lines 5521-5537 */
+.dx3-enemies-page .dx3-enemy-list-card.enemy-list-card {
+box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(var(--dx3-enemy-accent-rgb), 0.36);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: default;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, rgba(var(--dx3-enemy-accent-rgb), 0.12) 0%, rgba(16, 24, 39, 0.12) 48%),
+    linear-gradient(180deg, #182236 0%, #080d18 100%);
+  color: var(--dx3-enemy-text);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+/* source lines 5539-5542 */
+.dx3-enemies-page .dx3-enemy-list-card.enemy-list-card:hover {
+border-color: rgba(255, 155, 133, 0.72);
+  box-shadow: 0 0 12px rgba(var(--dx3-enemy-accent-rgb), 0.24);
+}
+
+/* source lines 5544-5549 */
+.dx3-enemies-page .dx3-enemy-list-card[data-enemy-type*="レネゲイドビーイング"], .dx3-enemies-page .dx3-enemy-list-card[data-enemy-type*="RB"] {
+background:
+    linear-gradient(135deg, rgba(146, 80, 255, 0.16), rgba(16, 24, 39, 0.08)),
+    linear-gradient(180deg, #1a2238 0%, #090d18 100%);
+}
+
+/* source lines 5562-5567 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-side-left {
+display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+/* source lines 5569-5583 */
+.dx3-enemies-page .dx3-erosion-badge {
+display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 155, 133, 0.65);
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--dx3-enemy-accent) 0%, #55170f 100%);
+  color: #fff7f4;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.26);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+  flex: 0 0 auto;
+}
+
+/* source lines 5585-5589 */
+.dx3-enemies-page .dx3-erosion-badge .erosion-label {
+font-size: 0.6rem;
+  margin-bottom: -2px;
+  line-height: 1;
+}
+
+/* source lines 5591-5597 */
+.dx3-enemies-page .dx3-erosion-badge .erosion-value {
+font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.34rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* source lines 5599-5611 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-icon-wrap {
+width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 155, 133, 0.38);
+  background: #101827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #ffb2a1;
+  flex: 0 0 auto;
+}
+
+/* source lines 5613-5618 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-icon-wrap img {
+width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* source lines 5620-5622 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-icon-wrap i {
+font-size: 1rem;
+}
+
+/* source lines 5624-5628 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-content-main {
+min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* source lines 5630-5637 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-upper-info, .dx3-enemies-page .dx3-enemy-list-card .enemy-list-lower-info {
+display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+/* source lines 5639-5648 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-name {
+font-size: 0.98rem;
+  font-weight: 900;
+  color: #fff8f4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* source lines 5650-5654 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-meta-tags {
+display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* source lines 5656-5670 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-meta-tag {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.6rem;
+  padding: 0 0.5rem;
+  border: 1px solid rgba(255, 155, 133, 0.25);
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #f8fafc;
+  font-size: 0.72rem;
+  line-height: 1;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/* source lines 5672-5676 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-lower-info {
+margin-top: 0;
+  font-size: 0.78rem;
+  color: var(--dx3-enemy-muted);
+}
+
+/* source lines 5678-5685 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-side-right-group {
+margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  flex: 0 0 auto;
+}
+
+/* source lines 5704-5720 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-class-tag {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.6rem;
+  padding: 0 8px;
+  border-radius: 3px;
+  border: 1px solid var(--dx3-syndrome-border, rgba(255, 155, 133, 0.52));
+  background: linear-gradient(135deg, var(--dx3-syndrome-bg-start, rgba(var(--dx3-enemy-accent-rgb), 0.86)), var(--dx3-syndrome-bg-mid, var(--dx3-syndrome-bg-end, rgba(88, 24, 15, 0.9))), var(--dx3-syndrome-bg-end, rgba(88, 24, 15, 0.9)));
+  color: var(--dx3-syndrome-text, #fff);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: var(--dx3-syndrome-text-shadow, none);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 0 0 1px var(--dx3-syndrome-inner, rgba(255,255,255,0.05));
+}
+
+/* source lines 5722-5726 */
+.dx3-enemies-page .dx3-enemy-list-card .dx3-syndrome-tag {
+max-width: 8.6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* source lines 5743-5750 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="angel-halo"] {
+--dx3-syndrome-bg-start: rgba(255, 252, 232, 0.98);
+  --dx3-syndrome-bg-mid: rgba(232, 221, 185, 0.96);
+  --dx3-syndrome-bg-end: rgba(174, 151, 95, 0.94);
+  --dx3-syndrome-border: rgba(255, 255, 246, 0.86);
+  --dx3-syndrome-text: #211c0d;
+  --dx3-syndrome-inner: rgba(255, 255, 255, 0.58);
+}
+
+/* source lines 5752-5756 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="balor"] {
+--dx3-syndrome-bg-start: rgba(95, 61, 171, 0.94);
+  --dx3-syndrome-bg-end: rgba(25, 18, 73, 0.94);
+  --dx3-syndrome-border: rgba(176, 143, 255, 0.62);
+}
+
+/* source lines 5758-5765 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="black-dog"] {
+--dx3-syndrome-bg-start: rgba(255, 235, 0, 0.98);
+  --dx3-syndrome-bg-end: rgba(18, 18, 16, 0.98);
+  --dx3-syndrome-border: rgba(255, 249, 78, 0.92);
+  --dx3-syndrome-text: #fffef0;
+  --dx3-syndrome-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 0.9);
+  --dx3-syndrome-inner: rgba(255, 235, 0, 0.36);
+}
+
+/* source lines 5767-5771 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="bram-stoker"] {
+--dx3-syndrome-bg-start: rgba(177, 21, 54, 0.95);
+  --dx3-syndrome-bg-end: rgba(62, 5, 22, 0.96);
+  --dx3-syndrome-border: rgba(255, 112, 133, 0.62);
+}
+
+/* source lines 5773-5777 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="chimera"] {
+--dx3-syndrome-bg-start: rgba(187, 113, 35, 0.96);
+  --dx3-syndrome-bg-end: rgba(78, 41, 13, 0.96);
+  --dx3-syndrome-border: rgba(255, 181, 90, 0.66);
+}
+
+/* source lines 5779-5786 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="exile"] {
+--dx3-syndrome-bg-start: rgba(250, 247, 232, 0.98);
+  --dx3-syndrome-bg-mid: rgba(225, 217, 194, 0.96);
+  --dx3-syndrome-bg-end: rgba(165, 153, 124, 0.94);
+  --dx3-syndrome-border: rgba(255, 252, 235, 0.86);
+  --dx3-syndrome-text: #2a2418;
+  --dx3-syndrome-inner: rgba(255, 253, 239, 0.58);
+}
+
+/* source lines 5788-5794 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="hanuman"] {
+--dx3-syndrome-bg-start: rgba(174, 237, 54, 0.96);
+  --dx3-syndrome-bg-end: rgba(29, 141, 123, 0.96);
+  --dx3-syndrome-border: rgba(211, 255, 112, 0.72);
+  --dx3-syndrome-text: #082015;
+  --dx3-syndrome-inner: rgba(221, 255, 129, 0.34);
+}
+
+/* source lines 5796-5801 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="morpheus"] {
+--dx3-syndrome-bg-start: rgba(219, 184, 85, 0.96);
+  --dx3-syndrome-bg-end: rgba(119, 79, 28, 0.96);
+  --dx3-syndrome-border: rgba(255, 224, 132, 0.66);
+  --dx3-syndrome-text: #221709;
+}
+
+/* source lines 5803-5808 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="neumann"] {
+--dx3-syndrome-bg-start: rgba(72, 149, 232, 0.96);
+  --dx3-syndrome-bg-end: rgba(24, 50, 109, 0.98);
+  --dx3-syndrome-border: rgba(156, 213, 255, 0.7);
+  --dx3-syndrome-inner: rgba(127, 201, 255, 0.24);
+}
+
+/* source lines 5810-5814 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="orcus"] {
+--dx3-syndrome-bg-start: rgba(67, 156, 91, 0.95);
+  --dx3-syndrome-bg-end: rgba(25, 72, 45, 0.96);
+  --dx3-syndrome-border: rgba(147, 229, 164, 0.62);
+}
+
+/* source lines 5816-5820 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="salamandra"] {
+--dx3-syndrome-bg-start: rgba(226, 70, 46, 0.96);
+  --dx3-syndrome-bg-end: rgba(39, 118, 196, 0.96);
+  --dx3-syndrome-border: rgba(255, 171, 130, 0.68);
+}
+
+/* source lines 5822-5829 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="solaris"] {
+--dx3-syndrome-bg-start: rgba(101, 222, 45, 0.96);
+  --dx3-syndrome-bg-mid: rgba(55, 155, 82, 0.96);
+  --dx3-syndrome-bg-end: rgba(103, 29, 136, 0.96);
+  --dx3-syndrome-border: rgba(182, 255, 88, 0.72);
+  --dx3-syndrome-text: #f4ffe8;
+  --dx3-syndrome-inner: rgba(209, 255, 94, 0.28);
+}
+
+/* source lines 5831-5835 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="ouroboros"] {
+--dx3-syndrome-bg-start: rgba(81, 51, 120, 0.96);
+  --dx3-syndrome-bg-end: rgba(12, 11, 20, 0.98);
+  --dx3-syndrome-border: rgba(154, 121, 201, 0.58);
+}
+
+/* source lines 5837-5841 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="azathoth"] {
+--dx3-syndrome-bg-start: rgba(125, 35, 153, 0.96);
+  --dx3-syndrome-bg-end: rgba(39, 5, 59, 0.98);
+  --dx3-syndrome-border: rgba(241, 106, 255, 0.62);
+}
+
+/* source lines 5843-5847 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="mistilteinn"] {
+--dx3-syndrome-bg-start: rgba(50, 170, 142, 0.95);
+  --dx3-syndrome-bg-end: rgba(32, 78, 94, 0.96);
+  --dx3-syndrome-border: rgba(215, 197, 107, 0.68);
+}
+
+/* source lines 5849-5853 */
+.dx3-enemies-page .dx3-syndrome-tag[data-syndrome="gleipnir"] {
+--dx3-syndrome-bg-start: rgba(95, 112, 133, 0.95);
+  --dx3-syndrome-bg-end: rgba(31, 42, 58, 0.96);
+  --dx3-syndrome-border: rgba(174, 190, 209, 0.62);
+}
+
+/* source lines 5855-5867 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-public-badge {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.6rem;
+  padding: 0 0.55rem;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* source lines 5869-5873 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-public-badge.is-public {
+background: #256341;
+  color: #e5fff1;
+  border-color: #4f9c70;
+}
+
+/* source lines 5875-5879 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-public-badge.is-private {
+background: #4c1d25;
+  color: #ffe4e9;
+  border-color: #9f5b67;
+}
+
+/* source lines 5881-5889 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-time-tag {
+font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1rem;
+  line-height: 1;
+  color: #78869d;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  display: block;
+}
+
+/* source lines 5891-5901 */
+.dx3-enemies-page .dx3-enemy-list-card .enemy-list-bg-icon {
+position: absolute;
+  bottom: -18px;
+  right: 8%;
+  font-size: 6rem;
+  color: var(--dx3-enemy-accent);
+  opacity: 0.11;
+  pointer-events: none;
+  z-index: 0;
+  transform: rotate(-10deg);
+}
+
+/* source lines 5910-5929 */
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn {
+box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  padding: 2px 0 4px;
+  font-size: 0.62rem;
+  font-weight: 900;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1.1;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* source lines 5931-5934 */
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn i {
+font-size: 1rem;
+  margin-bottom: -8px;
+}
+
+/* source lines 5936-5940 */
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn.is-view {
+background: linear-gradient(135deg, #9a6a13 0%, #4a3210 100%);
+  color: #fff7d6;
+  border: 1px solid #d9a21f;
+}
+
+/* source lines 5942-5946 */
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn.is-load {
+background: linear-gradient(135deg, var(--dx3-enemy-accent) 0%, #5a180f 100%);
+  color: #fff;
+  border: 1px solid #ff8d78;
+}
+
+/* source lines 5948-5952 */
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn.is-output {
+background: linear-gradient(135deg, #37468d 0%, #252a3a 100%);
+  color: #dbe4ff;
+  border: 1px solid #4a59a4;
+}
+
+/* source lines 5954-5957 */
+.dx3-enemies-page .dx3-enemy-list-card .list-side-btn:hover {
+transform: translateY(-1px);
+  filter: brightness(1.12);
+}
+
+/* source lines 5959-5963 */
+.dx3-enemies-page .dx3-enemy-community-empty {
+margin: 0.6rem 0 0;
+  color: #ffd5cb;
+  font-size: 0.86rem;
+}
+
+/* source lines 5983-5987 */
+.dx3-enemy-common-header {
+align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* source lines 5988-5993 */
+.dx3-enemy-title-block {
+display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+/* source lines 5994-5996 */
+.dx3-enemy-title-block h2 {
+margin: 0;
+}
+
+/* source lines 5997-6004 */
+.dx3-enemy-sample-actions {
+display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+/* source lines 6005-6021 */
+.dx3-enemy-sample-btn {
+position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.58rem;
+  min-height: 2.65rem;
+  padding: 0.18rem 0.78rem 0.18rem 0.22rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 190, 120, 0.78);
+  background:
+    radial-gradient(circle at 16% 20%, rgba(255, 236, 170, 0.34), transparent 30%),
+    linear-gradient(135deg, rgba(138, 36, 26, 0.96), rgba(41, 19, 33, 0.98) 48%, rgba(10, 17, 38, 0.96));
+  color: #fff7f4;
+  white-space: nowrap;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 8px 18px rgba(0, 0, 0, 0.28);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+/* source lines 6029-6037 */
+.dx3-enemy-sample-btn::after {
+content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.18) 42%, transparent 62%);
+  transform: translateX(-120%);
+  transition: transform 0.45s ease;
+}
+
+/* source lines 6038-6041 */
+.dx3-enemy-sample-btn:hover::after, .dx3-enemy-sample-btn:focus-visible::after {
+transform: translateX(120%);
+}
+
+/* source lines 6042-6057 */
+.dx3-enemy-sample-avatar {
+position: relative;
+  z-index: 1;
+  order: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.45rem;
+  height: 2.25rem;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  flex: 0 0 auto;
+}
+
+/* source lines 6058-6064 */
+.dx3-enemy-sample-avatar::after {
+content: "";
+  position: absolute;
+  inset: -0.28rem -0.72rem -0.28rem -0.28rem;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 58%, rgba(18, 10, 28, 0.4));
+}
+
+/* source lines 6065-6072 */
+.dx3-enemy-sample-avatar img {
+width: auto;
+  height: 15rem;
+  object-fit: cover;
+  object-position: center top;
+  transform: translate(1rem, 4.5rem);
+  filter: drop-shadow(0 0.25rem 0.35rem rgba(0, 0, 0, 0.45));
+}
+
+/* source lines 6073-6084 */
+.dx3-enemy-sample-btn-text {
+position: relative;
+  z-index: 3;
+  order: 1;
+  display: inline-grid;
+  gap: 0.08rem;
+  line-height: 1;
+  text-align: left;
+  padding: 0.1rem 0.2rem;
+  border-left: 2px solid rgba(255, 224, 160, 0.88);
+  background: linear-gradient(90deg, rgba(42, 12, 18, 0.82), rgba(42, 12, 18, 0));
+}
+
+/* source lines 6085-6091 */
+.dx3-enemy-sample-kicker {
+color: rgba(255, 224, 160, 0.9);
+  font-size: 0.54rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 0 #3a120e, 0 0 4px rgba(0, 0, 0, 0.95), 1px 1px 0 rgba(0, 0, 0, 0.9);
+}
+
+/* source lines 6092-6101 */
+.dx3-enemy-sample-name {
+transform: translateY(0.08rem);
+  color: #ffffff;
+  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  -webkit-text-stroke: 0.35px rgba(52, 13, 13, 0.95);
+  text-shadow: 0 1px 0 #3a120e, 0 0 5px rgba(0, 0, 0, 0.95), 1px 1px 0 rgba(0, 0, 0, 0.9);
+}
+
+/* source lines 6102-6107 */
+.dx3-enemy-sample-note {
+color: rgba(255, 238, 232, 0.72);
+  font-size: 0.76rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* source lines 6108-6112 */
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-sample-actions .dx3-koma-help {
+font-size: 0.68rem;
+  line-height: 1.25;
+  opacity: 0.82;
+}
+
+/* source lines 6127-6135 */
+.dx3-enemies-page .enemy-ruby-field {
+display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 0.12rem;
+  color: #dcefff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  min-width: 0;
+}
+
+/* source lines 6136-6139 */
+.dx3-enemies-page .enemy-ruby-field-name, .dx3-enemies-page .enemy-ruby-field-code {
+grid-column: span 2;
+}
+
+/* source lines 6140-6142 */
+.dx3-enemies-page .enemy-ruby-label {
+line-height: 1.1;
+}
+
+/* source lines 6143-6151 */
+.dx3-enemies-page .enemy-ruby-input {
+height: 1.25rem;
+  min-height: 1.25rem;
+  padding: 0.08rem 0.38rem !important;
+  font-size: 0.68rem;
+  color: #a9c6ff !important;
+  background: rgba(7, 19, 55, 0.55) !important;
+  border-color: rgba(115, 173, 255, 0.28) !important;
+}
+
+/* source lines 6152-6155 */
+.dx3-enemies-page .enemy-main-input {
+font-size: 0.96rem;
+  font-weight: 800;
+}
+
+/* source lines 6156-6158 */
+.dx3-enemies-page .enemy-auto-dice-field {
+position: relative;
+}
+
+/* source lines 6159-6163 */
+.dx3-enemies-page .enemy-auto-dice-field input[readonly] {
+color: #ffe08a;
+  background: rgba(7, 19, 55, 0.62);
+  border-style: dashed;
+}
+
+/* source lines 6164-6168 */
+.dx3-enemies-page .enemy-auto-dice-field span {
+font-size: 0.66rem;
+  color: #92a8d7;
+  font-weight: 700;
+}
+
+/* source lines 6169-6174 */
+.dx3-enemies-page .enemy-ability-breakdown {
+border: 1px solid rgba(115, 173, 255, 0.28);
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  background: rgba(6, 17, 48, 0.45);
+}
+
+/* source lines 6175-6183 */
+.dx3-enemies-page .enemy-ability-breakdown-head {
+display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.45rem;
+  color: #79d5ff;
+  font-weight: 900;
+}
+
+/* source lines 6185-6198 */
+.dx3-enemies-page .enemy-ability-erosion-toggle {
+margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid rgba(204, 65, 37, 0.42);
+  border-radius: 999px;
+  background: rgba(204, 65, 37, 0.12);
+  color: #ffd8cf;
+  font-size: 0.72rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+/* source lines 6199-6203 */
+.dx3-enemies-page .enemy-ability-erosion-toggle input {
+width: auto;
+  margin: 0;
+  accent-color: var(--color-dx3, #cc4125);
+}
+
+/* source lines 6204-6208 */
+.dx3-enemies-page .enemy-ability-breakdown-head small {
+color: #a8b3c7;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* source lines 6214-6223 */
+.dx3-enemies-page .enemy-ability-card {
+display: grid;
+  grid-template-columns: minmax(2.8rem, auto) repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.35rem;
+  padding: 0.45rem;
+  border: 1px solid rgba(204, 65, 37, 0.25);
+  border-radius: 6px;
+  background: rgba(11, 21, 54, 0.72);
+}
+
+/* source lines 6224-6230 */
+.dx3-enemies-page .enemy-ability-name {
+align-self: center;
+  color: var(--color-dx3, #cc4125);
+  font-size: 1rem;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(204, 65, 37, 0.35);
+}
+
+/* source lines 6231-6238 */
+.dx3-enemies-page .enemy-ability-card label {
+display: grid;
+  gap: 0.16rem;
+  color: #cfe6ff;
+  font-size: 0.66rem;
+  font-weight: 800;
+  min-width: 0;
+}
+
+/* source lines 6239-6249 */
+.dx3-enemies-page .enemy-ability-card input {
+width: 100%;
+  min-width: 0;
+  text-align: right;
+  border: 1px solid rgba(115, 173, 255, 0.55);
+  border-radius: 5px;
+  background: rgba(7, 19, 55, 0.92);
+  color: #f3f8ff;
+  padding: 0.28rem 0.38rem;
+  box-sizing: border-box;
+}
+
+/* source lines 6250-6254 */
+.dx3-enemies-page .enemy-ability-card input[readonly] {
+color: #ffe08a;
+  background: rgba(7, 19, 55, 0.55);
+  border-color: rgba(115, 173, 255, 0.24);
+}
+
+/* source lines 6431-6435 */
+.dx3-enemies-page .enemy-auto-breed-field input[readonly] {
+background: rgba(255, 255, 255, 0.92);
+  color: #1f2937;
+  cursor: default;
+}
+
+/* source lines 6503-6510 */
+.dx3-enemies-page .enemy-stat-stack-card {
+border: 1px solid rgba(115, 173, 255, 0.32);
+  border-left: 3px solid var(--color-dx3, #cc4125);
+  border-radius: 6px;
+  background: rgba(7, 19, 55, 0.58);
+  padding: 0.38rem 0.45rem;
+  min-width: 0;
+}
+
+/* source lines 6512-6522 */
+.dx3-enemies-page .enemy-stat-stack-title {
+display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  color: #dff3ff;
+  font-weight: 700;
+  font-size: 0.78rem;
+  line-height: 1;
+  margin-bottom: 0.32rem;
+}
+
+/* source lines 6524-6528 */
+.dx3-enemies-page .enemy-stat-stack-title small {
+color: #79d5ff;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+/* source lines 6530-6535 */
+.dx3-enemies-page .enemy-stat-stack-formula {
+display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(2.1rem, auto);
+  align-items: center;
+  gap: 0.18rem;
+}
+
+/* source lines 6537-6541 */
+.dx3-enemies-page .enemy-stat-stack-formula span {
+color: #9fc5e8;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+/* source lines 6543-6555 */
+.dx3-enemies-page .enemy-stat-stack-formula input {
+min-width: 0;
+  width: 100%;
+  height: 1.55rem;
+  padding: 0.08rem 0.22rem;
+  text-align: right;
+  border: 1px solid rgba(115, 173, 255, 0.52);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111827;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+/* source lines 6557-6562 */
+.dx3-enemies-page .enemy-stat-stack-formula input[readonly] {
+background: rgba(226, 232, 240, 0.92);
+  color: #111827;
+  cursor: default;
+  font-weight: 300;
+}
+
+/* source lines 6564-6576 */
+.dx3-enemies-page .enemy-stat-stack-formula strong {
+display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 1.55rem;
+  padding: 0.08rem 0.32rem;
+  border: 1px solid rgba(255, 224, 138, 0.44);
+  border-radius: 3px;
+  background: #061337;
+  color: #ffe08a;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+/* source lines 6665-6671 */
+.dx3-enemies-page .enemy-ability-breakdown-head {
+grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+}
+
+/* source lines 6673-6686 */
+.dx3-enemies-page .enemy-auto-breed-chip {
+margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid rgba(204, 65, 37, 0.65);
+  border-radius: 999px;
+  background: rgba(204, 65, 37, 0.18);
+  color: #fff7f3;
+  font-size: 0.72rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* source lines 6688-6691 */
+.dx3-enemies-page .enemy-auto-breed-chip strong {
+color: #ffe08a;
+  font-weight: 700;
+}
+
+/* source lines 6727-6739 */
+.dx3-enemies-page .enemy-syndrome-select {
+width: 7.6rem;
+  height: 1.35rem;
+  min-width: 0;
+  padding: 0 1rem 0 0.18rem;
+  border: 1px solid rgba(115, 173, 255, 0.55);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #1f2937;
+  font-size: 0.72rem;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+/* source lines 6762-6764 */
+.dx3-enemies-page .enemy-stat-stack-card {
+padding: 0.3rem 0.38rem;
+}
+
+/* source lines 6766-6769 */
+.dx3-enemies-page .enemy-stat-stack-title {
+margin-bottom: 0.2rem;
+  font-size: 0.74rem;
+}
+
+/* source lines 6771-6774 */
+.dx3-enemies-page .enemy-stat-stack-formula {
+grid-template-columns: minmax(2.8rem, 1fr) auto minmax(2.6rem, 1fr) auto minmax(2.6rem, auto);
+  gap: 0.14rem;
+}
+
+/* source lines 6776-6781 */
+.dx3-enemies-page .enemy-stat-stack-formula input {
+height: 1.35rem;
+  padding: 1px 2px;
+  font-size: 0.98rem;
+  font-weight: 300;
+}
+
+/* source lines 6783-6788 */
+.dx3-enemies-page .enemy-stat-stack-formula strong {
+min-height: 1.35rem;
+  padding: 1px 0.28rem;
+  font-size: 0.98rem;
+  font-weight: 300;
+}
+
+/* source lines 6812-6814 */
+.dx3-enemies-page .enemy-ability-breakdown-head .enemy-auto-breed-chip {
+display: none;
+}
+
+/* source lines 6854-6861 */
+.dx3-enemies-page .enemy-stat-stack-card {
+display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.24rem 0.36rem;
+  min-height: 1.85rem;
+}
+
+/* source lines 6863-6868 */
+.dx3-enemies-page .enemy-stat-stack-title {
+margin: 0;
+  justify-content: flex-start;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+/* source lines 6870-6877 */
+.dx3-enemies-page .enemy-stat-stack-formula {
+display: grid;
+  grid-template-columns: 3.25rem auto 2.7rem auto 2.8rem;
+  align-items: center;
+  justify-content: end;
+  gap: 0.14rem;
+  min-width: 0;
+}
+
+/* source lines 6879-6881 */
+.dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: 3.25rem auto 2.8rem 2.3rem;
+}
+
+/* source lines 6883-6891 */
+.dx3-enemies-page .enemy-stat-stack-formula input {
+width: 100%;
+  min-width: 0;
+  height: 1.42rem;
+  padding: 1px 2px;
+  font-size: 1.12rem;
+  line-height: 1;
+  font-weight: 300;
+}
+
+/* source lines 6893-6901 */
+.dx3-enemies-page .enemy-stat-stack-formula strong {
+min-height: 1.42rem;
+  padding: 1px 0.22rem;
+  font-size: 1.12rem;
+  line-height: 1;
+  font-weight: 300;
+  min-width: 0;
+  width: 100%;
+}
+
+/* source lines 6903-6920 */
+.dx3-enemies-page .enemy-erosion-dice-chip {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.42rem;
+  min-width: 2.2rem;
+  padding: 1px 0.28rem;
+  border: 1px solid rgba(121, 213, 255, 0.55);
+  border-radius: 4px;
+  background: rgba(13, 26, 80, 0.85);
+  color: #79d5ff;
+  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.04rem;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+/* source lines 6993-6996 */
+.dx3-enemies-page .enemy-skill-output {
+min-width: 18rem;
+  font-size: 0.78rem;
+}
+
+/* source lines 6998-7002 */
+.dx3-enemies-page .enemy-skill-delete-btn {
+width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+}
+
+/* source lines 7027-7030 */
+.dx3-enemies-page .enemy-stat-stack-card {
+min-height: 0;
+  height: auto;
+}
+
+/* source lines 7048-7054 */
+.dx3-enemies-page .enemy-skill-fixed-label, .dx3-enemies-page .enemy-skill-fixed-name {
+color: #e9f4ff;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+/* source lines 7056-7059 */
+.dx3-enemies-page .enemy-skill-fixed-label {
+padding-left: 0.45rem !important;
+  vertical-align: middle;
+}
+
+/* source lines 7061-7066 */
+.dx3-enemies-page .enemy-skill-fixed-label span, .dx3-enemies-page .enemy-skill-fixed-name {
+display: inline-flex;
+  align-items: center;
+  min-height: 2.05rem;
+}
+
+/* source lines 7155-7159 */
+.dx3-enemies-page .dx3-enemy-template-pane input[type="number"]::-webkit-outer-spin-button, .dx3-enemies-page .dx3-enemy-template-pane input[type="number"]::-webkit-inner-spin-button {
+-webkit-appearance: none;
+  margin: 0;
+}
+
+/* source lines 7161-7163 */
+.dx3-enemies-page .dx3-enemy-template-pane input[type="number"] {
+-moz-appearance: textfield;
+}
+
+/* source lines 7187-7191 */
+.dx3-enemies-page .enemy-stat-stack-card {
+grid-template-columns: 2.4rem minmax(0, 1fr);
+  gap: 0.22rem;
+  padding: 0.2rem 0.3rem;
+}
+
+/* source lines 7193-7195 */
+.dx3-enemies-page .enemy-stat-stack-title {
+font-size: 0.74rem;
+}
+
+/* source lines 7197-7199 */
+.dx3-enemies-page .enemy-stat-stack-formula {
+grid-template-columns: 2.55rem auto 2.25rem auto 2.35rem;
+}
+
+/* source lines 7201-7203 */
+.dx3-enemies-page .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: 2.55rem auto 2.35rem 2rem;
+}
+
+/* source lines 7205-7213 */
+.dx3-enemies-page .enemy-stat-stack-formula input, .dx3-enemies-page .enemy-stat-stack-formula strong, .dx3-enemies-page .enemy-erosion-dice-chip {
+height: 1.5rem;
+  min-height: 1.5rem;
+  padding: 1px 2px;
+  font-size: 1.16rem;
+  font-weight: 300;
+}
+
+/* source lines 7215-7218 */
+.dx3-enemies-page .enemy-erosion-dice-chip {
+min-width: 2rem;
+  padding-inline: 0.18rem;
+}
+
+/* source lines 7294-7298 */
+.dx3-enemies-page .enemy-skill-output {
+min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* source lines 7325-7328 */
+.dx3-enemies-page .dx3-enemy-ability-section, .dx3-enemies-page .enemy-skill-block {
+min-width: 0;
+}
+
+/* source lines 7330-7332 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown {
+margin-top: 0.45rem;
+}
+
+/* source lines 7334-7336 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown-head {
+margin-bottom: 0.35rem;
+}
+
+/* source lines 7338-7340 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown-head > span {
+display: none;
+}
+
+/* source lines 7378-7381 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+grid-template-columns: 2.7rem minmax(0, 1fr);
+  min-height: 1.8rem;
+}
+
+/* source lines 7383-7386 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+justify-content: end;
+  grid-template-columns: 3rem auto 2rem auto 2.4rem;
+}
+
+/* source lines 7388-7390 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: 3rem auto 2.4rem 2.4rem;
+}
+
+/* source lines 7392-7402 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: 300;
+  font-size: 1.2rem;
+  height: 1.55rem;
+  min-height: 1.55rem;
+  padding: 1px 2px;
+  text-align: right;
+}
+
+/* source lines 7404-7411 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+min-width: 2.35rem;
+  color: #ffd966;
+  border-color: rgba(255, 217, 102, 0.75);
+  background: rgba(255, 217, 102, 0.08);
+  font-style: normal;
+  text-align: center;
+}
+
+/* source lines 7429-7431 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-ability-breakdown-head {
+display: none;
+}
+
+/* source lines 7468-7472 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card {
+min-height: 0;
+  height: auto;
+  overflow: visible;
+}
+
+/* source lines 7494-7501 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula input, .dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula strong, .dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+height: 1.62rem;
+  min-height: 1.62rem;
+  padding: 1px 2px;
+  font-size: 1.28rem;
+}
+
+/* source lines 7503-7505 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-formula {
+grid-template-columns: 3.1rem auto 2.15rem auto 2.55rem;
+}
+
+/* source lines 7507-7509 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: 3.1rem auto 2.55rem 2.55rem;
+}
+
+/* source lines 7511-7516 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-erosion-dice-chip {
+justify-content: center;
+  color: #ffd966;
+  border-color: rgba(255, 217, 102, 0.78);
+  background: rgba(255, 217, 102, 0.09);
+}
+
+/* source lines 7597-7599 */
+.dx3-enemies-page .enemy-skill-fixed-label {
+padding-left: 0.22rem;
+}
+
+/* source lines 7601-7605 */
+.dx3-enemies-page .enemy-skill-fixed-label span, .dx3-enemies-page .enemy-skill-fixed-name {
+padding-left: 0;
+  justify-content: flex-start;
+}
+
+/* source lines 7612-7615 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: minmax(4.6rem, 1fr) 2.9rem;
+  justify-content: end;
+}
+
+/* source lines 7617-7619 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula input {
+min-width: 4.6rem;
+}
+
+/* source lines 7621-7626 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-erosion-dice-chip {
+min-width: 2.55rem;
+  color: #ffd966;
+  border-color: rgba(255, 217, 102, 0.82);
+  background: rgba(255, 217, 102, 0.12);
+}
+
+/* source lines 7629-7632 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: 6.1rem 2.55rem;
+  justify-content: end;
+}
+
+/* source lines 7634-7638 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula input {
+width: 6.1rem;
+  min-width: 0;
+  max-width: 6.1rem;
+}
+
+/* source lines 7641-7643 */
+.dx3-enemies-page .enemy-skill-summary {
+align-items: center;
+}
+
+/* source lines 7645-7650 */
+.dx3-enemies-page .enemy-skill-summary-main {
+display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+/* source lines 7652-7664 */
+.dx3-enemies-page .enemy-skill-summary .enemy-skill-add-btn {
+min-height: 1.7rem;
+  height: 1.7rem;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid rgba(204, 65, 37, 0.85);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(204, 65, 37, 0.24), rgba(76, 18, 18, 0.42));
+  color: #fff6f2;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+/* source lines 7666-7669 */
+.dx3-enemies-page .enemy-skill-summary .enemy-skill-add-btn:hover:not(:disabled) {
+border-color: rgba(255, 146, 112, 0.95);
+  background: linear-gradient(180deg, rgba(204, 65, 37, 0.36), rgba(96, 24, 20, 0.54));
+}
+
+/* source lines 7708-7710 */
+.dx3-enemies-page .enemy-skill-fixed-label {
+padding-inline: 0.22rem;
+}
+
+/* source lines 7712-7719 */
+.dx3-enemies-page .enemy-skill-fixed-label span, .dx3-enemies-page .enemy-skill-fixed-name {
+box-sizing: border-box;
+  min-height: 2.18rem;
+  padding: 1px 0.22rem;
+  border: 1px solid transparent;
+  justify-content: flex-start;
+}
+
+/* source lines 7722-7724 */
+.dx3-enemies-page .enemy-skill-fixed-label {
+padding-inline: 0 !important;
+}
+
+/* source lines 7726-7728 */
+.dx3-enemies-page .enemy-skill-fixed-label span {
+padding-left: 0.22rem;
+}
+
+/* source lines 7759-7763 */
+.dx3-enemies-page .dx3-enemy-ability-section {
+width: 360px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* source lines 7771-7773 */
+.dx3-enemies-page .dx3-enemy-ability-section:not([open]) {
+min-height: 2.1rem;
+}
+
+/* source lines 7775-7777 */
+.dx3-enemies-page .enemy-skill-block:not([open]) {
+min-height: 2.1rem;
+}
+
+/* source lines 7791-7795 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-stack-formula {
+grid-template-columns: 6.1rem auto 2.55rem;
+  align-items: center;
+  justify-content: end;
+}
+
+/* source lines 7797-7803 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-stat-equals {
+color: #9fc5e8;
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+}
+
+/* source lines 7805-7816 */
+.dx3-enemies-page .dx3-enemy-ability-section .enemy-stat-stack-card.is-erosion .enemy-erosion-dice-chip {
+box-sizing: border-box;
+  width: 2.55rem;
+  min-width: 2.55rem;
+  max-width: 2.55rem;
+  justify-content: flex-end;
+  font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: right;
+}
+
+/* source lines 11089-11106 */
+body.dx3-combo-page.dx3-enemies-page {
+--enemy-control-bg:
+    linear-gradient(135deg, rgba(9, 22, 68, 0.94), rgba(16, 39, 96, 0.86)),
+    repeating-linear-gradient(90deg, rgba(98, 196, 255, 0.055) 0 2px, rgba(7, 19, 55, 0.035) 2px 6px);
+  --enemy-control-border: rgba(98, 196, 255, 0.46);
+  --enemy-export-bg:
+    linear-gradient(135deg, rgba(9, 38, 58, 0.94), rgba(19, 98, 86, 0.84)),
+    repeating-linear-gradient(90deg, rgba(99, 255, 215, 0.07) 0 2px, rgba(7, 32, 40, 0.05) 2px 6px);
+  --enemy-export-border: rgba(99, 255, 215, 0.45);
+  --enemy-control-text: #eaf6ff;
+  --enemy-control-muted: #b7cff8;
+  --enemy-control-button-bg: rgba(25, 52, 110, 0.86);
+  --enemy-control-button-border: rgba(160, 210, 255, 0.52);
+  --enemy-compact-chip-bg: rgba(13, 26, 80, 0.55);
+  --enemy-compact-chip-border: rgba(135, 206, 250, 0.38);
+  --enemy-compact-chip-text: #d6ecff;
+  --enemy-compact-chip-checked-text: #fff2bf;
+}
+
+/* source lines 11112-11112 */
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-btn.is-main {
+background: #1b7fd1;
+}
+
+/* source lines 11113-11113 */
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-btn.is-copy {
+background: #248b62;
+}
+
+/* source lines 11114-11114 */
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-btn.is-danger {
+background: #963638;
+}
+
+/* source lines 11120-11135 */
+body.dx3-combo-page.dx3-enemies-page {
+--enemy-control-bg:
+    linear-gradient(135deg, rgba(9, 22, 68, 0.94), rgba(16, 39, 96, 0.86)),
+    repeating-linear-gradient(90deg, rgba(98, 196, 255, 0.055) 0 2px, rgba(7, 19, 55, 0.035) 2px 6px);
+  --enemy-control-border: rgba(98, 196, 255, 0.46);
+  --enemy-export-bg:
+    linear-gradient(135deg, rgba(9, 38, 58, 0.94), rgba(19, 98, 86, 0.84)),
+    repeating-linear-gradient(90deg, rgba(99, 255, 215, 0.07) 0 2px, rgba(7, 32, 40, 0.05) 2px 6px);
+  --enemy-export-border: rgba(99, 255, 215, 0.45);
+  --enemy-control-text: #eaf6ff;
+  --enemy-control-muted: #b7cff8;
+  --enemy-control-button-bg: rgba(25, 52, 110, 0.86);
+  --enemy-control-button-border: rgba(160, 210, 255, 0.52);
+  --enemy-compact-chip-text: #d6ecff;
+  --enemy-compact-chip-checked-text: #fff2bf;
+}
+
+/* source lines 12830-12836 */
+.dx3-enemies-page .dx3-enemy-ability-section, .dx3-enemies-page .enemy-skill-block {
+align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* source lines 12838-12841 */
+.dx3-enemies-page .dx3-enemy-ability-section[open], .dx3-enemies-page .enemy-skill-block[open] {
+height: 100%;
+}
+
+/* source lines 12863-12868 */
+.dx3-enemies-page .enemy-skill-output-text {
+min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* source lines 12870-12880 */
+.dx3-enemies-page .enemy-skill-output-copy-btn {
+width: 1.9rem;
+  min-width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+/* source lines 12882-12884 */
+.dx3-enemies-page .enemy-skill-output-copy-btn i {
+margin: 0;
+}
+
+/* source lines 12916-12932 */
+.dx3-enemies-page .enemy-skill-copy-btn, .dx3-enemies-page .enemy-skill-output-copy-btn {
+width: 1.8rem;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 1px solid rgba(126, 226, 168, 0.95);
+  border-radius: 5px;
+  background: linear-gradient(180deg, #2aa778 0%, #197852 100%);
+  color: #f7fffb;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 2px rgba(0,0,0,0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+/* source lines 12934-12938 */
+.dx3-enemies-page .enemy-skill-copy-btn:hover:not(:disabled), .dx3-enemies-page .enemy-skill-output-copy-btn:hover:not(:disabled) {
+filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* source lines 12940-12945 */
+.dx3-enemies-page .enemy-skill-copy-btn:disabled, .dx3-enemies-page .enemy-skill-output-copy-btn:disabled {
+opacity: 0.82;
+  cursor: default;
+  transform: none;
+}
+
+/* source lines 12947-12951 */
+.dx3-enemies-page .enemy-skill-copy-btn i, .dx3-enemies-page .enemy-skill-output-copy-btn i {
+margin: 0;
+  font-size: 0.82rem;
+}
+
+/* source lines 13018-13029 */
+.dx3-enemies-page .enemy-skill-copy-btn {
+width: 1.65rem;
+  min-width: 1.65rem;
+  height: 1.65rem;
+  min-height: 1.65rem;
+  padding: 0;
+  border-radius: 5px;
+  border: 1px solid rgba(160, 210, 255, 0.52);
+  background: rgba(25, 52, 110, 0.86);
+  color: #eaf6ff;
+  box-shadow: none;
+}
+
+/* source lines 13031-13036 */
+.dx3-enemies-page .enemy-skill-copy-btn:hover:not(:disabled) {
+background: #248b62;
+  border-color: rgba(126, 226, 168, 0.95);
+  filter: none;
+  transform: translateY(-1px);
+}
+
+/* source lines 13038-13040 */
+.dx3-enemies-page .enemy-skill-copy-btn i {
+font-size: 0.78rem;
+}
+
+/* source lines 13042-13048 */
+.dx3-enemies-page .enemy-skill-delete-btn {
+width: 1.65rem;
+  min-width: 1.65rem;
+  height: 1.65rem;
+  min-height: 1.65rem;
+  padding: 0;
+}
+
+/* source lines 13051-13067 */
+.dx3-enemies-page .copy-toast, .copy-toast {
+left: auto;
+  right: 18px;
+  bottom: 18px;
+  transform: translateX(120%);
+  background: rgba(32, 40, 58, 0.94);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  max-width: min(92vw, 480px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+/* source lines 13069-13072 */
+.dx3-enemies-page .copy-toast.is-show, .copy-toast.is-show {
+transform: translateX(0);
+}
+
+/* source lines 13074-13078 */
+.dx3-enemies-page .copy-toast.is-error, .copy-toast.is-error {
+background: rgba(120, 26, 26, 0.94);
+  border-color: rgba(255, 170, 170, 0.7);
+}
+
+/* source lines 13103-13112 */
+.dx3-enemies-page .enemy-skill-action-wrap {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* source lines 13114-13128 */
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn, .dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn, .dx3-enemies-page .enemy-skill-copy-btn, .dx3-enemies-page .enemy-skill-delete-btn {
+flex: 0 0 1.82rem;
+  width: 1.82rem;
+  min-width: 1.82rem;
+  max-width: 1.82rem;
+  height: 1.82rem;
+  min-height: 1.82rem;
+  padding: 0;
+  border-radius: 0.36rem;
+  gap: 0;
+  line-height: 1;
+}
+
+/* source lines 13130-13137 */
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn i, .dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn i, .dx3-enemies-page .enemy-skill-copy-btn i, .dx3-enemies-page .enemy-skill-delete-btn i {
+margin: 0;
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+/* source lines 13210-13219 */
+.dx3-enemies-page .enemy-skill-action-wrap {
+display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.16rem;
+  width: max-content;
+  min-width: 0;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* source lines 13221-13241 */
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn, .dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn, .dx3-enemies-page .enemy-skill-action-wrap .small-square-btn, .dx3-enemies-page .enemy-skill-copy-btn, .dx3-enemies-page .enemy-skill-delete-btn {
+flex: 0 0 1.55rem;
+  inline-size: 1.55rem;
+  width: 1.55rem;
+  min-width: 1.55rem;
+  max-width: 1.55rem;
+  block-size: 1.55rem;
+  height: 1.55rem;
+  min-height: 1.55rem;
+  max-height: 1.55rem;
+  padding: 0;
+  margin: 0;
+  border-radius: 0.32rem;
+  gap: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* source lines 13243-13251 */
+.dx3-enemies-page .enemy-skill-action-wrap .action-btn i, .dx3-enemies-page .enemy-skill-action-wrap .enemy-action-btn i, .dx3-enemies-page .enemy-skill-action-wrap .small-square-btn i, .dx3-enemies-page .enemy-skill-copy-btn i, .dx3-enemies-page .enemy-skill-delete-btn i {
+margin: 0;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+/* source lines 13262-13270 */
+.dx3-enemies-page .enemy-skill-output, .dx3-enemies-page .enemy-skill-output-text {
+display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* source lines 13375-13394 */
+.dx3-enemies-page .enemy-skill-copy-btn, .dx3-enemies-page .enemy-skill-delete-btn {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.72rem;
+  min-width: 1.72rem;
+  max-width: 1.72rem;
+  height: 1.72rem;
+  min-height: 1.72rem;
+  max-height: 1.72rem;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  border-radius: 0.34rem;
+  box-sizing: border-box;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* source lines 13396-13403 */
+.dx3-enemies-page .enemy-skill-copy-btn {
+flex-direction: column;
+  gap: 0;
+  color: #dff4ff;
+  background: linear-gradient(180deg, #244a84 0%, #183260 100%);
+  border: 1px solid rgba(128, 190, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+}
+
+/* source lines 13405-13410 */
+.dx3-enemies-page .enemy-skill-copy-btn:hover:not(:disabled) {
+background: linear-gradient(180deg, #2d5c9e 0%, #1c4077 100%);
+  border-color: rgba(160, 215, 255, 0.95);
+  transform: translateY(-1px);
+  filter: none;
+}
+
+/* source lines 13412-13416 */
+.dx3-enemies-page .enemy-skill-copy-btn i {
+margin: 0;
+  font-size: 0.68rem;
+  line-height: 0.85;
+}
+
+/* source lines 13418-13427 */
+.dx3-enemies-page .enemy-skill-copy-btn-label {
+display: block;
+  margin: -0.02rem 0 0;
+  padding: 0;
+  font-size: 0.52rem;
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: 0;
+  color: #eef8ff;
+}
+
+/* source lines 13429-13433 */
+.dx3-enemies-page .enemy-skill-delete-btn {
+color: #fff;
+  border: 1px solid rgba(255, 122, 122, 0.8);
+  background: linear-gradient(180deg, #e74c3c 0%, #b83228 100%);
+}
+
+/* source lines 13435-13439 */
+.dx3-enemies-page .enemy-skill-delete-btn i {
+margin: 0;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+/* source lines 13536-13544 */
+.dx3-enemies-page .enemy-skill-copy-btn, .dx3-enemies-page .enemy-skill-delete-btn {
+width: 1.6rem;
+  min-width: 1.6rem;
+  max-width: 1.6rem;
+  height: 1.6rem;
+  min-height: 1.6rem;
+  max-height: 1.6rem;
+}
+
+/* source lines 13717-13720 */
+.dx3-enemies-page .dx3-enemy-profile-section {
+width: 100% !important;
+  max-width: none !important;
+}
+
+/* source lines 13729-13740 */
+.dx3-enemies-page .enemy-xp-conversion-card {
+position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+  padding: 0.18rem 0.28rem;
+  border: 1px solid rgba(255, 224, 138, 0.38);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(90, 32, 12, 0.82), rgba(16, 30, 72, 0.78));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+/* source lines 13742-13748 */
+.dx3-enemies-page .enemy-xp-conversion-title {
+color: #ffe08a;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* source lines 13780-13783 */
+.dx3-enemies-page .enemy-syndrome-select, .dx3-enemies-page .dx3-enemy-ability-section .enemy-syndrome-select {
+font-size: 1rem !important;
+}
+
+/* source lines 13799-13812 */
+.dx3-enemies-page .enemy-xp-help-icon {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  background: rgba(255, 224, 138, 0.22);
+  color: #ffe08a;
+  font-size: 0.72rem;
+  font-weight: 900;
+  cursor: help;
+  outline: none;
+}
+
+/* source lines 13814-13833 */
+.dx3-enemies-page .enemy-xp-conversion-note {
+position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  width: min(32rem, 78vw);
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(255, 224, 138, 0.45);
+  border-radius: 0.42rem;
+  background: rgba(7, 16, 43, 0.96);
+  color: rgba(234, 243, 255, 0.92);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.38);
+  opacity: 0;
+  transform: translateY(-0.25rem);
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+/* source lines 13835-13840 */
+.dx3-enemies-page .enemy-xp-conversion-card:hover .enemy-xp-conversion-note, .dx3-enemies-page .enemy-xp-conversion-card:focus-within .enemy-xp-conversion-note {
+opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* source lines 13853-13857 */
+.dx3-enemies-page .dx3-enemy-profile-section .enemy-ability-breakdown, .dx3-enemies-page .dx3-enemy-profile-section .enemy-skill-block {
+min-width: 0;
+  margin-top: 0.28rem;
+}
+
+/* source lines 13859-13863 */
+.dx3-enemies-page .dx3-enemy-profile-section .enemy-skill-block {
+display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* source lines 13865-13869 */
+.dx3-enemies-page .dx3-enemy-profile-section .enemy-skill-summary {
+min-height: 2.1rem;
+  padding: 0.42rem 0.55rem;
+  box-sizing: border-box;
+}
+

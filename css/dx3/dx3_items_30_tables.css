@@ -1,0 +1,327 @@
+/* dx3_items_30_tables.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 395-397 */
+.items-table td:nth-child(1) {
+min-width: 150px;
+}
+
+/* source lines 398-400 */
+.items-table td:nth-child(2) {
+width: 40px;
+}
+
+/* source lines 401-405 */
+.items-table td:nth-child(3), .items-table td:nth-child(4) {
+width: 90px;
+  min-width: 90px;
+}
+
+/* source lines 406-413 */
+.items-table td:nth-child(5), .items-table td:nth-child(6), .items-table td:nth-child(7), .items-table td:nth-child(8), .items-table td:nth-child(9), .items-table td:nth-child(10) {
+width: 60px;
+}
+
+/* source lines 414-417 */
+.items-table td:nth-child(11) {
+min-width: 300px;
+  white-space: normal;
+}
+
+/* source lines 418-420 */
+.items-table td:nth-child(12) {
+width: 80px;
+}
+
+/* source lines 996-1000 */
+.item-select-label {
+display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* source lines 1001-1003 */
+.item-select-label span {
+flex-grow: 1;
+}
+
+/* source lines 1004-1008 */
+.item-select-label.is-excluded {
+text-decoration: line-through;
+  opacity: 0.6;
+  color: #999;
+}
+
+/* source lines 1010-1012 */
+.item-select-label.is-excluded .show-in-combo-btn {
+text-decoration: none; /* ボタンのテキストには打ち消し線を適用しない */
+}
+
+/* source lines 2110-2114 */
+.items-table td:nth-child(11) {
+min-width: 300px !important;
+  max-width: none !important;
+  white-space: normal !important;
+}
+
+/* source lines 2429-2433 */
+#dx3-app .items-table td:nth-child(1) {
+width: 158px;
+  min-width: 142px;
+  max-width: 180px;
+}
+
+/* source lines 2434-2440 */
+#dx3-app .items-table td:nth-child(2), #dx3-app .items-table td:nth-child(10) {
+width: 54px !important;
+  min-width: 54px !important;
+  max-width: 58px !important;
+  text-align: center;
+}
+
+/* source lines 2441-2446 */
+#dx3-app .items-table td:nth-child(3), #dx3-app .items-table td:nth-child(4) {
+width: 98px !important;
+  min-width: 84px !important;
+  max-width: 108px !important;
+}
+
+/* source lines 2447-2455 */
+#dx3-app .items-table td:nth-child(5), #dx3-app .items-table td:nth-child(6), #dx3-app .items-table td:nth-child(7), #dx3-app .items-table td:nth-child(8), #dx3-app .items-table td:nth-child(9) {
+width: 64px !important;
+  min-width: 58px !important;
+  max-width: 72px !important;
+}
+
+/* source lines 2456-2461 */
+#dx3-app .items-table td:nth-child(11) {
+width: 300px !important;
+  min-width: 240px !important;
+  max-width: 340px !important;
+  white-space: normal !important;
+}
+
+/* source lines 2462-2466 */
+#dx3-app .items-table td:nth-child(12) {
+width: 82px !important;
+  min-width: 82px !important;
+  max-width: 90px !important;
+}
+
+/* source lines 2902-2905 */
+#dx3-app .items-table {
+table-layout: fixed;
+  min-width: 1240px;
+}
+
+/* source lines 2906-2906 */
+#dx3-app .items-table col.item-col-name {
+width: 150px;
+}
+
+/* source lines 2907-2907 */
+#dx3-app .items-table col.item-col-level {
+width: 52px;
+}
+
+/* source lines 2908-2908 */
+#dx3-app .items-table col.item-col-type {
+width: 92px;
+}
+
+/* source lines 2909-2909 */
+#dx3-app .items-table col.item-col-skill {
+width: 106px;
+}
+
+/* source lines 2910-2910 */
+#dx3-app .items-table col.item-col-accuracy {
+width: 68px;
+}
+
+/* source lines 2911-2911 */
+#dx3-app .items-table col.item-col-attack {
+width: 74px;
+}
+
+/* source lines 2912-2912 */
+#dx3-app .items-table col.item-col-guard {
+width: 78px;
+}
+
+/* source lines 2913-2913 */
+#dx3-app .items-table col.item-col-range {
+width: 72px;
+}
+
+/* source lines 2914-2914 */
+#dx3-app .items-table col.item-col-cost {
+width: 72px;
+}
+
+/* source lines 2915-2915 */
+#dx3-app .items-table col.item-col-xp {
+width: 62px;
+}
+
+/* source lines 2916-2916 */
+#dx3-app .items-table col.item-col-notes {
+width: 280px;
+}
+
+/* source lines 2917-2917 */
+#dx3-app .items-table col.item-col-actions {
+width: 96px;
+}
+
+/* source lines 2919-2923 */
+#dx3-app .items-table th, #dx3-app .items-table td {
+box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* source lines 2925-2939 */
+#dx3-app .items-table td:nth-child(1), #dx3-app .items-table td:nth-child(2), #dx3-app .items-table td:nth-child(3), #dx3-app .items-table td:nth-child(4), #dx3-app .items-table td:nth-child(5), #dx3-app .items-table td:nth-child(6), #dx3-app .items-table td:nth-child(7), #dx3-app .items-table td:nth-child(8), #dx3-app .items-table td:nth-child(9), #dx3-app .items-table td:nth-child(10), #dx3-app .items-table td:nth-child(11), #dx3-app .items-table td:nth-child(12) {
+min-width: 0 !important;
+  max-width: none !important;
+}
+
+/* source lines 2941-2943 */
+#dx3-app .items-table td:nth-child(11) {
+white-space: normal !important;
+}
+
+/* source lines 2945-2947 */
+#dx3-app .items-table td:nth-child(11) textarea {
+min-height: 40px;
+}
+
+/* source lines 2949-2951 */
+#dx3-app .items-table td:nth-child(12) {
+text-align: center;
+}
+
+/* source lines 2953-2958 */
+#dx3-app .items-table .action-cell {
+gap: 6px;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap;
+}
+
+/* source lines 2960-2963 */
+#dx3-app .items-table .action-cell .setting-btn, #dx3-app .items-table .action-cell .delete-btn {
+padding: 7px 8px;
+}
+
+/* source lines 3012-3014 */
+#dx3-app .items-table col.item-col-actions {
+width: 98px !important;
+}
+
+/* source lines 8540-8540 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(1)::before {
+content: "名称";
+}
+
+}
+
+/* source lines 8541-8541 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(2)::before {
+content: "Lv";
+}
+
+}
+
+/* source lines 8542-8542 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(3)::before {
+content: "種別";
+}
+
+}
+
+/* source lines 8543-8543 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(4)::before {
+content: "技能";
+}
+
+}
+
+/* source lines 8544-8544 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(5)::before {
+content: "命中";
+}
+
+}
+
+/* source lines 8545-8545 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(6)::before {
+content: "攻撃";
+}
+
+}
+
+/* source lines 8546-8546 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(7)::before {
+content: "ガード";
+}
+
+}
+
+/* source lines 8547-8547 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(8)::before {
+content: "射程";
+}
+
+}
+
+/* source lines 8548-8548 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(9)::before {
+content: "侵蝕";
+}
+
+}
+
+/* source lines 8549-8549 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(10)::before {
+content: "経験点";
+}
+
+}
+
+/* source lines 8550-8550 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(11)::before {
+content: "備考";
+}
+
+}
+
+/* source lines 8551-8551 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table td:nth-child(12)::before {
+content: "設定";
+}
+
+}
+
+/* source lines 8624-8626 */
+@media (max-width: 760px) {
+body.dx3-combo-page .items-table {
+min-width: 980px;
+}
+
+}
+

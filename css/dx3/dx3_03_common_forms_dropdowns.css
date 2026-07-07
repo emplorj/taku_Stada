@@ -1,0 +1,1364 @@
+/* dx3_03_common_forms_dropdowns.css
+   Source: dx3_combo_generator(27).css
+   Phase1 split. Generated from original CSS; review before deleting old rules.
+*/
+
+/* source lines 15-22 */
+.db-url-input {
+flex-grow: 1;
+  min-width: 50px;
+  width: 100%; /* 親要素の幅に合わせる */
+  display: flex; /* Flexboxを適用 */
+  align-items: center; /* 垂直方向の中央揃え */
+  gap: 10px; /* ラベルと入力ボックスの間のスペース */
+}
+
+/* source lines 24-29 */
+.db-url-input span {
+/* display: block; */ /* Flexアイテムになるため不要 */
+  margin-bottom: 0; /* Flexアイテムになるため不要 */
+  font-size: 0.9em;
+  flex-shrink: 0; /* ラベルが縮まないようにする */
+}
+
+/* source lines 30-38 */
+.db-url-input input {
+background-color: #0d1a50;
+  border: 1px solid #2a3c7d;
+  color: #eee;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* source lines 161-165 */
+.xp-fields-group {
+display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+/* source lines 176-178 */
+.xp-fields-group label {
+flex: 1;
+}
+
+/* source lines 180-189 */
+.character-info-grid input {
+background-color: #0d1a50;
+  border: 1px solid #2a3c7d;
+  color: #eee;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 60px;
+}
+
+/* source lines 305-315 */
+.dx3-table input, .dx3-table textarea {
+width: 100%;
+  min-width: 50px;
+  background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+  padding: 5px;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+/* source lines 316-320 */
+.dx3-table textarea {
+resize: vertical;
+  min-height: 40px;
+  white-space: normal;
+}
+
+/* source lines 321-323 */
+.input-with-dropdown {
+position: relative;
+}
+
+/* source lines 324-333 */
+.input-with-dropdown .dropdown-arrow {
+position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #87cefa;
+  font-size: 0.8em;
+  display: none;
+}
+
+/* source lines 334-344 */
+.input-with-dropdown .dropdown-menu {
+z-index: 9999;
+  background-color: #2c2c2c;
+  border: 1px solid #4a5c9a;
+  border-radius: 4px;
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 5px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* source lines 345-349 */
+.input-with-dropdown .dropdown-menu li {
+padding: 8px 12px;
+  color: #eee;
+  cursor: pointer;
+}
+
+/* source lines 350-352 */
+.input-with-dropdown .dropdown-menu li:hover {
+background-color: #1a2c6d;
+}
+
+/* source lines 353-355 */
+.input-with-dropdown:hover .dropdown-arrow {
+display: block;
+}
+
+/* source lines 364-366 */
+.input-with-dropdown .dropdown-menu::-webkit-scrollbar {
+display: none;
+}
+
+/* source lines 367-370 */
+.input-with-dropdown .dropdown-menu {
+-ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* source lines 689-693 */
+.textarea-header label {
+margin: 0;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+/* source lines 886-889 */
+.input-group label {
+margin-bottom: 0;
+  white-space: nowrap;
+}
+
+/* source lines 890-895 */
+.input-group .input-example {
+font-size: 0.8em;
+  color: #999;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+/* source lines 896-899 */
+.input-group .color-base {
+color: #ffc107;
+  font-weight: bold;
+}
+
+/* source lines 900-903 */
+.input-group .color-per-level {
+color: #87cefa;
+  font-weight: bold;
+}
+
+/* source lines 904-909 */
+.input-with-addon {
+display: grid;
+  grid-template-columns: 1fr 30px; /* 入力フィールドが可変、Dボタンのスペースを30pxに固定 */
+  align-items: center;
+  gap: 0; /* Dボタンと入力フィールドの間のスペースをなくす */
+}
+
+/* source lines 910-920 */
+.input-with-addon .dice-toggle-btn {
+background-color: #6c757d;
+  color: rgb(206, 206, 206);
+  border: none;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.8em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0; /* ボタンが縮まないようにする */
+}
+
+/* source lines 922-925 */
+.input-with-addon .dice-toggle-btn.active {
+background-color: #2ecc71;
+  color: white;
+}
+
+/* source lines 927-929 */
+.input-with-addon .dice-toggle-btn:hover:not(:disabled) {
+opacity: 0.8;
+}
+
+/* source lines 1014-1018 */
+.selected-order-group {
+border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+/* source lines 1020-1025 */
+.selected-order-help, .selected-order-empty {
+color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+/* source lines 1027-1030 */
+.selected-order-list {
+display: grid;
+  gap: 0.4rem;
+}
+
+/* source lines 1032-1041 */
+.selected-order-row {
+align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 0.45rem 0.55rem;
+}
+
+/* source lines 1043-1047 */
+.selected-order-label {
+overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* source lines 1049-1052 */
+.selected-order-actions {
+display: inline-flex;
+  gap: 0.25rem;
+}
+
+/* source lines 1129-1137 */
+.combo-manual-settings input[type="text"] {
+flex-grow: 1;
+  background-color: #0d1a50;
+  border: 1px solid #4a5c9a;
+  color: #eee;
+  padding: 5px;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+/* source lines 1139-1143 */
+.combo-manual-settings input[type="text"]:disabled {
+background-color: #3c3c3c;
+  color: #bbb;
+  cursor: not-allowed;
+}
+
+/* source lines 1347-1349 */
+@media (max-width: 1400px) {
+.xp-fields-group {
+min-width: 0;
+}
+
+}
+
+/* source lines 1350-1353 */
+@media (max-width: 1400px) {
+.xp-fields-group label {
+flex-basis: calc(50% - 8px);
+    flex-grow: 1;
+}
+
+}
+
+/* source lines 1916-1918 */
+@media (max-width: 650px) {
+.xp-fields-group {
+gap: 10px;
+}
+
+}
+
+/* source lines 1920-1924 */
+@media (max-width: 650px) {
+.xp-fields-group label {
+flex-direction: column; /* 上下に並べる */
+    align-items: stretch; /* 横幅いっぱいに */
+    gap: 5px;
+}
+
+}
+
+/* source lines 1926-1930 */
+@media (max-width: 650px) {
+.xp-fields-group label input {
+width: 100%; /* 入力欄を最大幅に */
+    margin-left: 0; /* 既存の左マージンを消す */
+    text-align: left; /* 左寄せ */
+}
+
+}
+
+/* source lines 1934-1936 */
+@media (max-width: 650px) {
+.xp-fields-group label input[readonly] {
+text-align: left;
+}
+
+}
+
+/* source lines 2339-2351 */
+#dx3-app .dx3-table input[type="number"] {
+appearance: textfield;
+  -moz-appearance: textfield;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.08em;
+  line-height: 1.15;
+  min-width: 0 !important;
+  width: 3.1rem !important;
+  max-width: 3.1rem;
+  text-align: center;
+  padding: 4px 3px;
+}
+
+/* source lines 2353-2357 */
+#dx3-app .dx3-table input.numeric-font, #dx3-app .dx3-table .numeric-font {
+font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+/* source lines 2359-2363 */
+#dx3-app .character-info-grid input[type="number"] {
+width: 100% !important;
+  max-width: none;
+  text-align: right;
+}
+
+/* source lines 2365-2368 */
+#dx3-app .dx3-table input, #dx3-app .dx3-table textarea {
+min-width: 0;
+}
+
+/* source lines 2526-2536 */
+#dx3-app .character-info-grid input[type="number"] {
+appearance: textfield;
+  -moz-appearance: textfield;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.16em;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+/* source lines 3171-3177 */
+.dx3-table input[readonly], .dx3-table textarea[readonly], .dx3-table input:disabled {
+background-color: rgba(13, 26, 80, 0.48);
+  color: #cbd5e1;
+  border-color: rgba(74, 92, 154, 0.65);
+}
+
+/* source lines 3178-3180 */
+.dx3-table textarea[readonly] {
+cursor: default;
+}
+
+/* source lines 4895-4895 */
+.action-meta-field input {
+width: 12rem;
+}
+
+/* source lines 4896-4896 */
+.action-meta-field.is-icon input {
+width: min(34vw, 22rem);
+}
+
+/* source lines 5004-5005 */
+@media (max-width: 900px) {
+.action-meta-field input, .action-meta-field.is-icon input {
+width: min(100%, 18rem);
+}
+
+}
+
+/* source lines 7909-7917 */
+@media (max-width: 760px) {
+body.dx3-combo-page .db-url-input, body.dx3-combo-page .character-info-grid label, body.dx3-combo-page .xp-fields-group label {
+display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 5px;
+    white-space: normal;
+}
+
+}
+
+/* source lines 7939-7943 */
+@media (max-width: 760px) {
+body.dx3-combo-page .xp-fields-group {
+display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+}
+
+/* source lines 8759-8764 */
+@media (max-width: 760px) {
+body.dx3-combo-page .character-info-grid .xp-fields-group {
+display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+}
+
+}
+
+/* source lines 8766-8774 */
+@media (max-width: 760px) {
+body.dx3-combo-page .character-info-grid .xp-fields-group label {
+display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+    align-items: stretch;
+    width: auto;
+    min-width: 0;
+    font-size: 0.78rem;
+}
+
+}
+
+/* source lines 8776-8780 */
+@media (max-width: 760px) {
+body.dx3-combo-page .character-info-grid input {
+min-width: 0;
+    min-height: 34px;
+    padding: 5px 7px;
+}
+
+}
+
+/* source lines 8782-8784 */
+@media (max-width: 760px) {
+body.dx3-combo-page .character-info-grid input[type="number"] {
+text-align: right;
+}
+
+}
+
+/* source lines 8903-8906 */
+@media (max-width: 420px) {
+body.dx3-combo-page .character-info-grid .xp-fields-group {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+
+}
+
+/* source lines 14326-14330 */
+body.dx3-combo-page #dx3-app .source-name-infer-wrap > input, body.dx3-combo-page #dx3-app .effect-name-inline-wrap > input {
+flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* source lines 15468-15472 */
+.dx3-combo-page .combo-skill-select-cell {
+position: relative;
+  flex-wrap: wrap;
+  row-gap: 0.22rem;
+}
+
+/* source lines 15474-15480 */
+.dx3-combo-page .combo-skill-select-cell.needs-skill-select {
+border-color: rgba(255, 193, 7, 0.85);
+  background:
+    linear-gradient(180deg, rgba(255, 193, 7, 0.14), rgba(60, 50, 20, 0.18)),
+    #3c3c3c;
+  box-shadow: inset 0 0 0 1px rgba(255, 193, 7, 0.28);
+}
+
+/* source lines 15482-15485 */
+.dx3-combo-page .combo-skill-select-cell.needs-skill-select select {
+border-color: rgba(255, 193, 7, 0.9);
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.16);
+}
+
+/* source lines 15827-15836 */
+.dx3-combo-page .xp-fields-group :is(#total-xp-label, #other-xp-label, #used-xp-label, #remaining-xp-label) input[type="number"] {
+padding: 3px 7px;
+  min-height: 2rem;
+  height: 2rem;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.25rem;
+  line-height: 1;
+  text-align: right;
+}
+
+/* source lines 15838-15840 */
+.dx3-combo-page .xp-fields-group :is(#total-xp-label, #other-xp-label, #used-xp-label, #remaining-xp-label) {
+align-items: center;
+}
+
+/* source lines 17061-17070 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-url-input, body.dx3-combo-page #dx3-app .pc-character-name-row, body.dx3-combo-page #dx3-app .character-info-grid label {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.3rem !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17072-17077 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-url-input span, body.dx3-combo-page #dx3-app .character-info-grid label > span, body.dx3-combo-page #dx3-app .pc-summary-label {
+min-width: 0 !important;
+    white-space: normal !important;
+}
+
+}
+
+/* source lines 17079-17086 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-url-input input, body.dx3-combo-page #dx3-app .character-info-grid input, body.dx3-combo-page #dx3-app .pc-character-name-row input {
+width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+}
+
+/* source lines 17153-17159 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17161-17169 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.22rem !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+}
+
+}
+
+/* source lines 17171-17177 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    text-align: right !important;
+    padding-inline: 0.45rem !important;
+}
+
+}
+
+/* source lines 17181-17183 */
+@media (max-width: 360px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+grid-template-columns: minmax(0, 1fr) !important;
+}
+
+}
+
+/* source lines 17361-17366 */
+@media (min-width: 561px) {
+body.dx3-combo-page #dx3-app .db-url-input {
+display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17368-17370 */
+@media (min-width: 561px) {
+body.dx3-combo-page #dx3-app .db-url-input input {
+min-width: 0 !important;
+}
+
+}
+
+/* source lines 17408-17415 */
+@media (min-width: 561px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 15px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17417-17420 */
+@media (min-width: 561px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label {
+flex: 1 1 0 !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17472-17482 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-url-input, body.dx3-combo-page #dx3-app .pc-character-name-row, body.dx3-combo-page #dx3-app .character-info-grid label, body.dx3-combo-page #dx3-app .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.22rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    align-items: stretch !important;
+}
+
+}
+
+/* source lines 17484-17491 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-url-input span, body.dx3-combo-page #dx3-app .character-info-grid label > span, body.dx3-combo-page #dx3-app .pc-summary-label {
+font-size: 0.72rem !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+}
+
+/* source lines 17493-17503 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .db-url-input input, body.dx3-combo-page #dx3-app .character-info-grid input, body.dx3-combo-page #dx3-app .pc-character-name-row input {
+width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 2rem !important;
+    padding: 0.35rem 0.45rem !important;
+    box-sizing: border-box !important;
+    font-size: 0.82rem !important;
+}
+
+}
+
+/* source lines 17555-17561 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.38rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17563-17567 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+text-align: right !important;
+    font-size: 1rem !important;
+    line-height: 1.05 !important;
+}
+
+}
+
+/* source lines 17576-17578 */
+@media (max-width: 359px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+}
+
+/* source lines 17601-17607 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.42rem 0.5rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17609-17616 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(4.4rem, 5rem) !important;
+    gap: 0.4rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17618-17628 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    font-size: 0.76rem !important;
+    line-height: 1.15 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+}
+
+/* source lines 17630-17637 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+width: 100% !important;
+    min-width: 0 !important;
+    height: 1.95rem !important;
+    text-align: right !important;
+    font-size: 1.25rem !important;
+    padding: 0.2rem 0.42rem !important;
+}
+
+}
+
+/* source lines 17641-17643 */
+@media (max-width: 359px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+grid-template-columns: minmax(0, 1fr) !important;
+}
+
+}
+
+/* source lines 17645-17647 */
+@media (max-width: 359px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label {
+grid-template-columns: minmax(0, 1fr) minmax(4.2rem, 4.8rem) !important;
+}
+
+}
+
+/* source lines 17653-17659 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.42rem 0.5rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17661-17669 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 3.45rem !important;
+    gap: 0.28rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+}
+
+/* source lines 17671-17681 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    font-size: 0.7rem !important;
+    line-height: 1.15 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+}
+
+/* source lines 17683-17692 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+width: 3.45rem !important;
+    min-width: 3.45rem !important;
+    max-width: 3.45rem !important;
+    height: 1.85rem !important;
+    padding: 0.18rem 0.32rem !important;
+    text-align: right !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+}
+
+}
+
+/* source lines 17697-17700 */
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.38rem 0.4rem !important;
+}
+
+}
+
+/* source lines 17702-17705 */
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label {
+grid-template-columns: minmax(0, 1fr) 3.2rem !important;
+    gap: 0.22rem !important;
+}
+
+}
+
+/* source lines 17707-17709 */
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+font-size: 0.66rem !important;
+}
+
+}
+
+/* source lines 17711-17716 */
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+width: 3.2rem !important;
+    min-width: 3.2rem !important;
+    max-width: 3.2rem !important;
+    padding-inline: 0.24rem !important;
+}
+
+}
+
+/* source lines 17721-17723 */
+@media (max-width: 319px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+grid-template-columns: minmax(0, 1fr) !important;
+}
+
+}
+
+/* source lines 17725-17727 */
+@media (max-width: 319px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label {
+grid-template-columns: minmax(0, 1fr) 3.45rem !important;
+}
+
+}
+
+/* source lines 17733-17739 */
+@media (min-width: 561px) and (max-width: 1250px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem 0.65rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17741-17749 */
+@media (min-width: 561px) and (max-width: 1250px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: minmax(4.5rem, 1fr) minmax(4.2rem, 5.2rem) !important;
+    gap: 0.45rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    white-space: normal !important;
+}
+
+}
+
+/* source lines 17751-17757 */
+@media (min-width: 561px) and (max-width: 1250px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label > span {
+min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+    line-height: 1.15 !important;
+    font-size: 0.78rem !important;
+}
+
+}
+
+/* source lines 17759-17767 */
+@media (min-width: 561px) and (max-width: 1250px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+width: 100% !important;
+    min-width: 0 !important;
+    max-width: 5.2rem !important;
+    justify-self: end !important;
+    text-align: right !important;
+    font-weight: 400 !important;
+    padding-inline: 0.45rem !important;
+}
+
+}
+
+/* source lines 17772-17776 */
+@media (min-width: 1251px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group {
+display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+}
+
+}
+
+/* source lines 17778-17783 */
+@media (min-width: 1251px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 17785-17787 */
+@media (min-width: 1251px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18301-18307 */
+@media (min-width: 561px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem 0.6rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 18309-18323 */
+@media (min-width: 561px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label, body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 3.35rem !important;
+    gap: 0.3rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.15 !important;
+    font-size: 0.78rem !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18325-18336 */
+@media (min-width: 561px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"], body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+width: 3.35rem !important;
+    min-width: 3.35rem !important;
+    max-width: 3.35rem !important;
+    height: 1.9rem !important;
+    justify-self: end !important;
+    text-align: right !important;
+    padding: 0.18rem 0.3rem !important;
+    font-weight: 400 !important;
+    box-sizing: border-box !important;
+}
+
+}
+
+/* source lines 18354-18358 */
+@media (min-width: 1381px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.6rem !important;
+}
+
+}
+
+/* source lines 18360-18367 */
+@media (min-width: 1381px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 3.4rem !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18369-18376 */
+@media (min-width: 1381px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+width: 3.4rem !important;
+    min-width: 3.4rem !important;
+    max-width: 3.4rem !important;
+    justify-self: end !important;
+    padding-inline: 0.32rem !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18381-18385 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label, body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+grid-template-columns: minmax(0, 1fr) 3.25rem !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18387-18393 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"], body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+width: 3.25rem !important;
+    min-width: 3.25rem !important;
+    max-width: 3.25rem !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18399-18406 */
+@media (min-width: 561px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group, body.dx3-combo-page #dx3-app .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem 0.7rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 18408-18423 */
+@media (min-width: 561px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label, body.dx3-combo-page #dx3-app .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: max-content 2.75rem !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+    justify-content: start !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    font-size: 0.78rem !important;
+    font-weight: 400 !important;
+    line-height: 1.1 !important;
+}
+
+}
+
+/* source lines 18425-18436 */
+@media (min-width: 561px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label > span, body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+min-width: max-content !important;
+    width: max-content !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18438-18449 */
+@media (min-width: 561px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"], body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+width: 2.75rem !important;
+    min-width: 2.75rem !important;
+    max-width: 2.75rem !important;
+    height: 1.85rem !important;
+    justify-self: start !important;
+    text-align: right !important;
+    padding: 0.16rem 0.24rem !important;
+    font-weight: 400 !important;
+    box-sizing: border-box !important;
+}
+
+}
+
+/* source lines 18454-18459 */
+@media (min-width: 561px) and (max-width: 1160px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label, body.dx3-combo-page #dx3-app .xp-fields-group label {
+grid-template-columns: max-content 2.55rem !important;
+    gap: 0.28rem !important;
+    font-size: 0.74rem !important;
+}
+
+}
+
+/* source lines 18461-18468 */
+@media (min-width: 561px) and (max-width: 1160px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"], body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+width: 2.55rem !important;
+    min-width: 2.55rem !important;
+    max-width: 2.55rem !important;
+    padding-inline: 0.2rem !important;
+    font-size: 0.9rem !important;
+}
+
+}
+
+/* source lines 18473-18478 */
+@media (min-width: 1381px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+grid-template-columns: max-content 2.9rem !important;
+    gap: 0.38rem !important;
+    white-space: nowrap !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18480-18486 */
+@media (min-width: 1381px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+width: 2.9rem !important;
+    min-width: 2.9rem !important;
+    max-width: 2.9rem !important;
+    padding-inline: 0.24rem !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18492-18496 */
+@media (min-width: 1381px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.6rem !important;
+}
+
+}
+
+/* source lines 18498-18506 */
+@media (min-width: 1381px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: max-content minmax(3.2rem, 1fr) !important;
+    gap: 0.4rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18508-18515 */
+@media (min-width: 1381px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+width: 100% !important;
+    min-width: 3.2rem !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    padding-inline: 0.36rem !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18520-18527 */
+@media (min-width: 1161px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group, body.dx3-combo-page #dx3-app .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem 0.7rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+}
+
+/* source lines 18529-18544 */
+@media (min-width: 1161px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label, body.dx3-combo-page #dx3-app .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: max-content minmax(3rem, 1fr) !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    font-size: 0.78rem !important;
+    font-weight: 400 !important;
+    line-height: 1.1 !important;
+}
+
+}
+
+/* source lines 18546-18553 */
+@media (min-width: 1161px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label > span, body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+min-width: max-content !important;
+    width: max-content !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18555-18566 */
+@media (min-width: 1161px) and (max-width: 1380px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"], body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+width: 100% !important;
+    min-width: 3rem !important;
+    max-width: none !important;
+    height: 1.85rem !important;
+    justify-self: stretch !important;
+    text-align: right !important;
+    padding: 0.16rem 0.3rem !important;
+    font-weight: 400 !important;
+    box-sizing: border-box !important;
+}
+
+}
+
+/* source lines 18571-18576 */
+@media (min-width: 561px) and (max-width: 1160px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group, body.dx3-combo-page #dx3-app .xp-fields-group {
+display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.4rem 0.55rem !important;
+}
+
+}
+
+/* source lines 18578-18590 */
+@media (min-width: 561px) and (max-width: 1160px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label, body.dx3-combo-page #dx3-app .xp-fields-group label {
+display: grid !important;
+    grid-template-columns: max-content minmax(2.35rem, 1fr) !important;
+    gap: 0.24rem !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    font-size: 0.74rem !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18592-18598 */
+@media (min-width: 561px) and (max-width: 1160px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label > span, body.dx3-combo-page #dx3-app .xp-fields-group label > span {
+min-width: max-content !important;
+    width: max-content !important;
+    white-space: nowrap !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18600-18610 */
+@media (min-width: 561px) and (max-width: 1160px) {
+body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"], body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"] {
+width: 100% !important;
+    min-width: 2.35rem !important;
+    max-width: none !important;
+    height: 1.8rem !important;
+    justify-self: stretch !important;
+    padding-inline: 0.18rem !important;
+    font-size: 0.88rem !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18615-18621 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label, body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+grid-template-columns: max-content minmax(2.55rem, 1fr) !important;
+    gap: 0.24rem !important;
+    white-space: nowrap !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18623-18630 */
+@media (max-width: 560px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"], body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+width: 100% !important;
+    min-width: 2.55rem !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    font-weight: 400 !important;
+}
+
+}
+
+/* source lines 18634-18638 */
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group label, body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group label {
+grid-template-columns: max-content minmax(2.25rem, 1fr) !important;
+    gap: 0.18rem !important;
+}
+
+}
+
+/* source lines 18640-18645 */
+@media (max-width: 380px) {
+body.dx3-combo-page #dx3-app .xp-fields-group input[type="number"], body.dx3-combo-page #dx3-app .character-info-grid .xp-fields-group input[type="number"] {
+min-width: 2.25rem !important;
+    padding-inline: 0.16rem !important;
+    font-size: 0.86rem !important;
+}
+
+}
+
