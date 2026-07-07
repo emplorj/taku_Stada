@@ -13879,12 +13879,6 @@ body.dx3-combo-page .section-title .xp-label {
   border-color: rgba(232, 242, 255, 0.35);
 }
 
-#dx3-app .coef-row-infer-btn.is-accepted::after {
-  content: "✓";
-  margin-left: 0.25em;
-  color: #9be7b4;
-}
-
 #dx3-app .inference-accept-current-btn {
   background-color: #5a6268;
 }
@@ -16668,7 +16662,7 @@ body.dx3-combo-page #dx3-app .effects-table.is-enemy-detail-table col.effect-det
 }
 
 /* 狭い画面ではページ全体ではなく wrapper 内だけを横スライド */
-@media (max-width: 1500px) {
+@media (max-width: 1800px) {
   #dx3-app .table-wrapper:has(.effects-table),
   #dx3-app .table-wrapper {
     overflow-x: auto;
@@ -16884,6 +16878,152 @@ body.dx3-combo-page #dx3-app .table-wrapper::-webkit-scrollbar-thumb {
     content: "";
     flex: 1 1 auto;
     min-width: 0;
+  }
+}
+
+/* v119: 名称欄は折り返さず、係数表の他列を詰めて表示幅を確保する */
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 {
+  width: 1530px !important;
+  min-width: 1530px !important;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-name {
+  width: 14rem !important;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-timing {
+  width: 5.5rem !important;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-coef {
+  width: 2.2rem !important;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-current {
+  width: 2.45rem !important;
+}
+
+body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-note {
+  width: 8rem !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-cell {
+  width: 14rem !important;
+  max-width: 14rem !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-short-cell {
+  width: 5.5rem !important;
+  max-width: 5.5rem !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-note-cell {
+  width: 8rem !important;
+  max-width: 8rem !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap {
+  flex-wrap: nowrap;
+  gap: 0.22rem;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap > input {
+  min-width: 4.4rem;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap > .coef-row-infer-btn,
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap > .coef-row-undo-btn {
+  flex: 0 0 auto;
+  align-self: stretch;
+  height: auto;
+  min-width: 0;
+  padding-inline: 0.3rem;
+  font-size: 0.7rem;
+  box-sizing: border-box;
+}
+
+body.dx3-combo-page #dx3-app .combo-source-table-v34 .source-name-infer-wrap > .coef-row-undo-btn {
+  width: auto;
+}
+
+/* v120: 中幅以下ではPC用10項目グリッドが後勝ちしてエネミー用9項目バーを潰すため、
+   エネミー用の3×3配置を最後に明示する。 */
+@media (max-width: 1500px) {
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve"
+      "target range timing"
+      "skill ability attack" !important;
+    overflow: visible;
+  }
+
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats .stat-item,
+  .combo-stats-bar.is-enemy-combo-stats .stat-item {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit"
+      "achieve attack"
+      "target range"
+      "timing skill"
+      "ability ability" !important;
+  }
+}
+
+@media (max-width: 520px) {
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+      "dice"
+      "crit"
+      "achieve"
+      "target"
+      "range"
+      "timing"
+      "skill"
+      "ability"
+      "attack" !important;
+  }
+}
+
+@media (min-width: 1600px) {
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-name {
+    width: 14% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-timing {
+    width: 5.5% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-coef {
+    width: 2.3% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-current {
+    width: 2.8% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-effect {
+    width: 22% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .compact-table-wrapper .combo-source-table-v34 col.combo-col-note {
+    width: 12% !important;
   }
 }
 
@@ -18652,4 +18792,678 @@ body.dx3-combo-page #dx3-app #pcScenarioResourcesTable .cell-resource-current::a
 /* 再取得モーダルの表記も「max」ではなく「回数」に寄せる */
 body.dx3-combo-page #dx3-app .pc-scenario-refresh-row .refresh-max {
   min-width: 4.2rem;
+}
+
+
+/* v140: combo-stats-bar / enemy combo stats の中幅・広幅レイアウト調整
+   - 1250px前後で3列化して余りすぎる問題を抑える
+   - 1699px前後でエネミー9項目を1行に押し込んで崩れる問題を抑える
+*/
+body.dx3-combo-page #dx3-app .combo-stats-bar,
+body.dx3-combo-page .combo-stats-bar {
+  display: grid !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item,
+body.dx3-combo-page .combo-stats-bar .stat-item {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span,
+body.dx3-combo-page .combo-stats-bar .stat-item span {
+  min-width: 0 !important;
+}
+
+/* PCコンボ: 広い時は1行。各セルは内容量に合わせて比率を変える */
+@media (min-width: 1501px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    grid-template-columns:
+      minmax(4.2rem, 0.55fr)
+      minmax(4.2rem, 0.55fr)
+      minmax(5.2rem, 0.65fr)
+      minmax(8.4rem, 1fr)
+      minmax(8.0rem, 0.96fr)
+      minmax(9.4rem, 1.12fr)
+      minmax(7.2rem, 0.88fr)
+      minmax(7.0rem, 0.86fr)
+      minmax(4.8rem, 0.56fr)
+      minmax(4.8rem, 0.56fr) !important;
+  }
+}
+
+/* PCコンボ: 1250px前後は5列×2行。3列化しないので横幅を使える */
+@media (min-width: 1101px) and (max-width: 1500px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    grid-template-columns:
+      minmax(4.5rem, 0.7fr)
+      minmax(4.5rem, 0.7fr)
+      minmax(5.3rem, 0.82fr)
+      minmax(8.3rem, 1.28fr)
+      minmax(7.4rem, 1.05fr) !important;
+    grid-template-areas:
+      "dice crit achieve target range"
+      "timing skill ability attack cost" !important;
+  }
+}
+
+/* PCコンボ: 中狭幅では4列中心。スマホ側の既存指定に渡す前のクッション */
+@media (min-width: 761px) and (max-width: 1100px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target range timing cost"
+      "skill skill ability ability" !important;
+  }
+}
+
+/* エネミーコンボ: 1800px未満では9項目1行にしない。1699px前後は5+4で逃がす */
+@media (min-width: 1201px) and (max-width: 1799px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    display: grid !important;
+    grid-template-columns:
+      minmax(4.4rem, 0.72fr)
+      minmax(4.4rem, 0.72fr)
+      minmax(5.4rem, 0.86fr)
+      minmax(8.6rem, 1.22fr)
+      minmax(8.2rem, 1.18fr) !important;
+    grid-template-areas:
+      "dice crit achieve target range"
+      "timing skill ability attack attack" !important;
+    overflow: hidden !important;
+  }
+}
+
+/* エネミーコンボ: 1250px近辺でも3×3に落とさず、まず4列で使う */
+@media (min-width: 901px) and (max-width: 1200px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target range timing timing"
+      "skill skill ability ability" !important;
+    overflow: hidden !important;
+  }
+}
+
+/* エネミーコンボ: 十分広い時だけ1行 */
+@media (min-width: 1800px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    grid-template-columns:
+      minmax(4.2rem, 0.55fr)
+      minmax(4.2rem, 0.55fr)
+      minmax(5.2rem, 0.65fr)
+      minmax(8.2rem, 1fr)
+      minmax(8.0rem, 0.96fr)
+      minmax(9.2rem, 1.08fr)
+      minmax(7.2rem, 0.86fr)
+      minmax(7.0rem, 0.84fr)
+      minmax(4.8rem, 0.58fr) !important;
+    grid-template-areas: "dice crit achieve target range timing skill ability attack" !important;
+  }
+}
+
+/* 共通: 中幅では中身を少し詰めて、ボタン/入力がセル外へ出ないようにする */
+@media (min-width: 761px) and (max-width: 1799px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item,
+  body.dx3-combo-page .combo-stats-bar .stat-item {
+    padding: 6px 5px !important;
+    gap: 4px !important;
+    font-size: 0.84rem !important;
+    line-height: 1.1 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span,
+  body.dx3-combo-page .combo-stats-bar .stat-item span {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .input-with-dropdown,
+  body.dx3-combo-page .combo-stats-bar .input-with-dropdown {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: 7.2rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span .input-with-dropdown input,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span input.manual-input,
+  body.dx3-combo-page #dx3-app .combo-stats-bar select,
+  body.dx3-combo-page .combo-stats-bar .stat-item span .input-with-dropdown input,
+  body.dx3-combo-page .combo-stats-bar .stat-item span input.manual-input,
+  body.dx3-combo-page .combo-stats-bar select {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 1.85rem !important;
+    min-height: 1.85rem !important;
+    padding: 3px 5px !important;
+    font-size: 0.82rem !important;
+    box-sizing: border-box !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .mode-toggle {
+    flex: 0 0 auto !important;
+    min-width: 3.2rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .mode-toggle button,
+  body.dx3-combo-page .combo-stats-bar .mode-toggle button {
+    padding: 3px 4px !important;
+    font-size: 0.66rem !important;
+  }
+}
+
+
+/* v141: combo-stats-bar の中幅配置を整理。タイミングなどの操作欄を潰さない */
+@media (min-width: 1101px) and (max-width: 1500px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve target target range"
+      "timing timing skill ability attack cost" !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve target target range"
+      "timing timing skill ability attack attack" !important;
+  }
+}
+
+/* 900-1100pxは縦に詰めすぎず、操作欄だけ2列幅を確保 */
+@media (min-width: 901px) and (max-width: 1100px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target target range range"
+      "timing timing skill ability"
+      "cost cost cost cost" !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target target range range"
+      "timing timing skill ability" !important;
+  }
+}
+
+/* 中幅では「ラベル + 入力 + 自動/手動」を横一列に押し込まない。
+   対象/射程/タイミングは ラベル+入力 を上段、自動/手動を右側または下段へ逃がす。 */
+@media (min-width: 761px) and (max-width: 1500px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 4px 6px !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+    padding: 6px 7px !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span,
+  body.dx3-combo-page .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    gap: 4px !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+    width: auto !important;
+    min-width: 3.55rem !important;
+    flex: 0 0 auto !important;
+    justify-self: end !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    grid-template-columns: auto minmax(4.2rem, 1fr) !important;
+  }
+}
+
+/* かなり狭い幅は、対象/射程/タイミングだけ2段化。入力欄を潰さないのを優先 */
+@media (min-width: 761px) and (max-width: 980px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+    justify-self: stretch !important;
+    width: 100% !important;
+  }
+}
+
+/* hoverで余計に見た目が変わるのを抑える */
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item[title]:hover,
+body.dx3-combo-page .combo-stats-bar .stat-item[title]:hover {
+  cursor: default !important;
+  background-color: #3c3c3c !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .mode-toggle button:hover,
+body.dx3-combo-page .combo-stats-bar .mode-toggle button:hover {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+
+/* v142: フル幅〜中幅で mode-toggle が入力欄に重なる問題を修正 */
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting,
+body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting,
+body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting,
+body.dx3-combo-page .combo-stats-bar .target-setting,
+body.dx3-combo-page .combo-stats-bar .range-setting,
+body.dx3-combo-page .combo-stats-bar .timing-setting {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting > span,
+body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting > span,
+body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span,
+body.dx3-combo-page .combo-stats-bar .target-setting > span,
+body.dx3-combo-page .combo-stats-bar .range-setting > span,
+body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .input-with-dropdown,
+body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .input-with-dropdown,
+body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .input-with-dropdown,
+body.dx3-combo-page .combo-stats-bar .target-setting .input-with-dropdown,
+body.dx3-combo-page .combo-stats-bar .range-setting .input-with-dropdown,
+body.dx3-combo-page .combo-stats-bar .timing-setting .input-with-dropdown {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle,
+body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle,
+body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle,
+body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle,
+body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle,
+body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+  position: static !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
+  width: 3.65rem !important;
+  min-width: 3.65rem !important;
+  max-width: 3.65rem !important;
+  box-sizing: border-box !important;
+  z-index: auto !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle button,
+body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle button,
+body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle button,
+body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle button,
+body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle button,
+body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle button {
+  min-width: 0 !important;
+  padding: 3px 4px !important;
+  font-size: 0.66rem !important;
+  line-height: 1.05 !important;
+}
+
+/* 広幅〜中幅では、入力欄 + mode-toggle を同一行のgridにする。
+   mode-toggle分の列を確保するので、入力欄に被らない。 */
+@media (min-width: 981px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 3.65rem !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span,
+  body.dx3-combo-page .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    gap: 0.25rem !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    grid-template-columns: auto minmax(4.4rem, 1fr) !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+    justify-self: end !important;
+  }
+}
+
+/* さらに狭い幅では2段化。入力欄とmode-toggleを完全に分離する */
+@media (max-width: 980px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.3rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .target-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .range-setting .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .timing-setting .mode-toggle {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+  }
+}
+
+
+/* v143: combo-stats-bar の幅配分を12カラム基準に整理
+   1669px級では1行に押し込まず、対象/射程/タイミングを広めに確保する。
+   1413px級でも余白が変に出たり、侵蝕値だけ1行化したりしないようにする。
+*/
+body.dx3-combo-page #dx3-app .combo-stats-bar,
+body.dx3-combo-page .combo-stats-bar {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item,
+body.dx3-combo-page .combo-stats-bar .stat-item {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* PCコンボ: 1301〜1799pxは12分割の2段。対象/射程/タイミングを3枠ぶん確保 */
+@media (min-width: 1301px) and (max-width: 1799px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    display: grid !important;
+    grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice dice crit crit achieve achieve target target target range range range"
+      "timing timing timing skill skill skill ability ability ability attack attack cost" !important;
+    align-items: stretch !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    display: grid !important;
+    grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice dice crit crit achieve achieve target target target range range range"
+      "timing timing timing skill skill skill ability ability ability attack attack attack" !important;
+    align-items: stretch !important;
+  }
+}
+
+/* 1101〜1300pxは6分割の3段。操作系は2〜3枠ぶん取る */
+@media (min-width: 1101px) and (max-width: 1300px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack attack cost"
+      "target target target range range range"
+      "timing timing skill skill ability ability" !important;
+    align-items: stretch !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack attack attack"
+      "target target target range range range"
+      "timing timing skill skill ability ability" !important;
+    align-items: stretch !important;
+  }
+}
+
+/* 761〜1100pxは4分割。対象/射程/タイミングだけ広く取る */
+@media (min-width: 761px) and (max-width: 1100px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target target range range"
+      "timing timing skill skill"
+      "ability ability cost cost" !important;
+    align-items: stretch !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "dice crit achieve attack"
+      "target target range range"
+      "timing timing skill skill"
+      "ability ability ability ability" !important;
+    align-items: stretch !important;
+  }
+}
+
+/* 1800px以上だけ1行。ここでも操作系は広めにする */
+@media (min-width: 1800px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar:not(.is-enemy-combo-stats),
+  body.dx3-combo-page .combo-stats-bar:not(.is-enemy-combo-stats) {
+    grid-template-columns:
+      minmax(4.2rem, 0.54fr)
+      minmax(4.2rem, 0.54fr)
+      minmax(5.2rem, 0.66fr)
+      minmax(9.4rem, 1.18fr)
+      minmax(8.8rem, 1.1fr)
+      minmax(10.0rem, 1.25fr)
+      minmax(7.5rem, 0.92fr)
+      minmax(7.0rem, 0.86fr)
+      minmax(4.8rem, 0.58fr)
+      minmax(4.8rem, 0.58fr) !important;
+    grid-template-areas: "dice crit achieve target range timing skill ability attack cost" !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar.is-enemy-combo-stats,
+  body.dx3-combo-page .combo-stats-bar.is-enemy-combo-stats,
+  .combo-stats-bar.is-enemy-combo-stats {
+    grid-template-columns:
+      minmax(4.2rem, 0.56fr)
+      minmax(4.2rem, 0.56fr)
+      minmax(5.2rem, 0.68fr)
+      minmax(9.4rem, 1.22fr)
+      minmax(8.8rem, 1.14fr)
+      minmax(10.0rem, 1.28fr)
+      minmax(7.5rem, 0.94fr)
+      minmax(7.0rem, 0.88fr)
+      minmax(5.0rem, 0.64fr) !important;
+    grid-template-areas: "dice crit achieve target range timing skill ability attack" !important;
+  }
+}
+
+/* 各エリアを最後に明示。古いnth-child由来の後勝ち崩れを抑える */
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(1),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(1) { grid-area: dice !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(2),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(2) { grid-area: crit !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(3),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(3) { grid-area: achieve !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(4),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(4) { grid-area: target !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(5),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(5) { grid-area: range !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(6),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(6) { grid-area: timing !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(7),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(7) { grid-area: skill !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(8),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(8) { grid-area: ability !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(9),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(9) { grid-area: attack !important; }
+body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item:nth-child(10),
+body.dx3-combo-page .combo-stats-bar .stat-item:nth-child(10) { grid-area: cost !important; }
+
+/* 中幅のセル内表示。操作系は横、狭いところだけ自然に圧縮 */
+@media (min-width: 761px) and (max-width: 1799px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item,
+  body.dx3-combo-page .combo-stats-bar .stat-item {
+    padding: 6px 7px !important;
+    gap: 4px !important;
+    line-height: 1.1 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting,
+  body.dx3-combo-page .combo-stats-bar .target-setting,
+  body.dx3-combo-page .combo-stats-bar .range-setting,
+  body.dx3-combo-page .combo-stats-bar .timing-setting {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 3.65rem !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .timing-setting > span,
+  body.dx3-combo-page .combo-stats-bar .target-setting > span,
+  body.dx3-combo-page .combo-stats-bar .range-setting > span,
+  body.dx3-combo-page .combo-stats-bar .timing-setting > span {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .input-with-dropdown,
+  body.dx3-combo-page .combo-stats-bar .input-with-dropdown,
+  body.dx3-combo-page #dx3-app .combo-stats-bar .stat-item span .input-with-dropdown input,
+  body.dx3-combo-page .combo-stats-bar .stat-item span .input-with-dropdown input,
+  body.dx3-combo-page #dx3-app .combo-stats-bar select,
+  body.dx3-combo-page .combo-stats-bar select {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  body.dx3-combo-page #dx3-app .combo-stats-bar .mode-toggle,
+  body.dx3-combo-page .combo-stats-bar .mode-toggle {
+    width: 3.65rem !important;
+    min-width: 3.65rem !important;
+    max-width: 3.65rem !important;
+    justify-self: end !important;
+  }
+}
+
+/* 760px以下は既存スマホ指定を尊重しつつ、横スクロールを出さない */
+@media (max-width: 760px) {
+  body.dx3-combo-page #dx3-app .combo-stats-bar,
+  body.dx3-combo-page .combo-stats-bar {
+    overflow: hidden !important;
+  }
 }
