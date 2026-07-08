@@ -3274,8 +3274,8 @@ new Vue({
       const breedTag = breedText ? `<span class="dx3-breed-tag">${esc(breedText)}</span>` : "";
 
       const erosionDiceNote = erosionDice > 0
-        ? `<span class="dx3-sheet-num">${esc(finalStats.erosion)}</span><span class="dx3-erosion-extra">%（+ダイス<span class="dx3-sheet-num">${esc(erosionDice)}</span>個）</span>`
-        : `<span class="dx3-sheet-num">${esc(finalStats.erosion)}</span><span class="dx3-erosion-extra">%</span>`;
+        ? `<span class="dx3-erosion-value"><span class="dx3-sheet-num">${esc(finalStats.erosion)}</span><span class="dx3-erosion-extra">%（+ダイス<span class="dx3-sheet-num">${esc(erosionDice)}</span>個）</span></span>`
+        : `<span class="dx3-erosion-value"><span class="dx3-sheet-num">${esc(finalStats.erosion)}</span><span class="dx3-erosion-extra">%</span></span>`;
       const combatCells = [
         rowCell("HP", finalStats.hp, "is-hp"),
         rowCell("行動値", finalStats.initiative, "is-initiative"),
@@ -3297,14 +3297,19 @@ new Vue({
         const skills = skillRows
           .filter((row) => String(row.ability || "").trim() === group.label)
           .map((row) => {
-            const skillName = `${compactText(row.name)}${row.spec ? `:${row.spec}` : ""}`;
-            const pieces = [`${skillName}${Number(row.level) || 0}`];
+            const rawName = compactText(row.name, "");
+            if (!rawName) return "";
+            const rawSpec = String(row.spec || "").trim();
+            const skillName = rawSpec ? `${rawName}:${rawSpec}` : rawName;
+            const pieces = [`〈${skillName}〉${Number(row.level) || 0}`];
             if (Number(row.dice)) pieces.push(`D${formatSigned(row.dice)}`);
             if (Number(row.mod)) pieces.push(`達成${formatSigned(row.mod)}`);
             return pieces.join(" ");
-          });
-        const skillText = skills.length ? skills.join(" / ") : "-";
-        return `<span class="dx3-sheet-cell ${group.cls}"><em>${esc(group.label)}</em><strong>${esc(group.value)}</strong><small>${esc(skillText)}</small></span>`;
+          })
+          .filter(Boolean);
+        const skillText = skills.length ? skills.join(" / ") : "";
+        const skillClass = skillText ? "" : " is-empty";
+        return `<span class="dx3-sheet-cell ${group.cls}"><em>${esc(group.label)}</em><strong>${esc(group.value)}</strong><small class="dx3-sheet-skill-list${skillClass}">${esc(skillText)}</small></span>`;
       }).join("");
 
       const effects = (Array.isArray(this.effects) ? this.effects : [])
