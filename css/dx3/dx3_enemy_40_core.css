@@ -2564,44 +2564,7 @@ body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .public-switch-label 
   }
 }
 
-@media (min-width: 1181px) and (max-width: 1499px) {
-  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar.enemy-action-bar {
-    grid-template-columns: max-content max-content minmax(16rem, 1fr) !important;
-    gap: 0.5rem 0.62rem !important;
-  }
-
-  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar > .enemy-action-left {
-    grid-column: 1 / 2 !important;
-  }
-
-  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar > .enemy-action-right {
-    grid-column: 2 / 3 !important;
-  }
-
-  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar > .enemy-action-meta {
-    grid-column: 3 / 4 !important;
-    width: auto !important;
-  }
-
-  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-btn {
-    min-width: 4.75rem !important;
-    padding-inline: 0.55rem !important;
-  }
-
-  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-meta-field:not(.is-icon) input {
-    inline-size: clamp(6.4rem, 8vw, 9rem) !important;
-  }
-
-  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-meta-field.is-icon {
-    flex: 1 1 14rem !important;
-  }
-
-  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar .action-meta-field.is-icon input {
-    inline-size: min(24rem, 100%) !important;
-  }
-}
-
-@media (max-width: 1180px) {
+@media (max-width: 1499px) {
   body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar.enemy-action-bar {
     grid-template-columns: minmax(0, 1fr) minmax(0, auto) !important;
   }

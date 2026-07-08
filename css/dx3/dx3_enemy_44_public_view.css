@@ -2519,3 +2519,18 @@ body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-shee
     white-space: nowrap !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   DX3 public view hard guard
+   --------------------------------------------------------------------------
+   The editor action bar has a high-specificity grid rule in dx3_enemy_40_core.css.
+   Public view must still win because these controls are editor-only.
+   -------------------------------------------------------------------------- */
+html.is-dx3-enemy-view-boot body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar.enemy-control-bar.enemy-action-bar,
+html.is-dx3-enemy-view-boot body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar.enemy-action-bar,
+body.dx3-combo-page.dx3-enemies-page.is-enemy-view-mode .dx3-enemy-action-bar.editor-action-bar.enemy-control-bar.enemy-action-bar,
+body.dx3-combo-page.dx3-enemies-page.is-enemy-view-mode .dx3-enemy-action-bar.editor-action-bar.enemy-action-bar {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
