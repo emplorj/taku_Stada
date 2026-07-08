@@ -3244,9 +3244,8 @@ new Vue({
       if (!this.enemySheet.ID) {
         return `<section class="enemy-view-block enemy-view-loading">エネミー情報を読み込み中...</section>`;
       }
-      if (this.enemySheet.is_public === false) {
-        return `<section class="enemy-view-block enemy-view-loading"><h2>このエネミーは非公開です</h2><p>公開設定のエネミーデータのみ閲覧できます。</p></section>`;
-      }
+      // v100: URL共有された非公開エネミーも閲覧本文は表示する。
+      // チャパレ/駒出力は dx3EnemyViewCanExport 側で従来通り公開データに限定する。
 
       const data = this.normalizeDx3EnemyData(this.enemyData || {});
       const nameText = String(this.enemySheet.name || "DX3エネミー").trim();
