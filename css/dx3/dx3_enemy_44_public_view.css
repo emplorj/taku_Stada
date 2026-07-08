@@ -2529,6 +2529,7 @@ body.dx3-combo-page.dx3-enemies-page.is-enemy-view-mode .dx3-enemy-action-bar.ed
   visibility: hidden !important;
   pointer-events: none !important;
 }
+<<<<<<< HEAD
 
 /* ========================================================================== 
    v96 DX3 public view official-like compact fixes
@@ -2817,3 +2818,5 @@ body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-cell.is-xp strong {
     line-height: 1.15 !important;
   }
 }
+=======
+>>>>>>> 2e063bd3d8ba48a7768b961970eb46d109ec152c
