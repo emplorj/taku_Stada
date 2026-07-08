@@ -57,13 +57,14 @@
 
 .crawler-logo-area h1 {
   /* 親CSSのフォントを使用 */
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1.8rem;
   color: #fff;
   margin: 0;
   line-height: 1;
   border-bottom: none; /* 親CSSのh1スタイルを打ち消し */
   padding: 0;
+  font-weight: 700;
 }
 
 .crawler-logo-area .sub {

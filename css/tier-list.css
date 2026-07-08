@@ -30,11 +30,12 @@
   list-style: none;
 }
 .system-summary h2 {
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-family: "corporate-logo-ver2", "Yu Gothic", "Meiryo", sans-serif;
   margin: 0;
   font-size: 1.8em;
   color: #f0f0f0;
   flex-grow: 1;
+  font-weight: 700;
 }
 .system-summary .arrow-icon {
   width: 0;

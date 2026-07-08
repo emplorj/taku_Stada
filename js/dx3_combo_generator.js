@@ -382,7 +382,7 @@ new Vue({
         this.appMode = "enemy";
         this.enemySheet.ID = String(enemyId);
         this.dx3EnemyViewMode = mode !== "edit";
-        this.dx3EnemyViewChatOpen = mode !== "edit";
+        this.dx3EnemyViewChatOpen = false;
         this.dx3EnemyViewLoading = mode !== "edit";
       }
       const rememberedAuthor = localStorage.getItem("dx3EnemiesAuthor") || "";
@@ -469,10 +469,12 @@ new Vue({
   },
   mounted() {
     window.addEventListener("beforeunload", this.handleBeforeUnload);
+    document.addEventListener("toggle", this.handleDx3EnemyViewDetailsToggle, true);
     this.applyDx3EnemyViewMode();
   },
   beforeDestroy() {
     window.removeEventListener("beforeunload", this.handleBeforeUnload);
+    document.removeEventListener("toggle", this.handleDx3EnemyViewDetailsToggle, true);
   },
   computed: {
     dx3EnemyAbilityDefs() {
@@ -1286,6 +1288,9 @@ new Vue({
     dx3EnemyViewWide() {
       this.$nextTick(() => this.applyDx3EnemyViewMode());
     },
+    dx3EnemyViewChatOpen() {
+      this.$nextTick(() => this.applyDx3EnemyViewMode());
+    },
     enemySheet: {
       handler() {
         this.setDataDirty();
@@ -1497,6 +1502,9 @@ new Vue({
         document.documentElement.classList.toggle("is-dx3-enemy-view-boot", active);
         document.body.classList.toggle("is-enemy-view-mode", active);
         document.body.classList.toggle("is-enemy-view-wide", active && !!this.dx3EnemyViewWide);
+        document.body.classList.toggle("is-enemy-view-chat-open", active && !!this.dx3EnemyViewChatOpen);
+        if (active) document.body.dataset.noSidemenu = "1";
+        else if (document.body.dataset.noSidemenu === "1") delete document.body.dataset.noSidemenu;
       }
     },
     switchAppMode(mode) {
@@ -3157,9 +3165,35 @@ new Vue({
     async copyDx3EnemyViewKomaJson() {
       await this.exportDx3EnemyKomaJson();
     },
+    formatDx3EffectNameForView(name) {
+      const text = String(name || "").trim().replace(/^《+|》+$/g, "");
+      return text ? `《${text}》` : "《名称未設定》";
+    },
+    handleDx3EnemyViewDetailsToggle(event) {
+      const target = event && event.target;
+      if (!target || !target.open || !target.matches || !target.matches(".dx3-enemy-view-content details[data-accordion-group]")) return;
+      const group = target.getAttribute("data-accordion-group") || "";
+      if (!group) return;
+      const root = target.closest(".dx3-enemy-view-content");
+      if (!root) return;
+      root.querySelectorAll("details[data-accordion-group]").forEach((node) => {
+        if (node !== target && node.getAttribute("data-accordion-group") === group) node.open = false;
+      });
+    },
     buildDx3EnemyViewHtml() {
       const esc = (value) => this.escapeHtml(value);
       const br = (value) => this.nl2br(value);
+      const compactText = (value, fallback = "-") => {
+        const text = String(value == null ? "" : value).trim();
+        return text || fallback;
+      };
+      const formatSigned = (value) => {
+        const n = Number(value) || 0;
+        return n > 0 ? `+${n}` : String(n);
+      };
+      const metaChip = (label, value, extraClass = "") => `<span class="dx3-view-meta-chip ${extraClass}"><em>${esc(label)}</em><strong>${esc(compactText(value))}</strong></span>`;
+      const rowCell = (label, value, extraClass = "") => `<span class="dx3-sheet-cell ${extraClass}"><em>${esc(label)}</em><strong>${esc(compactText(value))}</strong></span>`;
+
       if (this.dx3EnemyViewLoading) {
         return `<section class="enemy-view-block enemy-view-loading dx3-enemy-view-loading"><h2>DX3エネミーを読み込み中...</h2><p>保存済みデータを取得しています。</p></section>`;
       }
@@ -3174,66 +3208,144 @@ new Vue({
       }
 
       const data = this.normalizeDx3EnemyData(this.enemyData || {});
-      const name = esc(this.enemySheet.name || "DX3エネミー");
-      const kana = esc(data.nameKana || "");
-      const code = esc(data.codename || "");
-      const codeKana = esc(data.codenameKana || "");
-      const breed = esc(this.getDx3EnemyBreedLabel(data) || this.enemySheet.class_type || "DX3");
+      const rubyText = (value, ruby, className = "") => {
+        const text = String(value || "").trim();
+        if (!text) return "";
+        const rt = String(ruby || "").trim();
+        const cls = className ? ` class="${esc(className)}"` : "";
+        return rt
+          ? `<ruby${cls}>${esc(text)}<rt>${esc(rt)}</rt></ruby>`
+          : `<span${cls}>${esc(text)}</span>`;
+      };
+      const name = rubyText(this.enemySheet.name || "DX3エネミー", data.nameKana || "", "dx3-view-name-main");
+      const code = rubyText(data.codename || "", data.codenameKana || "", "dx3-view-codename-main");
+      const breedText = this.getDx3EnemyBreedLabel(data) || this.enemySheet.class_type || "";
+      const breed = esc(breedText || "DX3");
       const finalStats = this.getDx3EnemyFinalStats(data);
       const abilities = this.getDx3EnemyTotalAbilities(data);
+      const erosionDice = this.getErosionDice(finalStats.erosion);
       const xp = this.getDx3EnemyXpConversion(data);
-      const syndromes = (Array.isArray(data.syndromes) ? data.syndromes : []).map((x) => String(x || "").trim()).filter(Boolean);
+      const syndromes = (Array.isArray(data.syndromes) ? data.syndromes : [])
+        .map((x) => String(x || "").trim())
+        .filter(Boolean);
       const iconUrl = String(this.enemySheet.icon_url || "").trim();
       const syndromeTags = syndromes.length
         ? syndromes.map((syndrome) => `<span class="enemy-list-class-tag dx3-syndrome-tag" data-syndrome="${esc(this.dx3SyndromeColorKey(syndrome))}">${esc(syndrome)}</span>`).join("")
         : `<span class="enemy-list-class-tag dx3-syndrome-tag" data-syndrome="unknown">シンドローム未設定</span>`;
-      const statCards = [
-        ["HP", finalStats.hp],
-        ["侵蝕", finalStats.erosion],
-        ["侵蝕率D", this.getErosionDice(finalStats.erosion)],
-        ["行動値", finalStats.initiative],
-        ["装甲", finalStats.armor],
-        ["移動", finalStats.move],
-      ].map(([label, value]) => `<article class="enemy-view-stat"><span>${esc(label)}</span><strong>${esc(value)}</strong></article>`).join("");
-      const abilityCards = [
-        ["肉体", abilities.body],
-        ["感覚", abilities.sense],
-        ["精神", abilities.mind],
-        ["社会", abilities.social],
-      ].map(([label, value]) => `<article class="enemy-view-stat is-ability"><span>${esc(label)}</span><strong>${esc(value)}</strong></article>`).join("");
-      const skillRows = (Array.isArray(data.skillRows) ? data.skillRows : [])
+      const breedTag = breedText ? `<span class="dx3-breed-tag">${esc(breedText)}</span>` : "";
+
+      const combatCells = [
+        ["HP", finalStats.hp, "is-hp"],
+        ["侵蝕率", finalStats.erosion, "is-erosion"],
+        ["侵蝕率D", erosionDice, "is-erosion-dice"],
+        ["行動", finalStats.initiative, ""],
+        ["装甲", finalStats.armor, ""],
+        ["ガード", data.guard, ""],
+        ["移動", finalStats.move, ""],
+      ].map(([label, value, cls]) => rowCell(label, value, cls)).join("");
+      const abilityCells = [
+        ["肉体", abilities.body, "is-body"],
+        ["感覚", abilities.sense, "is-sense"],
+        ["精神", abilities.mind, "is-mind"],
+        ["社会", abilities.social, "is-social"],
+      ].map(([label, value, cls]) => rowCell(label, value, cls)).join("");
+
+      const skillChips = (Array.isArray(data.skillRows) ? data.skillRows : [])
         .filter((row) => row && (Number(row.level) || Number(row.dice) || Number(row.mod) || String(row.note || "").trim()))
-        .map((row) => `<tr><th>${esc(row.name || "-")}${row.spec ? `:${esc(row.spec)}` : ""}</th><td>${esc(row.ability || "-")}</td><td>${esc(row.level || 0)}</td><td>${esc(this.formatDx3EnemySkillOutput(row) || "-")}</td><td>${esc(row.note || "")}</td></tr>`)
-        .join("") || `<tr><td colspan="5">表示する技能なし</td></tr>`;
-      const effectRows = (Array.isArray(this.effects) ? this.effects : [])
-        .filter((effect) => effect && String(effect.name || "").trim())
-        .map((effect) => `<tr><th>${esc(effect.name)}</th><td>${esc(effect.level || 1)}</td><td>${esc(effect.timing || "-")}</td><td>${br(effect.effect || "")}</td></tr>`)
-        .join("") || `<tr><td colspan="4">表示するエフェクトなし</td></tr>`;
-      const comboRows = (Array.isArray(this.processedCombos) ? this.processedCombos : [])
-        .filter((combo) => combo && String(combo.name || "").trim())
-        .map((combo) => `<section class="enemy-view-subblock dx3-enemy-view-combo"><h3>${esc(combo.name)}</h3><p class="enemy-view-meta-line">${esc(combo.compositionText || "-")}</p><dl><div><dt>タイミング</dt><dd>${esc(combo.timing || "-")}</dd></div><div><dt>対象</dt><dd>${esc(combo.target || "-")}</dd></div><div><dt>射程</dt><dd>${esc(combo.range || "-")}</dd></div><div><dt>ダイス</dt><dd>${esc(combo.totalDice)}</dd></div><div><dt>C値</dt><dd>${esc(combo.finalCrit)}</dd></div><div><dt>達成値</dt><dd>${esc(combo.totalAchieve)}</dd></div><div><dt>ATK</dt><dd>${esc(combo.totalAtk)}</dd></div></dl><pre>${esc((combo.chatPalette && [combo.chatPalette.header, combo.chatPalette.diceFormula].filter(Boolean).join("\n")) || "")}</pre></section>`)
+        .map((row) => {
+          const skillName = `${compactText(row.name)}${row.spec ? `:${row.spec}` : ""}`;
+          const pieces = [];
+          pieces.push(`Lv${Number(row.level) || 0}`);
+          if (Number(row.dice)) pieces.push(`D${formatSigned(row.dice)}`);
+          if (Number(row.mod)) pieces.push(`達成${formatSigned(row.mod)}`);
+          return `<span class="dx3-enemy-skill-chip"><strong>${esc(skillName)}</strong><em>${esc(row.ability || "-")}</em><small>${esc(pieces.join(" / "))}</small></span>`;
+        })
+        .join("") || `<p class="enemy-view-empty">表示する技能なし</p>`;
+
+      const effects = (Array.isArray(this.effects) ? this.effects : [])
+        .filter((effect) => effect && String(effect.name || "").trim());
+      const majorEffects = effects.filter((effect) => /メジャー|マイナー|リアクション|オート|セットアップ|イニシアチブ|クリンナップ|常時/.test(String(effect.timing || "")));
+      const effectCards = majorEffects
+        .map((effect) => {
+          const nameText = this.formatDx3EffectNameForView(effect.name);
+          const metaText = [
+            `LV ${compactText(effect.level || 1)}`,
+            effect.maxLevel ? `最大 ${effect.maxLevel}` : "",
+            compactText(effect.timing),
+            compactText(effect.skill),
+            compactText(effect.difficulty),
+            compactText(effect.target),
+            compactText(effect.range),
+          ].filter((text) => text && text !== "-").join(" / ");
+          const headerCells = [
+            `<span class="dx3-effect-table-name">${esc(nameText)}</span>`,
+            `<span>LV ${esc(effect.level || 1)}</span>`,
+            `<span>${esc(effect.timing || "-")}</span>`,
+            `<span>${esc(effect.skill || "-")}</span>`,
+            `<span>${esc(effect.difficulty || "-")}</span>`,
+            `<span>${esc(effect.target || "-")}</span>`,
+            `<span>${esc(effect.range || "-")}</span>`,
+          ].join("");
+          return `<details class="dx3-enemy-effect-card dx3-sheet-row-card" data-accordion-group="dx3-effects"><summary><span class="dx3-sheet-row-main">${headerCells}</span><span class="dx3-sheet-row-sub">${esc(metaText)}</span></summary>${effect.effect ? `<p class="dx3-effect-description">${br(effect.effect)}</p>` : ""}${effect.notes ? `<p class="dx3-effect-note">${br(effect.notes)}</p>` : ""}</details>`;
+        })
+        .join("") || `<p class="enemy-view-empty">表示するエフェクトなし</p>`;
+
+      const combos = (Array.isArray(this.processedCombos) ? this.processedCombos : [])
+        .filter((combo) => combo && String(combo.name || "").trim());
+      const comboCards = combos
+        .map((combo) => {
+          const sourceCombo = (Array.isArray(this.combos) ? this.combos : []).find((raw) => raw && String(raw.name || "").trim() === String(combo.name || "").trim()) || {};
+          const header = String((combo.chatPalette && combo.chatPalette.header) || "").trim();
+          const diceFormula = String((combo.chatPalette && combo.chatPalette.diceFormula) || "").trim();
+          const declaration = [header, diceFormula].filter(Boolean).join("\n");
+          const description = String(sourceCombo.manualEffectDescription || combo.effectDescription || "").trim();
+          const flavor = String(sourceCombo.flavor || "").trim();
+          const skillName = (combo.baseAbility && combo.baseAbility.skill) || (sourceCombo.baseAbility && sourceCombo.baseAbility.skill) || "-";
+          const composition = Array.isArray(sourceCombo.effectNames)
+            ? sourceCombo.effectNames.map((entry) => this.formatDx3EffectNameForView(entry && entry.name ? entry.name : entry)).join(" + ")
+            : compactText(combo.compositionText, "");
+          const headerCells = [
+            `<span class="dx3-combo-table-name">${esc(combo.name)}</span>`,
+            `<span>${esc(combo.timing || "-")}</span>`,
+            `<span>${esc(skillName)}</span>`,
+            `<span>${esc(combo.target || "-")}</span>`,
+            `<span>${esc(combo.range || "-")}</span>`,
+            `<span>C ${esc(combo.finalCrit)}</span>`,
+            `<span>ATK ${esc(combo.totalAtk)}</span>`,
+          ].join("");
+          const comboMeta = [
+            metaChip("タイミング", combo.timing || "-"),
+            metaChip("技能", skillName),
+            metaChip("対象", combo.target || "-"),
+            metaChip("射程", combo.range || "-"),
+            metaChip("ダイス", combo.totalDice),
+            metaChip("C値", combo.finalCrit),
+            metaChip("達成", combo.totalAchieve),
+            metaChip("ATK", combo.totalAtk, "is-attack"),
+          ].join("");
+          return `<details class="dx3-enemy-view-combo-card dx3-sheet-row-card" data-accordion-group="dx3-combos"><summary><span class="dx3-sheet-row-main">${headerCells}</span><span class="dx3-sheet-row-sub">${composition ? esc(composition) : "詳細"}</span></summary><div class="dx3-view-meta-row">${comboMeta}</div>${description ? `<p class="dx3-combo-description">${br(description)}</p>` : ""}${flavor ? `<blockquote>${br(flavor)}</blockquote>` : ""}${declaration ? `<pre>${esc(declaration)}</pre>` : ""}</details>`;
+        })
         .join("");
-      const editUrl = this.buildDx3EnemyViewUrl(this.enemySheet.ID, true);
 
       return `
         <section class="enemy-view-hero dx3-enemy-view-hero ${iconUrl ? "has-image" : "has-no-image"}">
           ${iconUrl ? `<div class="enemy-view-portrait"><img src="${esc(iconUrl)}" alt=""></div>` : ""}
           <div class="enemy-view-hero-main">
-            <div class="enemy-view-kicker">DX3rd ENEMY / ${breed}</div>
-            <h2>${name}</h2>
-            ${kana ? `<p class="enemy-view-reading">${kana}</p>` : ""}
-            ${code ? `<p class="enemy-view-codename">“${code}”${codeKana ? ` <small>${codeKana}</small>` : ""}</p>` : ""}
+            <div class="enemy-view-kicker">DX3rd ENEMY</div>
+            <h2>${code ? `<span class="dx3-view-codename-wrap">“${code}”</span>` : ""}${name}</h2>
             <div class="enemy-view-tag-row">${syndromeTags}</div>
-            <p class="enemy-view-meta-line">${esc(this.dx3EnemyCreditLabel(this.enemySheet.author))}: ${esc(this.enemySheet.author || "-")} / 経験点換算 ${esc(xp.total)}</p>
-            <p class="enemy-view-actions"><a class="small-square-btn" href="${esc(editUrl)}"><i class="fa-solid fa-pen-to-square"></i> 編集で開く</a></p>
+            ${breedTag ? `<div class="dx3-breed-row">${breedTag}</div>` : ""}
+            <p class="enemy-view-meta-line">経験点換算 ${esc(xp.total)}</p>
           </div>
+          <aside class="dx3-enemy-view-hero-stats" aria-label="主要データ">
+            <div class="dx3-sheet-mini-table is-combat">${combatCells}</div>
+            <div class="dx3-sheet-mini-table is-abilities">${abilityCells}</div>
+          </aside>
         </section>
-        <section class="enemy-view-block dx3-enemy-view-stats"><h3>ステータス</h3><div class="enemy-view-stat-grid">${statCards}${abilityCards}</div></section>
-        ${data.explanation ? `<section class="enemy-view-block"><h3>解説</h3><p>${br(data.explanation)}</p></section>` : ""}
-        <section class="enemy-view-block"><h3>技能</h3><div class="enemy-view-table-wrap"><table class="enemy-view-table"><thead><tr><th>技能</th><th>能力</th><th>Lv</th><th>判定式</th><th>備考</th></tr></thead><tbody>${skillRows}</tbody></table></div></section>
-        <section class="enemy-view-block"><h3>エフェクト</h3><div class="enemy-view-table-wrap"><table class="enemy-view-table"><thead><tr><th>名称</th><th>Lv</th><th>タイミング</th><th>効果</th></tr></thead><tbody>${effectRows}</tbody></table></div></section>
-        ${comboRows ? `<section class="enemy-view-block"><h3>コンボ</h3>${comboRows}</section>` : ""}
-        ${data.tactics ? `<section class="enemy-view-block"><h3>立ち回りメモ</h3><p>${br(data.tactics)}</p></section>` : ""}
+        ${data.explanation ? `<section class="enemy-view-block dx3-enemy-view-summary"><h3><span>解説</span>${this.enemySheet.author ? `<span class="dx3-view-author-badge">${esc(this.dx3EnemyCreditLabel(this.enemySheet.author))}: ${esc(this.enemySheet.author)}</span>` : ""}</h3><p>${br(data.explanation)}</p></section>` : ""}
+        ${comboCards ? `<section class="enemy-view-block dx3-enemy-view-combos"><h3>コンボ</h3><div class="dx3-sheet-row-head is-combo"><span>名称</span><span>タイミング</span><span>技能</span><span>対象</span><span>射程</span><span>C値</span><span>ATK</span></div><div class="dx3-enemy-view-combo-list">${comboCards}</div></section>` : ""}
+        <section class="enemy-view-block dx3-enemy-view-skills"><h3>技能</h3><div class="dx3-enemy-skill-chip-list">${skillChips}</div></section>
+        <section class="enemy-view-block dx3-enemy-view-effects"><h3>エフェクト</h3><div class="dx3-sheet-row-head is-effect"><span>名称</span><span>LV</span><span>タイミング</span><span>技能</span><span>難易度</span><span>対象</span><span>射程</span></div><div class="dx3-enemy-effect-card-list">${effectCards}</div></section>
       `;
     },
     buildDx3EnemyCommands() {

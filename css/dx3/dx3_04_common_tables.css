@@ -34,12 +34,13 @@ text-align: right;
 /* source lines 296-304 */
 .dx3-table th {
 background-color: #1a2c6d;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   color: #87cefa;
   text-align: center;
   position: sticky;
   top: 0;
   z-index: 1;
+  font-weight: 700;
 }
 
 /* source lines 473-478 */

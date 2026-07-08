@@ -222,11 +222,12 @@ input[type="checkbox"].switch:checked::after {
 
 /* Card and Section Styles */
 .scenario-list h2.section-title {
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   color: var(--coc-text-primary);
   border-bottom: 2px solid var(--coc-primary);
   padding-bottom: 10px;
   margin: 20px 0 20px 0;
+  font-weight: 700;
 }
 .scenario-card {
   background-color: var(--coc-dark-bg);
@@ -259,11 +260,12 @@ input[type="checkbox"].switch:checked::after {
   padding-right: 100px;
 }
 .scenario-card-header h2 {
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   margin: 0;
   font-size: 1.6em;
   flex-grow: 1;
   color: var(--coc-text-primary);
+  font-weight: 700;
 }
 .scenario-card-header h2 a {
   color: inherit;
@@ -315,10 +317,11 @@ input[type="checkbox"].switch:checked::after {
   margin-bottom: 15px;
 }
 .review-block .recorder {
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1.2em;
   color: var(--coc-primary);
   margin-bottom: 8px;
+  font-weight: 700;
 }
 .scenario-stats {
   display: flex;
@@ -412,9 +415,10 @@ input[type="checkbox"].switch:checked::after {
   color: var(--coc-primary);
   cursor: pointer;
   padding: 10px 15px;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   outline: none;
   list-style: none;
+  font-weight: 700;
 }
 .experience-details summary::-webkit-details-marker {
   display: none;
@@ -466,7 +470,7 @@ input[type="checkbox"].switch:checked::after {
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2),
     inset 0 0 0 2px rgba(255, 215, 0, 0.5);
   color: #fff;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1.1em;
   font-weight: bold;
   text-align: center;

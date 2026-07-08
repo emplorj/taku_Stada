@@ -3704,42 +3704,9 @@ body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-home-link img {
   color: #f4ead8;
 }
 
-.satasupe-enemies-page .enemy-view-toolbar {
-  padding: 0.7rem 0.8rem;
-  border: 1px solid #b88a4d;
-  border-radius: 6px;
-  background: linear-gradient(135deg, rgba(36, 18, 14, 0.92), rgba(58, 28, 20, 0.92));
-}
 
-.satasupe-enemies-page .enemy-view-toolbar-title {
-  color: #d67a1f;
-  font-weight: 800;
-}
 
-.satasupe-enemies-page .enemy-view-id-badge {
-  border: 1px solid rgba(246, 234, 209, 0.24);
-  background: rgba(246, 234, 209, 0.08);
-  color: rgba(246, 234, 209, 0.62);
-}
 
-.satasupe-enemies-page .enemy-view-no-image-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: auto;
-  padding: 0.18rem 0.6rem;
-  border: 1px solid rgba(214, 122, 31, 0.55);
-  border-radius: 999px;
-  background: rgba(214, 122, 31, 0.12);
-  color: #d67a1f;
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-}
-
-.satasupe-enemies-page .enemy-view-no-image-badge[hidden] {
-  display: none !important;
-}
 
 .satasupe-enemies-page .enemy-view-hero {
   display: grid;
@@ -6801,4 +6768,28 @@ body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
     .enemy-export-bar :is(.koma-output-options, .import-json-inline, .koma-import-inline) {
     width: 100%;
   }
+}
+
+
+/* v17 enemy view toolbar theme variables only */
+.satasupe-enemies-page {
+  --enemy-view-toolbar-border: 1px solid #b88a4d;
+  --enemy-view-toolbar-bg: linear-gradient(135deg, rgba(36, 18, 14, 0.92), rgba(58, 28, 20, 0.92));
+  --enemy-view-toolbar-title-color: #d67a1f;
+  --enemy-view-badge-border: 1px solid rgba(246, 234, 209, 0.24);
+  --enemy-view-badge-bg: rgba(246, 234, 209, 0.08);
+  --enemy-view-badge-color: rgba(246, 234, 209, 0.62);
+  --enemy-view-no-image-badge-border: 1px solid rgba(214, 122, 31, 0.55);
+  --enemy-view-no-image-badge-bg: rgba(214, 122, 31, 0.12);
+  --enemy-view-no-image-badge-color: #d67a1f;
+}
+
+/* v18 enemy view toolbar button theme variables */
+.satasupe-enemies-page {
+  --enemy-view-toolbar-button-border: 1px solid #d67a1f;
+  --enemy-view-toolbar-button-bg: rgba(35, 31, 29, 0.92);
+  --enemy-view-toolbar-button-color: #f6c56b;
+  --enemy-view-toolbar-button-hover-border-color: #f6c56b;
+  --enemy-view-toolbar-button-hover-bg: rgba(214, 122, 31, 0.18);
+  --enemy-view-toolbar-button-hover-color: #ffe0a6;
 }

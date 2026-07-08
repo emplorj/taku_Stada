@@ -616,8 +616,9 @@ max-width: none;
 }
 
 #panel-character-analysis .analysis-selected-attack h5, #panel-character-analysis .analysis-attack-select-label select, #panel-character-analysis .analysis-effect-body strong {
-font-family: "Corporate-Logo-Bold", sans-serif;
+font-family: "corporate-logo-ver2", sans-serif;
   letter-spacing: 0.02em;
+  font-weight: 700;
 }
 
 #panel-character-analysis .analysis-kpi strong, #panel-character-analysis .analysis-metric strong, #panel-character-analysis .analysis-definition-list dd, #panel-character-analysis .analysis-match-statline, #panel-character-analysis code {
@@ -749,8 +750,9 @@ max-width: 100%;
 }
 
 #panel-character-analysis .analysis-selected-attack h5, #panel-character-analysis .analysis-effect-body strong {
-font-family: "Corporate-Logo-Bold", sans-serif;
+font-family: "corporate-logo-ver2", sans-serif;
   letter-spacing: 0.02em;
+  font-weight: 700;
 }
 
 #panel-character-analysis .analysis-attack-detail-list dd, #panel-character-analysis .analysis-kpi strong, #panel-character-analysis .analysis-metric strong, #panel-character-analysis .analysis-match-statline, #panel-character-analysis code {
@@ -945,7 +947,7 @@ font-weight: 700;
   margin-bottom: 5px;
   margin: 0 0 8px;
   color: #ffe5a6;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1rem;
   letter-spacing: 0.04em;
 }
@@ -1561,7 +1563,7 @@ min-height: 0;
 
 #panel-character-analysis .analysis-match-judgement {
 color: #fff04c;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   text-shadow: 0 0 10px rgba(255, 225, 70, 0.45);
   width: 100%;
   padding-inline: 2px;
@@ -1580,6 +1582,7 @@ color: #fff04c;
   overflow: visible;
   padding-top: 4px;
   line-height: 1.2;
+  font-weight: 700;
 }
 
 #panel-character-analysis .analysis-attack-detail-list > div {
@@ -1971,11 +1974,12 @@ display: grid;
 
 #panel-character-analysis .analysis-weapon-row-name {
 color: #fff4c8;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 0.98rem;
   line-height: 1.25;
   min-width: 0;
   overflow-wrap: anywhere;
+  font-weight: 700;
 }
 
 #panel-character-analysis .analysis-weapon-row-formula {
@@ -6574,7 +6578,7 @@ padding: 5px 10px;
     rgba(255, 196, 67, 0.4)
   );
   color: #fff8db;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   border-radius: 0;
   display: block;
   width: fit-content;
@@ -6587,6 +6591,7 @@ padding: 5px 10px;
   font-size: 1rem;
   line-height: 1;
   transform: translateY(3px);
+  font-weight: 700;
 }
 
 #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-result-head .analysis-match-judgement {
@@ -7035,10 +7040,11 @@ grid-template-columns: minmax(0, 1fr);
   border-radius: 5px;
   background: rgba(180, 119, 14, 0.62);
   color: #fff5c4;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 0.92rem;
   line-height: 1.18;
   overflow-wrap: anywhere;
+  font-weight: 700;
 }
 
 #panel-character-analysis .analysis-scout-rate-row {

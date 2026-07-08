@@ -4355,29 +4355,11 @@ body.ar2e-enemies-page #dropItemsTable .drop-ex-label {
     object-fit: contain;
   }
 
-  .enemy-view-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.8rem;
-    padding: 0.6rem;
-    border: 1px solid var(--ar-border);
-    border-radius: 6px;
-    background: rgba(15, 23, 42, 0.55);
-  }
-
-  .enemy-view-stage-group,
-  .enemy-view-toolbar-actions {
+  .enemy-view-stage-group {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     flex-wrap: wrap;
-  }
-
-  .enemy-view-toolbar-actions {
-    position: relative;
   }
 
   .enemy-view-stage-btn {
@@ -6582,4 +6564,25 @@ body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
     .enemy-export-bar :is(.koma-output-options, .import-json-inline, .koma-import-inline) {
     width: 100%;
   }
+}
+
+
+/* v17 enemy view toolbar theme variables only */
+.ar2e-enemies-page {
+  --enemy-view-toolbar-border: 1px solid var(--ar-border);
+  --enemy-view-toolbar-bg: rgba(15, 23, 42, 0.55);
+  --enemy-view-toolbar-title-color: var(--ar-accent-main);
+  --enemy-view-badge-border: 1px solid rgba(255, 217, 102, 0.28);
+  --enemy-view-badge-bg: rgba(255, 217, 102, 0.08);
+  --enemy-view-badge-color: rgba(255, 244, 196, 0.74);
+}
+
+/* v18 enemy view toolbar button theme variables */
+.ar2e-enemies-page {
+  --enemy-view-toolbar-button-border: 1px solid rgba(255, 217, 102, 0.88);
+  --enemy-view-toolbar-button-bg: rgba(15, 23, 42, 0.72);
+  --enemy-view-toolbar-button-color: var(--ar-accent-main);
+  --enemy-view-toolbar-button-hover-border-color: #fff0a6;
+  --enemy-view-toolbar-button-hover-bg: rgba(255, 217, 102, 0.14);
+  --enemy-view-toolbar-button-hover-color: #fff4c4;
 }

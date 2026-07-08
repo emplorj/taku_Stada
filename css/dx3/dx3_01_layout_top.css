@@ -103,12 +103,13 @@ display: inline-flex;
 
 /* source lines 262-269 */
 .section-title {
-font-family: "Corporate-Logo-Bold", sans-serif;
+font-family: "corporate-logo-ver2", sans-serif;
   color: #3498db;
   margin-top: 30px;
   margin-bottom: 15px;
   border-bottom: 1px solid #2a3c7d;
   padding-bottom: 8px;
+  font-weight: 700;
 }
 
 /* source lines 270-274 */
@@ -170,10 +171,11 @@ display: flex;
 
 /* source lines 1245-1250 */
 .usage-guide summary .summary-content h2 {
-font-family: "Corporate-Logo-Bold", sans-serif;
+font-family: "corporate-logo-ver2", sans-serif;
   color: #9b59b6;
   margin: 0;
   flex-shrink: 0;
+  font-weight: 700;
 }
 
 /* source lines 1252-1258 */
@@ -198,13 +200,14 @@ color: #eee;
 
 /* source lines 1270-1278 */
 .usage-guide h3 {
-font-family: "Corporate-Logo-Bold", sans-serif;
+font-family: "corporate-logo-ver2", sans-serif;
   color: #3498db;
   margin-top: 25px;
   border-bottom: 1px solid #2a3c7d;
   padding-bottom: 8px;
   padding-left: 25px;
   padding-right: 25px;
+  font-weight: 700;
 }
 
 /* source lines 1280-1286 */

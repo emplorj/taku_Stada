@@ -184,9 +184,9 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .d
   padding-left: 40px;
   padding-right: 0;
   min-height: 0;
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-family: "corporate-logo-ver2", "Yu Gothic", "Meiryo", sans-serif;
   font-size: 1.5em;
-  font-weight: normal;
+  font-weight: 700;
   color: #f5f0e5;
   border: none;
   border-radius: 8px 0 0 8px;
@@ -570,7 +570,7 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is
 /* --------------------------------------------------------------------------
    Shared compact enemy-view header and chat-palette drawer
    -------------------------------------------------------------------------- */
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -581,17 +581,17 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is
   padding: 0 !important;
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) h1 {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) h1 {
   margin: 0 !important;
   padding: 0 0 0.25rem !important;
   line-height: 1.1 !important;
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) .subtitle {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) .subtitle {
   display: none !important;
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode .enemy-view-home-link {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode .enemy-view-home-link {
   position: absolute !important;
   left: 0 !important;
   top: 50% !important;
@@ -607,7 +607,7 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is
   overflow: hidden !important;
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode .enemy-view-home-link > img {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode .enemy-view-home-link > img {
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
@@ -615,28 +615,28 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is
   object-fit: contain !important;
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-chat-open {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-chat-open {
   /* ゆとシートのチャットパレットに寄せて、背景操作やスクロールを塞がない。 */
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode {
   --enemy-view-chat-top-offset: 9.5rem;
   --enemy-view-footer-reserve: 5.25rem;
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode .main-content {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode .main-content {
   min-height: calc(100dvh - var(--enemy-view-footer-reserve, 5.25rem));
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode .enemy-view-pane {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode .enemy-view-pane {
   min-height: calc(100dvh - var(--enemy-view-footer-reserve, 5.25rem) - 3rem);
 }
 
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode .enemy-view-toolbar {
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode .enemy-view-toolbar {
   position: relative;
 }
 
-:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-view-chat-palette-panel {
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page) .enemy-view-chat-palette-panel {
   position: fixed;
   top: var(--enemy-view-chat-top-offset, 9.5rem);
   left: 50%;
@@ -664,18 +664,18 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is
   will-change: transform, opacity;
 }
 
-:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-view-chat-palette-panel.is-open {
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page) .enemy-view-chat-palette-panel.is-open {
   transform: translate(-50%, 0);
   opacity: 1;
   pointer-events: auto;
 }
 
-:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-view-chat-palette-panel .is-copy-chat {
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page) .enemy-view-chat-palette-panel .is-copy-chat {
   align-self: flex-end;
   flex: 0 0 auto;
 }
 
-:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-view-chat-palette {
+:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page) .enemy-view-chat-palette {
   box-sizing: border-box;
   width: 100%;
   min-height: 0;
@@ -694,30 +694,30 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is
 }
 
 @media (max-width: 760px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode {
     --enemy-view-chat-top-offset: 8.5rem;
     --enemy-view-footer-reserve: 4.5rem;
   }
 
-  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-view-chat-palette-panel {
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page) .enemy-view-chat-palette-panel {
     width: calc(100vw - 1rem);
     height: min(80vh, calc(100dvh - var(--enemy-view-chat-top-offset, 8.5rem) - var(--enemy-view-footer-reserve, 4.5rem)));
     max-height: min(80vh, calc(100dvh - var(--enemy-view-chat-top-offset, 8.5rem) - var(--enemy-view-footer-reserve, 4.5rem)));
     padding: 0.75rem;
   }
 
-  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page) .enemy-view-chat-palette-panel.is-open {
+  :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page) .enemy-view-chat-palette-panel.is-open {
     transform: translate(-50%, 0);
   }
 }
 
 @media (max-width: 760px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) {
     justify-content: flex-start !important;
     padding-left: 2.45rem !important;
   }
 
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page).is-enemy-view-mode .enemy-view-home-link {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode .enemy-view-home-link {
     position: absolute !important;
   }
 }
@@ -3421,4 +3421,539 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .d
     justify-content: flex-start !important;
     margin-left: 0 !important;
   }
+}
+
+
+/* ===========================================================================
+   v17 unified enemy view toolbar hard shell
+   共通CSSが個別CSSより先に読まれるため、閲覧ツールバーの構造だけは
+   ここで最終的に固定する。色・背景・枠線は各システムのCSS変数で差し替える。
+   =========================================================================== */
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar {
+  display: grid !important;
+  grid-template-columns: auto auto auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  gap: var(--enemy-view-toolbar-gap, 0.55rem) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 0 var(--enemy-view-toolbar-margin-bottom, 0.8rem) !important;
+  padding: var(--enemy-view-toolbar-padding, 0.62rem 0.75rem) !important;
+  border: var(--enemy-view-toolbar-border, 1px solid rgba(255, 255, 255, 0.22)) !important;
+  border-radius: var(--enemy-view-toolbar-radius, 6px) !important;
+  background: var(--enemy-view-toolbar-bg, rgba(18, 24, 42, 0.82)) !important;
+  box-shadow: var(--enemy-view-toolbar-shadow, none) !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-title,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-id-badge,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-no-image-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-title {
+  color: var(--enemy-view-toolbar-title-color, currentColor) !important;
+  font-size: var(--enemy-view-toolbar-title-size, 0.95rem) !important;
+  font-weight: var(--enemy-view-toolbar-title-weight, 800) !important;
+  letter-spacing: var(--enemy-view-toolbar-title-letter-spacing, 0) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-id-badge,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-no-image-badge {
+  min-height: var(--enemy-view-badge-height, 1.55rem) !important;
+  padding: var(--enemy-view-badge-padding, 0.16rem 0.55rem) !important;
+  border: var(--enemy-view-badge-border, 1px solid rgba(255, 255, 255, 0.24)) !important;
+  border-radius: var(--enemy-view-badge-radius, 999px) !important;
+  background: var(--enemy-view-badge-bg, rgba(255, 255, 255, 0.08)) !important;
+  color: var(--enemy-view-badge-color, rgba(255, 255, 255, 0.7)) !important;
+  font-size: var(--enemy-view-badge-font-size, 0.72rem) !important;
+  font-weight: var(--enemy-view-badge-font-weight, 800) !important;
+  letter-spacing: var(--enemy-view-badge-letter-spacing, 0.04em) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-no-image-badge {
+  border: var(--enemy-view-no-image-badge-border, var(--enemy-view-badge-border, 1px solid rgba(255, 255, 255, 0.24))) !important;
+  background: var(--enemy-view-no-image-badge-bg, var(--enemy-view-badge-bg, rgba(255, 255, 255, 0.08))) !important;
+  color: var(--enemy-view-no-image-badge-color, var(--enemy-view-badge-color, rgba(255, 255, 255, 0.7))) !important;
+  font-size: var(--enemy-view-no-image-badge-font-size, 0.78rem) !important;
+  font-weight: var(--enemy-view-no-image-badge-font-weight, 900) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-id-badge[hidden],
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-no-image-badge[hidden] {
+  display: none !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-actions {
+  grid-column: 4 !important;
+  justify-self: end !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap !important;
+  gap: var(--enemy-view-toolbar-actions-gap, 0.4rem) !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-wide-switch .public-switch-wrap {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-width: var(--enemy-view-toolbar-button-min-width, max-content) !important;
+  width: auto !important;
+  min-height: var(--enemy-view-toolbar-button-height, 2.35rem) !important;
+  height: var(--enemy-view-toolbar-button-height, 2.35rem) !important;
+  margin: 0 !important;
+  padding: var(--enemy-view-toolbar-button-padding, 0 0.72rem) !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-wide-switch {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-wide-switch input.switch {
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 760px) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar {
+    grid-template-columns: auto auto 1fr !important;
+    align-items: stretch !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-actions {
+    grid-column: 1 / -1 !important;
+    justify-self: stretch !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+    flex: 1 1 calc(50% - var(--enemy-view-toolbar-actions-gap, 0.4rem)) !important;
+    min-width: var(--enemy-view-toolbar-button-mobile-min-width, 7.2rem) !important;
+  }
+}
+
+/* ===========================================================================
+   v18 unified enemy view toolbar button skin
+   ---------------------------------------------------------------------------
+   共通CSSは個別CSSより先に読み込まれるため、閲覧ツールバー内のボタン外観も
+   CSS変数 + !important で共通側から固定する。
+   =========================================================================== */
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+  border: var(--enemy-view-toolbar-button-border, 1px solid rgba(255, 255, 255, 0.28)) !important;
+  border-radius: var(--enemy-view-toolbar-button-radius, 5px) !important;
+  background: var(--enemy-view-toolbar-button-bg, rgba(0, 0, 0, 0.18)) !important;
+  color: var(--enemy-view-toolbar-button-color, currentColor) !important;
+  box-shadow: var(--enemy-view-toolbar-button-shadow, none) !important;
+  text-shadow: var(--enemy-view-toolbar-button-text-shadow, none) !important;
+  font-family: var(--enemy-view-toolbar-button-font-family, inherit) !important;
+  font-size: var(--enemy-view-toolbar-button-font-size, 0.86rem) !important;
+  font-weight: var(--enemy-view-toolbar-button-font-weight, 800) !important;
+  letter-spacing: var(--enemy-view-toolbar-button-letter-spacing, 0) !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn i,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn i,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn i {
+  color: inherit !important;
+  margin-right: var(--enemy-view-toolbar-button-icon-gap, 0.25em) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn:hover,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn:hover,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn:hover {
+  border-color: var(--enemy-view-toolbar-button-hover-border-color, currentColor) !important;
+  background: var(--enemy-view-toolbar-button-hover-bg, var(--enemy-view-toolbar-button-bg, rgba(255, 255, 255, 0.08))) !important;
+  color: var(--enemy-view-toolbar-button-hover-color, var(--enemy-view-toolbar-button-color, currentColor)) !important;
+  filter: var(--enemy-view-toolbar-button-hover-filter, brightness(1.08)) !important;
+  transform: var(--enemy-view-toolbar-button-hover-transform, translateY(-1px)) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn:active,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn:active,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn:active {
+  transform: var(--enemy-view-toolbar-button-active-transform, translateY(0)) !important;
+}
+
+
+/* ========================================================================== 
+   v21 unified enemy view chat palette and DX3 toolbar inclusion
+   --------------------------------------------------------------------------
+   - DX3 uses body.dx3-combo-page, not .dx3-enemies-page, on the public view.
+   - The chat palette is a shared drawer: hidden by default, opened by .is-open.
+   - Colors are driven by CSS variables so individual systems keep only theme tokens.
+   ========================================================================== */
+
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar button.small-square-btn,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions .small-square-btn,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions button.small-square-btn,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions a.small-square-btn,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions .small-square-btn,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions button.small-square-btn,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions a.small-square-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.35rem !important;
+  min-width: 0 !important;
+  min-height: 2.35rem !important;
+  height: 2.35rem !important;
+  padding: 0 0.8rem !important;
+  border: 1px solid var(--enemy-view-toolbar-button-border, rgba(255, 217, 102, 0.92)) !important;
+  border-radius: 7px !important;
+  background: var(--enemy-view-toolbar-button-bg, rgba(17, 28, 58, 0.92)) !important;
+  color: var(--enemy-view-toolbar-button-color, #ffd966) !important;
+  box-shadow: var(--enemy-view-toolbar-button-shadow, 2px 2px 0 rgba(0, 0, 0, 0.62)) !important;
+  font: inherit !important;
+  font-size: 0.9rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  transition:
+    transform 0.14s ease,
+    border-color 0.14s ease,
+    background-color 0.14s ease,
+    color 0.14s ease,
+    box-shadow 0.14s ease !important;
+}
+
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar .small-square-btn:hover,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar a.small-square-btn:hover,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar button.small-square-btn:hover,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions .small-square-btn:hover,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions button.small-square-btn:hover,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions a.small-square-btn:hover,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions .small-square-btn:hover,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions button.small-square-btn:hover,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions a.small-square-btn:hover {
+  border-color: var(--enemy-view-toolbar-button-hover-border, #fff1a8) !important;
+  background: var(--enemy-view-toolbar-button-hover-bg, rgba(28, 45, 88, 0.98)) !important;
+  color: var(--enemy-view-toolbar-button-hover-color, #ffffff) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--enemy-view-toolbar-button-hover-shadow, 2px 2px 0 rgba(0, 0, 0, 0.72), 0 0 12px rgba(255, 217, 102, 0.22)) !important;
+}
+
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar .small-square-btn:active,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar a.small-square-btn:active,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar button.small-square-btn:active,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions .small-square-btn:active,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions button.small-square-btn:active,
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-chat-palette-actions a.small-square-btn:active,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions .small-square-btn:active,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions button.small-square-btn:active,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions a.small-square-btn:active {
+  transform: translateY(0) !important;
+  box-shadow: var(--enemy-view-toolbar-button-active-shadow, 1px 1px 0 rgba(0, 0, 0, 0.74)) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel[hidden] {
+  display: none !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel:not(.is-open) {
+  visibility: hidden !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0.65rem !important;
+  width: min(calc(100vw - 2rem), var(--enemy-view-chat-width, 1080px)) !important;
+  height: min(78vh, calc(100dvh - var(--enemy-view-chat-top-offset, 9.5rem) - 2rem)) !important;
+  max-height: min(78vh, calc(100dvh - var(--enemy-view-chat-top-offset, 9.5rem) - 2rem)) !important;
+  padding: 0.9rem 1rem 1rem !important;
+  border: 1px solid var(--enemy-view-chat-border, rgba(255, 217, 102, 0.56)) !important;
+  border-radius: 10px !important;
+  background:
+    linear-gradient(180deg, var(--enemy-view-chat-bg-top, rgba(13, 18, 33, 0.98)), var(--enemy-view-chat-bg-bottom, rgba(4, 7, 14, 0.98))) !important;
+  box-shadow: var(--enemy-view-chat-shadow, 0 22px 54px rgba(0, 0, 0, 0.52)) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0.5rem !important;
+  min-width: 0 !important;
+  padding-bottom: 0.65rem !important;
+  border-bottom: 1px solid var(--enemy-view-chat-divider, rgba(255, 217, 102, 0.24)) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  resize: none !important;
+  overflow: auto !important;
+  overflow-wrap: anywhere !important;
+  white-space: pre-wrap !important;
+  border: 1px solid var(--enemy-view-chat-textarea-border, rgba(255, 217, 102, 0.32)) !important;
+  border-radius: 8px !important;
+  padding: 0.9rem 1rem !important;
+  background: var(--enemy-view-chat-textarea-bg, rgba(3, 7, 16, 0.96)) !important;
+  color: var(--enemy-view-chat-textarea-color, #f8fafc) !important;
+  box-sizing: border-box !important;
+  font-family: var(--enemy-view-chat-font, "HigashiOme-Gothic-C", "SFMono-Regular", Consolas, "Yu Gothic", "Meiryo", monospace) !important;
+  font-size: clamp(0.9rem, 1.3vw, 1.12rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.62 !important;
+  tab-size: 2 !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette:focus {
+  outline: none !important;
+  border-color: var(--enemy-view-chat-textarea-focus-border, rgba(255, 217, 102, 0.7)) !important;
+  box-shadow: 0 0 0 2px var(--enemy-view-chat-textarea-focus-ring, rgba(255, 217, 102, 0.12)) !important;
+}
+
+@media (max-width: 760px) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel {
+    width: calc(100vw - 0.75rem) !important;
+    height: min(78vh, calc(100dvh - var(--enemy-view-chat-top-offset, 8.5rem) - 1rem)) !important;
+    padding: 0.7rem !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions {
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette {
+    font-size: 0.9rem !important;
+    line-height: 1.55 !important;
+  }
+}
+
+/* v22 enemy view chat drawer hardening */
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-actions .enemy-view-chat-close {
+  margin-left: auto !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode:not(.is-enemy-view-chat-open) .enemy-view-chat-palette-panel {
+  display: none !important;
+}
+
+/* v23 DX3 enemy view chat drawer offset and packaging note
+   DX3 public view uses the same shared chat drawer as AR2E, but the page header
+   is taller. Keep the drawer slightly below the toolbar instead of overlapping it. */
+body.dx3-combo-page.is-enemy-view-mode {
+  --enemy-view-chat-top-offset: clamp(10.75rem, 15vh, 12.5rem);
+}
+
+@media (max-width: 760px) {
+  body.dx3-combo-page.is-enemy-view-mode {
+    --enemy-view-chat-top-offset: 9.75rem;
+  }
+}
+
+/* ==========================================================================
+   v24 shared enemy view toolbar and chat slide consolidation
+   - include DX3 combo page in the same toolbar positioning as AR2E/Satasupe/NC
+   - keep chat drawer mounted only when open on DX3, but animate Vue transition
+   ========================================================================== */
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar {
+  display: grid !important;
+  grid-template-columns: auto auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 0.55rem 0.75rem !important;
+  width: 100% !important;
+  margin: 0 0 0.85rem !important;
+  padding: 0.72rem 0.95rem !important;
+  box-sizing: border-box !important;
+  border: var(--enemy-view-toolbar-border, 1px solid rgba(255, 217, 102, 0.72)) !important;
+  border-radius: var(--enemy-view-toolbar-radius, 7px) !important;
+  background: var(--enemy-view-toolbar-bg, rgba(12, 22, 52, 0.92)) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-title {
+  grid-column: 1 !important;
+  min-width: max-content !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-id-badge,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-no-image-badge {
+  grid-column: auto !important;
+  justify-self: start !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-actions {
+  grid-column: 3 !important;
+  justify-self: end !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0.45rem !important;
+  margin-left: 0 !important;
+  min-width: 0 !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-enter-active,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-leave-active {
+  transition: opacity 0.24s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-enter,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-leave-to {
+  opacity: 0 !important;
+  transform: translate(-50%, -0.8rem) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-enter-to,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-leave {
+  opacity: 1 !important;
+  transform: translate(-50%, 0) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel.is-open {
+  top: var(--enemy-view-chat-top-offset, 10.75rem) !important;
+  transform: translate(-50%, 0) !important;
+}
+
+@media (max-width: 760px) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar {
+    grid-template-columns: 1fr !important;
+  }
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-actions {
+    grid-column: 1 !important;
+    justify-self: stretch !important;
+    justify-content: flex-start !important;
+  }
+}
+
+/* v24 final chat transition state must beat the generic .is-open transform */
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-enter,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-leave-to {
+  opacity: 0 !important;
+  transform: translate(-50%, -1rem) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-enter-to,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-leave {
+  opacity: 1 !important;
+  transform: translate(-50%, 0) !important;
+}
+
+/* ==========================================================================
+   v25 enemy view chat transition repair
+   - .is-open final transform was overriding Vue transition classes.
+   ========================================================================== */
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-enter-active,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-slide-leave-active {
+  transition: opacity 0.26s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel.enemy-view-chat-slide-enter,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel.enemy-view-chat-slide-leave-to {
+  opacity: 0 !important;
+  transform: translate(-50%, -0.85rem) !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel.enemy-view-chat-slide-enter-to,
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-chat-palette-panel.enemy-view-chat-slide-leave {
+  opacity: 1 !important;
+  transform: translate(-50%, 0) !important;
+}
+
+/* ========================================================================== 
+   v27 compact enemy view title header final override
+   - tighten public page title header across systems
+   - include DX3 top h1, which is not wrapped in the same system header class
+   ========================================================================== */
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) {
+  min-height: 1.9rem !important;
+  margin: 0 0 0.12rem !important;
+  padding: 0 !important;
+  gap: 0.45rem !important;
+}
+
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page).is-enemy-view-mode :is(.satasupe-header, .nechronica-header, .ar2e-header) h1 {
+  margin: 0 !important;
+  padding: 0 0 0.25rem !important;
+  line-height: 1.1 !important;
+}
+
+.ar2e-enemies-page.is-enemy-view-mode .ar2e-header h1 {
+  margin: 0 !important;
+  padding: 0 0 0.15rem !important;
+}
+
+.ar2e-enemies-page .ar2e-header h1 {
+  margin: 0 0 0.25rem !important;
+  padding: 0 0 0.18rem !important;
+  line-height: 1.15 !important;
+}
+
+body.dx3-combo-page.is-enemy-view-mode .main-content > h1 {
+  margin: 0 0 0.35rem !important;
+  padding: 0 0 0.28rem !important;
+  line-height: 1.05 !important;
+}
+
+body.dx3-combo-page.is-enemy-view-mode .main-content > h1 + p,
+body.dx3-combo-page.is-enemy-view-mode .main-content > h1 + .dx3-page-lead,
+body.dx3-combo-page.is-enemy-view-mode .main-content > h1 + .dx3-intro-note {
+  margin-top: 0 !important;
+}
+
+/* ==========================================================================
+   v28 enemy view toolbar edge fill
+   - ensure the shared toolbar background/border spans the full box to the edge
+   ========================================================================== */
+body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar {
+  overflow: hidden !important;
+  background-clip: border-box !important;
+}
+
+body.dx3-combo-page.is-enemy-view-mode .enemy-view-toolbar {
+  border-color: rgba(204, 65, 37, 0.92) !important;
+  box-shadow: inset 0 0 0 1px rgba(204, 65, 37, 0.16) !important;
 }

@@ -266,10 +266,11 @@ display: flex;
 .dx3-enemies-page .dx3-enemy-common-header h2 {
 margin: 0;
   color: #ffd966;
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-family: "corporate-logo-ver2", "Yu Gothic", "Meiryo", sans-serif;
   font-size: 1.35rem;
   letter-spacing: 0.04em;
   text-shadow: 2px 2px 0 rgba(0,0,0,0.45);
+  font-weight: 700;
 }
 
 /* source lines 5157-5161 */
@@ -363,7 +364,8 @@ display: none;
 /* source lines 5242-5245 */
 .dx3-enemies-page .dx3-enemy-community-pane {
 margin-top: 1rem;
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-family: "corporate-logo-ver2", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: 700;
 }
 
 /* source lines 5246-5248 */
@@ -508,7 +510,8 @@ margin-left: auto;
 /* source lines 5372-5375 */
 .dx3-enemies-page .dx3-enemy-community-pane {
 margin-top: 1.1rem;
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-family: "corporate-logo-ver2", "Yu Gothic", "Meiryo", sans-serif;
+  font-weight: 700;
 }
 
 /* source lines 5377-5382 */
@@ -1225,7 +1228,7 @@ color: rgba(255, 224, 160, 0.9);
 .dx3-enemy-sample-name {
 transform: translateY(0.08rem);
   color: #ffffff;
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", sans-serif;
+  font-family: "corporate-logo-ver2", "HigashiOme-Gothic-C", sans-serif;
   font-size: 0.92rem;
   font-weight: 900;
   letter-spacing: 0.04em;

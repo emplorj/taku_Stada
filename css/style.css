@@ -13,13 +13,7 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Corporate-Logo-Bold";
-  src: url("../fonts/Corporate-Logo-Bold-ver3.woff2") format("woff2"); /* こちらもwoff2 */
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
+
 
 @font-face {
   font-family: "Vermin Vibes V";
@@ -245,12 +239,13 @@ footer {
 
 .question-summary-block summary h2 {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   margin: 0;
   color: #f0f0f0; /* 見出し色を明るく */
   font-size: 1.5em;
   flex-grow: 1;
+  font-weight: 700;
 }
 
 .question-summary-block summary p {
@@ -331,7 +326,7 @@ nav.side-menu li {
 .side-menu a {
   text-decoration: none;
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif; /* 目次のフォント変更 */
   color: #b0c4de;
   transition: all 0.2s ease; /* アニメーション対象を全プロパティに */
@@ -339,7 +334,8 @@ nav.side-menu li {
   display: flex; /* 1. Flexboxを有効にして、中の要素（アイコンとテキスト）を横並びに */
   align-items: center; /* 2. アイコンとテキストを垂直方向の中央に揃える */
   padding: 1px 5px; /* 縦方向を少し詰める */
-  line-height: 1.15; /* 行間をやや圧縮 */
+  line-height: 1.15; /* 行間をやや圧縮 */;
+  font-weight: 700;
 }
 .menu-icon {
   height: 1.2em; /* 高さを文字サイズに合わせる (お好みで調整) */
@@ -368,10 +364,11 @@ nav.side-menu li {
   padding-bottom: 8px; /* パディングを少し戻す */
   border-bottom: 1px solid #4a5c9a;
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   font-size: 1.2em;
   color: #fff;
+  font-weight: 700;
 }
 
 /* ==========================================================================
@@ -456,27 +453,30 @@ nav.side-menu li {
 .speech-bubble h2,
 .speech-bubble h3 {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   color: #2c3e50;
   margin-top: 0; /* 吹き出し内の見出しの余白を調整 */
   margin-bottom: 15px;
+  font-weight: 700;
 }
 .speech-bubble h2 {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   font-size: 1.6em;
   padding-bottom: 5px;
   border-bottom: 1px dashed #ccc;
+  font-weight: 700;
 }
 .speech-bubble h3 {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   font-size: 1.3em;
   color: #3498db;
   margin-top: 20px;
+  font-weight: 700;
 }
 .speech-bubble p {
   margin-bottom: 10px;
@@ -521,7 +521,7 @@ nav.side-menu li {
 
 .author-profile h2 {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   margin-top: 0;
   color: #f0f0f0;
@@ -588,7 +588,7 @@ nav.side-menu li {
 
 .works-title {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   font-size: 1.1em;
   font-weight: bold;
@@ -692,12 +692,12 @@ nav.side-menu li {
 
 /* スライドタイトル (index.html) */
 .start-title {
-  font-family: "Corporate-Logo-Bold", "Yu Gothic", "Meiryo", sans-serif;
+  font-family: "corporate-logo-ver2", "Yu Gothic", "Meiryo", sans-serif;
   color: #fff;
   font-size: 1.5em;
   padding-top: 10px;
   padding-bottom: 0px;
-  font-weight: normal;
+  font-weight: 700;
 
   padding-left: 20px;
   padding-right: 0;
@@ -1277,7 +1277,7 @@ body.no-scroll {
 
 .tool-author-header {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   color: #3498db;
   margin-top: 40px;
@@ -1285,6 +1285,7 @@ body.no-scroll {
   padding-bottom: 5px;
   border-bottom: 2px solid #2c3e50;
   width: 100%;
+  font-weight: 700;
 }
 
 .tool-author-header:first-of-type {
@@ -1329,7 +1330,7 @@ body.no-scroll {
 
 .tool-card-title {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   font-size: 1.2em;
   font-weight: bold;
@@ -1480,13 +1481,14 @@ body.no-scroll {
 }
 
 .ogp-card-title {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", sans-serif;
+  font-family: "corporate-logo-ver2", "HigashiOme-Gothic-C", sans-serif;
   font-size: 1.1em;
   margin: 0 0 8px 0;
   color: #f0f0f0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 700;
 }
 
 .ogp-card-description {
@@ -1511,10 +1513,11 @@ body.no-scroll {
 }
 
 .ogp-card-original-title {
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", sans-serif;
+  font-family: "corporate-logo-ver2", "HigashiOme-Gothic-C", sans-serif;
   font-size: 1.2em;
   color: #ffffff;
   margin: 0 0 10px 0;
+  font-weight: 700;
 }
 /* ==========================================================================
    21. サイドメニュー サブメニュー
@@ -1764,7 +1767,7 @@ body.no-scroll {
 
 .system-card h4 {
   font-family:
-    "Corporate-Logo-Bold", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
+    "corporate-logo-ver2", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo",
     sans-serif;
   font-size: 1.3em;
   margin-top: 0;
@@ -1776,7 +1779,8 @@ body.no-scroll {
   justify-content: center;
   padding-bottom: 8px; /* 線区切りのための下パディング */
   border-bottom: 1px solid #4a5c9a; /* 線区切り */
-  width: 100%; /* 線をカード幅いっぱいに */
+  width: 100%; /* 線をカード幅いっぱいに */;
+  font-weight: 700;
 }
 
 .system-card img {

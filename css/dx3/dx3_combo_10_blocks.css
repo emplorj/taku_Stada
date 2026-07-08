@@ -28,13 +28,14 @@ display: flex;
 background-color: #0d1a50;
   border: 1px solid #4a5c9a;
   color: #eee;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1.2em;
   flex-grow: 1;
   padding: 6px 5px 0px 5px; /* 上を8px、下を2pxにして文字を視覚的に下げる */
   border-radius: 4px;
   transition: all 0.2s;
-  order: 1; /* 前回の修正で追加済み */
+  order: 1; /* 前回の修正で追加済み */;
+  font-weight: 700;
 }
 
 /* source lines 532-535 */

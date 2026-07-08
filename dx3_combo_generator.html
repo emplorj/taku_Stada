@@ -33,6 +33,11 @@
   </head>
 
   <body class="dx3-combo-page dx3-enemies-page">
+    <script>
+      if (document.documentElement.classList.contains("is-dx3-enemy-view-boot")) {
+        document.body.dataset.noSidemenu = "1";
+      }
+    </script>
     <div id="header-placeholder"></div>
     <canvas id="particleCanvas"></canvas>
 
@@ -834,21 +839,30 @@
                 </a>
               </div>
             </div>
-            <div class="enemy-view-chat-palette-panel" v-show="dx3EnemyViewChatOpen">
-              <div class="enemy-view-chat-palette-actions">
+            <transition name="enemy-view-chat-slide">
+              <div
+                v-if="dx3EnemyViewMode && dx3EnemyViewChatOpen"
+                v-cloak
+                class="enemy-view-chat-palette-panel is-open"
+              >
+                <div class="enemy-view-chat-palette-actions">
                 <button type="button" class="small-square-btn is-copy-chat" @click="copyDx3EnemyViewKomaJson">
                   <i class="fa-solid fa-dice-d20"></i> 駒出力コピー
                 </button>
                 <button type="button" class="small-square-btn is-copy-chat" @click="copyDx3EnemyViewCommands">
                   <i class="fa-solid fa-copy"></i> チャパレコピー
                 </button>
+                <button type="button" class="small-square-btn is-copy-chat enemy-view-chat-close" @click="dx3EnemyViewChatOpen = false">
+                  <i class="fa-solid fa-xmark"></i> 閉じる
+                </button>
               </div>
-              <textarea class="enemy-view-chat-palette" readonly rows="8" :value="dx3EnemyViewCommands" aria-label="チャットパレット内容"></textarea>
-            </div>
+                <textarea class="enemy-view-chat-palette" readonly rows="8" :value="dx3EnemyViewCommands" aria-label="チャットパレット内容"></textarea>
+              </div>
+            </transition>
             <article class="enemy-view-content dx3-enemy-view-content" v-html="dx3EnemyViewHtml"></article>
           </section>
 
-          <section class="dx3-enemy-editor-pane dx3-enemy-template-pane">
+          <section v-if="!dx3EnemyViewMode" class="dx3-enemy-editor-pane dx3-enemy-template-pane">
             <details
               class="dx3-collapsible-section dx3-enemy-basic-section"
               open
@@ -1249,7 +1263,7 @@
           </section>
         </section>
 
-        <div class="all-tables-container">
+        <div v-if="!dx3EnemyViewMode" class="all-tables-container">
           <div class="sheet-source-controls">
             <div class="sheet-source-note">
               <strong

@@ -485,7 +485,7 @@ html {
   position: absolute;
   top: 10px;
   left: 20px;
-  font-family: "Corporate-Logo-Bold", "HigashiOme-Gothic-C", sans-serif;
+  font-family: "corporate-logo-ver2", "HigashiOme-Gothic-C", sans-serif;
   font-size: 10rem;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.1);
@@ -601,7 +601,7 @@ html {
   padding: 4px 20px;
   border-radius: 4px;
   font-weight: bold;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1em;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   /* 日本語文字組みの整合性を保つ */
@@ -1350,7 +1350,8 @@ html {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  font-family: "Corporate-Logo-Bold", "Klee One", sans-serif;
+  font-family: "corporate-logo-ver2", "Klee One", sans-serif;
+  font-weight: 700;
 }
 
 .archive-item-number {
@@ -1371,7 +1372,8 @@ html {
   border: 1px solid rgba(135, 206, 250, 0.35);
   font-size: 0.75rem;
   color: #cfe9ff;
-  font-family: "Corporate-Logo-Bold", "Klee One", sans-serif;
+  font-family: "corporate-logo-ver2", "Klee One", sans-serif;
+  font-weight: 700;
 }
 
 .archive-badge.date {
@@ -1484,13 +1486,14 @@ html {
   border: none;
   background-color: transparent;
   color: #bdc3c7;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1.2em;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease-in-out;
   display: flex;
   align-items: center;
   gap: 8px;
+  font-weight: 700;
 }
 .tool-tabs button.active {
   color: #ffffff;
@@ -1763,10 +1766,11 @@ html {
 /* ▼▼▼ 修正 ▼▼▼ */
 .character-header h3 {
   margin: 0;
-  font-family: "Corporate-Logo-Bold", sans-serif; /* デフォルトフォントを指定 */
+  font-family: "corporate-logo-ver2", sans-serif; /* デフォルトフォントを指定 */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 700;
 }
 /* ▲▲▲ 修正 ▲▲▲ */
 
@@ -2063,9 +2067,10 @@ summary.character-header h3 {
   align-items: center;
   gap: 10px;
   margin: 0;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   padding: 4px 20px 0px 28px;
   position: relative;
+  font-weight: 700;
 }
 
 /* Custom arrow for the summary */
@@ -2193,7 +2198,7 @@ summary.character-header h3 input[type="checkbox"] {
   padding: 10px 20px;
   background-color: transparent;
   border: none;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1.1em;
   color: var(--system-accent, #87cefa);
   cursor: pointer;
@@ -2203,6 +2208,7 @@ summary.character-header h3 input[type="checkbox"] {
   align-items: center;
   gap: 8px;
   border-radius: 8px 8px 0 0;
+  font-weight: 700;
 }
 
 .tab-btn:hover {

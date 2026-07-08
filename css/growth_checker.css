@@ -21,13 +21,14 @@
   border: none;
   background-color: transparent;
   color: #bdc3c7;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1.2em;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease-in-out;
   display: flex;
   align-items: center;
   gap: 8px;
+  font-weight: 700;
 }
 .tool-tabs button.active {
   color: #ffffff;
@@ -302,10 +303,11 @@
 /* ▼▼▼ 修正 ▼▼▼ */
 .character-header h3 {
   margin: 0;
-  font-family: "Corporate-Logo-Bold", sans-serif; /* デフォルトフォントを指定 */
+  font-family: "corporate-logo-ver2", sans-serif; /* デフォルトフォントを指定 */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 700;
 }
 /* ▲▲▲ 修正 ▲▲▲ */
 
@@ -601,9 +603,10 @@ summary.character-header h3 {
   align-items: center;
   gap: 10px;
   margin: 0;
-  font-family: "Corporate-Logo-Bold", sans-serif;
+  font-family: "corporate-logo-ver2", sans-serif;
   padding: 4px 20px 0px 28px;
   position: relative;
+  font-weight: 700;
 }
 
 /* Custom arrow for the summary */
