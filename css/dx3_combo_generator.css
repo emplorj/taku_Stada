@@ -23,3 +23,147 @@
 @import "./dx3/dx3_enemy_44_public_view.css";
 @import "./dx3/dx3_90_responsive_misc.css";
 @import "./dx3/dx3_99_compat_misc.css";
+
+/* ========================================================================
+   v97 DX3 enemy editor action bar final entry guard
+   ------------------------------------------------------------------------
+   This file is the active entry loaded after enemies_view_common.css and all
+   imported dx3/*.css. Keep this narrow guard here so GitHub Pages cannot keep
+   the editor action bar under the common 100%-width button rules.
+   ======================================================================== */
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar {
+  display: grid !important;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) !important;
+  gap: 0.55rem 0.7rem !important;
+  align-items: center !important;
+  overflow: visible !important;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-left {
+  grid-column: 1 / 2 !important;
+  grid-row: 1 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  gap: 0.45rem !important;
+  margin: 0 !important;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-right {
+  grid-column: 2 / 3 !important;
+  grid-row: 1 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  gap: 0.45rem !important;
+  margin: 0 !important;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-meta {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  display: grid !important;
+  grid-template-columns: minmax(8rem, 14rem) minmax(12rem, 1fr) auto !important;
+  gap: 0.45rem 0.65rem !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar .action-btn {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 5.4rem !important;
+  max-width: 100% !important;
+  min-height: 2.15rem !important;
+  padding: 0.32rem 0.66rem !important;
+  white-space: nowrap !important;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar .action-meta-field {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 0.28rem !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar .action-meta-field > input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar .public-switch-label {
+  justify-self: start !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 1100px) {
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar {
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-left,
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-right,
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-meta {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-left {
+    grid-row: 1 !important;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-right {
+    grid-row: 2 !important;
+    justify-content: flex-start !important;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-meta {
+    grid-row: 3 !important;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-left,
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-right {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.42rem !important;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar .action-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-left: 0.38rem !important;
+    padding-right: 0.38rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar > .action-bar-meta {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.dx3-combo-page.dx3-enemies-page .dx3-enemy-action-bar.editor-action-bar .action-meta-field {
+    grid-template-columns: 1fr !important;
+    gap: 0.14rem !important;
+  }
+}
