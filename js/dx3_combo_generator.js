@@ -3332,7 +3332,7 @@ new Vue({
             `<span>${esc(effect.target || "-")}</span>`,
             `<span>${esc(effect.range || "-")}</span>`,
           ].join("");
-          return `<details class="dx3-enemy-effect-card dx3-sheet-row-card" data-accordion-group="dx3-effects"><summary><span class="dx3-sheet-row-main">${headerCells}</span><span class="dx3-sheet-row-sub">${esc(metaText)}</span></summary>${effect.effect ? `<p class="dx3-effect-description">${br(effect.effect)}</p>` : ""}${effect.notes ? `<p class="dx3-effect-note">${br(effect.notes)}</p>` : ""}</details>`;
+          return `<details class="dx3-enemy-effect-card dx3-sheet-row-card" data-accordion-group="dx3-effects"><summary><span class="dx3-sheet-row-main">${headerCells}</span></summary>${effect.effect ? `<p class="dx3-effect-description">${br(effect.effect)}</p>` : ""}${effect.notes ? `<p class="dx3-effect-note">${br(effect.notes)}</p>` : ""}</details>`;
         })
         .join("") || `<p class="enemy-view-empty">表示するエフェクトなし</p>`;
 
@@ -3374,7 +3374,7 @@ new Vue({
             `<span class="dx3-sheet-num">${esc(combo.finalCrit)}</span>`,
             `<span class="dx3-sheet-num">ATK ${esc(combo.totalAtk)}</span>`,
           ].join("");
-          return `<details class="dx3-enemy-view-combo-card dx3-sheet-row-card" data-accordion-group="dx3-combos" open><summary><span class="dx3-sheet-row-main">${headerCells}</span><span class="dx3-sheet-row-sub">${composition ? esc(composition) : "詳細"}</span></summary>${composition ? `<p class="dx3-combo-composition">${esc(composition)}</p>` : ""}${description ? `<p class="dx3-combo-description">${br(description)}</p>` : ""}${flavor ? `<blockquote class="dx3-combo-flavor">${br(flavor)}</blockquote>` : ""}</details>`;
+          return `<details class="dx3-enemy-view-combo-card dx3-sheet-row-card" data-accordion-group="dx3-combos" open><summary><span class="dx3-sheet-row-main">${headerCells}</span></summary>${composition ? `<p class="dx3-combo-composition">${esc(composition)}</p>` : ""}${description ? `<p class="dx3-combo-description">${br(description)}</p>` : ""}${flavor ? `<blockquote class="dx3-combo-flavor">${br(flavor)}</blockquote>` : ""}</details>`;
         })
         .join("");
 

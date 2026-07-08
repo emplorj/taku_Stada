@@ -976,7 +976,7 @@ body.dx3-combo-page .dx3-sheet-mini-table.is-abilities .dx3-sheet-cell.is-social
 body.dx3-combo-page {
   --dx3-heading-font: "corporate-logo-ver2", "Yu Gothic", "Meiryo", sans-serif;
   --dx3-number-font: var(--font-latin-ui);
-  --dx3-number-size-adjust: 1.25;
+  --dx3-number-size-adjust: var(--font-number-size-adjust, var(--font-latin-ui-size-adjust, 1.45));
   --dx3-number-line-height: var(--font-number-line-height, var(--font-latin-ui-line-height, 1));
   --dx3-number-letter-spacing: var(--font-number-letter-spacing, var(--font-latin-ui-letter-spacing, 0.02em));
 }
@@ -2244,1048 +2244,278 @@ body.dx3-combo-page.is-enemy-view-mode .dx3-combo-composition {
   text-align: left !important;
 }
 
-/* ========================================================================== 
-   v59 DX3 combat mini table order, XP slot, and erosion notation
-   --------------------------------------------------------------------------
-   Long erosion text is moved to a full-width row.  The freed right-side slot is
-   used for XP conversion.  Erosion itself remains readable, but its numeric
-   parts continue to use the shared number font.
-   ========================================================================== */
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-full-row {
-  grid-column: 1 / -1;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
-  grid-template-columns: max-content minmax(0, 1fr);
-  column-gap: 0.6rem;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion strong,
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-mixed-value strong {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.04em;
-  min-width: 0;
-  font-family: var(--dx3-ui-font, "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif) !important;
-  font-size: 0.92rem !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.01em !important;
-  white-space: nowrap;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion .dx3-sheet-num,
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-mixed-value .dx3-sheet-num {
-  font-family: var(--dx3-number-font, var(--font-latin-ui)) !important;
-  font-size: calc(1rem * var(--dx3-number-size-adjust, var(--font-number-size-adjust, 1.45))) !important;
-  font-weight: var(--font-latin-ui-weight, 300) !important;
-  line-height: var(--dx3-number-line-height, var(--font-number-line-height, 1)) !important;
-  letter-spacing: var(--dx3-number-letter-spacing, var(--font-number-letter-spacing, 0.02em)) !important;
-  font-variant-numeric: tabular-nums;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-erosion-extra {
-  min-width: 0;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-xp em {
-  letter-spacing: 0;
-}
-
-@media (max-width: 560px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
-    grid-column: 1 / -1;
-  }
-}
-
-
-/* ========================================================================== 
-   v61 shared number optical adjustment bridge
-   --------------------------------------------------------------------------
-   Use the shared number-font optical adjustment and nudge its baseline down by 1px.
-   ========================================================================== */
-body.dx3-combo-page.is-enemy-view-mode {
-  --dx3-number-size-adjust: var(--font-number-size-adjust, 1.25);
-  --dx3-number-baseline-shift: var(--font-number-baseline-shift, 1px);
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell strong,
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-ability-skills .dx3-sheet-cell strong,
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main > .dx3-sheet-num,
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion .dx3-sheet-num,
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-mixed-value .dx3-sheet-num {
-  position: relative;
-  top: var(--dx3-number-baseline-shift, var(--font-number-baseline-shift, 1px));
-}
-
-/* ========================================================================== 
-   v62 DX3 public view narrow-pane layout repair
-   --------------------------------------------------------------------------
-   Half-window and phone widths can make the right-column tables collapse while
-   the viewport media query is still too wide to trigger.  Use the actual enemy
-   view pane width as the breakpoint and turn combo/effect tables into compact
-   cards before they become unreadable.
-   ========================================================================== */
-body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-pane {
-  container-type: inline-size;
-  container-name: dx3EnemyViewPane;
-}
-
-@container dx3EnemyViewPane (max-width: 980px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-sheet-layout,
-  body.dx3-combo-page.is-enemy-view-mode.is-enemy-view-wide .dx3-enemy-view-sheet-layout {
-    grid-template-columns: 1fr !important;
-    gap: 0.85rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-main-column,
-  body.dx3-combo-page.is-enemy-view-mode.is-enemy-view-wide .dx3-enemy-view-main-column {
-    position: static !important;
-    max-width: none !important;
-    width: 100% !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-data-column {
-    width: 100% !important;
-    overflow: visible !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head {
-    display: none !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card {
-    border: 1px solid rgba(135, 206, 250, 0.22) !important;
-    border-radius: 0.42rem !important;
-    overflow: hidden !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary {
-    grid-template-columns: minmax(0, 1fr) 2.35rem !important;
-    gap: 0 !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 1px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
-    min-height: 2rem !important;
-    padding: 0.42rem 0.5rem !important;
-    justify-content: center !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    line-height: 1.25 !important;
-    word-break: keep-all !important;
-    overflow-wrap: anywhere !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span:first-child,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span:first-child {
-    grid-column: 1 / -1 !important;
-    min-height: 2.2rem !important;
-    font-size: 1rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary::after {
-    align-self: stretch !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 2.35rem !important;
-    width: 2.35rem !important;
-    margin: 0 !important;
-    border: 0 !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 0 !important;
-    background: rgba(204, 65, 37, 0.72) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-composition,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-description,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-flavor,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-effect-description,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-effect-note {
-    margin-inline: 0.45rem !important;
-  }
-}
-
-@container dx3EnemyViewPane (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-pane {
-    padding: 0.55rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-main-column .dx3-enemy-view-hero,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-main-column .dx3-enemy-view-hero.has-no-image {
-    grid-template-columns: 1fr !important;
-    padding: 0.65rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-main-column .dx3-enemy-view-hero .enemy-view-portrait {
-    width: min(100%, 13rem) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-ability-skills {
-    font-size: 0.82rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell {
-    padding-inline: 0.38rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
-    grid-template-columns: 1fr !important;
-    row-gap: 0.22rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    grid-template-columns: 1fr !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
-    justify-content: flex-start !important;
-    text-align: left !important;
-  }
-}
-
-/* Fallback for browsers where container queries are unavailable. */
-@media (max-width: 980px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-sheet-layout,
-  body.dx3-combo-page.is-enemy-view-mode.is-enemy-view-wide .dx3-enemy-view-sheet-layout {
-    grid-template-columns: 1fr !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-main-column,
-  body.dx3-combo-page.is-enemy-view-mode.is-enemy-view-wide .dx3-enemy-view-main-column {
-    position: static !important;
-    max-width: none !important;
-  }
-}
-
-/* ========================================================================== 
-   v63 DX3 public view narrow-card duplicate meta repair
-   --------------------------------------------------------------------------
-   Older viewport rules show .dx3-sheet-row-sub below 980px.  Public cards
-   already render the same metadata in .dx3-sheet-row-main / detail body, so
-   keep row-sub hidden in enemy view at both pane and viewport breakpoints.
-   ========================================================================== */
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-sub,
-body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-sub,
-body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-sub {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-@container dx3EnemyViewPane (max-width: 980px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-sub,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-sub,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-sub {
-    display: none !important;
-    visibility: hidden !important;
-  }
-}
-
-@media (max-width: 980px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-sub,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-sub,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-sub {
-    display: none !important;
-    visibility: hidden !important;
-  }
-}
-
-/* ========================================================================== 
-   v64 DX3 public view narrow table repair
-   --------------------------------------------------------------------------
-   At half-window widths, keep combo/effect data as tables instead of turning
-   each row into tall cards.  At phone widths, use a compact yutorize-like
-   thin table with horizontal scrolling rather than stacked metadata blocks.
-   ========================================================================== */
-@container dx3EnemyViewPane (max-width: 980px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head {
-    display: grid !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-list,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card-list {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card {
-    border: 0 !important;
-    border-radius: 0 !important;
-    overflow: visible !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 2.15rem !important;
-    gap: 0 !important;
-    align-items: stretch !important;
-    min-width: 0 !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo {
-    grid-template-columns: minmax(12rem, 1.35fr) minmax(6.5rem, 0.7fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) 4.2rem 5rem 2.15rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main {
-    grid-template-columns: minmax(12rem, 1.35fr) minmax(6.5rem, 0.7fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) 4.2rem 5rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect {
-    grid-template-columns: minmax(13rem, 1.4fr) 4.2rem minmax(6.5rem, 0.8fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) 2.15rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    grid-template-columns: minmax(13rem, 1.4fr) 4.2rem minmax(6.5rem, 0.8fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) minmax(5rem, 0.65fr) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
-    grid-column: auto !important;
-    min-height: 2rem !important;
-    padding: 0.34rem 0.42rem !important;
-    justify-content: center !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.15 !important;
-    word-break: normal !important;
-    overflow-wrap: normal !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span:first-child,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span:first-child {
-    grid-column: auto !important;
-    min-height: 2rem !important;
-    font-size: inherit !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary::after {
-    align-self: stretch !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 2.15rem !important;
-    width: 2.15rem !important;
-    height: auto !important;
-    margin: 0 !important;
-    border: 0 !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 0 !important;
-    background: rgba(204, 65, 37, 0.72) !important;
-  }
-}
-
-@container dx3EnemyViewPane (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-list,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card-list {
-    display: grid !important;
-    gap: 1px !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    border-radius: 0.36rem !important;
-    scrollbar-width: thin;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card {
-    width: max-content !important;
-    max-width: none !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card {
-    min-width: 41rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card {
-    min-width: 43rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo {
-    grid-template-columns: minmax(8.8rem, 1.35fr) 4.7rem 4rem 3.8rem 3.8rem 3rem 4rem 1.55rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main {
-    grid-template-columns: minmax(8.8rem, 1.35fr) 4.7rem 4rem 3.8rem 3.8rem 3rem 4rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect {
-    grid-template-columns: minmax(9.5rem, 1.45fr) 2.8rem 5rem 4rem 3.8rem 3.8rem 3.8rem 1.55rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    grid-template-columns: minmax(9.5rem, 1.45fr) 2.8rem 5rem 4rem 3.8rem 3.8rem 3.8rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary {
-    grid-template-columns: minmax(0, 1fr) 1.55rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main > span {
-    min-height: 1.48rem !important;
-    padding: 0.16rem 0.25rem !important;
-    font-size: 0.68rem !important;
-    line-height: 1.15 !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main .dx3-effect-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main .dx3-combo-table-name {
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    line-height: 1.16 !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary::after {
-    min-width: 1.55rem !important;
-    width: 1.55rem !important;
-    font-size: 0.72rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-composition,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-description,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-flavor,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-effect-description,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-effect-note {
-    width: auto !important;
-    margin: 0.35rem 0.35rem 0.45rem !important;
-    font-size: 0.76rem !important;
-    line-height: 1.55 !important;
-    white-space: normal !important;
-  }
-}
-
 /* ==========================================================================
-   v65 DX3 public view phone yutorize-style compact rows
+   v89 DX3 public sheet mobile row-head alignment
    --------------------------------------------------------------------------
-   Phone width should not horizontally scroll combo/effect rows.  Keep the
-   half-window table behavior from v64, but below 620px turn each record into a
-   compact two-line yutorize-like row: name on the first line, core data on the
-   second line.  Detail text still appears below only when opened.
+   On narrow screens, combo/effect rows use a yutorize-like two-line layout:
+   first line = name, second line = compact meta cells.  The header must use
+   the same meta columns and reserve the summary-arrow column, otherwise the
+   red header drifts from the body cells.
    ========================================================================== */
-@container dx3EnemyViewPane (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-list,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card-list {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-    overflow-y: visible !important;
-    border-radius: 0.36rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head {
-    display: none !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    border: 0 !important;
-    border-bottom: 1px solid rgba(135, 206, 250, 0.22) !important;
-    border-radius: 0 !important;
-    overflow: hidden !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary {
+@media (max-width: 760px) {
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 1.75rem !important;
     gap: 0 !important;
-    align-items: stretch !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    display: grid !important;
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    gap: 1px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    background: rgba(255, 255, 255, 0.055) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
-    grid-column: auto !important;
-    min-width: 0 !important;
-    min-height: 1.46rem !important;
-    padding: 0.16rem 0.22rem !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    font-size: 0.68rem !important;
-    line-height: 1.15 !important;
-    white-space: normal !important;
+    margin-bottom: 0.18rem !important;
     overflow: hidden !important;
-    text-overflow: clip !important;
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main .dx3-combo-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main .dx3-effect-table-name {
-    grid-column: 1 / -1 !important;
-    min-height: 1.7rem !important;
-    padding: 0.18rem 0.28rem !important;
-    justify-content: center !important;
-    text-align: center !important;
-    font-size: 0.78rem !important;
-    line-height: 1.18 !important;
-    font-weight: 900 !important;
-    white-space: normal !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    background: rgba(4, 13, 36, 0.96) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary::after {
-    align-self: stretch !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 1.75rem !important;
-    width: 1.75rem !important;
-    height: auto !important;
-    margin: 0 !important;
-    border: 0 !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 0 !important;
-    background: rgba(204, 65, 37, 0.72) !important;
-    font-size: 0.72rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-composition,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-description,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-flavor,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-effect-description,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-effect-note {
-    width: auto !important;
-    max-width: calc(100% - 0.7rem) !important;
-    margin: 0.35rem 0.35rem 0.45rem !important;
-    font-size: 0.76rem !important;
-    line-height: 1.55 !important;
-    white-space: normal !important;
-    overflow: visible !important;
-  }
-}
-
-@media (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-list,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card-list {
-    overflow-x: hidden !important;
-    overflow-y: visible !important;
-  }
-}
-
-/* v66: final compact mobile table override.
-   Keep half-width layouts as tables, but under phone widths use a yuto-sheet-like
-   two-line row: first line is the name, following lines are compact values.
-   Also keep the erosion row inline. */
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 0.45rem !important;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion em {
-  flex: 0 0 auto !important;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion strong {
-  flex: 0 1 auto !important;
-  min-width: 0 !important;
-  width: auto !important;
-  max-width: none !important;
-  white-space: nowrap !important;
-  text-align: right !important;
-}
-
-@container dx3EnemyViewPane (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-list,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card-list {
-    overflow-x: hidden !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head {
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo > span:first-child,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect > span:first-child {
     display: none !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card {
-    min-width: 0 !important;
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 2rem !important;
-    gap: 0 !important;
-    align-items: stretch !important;
-    min-width: 0 !important;
-    width: 100% !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary::after {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 2rem !important;
-    min-width: 2rem !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    content: "▼" !important;
-    background: rgba(var(--dx3-view-accent-rgb), 0.76) !important;
-    color: #fff3ec !important;
-    font-size: 0.92rem !important;
-    line-height: 1 !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card[open] summary::after {
-    content: "▲" !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    grid-column: 1 !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: stretch !important;
-    gap: 1px !important;
-    min-width: 0 !important;
-    width: 100% !important;
-    background: rgba(255, 255, 255, 0.07) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
-    flex: 1 1 4.2rem !important;
-    grid-column: auto !important;
-    min-width: 0 !important;
-    min-height: 1.42rem !important;
-    padding: 0.15rem 0.25rem !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    background: rgba(6, 15, 38, 0.9) !important;
-    color: var(--dx3-view-text) !important;
-    font-size: 0.68rem !important;
-    line-height: 1.15 !important;
-    white-space: normal !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    word-break: keep-all !important;
-    overflow-wrap: anywhere !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main .dx3-combo-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main .dx3-effect-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span:first-child,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span:first-child {
-    flex: 1 0 100% !important;
-    min-height: 1.72rem !important;
-    padding: 0.22rem 0.32rem !important;
-    justify-content: center !important;
-    text-align: center !important;
-    font-size: 0.82rem !important;
-    line-height: 1.2 !important;
-    font-weight: 900 !important;
-    white-space: normal !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    background: rgba(4, 13, 36, 0.96) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > .dx3-sheet-num,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > .dx3-sheet-num {
-    flex-grow: 0 !important;
-    flex-basis: 3.2rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
-    grid-column: 1 / -1 !important;
-    min-height: 2rem !important;
-  }
-}
-
-@media (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 0.45rem !important;
-  }
-}
-
-/* v67: phone-width yuto-sheet-like compact table.
-   Keep a thead-like header, then each data row uses:
-   line 1 = name, line 2 = compact metadata in a single row. */
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
-  display: grid !important;
-  grid-template-columns: auto minmax(0, 1fr) !important;
-  align-items: center !important;
-  gap: 0.45rem !important;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion em {
-  min-width: max-content !important;
-  white-space: nowrap !important;
-}
-
-body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion strong {
-  min-width: 0 !important;
-  width: auto !important;
-  max-width: none !important;
-  justify-self: end !important;
-  white-space: nowrap !important;
-  text-align: right !important;
-}
-
-@container dx3EnemyViewPane (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-list,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card-list {
-    overflow-x: hidden !important;
-    border-radius: 0.32rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head {
-    display: grid !important;
-    gap: 1px !important;
-    margin: 0 0 1px !important;
-    border-radius: 0.25rem 0.25rem 0 0 !important;
-    overflow: hidden !important;
-    background: rgba(var(--dx3-view-accent-rgb), 0.42) !important;
   }
 
   body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo {
     grid-template-columns:
-      minmax(3.2rem, 1fr)
-      minmax(2.6rem, 0.85fr)
-      minmax(2.4rem, 0.75fr)
-      minmax(2.4rem, 0.75fr)
-      minmax(2.1rem, 0.62fr)
-      minmax(2.6rem, 0.72fr) !important;
+      minmax(0, 1.05fr)
+      minmax(0, 0.95fr)
+      minmax(0, 0.72fr)
+      minmax(0, 0.72fr)
+      1.9rem
+      2.35rem
+      1.45rem !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main {
+    grid-template-columns:
+      minmax(0, 1.05fr)
+      minmax(0, 0.95fr)
+      minmax(0, 0.72fr)
+      minmax(0, 0.72fr)
+      1.9rem
+      2.35rem !important;
   }
 
   body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect {
     grid-template-columns:
-      minmax(1.8rem, 0.42fr)
-      minmax(3rem, 0.9fr)
-      minmax(3.2rem, 1fr)
-      minmax(2.5rem, 0.72fr)
-      minmax(2.35rem, 0.68fr)
-      minmax(2.35rem, 0.68fr) !important;
+      1.9rem
+      minmax(0, 1.05fr)
+      minmax(0, 0.95fr)
+      minmax(0, 0.72fr)
+      minmax(0, 0.72fr)
+      minmax(0, 0.72fr)
+      1.45rem !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head span {
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
+    grid-template-columns:
+      1.9rem
+      minmax(0, 1.05fr)
+      minmax(0, 0.95fr)
+      minmax(0, 0.72fr)
+      minmax(0, 0.72fr)
+      minmax(0, 0.72fr) !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo > span,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect > span,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
     min-width: 0 !important;
-    min-height: 1.2rem !important;
-    padding: 0.1rem 0.16rem !important;
+    min-height: 1.36rem !important;
+    padding: 0.14rem 0.16rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     text-align: center !important;
-    font-size: 0.56rem !important;
+    font-size: 0.66rem !important;
     line-height: 1.05 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: clip !important;
-    background: rgba(83, 20, 29, 0.94) !important;
+    word-break: keep-all !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo span:first-child,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect span:first-child {
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main .dx3-combo-table-name,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main .dx3-effect-table-name {
     grid-column: 1 / -1 !important;
-    min-height: 1.25rem !important;
-    justify-content: center !important;
-    font-size: 0.58rem !important;
+    min-height: 1.56rem !important;
+    padding: 0.18rem 0.28rem !important;
+    font-size: 0.78rem !important;
+    line-height: 1.12 !important;
+    white-space: normal !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo span:nth-child(2),
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect span:nth-child(2) {
-    grid-column: 1 !important;
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head::after {
+    min-width: 0 !important;
+    min-height: 1.36rem !important;
+    border-left: 1px solid rgba(204, 65, 37, 0.72) !important;
   }
 
   body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 1.55rem !important;
-    align-items: stretch !important;
-    gap: 0 !important;
-    width: 100% !important;
-    min-width: 0 !important;
+    grid-template-columns: minmax(0, 1fr) 1.45rem !important;
   }
 
   body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card summary::after {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    width: 1.55rem !important;
-    min-width: 1.55rem !important;
-    max-width: 1.55rem !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    content: "▼" !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: rgba(var(--dx3-view-accent-rgb), 0.78) !important;
-    color: #fff4ee !important;
-    font-size: 0.76rem !important;
-    line-height: 1 !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card[open] summary::after {
-    content: "▲" !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card {
-    min-width: 0 !important;
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    grid-column: 1 !important;
-    display: grid !important;
-    gap: 1px !important;
-    align-items: stretch !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-    background: rgba(255, 255, 255, 0.07) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main {
-    grid-template-columns:
-      minmax(3.2rem, 1fr)
-      minmax(2.6rem, 0.85fr)
-      minmax(2.4rem, 0.75fr)
-      minmax(2.4rem, 0.75fr)
-      minmax(2.1rem, 0.62fr)
-      minmax(2.6rem, 0.72fr) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    grid-template-columns:
-      minmax(1.8rem, 0.42fr)
-      minmax(3rem, 0.9fr)
-      minmax(3.2rem, 1fr)
-      minmax(2.5rem, 0.72fr)
-      minmax(2.35rem, 0.68fr)
-      minmax(2.35rem, 0.68fr) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
-    grid-column: auto !important;
-    min-width: 0 !important;
-    min-height: 1.32rem !important;
-    padding: 0.12rem 0.12rem !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    background: rgba(6, 15, 38, 0.92) !important;
-    color: var(--dx3-view-text) !important;
-    font-size: 0.58rem !important;
-    line-height: 1.08 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    word-break: normal !important;
-    overflow-wrap: normal !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main .dx3-combo-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main .dx3-effect-table-name {
-    grid-column: 1 / -1 !important;
-    min-height: 1.45rem !important;
-    padding: 0.16rem 0.24rem !important;
-    justify-content: center !important;
-    text-align: center !important;
-    font-size: 0.76rem !important;
-    line-height: 1.12 !important;
-    font-weight: 900 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    background: rgba(4, 13, 36, 0.98) !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > .dx3-sheet-num,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > .dx3-sheet-num {
-    font-size: calc(0.62rem * var(--dx3-number-size-adjust, var(--font-number-size-adjust, 1.25))) !important;
-    line-height: 1 !important;
-    flex-basis: auto !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-composition,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-combo-description,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-effect-description,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-effect-note,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card blockquote {
-    margin-inline: 0.38rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
-    grid-column: 1 / -1 !important;
-    display: grid !important;
-    grid-template-columns: auto minmax(0, 1fr) !important;
-    min-height: 1.85rem !important;
+    width: 1.45rem !important;
+    min-width: 1.45rem !important;
   }
 }
 
-/* v68: mobile DX3 sheet rows - force yuto-sheet-like two-line rows.
-   1st line is always the name, 2nd line is compact metadata. */
-@container dx3EnemyViewPane (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: stretch !important;
-    gap: 1px !important;
+/* ========================================================================== 
+   v94 DX3 public view mobile recovery
+   --------------------------------------------------------------------------
+   Keep the restored compact table style, but prevent the profile/data layout
+   from falling back to two columns on narrow screens.  Also make the summary
+   arrow belong to the name row only, and let full-row combat cells span both
+   stat columns.
+   ========================================================================== */
+body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-full-row {
+  grid-column: 1 / -1 !important;
+}
+
+@media (max-width: 760px) {
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-content,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-sheet-layout,
+  body.dx3-combo-page.is-enemy-view-mode.is-enemy-view-wide .dx3-enemy-view-sheet-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     width: 100% !important;
+    max-width: 100% !important;
     min-width: 0 !important;
-    overflow: hidden !important;
-    background: rgba(255, 255, 255, 0.07) !important;
+    gap: 0.72rem !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
-    flex: 1 1 0 !important;
-    width: auto !important;
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-main-column,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-data-column {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
     min-width: 0 !important;
-    min-height: 1.28rem !important;
-    padding: 0.1rem 0.12rem !important;
+    position: static !important;
+    top: auto !important;
+    align-self: auto !important;
+    overflow: visible !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combos,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-effects,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-section,
+  body.dx3-combo-page.is-enemy-view-mode .enemy-view-block {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card > summary {
+    display: block !important;
+    position: relative !important;
+    grid-template-columns: none !important;
+    padding-right: 0 !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-card > summary::after {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    z-index: 2 !important;
+    width: 1.45rem !important;
+    min-width: 1.45rem !important;
+    height: 1.56rem !important;
+    min-height: 1.56rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    text-align: center !important;
-    font-size: 0.55rem !important;
-    line-height: 1.08 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main .dx3-combo-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main .dx3-effect-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span:first-child,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span:first-child {
-    flex: 1 0 100% !important;
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-sub {
+    display: none !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main {
     width: 100% !important;
     max-width: 100% !important;
-    min-height: 1.42rem !important;
-    padding: 0.14rem 0.22rem !important;
-    justify-content: center !important;
-    text-align: center !important;
-    font-size: 0.72rem !important;
-    line-height: 1.12 !important;
-    font-weight: 900 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    background: rgba(4, 13, 36, 0.98) !important;
+    min-width: 0 !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > .dx3-sheet-num,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > .dx3-sheet-num {
-    font-size: calc(0.58rem * var(--dx3-number-size-adjust, var(--font-number-size-adjust, 1.25))) !important;
-    line-height: 1 !important;
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main .dx3-combo-table-name,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-main .dx3-effect-table-name {
+    grid-column: 1 / -1 !important;
+    min-height: 1.56rem !important;
+    padding-right: 1.72rem !important;
   }
 
   body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 1px !important;
-    align-items: stretch !important;
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main {
+    grid-template-columns:
+      minmax(0, 0.9fr)
+      minmax(0, 0.82fr)
+      minmax(0, 0.72fr)
+      minmax(0, 0.72fr)
+      1.65rem
+      2.1rem !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo span,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect span {
-    flex: 1 1 0 !important;
-    width: auto !important;
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
+    grid-template-columns:
+      1.65rem
+      minmax(0, 0.9fr)
+      minmax(0, 0.78fr)
+      minmax(0, 0.74fr)
+      minmax(0, 0.74fr)
+      minmax(0, 0.74fr) !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo > span,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect > span,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span,
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span {
     min-width: 0 !important;
+    padding-inline: 0.12rem !important;
+    font-size: 0.64rem !important;
+    line-height: 1.02 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo span:first-child,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect span:first-child {
-    flex: 1 0 100% !important;
-    width: 100% !important;
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-combo > span:nth-child(2),
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-row-head.is-effect > span:nth-child(3),
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span:nth-child(2),
+  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span:nth-child(3) {
+    transform: scaleX(0.9) !important;
+    transform-origin: center !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion {
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-full-row {
     grid-column: 1 / -1 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.4rem !important;
-    min-height: 1.9rem !important;
-  }
-
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion em,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion strong {
-    display: inline-flex !important;
-    align-items: baseline !important;
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
   }
 }
 
-@media (max-width: 620px) {
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main {
-    display: flex !important;
-    flex-wrap: wrap !important;
+/* ========================================================================== 
+   v95 DX3 public view mobile erosion value tuning
+   --------------------------------------------------------------------------
+   Erosion is a full-width combat cell on mobile. Keep the full-row layout, but
+   reduce only the numeric value so 120% + dice note does not overpower/wrap.
+   ========================================================================== */
+@media (max-width: 760px) {
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion.is-full-row {
+    grid-template-columns: 4.6em minmax(0, 1fr) !important;
+    column-gap: 0.32rem !important;
+    align-items: center !important;
+    min-height: 1.86rem !important;
+    padding-top: 0.18rem !important;
+    padding-bottom: 0.18rem !important;
   }
 
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main .dx3-combo-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main .dx3-effect-table-name,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-view-combo-card .dx3-sheet-row-main > span:first-child,
-  body.dx3-combo-page.is-enemy-view-mode .dx3-enemy-effect-card .dx3-sheet-row-main > span:first-child {
-    flex: 1 0 100% !important;
-    width: 100% !important;
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion.is-full-row strong {
+    font-size: calc(0.82rem * var(--dx3-number-size-adjust, var(--font-number-size-adjust, 1.25))) !important;
+    line-height: 0.96 !important;
+    letter-spacing: 0.01em !important;
+    white-space: nowrap !important;
+  }
+
+  body.dx3-combo-page.is-enemy-view-mode .dx3-sheet-mini-table.is-combat .dx3-sheet-cell.is-erosion.is-full-row small {
+    font-size: 0.74rem !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
   }
 }

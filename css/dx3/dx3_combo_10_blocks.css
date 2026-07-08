@@ -34,8 +34,7 @@ background-color: #0d1a50;
   padding: 6px 5px 0px 5px; /* 上を8px、下を2pxにして文字を視覚的に下げる */
   border-radius: 4px;
   transition: all 0.2s;
-  order: 1; /* 前回の修正で追加済み */;
-  font-weight: 700;
+  order: 1; /* 前回の修正で追加済み */
 }
 
 /* source lines 532-535 */
