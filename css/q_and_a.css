@@ -23,7 +23,7 @@
 .character-card.active .card-pc-name { color: #fff; }
 .card-system { position: relative; z-index: 4; width: 8px; align-self: stretch; }
 .card-info { position: relative; z-index: 3; padding: 10px 15px; }
-.card-pc-name { margin: 0 0 5px 0; font-size: 1.1em; color: inherit; font-family: 'Corporate-Logo-Bold', sans-serif; }
+.card-pc-name { margin: 0 0 5px 0; font-size: 1.1em; color: inherit; font-family: 'corporate-logo-ver2', sans-serif; }
 .card-pl-name, .card-system-name { margin: 0; font-size: 0.8em; color: inherit; }
 .character-card.has-bg-image .card-info { color: #fff; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8); }
 .character-card.has-bg-image::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, #1a2c6d 40%, rgba(26, 44, 109, 0) 65%); z-index: 2; border-radius: inherit; pointer-events: none; }
@@ -35,7 +35,7 @@
 .qa-details-view.has-bg-image::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(26, 44, 109, 0.7), rgba(26, 44, 109, 0.7)); z-index: -1; pointer-events: none; }
 .details-view-content { width: 100%; height: 100%; overflow-y: auto; padding: 25px; box-sizing: border-box; position: relative; z-index: 3; background-color: transparent; }
 .qa-placeholder { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; color: #888; }
-.qa-header h2 { font-family: 'Corporate-Logo-Bold', sans-serif; margin-top: 0; color: #3498db; }
+.qa-header h2 { font-family: 'corporate-logo-ver2', sans-serif; margin-top: 0; color: #3498db; }
 .qa-body { margin-top: 20px; }
 .qa-item { margin-bottom: 25px; }
 .qa-item .question { font-weight: bold; color: #b0c4de; margin-bottom: 5px; border-left: 3px solid #3498db; padding-left: 10px; }
@@ -69,7 +69,7 @@ body.modal-open { overflow: hidden; }
 .modal-content { background-color: #1a2c6d; padding: 30px 40px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); width: 100%; max-width: 800px; max-height: 90vh; position: relative; border: 1px solid #3498db; display: flex; flex-direction: column; }
 .modal-close-button { position: absolute; top: 15px; right: 20px; font-size: 2em; font-weight: bold; color: #aaa; cursor: pointer; transition: color 0.2s; z-index: 10; }
 .modal-close-button:hover { color: #fff; }
-.modal-content h2 { font-family: 'Corporate-Logo-Bold', sans-serif; margin-top: 0; color: #e67e22; flex-shrink: 0; }
+.modal-content h2 { font-family: 'corporate-logo-ver2', sans-serif; margin-top: 0; color: #e67e22; flex-shrink: 0; }
 #wizard-container {
     display: flex;
     flex-direction: column;

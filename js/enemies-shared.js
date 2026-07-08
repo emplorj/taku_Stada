@@ -807,6 +807,20 @@
     return true;
   }
 
+
+
+  function canUseEnemyViewExportByVisibility({
+    viewMode = true,
+    isPublic = true,
+    loading = false,
+    error = "",
+    hasId = true,
+  } = {}) {
+    if (!viewMode) return true;
+    if (!hasId || loading || String(error || "").trim()) return false;
+    return normalizePublicFlag(isPublic, true);
+  }
+
   function getShared() {
     return globalScope.EnemiesShared || globalScope.NechronicaShared || sharedApi;
   }
@@ -840,6 +854,7 @@
     buildCopiedName,
     resolveReportCheckedOnDamageTransition,
     canViewEnemyByVisibility,
+    canUseEnemyViewExportByVisibility,
     getRememberedAuthorFromStorage,
     rememberAuthorToStorage,
     saveLastSelectedIdToStorage,

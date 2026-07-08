@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DX3 コンボジェネレーター - 卓スタダ</title>
-    <meta property="og:title" content="DX3 コンボジェネレーター - 卓スタダ" />
+    <title>DX3 エネミーシート - 卓スタダ</title>
+    <meta property="og:title" content="DX3 エネミーシート - 卓スタダ" />
     <script>
       (function () {
         try {
@@ -43,10 +43,10 @@
 
     <div class="main-content">
       <header class="main-header">
-        <h1><i class="fa-solid fa-burst"></i> DX3 コンボジェネレーター</h1>
-        <p class="subtitle">
-          キャラシのURLを入力して、キャラシから引用することができるぞ！ここを触ってもキャラシに反映されるわけではないから要注意だ！
-        </p>
+        <a class="enemy-view-home-link" href="./" aria-label="卓スタダ ホームへ戻る">
+          <img src="img/taku_stada_mini.png" alt="卓スタダ">
+        </a>
+        <h1><i class="fa-solid fa-burst"></i> DX3 エネミーシート</h1>
       </header>
 
       <!-- ★★★ ここから使い方ガイドを追加 (最新版) ★★★ -->
@@ -828,10 +828,26 @@
                     <span class="public-switch-text">ワイド</span>
                   </span>
                 </label>
-                <button type="button" class="small-square-btn is-copy-chat" @click="dx3EnemyViewChatOpen = !dx3EnemyViewChatOpen">
+                <button
+                  type="button"
+                  class="small-square-btn is-copy-chat"
+                  :class="{ 'is-disabled': !dx3EnemyViewCanExport }"
+                  :disabled="!dx3EnemyViewCanExport"
+                  :aria-disabled="String(!dx3EnemyViewCanExport)"
+                  :title="dx3EnemyViewExportDisabledTitle"
+                  @click="toggleDx3EnemyViewChat"
+                >
                   <i class="fa-solid fa-scroll"></i> チャパレ
                 </button>
-                <button type="button" class="small-square-btn is-copy-chat" @click="copyDx3EnemyViewKomaJson">
+                <button
+                  type="button"
+                  class="small-square-btn is-copy-chat"
+                  :class="{ 'is-disabled': !dx3EnemyViewCanExport }"
+                  :disabled="!dx3EnemyViewCanExport"
+                  :aria-disabled="String(!dx3EnemyViewCanExport)"
+                  :title="dx3EnemyViewExportDisabledTitle"
+                  @click="copyDx3EnemyViewKomaJson"
+                >
                   <i class="fa-solid fa-dice-d20"></i> 駒出力
                 </button>
                 <a class="small-square-btn enemy-view-new-button" href="dx3_combo_generator.html?mode=enemy">
@@ -841,15 +857,31 @@
             </div>
             <transition name="enemy-view-chat-slide">
               <div
-                v-if="dx3EnemyViewMode && dx3EnemyViewChatOpen"
+                v-if="dx3EnemyViewMode && dx3EnemyViewChatOpen && dx3EnemyViewCanExport"
                 v-cloak
                 class="enemy-view-chat-palette-panel is-open"
               >
                 <div class="enemy-view-chat-palette-actions">
-                <button type="button" class="small-square-btn is-copy-chat" @click="copyDx3EnemyViewKomaJson">
+                <button
+                  type="button"
+                  class="small-square-btn is-copy-chat"
+                  :class="{ 'is-disabled': !dx3EnemyViewCanExport }"
+                  :disabled="!dx3EnemyViewCanExport"
+                  :aria-disabled="String(!dx3EnemyViewCanExport)"
+                  :title="dx3EnemyViewExportDisabledTitle"
+                  @click="copyDx3EnemyViewKomaJson"
+                >
                   <i class="fa-solid fa-dice-d20"></i> 駒出力コピー
                 </button>
-                <button type="button" class="small-square-btn is-copy-chat" @click="copyDx3EnemyViewCommands">
+                <button
+                  type="button"
+                  class="small-square-btn is-copy-chat"
+                  :class="{ 'is-disabled': !dx3EnemyViewCanExport }"
+                  :disabled="!dx3EnemyViewCanExport"
+                  :aria-disabled="String(!dx3EnemyViewCanExport)"
+                  :title="dx3EnemyViewExportDisabledTitle"
+                  @click="copyDx3EnemyViewCommands"
+                >
                   <i class="fa-solid fa-copy"></i> チャパレコピー
                 </button>
                 <button type="button" class="small-square-btn is-copy-chat enemy-view-chat-close" @click="dx3EnemyViewChatOpen = false">
@@ -2639,10 +2671,10 @@
           </button>
         </div>
 
-        <h2 class="section-title">
+        <h2 v-if="!dx3EnemyViewMode" class="section-title">
           <i class="fa-solid fa-cubes-stacked"></i> コンボデータ
         </h2>
-        <div v-for="(combo, index) in processedCombos" class="combo-block">
+        <div v-if="!dx3EnemyViewMode" v-for="(combo, index) in processedCombos" class="combo-block">
           <div class="combo-header">
             <input
               type="text"
@@ -2905,7 +2937,7 @@
             </div>
           </div>
         </div>
-        <button @click="addCombo" class="add-btn">
+        <button v-if="!dx3EnemyViewMode" @click="addCombo" class="add-btn">
           <i class="fa-solid fa-plus"></i> コンボを追加
         </button>
 

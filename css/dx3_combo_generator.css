@@ -1,7 +1,6 @@
 /* dx3_combo_generator.css
-   Placeable Phase18 v019 entry.
    Active CSS entry: HTML links this file, and it imports css/dx3/*.css.
-   Combined CSS files are archived under css/archive/.
+   Keep public enemy view CSS imported here so dx3_combo_generator.html?id=... loads it.
 */
 
 @import "./dx3/dx3_00_tokens_base.css";
