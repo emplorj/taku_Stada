@@ -1,5 +1,10 @@
 .satasupe-enemies-page {
   --satasupe-orange: #f39a00;
+  --sata-book-stat-value-font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+  --sata-book-stat-value-font-size: 1.52rem;
+  --sata-book-stat-value-font-weight: 400;
+  --sata-book-stat-value-font-synthesis: none;
+  --sata-book-stat-value-line-height: 1;
 }
 
 /* --------------------------------------------------------------------------
@@ -4046,12 +4051,12 @@ body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-home-link img {
   justify-content: center;
   border-left: 0;
   background: #eee0bf;
-  font-family: "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
-  font-size: 1.52rem;
-  font-weight: 400;
-  font-synthesis: none;
-  font-synthesis-weight: none;
-  line-height: 1;
+  font-family: var(--sata-book-stat-value-font-family);
+  font-size: var(--sata-book-stat-value-font-size);
+  font-weight: var(--sata-book-stat-value-font-weight);
+  font-synthesis: var(--sata-book-stat-value-font-synthesis);
+  font-synthesis-weight: var(--sata-book-stat-value-font-synthesis);
+  line-height: var(--sata-book-stat-value-line-height);
 }
 
 .satasupe-enemies-page .sata-book-visual {
@@ -6792,4 +6797,1412 @@ body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page)
   --enemy-view-toolbar-button-hover-border-color: #f6c56b;
   --enemy-view-toolbar-button-hover-bg: rgba(214, 122, 31, 0.18);
   --enemy-view-toolbar-button-hover-color: #ffe0a6;
+}
+
+/* ===========================================================================
+   2026-07 Satasupe enemy view: mobile/container hardening
+   ---------------------------------------------------------------------------
+   The public view can be embedded or captured in a narrow column where viewport
+   media queries alone are unreliable.  Scope the fix to the rendered view card
+   and key it to the actual view container width.
+   =========================================================================== */
+.satasupe-enemies-page .enemy-view-pane {
+  container-type: inline-size;
+  container-name: satasupeEnemyView;
+}
+
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-view-card {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 0.45rem;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .satasupe-enemies-page .sata-book-category-bar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-category-bar span,
+  .satasupe-enemies-page .sata-book-category-bar b {
+    justify-content: center;
+    min-width: 0;
+    min-height: 1.85rem;
+    padding-inline: 0.45rem;
+    border-right: 0;
+    border-bottom: 1px solid #f6ead1;
+    font-size: clamp(0.82rem, 4.4cqw, 1rem);
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .satasupe-enemies-page .sata-book-main,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-main {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.55rem;
+  }
+
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) {
+    display: block !important;
+  }
+
+  .satasupe-enemies-page .sata-book-left-rail,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-left-rail,
+  .satasupe-enemies-page .sata-book-visual,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-visual,
+  .satasupe-enemies-page .sata-book-profile-panel,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-profile-panel {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-width: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-left-rail,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-left-rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 2.4rem;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box span {
+    min-width: 0;
+    padding-inline: 0.2rem;
+    border-right: 0;
+    border-bottom: 1px solid #1b1511;
+    font-size: clamp(0.64rem, 3.4cqw, 0.78rem);
+    line-height: 1.05;
+    letter-spacing: 0;
+    writing-mode: horizontal-tb;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box b,
+  .satasupe-enemies-page .sata-book-rail-box.is-danger b {
+    min-height: 2.1rem;
+    font-size: clamp(1.35rem, 8cqw, 2rem);
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row,
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure {
+    grid-template-columns: minmax(0, 1fr) minmax(2.2rem, 0.54fr);
+    min-width: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row span,
+  .satasupe-enemies-page .sata-book-stat-row:last-child span {
+    min-width: 0;
+    padding-inline: 0.25rem;
+    font-size: clamp(0.66rem, 3.2cqw, 0.82rem);
+    letter-spacing: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table {
+    --sata-book-stat-value-font-size: clamp(1.02rem, 5.2cqw, 1.36rem);
+    --sata-book-stat-value-line-height: 1.08;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row b,
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure b {
+    min-width: 0;
+    padding-inline: 0.16rem;
+    line-height: var(--sata-book-stat-value-line-height);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .satasupe-enemies-page .sata-book-visual,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-visual {
+    min-height: 0;
+    grid-template-rows: auto auto auto;
+  }
+
+  .satasupe-enemies-page .sata-book-name-band {
+    min-height: 2.4rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .satasupe-enemies-page .sata-book-name-band h2 {
+    font-size: clamp(1.15rem, 8cqw, 1.65rem);
+    line-height: 1.12;
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .satasupe-enemies-page .sata-book-name-band small {
+    font-size: clamp(0.66rem, 3.4cqw, 0.82rem);
+    overflow-wrap: anywhere;
+  }
+
+  .satasupe-enemies-page .sata-book-nickname {
+    position: static;
+    width: auto;
+    min-height: 1.8rem;
+    padding: 0.25rem 0.5rem;
+    writing-mode: horizontal-tb;
+    font-size: clamp(0.82rem, 4cqw, 1rem);
+    border-bottom: 2px solid #1b1511;
+  }
+
+  .satasupe-enemies-page .sata-book-quote {
+    min-height: 0;
+    padding: 0.42rem 0.55rem;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: clamp(0.9rem, 4.5cqw, 1.08rem);
+  }
+
+  .satasupe-enemies-page .sata-book-portrait {
+    min-height: 13rem;
+    padding: 0.55rem;
+  }
+
+  .satasupe-enemies-page .sata-book-portrait.has-image img {
+    max-height: 17rem;
+  }
+
+  .satasupe-enemies-page .sata-book-portrait.is-empty,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-portrait.is-empty {
+    display: none;
+  }
+
+  .satasupe-enemies-page .sata-book-profile-panel,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-profile-panel {
+    margin-top: 0.55rem;
+    padding: 0.55rem;
+  }
+
+  .satasupe-enemies-page .sata-book-profile-row.is-two,
+  .satasupe-enemies-page .sata-book-profile-row.is-three,
+  .satasupe-enemies-page .sata-book-profile-row.is-nationality-language-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .satasupe-enemies-page .sata-book-profile-row.is-nationality-language-row .sata-book-info-pair.is-language {
+    grid-column: auto;
+  }
+
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair,
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language {
+    grid-template-columns: 4.1rem minmax(0, 1fr) !important;
+  }
+
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair span,
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language span {
+    width: 4.1rem !important;
+    min-width: 4.1rem !important;
+    max-width: 4.1rem !important;
+    padding-inline: 0.3rem;
+    font-size: 0.68rem !important;
+    line-height: 1.05;
+    white-space: normal !important;
+  }
+
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair b,
+  .satasupe-enemies-page .sata-book-profile-lines .sata-book-info-pair.is-nationality-language b,
+  .satasupe-enemies-page .sata-book-profile-row.is-one .sata-book-info-pair.is-wide b {
+    min-width: 0;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  .satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line,
+  .satasupe-enemies-page .sata-book-detail-grid.is-equipment-grid .sata-book-detail-card.sata-book-detail-line {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .satasupe-enemies-page .sata-book-detail-line-head,
+  .satasupe-enemies-page .sata-book-detail-line-meta,
+  .satasupe-enemies-page .sata-book-detail-equip-stat {
+    border-right: 0;
+    border-bottom: 1px solid rgba(33, 25, 20, 0.28);
+  }
+
+  .satasupe-enemies-page .sata-book-detail-card.sata-book-detail-line p {
+    align-items: flex-start;
+    overflow-wrap: anywhere;
+  }
+}
+
+@container satasupeEnemyView (max-width: 340px) {
+  .satasupe-enemies-page .sata-book-stat-table {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .satasupe-enemies-page .sata-book-left-rail,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-left-rail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   v25 Satasupe mobile view: restore table-style stat layout
+   --------------------------------------------------------------------------
+   Keep only the stat value font-size hook; do not split the upper metrics into
+   cards and do not rebuild sata-book-stat-table into multi-column groups on
+   narrow view containers.
+   -------------------------------------------------------------------------- */
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-view-card,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 0.45rem;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .satasupe-enemies-page .sata-book-main,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-main {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.55rem;
+  }
+
+  .satasupe-enemies-page .sata-book-left-rail,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-left-rail {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box,
+  .satasupe-enemies-page .sata-book-rail-box.is-danger {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box span {
+    min-height: 1.25rem;
+    padding: 0.08rem 0.3rem;
+    border-right: 0;
+    border-bottom: 1px solid #1b1511;
+    font-size: 0.72rem;
+    line-height: 1.1;
+    letter-spacing: 0;
+    writing-mode: horizontal-tb;
+    text-align: center;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box b,
+  .satasupe-enemies-page .sata-book-rail-box.is-danger b {
+    min-height: 2.6rem;
+    padding: 0.08rem 0.25rem;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table {
+    display: grid !important;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100%;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row,
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure,
+  .satasupe-enemies-page .sata-book-stat-row.is-karma-value,
+  .satasupe-enemies-page .sata-book-stat-row.is-exp-conv {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(4rem, 5.3rem) !important;
+    min-width: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row span,
+  .satasupe-enemies-page .sata-book-stat-row:last-child span {
+    min-width: 0;
+    padding-inline: 0.35rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row b {
+    min-width: 0;
+    padding-inline: 0.18rem;
+    font-size: var(--sata-book-stat-value-font-size, 1.52rem);
+    line-height: var(--sata-book-stat-value-line-height, 1);
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure b {
+    font-size: 0.82rem;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .satasupe-enemies-page .sata-book-visual,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-visual,
+  .satasupe-enemies-page .sata-book-profile-panel,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-profile-panel {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-width: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-portrait.is-empty,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-portrait.is-empty {
+    display: none;
+  }
+}
+
+@container satasupeEnemyView (max-width: 340px) {
+  .satasupe-enemies-page .sata-book-stat-table,
+  .satasupe-enemies-page .sata-book-left-rail,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-left-rail {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   v26 Satasupe mobile view: grouped stat table layout
+   --------------------------------------------------------------------------
+   Mobile view keeps the official-sheet feel while grouping the stat rows by
+   rule meaning:
+   - danger/reaction/size: 3 cards
+   - crime-life-love-culture-combat: 5 columns
+   - body/mind: 2 columns
+   - combat total/init/attack/destroy: 4 columns
+   - karma/treasure/exp: 3 columns
+   -------------------------------------------------------------------------- */
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-view-card,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 0.45rem;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .satasupe-enemies-page .sata-book-main,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-main {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.55rem;
+  }
+
+  .satasupe-enemies-page .sata-book-left-rail,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-left-rail {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-content: start;
+    width: 100%;
+    min-width: 0;
+    border: 2px solid #1b1511;
+    background: #f4ead3;
+    box-sizing: border-box;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box,
+  .satasupe-enemies-page .sata-book-rail-box.is-danger {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto minmax(2.45rem, auto);
+    min-width: 0;
+    min-height: 0;
+    border-right: 1px solid #1b1511;
+    border-bottom: 1px solid #1b1511;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box:nth-of-type(3) {
+    border-right: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 1.35rem;
+    padding: 0.12rem 0.2rem;
+    border-right: 0;
+    border-bottom: 1px solid #1b1511;
+    background: #fff8e8;
+    color: #211914;
+    font-size: clamp(0.72rem, 3.3cqw, 0.9rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 0;
+    text-align: center;
+    writing-mode: horizontal-tb;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box b,
+  .satasupe-enemies-page .sata-book-rail-box.is-danger b {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 2.45rem;
+    padding: 0.08rem 0.12rem;
+    background: #211914;
+    color: #fff4dd;
+    font-size: clamp(1.5rem, 8.4cqw, 2.25rem);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .satasupe-enemies-page .sata-book-rail-box.is-danger b {
+    font-size: clamp(2.15rem, 11cqw, 3.1rem);
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table {
+    grid-column: 1 / -1;
+    display: grid !important;
+    grid-template-columns: repeat(60, minmax(0, 1fr)) !important;
+    width: 100%;
+    min-width: 0;
+    background: #1b1511;
+    border-top: 0;
+    --sata-book-stat-value-font-size: clamp(1.1rem, 5.4cqw, 1.44rem);
+    --sata-book-stat-value-line-height: 1.08;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row,
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(1.15rem, auto) minmax(1.85rem, auto);
+    min-width: 0;
+    min-height: 0;
+    border-right: 1px solid #1b1511;
+    border-bottom: 1px solid #1b1511;
+    background: #f8edd3;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(5),
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(7),
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(11),
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(14) {
+    border-right: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(-n + 5) {
+    grid-column: span 12;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 6):nth-child(-n + 7) {
+    grid-column: span 30;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 8):nth-child(-n + 11) {
+    grid-column: span 15;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 12):nth-child(-n + 14) {
+    grid-column: span 20;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row span,
+  .satasupe-enemies-page .sata-book-stat-row:last-child span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 1.15rem;
+    padding: 0.08rem 0.16rem;
+    border-right: 0;
+    border-bottom: 1px solid #1b1511;
+    background: #211914;
+    color: #fff4dd;
+    font-size: clamp(0.62rem, 3.05cqw, 0.78rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row b,
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure b {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 1.85rem;
+    padding: 0.08rem 0.12rem;
+    border-left: 0;
+    background: #f4e7c7;
+    color: #211914;
+    font-size: var(--sata-book-stat-value-font-size, 1.52rem);
+    line-height: var(--sata-book-stat-value-line-height, 1);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure b {
+    font-size: clamp(0.66rem, 3.1cqw, 0.82rem);
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-weight: 700;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-karma-value span {
+    background: #4a1b2a;
+    color: #ffe6ef;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-karma-value b {
+    background: #f4c3a3;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-exp-conv b {
+    background: #e8c871;
+  }
+
+  .satasupe-enemies-page .sata-book-visual,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-visual,
+  .satasupe-enemies-page .sata-book-profile-panel,
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-profile-panel {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-width: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-view-card:has(.sata-book-portrait.is-empty) .sata-book-portrait.is-empty {
+    display: none !important;
+  }
+}
+
+@container satasupeEnemyView (max-width: 340px) {
+  .satasupe-enemies-page .sata-book-stat-table {
+    grid-template-columns: repeat(60, minmax(0, 1fr)) !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row span,
+  .satasupe-enemies-page .sata-book-stat-row:last-child span {
+    font-size: clamp(0.56rem, 3.15cqw, 0.7rem);
+    padding-inline: 0.08rem;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row b {
+    padding-inline: 0.06rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   v27 / patch 08 Satasupe mobile view: true table-grid stat layout
+   --------------------------------------------------------------------------
+   Keep the compact grouped table, but render each label/value as direct grid
+   cells so the final row (性業値 / 宝物 / 経験換算) cannot drift.
+   -------------------------------------------------------------------------- */
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-stat-table {
+    display: grid !important;
+    grid-template-columns: repeat(60, minmax(0, 1fr)) !important;
+    grid-auto-rows: auto;
+    align-items: stretch;
+    overflow: hidden;
+    background: #1b1511;
+    border-top: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row,
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure {
+    display: contents !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row span,
+  .satasupe-enemies-page .sata-book-stat-row:last-child span,
+  .satasupe-enemies-page .sata-book-stat-row b,
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure b {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    box-sizing: border-box;
+    border-right: 1px solid #1b1511;
+    border-bottom: 1px solid #1b1511;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row span,
+  .satasupe-enemies-page .sata-book-stat-row:last-child span {
+    min-height: 1.15rem;
+    padding: 0.08rem 0.16rem;
+    background: #211914;
+    color: #fff4dd;
+    font-size: clamp(0.62rem, 3.05cqw, 0.78rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row b,
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure b {
+    min-height: 1.85rem;
+    padding: 0.08rem 0.12rem;
+    background: #f4e7c7;
+    color: #211914;
+    font-size: var(--sata-book-stat-value-font-size, 1.52rem);
+    line-height: var(--sata-book-stat-value-line-height, 1);
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-treasure b {
+    font-size: clamp(0.66rem, 3.1cqw, 0.82rem);
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif;
+    font-weight: 700;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-karma-value span {
+    background: #4a1b2a;
+    color: #ffe6ef;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-karma-value b {
+    background: #f4c3a3;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row.is-exp-conv b {
+    background: #e8c871;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(-n + 5) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(-n + 5) b {
+    grid-column: span 12;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 6):nth-child(-n + 7) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 6):nth-child(-n + 7) b {
+    grid-column: span 30;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 8):nth-child(-n + 11) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 8):nth-child(-n + 11) b {
+    grid-column: span 15;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 12):nth-child(-n + 14) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 12):nth-child(-n + 14) b {
+    grid-column: span 20;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(-n + 5) span { grid-row: 1; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(-n + 5) b { grid-row: 2; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 6):nth-child(-n + 7) span { grid-row: 3; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 6):nth-child(-n + 7) b { grid-row: 4; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 8):nth-child(-n + 11) span { grid-row: 5; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 8):nth-child(-n + 11) b { grid-row: 6; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 12):nth-child(-n + 14) span { grid-row: 7; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 12):nth-child(-n + 14) b { grid-row: 8; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(5) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(5) b,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(7) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(7) b,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(11) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(11) b,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(14) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(14) b {
+    border-right: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   v28 / patch 11 Satasupe public view: one-line toolbar and full-width card
+   -------------------------------------------------------------------------- */
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0.55rem !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar-title,
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-id-badge,
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-no-image-badge {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: max-content !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar-actions {
+  display: inline-flex !important;
+  flex: 0 1 auto !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0.45rem !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-left: auto !important;
+  overflow: visible !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar .enemy-view-wide-switch {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar .public-switch-wrap {
+  width: auto !important;
+  justify-content: center !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: max-content !important;
+  white-space: nowrap !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-content {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .sata-book-view-card {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 0 0.85rem !important;
+  box-sizing: border-box !important;
+}
+
+body.satasupe-enemies-page.is-enemy-view-mode .sata-book-category-bar {
+  grid-template-columns: minmax(12rem, auto) minmax(0, 1fr) !important;
+}
+
+@media (max-width: 760px) {
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar {
+    flex-wrap: wrap !important;
+    gap: 0.45rem !important;
+  }
+
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar-actions {
+    flex: 1 1 100% !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    margin-left: 0 !important;
+  }
+}
+
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-category-bar {
+    grid-template-columns: minmax(8.5rem, auto) minmax(0, 1fr) !important;
+    gap: 0 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-category-bar span,
+  .satasupe-enemies-page .sata-book-category-bar b {
+    min-height: 1.9rem !important;
+    border-bottom: 0 !important;
+    border-right: 1px solid #f6ead1 !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .satasupe-enemies-page .sata-book-category-bar b {
+    border-right: 0 !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   patch 12 Satasupe mobile view: explicit stat-grid placement
+   --------------------------------------------------------------------------
+   Fix the row drift caused by display: contents + auto-placement. Each stat
+   label/value pair is pinned to the intended grid cell group.
+   -------------------------------------------------------------------------- */
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-stat-table {
+    grid-template-columns: repeat(60, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row {
+    display: contents !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row span,
+  .satasupe-enemies-page .sata-book-stat-row b {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(1) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(1) b { grid-column: 1 / span 12 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(2) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(2) b { grid-column: 13 / span 12 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(3) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(3) b { grid-column: 25 / span 12 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(4) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(4) b { grid-column: 37 / span 12 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(5) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(5) b { grid-column: 49 / span 12 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(6) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(6) b { grid-column: 1 / span 30 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(7) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(7) b { grid-column: 31 / span 30 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(8) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(8) b { grid-column: 1 / span 15 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(9) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(9) b { grid-column: 16 / span 15 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(10) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(10) b { grid-column: 31 / span 15 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(11) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(11) b { grid-column: 46 / span 15 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(12) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(12) b { grid-column: 1 / span 20 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(13) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(13) b { grid-column: 21 / span 20 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(14) span,
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(14) b { grid-column: 41 / span 20 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(-n + 5) span { grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(-n + 5) b { grid-row: 2 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 6):nth-child(-n + 7) span { grid-row: 3 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 6):nth-child(-n + 7) b { grid-row: 4 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 8):nth-child(-n + 11) span { grid-row: 5 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 8):nth-child(-n + 11) b { grid-row: 6 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 12):nth-child(-n + 14) span { grid-row: 7 !important; }
+  .satasupe-enemies-page .sata-book-stat-row:nth-child(n + 12):nth-child(-n + 14) b { grid-row: 8 !important; }
+}
+
+/* --------------------------------------------------------------------------
+   patch 13 Satasupe mobile view: stable grouped stat table
+   --------------------------------------------------------------------------
+   The previous display: contents grid caused the last KPI group to drift on
+   narrow view cards.  Keep each stat pair as one grid item and place only the
+   pair wrappers on the 60-column table grid.
+   -------------------------------------------------------------------------- */
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-stat-table {
+    display: grid !important;
+    grid-template-columns: repeat(60, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    grid-auto-rows: auto !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    background: #1b1511 !important;
+    border-top: 0 !important;
+    --sata-book-stat-value-font-size: clamp(1.1rem, 5.4cqw, 1.44rem);
+    --sata-book-stat-value-line-height: 1.08;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(1.15rem, auto) minmax(1.85rem, auto) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    border-right: 1px solid #1b1511 !important;
+    border-bottom: 1px solid #1b1511 !important;
+    background: #f8edd3 !important;
+    box-sizing: border-box !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(-n + 5) {
+    grid-column: span 12 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(n + 6):nth-child(-n + 7) {
+    grid-column: span 30 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(n + 8):nth-child(-n + 11) {
+    grid-column: span 15 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(n + 12):nth-child(-n + 14) {
+    grid-column: span 20 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(5),
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(7),
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(11),
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(14) {
+    border-right: 0 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:last-child > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > b,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    border-right: 0 !important;
+    text-align: center !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:last-child > span {
+    min-height: 1.15rem !important;
+    padding: 0.08rem 0.16rem !important;
+    border-bottom: 1px solid #1b1511 !important;
+    background: #211914 !important;
+    color: #fff4dd !important;
+    font-size: clamp(0.62rem, 3.05cqw, 0.78rem) !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > b,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    min-height: 1.85rem !important;
+    padding: 0.08rem 0.12rem !important;
+    border-bottom: 0 !important;
+    background: #f4e7c7 !important;
+    color: #211914 !important;
+    font-size: var(--sata-book-stat-value-font-size, 1.52rem) !important;
+    line-height: var(--sata-book-stat-value-line-height, 1) !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif !important;
+    font-size: clamp(0.66rem, 3.1cqw, 0.82rem) !important;
+    font-weight: 700 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-karma-value > span {
+    background: #4a1b2a !important;
+    color: #ffe6ef !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-karma-value > b {
+    background: #f4c3a3 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-exp-conv > b {
+    background: #e8c871 !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   patch 14 Satasupe mobile view: fixed row placement for stat table
+   --------------------------------------------------------------------------
+   Keep each label/value pair as a real grid item, but pin the wrapper itself
+   to the intended row/column. This prevents empty vertical gaps and KPI drift.
+   -------------------------------------------------------------------------- */
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-stat-table {
+    display: grid !important;
+    grid-template-columns: repeat(60, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    grid-auto-rows: auto !important;
+    align-items: stretch !important;
+    align-content: start !important;
+    gap: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    background: #1b1511 !important;
+    border-top: 0 !important;
+    --sata-book-stat-value-font-size: clamp(1.08rem, 5.1cqw, 1.42rem);
+    --sata-book-stat-value-line-height: 1.08;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(1.16rem, auto) minmax(1.75rem, auto) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    border-right: 1px solid #1b1511 !important;
+    border-bottom: 1px solid #1b1511 !important;
+    background: #f8edd3 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(1) { grid-column: 1 / 13 !important; grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(2) { grid-column: 13 / 25 !important; grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(3) { grid-column: 25 / 37 !important; grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(4) { grid-column: 37 / 49 !important; grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(5) { grid-column: 49 / 61 !important; grid-row: 1 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(6) { grid-column: 1 / 31 !important; grid-row: 2 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(7) { grid-column: 31 / 61 !important; grid-row: 2 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(8) { grid-column: 1 / 16 !important; grid-row: 3 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(9) { grid-column: 16 / 31 !important; grid-row: 3 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(10) { grid-column: 31 / 46 !important; grid-row: 3 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(11) { grid-column: 46 / 61 !important; grid-row: 3 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(12) { grid-column: 1 / 21 !important; grid-row: 4 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(13) { grid-column: 21 / 41 !important; grid-row: 4 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(14) { grid-column: 41 / 61 !important; grid-row: 4 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:last-child > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > b,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    grid-column: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    border-right: 0 !important;
+    text-align: center !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:last-child > span {
+    grid-row: 1 !important;
+    min-height: 1.16rem !important;
+    padding: 0.08rem 0.16rem !important;
+    border-bottom: 1px solid #1b1511 !important;
+    background: #211914 !important;
+    color: #fff4dd !important;
+    font-size: clamp(0.62rem, 2.9cqw, 0.78rem) !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > b,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    grid-row: 2 !important;
+    min-height: 1.75rem !important;
+    padding: 0.08rem 0.12rem !important;
+    border-bottom: 0 !important;
+    background: #f4e7c7 !important;
+    color: #211914 !important;
+    font-size: var(--sata-book-stat-value-font-size, 1.52rem) !important;
+    line-height: var(--sata-book-stat-value-line-height, 1) !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif !important;
+    font-size: clamp(0.66rem, 3.0cqw, 0.82rem) !important;
+    font-weight: 700 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-karma-value > span {
+    background: #4a1b2a !important;
+    color: #ffe6ef !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-karma-value > b {
+    background: #f4c3a3 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-exp-conv > b {
+    background: #e8c871 !important;
+  }
+}
+
+/* ===========================================================================
+   v15 Satasupe mobile stat table hard reset
+   ---------------------------------------------------------------------------
+   Older mobile experiments placed span/b directly on the parent grid via
+   grid-row/grid-column.  When .sata-book-stat-row is restored as the actual
+   cell container, those child grid positions create empty implicit rows inside
+   each cell.  Reset child placement here and keep only the row container on the
+   60-column parent grid.
+   =========================================================================== */
+@container satasupeEnemyView (max-width: 760px) {
+  .satasupe-enemies-page .sata-book-stat-table {
+    display: grid !important;
+    grid-template-columns: repeat(60, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    grid-auto-rows: auto !important;
+    align-items: stretch !important;
+    align-content: start !important;
+    gap: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    background: #1b1511 !important;
+    border-top: 0 !important;
+    --sata-book-stat-value-font-size: clamp(1.08rem, 5.1cqw, 1.42rem);
+    --sata-book-stat-value-line-height: 1.08;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-karma-value,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-exp-conv {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(1.12rem, auto) minmax(1.65rem, auto) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    border-right: 1px solid #1b1511 !important;
+    border-bottom: 1px solid #1b1511 !important;
+    background: #f8edd3 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(1) { grid-column: 1 / 13 !important; grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(2) { grid-column: 13 / 25 !important; grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(3) { grid-column: 25 / 37 !important; grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(4) { grid-column: 37 / 49 !important; grid-row: 1 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(5) { grid-column: 49 / 61 !important; grid-row: 1 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(6) { grid-column: 1 / 31 !important; grid-row: 2 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(7) { grid-column: 31 / 61 !important; grid-row: 2 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(8) { grid-column: 1 / 16 !important; grid-row: 3 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(9) { grid-column: 16 / 31 !important; grid-row: 3 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(10) { grid-column: 31 / 46 !important; grid-row: 3 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(11) { grid-column: 46 / 61 !important; grid-row: 3 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(12) { grid-column: 1 / 21 !important; grid-row: 4 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(13) { grid-column: 21 / 41 !important; grid-row: 4 !important; }
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:nth-child(14) { grid-column: 41 / 61 !important; grid-row: 4 !important; border-right: 0 !important; }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:last-child > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > b,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > span,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row:last-child > span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    grid-row: 1 !important;
+    padding: 0.06rem 0.12rem !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid #1b1511 !important;
+    background: #211914 !important;
+    color: #fff4dd !important;
+    font-size: clamp(0.68rem, 3.05cqw, 0.86rem) !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row > b,
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    grid-row: 2 !important;
+    padding: 0.06rem 0.12rem !important;
+    border-left: 0 !important;
+    background: #eee0bf !important;
+    color: #241a13 !important;
+    font-size: var(--sata-book-stat-value-font-size) !important;
+    line-height: var(--sata-book-stat-value-line-height) !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-treasure > b {
+    font-family: "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif !important;
+    font-size: clamp(0.74rem, 3.2cqw, 0.92rem) !important;
+    font-weight: 700 !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-karma-value > span {
+    background: #5a1834 !important;
+    color: #fff4dd !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-karma-value > b {
+    background: #f2c09d !important;
+  }
+
+  .satasupe-enemies-page .sata-book-stat-table > .sata-book-stat-row.is-exp-conv > b {
+    background: #e8c977 !important;
+  }
+}
+
+/* ===========================================================================
+   v16 Satasupe mobile stat table child-placement specificity fix
+   ---------------------------------------------------------------------------
+   Earlier experiments used nth-child selectors on span/b with !important.
+   Those selectors are more specific than the generic v15 reset, so the child
+   cells kept old grid-row values and created empty implicit tracks.  Match the
+   nth-child specificity and pin each label/value back to row 1/2 inside its
+   own stat cell.
+   =========================================================================== */
+@container satasupeEnemyView (max-width: 760px) {
+  body.satasupe-enemies-page.is-enemy-view-mode .sata-book-stat-table > .sata-book-stat-row:nth-child(n) > span,
+  body.satasupe-enemies-page.is-enemy-view-mode .sata-book-stat-table > .sata-book-stat-row:nth-child(n) > b,
+  body.satasupe-enemies-page.is-enemy-view-mode .sata-book-stat-table > .sata-book-stat-row.is-treasure:nth-child(n) > b {
+    grid-column: 1 / -1 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body.satasupe-enemies-page.is-enemy-view-mode .sata-book-stat-table > .sata-book-stat-row:nth-child(n) > span {
+    grid-row: 1 / 2 !important;
+  }
+
+  body.satasupe-enemies-page.is-enemy-view-mode .sata-book-stat-table > .sata-book-stat-row:nth-child(n) > b,
+  body.satasupe-enemies-page.is-enemy-view-mode .sata-book-stat-table > .sata-book-stat-row.is-treasure:nth-child(n) > b {
+    grid-row: 2 / 3 !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   v96 Satasupe guard: use shared centered full-width public-view toolbar
+   -------------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar {
+    display: grid !important;
+    grid-template-columns: max-content max-content max-content !important;
+    grid-template-areas: "title id actions" !important;
+    align-items: center !important;
+    justify-content: center !important;
+    justify-items: center !important;
+    column-gap: var(--enemy-view-toolbar-mobile-gap, 0.24rem) !important;
+    row-gap: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-inline: auto !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar-title {
+    grid-area: title !important;
+    justify-self: end !important;
+    width: auto !important;
+    max-width: var(--enemy-view-toolbar-mobile-title-max-width, 5.45rem) !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+  }
+
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-id-badge {
+    grid-area: id !important;
+    justify-self: center !important;
+    width: auto !important;
+    max-width: max-content !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar-actions {
+    grid-area: actions !important;
+    justify-self: start !important;
+    display: inline-grid !important;
+    grid-template-columns: repeat(3, var(--enemy-view-toolbar-mobile-button-size, 2.25rem)) !important;
+    align-items: center !important;
+    justify-content: start !important;
+    gap: var(--enemy-view-toolbar-mobile-action-gap, 0.14rem) !important;
+    width: auto !important;
+    max-width: max-content !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+  body.satasupe-enemies-page.is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+    width: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    min-width: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    max-width: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    height: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    min-height: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    max-height: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    aspect-ratio: 1 / 1 !important;
+  }
 }

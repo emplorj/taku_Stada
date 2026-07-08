@@ -2144,9 +2144,11 @@
       ? `<span class="sata-book-chip"><small>${esc(label)}</small>${esc(String(value).trim())}</span>`
       : "";
 
+    const combatPowerTotal = toInt(ability.powerInit, 1) + toInt(ability.powerAtk, 1) + toInt(ability.powerDes, 1);
     const abilityItems = [
       ["犯罪", ability.crime], ["生活", ability.life], ["恋愛", ability.love], ["教養", ability.culture], ["戦闘", ability.combat],
-      ["肉体", ability.body], ["精神", ability.mind], ["反応力", ability.powerInit], ["攻撃力", ability.powerAtk], ["破壊力", ability.powerDes],
+      ["肉体", ability.body], ["精神", ability.mind],
+      ["戦闘力", combatPowerTotal], ["反応力", ability.powerInit], ["攻撃力", ability.powerAtk], ["破壊力", ability.powerDes],
       ["性業値", meta.karmaValue], ["宝物", meta.garbageTable || "-"], ["経験換算", meta.expConv || 0],
     ];
 

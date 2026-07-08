@@ -4241,3 +4241,241 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .d
     padding-right: 8px !important;
   }
 }
+
+/* ========================================================================== 
+   v94 shared mobile enemy-view toolbar labels
+   --------------------------------------------------------------------------
+   Mobile public-view toolbar labels are shared behavior. Individual system CSS
+   should only provide color/theme variables; do not hide the button text in
+   system-specific files.
+   ========================================================================== */
+@media (max-width: 760px) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+    width: var(--enemy-view-toolbar-mobile-button-size, 1.9rem) !important;
+    min-width: var(--enemy-view-toolbar-mobile-button-size, 1.9rem) !important;
+    max-width: var(--enemy-view-toolbar-mobile-button-size, 1.9rem) !important;
+    height: var(--enemy-view-toolbar-mobile-button-size, 1.9rem) !important;
+    min-height: var(--enemy-view-toolbar-mobile-button-size, 1.9rem) !important;
+    max-height: var(--enemy-view-toolbar-mobile-button-size, 1.9rem) !important;
+    padding: var(--enemy-view-toolbar-mobile-button-padding, 0.14rem 0.08rem 0.08rem) !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    text-align: center !important;
+    line-height: 0.92 !important;
+    white-space: normal !important;
+    border: var(--enemy-view-toolbar-button-border, 1px solid rgba(79, 184, 255, 0.86)) !important;
+    border-radius: var(--enemy-view-toolbar-button-radius, 0.28rem) !important;
+    background: var(--enemy-view-toolbar-button-bg, rgba(7, 18, 54, 0.78)) !important;
+    color: var(--enemy-view-toolbar-button-color, currentColor) !important;
+    box-shadow: var(--enemy-view-toolbar-button-shadow, 1px 1px 0 rgba(0, 0, 0, 0.62)) !important;
+    font-size: var(--enemy-view-toolbar-mobile-button-label-font-size, 0.44rem) !important;
+    font-weight: var(--enemy-view-toolbar-mobile-button-label-font-weight, 800) !important;
+    letter-spacing: var(--enemy-view-toolbar-mobile-button-label-letter-spacing, -0.04em) !important;
+    text-indent: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn i,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn i,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn i {
+    margin: var(--enemy-view-toolbar-mobile-button-icon-margin, 0 0 -0.06rem) !important;
+    font-size: var(--enemy-view-toolbar-mobile-button-icon-size, 0.82rem) !important;
+    line-height: 1 !important;
+    flex: 0 0 auto !important;
+  }
+}
+
+
+/* ==========================================================================
+   v95 shared mobile enemy-view toolbar no-wrap labels
+   --------------------------------------------------------------------------
+   Keep the public-view toolbar in one row on mobile across Satasupe/AR2E/
+   Nechronica/DX3.  Older shared rules made .enemy-view-toolbar-actions
+   width:100%, which pushed buttons to a second line on Satasupe.  This final
+   common override keeps the labels visible while preventing the action group
+   itself from wrapping.
+   ========================================================================== */
+@media (max-width: 760px) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar {
+    display: grid !important;
+    grid-template-columns: max-content max-content max-content !important;
+    grid-template-areas: "title id actions" !important;
+    align-items: center !important;
+    justify-content: start !important;
+    gap: 0.22rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-title {
+    grid-area: title !important;
+    grid-column: auto !important;
+    justify-self: end !important;
+    max-width: 5.45rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-id-badge {
+    grid-area: id !important;
+    grid-column: auto !important;
+    justify-self: start !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-actions {
+    grid-area: actions !important;
+    grid-column: auto !important;
+    justify-self: start !important;
+    display: inline-grid !important;
+    grid-template-columns: repeat(3, 2.55rem) !important;
+    align-items: center !important;
+    justify-content: start !important;
+    gap: 0.16rem !important;
+    width: auto !important;
+    max-width: max-content !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+    width: 2.55rem !important;
+    min-width: 2.55rem !important;
+    max-width: 2.55rem !important;
+    height: 2.05rem !important;
+    min-height: 2.05rem !important;
+    padding: 0.12rem 0.08rem 0.08rem !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    font-size: var(--enemy-view-toolbar-mobile-button-label-font-size, 0.48rem) !important;
+    letter-spacing: var(--enemy-view-toolbar-mobile-button-label-letter-spacing, -0.05em) !important;
+    line-height: 0.95 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-title {
+    max-width: 4.85rem !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-actions {
+    grid-template-columns: repeat(3, 2.25rem) !important;
+    gap: 0.12rem !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+    width: 2.25rem !important;
+    min-width: 2.25rem !important;
+    max-width: 2.25rem !important;
+    font-size: 0.42rem !important;
+  }
+}
+
+/* ==========================================================================
+   v96 shared mobile enemy-view toolbar centered full-width shell
+   --------------------------------------------------------------------------
+   Keep the toolbar box stretched to the view width, but center the compact
+   title / id / actions group inside it. Buttons remain square.
+   ========================================================================== */
+@media (max-width: 760px) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar {
+    display: grid !important;
+    grid-template-columns: max-content max-content max-content !important;
+    grid-template-areas: "title id actions" !important;
+    align-items: center !important;
+    justify-content: center !important;
+    justify-items: center !important;
+    column-gap: var(--enemy-view-toolbar-mobile-gap, 0.24rem) !important;
+    row-gap: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-inline: auto !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-title {
+    grid-area: title !important;
+    justify-self: end !important;
+    width: auto !important;
+    max-width: var(--enemy-view-toolbar-mobile-title-max-width, 5.45rem) !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-id-badge {
+    grid-area: id !important;
+    justify-self: center !important;
+    width: auto !important;
+    max-width: max-content !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar-actions {
+    grid-area: actions !important;
+    justify-self: start !important;
+    display: inline-grid !important;
+    grid-template-columns: repeat(3, var(--enemy-view-toolbar-mobile-button-size, 2.25rem)) !important;
+    align-items: center !important;
+    justify-content: start !important;
+    gap: var(--enemy-view-toolbar-mobile-action-gap, 0.14rem) !important;
+    width: auto !important;
+    max-width: max-content !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar .small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar a.small-square-btn,
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode .enemy-view-toolbar button.small-square-btn {
+    width: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    min-width: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    max-width: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    height: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    min-height: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    max-height: var(--enemy-view-toolbar-mobile-button-size, 2.25rem) !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-combo-page, .dx3-enemies-page).is-enemy-view-mode {
+    --enemy-view-toolbar-mobile-gap: 0.16rem;
+    --enemy-view-toolbar-mobile-action-gap: 0.1rem;
+    --enemy-view-toolbar-mobile-button-size: 2.05rem;
+    --enemy-view-toolbar-mobile-title-max-width: 4.85rem;
+  }
+}
