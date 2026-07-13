@@ -615,13 +615,13 @@ max-width: none;
   padding: 9px 10px;
 }
 
-#panel-character-analysis .analysis-selected-attack h5, #panel-character-analysis .analysis-attack-select-label select, #panel-character-analysis .analysis-effect-body strong {
+#panel-character-analysis .analysis-selected-attack h5, #panel-character-analysis .analysis-effect-body strong {
 font-family: "corporate-logo-ver2", sans-serif;
   letter-spacing: 0.02em;
   font-weight: 700;
 }
 
-#panel-character-analysis .analysis-kpi strong, #panel-character-analysis .analysis-metric strong, #panel-character-analysis .analysis-definition-list dd, #panel-character-analysis .analysis-match-statline, #panel-character-analysis code {
+#panel-character-analysis .analysis-match-statline, #panel-character-analysis code {
 font-family: var(
     --font-latin-ui,
     "ExcelsiorSans",
@@ -634,10 +634,6 @@ font-family: var(
 
 #panel-character-analysis .analysis-definition-list dt {
 font-size: 0.78rem;
-}
-
-#panel-character-analysis .analysis-definition-list dd {
-font-size: 0.95rem;
 }
 
 #panel-character-analysis .analysis-manual-adjust {
@@ -755,7 +751,7 @@ font-family: "corporate-logo-ver2", sans-serif;
   font-weight: 700;
 }
 
-#panel-character-analysis .analysis-attack-detail-list dd, #panel-character-analysis .analysis-kpi strong, #panel-character-analysis .analysis-metric strong, #panel-character-analysis .analysis-match-statline, #panel-character-analysis code {
+#panel-character-analysis .analysis-attack-detail-list dd, #panel-character-analysis .analysis-match-statline, #panel-character-analysis code {
 font-family: var(
     --font-latin-ui,
     "ExcelsiorSans",
@@ -840,9 +836,8 @@ padding-top: 0;
 }
 }
 
-#panel-character-analysis .analysis-effects-card, #panel-character-analysis .analysis-plan-card {
-grid-column: auto;
-  display: flex;
+#panel-character-analysis .analysis-plan-card {
+display: flex;
   flex-direction: column;
   min-height: 0;
 }
@@ -1046,21 +1041,6 @@ min-width: 42px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-#panel-character-analysis .analysis-match-center-values b {
-color: #ffd94b;
-  font-family: var(
-    --font-latin-ui,
-    "ExcelsiorSans",
-    "HigashiOme-Gothic-C",
-    "Yu Gothic",
-    "Meiryo",
-    sans-serif
-  );
-  font-weight: var(--font-latin-ui-weight, 300);
-  font-size: 1.05rem;
-  line-height: 1;
-}
-
 #panel-character-analysis .analysis-match-center-values small {
 color: #d9c4a1;
   font-size: 0.68rem;
@@ -1162,14 +1142,7 @@ display: grid;
   scrollbar-gutter: stable;
 }
 
-#panel-character-analysis .analysis-effect-list {
-max-height: 350px;
-  overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-gutter: stable;
-}
-
-#panel-character-analysis .analysis-match-center-values b, #panel-character-analysis .analysis-match-main strong, #panel-character-analysis .analysis-match-judgement {
+#panel-character-analysis .analysis-match-main strong, #panel-character-analysis .analysis-match-judgement {
 text-shadow: none;
 }
 
@@ -1391,32 +1364,8 @@ margin: 0;
   font-size: 0.92rem;
 }
 
-#panel-character-analysis select, #panel-character-analysis .analysis-attack-select-label select, #panel-character-analysis .analysis-control-grid select {
-appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-right: 32px;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #f1d48a 50%),
-    linear-gradient(135deg, #f1d48a 50%, transparent 50%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.08));
-  background-position:
-    calc(100% - 17px) 50%,
-    calc(100% - 11px) 50%,
-    0 0;
-  background-size:
-    6px 6px,
-    6px 6px,
-    100% 100%;
-  background-repeat: no-repeat;
-}
-
 #panel-character-analysis .analysis-attack-detail-list > div:first-child dd {
 white-space: nowrap;
-}
-
-#panel-character-analysis .analysis-effects-card, #panel-character-analysis .analysis-defense-card, #panel-character-analysis .analysis-weapons-card {
-align-self: start;
 }
 
 #panel-character-analysis .analysis-defense-card {
@@ -1424,17 +1373,26 @@ grid-column: 1 / -1;
   align-self: start;
 }
 
-#panel-character-analysis .analysis-weapons-card, #panel-character-analysis .analysis-effects-card, #panel-character-analysis .analysis-spells-card {
+#panel-character-analysis .analysis-effects-card, #panel-character-analysis .analysis-spells-card {
 grid-column: 1;
   align-self: start;
   max-height: 18rem;
   overflow: hidden;
 }
 
-#panel-character-analysis .analysis-weapons-card .analysis-output, #panel-character-analysis .analysis-effects-card .analysis-output, #panel-character-analysis .analysis-spells-card .analysis-output {
+#panel-character-analysis .analysis-spells-card .analysis-output {
 max-height: 13rem;
   overflow-y: auto;
   padding-right: 4px;
+  scrollbar-gutter: stable;
+}
+
+#panel-character-analysis .analysis-weapons-card .analysis-output {
+padding: 0;
+  margin: 0;
+  max-height: none;
+  overflow: visible;
+  overflow-x: hidden;
   scrollbar-gutter: stable;
 }
 
@@ -1446,8 +1404,7 @@ grid-column: 1 / -1;
 display: none;
 }
 
-#panel-character-analysis .analysis-weapons-card, #panel-character-analysis .analysis-effects-card, #panel-character-analysis .analysis-defense-card {
-grid-column: 1;
+#panel-character-analysis .analysis-defense-card {
   max-height: none;
 }
 
@@ -1533,6 +1490,7 @@ background-position: center;
 #panel-character-analysis .analysis-defense-card, #panel-character-analysis .analysis-weapons-card, #panel-character-analysis .analysis-effects-card {
 grid-column: auto;
   grid-row: auto;
+  align-self: start;
 }
 
 #panel-character-analysis .analysis-match-enemy .analysis-match-ribbon.enemy {
@@ -1607,8 +1565,7 @@ overscroll-behavior: contain;
 
 @media (max-width: 1160px) {
 #panel-character-analysis .analysis-result-grid {
-grid-template-columns: 1fr;
-    overflow: visible;
+overflow: visible;
 }
 
 #panel-character-analysis .analysis-plan-card, #panel-character-analysis .analysis-left-stack {
@@ -1695,12 +1652,6 @@ width: 1.05em;
 font-size: 0.72em;
 }
 
-@media (max-width: 1040px) {
-#panel-character-analysis .analysis-result-grid {
-grid-template-columns: 1fr;
-}
-}
-
 #panel-character-analysis .sw25-analysis-system-icon .raw {
 display: block;
   position: absolute;
@@ -1765,21 +1716,16 @@ width: 1.05em;
   min-width: 1.05em;
 }
 
-#panel-character-analysis .analysis-output.muted, #panel-character-analysis .analysis-output .muted {
-margin: 0;
-  padding: 0;
-}
-
-#panel-character-analysis .analysis-effects-card .analysis-output, #panel-character-analysis #char-analysis-effects.analysis-output, #panel-character-analysis .analysis-output.muted, #panel-character-analysis .analysis-output .muted {
+#panel-character-analysis #char-analysis-effects.analysis-output {
 padding: 0;
   margin: 0;
 }
 
-#panel-character-analysis .analysis-left-stack, #panel-character-analysis .analysis-plan-card, #panel-character-analysis .analysis-card, #panel-character-analysis .analysis-output {
+#panel-character-analysis .analysis-card, #panel-character-analysis .analysis-output {
 min-width: 0;
 }
 
-#panel-character-analysis .analysis-weapons-card .analysis-output, #panel-character-analysis .analysis-effects-card .analysis-output, #panel-character-analysis .analysis-defense-card .analysis-output, #panel-character-analysis .analysis-output.muted, #panel-character-analysis .analysis-output .muted {
+#panel-character-analysis .analysis-defense-card .analysis-output, #panel-character-analysis .analysis-output.muted, #panel-character-analysis .analysis-output .muted {
 padding: 0;
   margin: 0;
 }
@@ -1826,15 +1772,12 @@ vertical-align: -0.14em;
 grid-column: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
   align-self: start;
   gap: 10px;
 }
 
-#panel-character-analysis .analysis-effect-list, #panel-character-analysis .analysis-effects-card .analysis-output, #panel-character-analysis .analysis-output.muted, #panel-character-analysis .analysis-output .muted {
-padding-inline: 0;
-  margin-inline: 0;
-  scrollbar-gutter: auto;
+#panel-character-analysis .analysis-output.muted, #panel-character-analysis .analysis-output .muted {
+scrollbar-gutter: auto;
 }
 
 #panel-character-analysis .analysis-defense-list, #panel-character-analysis .analysis-defense-row, #panel-character-analysis .analysis-defense-grid {
@@ -1885,10 +1828,6 @@ grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
 }
 
 @media (max-width: 1150px) {
-#panel-character-analysis .analysis-result-grid {
-grid-template-columns: 1fr;
-}
-
 #panel-character-analysis .analysis-plan-card, #panel-character-analysis .analysis-left-stack {
 grid-column: 1;
 }
@@ -2015,11 +1954,6 @@ display: flex;
 max-height: 3.5em;
   overflow: hidden;
   color: #cfc2af;
-}
-
-#panel-character-analysis .analysis-effects-card .analysis-output {
-padding-right: 0;
-  overflow: visible;
 }
 
 #panel-character-analysis .analysis-selected-attack > .analysis-manual-adjust:first-child {
@@ -2651,12 +2585,6 @@ margin-bottom: 6px;
   font-size: 0.94rem;
 }
 
-#panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-enemy-url-row {
-grid-template-columns: minmax(0, 1fr) minmax(74px, max-content);
-  gap: 6px;
-  margin-bottom: 5px;
-}
-
 #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-enemy-url-row input, #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-enemy-url-row .small-button, #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid input, #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid select {
 min-height: 28px;
   padding-top: 4px;
@@ -2724,7 +2652,7 @@ display: flex;
   padding: 3px 5px;
 }
 
-#panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-defense-compact dt, #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid label {
+#panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-defense-compact dt {
 font-size: 0.64rem;
   line-height: 1;
 }
@@ -2800,7 +2728,7 @@ max-height: 9rem;
   overflow: auto;
 }
 
-#panel-character-analysis .analysis-weapons-card, #panel-character-analysis .analysis-weapons-card .analysis-output, #panel-character-analysis #char-analysis-weapons {
+#panel-character-analysis .analysis-weapons-card, #panel-character-analysis #char-analysis-weapons {
 max-height: none;
   overflow: visible;
 }
@@ -2900,12 +2828,12 @@ display: grid;
   overflow: hidden;
 }
 
-#panel-character-analysis .analysis-left-stack, #panel-character-analysis .analysis-plan-card, #panel-character-analysis .analysis-card, #panel-character-analysis .analysis-output, #panel-character-analysis .analysis-attack-picker-area, #panel-character-analysis .analysis-attack-picker-detail, #panel-character-analysis .analysis-selected-attack, #panel-character-analysis .analysis-selected-attack-metrics {
+#panel-character-analysis .analysis-left-stack, #panel-character-analysis .analysis-card, #panel-character-analysis .analysis-output, #panel-character-analysis .analysis-attack-picker-area, #panel-character-analysis .analysis-attack-picker-detail, #panel-character-analysis .analysis-selected-attack, #panel-character-analysis .analysis-selected-attack-metrics {
 min-width: 0;
   max-width: 100%;
 }
 
-#panel-character-analysis .analysis-weapons-card, #panel-character-analysis .analysis-weapons-card .analysis-output, #panel-character-analysis #char-analysis-weapons, #panel-character-analysis .analysis-weapons-card .analysis-attack-picker-area, #panel-character-analysis .analysis-weapons-card .analysis-attack-picker-detail {
+#panel-character-analysis .analysis-weapons-card, #panel-character-analysis #char-analysis-weapons, #panel-character-analysis .analysis-weapons-card .analysis-attack-picker-area, #panel-character-analysis .analysis-weapons-card .analysis-attack-picker-detail {
 overflow-x: hidden;
 }
 
@@ -2940,7 +2868,7 @@ min-width: 0;
   width: 100%;
 }
 
-#panel-character-analysis .analysis-enemy-url-row, #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-enemy-url-row {
+#panel-character-analysis .analysis-enemy-url-row {
 display: grid;
   grid-template-columns: minmax(0, 1fr) max-content max-content;
   gap: 0.45rem;
@@ -2982,6 +2910,7 @@ grid-column: 2;
   align-self: start;
   overflow: visible;
   min-width: 0;
+  max-width: 100%;
   overflow-y: auto;
 }
 
@@ -3184,23 +3113,6 @@ justify-content: start;
   gap: 10px 14px;
 }
 
-#panel-character-analysis .analysis-self-control-grid > label:not(.analysis-check-label) > select {
-appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #d9bb72 50%),
-    linear-gradient(135deg, #d9bb72 50%, transparent 50%);
-  background-position:
-    calc(100% - 16px) 50%,
-    calc(100% - 10px) 50%;
-  background-size:
-    6px 6px,
-    6px 6px;
-  background-repeat: no-repeat;
-  padding-right: 30px;
-}
-
 #panel-character-analysis .analysis-target-defense-toggle {
 display: inline-flex;
   grid-template-columns: none;
@@ -3221,10 +3133,6 @@ justify-self: start;
 @media (max-width: 1100px) {
 #panel-character-analysis .analysis-control-grid, #panel-character-analysis .analysis-control-grid.enemy-control-grid {
 grid-template-columns: repeat(3, minmax(120px, 1fr));
-}
-
-#panel-character-analysis .analysis-result-grid {
-grid-template-columns: 1fr;
 }
 
 #panel-character-analysis .analysis-effects-card, #panel-character-analysis .analysis-plan-card {
@@ -3910,18 +3818,6 @@ padding: 9px 10px;
   min-width: 0;
 }
 
-#panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid {
-grid-template-columns: repeat(auto-fit, minmax(7.8rem, 1fr));
-  gap: 0.45rem;
-  align-items: end;
-}
-
-#panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid label {
-gap: 2px;
-  font-size: 0.72rem;
-  min-width: 0;
-}
-
 #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-enemy-weakness-input {
 grid-column: span 2;
 }
@@ -4134,25 +4030,6 @@ flex: 0 1 18rem;
   max-width: 24rem;
 }
 
-#panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid, #panel-character-analysis .analysis-controls-card.is-scout-mode .analysis-control-grid.enemy-control-grid {
-display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.38rem 0.55rem;
-}
-
-#panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid label, #panel-character-analysis .analysis-controls-card.is-scout-mode .analysis-control-grid.enemy-control-grid label {
-display: inline-flex;
-  align-items: center;
-  gap: 0.22rem;
-  flex: 0 0 auto;
-  min-width: 0;
-  width: auto;
-  font-size: 0.76rem;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
 #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid input, #panel-character-analysis .analysis-controls-card.is-scout-mode .analysis-control-grid.enemy-control-grid input, #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid select, #panel-character-analysis .analysis-controls-card.is-scout-mode .analysis-control-grid.enemy-control-grid select {
 min-height: 2rem;
   padding: 0.28rem 0.42rem;
@@ -4284,10 +4161,6 @@ display: grid;
     justify-content: start;
 }
 
-#panel-character-analysis .analysis-control-grid.enemy-control-grid label, #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid label, #panel-character-analysis .analysis-controls-card.is-scout-mode .analysis-control-grid.enemy-control-grid label {
-flex: 0 0 auto;
-}
-
 #panel-character-analysis .analysis-control-grid.enemy-control-grid label:nth-child(8), #panel-character-analysis .analysis-controls-card.is-defense-mode .analysis-control-grid.enemy-control-grid label:nth-child(8), #panel-character-analysis .analysis-controls-card.is-scout-mode .analysis-control-grid.enemy-control-grid label:nth-child(8) {
 grid-column: 1;
     grid-row: 2;
@@ -4387,10 +4260,6 @@ color: #fff8d6;
 }
 
 @media (max-width: 1120px) {
-#panel-character-analysis .analysis-result-grid {
-grid-template-columns: 1fr;
-}
-
 #panel-character-analysis .analysis-controls-card .analysis-setup-vs-grid {
 grid-template-columns: 1fr;
 }
@@ -4443,10 +4312,6 @@ grid-column: 1;
 #panel-character-analysis .analysis-left-stack, #panel-character-analysis .analysis-plan-card {
 grid-column: 1;
     grid-row: auto;
-}
-
-#panel-character-analysis .analysis-result-grid {
-grid-template-columns: 1fr;
 }
 
 #panel-character-analysis .analysis-attack-detail-list {
@@ -4823,7 +4688,7 @@ cursor: pointer;
 margin-top: 0.35rem;
 }
 
-#panel-character-analysis .analysis-action-slot-main-select select, #panel-character-analysis select.char-analysis-action-slot-select, #panel-character-analysis select.char-analysis-action-slot-declaration-select {
+#panel-character-analysis .analysis-action-slot-main-select select, #panel-character-analysis select.char-analysis-action-slot-select {
 min-height: 2.15rem;
   line-height: 1.25;
   appearance: none;
@@ -5037,12 +4902,6 @@ display: grid;
   gap: 0.35rem;
   padding: 0;
   margin: 0;
-  min-width: 0;
-  overflow: hidden;
-}
-
-#panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list > div {
-min-width: 0;
 }
 
 #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list dd {
@@ -5065,6 +4924,7 @@ position: relative;
 #panel-character-analysis .analysis-action-slot-main-select select.char-analysis-action-slot-select, #panel-character-analysis select.char-analysis-action-slot-declaration-select {
 width: 100%;
   min-height: 2.35rem;
+  line-height: 1.25;
   border: 1px solid rgba(241, 212, 138, 0.48);
   border-radius: 0.35rem;
   background-color: rgba(8, 4, 2, 0.92);
@@ -5181,7 +5041,7 @@ font-style: normal;
   white-space: nowrap;
 }
 
-#panel-character-analysis .analysis-action-slot-card, #panel-character-analysis .analysis-action-slot-main-select, #panel-character-analysis .analysis-action-slot-detail, #panel-character-analysis .analysis-action-slot-detail-block {
+#panel-character-analysis .analysis-action-slot-card, #panel-character-analysis .analysis-action-slot-main-select, #panel-character-analysis .analysis-action-slot-detail {
 min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
@@ -5213,7 +5073,7 @@ gap: 0.25rem 0.45rem;
   overflow: hidden;
 }
 
-#panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list > div, #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > div, #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-chip, #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-chip, #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-type, #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-type {
+#panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > div, #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-chip, #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-type {
 min-width: 0;
   overflow: hidden;
 }
@@ -6510,10 +6370,6 @@ width: 42px;
 grid-row: auto;
 }
 
-#panel-character-analysis .analysis-result-grid {
-grid-template-columns: 1fr;
-}
-
 #panel-character-analysis .analysis-weapons-card, #panel-character-analysis .analysis-effects-card, #panel-character-analysis .analysis-spells-card, #panel-character-analysis .analysis-plan-card, #panel-character-analysis .analysis-defense-card {
 grid-column: auto;
     grid-row: auto;
@@ -6978,7 +6834,6 @@ grid-template-columns: minmax(0, 1fr);
 }
 
 #panel-character-analysis .analysis-scout-match-summary.analysis-action-slot-match-summary {
-  grid-template-columns: minmax(0, 1fr) clamp(132px, 16vw, 186px) minmax(0, 1fr);
   gap: 6px;
   margin: 4px 0 6px;
   padding: 6px 7px;
@@ -7048,26 +6903,15 @@ grid-template-columns: minmax(0, 1fr);
 }
 
 #panel-character-analysis .analysis-scout-rate-row {
-  display: flex;
-  justify-content: center;
-  align-items: end;
-  gap: 6px;
   width: 100%;
   padding: 0 3px;
-  position: relative;
-  z-index: 3;
 }
 
 #panel-character-analysis .analysis-scout-rate-box {
   flex: 1 1 0;
-  min-width: 0;
-  max-width: 86px;
-  min-height: 44px;
-  padding: 5px 6px 4px;
 }
 
 #panel-character-analysis .analysis-scout-rate-box b {
-  font-size: clamp(1.02rem, 1.75vw, 1.34rem);
   line-height: 1;
 }
 
@@ -7113,13 +6957,10 @@ grid-template-columns: minmax(0, 1fr);
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-  opacity: var(--analysis-fire-opacity);
-  filter: drop-shadow(0 0 9px rgba(255, 146, 28, 0.24));
   mix-blend-mode: screen;
   transform: translate(calc(-50% + var(--analysis-fire-shift-x)), calc(-50% + var(--analysis-fire-shift-y))) rotate(var(--analysis-fire-rotate)) scale(var(--analysis-fire-scale));
   transform-origin: center center;
   animation: none;
-  z-index: 1;
 }
 
 @media (max-width: 700px) {
@@ -7133,29 +6974,13 @@ grid-template-columns: minmax(0, 1fr);
 }
 
 /* v51: 戦闘準備モードの視認性調整。率表示を火花より前面に固定し、先制カードも同じ構造で扱う */
-#panel-character-analysis .analysis-scout-match-summary.analysis-action-slot-match-summary {
-  --analysis-fire-opacity: 0.28;
-  --analysis-fire-scale: 1.04;
-  --analysis-fire-shift-y: 10px;
-}
-
-#panel-character-analysis .analysis-scout-match-summary .analysis-match-spark {
-  opacity: 0.28;
-  z-index: 0;
-  filter: drop-shadow(0 0 7px rgba(255, 146, 28, 0.16));
-}
-
 #panel-character-analysis .analysis-scout-match-summary .analysis-match-result-head,
 #panel-character-analysis .analysis-scout-match-summary .analysis-scout-rate-row,
 #panel-character-analysis .analysis-scout-match-summary .analysis-match-center-values {
-  position: relative;
-  z-index: 12;
   opacity: 1;
 }
 
 #panel-character-analysis .analysis-scout-match-summary .analysis-scout-rate-box {
-  position: relative;
-  z-index: 13;
   opacity: 1;
   background: rgba(54, 31, 2, 0.9);
   border-color: rgba(255, 218, 91, 0.56);
@@ -7172,15 +6997,6 @@ grid-template-columns: minmax(0, 1fr);
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 0.9),
     0 0 6px rgba(255, 220, 92, 0.35);
-}
-
-#panel-character-analysis .analysis-scout-match-summary .analysis-match-center {
-  overflow: hidden;
-}
-
-#panel-character-analysis .analysis-scout-match-summary.is-initiative .analysis-match-spark,
-#panel-character-analysis .analysis-scout-match-block.is-initiative .analysis-match-spark {
-  opacity: 0.22;
 }
 
 /* v52: 戦闘準備モードの火花透明度を戻し、率表示の省略を禁止 */
@@ -7255,7 +7071,6 @@ grid-template-columns: minmax(0, 1fr);
 #panel-character-analysis input[type="number"],
 #panel-character-analysis .analysis-control-grid input[type="number"],
 #panel-character-analysis .analysis-manual-grid input[type="number"],
-#panel-character-analysis .analysis-match-center-values b,
 #panel-character-analysis .analysis-match-result-head .analysis-match-rate b,
 #panel-character-analysis .analysis-match-statline b,
 #panel-character-analysis .analysis-dice-input > span,
@@ -7276,12 +7091,21 @@ grid-template-columns: minmax(0, 1fr);
   text-align: right;
 }
 
-#panel-character-analysis .analysis-match-center-values b,
 #panel-character-analysis .analysis-match-result-head .analysis-match-rate b,
 #panel-character-analysis .analysis-match-statline b,
 #panel-character-analysis .analysis-kpi strong,
 #panel-character-analysis .analysis-metric strong,
 #panel-character-analysis .analysis-definition-list dd {
+  font-size: 1.2rem;
+  line-height: 1.1;
+}
+
+#panel-character-analysis .analysis-match-center-values b {
+  color: #ffd94b;
+  text-shadow: none;
+  font-family: var(--font-latin-ui, "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif);
+  font-weight: var(--font-latin-ui-weight, 300);
+  font-variant-numeric: tabular-nums;
   font-size: 1.2rem;
   line-height: 1.1;
 }

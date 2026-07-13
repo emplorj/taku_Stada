@@ -119,10 +119,16 @@
                       <div class="form-item-inline">
                         <label for="growthCount">成長回数:</label><input type="number" id="growthCount" readonly />
                       </div>
-                      <button type="button" id="roll-growth-btn">
-                        <i class="fa-solid fa-dice"></i>
-                        成長
-                      </button>
+                      <div class="regulation-actions">
+                        <button type="button" id="roll-growth-btn">
+                          <i class="fa-solid fa-dice"></i>
+                          成長
+                        </button>
+                        <button type="button" id="copy-regulation-btn">
+                          <i class="fa-solid fa-copy"></i>
+                          レギュレーションコピー
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -808,7 +814,7 @@
   <!-- Scripts -->
   <script src="../js/common.js"></script>
   <script src="./data/sw25_data.js"></script>
-  <script src="./js/sw25_generator.js"></script>
+  <script src="./js/sw25_generator.js?v=20260714"></script>
 </body>
 
 </html>

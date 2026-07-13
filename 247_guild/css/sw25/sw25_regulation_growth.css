@@ -58,8 +58,14 @@
   flex-grow: 0; /* 入力フィールドが広がらないようにする */
   text-align: right;
 }
-#roll-growth-btn {
-  grid-column: 1; /* 1カラム目全体に配置 */
+.regulation-actions {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.75fr) minmax(230px, 1.25fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+#roll-growth-btn,
+#copy-regulation-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,11 +78,18 @@
   cursor: pointer;
   font-size: 1em;
   font-weight: bold;
+  white-space: nowrap;
   transition: background-color 0.2s;
-  margin-top: 10px; /* ボタンの上にスペースを追加 */
 }
-#roll-growth-btn:hover {
+#roll-growth-btn:hover,
+#copy-regulation-btn:hover {
   background: #3e538e;
+}
+
+@media (max-width: 480px) {
+  .regulation-actions {
+    grid-template-columns: 1fr;
+  }
 }
 .stats-grid-wrapper {
   overflow-x: auto;

@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const abyssShardInput = document.getElementById("abyssShard");
   const growthCountInput = document.getElementById("growthCount");
   const rollGrowthBtn = document.getElementById("roll-growth-btn");
+  const copyRegulationBtn = document.getElementById("copy-regulation-btn");
   const growthResultsContainer = document.getElementById(
     "growth-results-container",
   );
@@ -6726,6 +6727,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     regulationSelect.addEventListener("change", updateRegulationValues);
     rollGrowthBtn.addEventListener("click", handleRollGrowth);
+    copyRegulationBtn.addEventListener("click", async () => {
+      const levelRange = regulationSelect.selectedOptions[0].textContent;
+      const text = [
+        `レベル帯：${levelRange}`,
+        `合計経験点：${expTotalInput.value}`,
+        `所持金：${moneyTotalInput.value}`,
+        `名誉点：${honorInput.value}`,
+        `アビスシャード：${abyssShardInput.value}`,
+        `成長回数：${growthCountInput.value}`,
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("レギュレーションをコピーしました！");
+      } catch (error) {
+        console.error("レギュレーションのコピーに失敗しました:", error);
+        showToast("レギュレーションのコピーに失敗しました。");
+      }
+    });
     growthResultsContainer.addEventListener("click", (event) => {
       if (event.target.classList.contains("stat-candidate"))
         handleCandidateClick(event.target);

@@ -1022,2002 +1022,11 @@ body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .d
 }
 
 /* ===========================================================================
-   v5 unified editor-action-bar layout
-   - keep each system skin intact
-   - unify button arrangement across AR2E / Satasupe / Nechronica
-   - keep author + image URL side-by-side
-   =========================================================================== */
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar {
-  display: grid !important;
-  gap: 0.7rem !important;
-  align-items: start !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-  display: grid !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  gap: 0.55rem !important;
-  align-items: stretch !important;
-  justify-content: stretch !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left > *,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > * {
-  min-width: 0 !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left > .action-btn,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-btn {
-  width: 100% !important;
-  min-width: 0 !important;
-  min-height: 2.7rem !important;
-  justify-content: center !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-bar-meta {
-  grid-column: 1 / -1 !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-  display: grid !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  gap: 0.55rem 0.65rem !important;
-  align-items: end !important;
-  justify-content: stretch !important;
-  grid-template-columns: minmax(7.2rem, 9rem) minmax(0, 1fr) auto !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field {
-  display: grid !important;
-  min-width: 0 !important;
-  width: 100% !important;
-  gap: 0.2rem 0.35rem !important;
-  align-items: center !important;
-  grid-template-columns: auto 1fr !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field > input,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) #field-author,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) #field-icon-url {
-  width: 100% !important;
-  max-width: none !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field.is-icon {
-  min-width: 0 !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta .public-switch-label {
-  display: inline-flex !important;
-  justify-self: start !important;
-  align-self: center !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-}
-
-@media (min-width: 560px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (min-width: 1081px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar {
-    gap: 0.8rem !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 520px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr) !important;
-    align-items: start !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field {
-    grid-template-columns: 1fr !important;
-    gap: 0.15rem !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta .public-switch-label {
-    grid-column: 1 / -1 !important;
-  }
-}
-
-/* ===========================================================================
-   v6 action bar breakpoint split
-   - separate smartphone and non-smartphone layout
-   - desktop/tablet should not stay in the compressed 2-column mobile layout
-   - target: 3 items per row on non-mobile where possible
-   =========================================================================== */
-
-/* desktop / tablet first: pull the action bar out of the smartphone layout */
-@media (min-width: 641px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar {
-    display: grid !important;
-    gap: 0.8rem !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 0.6rem !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    grid-template-columns: minmax(8.5rem, 11rem) minmax(15rem, 1fr) auto !important;
-    gap: 0.55rem 0.8rem !important;
-    align-items: center !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field {
-    grid-template-columns: auto 1fr !important;
-    align-items: center !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta .public-switch-label {
-    grid-column: auto !important;
-    justify-self: start !important;
-    white-space: nowrap !important;
-  }
-}
-
-/* wide desktop: action buttons use 3 columns, metadata stays on one line */
-@media (min-width: 1081px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-btn:nth-child(4) {
-    grid-column: 1 / 2 !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    grid-template-columns: minmax(8.5rem, 10rem) minmax(18rem, 1fr) auto !important;
-  }
-}
-
-/* middle width: keep non-mobile separation, but allow 2 columns when 3 gets tight */
-@media (min-width: 641px) and (max-width: 920px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto !important;
-  }
-}
-
-/* smartphone only */
-@media (max-width: 640px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar {
-    gap: 0.7rem !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
-    align-items: start !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field {
-    grid-template-columns: 1fr !important;
-    align-items: start !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta .public-switch-label {
-    grid-column: 1 / -1 !important;
-  }
-}
-
-/* ===========================================================================
-   v7 editor action bar final layout
-   - restore full-width grid children explicitly
-   - reduce button vertical height
-   - desktop/tablet: semantic rows (3 edit buttons, 4 share/save buttons)
-   - smartphone: compact 2-column layout
-   =========================================================================== */
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 0.55rem !important;
-  align-items: stretch !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar > *,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-bar-meta {
-  display: grid !important;
-  grid-column: 1 / -1 !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-  margin: 0 !important;
-  gap: 0.45rem !important;
-  align-items: stretch !important;
-  justify-content: stretch !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar .action-btn {
-  width: 100% !important;
-  min-width: 0 !important;
-  min-height: 2.2rem !important;
-  height: auto !important;
-  padding: 0.28rem 0.55rem !important;
-  line-height: 1.15 !important;
-  justify-content: center !important;
-  align-items: center !important;
-  white-space: nowrap !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar .action-btn i {
-  margin-right: 0.22em !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-  display: grid !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  gap: 0.45rem 0.65rem !important;
-  align-items: center !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field {
-  min-width: 0 !important;
-  width: 100% !important;
-}
-
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field > input,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) #field-author,
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) #field-icon-url {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  box-sizing: border-box !important;
-}
-
-/* non-smartphone: semantic rows */
-@media (min-width: 641px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    grid-template-columns: minmax(8rem, 10rem) minmax(16rem, 1fr) auto !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field {
-    display: grid !important;
-    grid-template-columns: auto 1fr !important;
-    gap: 0.28rem !important;
-    align-items: center !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta .public-switch-label {
-    grid-column: auto !important;
-    justify-self: start !important;
-    align-self: center !important;
-    white-space: nowrap !important;
-  }
-}
-
-/* narrow tablet: keep non-smartphone style, but avoid over-compression */
-@media (min-width: 641px) and (max-width: 860px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr) auto !important;
-  }
-}
-
-/* smartphone only */
-@media (max-width: 640px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    align-items: start !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 0.12rem !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta .public-switch-label {
-    grid-column: 1 / -1 !important;
-    justify-self: start !important;
-  }
-}
-
-/* ===========================================================================
-   v8 full-size action bar
-   PCフルサイズでは、操作群を1行に集約する。
-   タブレット/スマホでは既存の段組みを維持する。
-   =========================================================================== */
-
-@media (min-width: 1280px) {
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 0.65rem !important;
-    overflow: hidden !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left,
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    width: auto !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    gap: 0.45rem !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left {
-    flex: 0 0 auto !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right {
-    flex: 1 1 auto !important;
-    justify-content: flex-end !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-left > .action-btn,
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-btn {
-    flex: 0 0 auto !important;
-    width: auto !important;
-    min-width: 5.6rem !important;
-    min-height: 2.15rem !important;
-    padding: 0.32rem 0.72rem !important;
-    line-height: 1.15 !important;
-    white-space: nowrap !important;
-    justify-content: center !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-right > .action-bar-meta {
-    grid-column: auto !important;
-    flex: 0 1 auto !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    width: auto !important;
-    min-width: 0 !important;
-    gap: 0.4rem !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-meta-field {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    width: auto !important;
-    min-width: 0 !important;
-    gap: 0.28rem !important;
-    white-space: nowrap !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) #field-author {
-    width: clamp(6rem, 8vw, 8.5rem) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) #field-icon-url {
-    width: clamp(9rem, 15vw, 18rem) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-
-  body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .action-bar-meta .public-switch-label {
-    grid-column: auto !important;
-    flex: 0 0 auto !important;
-    justify-self: auto !important;
-    align-self: center !important;
-    white-space: nowrap !important;
-  }
-}
-
-/* 1280px未満はv7までの段組みを使う。ただしボタンの縦幅は控えめにする。 */
-body:is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .editor-action-bar .action-btn {
-  min-height: 2.15rem !important;
-  padding-top: 0.32rem !important;
-  padding-bottom: 0.32rem !important;
-}
-
-/* ===========================================================================
-   v9 full-size width restoration + Satasupe menu compatibility
+   Shared enemy editor/export action bars
    ---------------------------------------------------------------------------
-   - Desktop uses the full remaining viewport width after the fixed side menu.
-   - Do not cap editor pages at 1280/1320/1440px on full-size displays.
-   - Keep Satasupe's own menu/background skin active; do not hide the menu.
-   =========================================================================== */
-
-@media (min-width: 1081px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-    .main-content,
-    .ar2e-enemies-main,
-    .satasupe-enemies-main,
-    .nechronica-main
-  ) {
-    box-sizing: border-box !important;
-    align-self: flex-start !important;
-    flex: 0 0 auto !important;
-    width: calc(100vw - 260px) !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    margin-left: 260px !important;
-    margin-right: 0 !important;
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    transform: none !important;
-    overflow-x: clip !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-    .ar2e-layout,
-    .satasupe-layout,
-    .enemies-layout,
-    .editor-pane,
-    .editor-form,
-    .top-two-col,
-    .left-column-stack,
-    .right-column-stack,
-    .data-block,
-    .table-wrap
-  ) {
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-  }
-}
-
-@media (min-width: 1600px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-    .main-content,
-    .ar2e-enemies-main,
-    .satasupe-enemies-main,
-    .nechronica-main
-  ) {
-    width: calc(100vw - 260px) !important;
-    max-width: none !important;
-  }
-}
-
-@media (max-width: 1080px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-    .main-content,
-    .ar2e-enemies-main,
-    .satasupe-enemies-main,
-    .nechronica-main
-  ) {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-}
-
-/* Full-size action bar: keep it compact and one-line when width is available. */
-@media (min-width: 1280px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    width: 100% !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn {
-    min-height: 2rem !important;
-    height: 2rem !important;
-    padding: 0.24rem 0.64rem !important;
-    line-height: 1 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-author {
-    width: clamp(6rem, 7vw, 8rem) !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
-    width: clamp(10rem, 16vw, 22rem) !important;
-  }
-}
-
-/* ===========================================================================
-   v10: compact full-size controls + shared koma row
-   ---------------------------------------------------------------------------
-   - Do not require full text visibility for pasted JSON / portrait URL fields.
-   - Use the same layout structure for koma-action-row across the 3 systems.
-   - Keep skins in individual CSS files; this block only controls layout/width.
-   - Preserve Satasupe's global satasupe_style.css by not depending on it here.
-   =========================================================================== */
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-  #importJsonInput,
-  #komaJsonInput,
-  #field-icon-url
-) {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-  .import-json-inline,
-  .koma-import-inline,
-  .action-meta-field,
-  .action-bar-meta,
-  .koma-action-row,
-  .editor-action-bar,
-  .action-bar-left,
-  .action-bar-right
-) {
-  min-width: 0 !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row .action-btn {
-  min-height: 1.95rem !important;
-  height: auto !important;
-  padding: 0.24rem 0.62rem !important;
-  line-height: 1.05 !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row {
-  box-sizing: border-box !important;
-  width: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.45rem 0.65rem !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.import-json-inline, .koma-import-inline) {
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 0.35rem !important;
-  max-width: 100% !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#importJsonInput, #komaJsonInput) {
-  width: clamp(7rem, 11vw, 10.5rem) !important;
-  min-width: 6rem !important;
-  max-width: 11rem !important;
-  flex: 0 1 10rem !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-import-help {
-  min-width: 0 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-/* Full-size desktop: use the whole remaining page width, but keep control rows compact. */
-@media (min-width: 1280px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-    .main-content,
-    .ar2e-enemies-main,
-    .satasupe-enemies-main,
-    .nechronica-main
-  ) {
-    width: calc(100vw - 260px) !important;
-    max-width: none !important;
-    margin-left: 260px !important;
-    margin-right: 0 !important;
-    box-sizing: border-box !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-    .ar2e-layout,
-    .satasupe-layout,
-    .enemies-layout,
-    .editor-pane,
-    .editor-form,
-    .top-two-col,
-    .left-column-stack,
-    .right-column-stack,
-    .data-block,
-    .table-wrap
-  ) {
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row {
-    flex-wrap: nowrap !important;
-    overflow: hidden !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row > .action-btn {
-    flex: 0 0 auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row :is(.import-json-inline, .koma-import-inline) {
-    flex: 0 1 auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-import-help {
-    flex: 1 1 auto !important;
-    white-space: nowrap !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 0.55rem !important;
-    overflow: hidden !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left {
-    display: inline-flex !important;
-    flex: 0 0 auto !important;
-    width: auto !important;
-    align-items: center !important;
-    gap: 0.45rem !important;
-    flex-wrap: nowrap !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    display: inline-flex !important;
-    flex: 1 1 auto !important;
-    width: auto !important;
-    margin-left: auto !important;
-    justify-content: flex-end !important;
-    align-items: center !important;
-    gap: 0.45rem !important;
-    flex-wrap: nowrap !important;
-    overflow: hidden !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-btn {
-    flex: 0 0 auto !important;
-    width: auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
-    display: inline-flex !important;
-    flex: 0 1 auto !important;
-    width: auto !important;
-    max-width: min(36vw, 36rem) !important;
-    align-items: center !important;
-    gap: 0.45rem !important;
-    flex-wrap: nowrap !important;
-    overflow: hidden !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-meta-field {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0.3rem !important;
-    width: auto !important;
-    white-space: nowrap !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-author {
-    width: clamp(5.6rem, 6vw, 7.5rem) !important;
-    min-width: 5rem !important;
-    flex: 0 0 auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
-    width: clamp(7rem, 10vw, 11.5rem) !important;
-    min-width: 6rem !important;
-    max-width: 12rem !important;
-    flex: 0 1 11rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .public-switch-label,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .public-switch-wrap {
-    width: auto !important;
-    min-width: 0 !important;
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-  }
-}
-
-/* Tablet: keep the same mental model but allow wrapping. */
-@media (min-width: 769px) and (max-width: 1279px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    flex-wrap: wrap !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    display: inline-flex !important;
-    flex-wrap: wrap !important;
-    width: auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
-    display: inline-flex !important;
-    flex-wrap: nowrap !important;
-    width: auto !important;
-    max-width: 100% !important;
-  }
-}
-
-/* Smartphone: keep controls readable, inputs still short because they are paste targets. */
-@media (max-width: 768px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row {
-    flex-wrap: wrap !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#importJsonInput, #komaJsonInput) {
-    width: min(100%, 10rem) !important;
-    max-width: 10rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
-    max-width: 100% !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-import-help {
-    flex-basis: 100% !important;
-    white-space: normal !important;
-  }
-}
-
-/* ===========================================================================
-   v11 full-width restore and Satasupe skin-safe rules
-   =========================================================================== */
-@media (min-width: 1081px) {
-  body:is(.ar2e-enemies-page, .nechronica-enemies-page, .satasupe-enemies-page) > :is(.main-content, .ar2e-enemies-main, .nechronica-main, .satasupe-enemies-main) {
-    flex: 0 0 auto !important;
-    align-self: stretch !important;
-    width: calc(100vw - 260px) !important;
-    max-width: none !important;
-    margin-left: 260px !important;
-    margin-right: 0 !important;
-    box-sizing: border-box !important;
-  }
-
-  body:is(.ar2e-enemies-page, .nechronica-enemies-page, .satasupe-enemies-page) :is(.ar2e-layout, .satasupe-layout, .enemies-layout, .editor-pane, .enemy-view-host-pane) {
-    width: 100% !important;
-    max-width: none !important;
-  }
-}
-
-@media (max-width: 1080px) {
-  body:is(.ar2e-enemies-page, .nechronica-enemies-page, .satasupe-enemies-page) > :is(.main-content, .ar2e-enemies-main, .nechronica-main, .satasupe-enemies-main) {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    box-sizing: border-box !important;
-  }
-}
-
-/* Do not flatten Satasupe's own body/menu/background skin. Only layout is shared. */
-body.satasupe-body.satasupe-enemies-page :is(.side-menu, #tableOfContents, .menu-overlay, .hamburger-menu, .grunge-overlay) {
-  font-family: inherit;
-}
-
-/* URL / JSON inputs are paste targets, not reading areas. Keep them compact. */
-body:is(.ar2e-enemies-page, .nechronica-enemies-page, .satasupe-enemies-page) :is(#field-icon-url, #importJsonInput, #komaJsonInput) {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-@media (min-width: 1280px) {
-  body:is(.ar2e-enemies-page, .nechronica-enemies-page, .satasupe-enemies-page) #field-icon-url {
-    width: clamp(8rem, 10vw, 13rem) !important;
-    max-width: 13rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .nechronica-enemies-page, .satasupe-enemies-page) :is(#importJsonInput, #komaJsonInput) {
-    width: clamp(7.5rem, 9vw, 12rem) !important;
-    max-width: 12rem !important;
-  }
-}
-
-/* ===========================================================================
-   v12 shared naming bridge
-   ---------------------------------------------------------------------------
-   New shared class for system-specific numeric/list badges.
-   Existing classes remain for backward compatibility:
-   - AR2E:       .enemy-level-badge
-   - Satasupe:   .enemy-danger-badge
-   - Nechronica: .enemy-malice-badge
-   =========================================================================== */
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-metric-badge {
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
-
-/* Avoid leaking generic side-menu overrides into Satasupe skin.
-   Satasupe's look is owned by css/satasupe_style.css and late restores in
-   css/satasupe_enemies.css. */
-body.satasupe-body.satasupe-enemies-page :is(.side-menu, #tableOfContents) {
-  max-width: none;
-}
-
-/* ===========================================================================
-   v13 shared control layout finalizer
-   ---------------------------------------------------------------------------
-   Fixes regressions where previous grid rules made action buttons full-width
-   stacked on desktop/tablet.  Skins remain system-owned; this only normalizes
-   layout and common semantic class bridges.
-   =========================================================================== */
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(
-  .editor-action-bar,
-  .koma-action-row,
-  .action-bar-left,
-  .action-bar-right,
-  .action-bar-meta,
-  .action-meta-field,
-  .import-json-inline,
-  .koma-import-inline
-) {
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row) {
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row .action-btn {
-  width: auto !important;
-  min-width: max-content !important;
-  max-width: none !important;
-  flex: 0 0 auto !important;
-  min-height: 2.05rem !important;
-  height: 2.05rem !important;
-  padding-block: 0.28rem !important;
-  padding-inline: 0.78rem !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#field-icon-url, #importJsonInput, #komaJsonInput) {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-@media (min-width: 769px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0.5rem 0.65rem !important;
-    overflow: visible !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    width: auto !important;
-    max-width: 100% !important;
-    gap: 0.45rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left {
-    flex: 0 0 auto !important;
-    margin-right: auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    flex: 1 1 auto !important;
-    margin-left: auto !important;
-    justify-content: flex-end !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-btn,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left > .action-btn {
-    flex: 0 0 auto !important;
-    width: auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    width: auto !important;
-    max-width: min(34rem, 42vw) !important;
-    gap: 0.42rem !important;
-    overflow: hidden !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-meta-field {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    width: auto !important;
-    gap: 0.28rem !important;
-    white-space: nowrap !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-author {
-    width: clamp(5rem, 6vw, 7.5rem) !important;
-    min-width: 4.8rem !important;
-    max-width: 7.5rem !important;
-    flex: 0 0 auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
-    width: clamp(6.8rem, 9vw, 11rem) !important;
-    min-width: 6rem !important;
-    max-width: 11rem !important;
-    flex: 0 1 11rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta .public-switch-label {
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-    width: auto !important;
-  }
-}
-
-@media (min-width: 1500px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    flex-wrap: nowrap !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
-    max-width: min(38rem, 40vw) !important;
-  }
-}
-
-@media (max-width: 768px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 0.65rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: 100% !important;
-    gap: 0.5rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn {
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
-    display: grid !important;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) auto !important;
-    width: 100% !important;
-    gap: 0.45rem !important;
-    align-items: center !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-meta-field {
-    min-width: 0 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-meta-field > input {
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-}
-
-/* Shared naming bridge. These classes are additive and intentionally low-risk. */
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.enemy-control-bar, .enemy-koma-bar) {
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-action-btn {
-  box-sizing: border-box;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-section,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-table-wrap,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-meta-row,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-meta-field {
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-/* ===========================================================================
-   v15 responsive control bars and shared display classes
-   ---------------------------------------------------------------------------
-   - full / wide: one-line compact control bar
-   - middle: 3 + 4 buttons over two rows, metadata on its own row
-   - mobile: two-column buttons
-   - public/private switch is visually normalized in action meta area
-   =========================================================================== */
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row) {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row, .action-bar-left, .action-bar-right, .action-bar-meta, .action-meta-field, .koma-output-options, .import-json-inline, .koma-import-inline) {
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row) .action-btn,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.editor-action-bar, .koma-action-row) .small-square-btn {
-  width: auto !important;
-  min-width: max-content !important;
-  max-width: none !important;
-  min-height: 2rem !important;
-  height: 2rem !important;
-  padding: 0.25rem 0.76rem !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex: 0 0 auto !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#field-icon-url, #importJsonInput, #komaJsonInput) {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#importJsonInput, #komaJsonInput) {
-  width: clamp(7rem, 13vw, 12rem) !important;
-  max-width: 12rem !important;
-  flex: 0 1 12rem !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
-  width: clamp(8rem, 13vw, 14rem) !important;
-  max-width: 14rem !important;
-  flex: 0 1 14rem !important;
-}
-
-/* Koma output row: same placement idea for all systems, skin remains individual. */
-@media (min-width: 769px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-action-row {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0.45rem 0.75rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .koma-import-help {
-    flex: 1 1 auto !important;
-    min-width: 12rem !important;
-    white-space: normal !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(.import-json-inline, .koma-import-inline, .koma-mode-inline, .koma-output-options) {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0.35rem !important;
-    width: auto !important;
-    max-width: 100% !important;
-    white-space: nowrap !important;
-  }
-}
-
-/* Wide desktop: compact one-line action bar. */
-@media (min-width: 1280px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0.5rem !important;
-    overflow: hidden !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    width: auto !important;
-    gap: 0.45rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left {
-    flex: 0 0 auto !important;
-    margin-right: auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    flex: 1 1 auto !important;
-    justify-content: flex-end !important;
-    margin-left: auto !important;
-    min-width: 0 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
-    display: inline-flex !important;
-    flex: 0 1 auto !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 0.42rem !important;
-    width: auto !important;
-    max-width: min(40rem, 42vw) !important;
-    overflow: hidden !important;
-  }
-}
-
-/* Middle width: avoid the accidental full-width flat stack; use 3 + 4 + meta. */
-@media (min-width: 769px) and (max-width: 1279px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 0.58rem !important;
-    align-items: start !important;
-    overflow: visible !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    width: 100% !important;
-    gap: 0.48rem !important;
-    margin: 0 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    width: 100% !important;
-    gap: 0.48rem !important;
-    margin: 0 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left > .action-btn,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-btn {
-    width: 100% !important;
-    min-width: 0 !important;
-    justify-content: center !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
-    display: grid !important;
-    grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr) auto !important;
-    width: 100% !important;
-    gap: 0.48rem 0.65rem !important;
-    align-items: center !important;
-    max-width: none !important;
-    overflow: visible !important;
-  }
-}
-
-/* Mobile: compact two-column buttons. */
-@media (max-width: 768px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 0.62rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: 100% !important;
-    gap: 0.48rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn {
-    width: 100% !important;
-    min-width: 0 !important;
-    justify-content: center !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta {
-    display: grid !important;
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr) auto !important;
-    width: 100% !important;
-    gap: 0.45rem !important;
-    align-items: center !important;
-  }
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-meta-field {
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 0.28rem !important;
-  min-width: 0 !important;
-  white-space: nowrap !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-meta-field > input {
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-author {
-  width: clamp(5rem, 8vw, 8rem) !important;
-  max-width: 8rem !important;
-  flex: 0 1 8rem !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .action-bar-meta .public-switch-label,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-public-switch-field {
-  display: inline-flex !important;
-  align-items: center !important;
-  width: auto !important;
-  margin: 0 !important;
-  flex: 0 0 auto !important;
-  white-space: nowrap !important;
-}
-
-/* Keep switch dimensions under broad input rules. */
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) input[type="checkbox"].switch {
-  width: 44px !important;
-  height: 28px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  padding: 0 !important;
-  flex: 0 0 44px !important;
-  box-sizing: border-box !important;
-}
-
-/* AR2E: reuse view-mode card appearance for the editable skill summary list. */
-.ar2e-enemies-page .skill-summary-list {
-  display: grid !important;
-  gap: 0.55rem !important;
-}
-
-.ar2e-enemies-page .skill-summary-card.view-skill-card {
-  padding: 0.65rem 0.75rem !important;
-  border: 1px solid #334155 !important;
-  border-left: 4px solid #4f80ff !important;
-  border-radius: 6px !important;
-  background: rgba(15, 23, 42, 0.62) !important;
-  color: #e2e8f0 !important;
-}
-
-.ar2e-enemies-page .skill-summary-card .skill-summary-main {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  flex-wrap: wrap !important;
-  gap: 0.35rem 0.7rem !important;
-}
-
-.ar2e-enemies-page .skill-summary-card .skill-summary-title {
-  color: #f8fafc !important;
-  font-weight: 700 !important;
-}
-
-.ar2e-enemies-page .skill-summary-card .skill-summary-effect {
-  margin: 0.45rem 0 0 !important;
-  color: #cbd5e1 !important;
-  line-height: 1.55 !important;
-}
-
-/* Shared class bridge: intentionally additive. */
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-metric-badge,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-action-btn,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-control-bar,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-meta-row,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .enemy-meta-field {
-  box-sizing: border-box;
-}
-
-/* ===========================================================================
-   v16 final control-bar breakpoints
-   ---------------------------------------------------------------------------
-   Full desktop: one-line when there is enough width.
-   Middle width: explicit 3 + 4 + meta for all three systems.
-   Mobile: two-column buttons and stacked meta, with Nechronica mobile hardening.
-   =========================================================================== */
-
-@media (min-width: 769px) and (max-width: 1279px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-pane > .editor-action-bar,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-auto-flow: row !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
-    gap: 0.56rem !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    overflow: visible !important;
-    white-space: normal !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
-    display: grid !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    gap: 0.48rem !important;
-    flex: none !important;
-    overflow: visible !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left > .action-btn,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right > .action-btn {
-    display: inline-flex !important;
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    height: 2.15rem !important;
-    min-height: 2.15rem !important;
-    padding: 0.22rem 0.55rem !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1.1 !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-bar-meta {
-    display: grid !important;
-    grid-template-columns: minmax(6rem, 9rem) minmax(9rem, 1fr) auto !important;
-    align-items: center !important;
-    justify-content: stretch !important;
-    gap: 0.45rem 0.65rem !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    overflow: visible !important;
-  }
-}
-
-@media (min-width: 1280px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-pane > .editor-action-bar,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0.5rem !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    gap: 0.45rem !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left {
-    flex: 0 0 auto !important;
-    margin-right: auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
-    flex: 1 1 auto !important;
-    justify-content: flex-end !important;
-    margin-left: auto !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left > .action-btn,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right > .action-btn {
-    width: auto !important;
-    min-width: 4.8rem !important;
-    max-width: none !important;
-    height: 2.05rem !important;
-    min-height: 2.05rem !important;
-    padding: 0.2rem 0.7rem !important;
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-bar-meta {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 0.42rem !important;
-    width: auto !important;
-    max-width: min(42rem, 44vw) !important;
-    min-width: 0 !important;
-    margin-left: 0.2rem !important;
-    overflow: hidden !important;
-  }
-}
-
-@media (max-width: 768px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-pane > .editor-action-bar,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 0.55rem !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    overflow: visible !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-left,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 0.45rem !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-btn {
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 2.15rem !important;
-    min-height: 2.15rem !important;
-    padding: 0.22rem 0.5rem !important;
-    justify-content: center !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar > .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) .editor-action-bar .action-bar-meta {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 0.42rem !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#field-icon-url, #importJsonInput, #komaJsonInput) {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) #field-icon-url {
-  width: clamp(8rem, 13vw, 14rem) !important;
-  max-width: 14rem !important;
-  min-width: 0 !important;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page) :is(#importJsonInput, #komaJsonInput) {
-  width: clamp(7rem, 13vw, 12rem) !important;
-  max-width: 12rem !important;
-  min-width: 0 !important;
-}
-
-/* Nechronica mobile hardening: previous patches were partial, so lock the main editor into one column on phones. */
-@media (max-width: 768px) {
-  body.nechronica-enemies-page .editor-pane {
-    padding: 0.65rem !important;
-  }
-
-  body.nechronica-enemies-page :is(.enemies-layout, .top-two-col, .damage-manager-layout, .summary-place-grid, .parts-grid, .maneuver-grid, .nc-grid, .nc-two-col) {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-
-  body.nechronica-enemies-page :is(.tab-list, .tab-buttons, .editor-tabs, .pane-tabs) {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    max-width: 100% !important;
-  }
-
-  body.nechronica-enemies-page :is(.table-wrap, .parts-table-wrap, .maneuver-table-wrap, .damage-table-wrap) {
-    max-width: 100% !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  body.nechronica-enemies-page :is(input, select, textarea, button) {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-}
-
-/* ===========================================================================
-   v17 final middle-width control bar fix
-   ---------------------------------------------------------------------------
-   Some system-specific CSS is loaded after the shared CSS and restores flex
-   wrapping around 1200px. This block is intentionally repeated in the shared
-   and individual CSS files so 769-1279px is always 3 / 4 / meta, not 3 / 3 / 1.
-   =========================================================================== */
-@media (min-width: 769px) and (max-width: 1279px) {
-  body.ar2e-enemies-page .editor-pane > section.editor-action-bar,
-  body.satasupe-enemies-page .editor-pane > section.editor-action-bar,
-  body.satasupe-body.satasupe-enemies-page .editor-pane > section.editor-action-bar,
-  body.nechronica-enemies-page .editor-pane > section.editor-action-bar,
-  body.ar2e-enemies-page section.editor-action-bar,
-  body.satasupe-enemies-page section.editor-action-bar,
-  body.satasupe-body.satasupe-enemies-page section.editor-action-bar,
-  body.nechronica-enemies-page section.editor-action-bar {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-auto-flow: row !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
-    gap: 0.56rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    overflow: visible !important;
-  }
-
-  body.ar2e-enemies-page section.editor-action-bar > .action-bar-left,
-  body.satasupe-enemies-page section.editor-action-bar > .action-bar-left,
-  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > .action-bar-left,
-  body.nechronica-enemies-page section.editor-action-bar > .action-bar-left {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    grid-auto-flow: column !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
-    gap: 0.48rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    flex: none !important;
-    flex-wrap: nowrap !important;
-    overflow: visible !important;
-  }
-
-  body.ar2e-enemies-page section.editor-action-bar > .action-bar-right,
-  body.satasupe-enemies-page section.editor-action-bar > .action-bar-right,
-  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > .action-bar-right,
-  body.nechronica-enemies-page section.editor-action-bar > .action-bar-right {
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    grid-auto-flow: row !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
-    gap: 0.48rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    flex: none !important;
-    flex-wrap: nowrap !important;
-    overflow: visible !important;
-  }
-
-  body.ar2e-enemies-page section.editor-action-bar > :is(.action-bar-left, .action-bar-right) > .action-btn,
-  body.satasupe-enemies-page section.editor-action-bar > :is(.action-bar-left, .action-bar-right) > .action-btn,
-  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > :is(.action-bar-left, .action-bar-right) > .action-btn,
-  body.nechronica-enemies-page section.editor-action-bar > :is(.action-bar-left, .action-bar-right) > .action-btn {
-    display: inline-flex !important;
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    height: 2.15rem !important;
-    min-height: 2.15rem !important;
-    padding: 0.22rem 0.55rem !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1.1 !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-    flex: none !important;
-    grid-column: auto !important;
-  }
-
-  body.ar2e-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta,
-  body.satasupe-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta,
-  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta,
-  body.nechronica-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta {
-    grid-column: 1 / -1 !important;
-    display: grid !important;
-    grid-template-columns: minmax(6rem, 9rem) minmax(9rem, 1fr) auto !important;
-    align-items: center !important;
-    justify-content: stretch !important;
-    gap: 0.45rem 0.65rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    overflow: visible !important;
-  }
-
-  body.ar2e-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta > .public-switch-label,
-  body.satasupe-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta > .public-switch-label,
-  body.satasupe-body.satasupe-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta > .public-switch-label,
-  body.nechronica-enemies-page section.editor-action-bar > .action-bar-right > .action-bar-meta > .public-switch-label {
-    justify-self: end !important;
-    width: auto !important;
-    min-width: 0 !important;
-  }
-}
-
-/* ==========================================================================
-   v022 shared enemy control/export bars
-   --------------------------------------------------------------------------
-   Shared structural layer for save/share/delete controls and Koma/export rows.
-   System CSS should mainly override the texture variables below.
-   ========================================================================== */
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page) {
-  --enemy-control-bg:
-    linear-gradient(135deg, rgba(18, 28, 56, 0.9), rgba(20, 36, 72, 0.9)),
-    repeating-linear-gradient(90deg, rgba(79, 128, 255, 0.08) 0 2px, rgba(9, 15, 30, 0.08) 2px 6px);
-  --enemy-control-border: rgba(79, 128, 255, 0.72);
-  --enemy-export-bg:
-    linear-gradient(135deg, rgba(21, 42, 54, 0.9), rgba(18, 70, 58, 0.82)),
-    repeating-linear-gradient(90deg, rgba(80, 220, 170, 0.08) 0 2px, rgba(8, 24, 24, 0.08) 2px 6px);
-  --enemy-export-border: rgba(80, 220, 170, 0.54);
-  --enemy-control-text: #f3f8ff;
-  --enemy-control-muted: rgba(216, 228, 246, 0.8);
-  --enemy-control-button-bg: rgba(25, 52, 110, 0.86);
-  --enemy-control-button-border: rgba(160, 210, 255, 0.52);
-  --enemy-control-gap: 0.55rem;
-  --enemy-control-radius: 8px;
-  --enemy-control-padding: 0.72rem;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-control-bar, .editor-action-bar, .koma-action-row) {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: var(--enemy-control-gap);
-  padding: var(--enemy-control-padding);
-  border: 1px solid var(--enemy-control-border);
-  border-radius: var(--enemy-control-radius);
-  background: var(--enemy-control-bg);
-  color: var(--enemy-control-text);
-  overflow: visible;
-  white-space: normal;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-export-bar, .koma-action-row) {
-  border-color: var(--enemy-export-border);
-  background: var(--enemy-export-bg);
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-control-bar, .editor-action-bar, .koma-action-row)
-  :is(.action-bar-left, .action-bar-right, .action-bar-meta, .enemy-action-left, .enemy-action-right, .enemy-action-meta, .koma-output-options, .import-json-inline, .koma-import-inline) {
-  box-sizing: border-box;
-  min-width: 0;
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-control-bar, .editor-action-bar, .koma-action-row)
-  :is(.action-bar-right, .enemy-action-right) {
-  margin-left: auto;
-  justify-content: flex-end;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-control-bar, .editor-action-bar, .koma-action-row)
-  :is(.action-bar-meta, .enemy-action-meta) {
-  flex: 1 1 100%;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-control-bar, .editor-action-bar, .koma-action-row)
-  :is(.action-btn, .small-square-btn) {
-  box-sizing: border-box;
-  min-width: 0;
-  min-height: 2.1rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.42em;
-  padding: 0.38rem 0.78rem;
-  border: 1px solid var(--enemy-control-button-border);
-  border-radius: 6px;
-  background: var(--enemy-control-button-bg);
-  color: var(--enemy-control-text);
-  font-weight: 800;
-  line-height: 1.1;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-control-bar, .editor-action-bar, .koma-action-row)
-  :is(.action-btn, .small-square-btn):disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-control-bar, .editor-action-bar, .koma-action-row)
-  :is(.koma-import-help, .dx3-koma-help) {
-  min-width: 0;
-  flex: 1 1 14rem;
-  color: var(--enemy-control-muted);
-  font-size: 0.78rem;
-  line-height: 1.35;
-}
-
-@media (max-width: 520px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-control-bar, .editor-action-bar) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.42rem;
-    padding: 0.55rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-control-bar, .editor-action-bar)
-    > :is(.action-bar-left, .action-bar-right, .enemy-action-left, .enemy-action-right) {
-    display: contents;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-control-bar, .editor-action-bar)
-    > :is(.action-bar-meta, .enemy-action-meta) {
-    grid-column: 1 / -1;
-    width: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.38rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-control-bar, .editor-action-bar)
-    :is(.action-btn, .small-square-btn) {
-    width: 100%;
-    min-height: 2.15rem;
-    padding: 0.38rem 0.45rem;
-    font-size: 0.86rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-export-bar, .koma-action-row) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.42rem;
-    padding: 0.55rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-export-bar, .koma-action-row)
-    > .action-btn {
-    width: 100%;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-export-bar, .koma-action-row)
-    :is(.koma-output-options, .import-json-inline, .koma-import-inline) {
-    width: 100%;
-  }
-}
-
-/* ==========================================================================
-   v023 shared enemy control/export bar details
-   --------------------------------------------------------------------------
-   Keep repeated layout rules here. System CSS should only override variables
-   such as background, border, and button colors.
-   ========================================================================== */
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-control-bar, .editor-action-bar, .koma-action-row) {
-  margin: 0;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-export-bar, .koma-action-row)
-  :is(.koma-output-options, .enemy-compact-flags) {
-  min-width: 0;
-  max-width: 100%;
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-export-bar, .koma-action-row)
-  .enemy-compact-flag {
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.28rem;
-  min-width: 0;
-  min-height: 1.75rem;
-  padding: 0.18rem 0.48rem;
-  border: 1px solid var(--enemy-compact-chip-border, rgba(135, 206, 250, 0.38));
-  border-radius: 999px;
-  background: var(--enemy-compact-chip-bg, rgba(13, 26, 80, 0.55));
-  color: var(--enemy-compact-chip-text, #d6ecff);
-  font-size: 0.76rem;
-  font-weight: 800;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  :is(.enemy-export-bar, .koma-action-row)
-  .enemy-compact-flag input:checked + span {
-  color: var(--enemy-compact-chip-checked-text, #fff2bf);
-}
-
-@media (min-width: 760px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-export-bar, .koma-action-row) {
-    flex-wrap: nowrap;
-  }
-}
-
-@media (max-width: 520px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-export-bar, .koma-action-row)
-    :is(.koma-output-options, .enemy-compact-flags) {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.34rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-export-bar, .koma-action-row)
-    .enemy-compact-flag {
-    width: 100%;
-    padding-left: 0.32rem;
-    padding-right: 0.32rem;
-    font-size: 0.72rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-export-bar, .koma-action-row)
-    .enemy-compact-flag:first-child {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 360px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    :is(.enemy-export-bar, .koma-action-row)
-    :is(.koma-output-options, .enemy-compact-flags) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-
-/* ===========================================================================
-   v024 canonical enemy control/export bars
-   ---------------------------------------------------------------------------
-   Canonical structure:
-     .enemy-control-bar.enemy-action-bar  = save/share/view/delete/reload area
-     .enemy-control-bar.enemy-export-bar  = export/import/output options area
-   System CSS should mainly provide variables and textures.
+   Canonical layout for AR2E / Satasupe / Nechronica / DX3.
+   Individual CSS should provide colors via --enemy-control-* variables and
+   system-specific exceptions only.
    =========================================================================== */
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page) {
   --enemy-control-bg: rgba(24, 34, 56, 0.88);
@@ -3028,278 +1037,291 @@ body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .d
   --enemy-control-muted: rgba(226, 232, 240, 0.78);
   --enemy-control-button-bg: rgba(30, 48, 86, 0.88);
   --enemy-control-button-border: rgba(160, 190, 240, 0.52);
+  --enemy-boss-cutin-button-bg: var(--enemy-control-button-bg);
+  --enemy-boss-cutin-button-border: var(--enemy-control-button-border);
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
   .enemy-control-bar {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin: 0 0 0.65rem;
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--enemy-control-border);
-  border-radius: 6px;
-  background: var(--enemy-control-bg);
-  color: var(--enemy-control-text);
-  overflow-x: visible;
-  white-space: normal;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 0 0.65rem !important;
+  padding: 0.62rem 0.75rem !important;
+  border: 1px solid var(--enemy-control-border) !important;
+  border-radius: 6px !important;
+  background: var(--enemy-control-bg) !important;
+  color: var(--enemy-control-text) !important;
+  overflow-x: visible !important;
+  white-space: normal !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
   .enemy-export-bar {
-  background: var(--enemy-export-bg);
-  border-color: var(--enemy-export-border);
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 0.48rem 0.62rem !important;
+  background: var(--enemy-export-bg) !important;
+  border-color: var(--enemy-export-border) !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-action-bar > .action-bar-left,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-action-bar > .action-bar-right,
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-action-bar > .action-bar-meta {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.45rem;
+  .enemy-action-bar {
+  display: flex !important;
+  align-items: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-action-bar > .action-bar-right {
-  margin-left: auto;
-  justify-content: flex-end;
+  .enemy-action-bar > :is(.action-bar-left, .action-bar-right, .action-bar-meta, .enemy-action-left, .enemy-action-right, .enemy-action-meta) {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 0.45rem !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-action-bar > .action-bar-meta,
+  .enemy-action-bar > :is(.action-bar-left, .enemy-action-left) {
+  flex: 0 1 auto !important;
+  margin-right: auto !important;
+}
+
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-action-bar .action-bar-meta {
-  flex: 1 1 100%;
+  .enemy-action-bar > :is(.action-bar-right, .enemy-action-right) {
+  flex: 1 1 auto !important;
+  margin-left: auto !important;
+  justify-content: flex-end !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar > :is(.action-bar-meta, .enemy-action-meta),
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar :is(.action-bar-meta, .enemy-action-meta) {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(100%, 34rem) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+  gap: 0.35rem !important;
+  margin-left: 0 !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
   .enemy-control-bar :is(.action-btn, .small-square-btn) {
-  box-sizing: border-box;
-  min-width: 0;
-  min-height: 2.15rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.42em;
-  padding: 0.38rem 0.78rem;
-  border: 1px solid var(--enemy-control-button-border);
-  border-radius: 6px;
-  background: var(--enemy-control-button-bg);
-  color: var(--enemy-control-text);
-  font-weight: 800;
-  line-height: 1.1;
-  text-decoration: none;
-  white-space: nowrap;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  min-height: 2.15rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.42em !important;
+  padding: 0.38rem 0.78rem !important;
+  border: 1px solid var(--enemy-control-button-border) !important;
+  border-radius: 6px !important;
+  background: var(--enemy-control-button-bg) !important;
+  color: var(--enemy-control-text) !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
   cursor: pointer;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-export-bar :is(.koma-output-options, .enemy-compact-flags, .import-json-inline, .koma-import-inline) {
-  min-width: 0;
-  max-width: 100%;
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+  .enemy-control-bar :is(.action-btn.is-main, .small-square-btn.is-main) {
+  filter: saturate(1.12);
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-export-bar :is(.koma-import-help, .dx3-koma-help) {
-  min-width: 0;
-  flex: 1 1 14rem;
-  color: var(--enemy-control-muted);
-  font-size: 0.78rem;
-  line-height: 1.35;
-}
-
-@media (max-width: 520px) {
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-action-bar {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.42rem;
-    padding: 0.55rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-action-bar > :is(.action-bar-left, .action-bar-right) {
-    display: contents;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-action-bar > .action-bar-meta,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-action-bar .action-bar-meta {
-    grid-column: 1 / -1;
-    width: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.38rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-action-bar :is(.action-btn, .small-square-btn) {
-    width: 100%;
-    min-height: 2.15rem;
-    padding: 0.38rem 0.45rem;
-    font-size: 0.86rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-export-bar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.42rem;
-    padding: 0.55rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-export-bar > .action-btn,
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-export-bar :is(.koma-output-options, .enemy-compact-flags, .import-json-inline, .koma-import-inline) {
-    width: 100%;
-  }
-}
-
-/* ===========================================================================
-   v025 canonical export/action bar final overrides
-   ---------------------------------------------------------------------------
-   Keep the shared structure in common. System CSS should only provide colors,
-   texture variables, and narrow system-specific exceptions.
-   =========================================================================== */
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-control-bar {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  margin: 0 0 0.65rem;
-  padding: 0.62rem 0.75rem;
-  border: 1px solid var(--enemy-control-border, rgba(120, 150, 210, 0.44));
-  border-radius: 6px;
-  background: var(--enemy-control-bg, rgba(24, 34, 56, 0.88));
-  color: var(--enemy-control-text, #f4f8ff);
-  overflow-x: visible;
-  white-space: normal;
-}
-
-body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-  .enemy-export-bar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.48rem 0.62rem;
-  background: var(--enemy-export-bg, rgba(20, 42, 52, 0.78));
-  border-color: var(--enemy-export-border, rgba(120, 210, 190, 0.38));
+  .enemy-control-bar :is(.action-btn:disabled, .action-btn.is-disabled, .small-square-btn:disabled, .small-square-btn.is-disabled) {
+  opacity: 0.62 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: saturate(0.55) brightness(0.86) !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
   .enemy-export-bar > .action-btn {
-  flex: 0 0 auto;
-  width: auto;
+  flex: 0 0 auto !important;
+  width: auto !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
   .enemy-export-bar :is(.koma-output-options, .enemy-compact-flags, .import-json-inline, .koma-import-inline) {
-  width: auto;
-  min-width: 0;
-  max-width: 100%;
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.32rem 0.45rem;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 0.32rem 0.45rem !important;
 }
 
-/* Export options are inside the export area, so avoid a second capsule layer. */
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
   .enemy-export-bar .enemy-compact-flag {
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  min-width: 0;
-  min-height: 1.9rem;
-  padding: 0.12rem 0.2rem;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--enemy-compact-chip-text, var(--enemy-control-text, #d6ecff));
-  font-size: 0.78rem;
-  font-weight: 800;
-  line-height: 1.1;
-  white-space: nowrap;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.25rem !important;
+  min-width: 0 !important;
+  min-height: 1.9rem !important;
+  padding: 0.12rem 0.2rem !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--enemy-compact-chip-text, var(--enemy-control-text)) !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
   .enemy-export-bar .enemy-compact-flag input:checked + span {
-  color: var(--enemy-compact-chip-checked-text, #fff2bf);
+  color: var(--enemy-compact-chip-checked-text, #fff2bf) !important;
 }
 
 body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
   .enemy-export-bar :is(.koma-import-help, .dx3-koma-help) {
-  flex: 1 1 14rem;
-  min-width: min(100%, 12rem);
-  color: var(--enemy-control-muted, rgba(226, 232, 240, 0.78));
-  font-size: 0.78rem;
-  line-height: 1.35;
+  flex: 1 1 14rem !important;
+  min-width: min(100%, 12rem) !important;
+  color: var(--enemy-control-muted) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
 }
 
-@media (max-width: 520px) {
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar .action-meta-field {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  gap: 0.3rem !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  font-size: 0.74rem !important;
+  font-weight: 800 !important;
+  color: var(--enemy-control-muted) !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar .action-meta-field > :is(span, .field-label) {
+  flex: 0 0 auto !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar .action-meta-field > input {
+  box-sizing: border-box !important;
+  height: 2.05rem !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Author is credit/searchable text, so keep it readable. */
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar .action-meta-field:not(.is-icon) {
+  flex: 0 0 auto !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar .action-meta-field:not(.is-icon) > input {
+  width: clamp(6.5rem, 9vw, 9rem) !important;
+  min-width: 6.5rem !important;
+}
+
+/* Image URL is pasted, not read in-place, so allow aggressive shrink. */
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar .action-meta-field.is-icon {
+  flex: 1 1 8rem !important;
+  min-width: 4.8rem !important;
+  max-width: 14rem !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar .action-meta-field.is-icon > input {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-action-bar .public-switch-label {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+  .enemy-boss-cutin-link {
+  white-space: nowrap !important;
+  background: var(--enemy-boss-cutin-button-bg) !important;
+  border-color: var(--enemy-boss-cutin-button-border) !important;
+}
+
+@media (max-width: 760px) {
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+    .enemy-action-bar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.55rem !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+    .enemy-action-bar > :is(.action-bar-left, .action-bar-right, .enemy-action-left, .enemy-action-right) {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+    .enemy-action-bar :is(.action-btn, .small-square-btn) {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+    .enemy-action-bar > :is(.action-bar-meta, .enemy-action-meta),
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+    .enemy-action-bar :is(.action-bar-meta, .enemy-action-meta) {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    max-width: none !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+    .enemy-action-bar .action-meta-field:not(.is-icon) {
+    flex: 0 0 auto !important;
+  }
+
+  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
+    .enemy-action-bar .action-meta-field.is-icon {
+    flex: 1 1 100% !important;
+    max-width: none !important;
+  }
+
   body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
     .enemy-export-bar {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.4rem 0.5rem;
-    padding: 0.5rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-export-bar > .action-btn {
-    flex: 0 0 auto;
-    width: auto;
-    min-width: 5.2rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-export-bar :is(.koma-output-options, .enemy-compact-flags, .import-json-inline, .koma-import-inline) {
-    width: auto;
-    display: inline-flex;
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: 100%;
-    gap: 0.28rem 0.4rem;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-export-bar .enemy-compact-flag {
-    width: auto;
-    max-width: 100%;
-    min-height: 1.75rem;
-    padding-left: 0.1rem;
-    padding-right: 0.1rem;
-    font-size: 0.72rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  body:is(.ar2e-enemies-page, .satasupe-enemies-page, .nechronica-enemies-page, .dx3-enemies-page)
-    .enemy-export-bar .enemy-compact-flag:first-child {
-    grid-column: auto;
+    align-items: center !important;
+    gap: 0.4rem 0.5rem !important;
+    padding: 0.5rem !important;
   }
 }
-
 
 /* v056: shared copy/toast notification for enemy tools */
 :is(.satasupe-enemies-page, .nechronica-enemies-page, .ar2e-enemies-page, .dx3-enemies-page) .copy-toast,

@@ -237,6 +237,10 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   gap: 30px;
   align-items: flex-start;
   width: max-content;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  box-sizing: border-box;
   visibility: hidden;
   opacity: 0;
   transform: scale(0.95);
@@ -250,7 +254,6 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   flex-direction: column;
   gap: 15px;
 }
-/* ★追加: 推奨アイテムパネル用のスタイル */
 .recommended-items-panel-container {
   padding: 10px 15px 15px;
   flex-direction: column;
@@ -269,7 +272,10 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   vertical-align: middle;
 }
 #recommended-items-table th {
-  background-color: rgba(0, 0, 0, 0.2);
+  background: linear-gradient(180deg, rgba(78, 48, 20, 0.92), rgba(34, 24, 18, 0.96));
+  color: #ffe6a6;
+  border-color: rgba(200, 164, 100, 0.34);
+  box-shadow: inset 0 -1px 0 rgba(200, 164, 100, 0.3);
   position: sticky;
   top: -10px;
 }
@@ -280,7 +286,9 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
 #recommended-items-table .skill-cell {
   font-weight: bold;
   white-space: nowrap;
-  background-color: rgba(0, 0, 0, 0.2);
+  background: rgba(28, 20, 16, 0.82);
+  color: #fff1c6;
+  border-color: rgba(200, 164, 100, 0.2);
 }
 #recommended-items-table .item-cell {
   display: flex;
@@ -293,9 +301,8 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   align-items: center;
   gap: 8px;
 }
-/* ★変更: 必須マークをCSSの擬似要素で表示 */
 #recommended-items-table .item-name.required::before {
-  content: "★"; /* 星マークに変更 */
+  content: "★";
   color: var(--gold-color);
   font-weight: bold;
   margin-right: 4px;
@@ -350,6 +357,9 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   width: auto;
   flex-grow: 1;
 }
+.item-set-row {
+  position: relative;
+}
 .enhancement-buttons {
   display: flex;
   gap: 6px;
@@ -387,6 +397,13 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
     grid-template-columns: 1fr;
   }
 }
+.regulation-container {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  margin: 0;
+  box-sizing: border-box;
+}
 @media (max-width: 1024px) {
   .generator-layout {
     flex-direction: column;
@@ -402,16 +419,6 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   #money-sidebar-panel {
     flex-grow: 1;
   }
-}
-.regulation-container {
-  padding: 15px;
-  border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.2);
-  margin: 0;
-  box-sizing: border-box;
-}
-@media (max-width: 1024px) {
-  /* 少し広めのブレークポイントでサブタイトルを消す */
   .page-header .subtitle {
     display: none;
   }
@@ -427,8 +434,53 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
     justify-content: center; /* 全体を中央揃えに */
   }
 }
-
-/* (中略) ... 他のCSSはそのまま ... */
+.item-set-tooltip-trigger {
+  color: #ccc;
+  font-size: 1.1em;
+  cursor: help;
+  margin-left: 8px;
+  transition:
+    color 0.2s,
+    text-shadow 0.2s;
+}
+.item-set-tooltip-trigger:hover {
+  color: var(#ccc);
+  text-shadow: 0 0 5px var(#ccc);
+}
+.item-controls-footer {
+  justify-content: space-between;
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+}
+.action-buttons-group {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+.enhancement-popup-header {
+  display: none;
+}
+.enhancement-popup-close {
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(200, 164, 100, 0.42);
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--gold-color);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.enhancement-popup-close:hover,
+.enhancement-popup-close:focus-visible {
+  background: rgba(200, 164, 100, 0.18);
+  outline: none;
+}
 
 @media (max-width: 768px) {
   .controls-panel {
@@ -441,9 +493,6 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   }
   .growth-results-wrapper {
     padding: 0;
-  }
-  .panel-3-column-layout {
-    grid-template-columns: 1fr;
   }
   #priority-total-heading {
     transform-origin: center bottom;
@@ -466,9 +515,7 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
     align-items: center;
     min-width: 320px;
   }
-  .grid-header {
-    font-size: 0.6em;
-  }
+  .grid-header,
   .grid-label {
     font-size: 0.6em;
   }
@@ -488,20 +535,10 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
     font-size: 0.9em;
   }
   .regulation-flex-row {
-    grid-template-columns: 1fr;
     gap: 12px;
   }
-  .regulation-flex-row .form-item-inline {
-    justify-content: space-between;
-  }
-  .regulation-flex-row label {
-    text-align: left;
-    width: 80px;
-    flex-shrink: 0;
-  }
-  #roll-growth-btn {
-    grid-column: 1;
-    margin-top: 10px;
+  .regulation-actions {
+    grid-template-columns: 1fr;
   }
   .personal-data-row {
     display: grid;
@@ -531,7 +568,8 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   .item-controls-footer {
     justify-content: flex-start;
   }
-  .copy-buttons-group {
+  .copy-buttons-group,
+  .action-buttons-group {
     margin-left: 0;
   }
   .general-skill-header {
@@ -547,11 +585,9 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
     width: 100%;
   }
   .general-skill-row {
-    display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
     gap: 8px 15px;
-    align-items: center;
     padding: 10px;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 5px;
@@ -570,79 +606,6 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
     position: static;
     transform: none;
   }
-}
-.item-set-row {
-  position: relative;
-}
-.item-set-tooltip-trigger {
-  color: #ccc;
-  font-size: 1.1em;
-  cursor: help;
-  margin-left: 8px;
-  transition:
-    color 0.2s,
-    text-shadow 0.2s;
-}
-.item-set-tooltip-trigger:hover {
-  color: var(#ccc);
-  text-shadow: 0 0 5px var(#ccc);
-}
-.item-controls-footer {
-  justify-content: space-between;
-  margin-top: 15px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  align-items: center;
-}
-.action-buttons-group {
-  display: flex;
-  gap: 10px;
-  margin-left: auto;
-}
-@media (max-width: 768px) {
-  .item-controls-footer {
-    justify-content: flex-start;
-  }
-  .action-buttons-group {
-    margin-left: 0;
-  }
-}
-
-
-/* v87: 装備・所持品の補助メニューをモバイルで扱いやすくする */
-.enhancement-panel-container {
-  max-width: calc(100vw - 24px);
-  max-height: calc(100vh - 24px);
-  overflow: auto;
-  box-sizing: border-box;
-}
-
-.enhancement-popup-header {
-  display: none;
-}
-
-.enhancement-popup-close {
-  width: 2rem;
-  height: 2rem;
-  min-width: 2rem;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid rgba(200, 164, 100, 0.42);
-  background: rgba(0, 0, 0, 0.32);
-  color: var(--gold-color);
-  font-size: 1.2rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.enhancement-popup-close:hover,
-.enhancement-popup-close:focus-visible {
-  background: rgba(200, 164, 100, 0.18);
-  outline: none;
-}
-
-@media (max-width: 768px) {
   .enhancement-panel-container {
     left: 50%;
     top: 50%;
@@ -768,20 +731,6 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
     flex: 0 0 auto;
     padding-inline: 0.65rem;
   }
-}
-
-/* v89: 推奨アイテム表の見出しとスマホ時の追加ボタン配置を整理 */
-#recommended-items-table th {
-  background: linear-gradient(180deg, rgba(78, 48, 20, 0.92), rgba(34, 24, 18, 0.96));
-  color: #ffe6a6;
-  border-color: rgba(200, 164, 100, 0.34);
-  box-shadow: inset 0 -1px 0 rgba(200, 164, 100, 0.3);
-}
-
-#recommended-items-table .skill-cell {
-  background: rgba(28, 20, 16, 0.82);
-  color: #fff1c6;
-  border-color: rgba(200, 164, 100, 0.2);
 }
 
 @media (max-width: 700px) {

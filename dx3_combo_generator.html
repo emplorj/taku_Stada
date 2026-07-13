@@ -660,7 +660,7 @@
             </div>
             <div class="dx3-enemy-sample-actions" aria-label="コマ出力補足">
               <span class="koma-import-help dx3-koma-help"
-                >※ココフォリア用の駒JSONを出力します。公開設定・作者・立ち絵URLは下の保存情報で管理します。</span
+                >※ココフォリア用の駒JSONを出力します。公開設定・作者・立ち絵は下の保存情報で管理します。</span
               >
             </div>
           </header>
@@ -765,6 +765,15 @@
               >
                 <i class="fa-solid fa-eye"></i> 閲覧
               </button>
+              <a
+                href="boss_cutin_generator.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="action-btn is-sub enemy-boss-cutin-link"
+                title="ボスカットインジェネレーターを開く"
+              >
+                <i class="fa-solid fa-film"></i> カットイン
+              </a>
               <button
                 type="button"
                 class="action-btn is-main"
@@ -792,7 +801,7 @@
                   placeholder="例: エンJ"
               /></label>
               <label class="action-meta-field is-icon"
-                ><span>立ち絵URL</span
+                ><span>立ち絵</span
                 ><input
                   type="url"
                   v-model.trim="enemySheet.icon_url"
