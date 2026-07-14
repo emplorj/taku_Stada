@@ -347,6 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   let charAnalysisActionPlan = createCharAnalysisActionPlan();
   let charAnalysisSimulationNonce = 0;
+  let charAnalysisSettingsOpen = false;
   let charAnalysisRenderTimer = null;
   let charAnalysisEnemyParts = [];
   let charAnalysisSelectedEnemyPartIndex = 0;
@@ -952,6 +953,8 @@ document.addEventListener("DOMContentLoaded", () => {
     lvArt: { name: "アーティザン" },
     lvGeo: { name: "ジオマンサー" },
     lvAby: { name: "アビスゲイザー", magicKey: "magicPowerAby" },
+    lvDar: { name: "ダークハンター", magicKey: "magicPowerDar" },
+    lvBib: { name: "ビブリオマンサー", magicKey: "magicPowerBib" },
   };
 
   const charAnalysisSkillAliases = {
@@ -982,6 +985,8 @@ document.addEventListener("DOMContentLoaded", () => {
     Art: "アーティザン",
     Geo: "ジオマンサー",
     Aby: "アビスゲイザー",
+    Dar: "ダークハンター",
+    Bib: "ビブリオマンサー",
   };
 
   const charAnalysisMagicPowerAliases = {
@@ -2164,7 +2169,12 @@ document.addEventListener("DOMContentLoaded", () => {
       /^enhance\w*\d*$/,
       /^magicArts\d+$/,
       /^song\d+$/,
+      /^craftSong\d+$/,
+      /^magicBibliomancy\d+$/,
+      /^bibliomancyTemporary\d+$/,
+      /^mysticMagic\d+$/,
       /^riding\w*\d*$/,
+      /^craftPsychokinesis\d+$/,
     ];
     Object.entries(char || {}).forEach(([key, value]) => {
       if (!patterns.some((pattern) => pattern.test(key))) return;
@@ -2178,23 +2188,57 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function findCharAnalysisUsableRows(charData) {
+    const selectableSkillNames = new Set(["バード", "ダークハンター", "ビブリオマンサー"]);
+    const selectableRowNamesBySkill = new Map();
+    selectableSkillNames.forEach((skillName) => {
+      selectableRowNamesBySkill.set(skillName, new Set(
+        charAnalysisCsvRows
+          .filter((row) => row["技能"] === skillName)
+          .map((row) => normalizeAnalysisName(row["名称(正規)"] || row["名称(原文)"]))
+          .filter(Boolean),
+      ));
+    });
+    const learnedSelectableNamesBySkill = new Map();
+    selectableRowNamesBySkill.forEach((rowNames, skillName) => {
+      learnedSelectableNamesBySkill.set(skillName, new Set(
+        charData.learnedNames
+          .map(normalizeAnalysisName)
+          .filter((name) => rowNames.has(name)),
+      ));
+    });
     return charAnalysisCsvRows.filter((row) => {
       const skillName = row["技能"];
       const requiredLevel = toAnalysisNumber(row["Lv"], 0);
       const skill = charData.skills[skillName];
       if (!skill || requiredLevel <= 0 || skill.level < requiredLevel) return false;
+      if (String(row["区分"] || "").includes("流派秘伝") && !isCharAnalysisLearnedRow(row, charData.learnedNames)) return false;
       if (!isCharAnalysisPriestRowAllowedByFaith(row, charData)) return false;
       if (skillName === "アルケミスト" && charData.learnedNames.length) {
         const rowName = normalizeAnalysisName(row["名称(正規)"] || row["名称(原文)"]);
         const hasLearned = charData.learnedNames.some((name) => normalizeAnalysisName(name) === rowName);
         return hasLearned || charData.learnedNames.every((name) => !name.includes("賦術"));
       }
+      const learnedSelectableNames = learnedSelectableNamesBySkill.get(skillName);
+      if (learnedSelectableNames?.size) {
+        const rowName = normalizeAnalysisName(row["名称(正規)"] || row["名称(原文)"]);
+        return learnedSelectableNames.has(rowName);
+      }
       return true;
     });
   }
 
   function normalizeAnalysisName(name) {
-    return String(name || "").replace(/[《》【】\s]/g, "").trim();
+    return String(name || "").normalize("NFKC").replace(/[《》【】〖〗▶⏩△○†‡\s]/g, "").trim();
+  }
+
+  function isCharAnalysisLearnedRow(row, learnedNames = []) {
+    const rowName = normalizeAnalysisName(row?.["名称(正規)"] || row?.["名称(原文)"]);
+    if (!rowName) return false;
+    return learnedNames.some((name) => {
+      const learnedName = normalizeAnalysisName(name);
+      if (learnedName === rowName) return true;
+      return rowName.includes("ターンバックグレイス") && learnedName.includes("ターンバックグレイス");
+    });
   }
 
   function normalizeCharAnalysisFaithText(text) {
@@ -2207,6 +2251,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if ((row?.["技能"] || "") !== "プリースト") return true;
     const section = String(row?.["区分"] || "").trim();
     if (!section || section === "基本") return true;
+    if (section.includes("流派秘伝")) return true;
 
     const faithType = String(charData?.faithType || "").trim();
     if (/第一・第三|第一第三/.test(section)) return faithType !== "‡";
@@ -2228,7 +2273,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const isBullet = /バレット|ショット/.test(name) && /弾丸/.test(`${row["対象"] || ""} ${effect}`) && !/回復/.test(effect);
         if (!kMatch || (!/ダメージ/.test(effect) && !isBullet)) return null;
         const skillName = row["技能"];
-        const magicPower = charData.magicPowers[skillName] || 0;
+        const magicPower = charData.magicPowers[skillName] || charData.magicPowers[row["系統"]] || 0;
         return {
           name,
           skill: skillName,
@@ -3203,6 +3248,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderCharAnalysis() {
     const els = getCharAnalysisElements();
+    const currentSettingsDetails = document.querySelector("#panel-character-analysis .analysis-settings-details");
+    if (currentSettingsDetails) charAnalysisSettingsOpen = currentSettingsDetails.open;
     updateCharAnalysisBattleModeUi();
     if (!charAnalysisCurrent) {
       setCharAnalysisResultsVisible(false);
@@ -4178,7 +4225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return `<div class="analysis-attack-picker-area analysis-action-plan-only">
       <div class="analysis-attack-picker-detail">
         ${charAnalysisCurrent?.charData ? renderCharAnalysisActionPlan(charAnalysisCurrent.charData, options, declarations, declarationLimit) : ""}
-        <details class="analysis-settings-details"><summary><i class="fa-solid fa-sliders"></i> 試行・判定設定</summary>${renderAnalysisSettingsControls(settings)}</details>
+        <details class="analysis-settings-details" ${charAnalysisSettingsOpen ? "open" : ""}><summary><i class="fa-solid fa-sliders"></i> 試行・判定設定</summary>${renderAnalysisSettingsControls(settings)}</details>
       </div>
     </div>`;
   }
@@ -5846,6 +5893,7 @@ document.addEventListener("DOMContentLoaded", () => {
       charAnalysisManualAdjust = createCharAnalysisManualAdjust();
       charAnalysisAlchemySettings = createCharAnalysisAlchemySettings();
       charAnalysisSimulationNonce = 0;
+      charAnalysisSettingsOpen = false;
       charAnalysisActionPlan = createCharAnalysisActionPlan();
       charAnalysisCurrent = { charData, usableRows, attackSpells, supportEffects, declarationFeats, declarationLimit };
       renderCharAnalysis();
