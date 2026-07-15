@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="css/247_guild_common.css" />
   <link rel="stylesheet" href="css/247_guild.css" />
-  <link rel="stylesheet" href="css/sw25_generator.css" />
+    <link rel="stylesheet" href="css/sw25_generator.css?v=20260716y" />
   <!-- Fonts and Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -531,16 +531,20 @@
 
               <div class="analysis-input-row">
                 <div class="analysis-card analysis-input-card compact">
-                  <h4><i class="fa-solid fa-link"></i> ゆとシートURL</h4>
-                  <div class="analysis-url-row">
-                    <input type="url" id="char-analysis-url" placeholder="https://yutorize.2-d.jp/ytsheet/sw2.5/?id=..." />
+                  <h4><i class="fa-solid fa-link"></i> ゆとシートURL <small>PC・騎獣をまとめて読込</small></h4>
+                  <div class="analysis-url-row analysis-url-row-multiple">
+                    <textarea id="char-analysis-url" rows="3" placeholder="PC・騎獣のゆとシートURLを入力（複数可）&#10;改行またはカンマ区切りに対応"></textarea>
                     <button type="button" id="char-analysis-load-btn" class="add-row-btn">
                       <i class="fa-solid fa-magnifying-glass-chart"></i> 取得して分析
                     </button>
                   </div>
-                  <p class="analysis-note">URLからJSONを取得して、そのまま分析します。JSON貼り付け欄は使いません。</p>
+                  <p class="analysis-note">URLからJSONを取得し、PCと騎獣を自動で振り分けます。複数URLは改行・半角カンマ・全角カンマで区切れます。</p>
+                  <div id="char-analysis-character-list" class="analysis-character-list" hidden aria-label="読み込んだキャラクター一覧"></div>
                 </div>
               </div>
+
+              <section id="char-analysis-party-buffs" class="analysis-card analysis-card-wide analysis-party-buffs-card" hidden aria-label="パーティバフ割り当て"></section>
+              <section id="char-analysis-mounts" class="analysis-card analysis-card-wide analysis-mounts-card" hidden aria-label="騎獣一覧"></section>
 
               <div id="char-analysis-status" class="analysis-status" aria-live="polite"></div>
 
@@ -570,7 +574,7 @@
                   </section>
 
                   <section class="analysis-card analysis-enemy-card analysis-enemy-compact-card">
-                    <details class="analysis-enemy-details" open>
+                    <details class="analysis-enemy-details">
                       <summary class="analysis-enemy-summary">
                         <span class="analysis-enemy-summary-title"><i class="fa-solid fa-skull"></i> 敵/対戦相手データ（任意）</span>
                         <span class="analysis-enemy-summary-hint">開閉</span>
@@ -631,11 +635,13 @@
                   <div id="char-analysis-adjusted" class="analysis-output muted">補助効果や敵値を設定すると更新されます。</div>
                 </section>
 
-                <section class="analysis-card analysis-card-wide">
-                  <h4><i class="fa-solid fa-list-check"></i> 仕様メモ</h4>
-                  <div id="char-analysis-implementation" class="analysis-output muted">v0.1では単体対象の平均ダメージを中心に計算します。対応: 命中/回避、行使/抵抗、威力表、C値、追加D、防護点、抵抗:半減、判定確実化、威力確実化。平均ダメージ/Rは理論期待値として自動計算し、多数試行はボタン実行時に通常・上振れ・下振れの簡易パターンを試せます。相手が回避/抵抗するかは計算条件で切り替えます。未対応: 範囲攻撃の複数体期待値、複数部位、継続ダメージ、弱点属性補正、薬師道具セット、特殊効果の完全自動反映。</div>
-                </section>
               </div>
+              <section class="analysis-card analysis-card-wide analysis-implementation-card">
+                <details class="analysis-implementation-details">
+                  <summary><span><i class="fa-solid fa-list-check"></i> 仕様・未対応項目</span><small>必要なときに確認</small></summary>
+                  <div id="char-analysis-implementation" class="analysis-output muted">v0.1では単体対象の平均ダメージを中心に計算します。対応: 命中/回避、行使/抵抗、威力表、C値、追加D、防護点、抵抗:半減、判定確実化、威力確実化。平均ダメージ/Rは理論期待値として自動計算し、多数試行はボタン実行時に通常・上振れ・下振れの簡易パターンを試せます。相手が回避/抵抗するかは計算条件で切り替えます。未対応: 範囲攻撃の複数体期待値、複数部位、継続ダメージ、弱点属性補正、薬師道具セット、特殊効果の完全自動反映。</div>
+                </details>
+              </section>
             </div>
           </form>
         </div>
@@ -814,7 +820,7 @@
   <!-- Scripts -->
   <script src="../js/common.js"></script>
   <script src="./data/sw25_data.js"></script>
-  <script src="./js/sw25_generator.js?v=20260715b"></script>
+    <script src="./js/sw25_generator.js?v=20260716n"></script>
 </body>
 
 </html>

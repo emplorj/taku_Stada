@@ -4739,7 +4739,7 @@ top: 50%;
 }
 
 #panel-character-analysis .analysis-action-declaration-select-row::after {
-top: calc(1.1rem + 50%);
+top: calc(0.34rem + 1.175rem);
   transform: translateY(-50%);
 }
 
@@ -4919,6 +4919,99 @@ align-content: start;
 
 #panel-character-analysis .analysis-action-slot-main-select, #panel-character-analysis .analysis-action-declaration-select-row {
 position: relative;
+}
+
+#panel-character-analysis .analysis-mount-action-selects {
+display: grid;
+  grid-template-columns: minmax(8.5rem, 0.42fr) minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: end;
+}
+
+#panel-character-analysis .analysis-mount-command-consumption {
+display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin: 0 0 0.45rem;
+  padding: 0.48rem 0.6rem;
+  border: 1px solid rgba(255, 183, 77, 0.48);
+  border-radius: 0.4rem;
+  background: rgba(120, 65, 10, 0.22);
+  color: #ffe1a1;
+}
+
+#panel-character-analysis .analysis-mount-command-consumption.is-automatic {
+border-color: rgba(101, 191, 184, 0.38);
+  background: rgba(25, 66, 64, 0.2);
+  color: #cde9e5;
+}
+
+#panel-character-analysis .analysis-mount-command-consumption.is-automatic small {
+color: rgba(205, 233, 229, 0.74);
+}
+
+#panel-character-analysis .analysis-mount-command-consumption small {
+grid-column: 2 / -1;
+  color: rgba(255, 225, 161, 0.74);
+}
+
+#panel-character-analysis .analysis-mount-action-selects label {
+display: grid;
+  grid-template-rows: 1rem 2.35rem;
+  gap: 0.2rem;
+  min-width: 0;
+  position: relative;
+  color: rgba(255, 234, 184, 0.82);
+  font-size: 0.78rem;
+}
+
+#panel-character-analysis .analysis-action-slot-main-select.is-mount-select::after {
+display: none;
+}
+
+#panel-character-analysis .analysis-mount-action-selects label::after {
+content: "";
+  position: absolute;
+  right: 0.78rem;
+  top: calc(1.2rem + 1.175rem);
+  width: 0;
+  height: 0;
+  border-left: 0.34rem solid transparent;
+  border-right: 0.34rem solid transparent;
+  border-top: 0.42rem solid #f1d48a;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+#panel-character-analysis .analysis-mount-action-selects select {
+display: block;
+  width: 100%;
+  min-width: 0;
+  height: 2.35rem;
+  box-sizing: border-box;
+  margin: 0;
+  padding-right: 2rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+}
+
+#panel-character-analysis .analysis-mount-effect-route-note {
+margin: 0 0 0.45rem;
+  padding: 0.42rem 0.55rem;
+  border: 1px solid rgba(101, 191, 184, 0.3);
+  border-radius: 0.35rem;
+  background: rgba(37, 89, 86, 0.18);
+}
+
+@media (max-width: 620px) {
+  #panel-character-analysis .analysis-mount-action-selects {
+  grid-template-columns: 1fr;
+  }
+
 }
 
 #panel-character-analysis .analysis-action-slot-main-select select.char-analysis-action-slot-select, #panel-character-analysis select.char-analysis-action-slot-declaration-select {
@@ -6973,6 +7066,71 @@ grid-template-columns: minmax(0, 1fr);
   }
 }
 
+
+/* v71: 戦闘プランを固定表示しない。後続の仕様カードへ重なり込ませない */
+@media (min-width: 1181px) {
+  #panel-character-analysis .analysis-plan-card {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    box-shadow: none;
+  }
+
+  #panel-character-analysis .analysis-plan-card .analysis-plan-header-row {
+    position: static;
+    margin: 0 0 0.55rem;
+    padding: 0 0 0.55rem;
+    background: transparent;
+    backdrop-filter: none;
+  }
+}
+
+/* v72: 戦闘プランは情報を重ねず、一段ずつの枠線と余白で見せる */
+#panel-character-analysis .analysis-plan-card {
+  padding: 0.75rem;
+}
+
+#panel-character-analysis .analysis-plan-layout,
+#panel-character-analysis .analysis-plan-left {
+  gap: 0;
+}
+
+#panel-character-analysis .analysis-action-result-box {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+#panel-character-analysis .analysis-action-result-box > * + * {
+  margin-top: 0.45rem;
+}
+
+#panel-character-analysis .analysis-action-match-list {
+  gap: 0.35rem;
+}
+
+#panel-character-analysis .analysis-action-slot-match-card {
+  padding: 0.38rem;
+  border-radius: 0.45rem;
+}
+
+#panel-character-analysis .analysis-mount-action-plan {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.55rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(116, 169, 182, 0.5);
+  border-radius: 0.45rem;
+  background: rgba(37, 67, 74, 0.14);
+}
+#panel-character-analysis .analysis-mount-action-plan > header { display:flex; gap:0.5rem; align-items:baseline; justify-content:space-between; }
+#panel-character-analysis .analysis-mount-action-plan header strong { color:#c9f0f3; }
+#panel-character-analysis .analysis-mount-action-plan header span { font-size:0.74rem; opacity:0.78; }
+#panel-character-analysis .analysis-mount-action-plan header em { color:#ffe36f; font-style:normal; }
+#panel-character-analysis .analysis-mount-action-match { min-height:5.25rem; border-color:rgba(116,169,182,0.5); background:rgba(37,67,74,0.22); }
+#panel-character-analysis .analysis-mount-action-match .analysis-match-side { min-width:0; }
+
 /* v51: 戦闘準備モードの視認性調整。率表示を火花より前面に固定し、先制カードも同じ構造で扱う */
 #panel-character-analysis .analysis-scout-match-summary .analysis-match-result-head,
 #panel-character-analysis .analysis-scout-match-summary .analysis-scout-rate-row,
@@ -7072,7 +7230,7 @@ grid-template-columns: minmax(0, 1fr);
 #panel-character-analysis .analysis-control-grid input[type="number"],
 #panel-character-analysis .analysis-manual-grid input[type="number"],
 #panel-character-analysis .analysis-match-result-head .analysis-match-rate b,
-#panel-character-analysis .analysis-match-statline b,
+#panel-character-analysis .analysis-match-statline .analysis-stat-value,
 #panel-character-analysis .analysis-dice-input > span,
 #panel-character-analysis .analysis-kpi strong,
 #panel-character-analysis .analysis-metric strong,
@@ -7092,7 +7250,7 @@ grid-template-columns: minmax(0, 1fr);
 }
 
 #panel-character-analysis .analysis-match-result-head .analysis-match-rate b,
-#panel-character-analysis .analysis-match-statline b,
+#panel-character-analysis .analysis-match-statline .analysis-stat-value,
 #panel-character-analysis .analysis-kpi strong,
 #panel-character-analysis .analysis-metric strong,
 #panel-character-analysis .analysis-definition-list dd {
@@ -7108,4 +7266,921 @@ grid-template-columns: minmax(0, 1fr);
   font-variant-numeric: tabular-nums;
   font-size: 1.2rem;
   line-height: 1.1;
+}
+
+/* v65: キャラシ分析の操作導線を短縮し、結果を先に読めるワークスペースへ整理 */
+#panel-character-analysis {
+  --analysis-workspace-gap: 12px;
+}
+
+#panel-character-analysis > .analysis-lead {
+  max-width: 78rem;
+  margin: 0.55rem 0 0.85rem;
+  color: rgba(244, 226, 188, 0.82);
+  line-height: 1.65;
+}
+
+#panel-character-analysis .analysis-input-card.compact {
+  padding: 0.75rem 0.85rem;
+  border-color: rgba(215, 165, 67, 0.42);
+  background: linear-gradient(135deg, rgba(37, 23, 15, 0.92), rgba(22, 14, 11, 0.9));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+#panel-character-analysis .analysis-input-card.compact h4 {
+  margin-bottom: 0.55rem;
+}
+
+#panel-character-analysis .analysis-url-row {
+  gap: 0.55rem;
+}
+
+#panel-character-analysis #char-analysis-load-btn {
+  min-width: 9.5rem;
+  min-height: 2.35rem;
+  border-color: rgba(255, 215, 112, 0.62);
+  box-shadow: 0 4px 14px rgba(31, 70, 155, 0.24);
+}
+
+#panel-character-analysis .analysis-controls-card.is-attack-mode {
+  display: none;
+}
+
+#panel-character-analysis .analysis-result-grid {
+  gap: var(--analysis-workspace-gap);
+  overflow: visible;
+}
+
+#panel-character-analysis .analysis-left-stack {
+  gap: var(--analysis-workspace-gap);
+}
+
+#panel-character-analysis .analysis-overview-card {
+  padding-block: 0.7rem;
+}
+
+#panel-character-analysis .analysis-overview-card > h4 {
+  margin-bottom: 0.5rem;
+}
+
+#panel-character-analysis .analysis-overview-compact.is-text-only {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.65rem;
+}
+
+#panel-character-analysis .analysis-overview-compact.is-text-only > span {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(211, 169, 86, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+#panel-character-analysis .analysis-overview-compact.is-text-only .analysis-overview-name {
+  margin-right: 0.15rem;
+  font-size: 1.08rem;
+}
+
+#panel-character-analysis .analysis-effects-card .analysis-output,
+#panel-character-analysis #char-analysis-effects {
+  max-height: clamp(150px, 26vh, 250px);
+  scrollbar-gutter: stable;
+}
+
+#panel-character-analysis .analysis-enemy-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+#panel-character-analysis .analysis-enemy-summary {
+  min-height: 2.65rem;
+  padding: 0.65rem 0.8rem;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+#panel-character-analysis .analysis-enemy-details[open] .analysis-enemy-summary {
+  border-bottom: 1px solid rgba(215, 165, 67, 0.2);
+  background: rgba(197, 132, 33, 0.08);
+}
+
+#panel-character-analysis .analysis-enemy-details > .analysis-setup-enemy {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+#panel-character-analysis .analysis-plan-header-row {
+  gap: 0.65rem;
+  margin-bottom: 0.55rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(215, 165, 67, 0.2);
+}
+
+#panel-character-analysis .analysis-battle-mode-control {
+  padding: 0.25rem 0.3rem 0.25rem 0.6rem;
+  border: 1px solid rgba(215, 165, 67, 0.24);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+#panel-character-analysis .analysis-battle-mode-control select {
+  min-height: 2rem;
+  border-radius: 999px;
+}
+
+#panel-character-analysis .analysis-simulation-box {
+  margin-top: 0.65rem;
+}
+
+#panel-character-analysis .analysis-representative-details {
+  margin-top: 0.65rem;
+  overflow: hidden;
+  border: 1px solid rgba(200, 164, 100, 0.24);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+#panel-character-analysis .analysis-representative-details > summary,
+#panel-character-analysis .analysis-implementation-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  color: #f0cf7c;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+}
+
+#panel-character-analysis .analysis-representative-details > summary::-webkit-details-marker,
+#panel-character-analysis .analysis-implementation-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+#panel-character-analysis .analysis-representative-details > summary::before,
+#panel-character-analysis .analysis-implementation-details > summary::before {
+  content: "▸";
+  flex: 0 0 auto;
+  transition: transform 0.16s ease;
+}
+
+#panel-character-analysis .analysis-representative-details[open] > summary::before,
+#panel-character-analysis .analysis-implementation-details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+#panel-character-analysis .analysis-representative-details > summary > span,
+#panel-character-analysis .analysis-implementation-details > summary > span {
+  margin-right: auto;
+}
+
+#panel-character-analysis .analysis-representative-details > summary small,
+#panel-character-analysis .analysis-implementation-details > summary small {
+  color: rgba(234, 216, 178, 0.64);
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+
+#panel-character-analysis .analysis-representative-logs {
+  margin: 0;
+  padding: 0.7rem;
+  border: 0;
+  border-top: 1px solid rgba(200, 164, 100, 0.18);
+  border-radius: 0;
+}
+
+#panel-character-analysis .analysis-implementation-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+#panel-character-analysis .analysis-implementation-details > #char-analysis-implementation {
+  padding: 0.75rem 0.85rem 0.9rem;
+  border-top: 1px solid rgba(200, 164, 100, 0.18);
+  line-height: 1.7;
+}
+
+@media (min-width: 1181px) {
+  #panel-character-analysis .analysis-plan-card {
+    position: sticky;
+    top: 0.75rem;
+    align-self: start;
+    max-height: calc(100vh - 1.5rem);
+    overflow: auto;
+    scrollbar-gutter: stable;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
+  }
+
+  #panel-character-analysis .analysis-plan-card .analysis-plan-header-row {
+    position: sticky;
+    top: -0.75rem;
+    z-index: 20;
+    margin: -0.75rem -0.75rem 0.65rem;
+    padding: 0.75rem;
+    background: rgba(28, 17, 12, 0.97);
+    backdrop-filter: blur(8px);
+  }
+}
+
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-url-row {
+    grid-template-columns: 1fr;
+  }
+
+  #panel-character-analysis #char-analysis-load-btn {
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-representative-details > summary small,
+  #panel-character-analysis .analysis-implementation-details > summary small {
+    display: none;
+  }
+}
+
+/* v66: 対戦カード内の式・種別を主数値に次ぐサイズへ統一 */
+#panel-character-analysis .analysis-match-statline .analysis-stat-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-match-statline .analysis-stat-chip > b {
+  flex: 0 0 auto;
+  margin: 0;
+  color: #e0b45f;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+#panel-character-analysis .analysis-match-statline .analysis-stat-value {
+  min-width: 0;
+  color: #fff0bf;
+  font-family: var(--font-latin-ui, "ExcelsiorSans", "HigashiOme-Gothic-C", "Yu Gothic", "Meiryo", sans-serif);
+  font-size: clamp(0.82rem, 0.86vw, 0.88rem);
+  font-weight: var(--font-latin-ui-weight, 300);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-url-row-multiple {
+  align-items: stretch;
+}
+
+#panel-character-analysis .analysis-url-row-multiple textarea {
+  flex: 1 1 360px;
+  min-width: 0;
+  min-height: 4.8rem;
+  resize: vertical;
+}
+
+#panel-character-analysis .analysis-character-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+#panel-character-analysis .analysis-character-chip {
+  min-height: 2.25rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--color-border, currentColor);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+#panel-character-analysis .analysis-character-chip.is-active {
+  background: var(--color-main);
+  color: var(--color-white);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  #panel-character-analysis .analysis-url-row-multiple {
+    flex-direction: column;
+  }
+
+  #panel-character-analysis .analysis-url-row-multiple button {
+    width: 100%;
+  }
+}
+
+#panel-character-analysis .analysis-character-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+#panel-character-analysis .analysis-character-sheet-link {
+  display: inline-grid;
+  place-items: center;
+  width: 2.1rem;
+  min-width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid var(--color-border, currentColor);
+  border-radius: 50%;
+  color: var(--color-link, inherit);
+  text-decoration: none;
+}
+
+#panel-character-analysis .analysis-character-sheet-link:hover,
+#panel-character-analysis .analysis-character-sheet-link:focus-visible {
+  background: var(--color-bg-sub, rgba(255, 255, 255, 0.08));
+}
+
+
+/* パーティバフ割り当て */
+#panel-character-analysis .analysis-party-buffs-card {
+  display: grid;
+  gap: 0.65rem;
+}
+#panel-character-analysis .analysis-party-buff-intro {
+  line-height: 1.65;
+}
+#panel-character-analysis .analysis-party-caster {
+  border: 1px solid var(--color-border, currentColor);
+  border-radius: 0.55rem;
+  overflow: clip;
+}
+#panel-character-analysis .analysis-party-caster > summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+}
+#panel-character-analysis .analysis-party-caster > summary span {
+  opacity: 0.75;
+  font-size: 0.82rem;
+}
+#panel-character-analysis .analysis-party-buff-list {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0 0.65rem 0.65rem;
+}
+#panel-character-analysis .analysis-party-buff-row {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) minmax(16rem, 1.25fr);
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--color-border, currentColor) 70%, transparent);
+  border-radius: 0.45rem;
+}
+#panel-character-analysis .analysis-party-buff-row.is-assigned {
+  border-color: var(--color-main);
+}
+#panel-character-analysis .analysis-party-buff-head {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+#panel-character-analysis .analysis-party-buff-head span,
+#panel-character-analysis .analysis-party-buff-head em {
+  font-size: 0.78rem;
+  font-style: normal;
+  opacity: 0.82;
+}
+#panel-character-analysis .analysis-party-target-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+#panel-character-analysis .analysis-party-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2rem;
+  padding: 0.28rem 0.5rem;
+  border: 1px solid var(--color-border, currentColor);
+  border-radius: 999px;
+  cursor: pointer;
+}
+#panel-character-analysis .analysis-party-target:has(input:checked) {
+  border-color: var(--color-main);
+  background: color-mix(in srgb, var(--color-main) 18%, transparent);
+}
+#panel-character-analysis .analysis-party-target.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-party-buff-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* キャラシ読込欄は日本語を含むため英数字専用フォントを使わない */
+#panel-character-analysis .analysis-input-card.compact,
+#panel-character-analysis .analysis-input-card.compact textarea,
+#panel-character-analysis .analysis-input-card.compact button,
+#panel-character-analysis .analysis-input-card.compact .analysis-character-chip,
+#panel-character-analysis .analysis-input-card.compact .analysis-character-sheet-link {
+  font-family: inherit;
+}
+#panel-character-analysis .analysis-incoming-party-effects {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+  padding: 0.55rem;
+  border: 1px solid var(--color-main);
+  border-radius: 0.45rem;
+}
+#panel-character-analysis .analysis-incoming-party-effects > span {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) auto 1fr;
+  gap: 0.45rem;
+  align-items: baseline;
+}
+#panel-character-analysis .analysis-incoming-party-effects em,
+#panel-character-analysis .analysis-incoming-party-effects small {
+  font-style: normal;
+  opacity: 0.82;
+}
+@media (max-width: 640px) {
+  #panel-character-analysis .analysis-incoming-party-effects > span {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+}
+
+/* パーティバフ設定は分析本体より控えめな折りたたみUIにする */
+#panel-character-analysis .analysis-party-buffs-card {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+#panel-character-analysis .analysis-party-buffs-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2.65rem;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+#panel-character-analysis .analysis-party-buffs-details > summary::-webkit-details-marker {
+  display: none;
+}
+#panel-character-analysis .analysis-party-buffs-details > summary > span {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+#panel-character-analysis .analysis-party-buffs-details > summary small {
+  font-size: 0.76rem;
+  font-weight: 400;
+  opacity: 0.66;
+}
+#panel-character-analysis .analysis-party-buffs-details > summary em,
+#panel-character-analysis .analysis-party-assigned-count {
+  font-size: 0.72rem;
+  font-style: normal;
+  white-space: nowrap;
+  opacity: 0.78;
+}
+#panel-character-analysis .analysis-party-buffs-details > summary::before,
+#panel-character-analysis .analysis-party-caster > summary::before {
+  content: "▸";
+  flex: 0 0 auto;
+  transition: transform 0.16s ease;
+}
+#panel-character-analysis .analysis-party-buffs-details[open] > summary::before,
+#panel-character-analysis .analysis-party-caster[open] > summary::before {
+  transform: rotate(90deg);
+}
+#panel-character-analysis .analysis-party-buffs-body {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0 0.65rem 0.65rem;
+}
+#panel-character-analysis .analysis-party-buff-intro {
+  margin: 0;
+  padding: 0.38rem 0.5rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  opacity: 0.72;
+}
+#panel-character-analysis .analysis-party-caster {
+  border-radius: 0.4rem;
+}
+#panel-character-analysis .analysis-party-caster > summary {
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.25rem;
+  padding: 0.38rem 0.55rem;
+}
+#panel-character-analysis .analysis-party-caster-title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+#panel-character-analysis .analysis-party-buff-list {
+  gap: 0.25rem;
+  padding: 0 0.4rem 0.4rem;
+}
+#panel-character-analysis .analysis-party-buff-row {
+  grid-template-columns: minmax(12rem, 1fr) minmax(14rem, 1.1fr);
+  gap: 0.4rem;
+  padding: 0.38rem 0.45rem;
+  border-radius: 0.35rem;
+}
+#panel-character-analysis .analysis-party-buff-head {
+  gap: 0.1rem;
+}
+#panel-character-analysis .analysis-party-buff-head strong {
+  font-size: 0.84rem;
+}
+#panel-character-analysis .analysis-party-buff-head span,
+#panel-character-analysis .analysis-party-buff-head em {
+  font-size: 0.7rem;
+}
+#panel-character-analysis .analysis-party-target-list {
+  gap: 0.2rem;
+}
+#panel-character-analysis .analysis-party-target {
+  gap: 0.22rem;
+  min-height: 1.65rem;
+  padding: 0.16rem 0.38rem;
+  border-radius: 0.35rem;
+  font-size: 0.72rem;
+}
+#panel-character-analysis .analysis-party-target input {
+  width: 0.82rem;
+  height: 0.82rem;
+  margin: 0;
+}
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-party-buffs-details > summary {
+    align-items: flex-start;
+  }
+  #panel-character-analysis .analysis-party-buff-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* v67: パーティ運用時も、設定・適用状況・戦闘結果を追いやすくする */
+@media (min-width: 1241px) {
+  #panel-character-analysis .analysis-result-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
+  }
+}
+
+#panel-character-analysis .analysis-party-buffs-card {
+  border-color: color-mix(in srgb, var(--color-main) 42%, var(--color-border, currentColor));
+  background: linear-gradient(135deg, rgba(215, 165, 67, 0.075), rgba(20, 14, 12, 0.25));
+}
+
+#panel-character-analysis .analysis-party-buffs-details > summary {
+  min-height: 2.9rem;
+}
+
+#panel-character-analysis .analysis-party-buffs-details > summary > span > strong {
+  font-size: 0.95rem;
+}
+
+#panel-character-analysis .analysis-party-buffs-details > summary > em {
+  padding: 0.16rem 0.42rem;
+  border: 1px solid color-mix(in srgb, var(--color-main) 45%, transparent);
+  border-radius: 999px;
+  color: var(--color-main);
+}
+
+#panel-character-analysis .analysis-effects-card:has(.analysis-incoming-party-effects) #char-analysis-effects {
+  max-height: clamp(240px, 38vh, 390px);
+}
+
+#panel-character-analysis .analysis-incoming-party-effects {
+  gap: 0.4rem;
+  padding: 0.6rem 0.65rem;
+  border-color: color-mix(in srgb, var(--color-main) 68%, var(--color-border, currentColor));
+  background: color-mix(in srgb, var(--color-main) 8%, transparent);
+}
+
+#panel-character-analysis .analysis-incoming-party-effects > strong {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+}
+
+#panel-character-analysis .analysis-incoming-party-effects > strong::before {
+  content: "適用中";
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  background: var(--color-main);
+  color: var(--color-bg, #1b120e);
+  font-size: 0.64rem;
+  line-height: 1.25;
+}
+
+#panel-character-analysis .analysis-incoming-party-effects > span {
+  padding: 0.28rem 0.35rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border, currentColor) 45%, transparent);
+}
+
+/* v68: パーティ時の情報密度を保ちつつ、デスクトップの左右配置を安定させる */
+#panel-character-analysis .analysis-party-buffs-details[open] > summary {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-main) 30%, transparent);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+#panel-character-analysis .analysis-party-caster[open] {
+  border-color: color-mix(in srgb, var(--color-main) 50%, var(--color-border, currentColor));
+}
+
+#panel-character-analysis .analysis-party-caster > summary:focus-visible,
+#panel-character-analysis .analysis-party-buffs-details > summary:focus-visible {
+  outline: 2px solid var(--color-main);
+  outline-offset: -2px;
+}
+
+#panel-character-analysis .analysis-party-buff-row {
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-party-buff-head,
+#panel-character-analysis .analysis-party-target-list {
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-party-buff-head strong,
+#panel-character-analysis .analysis-party-buff-head span,
+#panel-character-analysis .analysis-party-buff-head em {
+  overflow-wrap: anywhere;
+}
+
+#panel-character-analysis .analysis-party-target {
+  transition: border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+#panel-character-analysis .analysis-party-target:focus-within {
+  border-color: var(--color-main);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-main) 24%, transparent);
+}
+
+@media (min-width: 1181px) {
+  /* 画面全体ではなく、サイドバーを除いた実作業幅で2列を維持する */
+  #panel-character-analysis .analysis-result-grid {
+    grid-template-columns: minmax(20rem, 0.96fr) minmax(22rem, 1.04fr);
+    align-items: start;
+  }
+
+  #panel-character-analysis .analysis-left-stack {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  #panel-character-analysis .analysis-plan-card {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-party-buffs-details > summary > span {
+    gap: 0.2rem 0.45rem;
+  }
+
+  #panel-character-analysis .analysis-party-buffs-details > summary > em {
+    align-self: center;
+  }
+}
+
+/* v69: パーティ配布の操作中も候補一覧を動かさず、騎獣効果をPC補正から分離 */
+#panel-character-analysis .analysis-plan-header-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+#panel-character-analysis .analysis-plan-header-row > h4 {
+  min-width: 0;
+  margin: 0;
+  line-height: 1.25;
+}
+
+#panel-character-analysis .analysis-battle-mode-control {
+  align-self: center;
+}
+
+#panel-character-analysis .analysis-effect-item.is-mount-only {
+  border-color: color-mix(in srgb, #6fa8b8 48%, var(--color-border, currentColor));
+  background: linear-gradient(90deg, rgba(83, 137, 155, 0.12), transparent);
+}
+
+#panel-character-analysis .analysis-effect-item.is-mount-only .analysis-effect-auto-badge.is-mount {
+  background: #4e8797;
+  color: #f4fbfd;
+}
+
+#panel-character-analysis .analysis-effect-item.is-mount-only .analysis-effect-body {
+  opacity: 0.82;
+}
+
+@media (max-width: 900px) {
+  #panel-character-analysis .analysis-plan-header-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}
+
+/* v70: 騎獣はPC本体と分け、複数の乗り手・騎獣を対応付ける */
+#panel-character-analysis .analysis-mount-input-card h4 small {
+  margin-left: 0.35rem;
+  color: rgba(244, 226, 188, 0.62);
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+
+#panel-character-analysis .analysis-mounts-card {
+  border-color: color-mix(in srgb, #74a9b6 42%, var(--color-border, currentColor));
+  background: linear-gradient(135deg, rgba(64, 121, 139, 0.12), rgba(20, 14, 12, 0.2));
+}
+
+#panel-character-analysis .analysis-mounts-card > h4 {
+  margin-bottom: 0.45rem;
+}
+
+#panel-character-analysis .analysis-mount-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.65rem;
+}
+
+#panel-character-analysis .analysis-mount-card {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid color-mix(in srgb, #74a9b6 52%, var(--color-border, currentColor));
+  border-radius: 0.5rem;
+  background: rgba(10, 18, 22, 0.32);
+}
+
+#panel-character-analysis .analysis-mount-card > header,
+#panel-character-analysis .analysis-mount-rider-label,
+#panel-character-analysis .analysis-mount-part {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+#panel-character-analysis .analysis-mount-card > header strong {
+  min-width: 0;
+  color: #d8f3f5;
+  overflow-wrap: anywhere;
+}
+
+#panel-character-analysis .analysis-mount-card > header span,
+#panel-character-analysis .analysis-mount-level,
+#panel-character-analysis .analysis-mount-card > footer {
+  color: rgba(220, 239, 241, 0.76);
+  font-size: 0.76rem;
+}
+
+#panel-character-analysis .analysis-mount-rider-label {
+  align-items: baseline;
+  font-size: 0.8rem;
+}
+
+#panel-character-analysis .analysis-mount-rider-label select {
+  min-width: 0;
+  max-width: 17rem;
+  flex: 1 1 11rem;
+}
+
+#panel-character-analysis .analysis-mount-level {
+  margin: 0;
+  padding: 0.35rem 0.45rem;
+  border-radius: 0.3rem;
+  background: rgba(116, 169, 182, 0.1);
+}
+
+#panel-character-analysis .analysis-mount-effect-details {
+  border: 1px solid color-mix(in srgb, #74a9b6 32%, transparent);
+  border-radius: 0.35rem;
+}
+
+#panel-character-analysis .analysis-mount-effect-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0.45rem;
+  color: #bfe9ee;
+  font-size: 0.76rem;
+}
+
+#panel-character-analysis .analysis-mount-effect-summary small {
+  color: rgba(220, 239, 241, 0.7);
+  font-size: 0.68rem;
+}
+
+#panel-character-analysis .analysis-mount-effect-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, max-content));
+  align-items: center;
+  gap: 0.28rem 0.4rem;
+  padding: 0 0.45rem 0.4rem;
+  font-size: 0.72rem;
+}
+
+#panel-character-analysis .analysis-mount-effect-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.12rem 0.28rem;
+  border: 1px solid rgba(190, 226, 230, 0.22);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-mount-effect-toggle.is-enabled {
+  border-color: rgba(125, 211, 196, 0.72);
+  background: rgba(53, 150, 133, 0.16);
+}
+
+#panel-character-analysis .analysis-mount-effect-toggle small {
+  color: #f0ce79;
+  font-size: 0.64rem;
+}
+
+#panel-character-analysis .analysis-mount-part-list {
+  display: grid;
+  gap: 0.25rem;
+}
+
+#panel-character-analysis .analysis-mount-abilities { border:1px solid rgba(116,169,182,.32); border-radius:.35rem; }
+#panel-character-analysis .analysis-mount-abilities summary { padding:.35rem .45rem; cursor:pointer; color:#c9f0f3; font-size:.76rem; }
+#panel-character-analysis .analysis-mount-abilities summary small { opacity:.7; }
+#panel-character-analysis .analysis-mount-ability { display:flex; flex-wrap:wrap; gap:.25rem .45rem; padding:.3rem .45rem; border-top:1px solid rgba(116,169,182,.18); font-size:.72rem; }
+#panel-character-analysis .analysis-mount-ability label { display:inline-flex; align-items:center; gap:.18rem; color:#d7f0e9; cursor:pointer; }
+#panel-character-analysis .analysis-mount-ability label input { accent-color:#55c9b7; }
+#panel-character-analysis .analysis-mount-ability.is-locked { opacity:.46; }
+#panel-character-analysis .analysis-mount-ability span, #panel-character-analysis .analysis-mount-ability small { opacity:.76; }
+
+#panel-character-analysis .analysis-mount-part {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  padding: 0.35rem 0.42rem;
+  border-top: 1px solid color-mix(in srgb, #74a9b6 30%, transparent);
+  font-size: 0.76rem;
+}
+
+#panel-character-analysis .analysis-mount-part strong {
+  min-width: 5.5rem;
+  color: #f0d17a;
+}
+
+#panel-character-analysis .analysis-mount-card > footer {
+  padding-top: 0.35rem;
+  border-top: 1px solid color-mix(in srgb, #74a9b6 30%, transparent);
+}
+
+@media (max-width: 640px) {
+  #panel-character-analysis .analysis-mount-card > header,
+  #panel-character-analysis .analysis-mount-rider-label {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #panel-character-analysis .analysis-mount-rider-label select {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* サイドバー込みの中幅では、左右を圧縮せず分析カードを縦に並べる。 */
+@media (max-width: 1400px) {
+  #panel-character-analysis .analysis-input-grid,
+  #panel-character-analysis .analysis-result-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-left-stack,
+  #panel-character-analysis .analysis-plan-card,
+  #panel-character-analysis .analysis-implementation-card {
+    grid-column: 1;
+    grid-row: auto;
+    min-width: 0;
+    max-width: 100%;
+  }
 }

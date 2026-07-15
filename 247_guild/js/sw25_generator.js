@@ -134,7 +134,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let charAnalysisCsvRows = [];
   let charAnalysisCurrent = null;
   let charAnalysisRawText = "";
+  let charAnalysisCharacters = [];
+  let charAnalysisPartyBuffAssignments = {};
+  let charAnalysisMounts = [];
+  let charAnalysisMountRiderAssignments = {};
+  let charAnalysisMountEffectEnabled = {};
+  let charAnalysisMountAbilityEnabled = {};
+  let charAnalysisActiveCharacterIndex = -1;
   let charAnalysisSelectedEffectIds = new Set();
+  let charAnalysisSelectedDeclarationIds = new Set();
   let charAnalysisSelectedAttackId = "";
   const CHAR_ANALYSIS_MANUAL_ATTACK_ID = "__manual_attack__";
   const CHAR_ANALYSIS_ALCHEMY_EFFECT_DEFS = {
@@ -339,6 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
       fastAction: false,
       slotAttackIds: { main: "", offhand: "", extra: "", magic: "", faMain: "", faOffhand: "", faExtra: "", faMagic: "" },
       slotBulletIds: {},
+      slotMountPartIds: {},
       slotDeclarationIds: { main: [], offhand: [], extra: [], magic: [], faMain: [], faOffhand: [], faExtra: [], faMagic: [] },
       slotManualAdjusts: {},
       slotTargetCounts: {},
@@ -1020,6 +1029,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return {
       url: document.getElementById("char-analysis-url"),
       load: document.getElementById("char-analysis-load-btn"),
+      characterList: document.getElementById("char-analysis-character-list"),
+      mountUrl: document.getElementById("char-analysis-mount-url"),
+      mountLoad: document.getElementById("char-analysis-mount-load-btn"),
+      mounts: document.getElementById("char-analysis-mounts"),
       run: document.getElementById("char-analysis-run-btn"),
       copy: document.getElementById("char-analysis-copy-btn"),
       status: document.getElementById("char-analysis-status"),
@@ -1151,9 +1164,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // ゆとシート風アイコンの代替として文字幅の小さい記号へ置き換える。
     const textIcons = {
       "魔": "◆",
-      "刃": "🗡",
-      "斬": "🗡",
-      "打": "◆",
+      "刃": "[刃]",
+      "斬": "[刃]",
+      "打": "[打]",
       "特": "特",
       "流": "流",
       "ア": "ア",
@@ -1278,32 +1291,166 @@ document.addEventListener("DOMContentLoaded", () => {
     runCharAnalysis();
   }
 
+  function parseCharAnalysisUrls(rawText) {
+    const seen = new Set();
+    return String(rawText || "")
+      .split(/[\n\r,，]+/)
+      .map((value) => value.trim())
+      .filter((value) => {
+        if (!value || seen.has(value)) return false;
+        seen.add(value);
+        return true;
+      });
+  }
+
+  async function fetchCharAnalysisData(rawUrl) {
+    try {
+      const response = await fetch(buildYtsheetJsonUrl(rawUrl), { mode: "cors" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      return { parsed: parseCharAnalysisJson(text), rawText: text };
+    } catch (fetchError) {
+      console.warn("fetchでのキャラシ取得に失敗。JSONPへフォールバックします:", fetchError);
+      const parsed = await fetchCharAnalysisJsonp(rawUrl);
+      return { parsed, rawText: JSON.stringify(parsed) };
+    }
+  }
+
+  function cloneCharAnalysisStateValue(value) {
+    return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+  }
+
+  function saveActiveCharAnalysisCharacterState() {
+    const entry = charAnalysisCharacters[charAnalysisActiveCharacterIndex];
+    if (!entry || !charAnalysisCurrent) return;
+    entry.analysisState = {
+      selectedEffectIds: [...charAnalysisSelectedEffectIds],
+      selectedDeclarationIds: [...charAnalysisSelectedDeclarationIds],
+      selectedAttackId: charAnalysisSelectedAttackId,
+      manualAdjust: cloneCharAnalysisStateValue(charAnalysisManualAdjust),
+      alchemySettings: cloneCharAnalysisStateValue(charAnalysisAlchemySettings),
+      actionPlan: cloneCharAnalysisStateValue(charAnalysisActionPlan),
+    };
+  }
+
+  function restoreCharAnalysisCharacterState(entry) {
+    const state = entry?.analysisState;
+    if (!state) return;
+    charAnalysisSelectedEffectIds = new Set(state.selectedEffectIds || []);
+    charAnalysisSelectedDeclarationIds = new Set(state.selectedDeclarationIds || []);
+    charAnalysisSelectedAttackId = state.selectedAttackId || "";
+    charAnalysisManualAdjust = { ...createCharAnalysisManualAdjust(), ...(state.manualAdjust || {}) };
+    charAnalysisAlchemySettings = { ...createCharAnalysisAlchemySettings(), ...(state.alchemySettings || {}) };
+    charAnalysisActionPlan = { ...createCharAnalysisActionPlan(), ...(state.actionPlan || {}) };
+    renderCharAnalysis();
+  }
+
+  function renderCharAnalysisCharacterList() {
+    const { characterList } = getCharAnalysisElements();
+    if (!characterList) return;
+    characterList.hidden = charAnalysisCharacters.length <= 1;
+    characterList.innerHTML = charAnalysisCharacters.map((entry, index) => {
+      const name = entry.name || `キャラクター${index + 1}`;
+      const active = index === charAnalysisActiveCharacterIndex;
+      const sheetLink = entry.url
+        ? `<a class="analysis-character-sheet-link" href="${escapeAnalysisHtml(entry.url)}" target="_blank" rel="noopener noreferrer" title="${escapeAnalysisHtml(name)}のキャラクターシートを開く" aria-label="${escapeAnalysisHtml(name)}のキャラクターシートを開く"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>`
+        : "";
+      return `<span class="analysis-character-entry"><button type="button" class="analysis-character-chip${active ? " is-active" : ""}" data-character-index="${index}" aria-pressed="${active}">${escapeAnalysisHtml(name)}</button>${sheetLink}</span>`;
+    }).join("");
+  }
+
+  function activateCharAnalysisCharacter(index) {
+    const entry = charAnalysisCharacters[index];
+    if (!entry || index === charAnalysisActiveCharacterIndex) return;
+    saveActiveCharAnalysisCharacterState();
+    charAnalysisActiveCharacterIndex = index;
+    charAnalysisRawText = entry.rawText;
+    if (entry.analysisSnapshot) {
+      charAnalysisSelectedEffectIds = new Set();
+      charAnalysisSelectedDeclarationIds = new Set();
+      charAnalysisSelectedAttackId = "";
+      charAnalysisManualAdjust = createCharAnalysisManualAdjust();
+      charAnalysisAlchemySettings = createCharAnalysisAlchemySettings();
+      charAnalysisSimulationNonce = 0;
+      charAnalysisSettingsOpen = false;
+      charAnalysisActionPlan = createCharAnalysisActionPlan();
+      charAnalysisCurrent = entry.analysisSnapshot;
+      renderCharAnalysis();
+    } else {
+      runCharAnalysis();
+    }
+    restoreCharAnalysisCharacterState(entry);
+    renderCharAnalysisCharacterList();
+    renderCharAnalysisPartyBuffs();
+    renderCharAnalysisMounts();
+  }
+
   async function loadCharAnalysisFromUrl() {
-    const { url } = getCharAnalysisElements();
-    if (!url || !url.value.trim()) {
+    const { url, load } = getCharAnalysisElements();
+    const urls = parseCharAnalysisUrls(url?.value);
+    if (!urls.length) {
       setCharAnalysisStatus("ゆとシートURLを入力してください。", "error");
       return;
     }
-    const rawUrl = url.value.trim();
+    if (load) load.disabled = true;
+    setCharAnalysisStatus(`${urls.length}件のJSONを取得しています。`, "info");
     try {
-      const jsonUrl = buildYtsheetJsonUrl(rawUrl);
-      setCharAnalysisStatus("JSON取得を試行しています。直接取得に失敗した場合はJSONPで再試行します。", "info");
-      try {
-        const response = await fetch(jsonUrl, { mode: "cors" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const text = await response.text();
-        await handleLoadedCharAnalysisJson(parseCharAnalysisJson(text), rawUrl, text);
-        return;
-      } catch (fetchError) {
-        console.warn("fetchでのキャラシ取得に失敗。JSONPへフォールバックします:", fetchError);
-        setCharAnalysisStatus("直接取得に失敗しました。JSONPで再試行しています。", "info");
-        const parsed = await fetchCharAnalysisJsonp(rawUrl);
-        await handleLoadedCharAnalysisJson(parsed, rawUrl, JSON.stringify(parsed));
+      const results = [];
+      const mounts = [];
+      const failures = [];
+      for (let index = 0; index < urls.length; index += 1) {
+        const rawUrl = urls[index];
+        setCharAnalysisStatus(`${index + 1}/${urls.length}件目を取得しています。`, "info");
+        try {
+          const fetched = await fetchCharAnalysisData(rawUrl);
+          if (isMonsterSheetJson(fetched.parsed)) {
+            mounts.push({ url: rawUrl, data: fetched.parsed });
+            continue;
+          }
+          const preview = extractCharAnalysisData(fetched.parsed);
+          results.push({ url: rawUrl, rawText: fetched.rawText, name: preview.name || `キャラクター${index + 1}` });
+        } catch (error) {
+          console.warn("キャラシURL取得に失敗:", rawUrl, error);
+          failures.push(`${index + 1}件目: 取得失敗`);
+        }
       }
+      if (!results.length && !mounts.length) throw new Error("読み込めるシートがありませんでした。");
+      if (!charAnalysisCsvRows.length) await initializeCharAnalysisCsv();
+      if (results.length) {
+        charAnalysisCharacters = results.map((entry) => ({
+          ...entry,
+          analysisSnapshot: buildCharAnalysisSnapshot(entry.rawText),
+        }));
+        charAnalysisPartyBuffAssignments = {};
+        charAnalysisActiveCharacterIndex = -1;
+        activateCharAnalysisCharacter(0);
+      }
+      if (mounts.length) {
+        charAnalysisMounts = mounts;
+        charAnalysisMountEffectEnabled = {};
+        charAnalysisMountAbilityEnabled = {};
+        const riders = getCharAnalysisRiderEntries();
+        if (riders.length === 1) {
+          charAnalysisMounts.forEach((_, index) => { charAnalysisMountRiderAssignments[index] = riders[0].index; });
+        }
+      }
+      // PCを先に有効化した場合、騎獣の読込前に戦闘プランが一度描画される。
+      // 騎獣を確定してから再描画し、同じ1R画面に騎獣行動も載せる。
+      if (charAnalysisCurrent) renderCharAnalysis();
+      renderCharAnalysisMounts();
+      const suffix = failures.length ? `（${failures.length}件は読込できませんでした）` : "";
+      const parts = [];
+      if (results.length) parts.push(`${results.length}人のPC`);
+      if (mounts.length) parts.push(`${mounts.length}体の騎獣`);
+      setCharAnalysisStatus(`${parts.join("・")}を読み込みました。${results.length ? "名前を選ぶと分析対象を切り替えられます。" : ""}${suffix}`, failures.length ? "info" : "success");
+      showToast(`${parts.join("・")}を読み込みました！`);
     } catch (error) {
       console.warn("キャラシURL取得に失敗:", error);
-      setCharAnalysisStatus("URLからキャラクターデータを取得できませんでした。ゆとシート側の公開設定、URL、またはCORS/JSONP制約を確認してください。", "error");
+      renderCharAnalysisMounts();
+      setCharAnalysisStatus(`URLからキャラクターデータを取得できませんでした: ${error.message}`, "error");
       showToast("URL取得に失敗しました。");
+    } finally {
+      if (load) load.disabled = false;
     }
   }
 
@@ -1344,12 +1491,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getEnemyPartDisplayName(data, index, partNames = splitEnemyPartNames(data)) {
-    const fromParts = partNames[index - 1];
-    if (fromParts) return fromParts;
     const style = String(data?.[`status${index}Style`] || "").trim();
     const paren = style.match(/[（(]([^）)]+)[）)]/);
     if (paren?.[1]) return paren[1].trim();
-    return style || `部位${index}`;
+    if (style) return style;
+    const fromParts = partNames[index - 1];
+    return fromParts || `部位${index}`;
   }
 
   function readMonsterCheckBaseForIndex(data, index, baseName, fixedName) {
@@ -2004,7 +2151,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const csvText = await response.text();
       charAnalysisCsvRows = parseCharAnalysisCsv(csvText);
-      setCharAnalysisStatus(`特技・魔法CSVを読み込みました（${charAnalysisCsvRows.length}件）。`, "success");
+      setCharAnalysisStatus("特技・魔法CSVを読み込みました。", "success");
     } catch (error) {
       console.error("SW_特技魔法.csv の読み込みに失敗:", error);
       charAnalysisCsvRows = [];
@@ -2174,6 +2321,7 @@ document.addEventListener("DOMContentLoaded", () => {
       /^bibliomancyTemporary\d+$/,
       /^mysticMagic\d+$/,
       /^riding\w*\d*$/,
+      /^craftRiding\d+$/,
       /^craftPsychokinesis\d+$/,
     ];
     Object.entries(char || {}).forEach(([key, value]) => {
@@ -2188,7 +2336,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function findCharAnalysisUsableRows(charData) {
-    const selectableSkillNames = new Set(["バード", "ダークハンター", "ビブリオマンサー"]);
+    const selectableSkillNames = new Set(["バード", "ダークハンター", "ビブリオマンサー", "ライダー"]);
     const selectableRowNamesBySkill = new Map();
     selectableSkillNames.forEach((skillName) => {
       selectableRowNamesBySkill.set(skillName, new Set(
@@ -2411,6 +2559,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return /マルチアクション/.test(normalizeAnalysisName(feat?.name || feat?.id || ""));
   }
 
+  function isCharAnalysisDoubleCastFeat(feat) {
+    return /ダブルキャスト/.test(normalizeAnalysisName(feat?.name || feat?.id || ""));
+  }
+
+  function getCharAnalysisDoubleCastLevelCap(charData, spellOption) {
+    const skillText = String(spellOption?.skill || "");
+    const skillName = Object.keys(charData?.skills || {}).find((name) => skillText.startsWith(name));
+    const level = toAnalysisNumber(charData?.skills?.[skillName]?.level, toAnalysisNumber(spellOption?.level, 0));
+    return Math.max(0, Math.floor(level / 2));
+  }
+
   function hasCharAnalysisActionPlanMultiActionInSlots(declarationFeats = [], slotKeys = []) {
     const keySet = new Set(slotKeys);
     const ids = new Set(Object.entries(charAnalysisActionPlan.slotDeclarationIds || {})
@@ -2423,12 +2582,175 @@ document.addEventListener("DOMContentLoaded", () => {
     return slot?.kind === "attack" && /(?:^main$|Main$)/.test(String(slot.key || ""));
   }
 
+  function getCharAnalysisSelectedMountCommand(options = []) {
+    const slotKeys = charAnalysisActionPlan.fastAction ? ["main", "faMain"] : ["main"];
+    const commands = slotKeys
+      .map((slotKey) => options.find((option) => option.id === charAnalysisActionPlan.slotAttackIds?.[slotKey]))
+      .filter((option) => option?.type === "mount-command");
+    return commands.find((option) => option.mountCommandMode === "eight") || commands[0] || null;
+  }
+
+  function getCharAnalysisMountActionMode(charData, options = []) {
+    const command = getCharAnalysisSelectedMountCommand(options);
+    if (command?.mountCommandMode === "eight") return { value: "eight", label: "八面六臂", partLimit: Infinity, command };
+    if (command?.mountCommandMode === "charge") return { value: "charge", label: "チャージ", partLimit: 1, command };
+    if (command?.mountCommandMode === "magic") return { value: "magic", label: "魔法指示", partLimit: 1, command };
+    if (hasCharAnalysisFeat(charData, /獅子奮迅/)) return { value: "lion", label: "獅子奮迅", partLimit: 2, command: null };
+    return { value: "normal", label: "騎手の指示", partLimit: 1, command: null };
+  }
+
+  function getCharAnalysisMountActionSlots(charData, options = []) {
+    const riderIndex = charAnalysisActiveCharacterIndex;
+    const rider = getCharAnalysisRiderEntries().find((item) => item.index === riderIndex);
+    if (!rider) return [];
+    const commandMode = getCharAnalysisMountActionMode(charData, options);
+    const partLimit = commandMode.partLimit;
+    const riderInt = toAnalysisNumber(getAnalysisValue(charData?.raw || {}, ["bonusInt", "intBonus"], 0), 0);
+    const slots = [];
+    if (!charAnalysisActionPlan.slotMountPartIds || typeof charAnalysisActionPlan.slotMountPartIds !== "object") charAnalysisActionPlan.slotMountPartIds = {};
+    charAnalysisMounts.forEach((mount, mountIndex) => {
+      const assignedIndex = Math.trunc(toAnalysisNumber(charAnalysisMountRiderAssignments[mountIndex], -1));
+      if (assignedIndex !== riderIndex) return;
+      const range = getCharAnalysisMountLevelRange(mount.data);
+      if (rider.level < range.min) return;
+      const effectiveLevel = Math.min(rider.level, range.max);
+      const abilities = extractCharAnalysisMountAbilityCandidates(mount, rider.entry);
+      const activeEffects = [
+        ...getCharAnalysisMountEffects(riderIndex, mountIndex, mount).filter((effect) => effect.enabled),
+        ...getCharAnalysisEnabledMountAbilityEffects(mountIndex, abilities),
+      ];
+      const totals = calculateCharAnalysisTotals(activeEffects);
+      const mountName = mount.data?.monsterName || `騎獣${mountIndex + 1}`;
+      const parts = extractCharAnalysisMountParts(mount.data, effectiveLevel);
+      const actionCount = Math.min(parts.length, partLimit);
+      Array.from({ length: actionCount }, (_, partOrder) => {
+        const slotKey = `mount${mountIndex}Action${partOrder}`;
+        const defaultPart = parts[partOrder] || parts[0];
+        const storedPartId = String(charAnalysisActionPlan.slotMountPartIds[slotKey] ?? "");
+        const part = parts.find((item) => String(item.index) === storedPartId) || defaultPart;
+        if (!part) return;
+        charAnalysisActionPlan.slotMountPartIds[slotKey] = String(part.index);
+        const normalId = `mount-${mountIndex}-part-${part.index}-normal`;
+        const normal = {
+          id: normalId,
+          type: "weapon",
+          source: "mount",
+          label: `${mountName}・${part.name} / 近接 2D${formatSigned(toAnalysisNumber(part.damage, 0) + totals.damage)}`,
+          name: `${mountName}・${part.name} 近接攻撃`,
+          skill: `騎獣Lv${effectiveLevel}`,
+          category: "騎獣",
+          hit: toAnalysisNumber(part.hit, 0) + totals.hit,
+          fixedDiceCount: 2,
+          rate: 0,
+          crit: 13,
+          add: toAnalysisNumber(part.damage, 0) + totals.damage,
+          resist: "命中判定",
+          target: "1体",
+          range: "近接",
+          mountName,
+          mountPartName: part.name,
+        };
+        const actionOptions = abilities
+          .filter((ability) => ability.kind === "action" && ability.prerequisiteOk)
+          .filter((ability) => ability.partName === "全身" || normalizeAnalysisName(part.name).includes(normalizeAnalysisName(ability.partName)))
+          .flatMap((ability, abilityIndex) => {
+            const detail = ability.description || ability.name;
+            if (/テイルスイープ/.test(ability.name)) {
+              return { ...normal, id: `mount-${mountIndex}-part-${part.index}-ability-${abilityIndex}`, name: `${mountName}・${part.name} ${ability.name}`, label: `${ability.name} / 近接 2D${formatSigned(normal.add)} / 最大5体`, declarationTargetMax: 5, note: detail };
+            }
+            const magicSystems = ["真語魔法", "操霊魔法", "深智魔法", "神聖魔法", "妖精魔法", "召異魔法", "森羅魔法", "奈落魔法", "秘奥魔法", "魔動機術"].filter((system) => detail.includes(system));
+            const magicLevel = toAnalysisNumber(detail.match(/(\d+)\s*レベル/)?.[1], 0);
+            const magicMatch = detail.match(/魔力\s*(\d+)/);
+            if (magicSystems.length && magicLevel > 0 && magicMatch) {
+              const magicPower = toAnalysisNumber(magicMatch[1], 0);
+              const spellOptions = charAnalysisCsvRows.flatMap((row, rowIndex) => {
+                const rowSystem = String(row["系統"] || "");
+                const rowSkill = String(row["技能"] || "");
+                const rowLevel = toAnalysisNumber(row["Lv"], 0);
+                const effect = String(row["効果概要"] || "");
+                if (!magicSystems.some((system) => rowSystem.includes(system) || rowSkill.includes(system)) || rowLevel <= 0 || rowLevel > magicLevel) return [];
+                const hasDamageFormula = /(?:[kKｋＫ]\s*\d+|威力\s*\d+)[^。]*ダメージ/.test(effect);
+                const hasDirectDamage = /(?:魔法|確定)ダメージ/.test(effect) && !/(?:軽減|減少|上昇|補正|追加)/.test(effect);
+                if ((!hasDamageFormula && !hasDirectDamage) || /回復/.test(effect)) return [];
+                const spellName = row["名称(原文)"] || row["名称(正規)"] || `魔法${rowIndex + 1}`;
+                const spellK = toAnalysisNumber(effect.match(/[kKｋＫ]\s*(\d+)/)?.[1], 0);
+                return [{
+                  id: `mount-${mountIndex}-part-${part.index}-ability-${abilityIndex}-spell-${rowIndex}`,
+                  type: "spell",
+                  source: "mount-spell",
+                  label: `${spellName} / K${spellK}@10${formatSigned(magicPower)}`,
+                  name: `${mountName}・${part.name} ${spellName}`,
+                  skill: `${magicSystems.join("・")} Lv${rowLevel}`,
+                  cast: magicPower,
+                  fixedDiceCount: 0,
+                  rate: spellK,
+                  crit: 10,
+                  add: magicPower,
+                  resist: row["抵抗"] || "半減",
+                  target: row["対象"] || "記載準拠",
+                  range: row["射程/形状"] || "記載準拠",
+                  attribute: row["属性"] || "-",
+                  note: effect,
+                  mountName,
+                  mountPartName: part.name,
+                }];
+              });
+              if (spellOptions.length) return spellOptions;
+            }
+            const kMatch = detail.match(/(?:[kKｋＫ]\s*|威力\s*)(\d+)/);
+            const isMagic = /魔法|ブレス|抵抗力|半減|消滅/.test(detail);
+            const add = magicMatch ? toAnalysisNumber(magicMatch[1], 0) : (/ライダー[＋+].*知/.test(detail) ? rider.level + riderInt : 0);
+            return {
+              id: `mount-${mountIndex}-part-${part.index}-ability-${abilityIndex}`,
+              type: isMagic ? "spell" : "weapon",
+              source: "mount-ability",
+              label: `${ability.name} / ${kMatch ? `K${kMatch[1]}` : (isMagic ? "K0" : `2D${formatSigned(normal.add)}`)}${add ? formatSigned(add) : ""}`,
+              name: `${mountName}・${part.name} ${ability.name}`,
+              skill: `騎獣Lv${effectiveLevel}`,
+              hit: isMagic ? null : normal.hit,
+              cast: isMagic ? (magicMatch ? add : rider.level + riderInt) : null,
+              fixedDiceCount: isMagic || kMatch ? 0 : 2,
+              rate: kMatch ? toAnalysisNumber(kMatch[1], 0) : 0,
+              crit: /C値[^0-9]*([8-9]|1[0-2])/.test(detail) ? toAnalysisNumber(detail.match(/C値[^0-9]*([8-9]|1[0-2])/)?.[1], 10) : 10,
+              add: isMagic ? add : normal.add,
+              resist: /半減/.test(detail) ? "半減" : (/消滅/.test(detail) ? "消滅" : (isMagic ? "抵抗設定なし" : "命中判定")),
+              target: /5体/.test(detail) ? "5体" : "1体",
+              range: detail.match(/射程\/形状[:：]?([^「」]+)/)?.[1]?.trim() || "記載準拠",
+              declarationTargetMax: /5体/.test(detail) ? 5 : 1,
+              note: detail,
+              mountName,
+              mountPartName: part.name,
+              expansionActive: ability.expansionOk,
+            };
+          });
+        slots.push({
+          key: slotKey,
+          label: `騎獣 ${partOrder + 1}回目（${part.name}）`,
+          source: `${mountName} / ${commandMode.label}`,
+          set: "mount",
+          setLabel: "騎獣行動",
+          kind: "mount",
+          mountIndex,
+          mountCommandMode: commandMode.value,
+          mountPartId: String(part.index),
+          mountParts: parts.map((item) => ({ id: String(item.index), name: item.name })),
+          mountOptions: [normal, ...actionOptions],
+        });
+      });
+    });
+    return slots;
+  }
+
   function getCharAnalysisActionSlotOptions(slot, options = []) {
-    if (slot?.kind === "magic") return options.filter((option) => option.type === "spell");
+    if (slot?.kind === "mount") return Array.isArray(slot.mountOptions) ? slot.mountOptions : [];
+    if (slot?.kind === "magic") {
+      const spells = options.filter((option) => option.type === "spell");
+      return Number.isFinite(slot?.magicLevelMax) ? spells.filter((option) => toAnalysisNumber(option.level, 0) <= slot.magicLevelMax) : spells;
+    }
     // 主攻撃枠は武器・魔法・直接指定を選べる。
     // 両手利き/追加攻撃枠は武器攻撃枠なので魔法は選ばせない。
     if (isCharAnalysisMainActionSlot(slot)) return options.slice();
-    return options.filter((option) => option.type !== "spell");
+    return options.filter((option) => option.type === "weapon");
   }
 
   function getCharAnalysisActionSlotDefaultId(slot, options = []) {
@@ -2599,8 +2921,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const mainOption = getCharAnalysisActionSlotSelectedOption(mainSlot, options);
       const mainIsSpell = isCharAnalysisSpellOption(mainOption);
       const mainHasMultiAction = hasCharAnalysisActionPlanMultiActionInSlots(declarationFeats, [mainKey]);
+      const mainHasDoubleCast = declarationFeats.some((feat) => getCharAnalysisSlotDeclarationIds(mainKey).includes(feat.id) && isCharAnalysisDoubleCastFeat(feat));
 
-      if (!mainIsSpell) {
+      if (mainOption?.type === "mount-command") {
+        // 騎芸そのものが騎手の主動作。攻撃結果は後続の騎獣行動枠で扱う。
+      } else if (!mainIsSpell) {
         addWeaponFollowups(set, setLabel, standardPrefix, sourceBase, actionKeys, labelPrefix);
         if (hasCharAnalysisActionPlanMultiActionInSlots(declarationFeats, actionKeys)) {
           addSlot({ key: magicKey, label: `${labelPrefix}魔法行使`, source: `${sourceBase} / マルチアクション`, set, setLabel, penalty: 0, kind: "magic" });
@@ -2610,8 +2935,14 @@ document.addEventListener("DOMContentLoaded", () => {
         maKeys.push(addSlot({ key: maAttackKey, label: `${labelPrefix}近接攻撃`, source: `${sourceBase} / マルチアクション`, set, setLabel, penalty: dualPrimaryPenalty, kind: "attack" }));
         addWeaponFollowups(set, setLabel, maPrefix, `${sourceBase} / マルチアクション`, maKeys, labelPrefix ? `${labelPrefix}` : "");
       }
+      if (mainIsSpell && mainHasDoubleCast) {
+        const magicLevelMax = getCharAnalysisDoubleCastLevelCap(charData, mainOption);
+        addSlot({ key: `${mainKey}DoubleCast`, label: `${labelPrefix}2回目の魔法`, source: `${sourceBase} / ダブルキャスト（魔力-10・Lv${magicLevelMax}以下）`, set, setLabel, penalty: 0, magicCastPenalty: -10, magicLevelMax, kind: "magic" });
+      }
     };
 
+    const mountSlots = getCharAnalysisMountActionSlots(charData, options);
+    ensureCharAnalysisActionPlanDefaults(options, mountSlots);
     addMainActionSet({
       mainKey: "main",
       magicKey: "magic",
@@ -2638,6 +2969,9 @@ document.addEventListener("DOMContentLoaded", () => {
         labelPrefix: "ファストアクション ",
       });
     }
+
+    // 騎獣はPCの別キャラクターではなく、同じ1R行動セットに加わる追加行動として扱う。
+    mountSlots.forEach((slot) => addSlot(slot));
 
     ensureCharAnalysisActionPlanDefaults(options, slots);
     return slots;
@@ -2677,6 +3011,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function isCharAnalysisSlotDeclarationAllowed(slot, slotOption, feat) {
     if (!feat) return false;
+    if (slot?.kind === "mount") return false;
+    if (slotOption?.type === "mount-command") return false;
     const isAddedMagicSlot = slot?.kind === "magic";
     const isMainSpellSlot = isCharAnalysisMainActionSlot(slot) && slotOption?.type === "spell";
     if (isAddedMagicSlot) {
@@ -2852,7 +3188,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const expansion = describeMagicExpansionDeclaration(normalized);
       notes.push(expansion.note);
     } else if (/ダブルキャスト/.test(normalized)) {
-      notes.push("追加の魔法行使は未反映。複数行動スロット拡張用メモ");
+      notes.push("1R行動枠に2回目の魔法行使枠を追加。魔法攻撃を選んだ場合は1R期待値へ加算");
     } else if (/マルチアクション/.test(normalized)) {
       notes.push("1R行動枠に魔法行使枠を追加。魔法攻撃を選んだ場合は1R期待値へ加算");
     } else {
@@ -2954,6 +3290,483 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function getCharAnalysisMagicExpansionKinds(charData) {
+    const names = (charData?.learnedNames || []).map((name) => normalizeAnalysisName(name));
+    const kinds = [];
+    if (names.some((name) => /魔法拡大数/.test(name))) kinds.push("数");
+    if (names.some((name) => /魔法拡大すべて/.test(name))) kinds.push("すべて");
+    return kinds;
+  }
+
+  function isCharAnalysisMagicSupportEffect(effect) {
+    const skill = String(effect?.skill || "").normalize("NFKC");
+    return /ソーサラー|コンジャラー|ウィザード|プリースト|フェアリーテイマー|マギテック|ドルイド|デーモンルーラー|アビスゲイザー|グリモワール|操気|呪術|ウォーロック/.test(skill);
+  }
+
+  function getCharAnalysisSupportTargetPolicy(effect, charData) {
+    const skill = String(effect?.skill || "").normalize("NFKC");
+    const target = String(effect?.target || "").normalize("NFKC").trim();
+    const summary = String(effect?.summary || "").normalize("NFKC");
+    const expansionKinds = getCharAnalysisMagicExpansionKinds(charData);
+    const isEnhancer = /エンハンサー/.test(skill);
+    const isMountTarget = /ライダー/.test(skill) && /騎獣の/.test(summary);
+    const isSelfTarget = isEnhancer || /^(?:対象[:：]?\s*)?(?:術者|自身)(?:$|[／/・,，\s])/.test(target);
+    const isSingleTarget = /(?:^|[^0-9])1\s*体(?:$|[／/・,，\s])|一体/.test(target);
+    const isNaturallyMultiple = /(?:全エリア|任意|すべて|全て|複数|半径|範囲|\d+\s*体)/.test(target) && !isSingleTarget;
+
+    if (isMountTarget) {
+      return {
+        mode: "mount",
+        selfOnly: false,
+        mountOnly: true,
+        maxTargets: 0,
+        canSelectMultiple: false,
+        expansionKinds: [],
+        label: "騎獣のみ（PC計算外）",
+      };
+    }
+    if (isSelfTarget) {
+      return {
+        mode: "self",
+        selfOnly: true,
+        mountOnly: false,
+        maxTargets: 1,
+        canSelectMultiple: false,
+        expansionKinds: [],
+        label: isEnhancer ? "術者のみ（エンハンサー）" : "術者のみ",
+      };
+    }
+    if (isSingleTarget) {
+      const canExpand = isCharAnalysisMagicSupportEffect(effect) && expansionKinds.length > 0;
+      return {
+        mode: canExpand ? "single-expandable" : "single",
+        selfOnly: false,
+        mountOnly: false,
+        maxTargets: canExpand ? null : 1,
+        canSelectMultiple: canExpand,
+        expansionKinds,
+        label: canExpand ? `1体（魔法拡大／${expansionKinds.join("・")}で複数可）` : "1体",
+      };
+    }
+    if (isNaturallyMultiple) {
+      return {
+        mode: "multiple",
+        selfOnly: false,
+        mountOnly: false,
+        maxTargets: null,
+        canSelectMultiple: true,
+        expansionKinds: [],
+        label: target || "複数対象",
+      };
+    }
+    return {
+      mode: "unspecified",
+      selfOnly: false,
+      mountOnly: false,
+      maxTargets: 1,
+      canSelectMultiple: false,
+      expansionKinds: [],
+      label: target && target !== "-" ? target : "対象未判定",
+    };
+  }
+
+  function applyCharAnalysisSupportTargetPolicies(effects, charData) {
+    return (effects || []).map((effect) => ({
+      ...effect,
+      targetPolicy: getCharAnalysisSupportTargetPolicy(effect, charData),
+    }));
+  }
+
+  function getCharAnalysisSupportTargetSelectionLimit(effect, partySize = charAnalysisCharacters.length) {
+    const policy = effect?.targetPolicy || getCharAnalysisSupportTargetPolicy(effect, charAnalysisCurrent?.charData);
+    if (policy.mountOnly) return 0;
+    if (policy.selfOnly || policy.maxTargets === 1) return 1;
+    return Math.max(1, Math.trunc(toAnalysisNumber(partySize, 1)) || 1);
+  }
+
+  function canCharAnalysisSupportTargetCharacter(effect, casterIndex, targetIndex) {
+    const policy = effect?.targetPolicy || getCharAnalysisSupportTargetPolicy(effect, charAnalysisCurrent?.charData);
+    if (policy.mountOnly) return false;
+    if (policy.selfOnly) return casterIndex === targetIndex;
+    return targetIndex >= 0 && targetIndex < charAnalysisCharacters.length;
+  }
+
+  function getCharAnalysisPartyBuffKey(casterIndex, effectId) {
+    return `${casterIndex}:${effectId}`;
+  }
+
+  function getCharAnalysisPartyBuffTargets(casterIndex, effectId) {
+    const value = charAnalysisPartyBuffAssignments[getCharAnalysisPartyBuffKey(casterIndex, effectId)];
+    return Array.isArray(value) ? value.filter((index) => Number.isInteger(index)) : [];
+  }
+
+  function setCharAnalysisPartyBuffTargets(casterIndex, effect, targets) {
+    const key = getCharAnalysisPartyBuffKey(casterIndex, effect.id);
+    const limit = getCharAnalysisSupportTargetSelectionLimit(effect);
+    const normalized = [...new Set((targets || []).map((value) => Math.trunc(toAnalysisNumber(value, -1))))]
+      .filter((targetIndex) => canCharAnalysisSupportTargetCharacter(effect, casterIndex, targetIndex))
+      .slice(0, limit);
+    if (normalized.length) charAnalysisPartyBuffAssignments[key] = normalized;
+    else delete charAnalysisPartyBuffAssignments[key];
+  }
+
+  function getCharAnalysisIncomingPartyEffects(targetIndex = charAnalysisActiveCharacterIndex) {
+    const incoming = [];
+    charAnalysisCharacters.forEach((entry, casterIndex) => {
+      const effects = entry?.analysisSnapshot?.supportEffects || [];
+      effects.forEach((effect) => {
+        if (effect.auto) return;
+        const policy = effect.targetPolicy || getCharAnalysisSupportTargetPolicy(effect, entry.analysisSnapshot?.charData);
+        if (policy.selfOnly || policy.mountOnly) return;
+        const targets = getCharAnalysisPartyBuffTargets(casterIndex, effect.id);
+        if (!targets.includes(targetIndex)) return;
+        incoming.push({
+          ...effect,
+          _partyCasterIndex: casterIndex,
+          _partyCasterName: entry.name || `キャラクター${casterIndex + 1}`,
+          _partyAssigned: true,
+        });
+      });
+    });
+    return incoming;
+  }
+
+  function getCharAnalysisSelectedEffectsWithParty(visibleSupportEffects) {
+    const own = (visibleSupportEffects || [])
+      .filter((effect) => !effect.targetPolicy?.mountOnly && (effect.auto || charAnalysisSelectedEffectIds.has(effect.id)))
+      .map((effect) => ({ ...effect, _partyCasterIndex: charAnalysisActiveCharacterIndex }));
+    const incoming = getCharAnalysisIncomingPartyEffects();
+    const seen = new Set();
+    return [...own, ...incoming].filter((effect) => {
+      const key = `${effect._partyCasterIndex}:${effect.id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function renderCharAnalysisPartyBuffs() {
+    const container = document.getElementById("char-analysis-party-buffs");
+    if (!container) return;
+    if (charAnalysisCharacters.length <= 1) {
+      container.hidden = true;
+      container.innerHTML = "";
+      return;
+    }
+    const casterBlocks = charAnalysisCharacters.map((entry, casterIndex) => {
+      const effects = (entry?.analysisSnapshot?.supportEffects || []).filter((effect) => {
+        if (effect.auto) return false;
+        const policy = effect.targetPolicy || getCharAnalysisSupportTargetPolicy(effect, entry.analysisSnapshot?.charData);
+        return !policy.selfOnly && !policy.mountOnly;
+      });
+      if (!effects.length) return "";
+      const rows = effects.map((effect) => {
+        const policy = effect.targetPolicy || getCharAnalysisSupportTargetPolicy(effect, entry.analysisSnapshot?.charData);
+        const selectedTargets = getCharAnalysisPartyBuffTargets(casterIndex, effect.id);
+        const limit = getCharAnalysisSupportTargetSelectionLimit(effect);
+        const inputType = "checkbox";
+        const targetInputs = charAnalysisCharacters.map((targetEntry, targetIndex) => {
+          const allowed = canCharAnalysisSupportTargetCharacter(effect, casterIndex, targetIndex);
+          const checked = selectedTargets.includes(targetIndex);
+          return `<label class="analysis-party-target${allowed ? "" : " is-disabled"}"><input type="${inputType}" name="party-buff-${casterIndex}-${escapeAnalysisHtml(effect.id)}" class="char-analysis-party-buff-target" data-caster-index="${casterIndex}" data-effect-id="${escapeAnalysisHtml(effect.id)}" data-target-index="${targetIndex}" ${checked ? "checked" : ""} ${allowed ? "" : "disabled"} /><span>${escapeAnalysisHtml(targetEntry.name || `キャラクター${targetIndex + 1}`)}</span></label>`;
+        }).join("");
+        const assigned = selectedTargets.length > 0;
+        const bonusText = (effect.bonuses || []).map((bonus) => `${bonus.label}${formatSigned(bonus.value)}`).join(" / ") || "数値補正なし";
+        return `<div class="analysis-party-buff-row${assigned ? " is-assigned" : ""}"><div class="analysis-party-buff-head"><strong>${renderAnalysisDaggerHtml(effect.name)}</strong><span>${escapeAnalysisHtml(effect.skill || "-")} / 対象: ${escapeAnalysisHtml(policy.label || "未判定")}</span><em>${escapeAnalysisHtml(bonusText)}</em></div><div class="analysis-party-target-list">${targetInputs}</div></div>`;
+      }).join("");
+      const assignedCount = effects.reduce((count, effect) => count + (getCharAnalysisPartyBuffTargets(casterIndex, effect.id).length ? 1 : 0), 0);
+      return `<details class="analysis-party-caster"><summary><span class="analysis-party-caster-title"><strong>${escapeAnalysisHtml(entry.name || `キャラクター${casterIndex + 1}`)}</strong><span>のバフ</span></span>${assignedCount ? `<span class="analysis-party-assigned-count">${assignedCount}件設定</span>` : ""}</summary><div class="analysis-party-buff-list">${rows}</div></details>`;
+    }).filter(Boolean).join("");
+    if (!casterBlocks) {
+      container.hidden = true;
+      container.innerHTML = "";
+      return;
+    }
+    container.hidden = false;
+    const totalAssignedCount = charAnalysisCharacters.reduce((count, entry, casterIndex) => {
+      const effects = (entry?.analysisSnapshot?.supportEffects || []).filter((effect) => {
+        if (effect.auto) return false;
+        const policy = effect.targetPolicy || getCharAnalysisSupportTargetPolicy(effect, entry.analysisSnapshot?.charData);
+        return !policy.selfOnly && !policy.mountOnly;
+      });
+      return count + effects.reduce((effectCount, effect) => effectCount + (getCharAnalysisPartyBuffTargets(casterIndex, effect.id).length ? 1 : 0), 0);
+    }, 0);
+    container.innerHTML = `<details class="analysis-party-buffs-details"><summary><span><strong>パーティバフ設定</strong><small>使用者・効果・対象を指定</small></span>${totalAssignedCount ? `<em>${totalAssignedCount}件設定中</em>` : ""}</summary><div class="analysis-party-buffs-body"><p class="analysis-party-buff-intro">必要な使用者だけ開いて対象を選択します。自分だけを対象にする効果は「補助効果候補」で設定し、ここには他メンバーへ配れる効果だけを表示します。</p>${casterBlocks}</div></details>`;
+  }
+
+  function getCharAnalysisRiderEntries() {
+    return charAnalysisCharacters
+      .map((entry, index) => ({ entry, index, level: toAnalysisNumber(entry?.analysisSnapshot?.charData?.skills?.["ライダー"]?.level, 0) }))
+      .filter((item) => item.level > 0);
+  }
+
+  function getCharAnalysisMountLevelRange(data) {
+    const min = Math.max(0, toAnalysisNumber(data?.lvMin, 0));
+    const max = Math.max(min, toAnalysisNumber(data?.lvMax, min));
+    return { min, max };
+  }
+
+  function getCharAnalysisMountPartKey(index, levelOffset, suffix) {
+    return `status${index}${levelOffset > 0 ? `-${levelOffset + 1}` : ""}${suffix}`;
+  }
+
+  function extractCharAnalysisMountParts(data, effectiveLevel) {
+    const { min } = getCharAnalysisMountLevelRange(data);
+    const levelOffset = Math.max(0, effectiveLevel - min);
+    const statusCount = Math.max(1, Math.min(12, toAnalysisNumber(data?.statusNum || data?.partsNum, 1) || 1));
+    const partNames = splitEnemyPartNames(data);
+    const sharedResistance = (suffix) => {
+      const keys = Object.keys(data || {}).filter((key) => new RegExp(`^status\\d+(?:-\\d+)?${suffix}$`).test(key));
+      const direct = keys.map((key) => toAnalysisNumber(data?.[key], NaN)).find(isFiniteAnalysisNumber);
+      return isFiniteAnalysisNumber(direct) ? direct : "";
+    };
+    const sharedVit = sharedResistance("Vit");
+    const sharedMnd = sharedResistance("Mnd");
+    const parts = [];
+    for (let index = 1; index <= statusCount; index += 1) {
+      const key = (suffix) => getCharAnalysisMountPartKey(index, levelOffset, suffix);
+      const fallbackKey = (suffix) => `status${index}${suffix}`;
+      const value = (suffix) => data?.[key(suffix)] ?? data?.[fallbackKey(suffix)];
+      const check = (baseName, fixedName) => {
+        const variant = readMonsterCheckBase(data, key(baseName), key(fixedName));
+        return variant === "" ? readMonsterCheckBase(data, fallbackKey(baseName), fallbackKey(fixedName)) : variant;
+      };
+      const hp = toAnalysisNumber(value("Hp"), NaN);
+      const mp = toAnalysisNumber(value("Mp"), NaN);
+      const def = toAnalysisNumber(value("Defense"), NaN);
+      const eva = check("Evasion", "EvasionFix");
+      const hit = check("Accuracy", "AccuracyFix");
+      const variantDamage = readMonsterDamageBonus(data, key("Damage"));
+      const damage = variantDamage === "" ? readMonsterDamageBonus(data, fallbackKey("Damage")) : variantDamage;
+      if (![hp, mp, def, eva, hit, damage].some((item) => item !== "" && isFiniteAnalysisNumber(item))) continue;
+      parts.push({
+        index,
+        name: getEnemyPartDisplayName(data, index, partNames),
+        hit,
+        eva,
+        damage,
+        def: isFiniteAnalysisNumber(def) ? def : 0,
+        hp: isFiniteAnalysisNumber(hp) ? hp : "",
+        mp: isFiniteAnalysisNumber(mp) ? mp : "",
+        vit: sharedVit,
+        mnd: sharedMnd,
+      });
+    }
+    const duplicateCounts = parts.reduce((counts, part) => counts.set(part.name, (counts.get(part.name) || 0) + 1), new Map());
+    const duplicateOrder = new Map();
+    parts.forEach((part) => {
+      if ((duplicateCounts.get(part.name) || 0) <= 1) return;
+      const order = (duplicateOrder.get(part.name) || 0) + 1;
+      duplicateOrder.set(part.name, order);
+      part.name = `${part.name}${String.fromCharCode(64 + order)}`;
+    });
+    return parts.length ? parts : extractEnemySheetParts(data);
+  }
+
+  function isCharAnalysisMountEffectAlreadyApplied(mount, effect) {
+    const effectName = normalizeAnalysisName(effect?.name);
+    if (!effectName) return false;
+    const text = [mount?.data?.skills, mount?.data?.sheetDescriptionM, mount?.data?.sheetDescriptionS]
+      .concat(Object.values(mount?.data?.unitStatus || {}).map((item) => Object.values(item || {}).join(" ")))
+      .map(decodeAnalysisPlainText)
+      .join("\n")
+      .normalize("NFKC");
+    const nameIndex = normalizeAnalysisName(text).indexOf(effectName);
+    if (nameIndex < 0) return false;
+    const compactText = text.replace(/\s+/g, "");
+    const compactName = effectName.replace(/\s+/g, "");
+    const index = compactText.indexOf(compactName);
+    return index >= 0 && /適[用応]済/.test(compactText.slice(Math.max(0, index - 20), index + compactName.length + 28));
+  }
+
+  function isCharAnalysisMountEffectEnabled(mountIndex, mount, effect) {
+    const stored = charAnalysisMountEffectEnabled?.[mountIndex]?.[effect.id];
+    if (typeof stored === "boolean") return stored;
+    return !isCharAnalysisMountEffectAlreadyApplied(mount, effect);
+  }
+
+  function getCharAnalysisMountEffects(riderIndex, mountIndex, mount) {
+    const rider = charAnalysisCharacters[riderIndex];
+    return (rider?.analysisSnapshot?.supportEffects || [])
+      .filter((effect) => effect.targetPolicy?.mountOnly && effect.auto)
+      .map((effect) => ({ ...effect, enabled: isCharAnalysisMountEffectEnabled(mountIndex, mount, effect), alreadyApplied: isCharAnalysisMountEffectAlreadyApplied(mount, effect) }));
+  }
+
+  function extractCharAnalysisMountAbilityCandidates(mount, riderEntry) {
+    const text = decodeEnemySkillText(mount?.data?.skills || "");
+    const learned = new Set((riderEntry?.analysisSnapshot?.charData?.learnedNames || []).map(normalizeAnalysisName));
+    const abilities = [];
+    let currentPart = "全身";
+    let currentAbility = null;
+    const flushAbility = () => {
+      if (!currentAbility) return;
+      currentAbility.description = currentAbility.lines.join(" ").trim();
+      delete currentAbility.lines;
+      abilities.push(currentAbility);
+      currentAbility = null;
+    };
+    text.split(/\n+/).forEach((rawLine) => {
+      const line = String(rawLine || "").trim();
+      const partMatch = line.match(/^●\s*(.+)$/);
+      if (partMatch) {
+        flushAbility();
+        currentPart = partMatch[1].trim() || "全身";
+        return;
+      }
+      const bracketMarkers = [...line.matchAll(/\*?\[([^\]]+)\]\*?/g)].map((match) => match[1]);
+      const symbolMarker = line.match(/^([○▶▷□☆△💬≫⏩]+)/)?.[1] || "";
+      const marker = bracketMarkers.join("/") || symbolMarker;
+      if (!marker) {
+        if (currentAbility && line) currentAbility.lines.push(line);
+        return;
+      }
+      flushAbility();
+      if (!/(主|補|準|宣|▶|▷|□|☆|△|≫|⏩)/.test(marker)) return;
+      const prerequisite = line.match(/【前提[:：]([^】]+)】/)?.[1] || "";
+      const expansion = line.match(/【拡張[:：]([^】]+)】/)?.[1] || "";
+      const content = line
+        .replace(/\*?\[[^\]]+\]\*?/g, "")
+        .replace(/^[○▶▷□☆△💬≫⏩]+\s*/, "")
+        .replace(/【(?:前提|拡張)[:：][^】]+】/g, "")
+        .trim();
+      const name = content.match(/【([^】]+)】/)?.[1] || content.split(/[／/]/)[0].trim();
+      if (!name) return;
+      const prerequisiteOk = !prerequisite || learned.has(normalizeAnalysisName(prerequisite));
+      const expansionOk = expansion && learned.has(normalizeAnalysisName(expansion));
+      currentAbility = {
+        id: normalizeAnalysisName(name), marker, name, prerequisite, expansion, prerequisiteOk, expansionOk,
+        kind: /補|準|☆|△|≫|⏩/.test(marker) ? "support" : "action",
+        partName: currentPart,
+        lines: [line],
+      };
+    });
+    flushAbility();
+    return abilities;
+  }
+
+  function getCharAnalysisMountAbilityBonuses(name) {
+    const normalized = normalizeAnalysisName(name);
+    const builtin = {
+      "キャッツアイ": [{ type: "hit", label: "命中補正", value: 1 }],
+      "ガゼルフット": [{ type: "eva", label: "回避補正", value: 1 }],
+      "ビートルスキン": [{ type: "def", label: "防護点補正", value: 2 }],
+      "マッスルベアー": [{ type: "damage", label: "近接物理ダメージ補正", value: 2 }],
+    };
+    if (builtin[normalized]) return builtin[normalized];
+    const row = charAnalysisCsvRows.find((item) => normalizeAnalysisName(item["名称(正規)"] || item["名称(原文)"]) === normalized);
+    const effect = row ? extractCharAnalysisSupportEffects([row])[0] : null;
+    return effect?.bonuses || [];
+  }
+
+  function isCharAnalysisMountAbilityEnabled(mountIndex, ability) {
+    return Boolean(charAnalysisMountAbilityEnabled?.[mountIndex]?.[ability.id]);
+  }
+
+  function getCharAnalysisEnabledMountAbilityEffects(mountIndex, abilities) {
+    return abilities
+      .filter((ability) => ability.kind === "support" && ability.prerequisiteOk && isCharAnalysisMountAbilityEnabled(mountIndex, ability))
+      .map((ability) => ({ ...ability, bonuses: getCharAnalysisMountAbilityBonuses(ability.name) }));
+  }
+
+  function renderCharAnalysisMounts() {
+    const { mounts } = getCharAnalysisElements();
+    if (!mounts) return;
+    if (!charAnalysisMounts.length) {
+      mounts.hidden = true;
+      mounts.innerHTML = "";
+      return;
+    }
+    const riders = getCharAnalysisRiderEntries();
+    if (riders.length === 1) {
+      charAnalysisMounts.forEach((_, index) => { charAnalysisMountRiderAssignments[index] = riders[0].index; });
+    }
+    mounts.hidden = false;
+    mounts.innerHTML = `<h4><i class="fa-solid fa-horse"></i> 騎獣</h4><p class="analysis-note">各騎獣に乗り手を割り当てます。能力値は乗り手のライダーLvと同じLvを参照し、騎獣の上限を超える場合は上限Lvを適用します。</p><div class="analysis-mount-list">${charAnalysisMounts.map((mount, mountIndex) => {
+      const range = getCharAnalysisMountLevelRange(mount.data);
+      const assignedRiderIndex = Number.isInteger(charAnalysisMountRiderAssignments[mountIndex]) ? charAnalysisMountRiderAssignments[mountIndex] : -1;
+      const rider = riders.find((item) => item.index === assignedRiderIndex);
+      const effectiveLevel = rider && rider.level >= range.min ? Math.min(rider.level, range.max) : null;
+      const mountEffects = rider ? getCharAnalysisMountEffects(rider.index, mountIndex, mount) : [];
+      const options = [`<option value="">乗り手を選択</option>`, ...riders.map((item) => `<option value="${item.index}" ${item.index === assignedRiderIndex ? "selected" : ""}>${escapeAnalysisHtml(item.entry.name || `キャラクター${item.index + 1}`)}（ライダーLv${item.level}）</option>`)].join("");
+      const mountName = mount.data?.monsterName || mount.data?.characterName || mount.data?.name || `騎獣${mountIndex + 1}`;
+      const abilities = rider ? extractCharAnalysisMountAbilityCandidates(mount, rider.entry) : [];
+      const abilityEffects = getCharAnalysisEnabledMountAbilityEffects(mountIndex, abilities);
+      const activeEffects = [...mountEffects.filter((effect) => effect.enabled), ...abilityEffects];
+      const bonuses = activeEffects.flatMap((effect) => effect.bonuses || []);
+      const totals = calculateCharAnalysisTotals(activeEffects);
+      const levelText = !rider
+        ? `騎獣Lv ${range.min}～${range.max}`
+        : effectiveLevel === null
+          ? `ライダーLv${rider.level}では使用不可（騎獣Lv ${range.min}～${range.max}）`
+          : `ライダーLv${rider.level} → 騎獣Lv${effectiveLevel}${rider.level > range.max ? "（上限）" : ""}`;
+      const parts = effectiveLevel === null ? [] : extractCharAnalysisMountParts(mount.data, effectiveLevel);
+      const enabledEffectCount = mountEffects.filter((effect) => effect.enabled).length;
+      const effectControls = mountEffects.length ? `<div class="analysis-mount-effect-details"><div class="analysis-mount-effect-summary"><span>騎芸補正</span><small>${enabledEffectCount}/${mountEffects.length}件を反映</small></div><div class="analysis-mount-effect-controls">${mountEffects.map((effect) => `<label class="analysis-mount-effect-toggle${effect.enabled ? " is-enabled" : ""}"><input type="checkbox" class="char-analysis-mount-effect-toggle" data-mount-index="${mountIndex}" data-effect-id="${escapeAnalysisHtml(effect.id)}" ${effect.enabled ? "checked" : ""} /><span>${renderAnalysisDaggerHtml(effect.name)}</span>${effect.alreadyApplied ? "<small>シート適用済み</small>" : ""}</label>`).join("")}</div></div>` : "";
+      const bonusText = bonuses.length ? bonuses.map((bonus) => `${bonus.label}${formatSigned(bonus.value)}`).join(" / ") : "騎獣向け自動補正なし";
+      const supportAbilityCount = abilities.filter((ability) => ability.kind === "support").length;
+      const actionAbilityCount = abilities.length - supportAbilityCount;
+      const abilityList = abilities.length ? `<details class="analysis-mount-abilities"><summary>騎獣行動・補助効果候補 <small>行動${actionAbilityCount}件・補助${supportAbilityCount}件</small></summary>${abilities.map((ability) => {
+        const selectable = ability.kind === "support" && ability.prerequisiteOk;
+        const bonuses = getCharAnalysisMountAbilityBonuses(ability.name);
+        const bonusLabel = bonuses.length ? bonuses.map((bonus) => `${bonus.label}${formatSigned(bonus.value)}`).join(" / ") : "数値反映なし";
+        return `<div class="analysis-mount-ability${ability.prerequisiteOk ? "" : " is-locked"}">${selectable ? `<label><input type="checkbox" class="char-analysis-mount-ability-toggle" data-mount-index="${mountIndex}" data-ability-id="${escapeAnalysisHtml(ability.id)}" ${isCharAnalysisMountAbilityEnabled(mountIndex, ability) ? "checked" : ""} /><span>使用</span></label>` : ""}<b>${escapeAnalysisHtml(ability.name)}</b><span>${escapeAnalysisHtml(ability.marker)}</span>${ability.kind === "support" ? `<small>${escapeAnalysisHtml(bonusLabel)}</small>` : `<small>行動枠から選択予定</small>`}${ability.prerequisite ? `<small>前提: ${escapeAnalysisHtml(ability.prerequisite)}${ability.prerequisiteOk ? " ✓" : " 未習得"}</small>` : ""}${ability.expansion ? `<small>拡張: ${escapeAnalysisHtml(ability.expansion)}${ability.expansionOk ? " ✓" : ""}</small>` : ""}</div>`;
+      }).join("")}</details>` : "";
+      return `<article class="analysis-mount-card"><header><strong>${escapeAnalysisHtml(mountName)}</strong><span>${escapeAnalysisHtml(mount.data?.taxa || "騎獣")}</span></header><label class="analysis-mount-rider-label"><span>乗り手</span><select class="char-analysis-mount-rider-select" data-mount-index="${mountIndex}">${options}</select></label><p class="analysis-mount-level">${escapeAnalysisHtml(levelText)}</p>${effectControls}${abilityList}${parts.length ? `<div class="analysis-mount-part-list">${parts.map((part) => {
+        const hit = part.hit === "" ? "-" : formatSigned(toAnalysisNumber(part.hit, 0) + totals.hit);
+        const eva = part.eva === "" ? "-" : formatSigned(toAnalysisNumber(part.eva, 0) + totals.eva);
+        const damage = part.damage === "" ? "-" : formatSigned(toAnalysisNumber(part.damage, 0) + totals.damage);
+        const def = part.def === "" ? "-" : toAnalysisNumber(part.def, 0) + totals.def;
+        return `<section class="analysis-mount-part"><strong>${escapeAnalysisHtml(part.name)}</strong><span>命中 ${escapeAnalysisHtml(hit)} / 回避 ${escapeAnalysisHtml(eva)}</span><span>2D${escapeAnalysisHtml(damage)} / 防護 ${escapeAnalysisHtml(def)}</span><span>HP ${escapeAnalysisHtml(part.hp || "-")} / 生命 ${escapeAnalysisHtml(part.vit || "-")} / 精神 ${escapeAnalysisHtml(part.mnd || "-")}</span></section>`;
+      }).join("")}</div>` : ""}<footer>${escapeAnalysisHtml(bonusText)}</footer></article>`;
+    }).join("")}</div>`;
+  }
+
+  async function loadCharAnalysisMountsFromUrl() {
+    const { mountUrl, mountLoad } = getCharAnalysisElements();
+    const urls = parseCharAnalysisUrls(mountUrl?.value);
+    if (!urls.length) {
+      setCharAnalysisStatus("騎獣のゆとシートURLを入力してください。", "error");
+      return;
+    }
+    if (mountLoad) mountLoad.disabled = true;
+    setCharAnalysisStatus(`${urls.length}件の騎獣シートを取得しています。`, "info");
+    try {
+      const mounts = [];
+      const failures = [];
+      for (let index = 0; index < urls.length; index += 1) {
+        try {
+          const fetched = await fetchCharAnalysisData(urls[index]);
+          if (!isMonsterSheetJson(fetched.parsed)) {
+            failures.push(`${index + 1}件目: 騎獣シートではありません`);
+            continue;
+          }
+          mounts.push({ url: urls[index], data: fetched.parsed });
+        } catch (_) {
+          failures.push(`${index + 1}件目: 取得失敗`);
+        }
+      }
+      if (!mounts.length) throw new Error("読み込める騎獣シートがありませんでした。");
+      charAnalysisMounts = mounts;
+      charAnalysisMountRiderAssignments = {};
+      charAnalysisMountEffectEnabled = {};
+      charAnalysisMountAbilityEnabled = {};
+      const riders = getCharAnalysisRiderEntries();
+      const autoAssigned = riders.length === 1;
+      if (autoAssigned) {
+        charAnalysisMounts.forEach((_, index) => { charAnalysisMountRiderAssignments[index] = riders[0].index; });
+      }
+      renderCharAnalysisMounts();
+      const suffix = failures.length ? `（${failures.length}件は読込できませんでした）` : "";
+      setCharAnalysisStatus(autoAssigned
+        ? `${mounts.length}体の騎獣を読み込み、唯一のライダーへ自動で紐づけました。${suffix}`
+        : `${mounts.length}体の騎獣を読み込みました。乗り手を選択してください。${suffix}`, failures.length ? "info" : "success");
+    } catch (error) {
+      setCharAnalysisStatus(`騎獣シートを取得できませんでした: ${error.message}`, "error");
+    } finally {
+      if (mountLoad) mountLoad.disabled = false;
+    }
+  }
+
   function extractCharAnalysisAlchemyEffects(charData) {
     const alcLevel = toAnalysisNumber(charData?.skills?.["アルケミスト"]?.level, 0);
     if (alcLevel <= 0) return [];
@@ -2976,6 +3789,8 @@ document.addEventListener("DOMContentLoaded", () => {
         alchemyKey: key,
         summary: def.summary,
         ref: "アルケミスト",
+        target: "-",
+        range: "-",
         bonuses: hasDirectBonus
           ? [{ type: def.bonusType, label: def.bonusLabel, value: bonus, uncertain: false }]
           : [{ type: def.bonusType, label: def.bonusLabel, value: 0, uncertain: true }],
@@ -3021,6 +3836,8 @@ document.addEventListener("DOMContentLoaded", () => {
         action,
         cost: row["消費"] || "-",
         time: row["時間"] || "-",
+        target: row["対象"] || "-",
+        range: row["射程/形状"] || "-",
         auto: isAuto,
         summary,
         ref: row["参照"] || "",
@@ -3263,7 +4080,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const visibleSupportEffects = isScoutMode ? supportEffects.filter(isCharAnalysisBattlePreparationEffect) : supportEffects;
     charAnalysisSelectedEffectIds = new Set([...charAnalysisSelectedEffectIds].filter((id) => visibleSupportEffects.some((effect) => effect.id === id)));
     charAnalysisSelectedDeclarationIds = new Set([...charAnalysisSelectedDeclarationIds].filter((id) => declarationFeats.some((feat) => feat.id === id)));
-    const selectedEffects = visibleSupportEffects.filter((effect) => effect.auto || charAnalysisSelectedEffectIds.has(effect.id));
+    const selectedEffects = getCharAnalysisSelectedEffectsWithParty(visibleSupportEffects);
     // 宣言特技は1R行動枠の各スロットへ割り当てる。
     // 旧来の単発選択用IDは残っていても、攻撃候補の基礎値へは混ぜない。
     const selectedDeclarations = [];
@@ -3290,6 +4107,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ? renderDefenseAnalysisAdjusted(charData, totals, attackOptions)
         : renderAnalysisAdjusted(charData, totals, selectedEffects, attackOptions, declarationFeats, selectedDeclarations, declarationLimit));
     if (els.copyOutput) els.copyOutput.value = buildCharAnalysisCopyText(charData, attackSpells, supportEffects, totals, selectedEffects);
+    renderCharAnalysisPartyBuffs();
+    renderCharAnalysisMounts();
   }
 
   function renderAnalysisOverview(charData) {
@@ -3317,12 +4136,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!image?.url) return "";
     const preset = getAnalysisPortraitPreset(image);
     const crop = getAnalysisPortraitBannerCrop(image, preset);
-    const scale = getAnalysisPortraitBannerScale(image.percent, preset);
+    const size = getAnalysisPortraitBannerSize(image, preset);
     const height = preset.height;
     const style = [
       `--analysis-portrait-url: url('${escapeAnalysisCssUrl(image.url)}')`,
       `--analysis-portrait-fit: ${sanitizeAnalysisImageFit(image.fit)}`,
-      `--analysis-portrait-size: ${scale}% auto`,
+      `--analysis-portrait-size: ${size}`,
       `--analysis-portrait-position: ${crop.x}% ${crop.y}%`,
       `--analysis-portrait-height: ${height}px`,
     ].join("; ");
@@ -3384,14 +4203,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getAnalysisPortraitPresetByKind(kind) {
     const presets = {
-      close: { kind: "close", label: "顔アップ", xBase: 50, xRatio: 0.45, yBase: 7, yRatio: 0.22, scaleInfluence: 0.25, scaleMultiplier: 0.35, height: 110 },
-      percentx: { kind: "percentx", label: "横基準トリミング", xBase: 50, xRatio: 0.45, yBase: 7, yRatio: 0.22, scaleInfluence: 0.25, scaleMultiplier: 0.35, height: 110 },
-      bust: { kind: "bust", label: "バストアップ", xBase: 50, xRatio: 0.55, yBase: 10, yRatio: 0.28, scaleInfluence: 0.35, scaleMultiplier: 0.45, height: 110 },
-      upper: { kind: "upper", label: "上半身", xBase: 50, xRatio: 0.62, yBase: 15, yRatio: 0.26, scaleInfluence: 0.4, scaleMultiplier: 0.55, height: 110 },
-      cover: { kind: "cover", label: "拡大カバー", xBase: 50, xRatio: 0.62, yBase: 38, yRatio: 0.2, scaleInfluence: 0.35, scaleMultiplier: 0.62, height: 110 },
-      full: { kind: "full", label: "全身", xBase: 50, xRatio: 0.75, yBase: 26, yRatio: 0.2, scaleInfluence: 0.45, scaleMultiplier: 0.85, height: 110 },
-      tall: { kind: "tall", label: "縦長全身", xBase: 50, xRatio: 0.8, yBase: 20, yRatio: 0.55, scaleInfluence: 0.45, scaleMultiplier: 0.9, height: 110 },
-      wide: { kind: "wide", label: "横長", xBase: 50, xRatio: 0.28, yBase: 32, yRatio: 0.16, scaleInfluence: 0.16, scaleMultiplier: 0.9, height: 110 },
+      close: { kind: "close", label: "顔アップ", xBase: 50, xRatio: 0.45, yBase: 20, yRatio: 0.6, scaleInfluence: 0.25, scaleMultiplier: 0.58, height: 124 },
+      percentx: { kind: "percentx", label: "横基準トリミング", xBase: 50, xRatio: 0.45, yBase: 25, yRatio: 0.6, scaleInfluence: 0.25, scaleMultiplier: 0.58, height: 124 },
+      portraitx: { kind: "portraitx", label: "縦長・横基準", xBase: 50, xRatio: 0.62, yBase: 9, yRatio: 0.1, scaleInfluence: 0.3, scaleMultiplier: 0.52, height: 124 },
+      portraitclose: { kind: "portraitclose", label: "縦長・顔寄せ", xBase: 50, xRatio: 0.62, yBase: 9, yRatio: 0.1, scaleInfluence: 0.25, scaleMultiplier: 0.52, height: 124 },
+      bust: { kind: "bust", label: "バストアップ", xBase: 50, xRatio: 0.55, yBase: 13, yRatio: 0.28, scaleInfluence: 0.35, scaleMultiplier: 0.65, height: 124 },
+      upper: { kind: "upper", label: "上半身", xBase: 50, xRatio: 0.62, yBase: 18, yRatio: 0.26, scaleInfluence: 0.4, scaleMultiplier: 0.7, height: 124 },
+      cover: { kind: "cover", label: "拡大カバー", xBase: 50, xRatio: 0.62, yBase: 40, yRatio: 0.2, scaleInfluence: 0.35, scaleMultiplier: 0.8, height: 124 },
+      full: { kind: "full", label: "全身", xBase: 50, xRatio: 0.75, yBase: 28, yRatio: 0.2, scaleInfluence: 0.45, scaleMultiplier: 0.95, height: 124 },
+      tall: { kind: "tall", label: "縦基準トリミング", xBase: 50, xRatio: 0.8, yBase: 17, yRatio: 0.1, scaleInfluence: 0.45, scaleMultiplier: 8, height: 124 },
+      verytall: { kind: "verytall", label: "超縦長トリミング", xBase: 88, xRatio: 0.12, yBase: 25, yRatio: 0.1, scaleInfluence: 0.45, scaleMultiplier: 10.5, height: 124 },
+      wide: { kind: "wide", label: "横長", xBase: 50, xRatio: 0.28, yBase: 34, yRatio: 0.16, scaleInfluence: 0.16, scaleMultiplier: 0.95, height: 124 },
     };
     return presets[kind] || presets.full;
   }
@@ -3401,14 +4223,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const fit = String(image.fit || "").toLowerCase();
     const percent = clampAnalysisNumber(image.percent, 50, 400);
 
+    if (aspectRatio <= 0.62) {
+      if (fit.includes("percenty")) return aspectRatio < 0.4 ? "verytall" : "tall";
+      if (fit.includes("percentx")) return "portraitx";
+      return percent >= 150 ? "portraitclose" : "full";
+    }
     if (fit.includes("percentx")) {
       return percent >= 170 ? "percentx" : "upper";
     }
-    if (aspectRatio < 0.5 || fit.includes("percenty")) {
+    if (fit.includes("percenty")) {
       return "tall";
-    }
-    if (aspectRatio <= 0.62) {
-      return "full";
     }
     if (aspectRatio <= 0.8) {
       return fit.includes("cover") || percent >= 150 ? "cover" : "upper";
@@ -3428,6 +4252,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sourceX = clampAnalysisNumber(image?.positionX, 0, 100);
     const sourceY = clampAnalysisNumber(image?.positionY, 0, 100);
     const x = preset.xBase + ((sourceX - 50) * preset.xRatio);
+    // 元シートの基準位置を横長バナー向けに圧縮し、目だけで切れないよう口元側へ少し寄せる。
     const y = preset.yBase + (sourceY * preset.yRatio);
     return {
       x: clampAnalysisNumber(x, 0, 100),
@@ -3435,10 +4260,19 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  function getAnalysisPortraitBannerSize(image = {}, preset = getAnalysisPortraitPreset(image)) {
+    const fit = String(image.fit || "cover").toLowerCase();
+    const scale = getAnalysisPortraitBannerScale(image.percent, preset);
+    if (fit.includes("percenty")) return `auto ${scale}%`;
+    if (fit.includes("percentx")) return `${scale}% auto`;
+    if (clampAnalysisNumber(image.percent, 50, 400) !== 100) return `${scale}% auto`;
+    return sanitizeAnalysisImageFit(image.fit);
+  }
+
   function getAnalysisPortraitBannerScale(percent, preset = getAnalysisPortraitPreset(percent)) {
     const sourcePercent = clampAnalysisNumber(percent, 50, 400);
     const baseScale = (100 + ((sourcePercent - 100) * preset.scaleInfluence)) * preset.scaleMultiplier;
-    return clampAnalysisNumber(baseScale * 0.75, 26, 180);
+    return clampAnalysisNumber(baseScale * 0.75, 26, 1200);
   }
 
   function escapeAnalysisCssUrl(value) {
@@ -3531,9 +4365,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return `<p class="analysis-note">攻撃魔法 ${spells.length}件を平均ダメージ/R選択肢に追加しました。初期選択: ${escapeAnalysisHtml(top.name)}</p>`;
   }
 
+  function renderAnalysisIncomingPartyEffects() {
+    const incoming = getCharAnalysisIncomingPartyEffects();
+    if (!incoming.length) return "";
+    return `<div class="analysis-incoming-party-effects"><strong>他メンバーから適用中</strong>${incoming.map((effect) => {
+      const bonusText = (effect.bonuses || []).map((bonus) => `${bonus.label} ${formatSigned(bonus.value)}${bonus.uncertain ? "（候補・要確認）" : ""}`).join(" / ");
+      return `<span><b>${renderAnalysisDaggerHtml(effect.name)}</b><em>${escapeAnalysisHtml(effect._partyCasterName || "術者")}</em><small>${escapeAnalysisHtml(bonusText)}</small></span>`;
+    }).join("")}</div>`;
+  }
+
   function renderAnalysisEffects(effects) {
     if (!effects.length) return `<p class="muted">補助効果候補は見つかりませんでした。</p>`;
-    return `<div class="analysis-effect-list">${effects.map((effect) => {
+    const mountOnlyCount = effects.filter((effect) => effect.targetPolicy?.mountOnly).length;
+    const pcEffects = effects.filter((effect) => !effect.targetPolicy?.mountOnly);
+    const mountNote = mountOnlyCount ? `<p class="analysis-note analysis-mount-effect-route-note"><i class="fa-solid fa-horse"></i> 騎獣対象 ${mountOnlyCount}件は、各騎獣カードの「騎獣行動・補助効果候補」で選択します。</p>` : "";
+    if (!pcEffects.length) return `${mountNote}<p class="muted">冒険者に適用する補助効果候補は見つかりませんでした。</p>`;
+    return `${mountNote}<div class="analysis-effect-list">${pcEffects.map((effect) => {
       const checked = (effect.auto || charAnalysisSelectedEffectIds.has(effect.id)) ? "checked" : "";
       const autoAttr = effect.auto ? "disabled" : "";
       const autoBadge = effect.auto ? `<span class="analysis-effect-auto-badge">自動</span>` : "";
@@ -3555,7 +4402,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <input type="checkbox" class="char-analysis-effect-check" data-effect-id="${escapeAnalysisHtml(effect.id)}" ${checked} ${autoAttr} />
         <span class="analysis-effect-body">
           <span class="analysis-effect-title"><strong>${renderAnalysisDaggerHtml(effect.name)}</strong>${autoBadge}</span>
-          <span class="analysis-effect-meta">${escapeAnalysisHtml(effect.skill)} Lv${effect.level} / ${escapeAnalysisHtml(effect.cost)} / ${escapeAnalysisHtml(effect.time)}</span>
+          <span class="analysis-effect-meta">${escapeAnalysisHtml(effect.skill)} Lv${effect.level} / ${escapeAnalysisHtml(effect.cost)} / ${escapeAnalysisHtml(effect.time)} / 対象: ${escapeAnalysisHtml(effect.targetPolicy?.label || effect.target || "未判定")}</span>
           ${alchemyControls}
           <span class="analysis-effect-bonus">${escapeAnalysisHtml(bonusText)}</span>
           <span class="analysis-effect-reason">根拠: ${escapeAnalysisHtml(effect.summary)}${effect.ref ? ` / ${escapeAnalysisHtml(effect.ref)}` : ""}</span>
@@ -3743,6 +4590,26 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  function buildCharAnalysisMountCommandOptions(charData) {
+    const learned = new Set(getCharAnalysisLearnedNames(charData));
+    const makeCommand = (id, name, summary, mountCommandMode) => ({
+      id,
+      type: "mount-command",
+      source: "riding-art",
+      label: `【${name}】 / ${summary}`,
+      name: `【${name}】`,
+      skill: "ライダー",
+      category: "騎芸",
+      mountCommandMode,
+      note: `騎手の主動作として【${name}】を実行します。ダメージは続く騎獣行動枠で計算します。`,
+    });
+    const commands = [];
+    if (learned.has("八面六臂")) commands.push(makeCommand("mount-command-eight", "八面六臂", "騎獣の全部位を行動", "eight"));
+    if (learned.has("チャージ")) commands.push(makeCommand("mount-command-charge", "チャージ", "騎獣1部位で突撃", "charge"));
+    if (learned.has("魔法指示") && !learned.has("瞬時魔法指示")) commands.push(makeCommand("mount-command-magic", "魔法指示", "騎獣に魔法を行使させる", "magic"));
+    return commands;
+  }
+
   function buildCharAnalysisAttackOptions(charData, attackSpells, totals) {
     const bulletSpells = attackSpells.filter((spell) => spell.isBullet).map((spell, index) => ({ ...spell, id: `bullet-${index}` }));
     const weaponOptions = charData.weapons.map((weapon, index) => {
@@ -3800,7 +4667,7 @@ document.addEventListener("DOMContentLoaded", () => {
         note: [spell.target, spell.range].filter(Boolean).join(" / ") || "-",
       };
     });
-    return [...weaponOptions, ...spellOptions, buildCharAnalysisManualAttackOption()];
+    return [...weaponOptions, ...spellOptions, ...buildCharAnalysisMountCommandOptions(charData), buildCharAnalysisManualAttackOption()];
   }
 
   function getCharAnalysisAttackDefaultPriority(option) {
@@ -3933,10 +4800,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildCharAnalysisActionPlanSlotResult(slot, option, declarations, baseSettings) {
     if (!option) return null;
+    if (option.type === "mount-command") return null;
     const declared = applyCharAnalysisDeclarationBonusesToOption(option, declarations);
     const slotSettings = applyCharAnalysisDeclarationSettings(getCharAnalysisSettingsForSlot(baseSettings, slot.key), declared.totals);
     const withDualPenalty = { ...declared.option };
     if (withDualPenalty.type === "weapon" && slot.penalty) withDualPenalty.hit = toAnalysisNumber(withDualPenalty.hit, 0) + slot.penalty;
+    if (withDualPenalty.type === "spell" && slot.magicCastPenalty) {
+      withDualPenalty.cast = toAnalysisNumber(withDualPenalty.cast ?? withDualPenalty.add, 0) + slot.magicCastPenalty;
+      withDualPenalty.add = toAnalysisNumber(withDualPenalty.add, 0) + slot.magicCastPenalty;
+    }
     const adjusted = getAdjustedAttackOption(withDualPenalty, slotSettings);
     const metrics = calculateSelectedAttackMetrics(adjusted, slotSettings);
     const targetCount = getCharAnalysisSlotTargetCount(slot.key, adjusted);
@@ -3967,6 +4839,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderCharAnalysisActionSlotDeclarations(charData, slot, slotOption, declarations = [], declarationFeats = [], declarationLimit = { totalLimit: 1 }, options = []) {
+    if (slot?.kind === "mount") return `<small class="analysis-note">騎獣の行動枠（PCの宣言枠を消費しません）</small>`;
     const selectedIds = getCharAnalysisSlotDeclarationIds(slot.key).filter((id) => {
       const feat = declarationFeats.find((item) => item.id === id);
       return isCharAnalysisSlotDeclarationAllowed(slot, slotOption, feat);
@@ -4009,6 +4882,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderCharAnalysisActionSlotSelectedDetail(slot, slotOption, settings = getCharAnalysisSettings(), baseOption = slotOption) {
     if (!slotOption) return `<p class="analysis-note">この枠の攻撃手段を選択してください。</p>`;
+    if (slotOption.type === "mount-command") {
+      return `<div class="analysis-action-slot-detail analysis-mount-command-detail"><div class="analysis-action-slot-detail-block"><dl class="analysis-selected-attack-details"><dt>使用技能</dt><dd>ライダー</dd><dt>行動</dt><dd>騎手の主動作</dd><dt>騎獣</dt><dd>${escapeAnalysisHtml(slotOption.mountCommandMode === "eight" ? "全部位を行動" : "1部位を行動")}</dd></dl><p class="analysis-note">${escapeAnalysisHtml(slotOption.note || "続く騎獣行動枠で攻撃方法を選択します。")}</p></div></div>`;
+    }
     const slotSettings = getCharAnalysisSettingsForSlot(settings, slot.key);
     const adjusted = getAdjustedAttackOption(slotOption, slotSettings);
     const noteText = adjusted?.weaponNote || adjusted?.note || "";
@@ -4036,12 +4912,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const totalLimit = Math.max(1, declarationLimit.totalLimit || declarationLimit.limit || 1);
     const weaponCount = allDeclarations.filter((feat) => feat.category === "weapon").length;
     const magicCount = allDeclarations.filter((feat) => feat.category === "magic").length;
+    const mountSlots = slots.filter((slot) => slot.kind === "mount");
+    const mountMode = getCharAnalysisMountActionMode(charData, options);
     const statusText = `行動${slots.length} / 宣言${allDeclarations.length}/${totalLimit}（武器${weaponCount}・魔法${magicCount}）`;
     const optionSelect = (slot) => {
       const slotOptions = getCharAnalysisActionSlotOptions(slot, options);
       if (!slotOptions.length) return `<p class="analysis-note is-warning">この枠で選べる${slot.kind === "magic" ? "攻撃魔法" : isCharAnalysisMainActionSlot(slot) ? "攻撃手段" : "武器攻撃"}がありません。</p>`;
       const selectedId = charAnalysisActionPlan.slotAttackIds?.[slot.key] || getCharAnalysisActionSlotDefaultId(slot, options);
       return `<select class="char-analysis-action-slot-select" data-slot="${escapeAnalysisHtml(slot.key)}">${slotOptions.map((option) => `<option value="${escapeAnalysisHtml(option.id)}" ${option.id === selectedId ? "selected" : ""}>${escapeAnalysisHtml(renderSw25DecoratedNameText(option.label))}</option>`).join("")}</select>`;
+    };
+    const mountSelects = (slot) => {
+      if (slot.kind !== "mount") return optionSelect(slot);
+      const partOptions = (slot.mountParts || []).map((part) => `<option value="${escapeAnalysisHtml(part.id)}" ${part.id === slot.mountPartId ? "selected" : ""}>${escapeAnalysisHtml(part.name)}</option>`).join("");
+      return `<div class="analysis-mount-action-selects">
+        <label><span>部位</span><select class="char-analysis-mount-part-select" data-slot="${escapeAnalysisHtml(slot.key)}">${partOptions}</select></label>
+        <label><span>行動</span>${optionSelect(slot)}</label>
+      </div>`;
     };
     const dualActive = Boolean(charAnalysisActionPlan.dualWield && caps.dualWield);
     const fastActive = Boolean(charAnalysisActionPlan.fastAction && caps.fastAction);
@@ -4070,6 +4956,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="analysis-action-chip-state">${caps.fastAction ? (fastActive ? "ON" : "OFF") : "未習得"}</span>
         </label>
       </div>
+      ${mountSlots.length ? `<div class="analysis-mount-command-consumption is-automatic"><i class="fa-solid fa-horse-head"></i><span>騎獣行動</span><strong>${escapeAnalysisHtml(mountMode.label)}：${mountSlots.length}部位</strong><small>${mountMode.command ? "騎手の主動作プルダウンで選択中です。" : (mountMode.value === "lion" ? "【獅子奮迅】習得により自動適用します。" : "騎手の指示で行動します。")}</small></div>` : ""}
       <div class="analysis-declaration-limit-note"><small>各攻撃枠ごとに宣言を割り当てます。同じ宣言を別枠で使う場合は宣言回数を消費します。</small></div>
       <div class="analysis-action-slot-list">
         ${slots.map((slot) => {
@@ -4080,7 +4967,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const penaltyText = (slot.penalty && slotOption?.type === "weapon") ? `<small class="is-warning">命中${formatSigned(slot.penalty)}</small>` : "";
           return `<div class="analysis-action-slot-card is-${escapeAnalysisHtml(slot.key)}">
             <div class="analysis-action-slot-head"><strong>${escapeAnalysisHtml(slot.label)}</strong><span>${escapeAnalysisHtml(slot.source)}</span>${penaltyText}</div>
-            <div class="analysis-action-slot-main-select">${optionSelect(slot)}</div>
+            <div class="analysis-action-slot-main-select${slot.kind === "mount" ? " is-mount-select" : ""}">${mountSelects(slot)}</div>
             ${renderCharAnalysisActionSlotSelectedDetail(slot, slotOption, undefined, baseOption)}
             ${renderCharAnalysisActionSlotDeclarations(charData, slot, slotOption, declarations, declarations, declarationLimit, options)}
           </div>`;
@@ -4646,6 +5533,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function calculateDamageExpected(option, settings) {
+    if (toAnalysisNumber(option?.fixedDiceCount, 0) > 0) {
+      const dice = Math.max(1, Math.trunc(toAnalysisNumber(option.fixedDiceCount, 2)));
+      const add = toAnalysisNumber(option.add, 0);
+      const raw = (dice * 3.5) + add;
+      const enemyDef = option.type === "weapon" && !option.ignoreDefense && isFiniteAnalysisNumber(settings.enemy.def) ? Math.max(0, settings.enemy.def) : 0;
+      return { powerExpected: dice * 3.5, addExpected: add, raw, enemyDef, afterDefense: Math.max(0, raw - enemyDef), critProbability: 0, fumbleProbability: 0, fixedDiceCount: dice };
+    }
     const power = calculatePowerExpectedWithDiceModifiers(option, settings);
     const add = toAnalysisNumber(option.add, 0);
     const addExpected = add * (1 - (power.fumbleProbability || 0));
@@ -4850,6 +5744,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function simulatePowerDamage(option, settings, rng) {
+    if (toAnalysisNumber(option?.fixedDiceCount, 0) > 0) {
+      const diceCount = Math.max(1, Math.trunc(toAnalysisNumber(option.fixedDiceCount, 2)));
+      const dice = Array.from({ length: diceCount }, () => rollOneDie(rng));
+      const diceTotal = dice.reduce((sum, value) => sum + value, 0);
+      const add = toAnalysisNumber(option.add, 0);
+      const raw = diceTotal + add;
+      const enemyDef = option.type === "weapon" && !option.ignoreDefense && isFiniteAnalysisNumber(settings.enemy.def) ? Math.max(0, settings.enemy.def) : 0;
+      return { raw, enemyDef, afterDefense: Math.max(0, raw - enemyDef), critCount: 0, initialFumble: false, rolls: [{ dice, rawTotal: diceTotal, total: diceTotal, powerValue: diceTotal }], fixedDiceCount: diceCount, add };
+    }
     const safeRate = Math.max(0, Math.min(100, Math.trunc(toAnalysisNumber(option.rate, 0))));
     let safeCrit = toAnalysisNumber(option.crit, 10) || 10;
     if (settings.critLower) safeCrit = Math.max(8, safeCrit);
@@ -4924,6 +5827,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const damage = sample.damage;
     const rolls = damage.rolls || [];
+    if (toAnalysisNumber(option?.fixedDiceCount, 0) > 0) {
+      const first = rolls[0] || {};
+      const diceText = first.dice?.length ? `[${first.dice.join(",")}] = ${first.rawTotal}` : `${option.fixedDiceCount}D`;
+      const add = toAnalysisNumber(option.add, 0);
+      const defenseText = damage.enemyDef > 0 ? ` / 防護点${damage.enemyDef}後 ${sample.dealt}` : "";
+      return { label, html: `${renderAnalysisLogChip("式", `${option.fixedDiceCount}D${formatSigned(add)}`)} <span class="analysis-log-arrow">＞</span> ${renderAnalysisLogChip("出目", diceText, "dice")} <span class="analysis-log-arrow">＞</span> ${renderAnalysisLogChip("合計", `${first.rawTotal || 0}${formatSigned(add)} = ${damage.raw}${defenseText}`, "total")}` };
+    }
     const rate = damage.rate ?? Math.max(0, Math.min(100, Math.trunc(toAnalysisNumber(option.rate, 0))));
     const crit = damage.crit ?? toAnalysisNumber(option.crit, 10);
     const add = damage.add ?? toAnalysisNumber(option.add, 0);
@@ -4960,13 +5870,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderAnalysisRepresentativeLogs(simulation) {
     const logs = simulation?.representativeLogs || [];
     if (!logs.length) return "";
-    return `<div class="analysis-representative-logs">
-      <h7>代表ログ</h7>
-      <div class="analysis-representative-log-list">
-        ${logs.map((log) => `<div class="analysis-representative-log"><div class="analysis-representative-log-label">${escapeAnalysisHtml(log.label)}</div><div class="analysis-representative-log-body">${log.html}</div></div>`).join("")}
+    return `<details class="analysis-representative-details">
+      <summary><span>代表ログ</span><small>${logs.length}件・出目の内訳</small></summary>
+      <div class="analysis-representative-logs">
+        <div class="analysis-representative-log-list">
+          ${logs.map((log) => `<div class="analysis-representative-log"><div class="analysis-representative-log-label">${escapeAnalysisHtml(log.label)}</div><div class="analysis-representative-log-body">${log.html}</div></div>`).join("")}
+        </div>
+        <p class="analysis-note">出目は2Dの合計、威力は威力表で対応する値です。代表ログは全試行から中央値・低め・高め・最大に近いものだけを表示します。</p>
       </div>
-      <p class="analysis-note">出目は2Dの合計、威力は威力表で対応する値です。代表ログは全試行から中央値・低め・高め・最大に近いものだけを表示します。</p>
-    </div>`;
+    </details>`;
   }
 
   function getMonteCarloModeLabel(mode) {
@@ -5229,6 +6141,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function formatAnalysisAttackFormulaDirect(adjusted, settings = getCharAnalysisSettings()) {
     if (!adjusted) return "-";
+    if (toAnalysisNumber(adjusted.fixedDiceCount, 0) > 0) return `${Math.trunc(toAnalysisNumber(adjusted.fixedDiceCount, 2))}D${formatSigned(adjusted.add)}`;
     const commandSuffix = formatDiceModifierCommand(settings, adjusted);
     return `K${adjusted.rate}@${adjusted.crit}${formatSigned(adjusted.add)}${commandSuffix}`;
   }
@@ -5483,7 +6396,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function formatAnalysisStatChip(label, value) {
     if (value === null || value === undefined || value === "") return "";
-    return `<span><b>${escapeAnalysisHtml(label)}</b>${escapeAnalysisHtml(value)}</span>`;
+    return `<span class="analysis-stat-chip"><b>${escapeAnalysisHtml(label)}</b><strong class="analysis-stat-value">${escapeAnalysisHtml(value)}</strong></span>`;
   }
 
 
@@ -5573,7 +6486,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const targetSuffixCompact = [targetCount > 1 ? `${targetCount}体` : "", targetMaxValue > 1 ? `最大${targetMaxValue}` : ""].filter(Boolean).join("/");
     const targetSuffixFull = [targetCount > 1 ? `${targetCount}体` : "", targetMaxValue > 1 ? `最大${targetMaxValue}` : ""].filter(Boolean).join(" / ");
     const centerClass = `analysis-match-summary analysis-action-slot-match-summary match-rank-${grade.className}`;
-    const attackTypeText = adjusted.source === "manual" ? "直接指定" : (adjusted.source === "gun-bullet" ? "ガン攻撃" : (adjusted.type === "spell" ? "魔法攻撃" : "武器攻撃"));
+    const attackTypeText = adjusted.source === "manual" ? "直接指定" : (adjusted.source === "gun-bullet" ? "ガン攻撃" : (String(adjusted.source || "").startsWith("mount") ? (adjusted.type === "spell" ? "騎獣・特殊能力" : "騎獣攻撃") : (adjusted.type === "spell" ? "魔法攻撃" : "武器攻撃")));
+    const actorLabel = result.slot?.kind === "mount" ? "騎獣" : "冒険者";
     const enemySub = opponent.dummy
       ? [
           formatAnalysisStatChip("防護", isFiniteAnalysisNumber(settings.enemy.def) ? settings.enemy.def : 0),
@@ -5641,7 +6555,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="analysis-action-slot-match-head"><strong>${escapeAnalysisHtml(result.slot?.label || "行動枠")}</strong><span>${escapeAnalysisHtml(result.slot?.source || "")}</span><em>${escapeAnalysisHtml(declarationText)}</em></div>
       <div class="${centerClass}">
         <div class="analysis-match-side analysis-match-self">
-          <div class="analysis-match-label">冒険者</div>
+          <div class="analysis-match-label">${escapeAnalysisHtml(actorLabel)}</div>
           <div class="analysis-match-main">
             <span class="analysis-match-main-label">${escapeAnalysisHtml(checkLabel)}</span>
             <strong>${escapeAnalysisHtml(checkFormula)}</strong>
@@ -5831,6 +6745,40 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>`;
   }
 
+  function renderCharAnalysisMountActionPlan(charData, settings) {
+    const riderIndex = charAnalysisActiveCharacterIndex;
+    const hasAllParts = hasCharAnalysisFeat(charData, /八面六臂/);
+    const hasTwoParts = hasCharAnalysisFeat(charData, /獅子奮迅/);
+    const rows = charAnalysisMounts.flatMap((mount, mountIndex) => {
+      const assignedIndex = Math.trunc(toAnalysisNumber(charAnalysisMountRiderAssignments[mountIndex], -1));
+      if (assignedIndex !== riderIndex) return [];
+      const rider = getCharAnalysisRiderEntries().find((item) => item.index === assignedIndex);
+      if (!rider) return [];
+      const range = getCharAnalysisMountLevelRange(mount.data);
+      const riderLevel = rider.level;
+      if (riderLevel < range.min) return [];
+      const abilities = extractCharAnalysisMountAbilityCandidates(mount, rider.entry);
+      const effects = [
+        ...getCharAnalysisMountEffects(riderIndex, mountIndex, mount).filter((effect) => effect.enabled),
+        ...getCharAnalysisEnabledMountAbilityEffects(mountIndex, abilities),
+      ];
+      const bonus = calculateCharAnalysisTotals(effects);
+      const limit = hasAllParts ? Infinity : (hasTwoParts ? 2 : 1);
+      const parts = extractCharAnalysisMountParts(mount.data, Math.min(riderLevel, range.max)).slice(0, limit);
+      const name = mount.data?.monsterName || `騎獣${mountIndex + 1}`;
+      return parts.map((part) => {
+        const hit = toAnalysisNumber(part.hit, 0) + bonus.hit;
+        const damage = Math.max(0, 7 + toAnalysisNumber(part.damage, 0) - toAnalysisNumber(settings.enemy?.def, 0));
+        const rate = isFiniteAnalysisNumber(settings.enemy?.eva) ? get2dSuccessRate(hit, settings.enemy.eva)?.rate || 0 : 1;
+        return { name, part: part.name, hit, damage, expected: damage * rate, rate };
+      });
+    });
+    if (!rows.length) return "";
+    const total = rows.reduce((sum, row) => sum + row.expected, 0);
+    const partRule = hasAllParts ? "八面六臂：全身" : (hasTwoParts ? "獅子奮迅：2部位" : "通常：1部位");
+    return `<section class="analysis-mount-action-plan"><header><strong>騎獣行動</strong><span>${escapeAnalysisHtml(partRule)} / ${rows.length}回攻撃</span><em>期待値 ${escapeAnalysisHtml(formatDecimal(total))}</em></header>${rows.map((row) => `<div class="analysis-match-summary analysis-action-slot-match-summary match-rank-very-good analysis-mount-action-match"><div class="analysis-match-side"><b>${escapeAnalysisHtml(row.name)}・${escapeAnalysisHtml(row.part)}</b><span>命中 2D${escapeAnalysisHtml(formatSigned(row.hit))}</span></div><div class="analysis-match-center"><strong>${escapeAnalysisHtml(formatDecimal(row.expected))}</strong><small>平均ダメージ/R</small></div><div class="analysis-match-side"><b>敵</b><span>打撃 2D${escapeAnalysisHtml(formatSigned(row.damage - 7))}</span></div></div>`).join("")}</section>`;
+  }
+
   function analysisKpi(label, value) {
     return `<div class="analysis-kpi"><span>${escapeAnalysisHtml(label)}</span><strong>${escapeAnalysisHtml(value)}</strong></div>`;
   }
@@ -5848,7 +6796,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const weaponLines = charData.weapons.map((weapon) => `- ${weapon.name}: 命中 ${formatSigned(weapon.acc)} -> ${formatSigned(weapon.acc + totals.hit)} / k${weapon.rate} C${weapon.crit} ${formatSigned(weapon.dmg)} -> ${formatSigned(weapon.dmg + totals.damage)}`);
     const spellLines = attackSpells.slice(0, 30).map((spell) => `- ${spell.name} / ${spell.skill} Lv${spell.level} / k${spell.k} / 魔力${formatSigned(spell.magicPower)} / ${spell.attribute} / ${spell.resist} / ${spell.range}`);
     const selectedDeclarations = (charAnalysisCurrent?.declarationFeats || []).filter((feat) => charAnalysisSelectedDeclarationIds.has(feat.id));
-    const effectLines = selectedEffects.map((effect) => `- ${effect.name}: ${effect.bonuses.map((bonus) => `${bonus.label}${formatSigned(bonus.value)}${bonus.uncertain ? "候補" : ""}`).join("、")}`);
+    const effectLines = selectedEffects.map((effect) => `- ${effect.name}${effect._partyAssigned ? `（${effect._partyCasterName}から）` : ""}: ${effect.bonuses.map((bonus) => `${bonus.label}${formatSigned(bonus.value)}${bonus.uncertain ? "候補" : ""}`).join("、")}`);
     const declarationLines = selectedDeclarations.map((feat) => `- ${feat.name}: ${formatDeclarationBonusText(feat.bonuses, feat.risks || [])}${feat.notes?.length ? `（${feat.notes.join("、")}）` : ""}`);
     return [
       `【キャラシ分析】${charData.name}`,
@@ -5872,21 +6820,27 @@ document.addEventListener("DOMContentLoaded", () => {
     ].join("\n");
   }
 
+  function buildCharAnalysisSnapshot(rawText) {
+    const rawData = parseCharAnalysisJson(rawText);
+    const charData = extractCharAnalysisData(rawData);
+    const usableRows = findCharAnalysisUsableRows(charData);
+    const attackSpells = extractCharAnalysisAttackSpells(charData, usableRows);
+    const supportEffects = applyCharAnalysisSupportTargetPolicies([
+      ...extractCharAnalysisAlchemyEffects(charData),
+      ...extractCharAnalysisSupportEffects(usableRows),
+    ], charData);
+    const declarationFeats = extractCharAnalysisDeclarationFeats(charData);
+    const declarationLimit = getCharAnalysisDeclarationLimit(charData);
+    return { charData, usableRows, attackSpells, supportEffects, declarationFeats, declarationLimit };
+  }
+
   function runCharAnalysis() {
     try {
       if (!charAnalysisCsvRows.length) {
         setCharAnalysisStatus("CSVが未読み込みです。data/SW_特技魔法.csv の配置を確認してください。", "error");
       }
-      const rawData = parseCharAnalysisJson(charAnalysisRawText);
-      const charData = extractCharAnalysisData(rawData);
-      const usableRows = findCharAnalysisUsableRows(charData);
-      const attackSpells = extractCharAnalysisAttackSpells(charData, usableRows);
-      const supportEffects = [
-        ...extractCharAnalysisAlchemyEffects(charData),
-        ...extractCharAnalysisSupportEffects(usableRows),
-      ];
-      const declarationFeats = extractCharAnalysisDeclarationFeats(charData);
-      const declarationLimit = getCharAnalysisDeclarationLimit(charData);
+      const snapshot = buildCharAnalysisSnapshot(charAnalysisRawText);
+      const { charData, usableRows, attackSpells, supportEffects, declarationFeats, declarationLimit } = snapshot;
       charAnalysisSelectedEffectIds = new Set();
       charAnalysisSelectedDeclarationIds = new Set();
       charAnalysisSelectedAttackId = "";
@@ -5895,7 +6849,9 @@ document.addEventListener("DOMContentLoaded", () => {
       charAnalysisSimulationNonce = 0;
       charAnalysisSettingsOpen = false;
       charAnalysisActionPlan = createCharAnalysisActionPlan();
-      charAnalysisCurrent = { charData, usableRows, attackSpells, supportEffects, declarationFeats, declarationLimit };
+      charAnalysisCurrent = snapshot;
+      const activeEntry = charAnalysisCharacters[charAnalysisActiveCharacterIndex];
+      if (activeEntry) activeEntry.analysisSnapshot = snapshot;
       renderCharAnalysis();
       setCharAnalysisStatus(`分析完了: 攻撃魔法候補 ${attackSpells.length}件、補助効果候補 ${supportEffects.length}件、宣言特技候補 ${declarationFeats.length}件。`, "success");
       showToast("キャラシ分析を実行しました！");
@@ -5942,7 +6898,9 @@ document.addEventListener("DOMContentLoaded", () => {
       ? `.char-analysis-action-slot-declaration-select[data-slot="${CSS.escape(select.dataset.slot || "")}"][data-declaration-index="${CSS.escape(select.dataset.declarationIndex || "0")}"]`
       : select?.classList?.contains("char-analysis-action-slot-bullet-select")
         ? `.char-analysis-action-slot-bullet-select[data-slot="${CSS.escape(select.dataset.slot || "")}"]`
-        : `.char-analysis-action-slot-select[data-slot="${CSS.escape(select?.dataset?.slot || "")}"]`;
+        : select?.classList?.contains("char-analysis-mount-part-select")
+          ? `.char-analysis-mount-part-select[data-slot="${CSS.escape(select.dataset.slot || "")}"]`
+          : `.char-analysis-action-slot-select[data-slot="${CSS.escape(select?.dataset?.slot || "")}"]`;
     preserveAnalysisScroll(() => {
       callback?.();
       renderCharAnalysis();
@@ -6013,6 +6971,71 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     document.addEventListener("keydown", manualKeyBlocker, true);
     if (els.load) els.load.addEventListener("click", loadCharAnalysisFromUrl);
+    if (els.mountLoad) els.mountLoad.addEventListener("click", loadCharAnalysisMountsFromUrl);
+    if (els.characterList) {
+      els.characterList.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-character-index]");
+        if (!button) return;
+        activateCharAnalysisCharacter(toAnalysisNumber(button.dataset.characterIndex, -1));
+      });
+    }
+    const partyBuffs = document.getElementById("char-analysis-party-buffs");
+    if (partyBuffs) {
+      partyBuffs.addEventListener("change", (event) => {
+        const input = event.target.closest(".char-analysis-party-buff-target");
+        if (!input) return;
+        const casterIndex = Math.trunc(toAnalysisNumber(input.dataset.casterIndex, -1));
+        const targetIndex = Math.trunc(toAnalysisNumber(input.dataset.targetIndex, -1));
+        const entry = charAnalysisCharacters[casterIndex];
+        const effect = entry?.analysisSnapshot?.supportEffects?.find((item) => item.id === input.dataset.effectId);
+        if (!effect) return;
+        let targets = getCharAnalysisPartyBuffTargets(casterIndex, effect.id);
+        const limit = getCharAnalysisSupportTargetSelectionLimit(effect);
+        if (input.checked) {
+          targets = limit === 1 ? [targetIndex] : [...targets, targetIndex];
+        } else {
+          targets = targets.filter((index) => index !== targetIndex);
+        }
+        setCharAnalysisPartyBuffTargets(casterIndex, effect, targets);
+        renderCharAnalysis();
+      });
+    }
+    if (els.mounts) {
+      els.mounts.addEventListener("change", (event) => {
+        const effectToggle = event.target.closest(".char-analysis-mount-effect-toggle");
+        if (effectToggle) {
+          const mountIndex = Math.trunc(toAnalysisNumber(effectToggle.dataset.mountIndex, -1));
+          const mount = charAnalysisMounts[mountIndex];
+          const riderIndex = charAnalysisMountRiderAssignments[mountIndex];
+          const effect = getCharAnalysisMountEffects(riderIndex, mountIndex, mount).find((item) => item.id === effectToggle.dataset.effectId);
+          if (!mount || !effect) return;
+          if (!charAnalysisMountEffectEnabled[mountIndex]) charAnalysisMountEffectEnabled[mountIndex] = {};
+          charAnalysisMountEffectEnabled[mountIndex][effect.id] = effectToggle.checked;
+          renderCharAnalysisMounts();
+          if (charAnalysisCurrent) renderCharAnalysis();
+          return;
+        }
+        const abilityToggle = event.target.closest(".char-analysis-mount-ability-toggle");
+        if (abilityToggle) {
+          const mountIndex = Math.trunc(toAnalysisNumber(abilityToggle.dataset.mountIndex, -1));
+          if (!charAnalysisMounts[mountIndex]) return;
+          if (!charAnalysisMountAbilityEnabled[mountIndex]) charAnalysisMountAbilityEnabled[mountIndex] = {};
+          charAnalysisMountAbilityEnabled[mountIndex][abilityToggle.dataset.abilityId] = abilityToggle.checked;
+          renderCharAnalysisMounts();
+          if (charAnalysisCurrent) renderCharAnalysis();
+          return;
+        }
+        const select = event.target.closest(".char-analysis-mount-rider-select");
+        if (!select) return;
+        const mountIndex = Math.trunc(toAnalysisNumber(select.dataset.mountIndex, -1));
+        if (!charAnalysisMounts[mountIndex]) return;
+        const riderIndex = Math.trunc(toAnalysisNumber(select.value, -1));
+        if (getCharAnalysisRiderEntries().some((item) => item.index === riderIndex)) charAnalysisMountRiderAssignments[mountIndex] = riderIndex;
+        else delete charAnalysisMountRiderAssignments[mountIndex];
+        renderCharAnalysisMounts();
+        if (charAnalysisCurrent) renderCharAnalysis();
+      });
+    }
     if (els.enemyLoad) els.enemyLoad.addEventListener("click", loadEnemyAnalysisFromUrl);
     if (els.enemyUrl) {
       els.enemyUrl.addEventListener("keydown", (event) => {
@@ -6034,7 +7057,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (els.url) {
       els.url.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
           event.preventDefault();
           loadCharAnalysisFromUrl();
         }
@@ -6047,7 +7070,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast("コピーできる分析結果がありません。");
           return;
         }
-        const selectedEffects = charAnalysisCurrent.supportEffects.filter((effect) => effect.auto || charAnalysisSelectedEffectIds.has(effect.id));
+        const selectedEffects = getCharAnalysisSelectedEffectsWithParty(charAnalysisCurrent.supportEffects);
         const selectedDeclarations = (charAnalysisCurrent.declarationFeats || []).filter((feat) => charAnalysisSelectedDeclarationIds.has(feat.id));
         const totals = calculateCharAnalysisTotals(selectedEffects, selectedDeclarations);
         const text = buildCharAnalysisCopyText(charAnalysisCurrent.charData, charAnalysisCurrent.attackSpells, charAnalysisCurrent.supportEffects, totals, selectedEffects);
@@ -6159,6 +7182,28 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           return;
         }
+        const mountPartSelect = event.target.closest(".char-analysis-mount-part-select");
+        if (mountPartSelect) {
+          const slot = mountPartSelect.dataset.slot;
+          if (slot) {
+            renderCharAnalysisAndRestoreSelect(mountPartSelect, () => {
+              if (!charAnalysisActionPlan.slotMountPartIds || typeof charAnalysisActionPlan.slotMountPartIds !== "object") charAnalysisActionPlan.slotMountPartIds = {};
+              const currentPartId = String(charAnalysisActionPlan.slotMountPartIds[slot] || "");
+              const nextPartId = mountPartSelect.value;
+              const mountKey = slot.match(/^(mount\d+)Action/)?.[1] || "";
+              const occupiedSlot = Object.keys(charAnalysisActionPlan.slotMountPartIds).find((key) => key !== slot && key.startsWith(`${mountKey}Action`) && String(charAnalysisActionPlan.slotMountPartIds[key]) === nextPartId);
+              if (occupiedSlot && currentPartId) {
+                charAnalysisActionPlan.slotMountPartIds[occupiedSlot] = currentPartId;
+                delete charAnalysisActionPlan.slotAttackIds[occupiedSlot];
+                if (charAnalysisActionPlan.slotTargetCounts) delete charAnalysisActionPlan.slotTargetCounts[occupiedSlot];
+              }
+              charAnalysisActionPlan.slotMountPartIds[slot] = nextPartId;
+              delete charAnalysisActionPlan.slotAttackIds[slot];
+              if (charAnalysisActionPlan.slotTargetCounts && Object.prototype.hasOwnProperty.call(charAnalysisActionPlan.slotTargetCounts, slot)) delete charAnalysisActionPlan.slotTargetCounts[slot];
+            });
+          }
+          return;
+        }
         const actionSlotBulletSelect = event.target.closest(".char-analysis-action-slot-bullet-select");
         if (actionSlotBulletSelect) {
           const slot = actionSlotBulletSelect.dataset.slot;
@@ -6256,7 +7301,7 @@ document.addEventListener("DOMContentLoaded", () => {
           event.stopPropagation();
           return;
         }
-        if (event.target.closest("#char-analysis-attack-select, .char-analysis-action-slot-select, .char-analysis-action-slot-bullet-select, .char-analysis-action-slot-declaration-select")) event.stopPropagation();
+        if (event.target.closest("#char-analysis-attack-select, .char-analysis-action-slot-select, .char-analysis-mount-part-select, .char-analysis-action-slot-bullet-select, .char-analysis-action-slot-declaration-select")) event.stopPropagation();
       });
       els.weapons.addEventListener("click", (event) => {
         const weaponButton = event.target.closest("[data-analysis-attack-id]");
@@ -6336,26 +7381,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!root || !image?.url) return;
     const tuner = root.querySelector("[data-analysis-portrait-tuner]");
     if (!tuner) return;
-    const sourcePercent = clampAnalysisNumber(image.percent, 50, 400);
-    const sourceX = clampAnalysisNumber(image.positionX, 0, 100);
-    const sourceY = clampAnalysisNumber(image.positionY, 0, 100);
-    const hasSheetCropPreference = sourcePercent !== 100 || sourceX !== 50 || sourceY !== 50;
-    if (hasSheetCropPreference) return;
     const probe = new Image();
     probe.onload = () => {
-      const fit = String(image.fit || "").toLowerCase();
-      if (fit.includes("percentx") || fit.includes("percenty")) return;
+      tuner.dataset.naturalWidth = String(probe.naturalWidth);
+      tuner.dataset.naturalHeight = String(probe.naturalHeight);
+      tuner.dataset.naturalAspect = String(Math.round((probe.naturalWidth / probe.naturalHeight) * 1000) / 1000);
       const preset = getAnalysisPortraitPresetFromDimensions(probe.naturalWidth, probe.naturalHeight, image);
       if (!preset || preset.kind === tuner.dataset.portraitKind) return;
-      applyAnalysisPortraitPreset(tuner, preset);
+      applyAnalysisPortraitPreset(tuner, preset, image);
     };
     probe.onerror = () => {};
     probe.src = image.url;
   }
 
-  function applyAnalysisPortraitPreset(tuner, preset) {
+  function applyAnalysisPortraitPreset(tuner, preset, image = {}) {
     if (!tuner || !preset) return;
     tuner.dataset.portraitKind = preset.kind;
+    const crop = getAnalysisPortraitBannerCrop(image, preset);
+    const size = getAnalysisPortraitBannerSize(image, preset);
     tuner.querySelectorAll(".analysis-portrait-banner").forEach((banner) => {
       [...banner.classList].forEach((className) => {
         if (
@@ -6367,6 +7410,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
       banner.classList.add(`analysis-portrait-${preset.kind}`);
+      banner.style.setProperty("--analysis-portrait-position", `${crop.x}% ${crop.y}%`);
+      banner.style.setProperty("--analysis-portrait-size", size);
+      banner.style.setProperty("--analysis-portrait-height", `${preset.height}px`);
     });
     const kindLabel = tuner.querySelector(".analysis-portrait-kind");
     if (kindLabel) kindLabel.textContent = `推定: ${preset.label}`;
@@ -6378,7 +7424,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const output = input.parentElement?.querySelector("output");
       if (output) output.textContent = String(value);
     });
-    updateAnalysisPortraitTuner(tuner);
+    if (tuner.querySelector("[data-portrait-control]")) updateAnalysisPortraitTuner(tuner);
   }
 
   function updateAnalysisPortraitTuner(tuner) {
