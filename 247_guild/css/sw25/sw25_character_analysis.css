@@ -7484,6 +7484,234 @@ grid-template-columns: minmax(0, 1fr);
   }
 }
 
+/* v121: 戦闘プランを共有用PNGとして保存・コピーする。 */
+#panel-character-analysis .analysis-plan-share-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+#panel-character-analysis .analysis-plan-export-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-height: 2.15rem;
+  padding-inline: 0.58rem;
+  border-color: rgba(108, 177, 212, 0.42);
+  background: linear-gradient(180deg, rgba(39, 84, 111, 0.72), rgba(22, 51, 70, 0.82));
+  color: #d9f0ff;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-plan-export-button:hover:not(:disabled) {
+  border-color: rgba(134, 207, 244, 0.72);
+  background: linear-gradient(180deg, rgba(50, 105, 137, 0.84), rgba(27, 66, 89, 0.92));
+}
+
+#panel-character-analysis .analysis-plan-export-button.is-busy i {
+  animation: spin 0.85s linear infinite;
+}
+
+@media (max-width: 900px) {
+  #panel-character-analysis .analysis-plan-header-actions {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+@media (max-width: 520px) {
+  #panel-character-analysis .analysis-plan-export-button {
+    width: 2.15rem;
+    min-width: 2.15rem;
+    padding-inline: 0;
+  }
+
+  #panel-character-analysis .analysis-plan-export-button span {
+    display: none;
+  }
+}
+
+.analysis-plan-export-stage {
+  position: fixed;
+  z-index: -2147483000;
+  top: 0;
+  left: -20000px;
+  width: 1120px;
+  pointer-events: none;
+}
+
+.analysis-plan-export-scope {
+  container: characteranalysis / inline-size;
+  width: 1120px;
+  color: #f4e2bc;
+  font-family: "Noto Serif JP", serif;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet {
+  box-sizing: border-box;
+  display: grid;
+  gap: 0.75rem;
+  width: 1120px;
+  padding: 1.25rem;
+  border: 1px solid rgba(218, 169, 74, 0.72);
+  background:
+    radial-gradient(circle at 86% 8%, rgba(126, 70, 25, 0.2), transparent 27rem),
+    linear-gradient(145deg, #211411 0%, #120b09 58%, #190d0b 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 224, 158, 0.05);
+  color: #f4e2bc;
+}
+
+#panel-character-analysis .analysis-plan-export-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px solid rgba(207, 143, 38, 0.7);
+}
+
+#panel-character-analysis .analysis-plan-export-title > div:first-child {
+  display: grid;
+  gap: 0.12rem;
+}
+
+#panel-character-analysis .analysis-plan-export-title span {
+  color: #d9ab58;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+}
+
+#panel-character-analysis .analysis-plan-export-title h2 {
+  margin: 0;
+  color: #fff0ca;
+  font-size: 1.8rem;
+  line-height: 1.2;
+}
+
+#panel-character-analysis .analysis-plan-export-title-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+#panel-character-analysis .analysis-plan-export-title-meta b,
+#panel-character-analysis .analysis-plan-export-title-meta span {
+  padding: 0.3rem 0.58rem;
+  border: 1px solid rgba(202, 158, 74, 0.38);
+  border-radius: 999px;
+  background: rgba(12, 8, 7, 0.58);
+  color: #ead4a7;
+  font-size: 0.72rem;
+  letter-spacing: normal;
+}
+
+#panel-character-analysis .analysis-plan-export-title-meta span.is-complete {
+  border-color: rgba(80, 190, 120, 0.48);
+  color: #a9efbe;
+}
+
+#panel-character-analysis .analysis-plan-export-effects {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.7rem;
+  border: 1px solid rgba(202, 158, 74, 0.34);
+  border-radius: 0.5rem;
+  background: rgba(19, 12, 10, 0.78);
+}
+
+#panel-character-analysis .analysis-plan-export-effects > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+#panel-character-analysis .analysis-plan-export-effects h3 {
+  margin: 0;
+  color: #e3b85f;
+  font-size: 0.95rem;
+}
+
+#panel-character-analysis .analysis-plan-export-effects > header > span {
+  color: rgba(244, 226, 188, 0.68);
+  font-size: 0.72rem;
+}
+
+#panel-character-analysis .analysis-plan-export-effect-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+#panel-character-analysis .analysis-plan-export-effect-list > div {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.38rem 0.48rem;
+  border-left: 2px solid rgba(93, 185, 151, 0.62);
+  background: rgba(44, 74, 62, 0.18);
+}
+
+#panel-character-analysis .analysis-plan-export-effect-list strong {
+  color: #eff5d6;
+  font-size: 0.78rem;
+}
+
+#panel-character-analysis .analysis-plan-export-effect-list small,
+#panel-character-analysis .analysis-plan-export-effect-list p {
+  min-width: 0;
+  margin: 0;
+  color: rgba(229, 218, 192, 0.74);
+  font-size: 0.68rem;
+}
+
+#panel-character-analysis .analysis-plan-export-body,
+#panel-character-analysis .analysis-plan-export-result,
+#panel-character-analysis .analysis-plan-export-result .analysis-action-match-list,
+#panel-character-analysis .analysis-plan-export-result .analysis-simulation-box {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  scrollbar-gutter: auto;
+}
+
+#panel-character-analysis .analysis-plan-export-result {
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid rgba(202, 158, 74, 0.4);
+  border-radius: 0.55rem;
+  background: rgba(15, 9, 8, 0.76);
+}
+
+#panel-character-analysis .analysis-plan-export-control-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  padding: 0.12rem 0.38rem;
+  border: 1px solid rgba(226, 183, 91, 0.44);
+  border-radius: 0.25rem;
+  background: rgba(12, 8, 7, 0.75);
+  color: #fff0c4;
+  font-size: 0.78rem;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.25rem;
+  color: rgba(218, 190, 138, 0.65);
+  font-size: 0.68rem;
+}
+
 @media (max-width: 760px) {
   #panel-character-analysis .analysis-url-row {
     grid-template-columns: 1fr;
@@ -10859,4 +11087,402 @@ grid-template-columns: minmax(0, 1fr);
   #panel-character-analysis .analysis-party-unit-totals {
     min-width: 3.7rem;
   }
+}
+
+/* v110: Latin UI 数値は細字で統一する。 */
+.sw25-generator-page .analysis-action-result-mp {
+  padding: 0.25rem 0.56rem;
+}
+
+.sw25-generator-page .analysis-action-result-mp small {
+  font-size: 0.72rem;
+}
+
+.sw25-generator-page .analysis-action-result-mp b {
+  font-size: 1.08rem;
+  font-weight: var(--font-latin-ui-weight, 300);
+}
+
+.sw25-generator-page .analysis-action-result-total > strong,
+#panel-character-analysis .analysis-party-view-head > strong,
+#panel-character-analysis .analysis-party-member-card > header > strong,
+#panel-character-analysis .analysis-party-unit-totals strong {
+  font-family: var(--font-latin-ui);
+  font-weight: var(--font-latin-ui-weight, 300);
+}
+
+#panel-character-analysis .analysis-party-member-card.has-portrait::before {
+  inset: 0.35rem 0.45rem 0.35rem auto;
+  width: clamp(8rem, 25%, 16rem);
+  background-position: center center;
+  opacity: 0.2;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 32%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 32%);
+}
+
+@container characteranalysis (max-width: 520px) {
+  #panel-character-analysis .analysis-party-member-card.has-portrait::before {
+    inset: 0.25rem 0.3rem 0.25rem auto;
+    width: min(42%, 9rem);
+    opacity: 0.14;
+  }
+}
+
+/* v111: 期待値と消費MPを対の指標として整理し、実名ラベルに対応する。 */
+.sw25-generator-page .analysis-action-result-total {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.38rem;
+  padding: 0.34rem;
+}
+
+.sw25-generator-page .analysis-action-result-metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.34rem 0.48rem;
+  border: 1px solid rgba(241, 212, 138, 0.16);
+  border-radius: 5px;
+  background: rgba(12, 7, 4, 0.24);
+}
+
+.sw25-generator-page .analysis-action-result-metric small {
+  overflow: hidden;
+  font-size: 0.76rem;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sw25-generator-page .analysis-action-result-metric strong {
+  flex: 0 0 auto;
+  font-family: var(--font-latin-ui);
+  font-size: 1.48rem;
+  font-weight: var(--font-latin-ui-weight, 300);
+  line-height: 1;
+}
+
+.sw25-generator-page .analysis-action-result-mp {
+  margin-left: 0;
+  border-color: rgba(111, 190, 255, 0.28);
+  border-radius: 5px;
+  color: #c8e8ff;
+}
+
+.sw25-generator-page .analysis-action-result-mp strong {
+  color: #c8e8ff;
+  font-size: 1.38rem;
+}
+
+.sw25-generator-page .analysis-action-row-mp {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22rem;
+}
+
+.sw25-generator-page .analysis-action-row-mp b,
+#panel-character-analysis .analysis-party-view-head .analysis-party-head-mp b,
+#panel-character-analysis .analysis-party-member-card > header > strong small b,
+#panel-character-analysis .analysis-party-unit-totals small b {
+  font-family: var(--font-latin-ui);
+  font-weight: var(--font-latin-ui-weight, 300);
+}
+
+#panel-character-analysis .analysis-party-view-head .analysis-party-head-mp,
+#panel-character-analysis .analysis-party-member-card > header > strong small,
+#panel-character-analysis .analysis-party-unit-totals small {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.22rem;
+}
+
+#panel-character-analysis .analysis-party-member-card > header > strong small b,
+#panel-character-analysis .analysis-party-unit-totals small b {
+  font-size: 0.88rem;
+}
+
+#panel-character-analysis .analysis-party-view-head .analysis-party-head-mp b {
+  font-size: 0.82rem;
+}
+
+#panel-character-analysis .analysis-action-slot-match-summary .analysis-match-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container characteranalysis (max-width: 520px) {
+  .sw25-generator-page .analysis-action-result-total {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sw25-generator-page .analysis-action-result-mp {
+    order: initial;
+    margin-left: 0;
+  }
+
+  .sw25-generator-page .analysis-action-result-metric {
+    padding-inline: 0.36rem;
+  }
+
+  .sw25-generator-page .analysis-action-result-metric strong {
+    font-size: 1.22rem;
+  }
+}
+
+/* v112: 試行設定はPC幅で4項目を1行に収め、狭いときだけ折り返す。 */
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.38rem 0.56rem;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field {
+  gap: 0.28rem;
+}
+
+#panel-character-analysis #char-analysis-rounds,
+#panel-character-analysis .analysis-trial-settings input[data-sync-id="char-analysis-rounds"] {
+  width: 3.2rem;
+  max-width: 3.2rem;
+}
+
+#panel-character-analysis #char-analysis-trials,
+#panel-character-analysis .analysis-trial-settings input[data-sync-id="char-analysis-trials"] {
+  width: 4.8rem;
+  max-width: 4.8rem;
+}
+
+/* v113: 試行設定を4列/2列へ安定化し、パーティ期待値とMPを横並びにする。 */
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field,
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field.is-number {
+  width: auto;
+  max-width: none;
+}
+
+#panel-character-analysis .analysis-party-view-head > .analysis-party-metric-pair,
+#panel-character-analysis .analysis-party-member-card > header > .analysis-party-metric-pair {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.28rem 0.68rem;
+  min-width: 0;
+  line-height: 1;
+}
+
+#panel-character-analysis .analysis-party-metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.24rem;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-party-metric small {
+  margin: 0;
+  color: rgba(255, 234, 184, 0.68);
+  font-family: inherit;
+  font-size: 0.64rem;
+  font-weight: 400;
+}
+
+#panel-character-analysis .analysis-party-metric b {
+  color: #ffe66f;
+  font-family: var(--font-latin-ui);
+  font-size: 1.08rem;
+  font-weight: var(--font-latin-ui-weight, 300);
+}
+
+#panel-character-analysis .analysis-party-metric.is-mp small,
+#panel-character-analysis .analysis-party-metric.is-mp b {
+  color: #b9def7;
+}
+
+#panel-character-analysis .analysis-party-view-head .analysis-party-metric b {
+  font-size: 1.38rem;
+}
+
+#panel-character-analysis .analysis-party-unit-totals {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.42rem;
+}
+
+/* v118: PCは内容幅の1行、スマホは2列に固定する最終指定。 */
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid {
+  display: flex !important;
+  grid-template-columns: none;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.38rem 0.3rem;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field,
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field.is-number {
+  justify-content: flex-start;
+  width: auto;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field:nth-child(1) > select {
+  width: 6.5rem;
+  max-width: 6.5rem;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field:nth-child(2) > select {
+  width: 6rem;
+  max-width: 6rem;
+}
+
+@media (max-width: 600px) {
+  #panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.38rem 0.48rem !important;
+  }
+
+  #panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field,
+  #panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field.is-number {
+    justify-content: space-between;
+    width: 100% !important;
+  }
+}
+
+/* v119: 試行設定を結果側へ置き、各マッチカードへ消費MPを統合する。 */
+#panel-character-analysis .analysis-result-settings-details {
+  margin-top: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+#panel-character-analysis .analysis-action-slot-match-head .analysis-match-action-mp {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: 0.22rem;
+  padding: 0.12rem 0.38rem;
+  border: 1px solid rgba(111, 190, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(21, 57, 82, 0.34);
+  color: #c8e8ff;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-match-action-mp small {
+  font-size: 0.65rem;
+  opacity: 0.76;
+}
+
+#panel-character-analysis .analysis-match-action-mp b,
+#panel-character-analysis .analysis-compact-slot-meta b {
+  font-family: var(--font-latin-ui);
+  font-weight: var(--font-latin-ui-weight, 300);
+}
+
+#panel-character-analysis .analysis-compact-slot-title .analysis-compact-slot-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.28rem;
+}
+
+#panel-character-analysis .analysis-compact-slot-meta span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#panel-character-analysis .analysis-compact-slot-meta b {
+  flex: 0 0 auto;
+  color: #b9def7;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 600px) {
+  #panel-character-analysis .analysis-action-slot-match-head {
+    gap: 0.22rem 0.38rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-head .analysis-match-action-mp {
+    padding-inline: 0.3rem;
+  }
+}
+
+/* v120: PCの戦闘プランを中央パネル内に収め、右カラムも独立スクロールさせる。 */
+@media (min-width: 1181px) {
+  @container characteranalysis (min-width: 1101px) {
+    #panel-character-analysis .analysis-plan-card {
+      max-height: min(calc(72vh + 1.5rem), calc(100dvh - 4rem));
+    }
+
+    #panel-character-analysis .analysis-plan-card > #char-analysis-adjusted {
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+      scrollbar-gutter: stable;
+    }
+  }
+}
+
+/* v121 final overrides: 後続のスマホ規則より共有UIと出力紙を優先する。 */
+@media (max-width: 900px) {
+  #panel-character-analysis .analysis-plan-card .analysis-plan-header-actions {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+@media (max-width: 520px) {
+  #panel-character-analysis .analysis-plan-card .analysis-plan-export-button {
+    width: 2.15rem;
+    min-width: 2.15rem;
+    padding-inline: 0;
+  }
+
+  #panel-character-analysis .analysis-plan-card .analysis-plan-export-button span {
+    display: none;
+  }
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-plan-export-result {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  padding: 0.75rem;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary {
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.72fr) minmax(0, 1fr);
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-self {
+  order: 1;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-center {
+  order: 2;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-enemy {
+  order: 3;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet > footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 0;
+  margin: 0;
+  padding: 0.35rem 0 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }

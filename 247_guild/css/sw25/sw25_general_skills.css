@@ -392,11 +392,6 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   transform: none;
   border-color: #333;
 }
-@media (max-width: 1200px) {
-  .panel-3-column-layout {
-    grid-template-columns: 1fr;
-  }
-}
 .regulation-container {
   padding: 15px;
   border-radius: 8px;
@@ -432,6 +427,48 @@ input[type="range"].general-skill-level-slider::-moz-range-thumb {
   }
   .page-header {
     justify-content: center; /* 全体を中央揃えに */
+  }
+}
+
+/* タブレット幅ではサイドバーを低く保ち、編集パネルの表示領域を確保する。 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .generator-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  #main-sidebar {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #form-sidebar,
+  #money-sidebar-panel {
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  #form-sidebar ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  #form-sidebar li a {
+    min-height: 2.45rem;
+    gap: 7px;
+    padding: 8px 9px;
+    font-size: 0.86rem;
+  }
+
+  .controls-panel {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 }
 .item-set-tooltip-trigger {

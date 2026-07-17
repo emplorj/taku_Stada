@@ -1,8 +1,8 @@
 /* sw25_generator.css - split loader */
 @import url("./sw25/sw25_common.css");
-@import url("./sw25/sw25_regulation_growth.css");
+@import url("./sw25/sw25_regulation_growth.css?v=20260717zzm");
 @import url("./sw25/sw25_basic.css");
 @import url("./sw25/sw25_equipment_items.css");
-@import url("./sw25/sw25_general_skills.css");
+@import url("./sw25/sw25_general_skills.css?v=20260717zzm");
 @import url("./sw25/sw25_enemy_enhancement.css");
-@import url("./sw25/sw25_character_analysis.css?v=20260717zr");
+@import url("./sw25/sw25_character_analysis.css?v=20260717zzn");

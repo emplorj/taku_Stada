@@ -1736,7 +1736,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const parts = [];
       if (results.length) parts.push(`${results.length}人のPC`);
       if (mounts.length) {
-        const unitCounts = mounts.reduce((acc, unit) => { const label = getCharAnalysisSummonUnitLabel(unit); acc[label] = (acc[label] || 0) + 1; return acc; }, {});
+        const unitCounts = mounts.reduce((acc, unit, unitIndex) => {
+          const ownerAssigned = Number.isInteger(charAnalysisMountRiderAssignments[unitIndex]);
+          const label = getCharAnalysisSummonUnitLabel(unit, ownerAssigned);
+          acc[label] = (acc[label] || 0) + 1;
+          return acc;
+        }, {});
         parts.push(Object.entries(unitCounts).map(([label, count]) => `${count}体の${label}`).join("・"));
       }
       setCharAnalysisStatus(`${parts.join("・")}を読み込みました。${results.length ? "名前を選ぶと分析対象を切り替えられます。" : ""}${suffix}`, failures.length ? "info" : "success");
@@ -4265,10 +4270,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function getCharAnalysisSummonUnitLabel(unit) {
+  function getCharAnalysisSummonUnitLabel(unit, ownerAssigned = false) {
     if (unit?.unitType === "fairy") return "妖精";
     if (unit?.unitType === "demon") return unit.hasDemonActionTable ? "魔神・行動表あり" : "魔神・任意行動";
-    if (unit?.unitType === "golem") return "ゴーレム候補";
+    if (unit?.unitType === "golem") return ownerAssigned ? "ゴーレム" : "ゴーレム候補";
     if (unit?.unitType === "mount") return "騎獣";
     return "その他の魔物";
   }
@@ -4581,7 +4586,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }));
       } else {
         const unitName = getCharAnalysisMonsterDisplayName(unit.data, `召喚ユニット${unitIndex+1}`);
-        slots.push({ key: `summon${unitIndex}Action`, label: `${unitName}の行動`, source: getCharAnalysisSummonUnitLabel(unit), set: "summon", setLabel: "召喚ユニット", kind: "summon", summonOptions: options, unitIndex });
+        slots.push({ key: `summon${unitIndex}Action`, label: `${unitName}の行動`, source: getCharAnalysisSummonUnitLabel(unit, true), set: "summon", setLabel: "召喚ユニット", kind: "summon", summonOptions: options, unitIndex });
       }
     });
     return slots;
@@ -4639,11 +4644,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const bonusLabel = bonuses.length ? bonuses.map((bonus) => `${bonus.label}${formatSigned(bonus.value)}`).join(" / ") : "数値反映なし";
         return `<div class="analysis-mount-ability${ability.prerequisiteOk ? "" : " is-locked"}">${selectable ? `<label><input type="checkbox" class="char-analysis-mount-ability-toggle" data-mount-index="${mountIndex}" data-ability-id="${escapeAnalysisHtml(ability.id)}" ${isCharAnalysisMountAbilityEnabled(mountIndex, ability) ? "checked" : ""} /><span>使用</span></label>` : ""}<b>${escapeAnalysisHtml(ability.name)}</b><span>${escapeAnalysisHtml(ability.marker)}</span>${ability.kind === "support" ? `<small>${escapeAnalysisHtml(bonusLabel)}</small>` : `<small>行動枠から選択予定</small>`}${ability.prerequisite ? `<small>前提: ${escapeAnalysisHtml(ability.prerequisite)}${ability.prerequisiteOk ? " ✓" : " 未習得"}</small>` : ""}${ability.expansion ? `<small>拡張: ${escapeAnalysisHtml(ability.expansion)}${ability.expansionOk ? " ✓" : ""}</small>` : ""}</div>`;
       }).join("")}</details>` : "";
-      const unitLabel = getCharAnalysisSummonUnitLabel(mount);
+      const unitLabel = getCharAnalysisSummonUnitLabel(mount, assignedRiderIndex >= 0);
       const ownerLabel = isMount ? "乗り手" : (mount.unitType === "golem" ? "作成者" : "召喚者");
       const sheetLink = mount.url ? `<a class="analysis-character-sheet-link" href="${escapeAnalysisHtml(mount.url)}" target="_blank" rel="noopener noreferrer" title="元シートを開く"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : "";
       const demonTable = mount.hasDemonActionTable ? `<details class="analysis-summon-action-table"><summary>魔神行動表</summary><div>${[["1", "demonAction1"], ["2～3", "demonAction23"], ["4～5", "demonAction45"], ["6", "demonAction6"]].map(([dice, key]) => `<p><b>${dice}</b><span>${escapeAnalysisHtml(mount.data?.[`${key}Action`] || "-")}</span><small>${escapeAnalysisHtml(mount.data?.[`${key}Target`] || "-")} / ${escapeAnalysisHtml(mount.data?.[`${key}Damage`] || "-")}</small></p>`).join("")}</div></details>` : (mount.unitType === "demon" ? `<p class="analysis-summon-mode-note">魔神行動表なし：任意行動ユニットとして扱います。</p>` : "");
-      const summonNote = mount.unitType === "fairy" ? `<p class="analysis-summon-mode-note">サモンフェアリー扱いでは、召喚中の術者は妖精魔法を使用不可にします。</p>` : (mount.unitType === "golem" ? `<p class="analysis-summon-mode-note">ゴーレム候補：分類や名称による簡易判定です。シートの最終戦闘値を使用し、強化アイテムを再加算しません。</p>` : "");
+      const summonNote = mount.unitType === "fairy" ? `<p class="analysis-summon-mode-note">サモンフェアリー扱いでは、召喚中の術者は妖精魔法を使用不可にします。</p>` : (mount.unitType === "golem" ? `<p class="analysis-summon-mode-note">${assignedRiderIndex >= 0 ? "ゴーレム" : "ゴーレム候補"}：分類や名称による簡易判定です。シートの最終戦闘値を使用し、強化アイテムを再加算しません。</p>` : "");
       const activeControl = !isMount && mount.unitType !== "other" ? `<label class="analysis-summon-active-toggle"><input type="checkbox" class="char-analysis-summon-active" data-mount-index="${mountIndex}" ${isCharAnalysisSummonUnitActive(mountIndex) ? "checked" : ""}><span>召喚・作成中</span></label>` : "";
       const ownerSkillNote = mount.manual ? getCharAnalysisManualSummonTypeNote(mount, assignedRiderIndex) : "";
       const manualTypeOptions = mount.manual ? getCharAnalysisManualSummonTypeOptions(mount, assignedRiderIndex) : "";
@@ -4947,6 +4952,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const lore = getCharAnalysisMonsterLoreBase(charData);
     const enemy = settings.enemy || {};
     const blocks = [];
+    const actorLabel = charAnalysisCharacters[charAnalysisActiveCharacterIndex]?.name || charData?.name || "冒険者";
+    const enemyLabel = charAnalysisEnemySheetName || "敵データ";
     const renderNeedText = (result) => {
       if (!result) return "未入力";
       if (result.rate >= 1) return "自動成功以外でも可";
@@ -4961,7 +4968,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return `<section class="analysis-scout-match-block ${escapeAnalysisHtml(kind)} match-rank-${escapeAnalysisHtml(grade.className)}">
         <div class="analysis-match-summary analysis-action-slot-match-summary analysis-scout-match-summary match-rank-${escapeAnalysisHtml(grade.className)}">
           <div class="analysis-match-side analysis-match-self">
-            <div class="analysis-match-label">冒険者</div>
+            <div class="analysis-match-label">${escapeAnalysisHtml(actorLabel)}</div>
             <div class="analysis-match-main"><span class="analysis-match-main-label">${escapeAnalysisHtml(selfLabel)}</span><strong>${escapeAnalysisHtml(selfFormula)}</strong></div>
             <div class="analysis-match-statline">${escapeAnalysisHtml(selfMeta)}</div>
             <div class="analysis-match-tags analysis-scout-thresholds">${thresholdHtml}</div>
@@ -4972,7 +4979,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="analysis-match-center-values analysis-scout-rate-row">${rateHtml}</div>
           </div>
           <div class="analysis-match-side analysis-match-enemy">
-            <div class="analysis-match-label">敵データ</div>
+            <div class="analysis-match-label">${escapeAnalysisHtml(enemyLabel)}</div>
             ${enemyHtml}
           </div>
         </div>
@@ -5036,6 +5043,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCharAnalysisBattleModeUi();
     if (!charAnalysisCurrent) {
       setCharAnalysisResultsVisible(false);
+      setCharAnalysisPlanExportButtonsEnabled(false);
       return;
     }
     setCharAnalysisResultsVisible(true);
@@ -5075,6 +5083,7 @@ document.addEventListener("DOMContentLoaded", () => {
       : (isDefenseMode
         ? renderDefenseAnalysisAdjusted(charData, totals, attackOptions)
         : renderAnalysisAdjusted(charData, totals, selectedEffects, attackOptions, declarationFeats, selectedDeclarations, declarationLimit));
+    setCharAnalysisPlanExportButtonsEnabled(Boolean(els.adjusted.querySelector(".analysis-plan-layout, .analysis-action-result-box")));
     if (els.copyOutput) els.copyOutput.value = buildCharAnalysisCopyText(charData, attackSpells, supportEffects, totals, selectedEffects);
     renderCharAnalysisPartyBuffs();
     renderCharAnalysisMounts();
@@ -5997,7 +6006,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getCharAnalysisUnitDisplayName(unit, index) {
-    return unit?.data?.characterName || unit?.data?.monsterName || unit?.data?.name || `${getCharAnalysisSummonUnitLabel(unit)}${index + 1}`;
+    const ownerAssigned = Number.isInteger(charAnalysisMountRiderAssignments[index]);
+    return unit?.data?.characterName || unit?.data?.monsterName || unit?.data?.name || `${getCharAnalysisSummonUnitLabel(unit, ownerAssigned)}${index + 1}`;
   }
 
   function charAnalysisOwnerHasMarionette(ownerIndex) {
@@ -6217,7 +6227,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return actionField || `<small>${escapeAnalysisHtml(action.name)}</small>`;
       }).join("");
       const unitMp = formatCharAnalysisMpSummary({ total: unit.mp || 0, unknown: unit.mpUnknown || 0 });
-      return `<div class="analysis-party-unit-row"><span>${escapeAnalysisHtml(unit.name)}</span><div class="analysis-party-unit-action-cell">${controls}</div><div class="analysis-party-unit-totals"><strong>${escapeAnalysisHtml(formatDecimal(unit.value))}</strong><small>MP ${escapeAnalysisHtml(unitMp)}</small></div></div>`;
+      return `<div class="analysis-party-unit-row"><span>${escapeAnalysisHtml(unit.name)}</span><div class="analysis-party-unit-action-cell">${controls}</div><div class="analysis-party-unit-totals"><strong>${escapeAnalysisHtml(formatDecimal(unit.value))}</strong><small><span>MP</span><b>${escapeAnalysisHtml(unitMp)}</b></small></div></div>`;
     };
     const renderMember = (entry) => {
       const actionFieldMap = buildCharAnalysisPartyActionFieldMap(entry.index);
@@ -6239,7 +6249,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const portraitStyle = entry.imageUrl ? ` style="--analysis-party-portrait-url: url('${escapeAnalysisCssUrl(entry.imageUrl)}')"` : "";
       const portraitClass = entry.imageUrl ? " has-portrait" : "";
       const entryMp = formatCharAnalysisMpSummary({ total: entry.actionMp, unknown: entry.actionMpUnknown });
-      return `<article class="analysis-party-member-card${portraitClass}"${portraitStyle} data-party-token="pc:${entry.index}"><header><button type="button" class="analysis-party-drag-handle" aria-label="${escapeAnalysisHtml(entry.name)}を並べ替え"><i class="fa-solid fa-grip-vertical"></i></button><div><b>${escapeAnalysisHtml(entry.name)}</b></div><strong><span>${escapeAnalysisHtml(formatDecimal(entry.total))}</span><small>行動MP ${escapeAnalysisHtml(entryMp)}</small></strong></header>${unitPositionControls ? `<details class="analysis-party-placement-details"><summary>召喚ユニットの位置</summary>${unitPositionControls}</details>` : ""}<div class="analysis-party-member-actions">${before}${self}${after}${leftovers || (!entry.units.length ? '<p class="muted">行動が設定されていません。</p>' : "")}</div></article>`;
+      return `<article class="analysis-party-member-card${portraitClass}"${portraitStyle} data-party-token="pc:${entry.index}"><header><button type="button" class="analysis-party-drag-handle" aria-label="${escapeAnalysisHtml(entry.name)}を並べ替え"><i class="fa-solid fa-grip-vertical"></i></button><div><b>${escapeAnalysisHtml(entry.name)}</b></div><strong class="analysis-party-metric-pair"><span class="analysis-party-metric"><small>期待値</small><b>${escapeAnalysisHtml(formatDecimal(entry.total))}</b></span><span class="analysis-party-metric is-mp"><small>MP</small><b>${escapeAnalysisHtml(entryMp)}</b></span></strong></header>${unitPositionControls ? `<details class="analysis-party-placement-details"><summary>召喚ユニットの位置</summary>${unitPositionControls}</details>` : ""}<div class="analysis-party-member-actions">${before}${self}${after}${leftovers || (!entry.units.length ? '<p class="muted">行動が設定されていません。</p>' : "")}</div></article>`;
     };
     const renderIndependent = (unitIndex) => {
       const unit = charAnalysisMounts[unitIndex];
@@ -6248,12 +6258,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const actionUnit = owner?.units.find((item) => item.key === `summon:${unitIndex}`) || { name: getCharAnalysisUnitDisplayName(unit, unitIndex), actions: [], value: 0 };
       const actionFieldMap = owner ? buildCharAnalysisPartyActionFieldMap(owner.index) : new Map();
       const unitMp = formatCharAnalysisMpSummary({ total: actionUnit.mp || 0, unknown: actionUnit.mpUnknown || 0 });
-      return `<article class="analysis-party-member-card is-independent-unit" data-party-token="unit:${unitIndex}"><header><button type="button" class="analysis-party-drag-handle" aria-label="${escapeAnalysisHtml(actionUnit.name)}を並べ替え"><i class="fa-solid fa-grip-vertical"></i></button><div><b>${escapeAnalysisHtml(actionUnit.name)}</b><small>${escapeAnalysisHtml(owner?.name || "所有者未設定")}から分離</small></div><strong><span>${escapeAnalysisHtml(formatDecimal(actionUnit.value))}</span><small>行動MP ${escapeAnalysisHtml(unitMp)}</small></strong></header><div class="analysis-party-member-actions">${renderUnit(actionUnit, actionFieldMap)}</div></article>`;
+      return `<article class="analysis-party-member-card is-independent-unit" data-party-token="unit:${unitIndex}"><header><button type="button" class="analysis-party-drag-handle" aria-label="${escapeAnalysisHtml(actionUnit.name)}を並べ替え"><i class="fa-solid fa-grip-vertical"></i></button><div><b>${escapeAnalysisHtml(actionUnit.name)}</b><small>${escapeAnalysisHtml(owner?.name || "所有者未設定")}から分離</small></div><strong class="analysis-party-metric-pair"><span class="analysis-party-metric"><small>期待値</small><b>${escapeAnalysisHtml(formatDecimal(actionUnit.value))}</b></span><span class="analysis-party-metric is-mp"><small>MP</small><b>${escapeAnalysisHtml(unitMp)}</b></span></strong></header><div class="analysis-party-member-actions">${renderUnit(actionUnit, actionFieldMap)}</div></article>`;
     };
     const sequence = order.map((token) => token.startsWith("pc:") ? renderMember(entryMap.get(Number(token.slice(3)))) : renderIndependent(Number(token.slice(5)))).filter(Boolean).join("");
     const partySettings = renderAnalysisSettingsControls(getCharAnalysisSettings(), { party: true });
     const partyMp = formatCharAnalysisMpSummary({ total: actionMpTotal, unknown: actionMpUnknown });
-    partyView.innerHTML = `<header class="analysis-party-view-head"><div><h4><i class="fa-solid fa-people-group"></i> パーティ集計</h4><p>全員の設定を共有して再計算します。つまみをドラッグして行動順を変更できます。</p></div><strong><span>${escapeAnalysisHtml(formatDecimal(total))}</span><small>1R期待値</small><small class="analysis-party-head-mp">攻撃行動MP ${escapeAnalysisHtml(partyMp)}</small></strong></header><details class="analysis-party-settings-details"><summary><i class="fa-solid fa-sliders"></i> 試行・判定設定</summary>${partySettings}</details><div class="analysis-party-member-list">${sequence}</div>`;
+    partyView.innerHTML = `<header class="analysis-party-view-head"><div><h4><i class="fa-solid fa-people-group"></i> パーティ集計</h4><p>全員の設定を共有して再計算します。つまみをドラッグして行動順を変更できます。</p></div><strong class="analysis-party-metric-pair"><span class="analysis-party-metric"><small>1R期待値</small><b>${escapeAnalysisHtml(formatDecimal(total))}</b></span><span class="analysis-party-metric is-mp analysis-party-head-mp"><small>攻撃MP</small><b>${escapeAnalysisHtml(partyMp)}</b></span></strong></header><details class="analysis-party-settings-details"><summary><i class="fa-solid fa-sliders"></i> 試行・判定設定</summary>${partySettings}</details><div class="analysis-party-member-list">${sequence}</div>`;
     partyView.hidden = false;
   }
 
@@ -6300,25 +6310,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const partyTotalHtml = "";
     const compactMatch = Boolean(charAnalysisActionPlan.matchCompact);
     const matchCards = plan.results.map((result, index) => renderAnalysisActionSlotMatchSummary(result, result.settings || settings, compactMatch, index)).join("");
-    const rows = plan.results.map((result) => {
-      const declText = result.declarations.length ? result.declarations.map((feat) => feat.name).join(" + ") : "宣言なし";
-      const formula = formatAnalysisAttackFormulaDirect(result.option, result.settings);
-      const check = formatAnalysisCheckFormulaDirect(result.option);
-      const attackName = result.option?.source === "gun-bullet"
-        ? `${renderSw25DecoratedNameText(result.option.gunName || result.option.name || "ガン")} / ${renderSw25DecoratedNameText(result.option.bulletName || "バレット")}`
-        : renderSw25DecoratedNameText(result.option.name || "攻撃");
-      const resultMp = formatCharAnalysisMpSummary({ total: result.mpUsage?.total || 0, unknown: result.mpUsage?.unknown ? 1 : 0 });
-      return `<div class="analysis-action-result-row">
-        <span><b>${escapeAnalysisHtml(result.slot.label)}</b><small>${escapeAnalysisHtml(result.slot.source)}</small></span>
-        <span>${escapeAnalysisHtml(attackName)}<small class="analysis-action-row-mp">消費MP ${escapeAnalysisHtml(resultMp)}</small></span>
-        <span>${escapeAnalysisHtml(check)} / ${escapeAnalysisHtml(formula)}</span>
-        <span>${escapeAnalysisHtml(declText)}</span>
-        <strong>${escapeAnalysisHtml(formatDecimal(result.totalAverageDpr ?? result.metrics?.averageDpr ?? 0))}</strong>
-      </div>`;
-    }).join("");
-    const rowsHeader = `<div class="analysis-action-result-row analysis-action-result-header" aria-hidden="true">
-      <span>枠</span><span>攻撃 / 弾丸</span><span>判定 / 威力式</span><span>宣言</span><strong>期待値</strong>
-    </div>`;
     const damageTraceValues = [0];
     plan.results.forEach((result) => damageTraceValues.push(damageTraceValues[damageTraceValues.length - 1] + (result.totalAverageDpr ?? result.metrics?.averageDpr ?? 0)));
     const damageTrace = damageTraceValues.map((value) => formatDecimal(value)).join(" → ");
@@ -6331,11 +6322,11 @@ document.addEventListener("DOMContentLoaded", () => {
         <h6>1R行動セット</h6>
         <label class="analysis-match-compact-toggle"><input type="checkbox" class="char-analysis-match-compact-toggle" ${compactMatch ? "checked" : ""} /> <span>コンパクト</span></label>
       </div>
-      <div class="analysis-action-result-total"><span>1R期待値</span><span class="analysis-action-result-mp"><small>消費MP</small><b>${escapeAnalysisHtml(planMp)}</b></span><strong>${escapeAnalysisHtml(formatDecimal(plan.totalDpr))}</strong></div>
+      <div class="analysis-action-result-total"><span class="analysis-action-result-metric analysis-action-result-expected"><small>1R期待値</small><strong>${escapeAnalysisHtml(formatDecimal(plan.totalDpr))}</strong></span><span class="analysis-action-result-metric analysis-action-result-mp"><small>消費MP</small><strong>${escapeAnalysisHtml(planMp)}</strong></span></div>
       ${partyTotalHtml}
       <div class="analysis-action-damage-trace"><span>与ダメ推移</span><strong>${escapeAnalysisHtml(damageTrace)}</strong></div>
       <div class="analysis-action-match-list">${matchCards}</div>
-      <details class="analysis-action-result-detail"><summary>内訳一覧</summary><div class="analysis-action-result-list">${rowsHeader}${rows}</div></details>
+      <details class="analysis-settings-details analysis-result-settings-details" ${charAnalysisSettingsOpen ? "open" : ""}><summary><i class="fa-solid fa-sliders"></i> 試行・判定設定</summary>${renderAnalysisSettingsControls(settings)}</details>
       ${plan.simulation ? renderSelectedAttackSimulationResult({ name: "1R行動セット" }, { ...settings, __actionPlanSimulation: plan.simulation }) : ""}
       ${fastNote}
       ${warning}
@@ -6425,7 +6416,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return `<div class="analysis-attack-picker-area analysis-action-plan-only">
       <div class="analysis-attack-picker-detail">
         ${charAnalysisCurrent?.charData ? renderCharAnalysisActionPlan(charAnalysisCurrent.charData, options, declarations, declarationLimit) : ""}
-        <details class="analysis-settings-details" ${charAnalysisSettingsOpen ? "open" : ""}><summary><i class="fa-solid fa-sliders"></i> 試行・判定設定</summary>${renderAnalysisSettingsControls(settings)}</details>
       </div>
     </div>`;
   }
@@ -6436,7 +6426,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return {
       battleMode: ["attack", "defense", "scout"].includes(document.getElementById("char-analysis-battle-mode")?.value) ? document.getElementById("char-analysis-battle-mode").value : "attack",
       mode: document.getElementById("char-analysis-mode")?.value || "mc",
-      profile: document.getElementById("char-analysis-profile")?.value || "max",
       targetDefenseMode: document.getElementById("char-analysis-target-defense-toggle")
         ? (document.getElementById("char-analysis-target-defense-toggle").checked ? "oppose" : "ignore")
         : (document.getElementById("char-analysis-target-defense-mode")?.value === "ignore" ? "ignore" : "oppose"),
@@ -7632,10 +7621,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderAnalysisInlineSettings(settings = getCharAnalysisSettings(), option = null) {
     const modeLabelMap = { mc: "多数試行", mcHot: "上振れ試行", mcCold: "下振れ試行" };
-    const profileLabelMap = { base: "素", normal: "通常運用", max: "最大想定" };
     const rows = [
       ["試行", modeLabelMap[settings.mode] || settings.mode || "多数試行"],
-      ["基準", profileLabelMap[settings.profile] || settings.profile || "-"],
       ["相手判定", getTargetDefenseModeLabel(settings)],
       ["平均R", settings.rounds || 1],
     ];
@@ -7709,13 +7696,6 @@ document.addEventListener("DOMContentLoaded", () => {
             <option value="mc" ${selected("mc", settings.mode)}>多数試行</option>
             <option value="mcHot" ${selected("mcHot", settings.mode)}>上振れ試行</option>
             <option value="mcCold" ${selected("mcCold", settings.mode)}>下振れ試行</option>
-          </select>
-        </label>
-        <label class="analysis-setting-field" title="評価基準"><span>評価</span>
-          <select ${attr("char-analysis-profile")} aria-label="評価基準">
-            <option value="base" ${selected("base", settings.profile)}>素</option>
-            <option value="normal" ${selected("normal", settings.profile)}>通常運用</option>
-            <option value="max" ${selected("max", settings.profile)}>最大想定</option>
           </select>
         </label>
         <label class="analysis-setting-field is-number"><span>平均R</span>
@@ -7828,6 +7808,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const dprText = metrics ? formatDecimal(metrics.averageDpr) : "-";
     const centerClass = `analysis-match-summary match-rank-${grade.className}`;
     const attackTypeText = adjusted?.source === "manual" ? "直接指定" : (adjusted?.type === "spell" ? "魔法攻撃" : "武器攻撃");
+    const actorLabel = charAnalysisCharacters[charAnalysisActiveCharacterIndex]?.name || charData?.name || "冒険者";
+    const enemyLabel = charAnalysisEnemySheetName || (opponent.dummy ? "木人" : "敵");
     const enemySub = opponent.dummy
       ? [
           formatAnalysisStatChip("防護", isFiniteAnalysisNumber(settings.enemy.def) ? settings.enemy.def : 0),
@@ -7846,7 +7828,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ].filter(Boolean).join("");
     return `<div class="${centerClass}">
       <div class="analysis-match-side analysis-match-self">
-        <div class="analysis-match-label">冒険者</div>
+        <div class="analysis-match-label">${escapeAnalysisHtml(actorLabel)}</div>
         <div class="analysis-match-main">
           <span class="analysis-match-main-label">${escapeAnalysisHtml(checkLabel)}</span>
           <strong>${escapeAnalysisHtml(checkFormula)}</strong>
@@ -7872,7 +7854,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
       <div class="analysis-match-side analysis-match-enemy">
-        <div class="analysis-match-label">敵</div>
+        <div class="analysis-match-label">${escapeAnalysisHtml(enemyLabel)}</div>
         <div class="analysis-match-main">
           <span class="analysis-match-main-label">${escapeAnalysisHtml(opponent.label)}</span>
           <strong>${escapeAnalysisHtml(opponent.value)}</strong>
@@ -7903,7 +7885,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const targetSuffixFull = targetMaxValue > 1 ? `最大${targetMaxValue}` : "";
     const centerClass = `analysis-match-summary analysis-action-slot-match-summary match-rank-${grade.className}`;
     const attackTypeText = adjusted.source === "manual" ? "直接指定" : (adjusted.source === "gun-bullet" ? "ガン攻撃" : (String(adjusted.source || "").startsWith("mount") ? (adjusted.type === "spell" ? "騎獣・特殊能力" : "騎獣攻撃") : (String(adjusted.source || "").startsWith("summon") ? (adjusted.type === "spell" ? "召喚・魔法/特殊能力" : "召喚ユニット攻撃") : (adjusted.type === "spell" ? "魔法攻撃" : "武器攻撃"))));
-    const actorLabel = result.slot?.kind === "mount" ? "騎獣" : (result.slot?.kind === "summon" ? "召喚ユニット" : "冒険者");
+    const activeCharacterName = charAnalysisCharacters[charAnalysisActiveCharacterIndex]?.name || charAnalysisCurrent?.charData?.name || "冒険者";
+    const summonUnitIndex = Number.isInteger(result.slot?.unitIndex) ? result.slot.unitIndex : -1;
+    const actorLabel = result.slot?.kind === "mount"
+      ? (result.option?.mountName || String(result.slot?.source || "").split(" /")[0] || "騎獣")
+      : result.slot?.kind === "summon"
+        ? (summonUnitIndex >= 0 ? getCharAnalysisUnitDisplayName(charAnalysisMounts[summonUnitIndex], summonUnitIndex) : "召喚ユニット")
+        : activeCharacterName;
+    const enemyLabel = charAnalysisEnemySheetName || (opponent.dummy ? "木人" : "敵");
+    const rawSlotLabel = String(result.slot?.label || "行動枠");
+    const slotLabelDuplicatesActor = rawSlotLabel === `${actorLabel}の行動`;
+    const compactSlotLabel = slotLabelDuplicatesActor ? actorLabel : rawSlotLabel;
+    const actionMp = formatCharAnalysisMpSummary({ total: result.mpUsage?.total || 0, unknown: result.mpUsage?.unknown ? 1 : 0 });
     const enemySub = opponent.dummy
       ? [
           formatAnalysisStatChip("防護", isFiniteAnalysisNumber(settings.enemy.def) ? settings.enemy.def : 0),
@@ -7958,7 +7951,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const fireStyle = `--analysis-compact-fire-x:${fireX};--analysis-compact-fire-y:${fire.y};--analysis-compact-fire-rot:${fire.rot};--analysis-compact-fire-scale:${fire.scale};--analysis-compact-fire-opacity:${fire.opacity};`;
       return `<section class="analysis-action-slot-match-card is-compact match-rank-${escapeAnalysisHtml(compactFireRank)}${adjusted.source === "gun-bullet" ? " is-gun-bullet" : ""}" style="${escapeAnalysisHtml(fireStyle)}">
         <div class="analysis-action-slot-compact-match">
-          <div class="analysis-compact-slot-title"><strong>${escapeAnalysisHtml(result.slot?.label || "行動枠")}</strong><small>${escapeAnalysisHtml(compactSource)}</small></div>
+          <div class="analysis-compact-slot-title"><strong>${escapeAnalysisHtml(compactSlotLabel)}</strong><small class="analysis-compact-slot-meta"><span>${escapeAnalysisHtml(compactSource)}</span><b>MP ${escapeAnalysisHtml(actionMp)}</b></small></div>
           <div class="analysis-compact-attack-name">${attackNameHtml}</div>
           <div class="analysis-compact-formulas"><span>${escapeAnalysisHtml(checkLabel)} ${escapeAnalysisHtml(checkFormula)}</span><span>${escapeAnalysisHtml(powerFormula)}</span></div>
           <div class="analysis-compact-declarations">${escapeAnalysisHtml(compactDecl)}</div>
@@ -7968,7 +7961,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </section>`;
     }
     return `<section class="analysis-action-slot-match-card">
-      <div class="analysis-action-slot-match-head"><strong>${escapeAnalysisHtml(result.slot?.label || "行動枠")}</strong><span>${escapeAnalysisHtml(result.slot?.source || "")}</span><em>${escapeAnalysisHtml(declarationText)}</em></div>
+      <div class="analysis-action-slot-match-head">${slotLabelDuplicatesActor ? "" : `<strong>${escapeAnalysisHtml(rawSlotLabel)}</strong>`}<span>${escapeAnalysisHtml(result.slot?.source || "")}</span><em>${escapeAnalysisHtml(declarationText)}</em><span class="analysis-match-action-mp"><small>消費MP</small><b>${escapeAnalysisHtml(actionMp)}</b></span></div>
       <div class="${centerClass}">
         <div class="analysis-match-side analysis-match-self">
           <div class="analysis-match-label">${escapeAnalysisHtml(actorLabel)}</div>
@@ -7997,7 +7990,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
         <div class="analysis-match-side analysis-match-enemy">
-          <div class="analysis-match-label">敵</div>
+          <div class="analysis-match-label">${escapeAnalysisHtml(enemyLabel)}</div>
           <div class="analysis-match-main">
             <span class="analysis-match-main-label">${escapeAnalysisHtml(opponent.label)}</span>
             <strong>${escapeAnalysisHtml(opponent.value)}</strong>
@@ -8114,6 +8107,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const metrics = selected ? calculateDefenseActionMetrics(selected, charData, totals) : null;
     if (!selected || !metrics) return `<p class="muted">敵攻撃方法候補を選択してください。敵シートを読み込むと防御結果を表示します。</p>`;
     const centerClass = `analysis-match-summary match-rank-${metrics.grade.className}`;
+    const actorLabel = charAnalysisCharacters[charAnalysisActiveCharacterIndex]?.name || charData?.name || "冒険者";
+    const enemyLabel = charAnalysisEnemySheetName || "敵";
     const successLabel = /回避/.test(metrics.reactive.label) ? "回避成功率" : (/抵抗/.test(metrics.reactive.label) ? "抵抗成功率" : "防御成功率");
     const selectedDetail = `<dl class="analysis-definition-list compact analysis-attack-detail-list">
       <div class="analysis-detail-type"><dt>敵行動</dt><dd>${escapeAnalysisHtml(selected.name)}</dd></div>
@@ -8126,7 +8121,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="analysis-plan-left">
         <div class="${centerClass}">
           <div class="analysis-match-side analysis-match-self">
-            <div class="analysis-match-label">冒険者</div>
+            <div class="analysis-match-label">${escapeAnalysisHtml(actorLabel)}</div>
             <div class="analysis-match-main"><span class="analysis-match-main-label">${escapeAnalysisHtml(metrics.reactive.label)}</span><strong>${escapeAnalysisHtml(metrics.reactive.autoFail ? "不可" : `2D${formatSigned(metrics.reactive.value)}`)}</strong></div>
             <div class="analysis-match-statline">${formatAnalysisStatChip("防護", charData.defense.def + toAnalysisNumber(totals.def, 0))}${formatAnalysisStatChip("HP", charData.defense.hp)}</div>
             <div class="analysis-match-ribbon">成功時 ${formatDecimal(metrics.successDamage)} / 失敗時 ${formatDecimal(metrics.failDamage)} / 残HP期待 ${formatDecimal(metrics.expectedHp)}</div>
@@ -8137,7 +8132,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="analysis-match-center-values"><span class="analysis-match-dpr"><b>${escapeAnalysisHtml(formatDecimal(metrics.expectedDamage))}</b><small>被ダメージ/R</small></span></div>
           </div>
           <div class="analysis-match-side analysis-match-enemy">
-            <div class="analysis-match-label">敵</div>
+            <div class="analysis-match-label">${escapeAnalysisHtml(enemyLabel)}</div>
             <div class="analysis-match-main"><span class="analysis-match-main-label">達成値</span><strong>${escapeAnalysisHtml(selected.activeBase === "必中" ? "必中" : `2D${formatSigned(selected.activeBase)}`)}</strong></div>
             <div class="analysis-match-statline">${formatAnalysisStatChip("ダメージ", `${metrics.baseDamage.formula} ${selected.damageType || ""}`)}${formatAnalysisStatChip("部位", selected.part || "共通")}</div>
             <div class="analysis-match-ribbon enemy">${escapeAnalysisHtml(selected.name)}</div>
@@ -8234,6 +8229,188 @@ document.addEventListener("DOMContentLoaded", () => {
       "",
       "※CSV効果概要からの概算候補です。飛行系・筋力ボーナス等は要確認。",
     ].join("\n");
+  }
+
+  function getCharAnalysisPlanExportEffects() {
+    if (!charAnalysisCurrent) return [];
+    const settings = getCharAnalysisSettings();
+    const supportEffects = charAnalysisCurrent.supportEffects || [];
+    const visibleEffects = settings.battleMode === "scout"
+      ? supportEffects.filter(isCharAnalysisBattlePreparationEffect)
+      : supportEffects;
+    return getCharAnalysisSelectedEffectsWithParty(visibleEffects);
+  }
+
+  function formatCharAnalysisPlanExportEffect(effect) {
+    const bonuses = (effect?.bonuses || [])
+      .map((bonus) => `${bonus.label} ${formatSigned(bonus.value)}${bonus.uncertain ? "（要確認）" : ""}`)
+      .join(" / ");
+    const caster = effect?._partyAssigned ? `${effect._partyCasterName || "他メンバー"}から` : "本人";
+    const cost = String(effect?.cost || "").trim();
+    return {
+      name: effect?.name || "補助効果",
+      meta: [caster, cost && cost !== "-" ? cost : "", bonuses || "数値補正なし"].filter(Boolean).join("・"),
+    };
+  }
+
+  function setCharAnalysisPlanExportButtonsEnabled(enabled) {
+    document.querySelectorAll("[data-analysis-plan-export]").forEach((button) => {
+      button.disabled = !enabled;
+    });
+  }
+
+  function sanitizeCharAnalysisPlanExportFilename(value) {
+    const safe = String(value || "キャラクター")
+      .replace(/[\\/:*?\"<>|]/g, "_")
+      .replace(/\s+/g, " ")
+      .trim();
+    return `${safe || "キャラクター"}_戦闘プラン.png`;
+  }
+
+  function replaceCharAnalysisExportFormControls(root) {
+    root.querySelectorAll("input, select, textarea").forEach((control) => {
+      const replacement = document.createElement("span");
+      replacement.className = "analysis-plan-export-control-value";
+      if (control.matches('input[type="checkbox"], input[type="radio"]')) {
+        replacement.textContent = control.checked ? "ON" : "OFF";
+      } else if (control.tagName === "SELECT") {
+        replacement.textContent = control.selectedOptions?.[0]?.textContent || control.value || "-";
+      } else {
+        replacement.textContent = control.value || "-";
+      }
+      control.replaceWith(replacement);
+    });
+  }
+
+  async function createCharAnalysisPlanExportImage() {
+    if (!charAnalysisCurrent) throw new Error("出力できる戦闘プランがありません。");
+    if (typeof window.html2canvas !== "function") throw new Error("画像生成ライブラリを読み込めませんでした。");
+    const adjusted = document.getElementById("char-analysis-adjusted");
+    const sourceResult = adjusted?.querySelector(".analysis-action-result-box")
+      || adjusted?.querySelector(".analysis-plan-layout")
+      || adjusted;
+    if (!sourceResult) throw new Error("出力できる戦闘プランがありません。");
+
+    const modeSelect = document.getElementById("char-analysis-battle-mode");
+    const modeLabel = modeSelect?.selectedOptions?.[0]?.textContent || "攻撃モード";
+    const charData = charAnalysisCurrent.charData || {};
+    const effects = getCharAnalysisPlanExportEffects().map(formatCharAnalysisPlanExportEffect);
+    const resultClone = sourceResult.cloneNode(true);
+    resultClone.removeAttribute("id");
+    resultClone.classList.add("analysis-plan-export-result");
+    resultClone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
+    resultClone.querySelectorAll(".analysis-result-settings-details, .analysis-match-compact-toggle, button").forEach((node) => node.remove());
+    resultClone.querySelectorAll("details").forEach((details) => { details.open = true; });
+    replaceCharAnalysisExportFormControls(resultClone);
+
+    const hasSimulation = Boolean(resultClone.querySelector(".analysis-simulation-box:not(.is-empty)"));
+    const exportSheet = document.createElement("section");
+    exportSheet.className = "analysis-plan-export-sheet";
+    exportSheet.setAttribute("aria-hidden", "true");
+    exportSheet.innerHTML = `<header class="analysis-plan-export-title">
+      <div><span>SW2.5 戦闘プラン</span><h2>${escapeAnalysisHtml(charData.name || "キャラクター")}</h2></div>
+      <div class="analysis-plan-export-title-meta"><b>${escapeAnalysisHtml(modeLabel)}</b><span class="${hasSimulation ? "is-complete" : ""}">${hasSimulation ? "多数試行 実行済み" : "理論期待値"}</span></div>
+    </header>
+    <section class="analysis-plan-export-effects">
+      <header><h3><i class="fa-solid fa-hand-sparkles"></i> 適用中の補助効果</h3><span>${effects.length}件</span></header>
+      <div class="analysis-plan-export-effect-list">${effects.length
+        ? effects.map((effect) => `<div><strong>${renderAnalysisDaggerHtml(effect.name)}</strong><small>${escapeAnalysisHtml(effect.meta)}</small></div>`).join("")
+        : `<p>適用中の補助効果はありません。</p>`}</div>
+    </section>
+    <section class="analysis-plan-export-body"></section>
+    <footer><span>戦闘プラン・平均ダメージ</span><small>CSV効果概要からの概算を含みます</small></footer>`;
+    exportSheet.querySelector(".analysis-plan-export-body").append(resultClone);
+
+    const exportStage = document.createElement("div");
+    exportStage.className = "analysis-plan-export-stage";
+    const exportScope = document.createElement("div");
+    exportScope.id = "panel-character-analysis";
+    exportScope.className = "analysis-plan-export-scope";
+    exportStage.append(exportScope);
+    exportScope.append(exportSheet);
+    document.body.append(exportStage);
+    try {
+      if (document.fonts?.ready) await document.fonts.ready;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const canvas = await window.html2canvas(exportSheet, {
+        backgroundColor: "#160f0d",
+        useCORS: true,
+        scale: Math.min(2, Math.max(1.5, window.devicePixelRatio || 1)),
+        logging: false,
+      });
+      return {
+        canvas,
+        text: exportSheet.innerText.trim(),
+        filename: sanitizeCharAnalysisPlanExportFilename(charData.name),
+      };
+    } finally {
+      exportStage.remove();
+    }
+  }
+
+  function charAnalysisCanvasToBlob(canvas) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("PNG画像を生成できませんでした。")), "image/png");
+    });
+  }
+
+  function ensureCharAnalysisPlanSimulationForExport() {
+    if (!charAnalysisCurrent || getCharAnalysisSettings().battleMode !== "attack") return false;
+    const adjusted = document.getElementById("char-analysis-adjusted");
+    if (adjusted?.querySelector(".analysis-simulation-box:not(.is-empty)")) return false;
+    charAnalysisSimulationNonce += 1;
+    renderCharAnalysis();
+    return true;
+  }
+
+  async function exportCharAnalysisPlanImage(action) {
+    ensureCharAnalysisPlanSimulationForExport();
+    const buttons = [...document.querySelectorAll("[data-analysis-plan-export]")];
+    buttons.forEach((button) => { button.disabled = true; button.classList.add("is-busy"); });
+    try {
+      if (action === "copy" && navigator.clipboard?.write && typeof window.ClipboardItem === "function") {
+        // 画像生成後にwriteを呼ぶと、ブラウザによってはクリック時の操作権限が
+        // 失効する。Promise<Blob>を先に渡し、生成中も権限を維持する。
+        const outputPromise = createCharAnalysisPlanExportImage();
+        const blobPromise = outputPromise.then((output) => charAnalysisCanvasToBlob(output.canvas));
+        try {
+          await navigator.clipboard.write([new window.ClipboardItem({ "image/png": blobPromise })]);
+          showToast("戦闘プラン画像をクリップボードへコピーしました！");
+          return;
+        } catch (clipboardError) {
+          const output = await outputPromise;
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(output.text);
+            showToast("PNG画像をコピーできなかったため、戦闘プランをテキストでコピーしました。画像は「画像保存」を利用してください。");
+            return;
+          }
+          throw clipboardError;
+        }
+      }
+
+      const output = await createCharAnalysisPlanExportImage();
+      if (action === "copy" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(output.text);
+        showToast("このブラウザはPNGコピーに対応していないため、戦闘プランをテキストでコピーしました。画像は「画像保存」を利用してください。");
+        return;
+      }
+      if (action === "copy") throw new Error("このブラウザは画像のクリップボード出力に対応していません。");
+
+      const blob = await charAnalysisCanvasToBlob(output.canvas);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = output.filename;
+      link.href = url;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast("戦闘プラン画像を保存しました！");
+    } catch (error) {
+      console.error("戦闘プラン画像の出力に失敗しました。", error);
+      showToast(error?.message || "戦闘プラン画像の出力に失敗しました。");
+    } finally {
+      buttons.forEach((button) => { button.classList.remove("is-busy"); });
+      setCharAnalysisPlanExportButtonsEnabled(Boolean(charAnalysisCurrent));
+    }
   }
 
   function buildCharAnalysisSnapshot(rawText) {
@@ -8992,7 +9169,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loadAnalysisPortraitCompare(button.closest("[data-analysis-portrait-tuner]"));
       });
     }
-    const settingsSelector = "#char-analysis-battle-mode, #char-analysis-mode, #char-analysis-profile, #char-analysis-target-defense-mode, #char-analysis-target-defense-toggle, #char-analysis-rounds, #char-analysis-trials, #char-analysis-crit-disabled, #char-analysis-check-certainty, #char-analysis-power-certainty, #char-analysis-dice-first-mode, #char-analysis-dice-first-value, #char-analysis-dice-repeat-bonus, #char-analysis-power-rate-step, .char-analysis-alchemy-rank-select, #char-analysis-enemy-eva, #char-analysis-enemy-def, #char-analysis-enemy-hp, #char-analysis-enemy-hit, #char-analysis-enemy-damage, #char-analysis-enemy-vit, #char-analysis-enemy-mnd, #char-analysis-enemy-knowledge, #char-analysis-enemy-weakness-value, #char-analysis-enemy-initiative-target, #char-analysis-enemy-weakness-text";
+    const settingsSelector = "#char-analysis-battle-mode, #char-analysis-mode, #char-analysis-target-defense-mode, #char-analysis-target-defense-toggle, #char-analysis-rounds, #char-analysis-trials, #char-analysis-crit-disabled, #char-analysis-check-certainty, #char-analysis-power-certainty, #char-analysis-dice-first-mode, #char-analysis-dice-first-value, #char-analysis-dice-repeat-bonus, #char-analysis-power-rate-step, .char-analysis-alchemy-rank-select, #char-analysis-enemy-eva, #char-analysis-enemy-def, #char-analysis-enemy-hp, #char-analysis-enemy-hit, #char-analysis-enemy-damage, #char-analysis-enemy-vit, #char-analysis-enemy-mnd, #char-analysis-enemy-knowledge, #char-analysis-enemy-weakness-value, #char-analysis-enemy-initiative-target, #char-analysis-enemy-weakness-text";
     const analysisPanel = document.getElementById("panel-character-analysis");
     const scheduleCharAnalysisRender = (delay = 0) => {
       if (!charAnalysisCurrent) return;
@@ -9017,6 +9194,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     if (analysisPanel) {
       analysisPanel.addEventListener("click", (event) => {
+      const exportButton = event.target.closest("[data-analysis-plan-export]");
+      if (exportButton) {
+        event.preventDefault();
+        exportCharAnalysisPlanImage(exportButton.dataset.analysisPlanExport || "save");
+        return;
+      }
       const simulateButton = event.target.closest("#char-analysis-simulate-btn");
       if (simulateButton) {
         event.preventDefault();

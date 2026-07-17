@@ -15,13 +15,14 @@
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="css/247_guild_common.css" />
   <link rel="stylesheet" href="css/247_guild.css" />
-    <link rel="stylesheet" href="css/sw25_generator.css?v=20260717zq" />
+    <link rel="stylesheet" href="css/sw25_generator.css?v=20260717zzn" />
   <!-- Fonts and Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+JP:wght@400;700&display=swap"
     rel="stylesheet" />
+  <script src="./js/vendor/dom_capture-1.4.1.min.js?v=1.4.1"></script>
 </head>
 
 <body data-no-sidemenu="true" class="guild-background sw25-generator-page">
@@ -637,7 +638,7 @@
                   <section id="char-analysis-party-buffs" class="analysis-card analysis-party-buffs-card analysis-party-buffs-host-card" hidden aria-label="パーティへのバフ割り当て"></section>
 
                   <section class="analysis-card analysis-weapons-card">
-                    <h4><i class="fa-solid fa-gavel"></i> 1R行動・試行設定</h4>
+                    <h4><i class="fa-solid fa-gavel"></i> 1R行動設定</h4>
                     <div id="char-analysis-weapons" class="analysis-output muted">未分析です。</div>
                   </section>
 
@@ -647,7 +648,10 @@
                 <section class="analysis-card analysis-plan-card">
                   <div class="analysis-plan-header-row">
                     <h4><i class="fa-solid fa-calculator"></i> 戦闘プラン・平均ダメージ</h4>
-                    <div class="analysis-plan-header-actions"><label class="analysis-battle-mode-control">モード
+                    <div class="analysis-plan-header-actions"><div class="analysis-plan-share-actions" aria-label="戦闘プランの共有">
+                      <button type="button" id="char-analysis-plan-copy-image" class="small-button analysis-plan-export-button" data-analysis-plan-export="copy" title="戦闘プラン画像をクリップボードへコピー" disabled><i class="fa-solid fa-copy"></i><span>画像コピー</span></button>
+                      <button type="button" id="char-analysis-plan-save-image" class="small-button analysis-plan-export-button" data-analysis-plan-export="save" title="戦闘プランをPNG画像で保存" disabled><i class="fa-solid fa-download"></i><span>画像保存</span></button>
+                    </div><label class="analysis-battle-mode-control">モード
                       <select id="char-analysis-battle-mode">
                         <option value="attack" selected>攻撃モード</option>
                         <option value="defense">防御モード</option>
@@ -844,7 +848,7 @@
   <!-- Scripts -->
   <script src="../js/common.js"></script>
   <script src="./data/sw25_data.js"></script>
-    <script src="./js/sw25_generator.js?v=20260717zr"></script>
+    <script src="./js/sw25_generator.js?v=20260717zzm"></script>
 </body>
 
 </html>
