@@ -1610,11 +1610,12 @@ color: #d8cbb6;
 }
 
 #panel-character-analysis .analysis-match-center-values .analysis-match-dpr {
-border-color: rgba(255, 217, 75, 0.34);
-  box-shadow: none;
-  background: rgba(75, 42, 0, 0.3);
+  border-color: rgba(255, 217, 75, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(255, 240, 174, 0.04);
+  background: linear-gradient(100deg, rgba(39, 22, 8, 0.82), rgba(77, 42, 6, 0.66));
   min-height: 52px;
   padding: 6px 8px 5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.78);
 }
 
 #panel-character-analysis .analysis-match-center-values .analysis-match-rate {
@@ -3315,31 +3316,6 @@ display: inline;
   text-align: left;
 }
 
-#panel-character-analysis .analysis-direct-attack-input {
-margin-top: 8px;
-  padding: 10px 12px;
-  border: 1px solid rgba(200, 164, 100, 0.45);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.18);
-  box-sizing: border-box;
-}
-
-#panel-character-analysis .analysis-direct-attack-head strong {
-color: var(--gold-color);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-#panel-character-analysis .analysis-direct-attack-head span {
-color: rgba(240, 230, 210, 0.72);
-  font-size: 0.82rem;
-  line-height: 1.35;
-}
-
-#panel-character-analysis .analysis-direct-attack-input .analysis-manual-grid {
-margin-top: 0;
-}
-
 #panel-character-analysis .analysis-attack-picker-detail {
 padding: 8px 9px;
   border: 1px solid rgba(202, 158, 74, 0.36);
@@ -3359,21 +3335,6 @@ margin: 0;
   padding: 0;
   min-height: 0;
   line-height: 1.2;
-}
-
-#panel-character-analysis .analysis-attack-picker-detail .analysis-direct-attack-input {
-margin-top: 0;
-  padding: 8px 10px;
-}
-
-#panel-character-analysis .analysis-direct-attack-head {
-display: flex;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: 10px;
-  min-width: 0;
-  flex-wrap: wrap;
-  margin-bottom: 6px;
 }
 
 #panel-character-analysis .analysis-representative-logs {
@@ -4576,7 +4537,7 @@ margin: 0;
   background: rgba(0, 0, 0, 0.12);
 }
 
-#panel-character-analysis .analysis-action-slot-detail .analysis-direct-attack-input, #panel-character-analysis .analysis-action-slot-detail .analysis-weapon-note {
+#panel-character-analysis .analysis-action-slot-detail .analysis-weapon-note {
 margin: 0;
 }
 
@@ -5033,17 +4994,19 @@ outline: 1px solid rgba(255, 225, 140, 0.78);
 }
 
 #panel-character-analysis .analysis-target-count-control input {
-height: 1.65rem;
+height: 1.8rem;
   border: 1px solid rgba(241, 212, 138, 0.45);
   border-radius: 0.25rem;
   background: rgba(0, 0, 0, 0.35);
   color: #fff4c7;
-  font-weight: 700;
+  font-family: var(--font-latin-ui);
+  font-size: 0.9rem;
+  font-weight: 400;
   box-sizing: border-box;
-  width: 3.2rem;
-  min-width: 0;
-  padding: 0.12rem 0.25rem;
-  text-align: center;
+  width: 4rem;
+  min-width: 4rem;
+  padding: 0.12rem 1rem 0.12rem 0.35rem;
+  text-align: right;
 }
 
 #panel-character-analysis .analysis-settings-details {
@@ -5114,17 +5077,17 @@ min-width: 0;
 justify-content: flex-start;
   white-space: nowrap;
   display: inline-grid;
-  gap: 0.25rem;
+  gap: 0.22rem;
   align-items: center;
   margin: 0.15rem 0 0.35rem;
-  padding: 0.18rem 0.35rem;
+  padding: 0.24rem 0.45rem;
   border: 1px solid rgba(241, 212, 138, 0.32);
   border-radius: 0.35rem;
   background: rgba(18, 8, 4, 0.42);
   color: #f8df9e;
   font-size: 0.82rem;
   width: fit-content;
-  grid-template-columns: auto 3rem auto;
+  grid-template-columns: auto 4rem auto auto;
   max-width: 100%;
 }
 
@@ -5132,6 +5095,12 @@ justify-content: flex-start;
 font-style: normal;
   opacity: 0.88;
   white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-target-count-unit {
+  margin-left: -0.12rem;
+  color: inherit;
+  font-size: 0.78rem;
 }
 
 #panel-character-analysis .analysis-action-slot-card, #panel-character-analysis .analysis-action-slot-main-select, #panel-character-analysis .analysis-action-slot-detail {
@@ -5179,16 +5148,48 @@ max-width: 100%;
   white-space: nowrap;
 }
 
-#panel-character-analysis .analysis-target-count-control input.char-analysis-action-target-count {
-width: 2.8rem;
+#panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-direct-input-row,
+#panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-direct-input-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(5.6rem, 1fr));
+  gap: 0.32rem 0.55rem;
+  align-items: center;
+  width: 100%;
   min-width: 0;
-  appearance: textfield;
-  -moz-appearance: textfield;
+  margin-top: 0.12rem;
+  padding-top: 0.38rem;
+  border-top: 1px dashed rgba(190, 139, 72, 0.34);
+  overflow: visible;
 }
 
-#panel-character-analysis .analysis-target-count-control input.char-analysis-action-target-count::-webkit-outer-spin-button, #panel-character-analysis .analysis-target-count-control input.char-analysis-action-target-count::-webkit-inner-spin-button {
--webkit-appearance: none;
-  margin: 0;
+#panel-character-analysis .analysis-detail-direct-field {
+  display: grid;
+  grid-template-columns: auto minmax(3.2rem, 4.5rem);
+  gap: 0.28rem;
+  align-items: center;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-detail-direct-field span {
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-detail-direct-field .char-analysis-manual-input {
+  width: 100%;
+  min-width: 0;
+  height: 1.78rem;
+  padding: 0.08rem 0.32rem;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+#panel-character-analysis .analysis-target-count-control input.char-analysis-action-target-count {
+  width: 3.45rem;
+  min-width: 0;
+  padding-right: 0.08rem;
+  font-family: var(--font-latin-ui);
+  font-weight: 400;
 }
 
 #panel-character-analysis .analysis-action-slot-bullet-select {
@@ -5415,7 +5416,7 @@ white-space: nowrap;
 .sw25-generator-page .analysis-target-count-control.is-compact {
 margin: 0;
   display: inline-grid;
-  grid-template-columns: auto 2.4rem auto;
+  grid-template-columns: auto 3.5rem auto auto;
   gap: 0.22rem;
   align-items: center;
   min-width: 0;
@@ -5423,8 +5424,8 @@ margin: 0;
 }
 
 .sw25-generator-page .analysis-target-count-control.is-compact input {
-width: 2.4rem;
-  min-width: 0;
+width: 3.5rem;
+  min-width: 3.5rem;
   text-align: center;
 }
 
@@ -6828,7 +6829,6 @@ gap: 6px;
   --analysis-fire-height: clamp(140px, 14vw, 210px);
   --analysis-fire-scale: 1.5;
   --analysis-fire-shift-y: 18px;
-  --analysis-fire-opacity: 0.52;
 }
 
 #panel-character-analysis .analysis-action-slot-match-summary.match-rank-very-good {
@@ -6893,7 +6893,12 @@ gap: 4px;
   z-index: 8;
   align-self: end;
   margin-top: auto;
-  opacity: 0.82;
+  opacity: 1;
+}
+
+#panel-character-analysis .analysis-action-slot-match-summary .analysis-match-center-values > span {
+  background: rgba(8, 4, 2, 0.88);
+  opacity: 1;
 }
 
 @container mainlayout (max-width: 980px) {
@@ -7066,24 +7071,6 @@ grid-template-columns: minmax(0, 1fr);
   }
 }
 
-
-/* v71: 戦闘プランを固定表示しない。後続の仕様カードへ重なり込ませない */
-@media (min-width: 1181px) {
-  #panel-character-analysis .analysis-plan-card {
-    position: static;
-    max-height: none;
-    overflow: visible;
-    box-shadow: none;
-  }
-
-  #panel-character-analysis .analysis-plan-card .analysis-plan-header-row {
-    position: static;
-    margin: 0 0 0.55rem;
-    padding: 0 0 0.55rem;
-    background: transparent;
-    backdrop-filter: none;
-  }
-}
 
 /* v72: 戦闘プランは情報を重ねず、一段ずつの枠線と余白で見せる */
 #panel-character-analysis .analysis-plan-card {
@@ -7463,24 +7450,37 @@ grid-template-columns: minmax(0, 1fr);
 }
 
 @media (min-width: 1181px) {
+  /* 外枠は追従させ、内容だけを内部スクロールする。行動数で追従方式を変えない。 */
   #panel-character-analysis .analysis-plan-card {
     position: sticky;
     top: 0.75rem;
     align-self: start;
-    max-height: calc(100vh - 1.5rem);
-    overflow: auto;
-    scrollbar-gutter: stable;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 1.5rem);
+    overflow: hidden;
+    scrollbar-gutter: auto;
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
   }
 
   #panel-character-analysis .analysis-plan-card .analysis-plan-header-row {
-    position: sticky;
-    top: -0.75rem;
+    position: static;
     z-index: 20;
+    flex: 0 0 auto;
     margin: -0.75rem -0.75rem 0.65rem;
     padding: 0.75rem;
     background: rgba(28, 17, 12, 0.97);
     backdrop-filter: blur(8px);
+  }
+
+  #panel-character-analysis .analysis-plan-card > #char-analysis-adjusted {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding-right: 0.2rem;
   }
 }
 
@@ -8019,14 +8019,19 @@ grid-template-columns: minmax(0, 1fr);
 
 #panel-character-analysis .analysis-mount-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
   gap: 0.65rem;
+  min-width: 0;
 }
 
 #panel-character-analysis .analysis-mount-card {
   display: grid;
   gap: 0.45rem;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
   padding: 0.65rem;
   border: 1px solid color-mix(in srgb, #74a9b6 52%, var(--color-border, currentColor));
   border-radius: 0.5rem;
@@ -8151,8 +8156,19 @@ grid-template-columns: minmax(0, 1fr);
 }
 
 #panel-character-analysis .analysis-mount-card > footer {
-  padding-top: 0.35rem;
-  border-top: 1px solid color-mix(in srgb, #74a9b6 30%, transparent);
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.18rem 0.42rem;
+  border: 1px solid color-mix(in srgb, #74a9b6 24%, transparent);
+  border-radius: 999px;
+  background: rgba(20, 34, 38, 0.28);
+  font-size: 0.68rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 640px) {
@@ -8182,5 +8198,2665 @@ grid-template-columns: minmax(0, 1fr);
     grid-row: auto;
     min-width: 0;
     max-width: 100%;
+  }
+}
+
+/* 騎獣・召喚ユニットの種別表示 */
+#panel-character-analysis .analysis-summon-card[data-unit-type="fairy"] {
+  border-left: 3px solid rgba(129, 211, 184, 0.72);
+}
+
+#panel-character-analysis .analysis-summon-card[data-unit-type="demon"] {
+  border-left: 3px solid rgba(184, 112, 155, 0.72);
+}
+
+#panel-character-analysis .analysis-summon-card[data-unit-type="golem"] {
+  border-left: 3px solid rgba(191, 168, 122, 0.72);
+}
+
+#panel-character-analysis .analysis-summon-card > header strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+#panel-character-analysis .analysis-summon-action-table,
+#panel-character-analysis .analysis-summon-mode-note {
+  margin: 0.35rem 0;
+}
+
+#panel-character-analysis .analysis-summon-action-table {
+  border: 1px solid rgba(184, 112, 155, 0.32);
+  border-radius: 0.35rem;
+  background: rgba(34, 20, 31, 0.28);
+}
+
+#panel-character-analysis .analysis-summon-action-table summary {
+  padding: 0.35rem 0.45rem;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+#panel-character-analysis .analysis-summon-action-table p {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0.1rem 0.45rem;
+  margin: 0;
+  padding: 0.3rem 0.45rem;
+  border-top: 1px solid rgba(184, 112, 155, 0.18);
+  font-size: 0.72rem;
+}
+
+#panel-character-analysis .analysis-summon-action-table p b {
+  grid-row: 1 / span 2;
+}
+
+#panel-character-analysis .analysis-summon-action-table p small,
+#panel-character-analysis .analysis-summon-mode-note {
+  opacity: 0.76;
+  font-size: 0.7rem;
+}
+
+/* 召喚ユニット: 妖精・魔神・ゴーレム */
+#panel-character-analysis .analysis-summon-active-toggle,
+#panel-character-analysis .analysis-golem-command {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2rem;
+  margin: 0.25rem 0.35rem 0.25rem 0;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--color-border, currentColor);
+  border-radius: 0.45rem;
+}
+
+#panel-character-analysis .analysis-golem-command select {
+  min-width: 9.5rem;
+}
+
+#panel-character-analysis .analysis-action-slot[data-kind="summon"] {
+  border-inline-start: 3px solid var(--color-accent, currentColor);
+}
+
+#panel-character-analysis .analysis-party-total {
+  margin: 0.65rem 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--color-border, currentColor);
+  border-radius: 0.5rem;
+}
+
+#panel-character-analysis .analysis-party-total header,
+#panel-character-analysis .analysis-party-total div,
+#panel-character-analysis .analysis-party-total div > span {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+#panel-character-analysis .analysis-party-total header {
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+#panel-character-analysis .analysis-party-total div {
+  flex-wrap: wrap;
+}
+
+#panel-character-analysis .analysis-party-total div > span {
+  padding: 0.18rem 0.4rem;
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-radius: 999px;
+}
+
+#panel-character-analysis .analysis-party-total em {
+  font-style: normal;
+}
+
+@media (max-width: 640px) {
+  #panel-character-analysis .analysis-golem-command {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  #panel-character-analysis .analysis-golem-command select {
+    min-width: 0;
+    max-width: 70%;
+  }
+}
+
+
+/* v71: キャラクタータブ、パーティバフ配置、所有者UI整理 */
+#panel-character-analysis .analysis-result-grid > .analysis-character-list {
+  grid-column: 1 / -1;
+  align-self: end;
+  gap: 0.2rem;
+  margin: 0 0 -1px;
+  padding-inline: 0.45rem;
+  border-bottom: 1px solid var(--color-border, currentColor);
+}
+
+#panel-character-analysis .analysis-character-entry {
+  gap: 0;
+}
+
+#panel-character-analysis .analysis-character-chip {
+  position: relative;
+  min-height: 2.2rem;
+  padding: 0.42rem 0.9rem 0.38rem;
+  border: 1px solid var(--color-border, currentColor);
+  border-bottom-color: transparent;
+  border-radius: 0.38rem 0.38rem 0 0;
+  clip-path: none;
+  filter: none;
+  transform: none;
+}
+
+#panel-character-analysis .analysis-character-chip.is-active {
+  z-index: 2;
+  border-color: var(--color-main);
+  border-bottom-color: var(--color-bg, #1b1717);
+}
+
+#panel-character-analysis .analysis-character-sheet-link {
+  width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
+  margin-left: 0.1rem;
+  border-radius: 0.3rem 0.3rem 0 0;
+}
+
+#panel-character-analysis .analysis-party-buff-row {
+  grid-template-columns: minmax(14rem, 1fr) minmax(12rem, 1.05fr);
+}
+
+#panel-character-analysis .analysis-party-buff-head {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#panel-character-analysis .analysis-party-target-list {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#panel-character-analysis .analysis-summon-active-toggle {
+  justify-content: flex-start;
+  width: fit-content;
+}
+
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-result-grid > .analysis-character-list {
+    padding-inline: 0;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  #panel-character-analysis .analysis-character-entry {
+    flex: 0 0 auto;
+  }
+
+  #panel-character-analysis .analysis-party-buff-head,
+  #panel-character-analysis .analysis-party-target-list {
+    grid-column: 1;
+  }
+
+  #panel-character-analysis .analysis-party-target-list {
+    grid-row: 2;
+  }
+}
+
+/* v72: 召喚状態の省スペース化と、キャラクタータブ・顔バナーの表示順を固定 */
+#panel-character-analysis .analysis-summon-owner-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.55rem;
+}
+
+#panel-character-analysis .analysis-summon-owner-row .analysis-mount-rider-label {
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-summon-owner-row .analysis-summon-active-toggle {
+  width: auto;
+  min-width: max-content;
+  min-height: 2.35rem;
+  margin: 0;
+  padding: 0.35rem 0.65rem;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-summon-owner-row .analysis-summon-active-toggle span {
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
+}
+
+#panel-character-analysis .analysis-result-grid > .analysis-character-list {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+#panel-character-analysis .analysis-result-grid > .analysis-overview-card {
+  display: block;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-character-chip {
+  filter: none;
+}
+
+@media (min-width: 1181px) {
+  #panel-character-analysis .analysis-left-stack {
+    grid-row: 3;
+  }
+
+  #panel-character-analysis .analysis-plan-card {
+    grid-row: 3;
+  }
+}
+
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-summon-owner-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  #panel-character-analysis .analysis-summon-owner-row .analysis-summon-active-toggle {
+    justify-self: start;
+  }
+}
+
+/* v72: キャラクター名とシートリンクを同一タブ内に統合 */
+#panel-character-analysis .analysis-result-grid > .analysis-character-list {
+  gap: 0.28rem;
+}
+
+#panel-character-analysis .analysis-character-entry {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0;
+  min-height: 2.2rem;
+  border: 1px solid var(--color-border, currentColor);
+  border-bottom-color: transparent;
+  border-radius: 0.38rem 0.38rem 0 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+#panel-character-analysis .analysis-character-entry.is-active {
+  z-index: 2;
+  border-color: var(--color-main);
+  border-bottom-color: var(--color-bg, #1b1717);
+  background: var(--color-bg, #1b1717);
+}
+
+#panel-character-analysis .analysis-character-chip {
+  min-height: 2.2rem;
+  padding: 0.42rem 0.72rem 0.38rem 0.9rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+}
+
+#panel-character-analysis .analysis-character-entry.is-active .analysis-character-chip {
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+}
+
+#panel-character-analysis .analysis-character-sheet-link {
+  align-self: stretch;
+  width: 2rem;
+  min-width: 2rem;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-left: 1px solid var(--color-border, currentColor);
+  border-radius: 0;
+  background: transparent;
+}
+
+#panel-character-analysis .analysis-character-entry.is-active .analysis-character-sheet-link {
+  border-left-color: var(--color-main);
+}
+
+/* 個人分析 / パーティ集計 */
+#panel-character-analysis .analysis-view-mode-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  margin: 0.65rem 0 0;
+  padding-inline: 0.35rem;
+  border-bottom: 1px solid var(--color-border, #8f7258);
+}
+#panel-character-analysis .analysis-view-mode-bar[hidden],
+#panel-character-analysis .analysis-party-view[hidden],
+#panel-character-analysis #char-analysis-results[hidden] {
+  display: none;
+}
+#panel-character-analysis .analysis-view-mode-btn {
+  min-height: 2.35rem;
+  padding: 0.48rem 0.9rem;
+  border: 1px solid var(--color-border, #8f7258);
+  border-bottom: 0;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: rgba(20, 17, 16, 0.72);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+#panel-character-analysis .analysis-view-mode-btn.is-active {
+  background: var(--color-panel, #241d1a);
+  color: var(--color-accent, #e2b45f);
+  font-weight: 700;
+  transform: translateY(1px);
+}
+#panel-character-analysis .analysis-party-view {
+  margin-top: 0;
+  border-top-left-radius: 0;
+}
+#panel-character-analysis .analysis-enemy-shared-card {
+  margin: 0;
+}
+#panel-character-analysis .analysis-party-view-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--color-border, #8f7258);
+}
+#panel-character-analysis .analysis-party-view-head h4,
+#panel-character-analysis .analysis-party-view-head p {
+  margin: 0;
+}
+#panel-character-analysis .analysis-party-view-head p {
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  opacity: 0.8;
+}
+#panel-character-analysis .analysis-party-view-head > strong {
+  display: grid;
+  justify-items: end;
+  font-size: 1.7rem;
+  line-height: 1;
+  font-family: var(--font-latin-ui);
+  font-weight: 400;
+}
+#panel-character-analysis .analysis-party-view-head > strong small {
+  margin-top: 0.3rem;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 400;
+  line-height: 1.1;
+}
+#panel-character-analysis .analysis-party-member-list {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+}
+#panel-character-analysis .analysis-party-member-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--color-border, #8f7258);
+  border-radius: 0.45rem;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+#panel-character-analysis .analysis-party-member-card.has-portrait::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(90deg, transparent 42%, rgba(0, 0, 0, 0.14) 67%, rgba(0, 0, 0, 0.02)), var(--analysis-party-portrait-url);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 100% 100%, min(18rem, 42%) auto;
+  opacity: 0.12;
+}
+
+#panel-character-analysis .analysis-party-member-card > * {
+  position: relative;
+  z-index: 1;
+}
+#panel-character-analysis .analysis-party-member-card > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.62rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+#panel-character-analysis .analysis-party-member-card > header div {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+#panel-character-analysis .analysis-party-member-card > header small {
+  opacity: 0.75;
+}
+#panel-character-analysis .analysis-party-member-card > header > strong {
+  font-family: var(--font-latin-ui);
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+#panel-character-analysis .analysis-party-member-actions {
+  display: grid;
+}
+#panel-character-analysis .analysis-party-unit-row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.8fr) minmax(0, 2fr) 5.5rem;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.11);
+}
+#panel-character-analysis .analysis-party-unit-row > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.55rem;
+}
+#panel-character-analysis .analysis-party-unit-row small {
+  opacity: 0.82;
+}
+#panel-character-analysis .analysis-party-unit-row small.is-support {
+  color: var(--color-accent, #e2b45f);
+}
+#panel-character-analysis .analysis-party-unit-row > strong {
+  justify-self: end;
+  font-family: var(--font-latin-ui);
+}
+#panel-character-analysis .analysis-party-placement-details {
+  margin: 0.45rem 0.65rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.35rem;
+}
+#panel-character-analysis .analysis-party-placement-details summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+#panel-character-analysis .analysis-party-unit-placement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, 15rem);
+  gap: 0.55rem;
+  align-items: center;
+  margin-top: 0.4rem;
+}
+#panel-character-analysis .analysis-party-independent {
+  margin-top: 0.75rem;
+  padding: 0.65rem;
+  border: 1px dashed var(--color-border, #8f7258);
+  border-radius: 0.4rem;
+}
+#panel-character-analysis .analysis-party-independent h5,
+#panel-character-analysis .analysis-party-independent p {
+  margin: 0;
+}
+#panel-character-analysis .analysis-party-independent p {
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  opacity: 0.8;
+}
+@media (max-width: 640px) {
+  #panel-character-analysis .analysis-view-mode-bar {
+    overflow-x: auto;
+  }
+  #panel-character-analysis .analysis-view-mode-btn {
+    flex: 0 0 auto;
+  }
+  #panel-character-analysis .analysis-party-view-head {
+    align-items: flex-start;
+  }
+  #panel-character-analysis .analysis-party-unit-row {
+    grid-template-columns: 1fr auto;
+  }
+  #panel-character-analysis .analysis-party-unit-row > div {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  #panel-character-analysis .analysis-party-unit-placement {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* v74: パーティ集計の共通設定・行動順編集 */
+#panel-character-analysis .analysis-party-settings-details {
+  margin-top: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-border, currentColor) 72%, transparent);
+  border-radius: 0.45rem;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#panel-character-analysis .analysis-party-settings-details > summary {
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--color-accent, #e2b45f);
+}
+
+#panel-character-analysis .analysis-party-settings-details .is-party-settings {
+  margin: 0;
+  padding: 0.55rem 0.7rem 0.7rem;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0;
+  background: transparent;
+}
+
+#panel-character-analysis .analysis-party-settings-details .is-party-settings > h5 {
+  display: none;
+}
+
+#panel-character-analysis .analysis-party-member-card > header {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+#panel-character-analysis .analysis-party-drag-handle {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.32rem;
+  background: transparent;
+  color: inherit;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#panel-character-analysis .analysis-party-member-card {
+  cursor: default;
+}
+
+#panel-character-analysis #char-analysis-party-view.is-party-reordering,
+#panel-character-analysis #char-analysis-party-view.is-party-reordering .analysis-party-drag-handle {
+  cursor: grabbing;
+}
+
+#panel-character-analysis .analysis-party-member-card.is-dragging {
+  opacity: 0.45;
+}
+
+#panel-character-analysis .analysis-party-member-card.is-drag-target {
+  outline: 2px solid var(--color-accent, #e2b45f);
+  outline-offset: 2px;
+}
+
+#panel-character-analysis .analysis-party-member-card.is-independent-unit {
+  border-style: dashed;
+}
+
+#panel-character-analysis .analysis-party-member-card.is-independent-unit > header {
+  background: color-mix(in srgb, var(--color-accent, #e2b45f) 9%, rgba(0, 0, 0, 0.12));
+}
+
+/* 騎獣・召喚カードの見出しに種別とレベルを集約 */
+#panel-character-analysis .analysis-mount-card > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, auto);
+  gap: 0.45rem 0.8rem;
+  align-items: center;
+}
+
+#panel-character-analysis .analysis-mount-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-mount-type,
+#panel-character-analysis .analysis-mount-level {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 1.55rem;
+  margin: 0;
+  padding: 0.18rem 0.45rem;
+  border-radius: 0.3rem;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+#panel-character-analysis .analysis-mount-type {
+  border: 1px solid color-mix(in srgb, var(--color-border, currentColor) 58%, transparent);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+#panel-character-analysis .analysis-mount-level {
+  background: rgba(116, 169, 182, 0.12);
+}
+
+#panel-character-analysis .analysis-summon-owner-row {
+  grid-template-columns: minmax(12rem, 1fr) minmax(8rem, auto);
+}
+
+#panel-character-analysis .analysis-summon-owner-row .analysis-mount-rider-label {
+  display: grid;
+  grid-template-columns: auto minmax(12rem, 24rem);
+  align-items: center;
+  gap: 0.45rem;
+}
+
+#panel-character-analysis .analysis-summon-owner-row .analysis-mount-rider-label select {
+  width: 100%;
+  max-width: 24rem;
+}
+
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-party-member-card > header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  #panel-character-analysis .analysis-mount-card > header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-mount-header-meta {
+    justify-content: flex-start;
+  }
+
+  #panel-character-analysis .analysis-summon-owner-row,
+  #panel-character-analysis .analysis-summon-owner-row .analysis-mount-rider-label {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-summon-owner-row .analysis-mount-rider-label select {
+    max-width: none;
+  }
+}
+
+/* 試行・判定設定: 内容幅を基準に横へ詰め、必要なときだけ折り返す */
+#panel-character-analysis .analysis-trial-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.38rem;
+  padding: 0.48rem 0.58rem 0.52rem;
+  border: 1px solid color-mix(in srgb, var(--color-border, currentColor) 34%, transparent);
+  border-radius: 0.42rem;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.38rem 0.72rem;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field,
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field.is-number {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.34rem;
+  min-width: 0;
+  min-height: 1.9rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-setting-field > span {
+  flex: 0 0 auto;
+  color: inherit;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field > select,
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field > input[type="number"] {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  min-height: 1.85rem;
+  height: 1.85rem;
+  padding-block: 0.12rem;
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.1;
+  field-sizing: content;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field:nth-child(1) > select {
+  width: 7.4rem;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field:nth-child(2) > select {
+  width: 6.9rem;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field.is-number > input[type="number"] {
+  width: 4.7rem;
+  font-family: var(--font-latin-ui);
+  font-size: 1rem;
+  font-weight: 400;
+  text-align: right;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field:nth-child(4) > input[type="number"] {
+  width: 5.7rem;
+}
+
+#panel-character-analysis .analysis-settings-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.6rem, max-content));
+  align-items: center;
+  gap: 0.18rem 0.7rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border, currentColor) 24%, transparent);
+}
+
+#panel-character-analysis .analysis-settings-toggle-grid .analysis-check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+  min-height: 1.55rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.76rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-condition-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem 0.65rem;
+  min-width: 0;
+  margin: 0;
+  padding-top: 0;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-simulate-btn {
+  min-height: 1.72rem;
+  padding: 0.22rem 0.5rem;
+  font-size: 0.72rem;
+}
+
+#panel-character-analysis .analysis-trial-settings .analysis-condition-help {
+  min-width: 0;
+  font-size: 0.67rem;
+  line-height: 1.25;
+}
+
+#panel-character-analysis .analysis-party-settings-details .analysis-trial-settings.is-party-settings {
+  margin: 0.45rem 0.55rem 0.55rem;
+}
+
+@container characteranalysis (max-width: 520px) {
+  #panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field,
+  #panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field.is-number {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field > select,
+  #panel-character-analysis .analysis-trial-settings .analysis-settings-primary-grid > .analysis-setting-field > input[type="number"] {
+    width: min(10rem, 58%);
+  }
+
+  #panel-character-analysis .analysis-trial-settings .analysis-condition-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* パーティ集計: 各ユニット行の中で個人分析と同じ1R行動を共有編集 */
+#panel-character-analysis .analysis-party-unit-row > .analysis-party-unit-action-cell {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-party-unit-action-control {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-party-unit-action-control > span {
+  color: color-mix(in srgb, currentColor 76%, transparent);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-party-unit-action-control select {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+/* 1カラム判定は画面幅ではなく、分析パネルの実幅を使う */
+#panel-character-analysis {
+  container: characteranalysis / inline-size;
+}
+
+#panel-character-analysis .analysis-overview-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  margin-bottom: 0.45rem;
+}
+
+#panel-character-analysis .analysis-overview-header-row > h4 {
+  margin: 0;
+}
+
+#panel-character-analysis .analysis-plan-quick-button,
+#panel-character-analysis .analysis-plan-toggle-button,
+#panel-character-analysis .char-analysis-plan-close {
+  display: none;
+}
+
+#panel-character-analysis .analysis-plan-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@container characteranalysis (max-width: 1100px) {
+  #panel-character-analysis .analysis-result-grid {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  #panel-character-analysis .analysis-left-stack {
+    grid-column: 1;
+    grid-row: 3;
+    min-width: 0;
+  }
+
+  #panel-character-analysis .analysis-plan-quick-button,
+  #panel-character-analysis .analysis-plan-toggle-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.32rem;
+    width: fit-content;
+  }
+
+  #panel-character-analysis .analysis-plan-quick-button {
+    flex: 0 0 auto;
+    width: 2rem;
+    min-width: 2rem;
+    height: 2rem;
+    min-height: 2rem;
+    padding: 0;
+    border-radius: 0.38rem;
+    font-size: 0.9rem;
+  }
+
+  #panel-character-analysis .analysis-plan-toggle-button {
+    justify-self: end;
+    grid-column: 1;
+    grid-row: 4;
+    margin: 0.25rem 0 0.45rem;
+  }
+
+  #panel-character-analysis .analysis-plan-card {
+    position: static;
+    inset: auto;
+    display: block;
+    grid-column: 1;
+    grid-row: 5;
+    z-index: auto;
+    width: auto;
+    max-width: 100%;
+    max-height: none;
+    overflow: visible;
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open {
+    position: fixed;
+    inset: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) auto;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    width: min(48rem, calc(100vw - 1.5rem));
+    max-height: calc(100dvh - 1.5rem);
+    overflow: hidden;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open > #char-analysis-adjusted {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open .analysis-plan-header-row {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    margin: -0.75rem -0.75rem 0.55rem;
+    padding: 0.75rem;
+    background: rgba(28, 17, 12, 0.98);
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open .char-analysis-plan-close {
+    display: inline-flex;
+    min-width: 2.1rem;
+    padding-inline: 0.55rem;
+  }
+}
+
+@container characteranalysis (max-width: 520px) {
+  #panel-character-analysis .analysis-overview-header-row {
+    align-items: flex-start;
+  }
+
+  #panel-character-analysis .analysis-plan-quick-button span {
+    display: none;
+  }
+
+  #panel-character-analysis .analysis-plan-quick-button {
+    min-width: 2.1rem;
+    padding-inline: 0.48rem;
+  }
+
+}
+
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-party-unit-action-control {
+    grid-template-columns: minmax(4.8rem, auto) minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open {
+    inset: max(0.35rem, env(safe-area-inset-top)) max(0.35rem, env(safe-area-inset-right)) max(0.35rem, env(safe-area-inset-bottom)) max(0.35rem, env(safe-area-inset-left));
+    width: auto;
+    max-height: none;
+  }
+}
+
+
+#panel-character-analysis .analysis-party-unit-support-action {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+
+
+/* 召喚ユニットの直接指定 */
+#panel-character-analysis .analysis-mounts-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  margin-bottom: 0.4rem;
+}
+
+#panel-character-analysis .analysis-mounts-heading h4 {
+  margin: 0;
+}
+
+#panel-character-analysis .analysis-mount-empty {
+  margin: 0;
+  padding: 0.7rem;
+  border: 1px dashed rgba(172, 205, 218, 0.28);
+  border-radius: 0.45rem;
+  opacity: 0.78;
+}
+
+#panel-character-analysis .analysis-mount-card.is-manual {
+  gap: 0.55rem;
+  background:
+    linear-gradient(135deg, rgba(91, 143, 157, 0.09), transparent 48%),
+    rgba(10, 18, 22, 0.38);
+}
+
+#panel-character-analysis .analysis-mount-card.is-manual > header {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+#panel-character-analysis .analysis-manual-summon-editor {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.55rem;
+  border: 1px solid rgba(172, 205, 218, 0.2);
+  border-radius: 0.42rem;
+  background: rgba(4, 9, 12, 0.24);
+}
+
+#panel-character-analysis .analysis-manual-summon-main-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(8rem, 0.9fr) 4.5rem minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: start;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-manual-summon-main-row > label,
+#panel-character-analysis .analysis-manual-summon-attack-row > label {
+  display: grid;
+  grid-template-rows: auto 2.15rem;
+  gap: 0.18rem;
+  min-width: 0;
+  margin: 0;
+}
+
+#panel-character-analysis .analysis-manual-summon-main-row > label > span,
+#panel-character-analysis .analysis-manual-summon-attack-row > label > span {
+  color: color-mix(in srgb, currentColor 78%, transparent);
+  font-size: 0.7rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-manual-summon-main-row > label.is-type {
+  grid-template-rows: auto 2.15rem auto;
+}
+
+#panel-character-analysis .analysis-manual-summon-main-row > label.is-type > small {
+  display: block;
+  min-height: 1.25rem;
+  color: rgba(210, 232, 235, 0.66);
+  font-size: 0.65rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+#panel-character-analysis .analysis-manual-summon-editor input,
+#panel-character-analysis .analysis-manual-summon-editor select {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.15rem;
+  box-sizing: border-box;
+}
+
+#panel-character-analysis .analysis-manual-summon-editor input[type="number"] {
+  font-family: var(--font-latin-ui);
+  font-weight: 400;
+  text-align: right;
+}
+
+#panel-character-analysis .analysis-manual-summon-attack-row {
+  display: grid;
+  grid-template-columns: minmax(5rem, 0.55fr) minmax(10rem, 1.35fr) repeat(3, minmax(4.75rem, 0.65fr));
+  gap: 0.45rem;
+  min-width: 0;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(172, 205, 218, 0.16);
+}
+
+#panel-character-analysis .analysis-manual-summon-attack-row > label[hidden] {
+  display: none;
+}
+
+#panel-character-analysis .analysis-manual-summon-attack-row .is-damage-mode select {
+  font-size: 0.78rem;
+}
+
+#panel-character-analysis .analysis-summon-owner-row.is-manual {
+  grid-template-columns: minmax(15rem, 1fr) auto;
+  align-items: center;
+  padding-top: 0.05rem;
+}
+
+#panel-character-analysis .analysis-summon-owner-row.is-manual .analysis-mount-rider-label {
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-summon-owner-row.is-manual .analysis-mount-rider-label select {
+  width: 100%;
+  max-width: none;
+}
+
+#panel-character-analysis .analysis-manual-summon-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 1.65rem;
+  padding: 0.14rem 0.42rem;
+  border: 1px solid color-mix(in srgb, #c56d67 50%, transparent);
+  border-radius: 0.32rem;
+  background: rgba(105, 31, 27, 0.18);
+  color: #f0c1bd;
+  font: inherit;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+#panel-character-analysis .analysis-manual-summon-remove:hover,
+#panel-character-analysis .analysis-manual-summon-remove:focus-visible {
+  border-color: color-mix(in srgb, #e28f86 74%, transparent);
+  background: rgba(136, 43, 36, 0.28);
+}
+
+@container characteranalysis (max-width: 900px) {
+  #panel-character-analysis .analysis-manual-summon-main-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-manual-summon-attack-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container characteranalysis (max-width: 680px) {
+  #panel-character-analysis .analysis-mount-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container characteranalysis (max-width: 620px) {
+  #panel-character-analysis .analysis-mounts-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #panel-character-analysis .analysis-summon-owner-row.is-manual,
+  #panel-character-analysis .analysis-summon-owner-row.is-manual .analysis-mount-rider-label {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-summon-owner-row.is-manual .analysis-mount-rider-label select {
+    max-width: none;
+  }
+}
+
+@container characteranalysis (max-width: 440px) {
+  #panel-character-analysis .analysis-manual-summon-main-row,
+  #panel-character-analysis .analysis-manual-summon-attack-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-manual-summon-remove span {
+    display: none;
+  }
+}
+
+/* v101: パーティバフは補助効果候補の次に独立配置し、通常フロー内で収める */
+#panel-character-analysis .analysis-party-buffs-host-card[hidden] {
+  display: none;
+}
+
+#panel-character-analysis .analysis-left-stack > .analysis-party-buffs-host-card {
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--color-main) 42%, var(--color-border, currentColor));
+  background: linear-gradient(135deg, rgba(215, 165, 67, 0.055), rgba(20, 14, 12, 0.2));
+}
+
+#panel-character-analysis .analysis-party-buffs-host-card .analysis-party-buffs-details > summary {
+  min-height: 2.55rem;
+  padding: 0.48rem 0.65rem;
+}
+
+#panel-character-analysis .analysis-party-buffs-host-card .analysis-party-buffs-body {
+  max-height: none;
+  padding: 0.35rem 0.55rem 0.55rem;
+  overflow: visible;
+}
+
+#panel-character-analysis .analysis-party-buffs-host-card .analysis-party-buff-intro {
+  padding: 0.3rem 0.4rem;
+}
+
+#panel-character-analysis .analysis-party-buffs-host-card .analysis-party-caster {
+  overflow: hidden;
+}
+
+#panel-character-analysis .analysis-party-target-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-party-target-controls .analysis-party-target-list {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#panel-character-analysis .analysis-party-target.is-self {
+  border-style: dashed;
+}
+
+#panel-character-analysis .analysis-party-buff-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+  min-height: 1.65rem;
+  padding: 0.16rem 0.42rem;
+  border: 1px solid color-mix(in srgb, var(--color-main) 52%, var(--color-border, currentColor));
+  border-radius: 0.35rem;
+  background: color-mix(in srgb, var(--color-main) 10%, transparent);
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+#panel-character-analysis .analysis-party-buff-all:hover,
+#panel-character-analysis .analysis-party-buff-all:focus-visible {
+  border-color: var(--color-main);
+  background: color-mix(in srgb, var(--color-main) 18%, transparent);
+}
+
+@container characteranalysis (max-width: 700px) {
+  #panel-character-analysis .analysis-party-target-controls {
+    flex-direction: column;
+  }
+
+  #panel-character-analysis .analysis-party-buff-all {
+    align-self: flex-start;
+  }
+}
+
+/* パーティバフ: 見出し左右配置と、割り当てに基づく消費MP見積 */
+#panel-character-analysis .analysis-party-buffs-details > summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+}
+#panel-character-analysis .analysis-party-buffs-details > summary::before {
+  grid-column: 1;
+}
+#panel-character-analysis .analysis-party-buffs-summary-title {
+  grid-column: 2;
+  justify-self: start;
+  min-width: 0;
+}
+#panel-character-analysis .analysis-party-buffs-details > summary > em {
+  grid-column: 3;
+  justify-self: end;
+  margin-left: auto;
+}
+#panel-character-analysis .analysis-party-mp-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.4rem 0.65rem;
+  align-items: center;
+  padding: 0.48rem 0.55rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-main) 32%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-main) 32%, transparent);
+  background: color-mix(in srgb, var(--color-main) 6%, transparent);
+}
+#panel-character-analysis .analysis-party-mp-summary > strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+#panel-character-analysis .analysis-party-mp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-width: 0;
+}
+#panel-character-analysis .analysis-party-mp-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28rem;
+  min-width: 0;
+  padding: 0.18rem 0.38rem;
+  border: 1px solid color-mix(in srgb, var(--color-border, currentColor) 72%, transparent);
+  border-radius: 0.32rem;
+  background: rgba(0, 0, 0, 0.12);
+  font-size: 0.72rem;
+}
+#panel-character-analysis .analysis-party-mp-chip b {
+  overflow: hidden;
+  max-width: 12rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+#panel-character-analysis .analysis-party-mp-chip em {
+  color: var(--color-main);
+  font-family: var(--font-latin-ui);
+  font-style: normal;
+  font-weight: 400;
+  white-space: nowrap;
+}
+#panel-character-analysis .analysis-party-mp-chip small {
+  opacity: 0.66;
+  white-space: nowrap;
+}
+#panel-character-analysis .analysis-party-mp-total {
+  justify-self: end;
+  color: var(--color-main);
+  font-family: var(--font-latin-ui);
+  font-size: 0.78rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+#panel-character-analysis .analysis-party-mp-summary > small {
+  grid-column: 2 / -1;
+  font-size: 0.66rem;
+  line-height: 1.35;
+  opacity: 0.62;
+}
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-party-buffs-details > summary {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  #panel-character-analysis .analysis-party-buffs-summary-title {
+    display: grid;
+    gap: 0.08rem;
+  }
+  #panel-character-analysis .analysis-party-mp-summary {
+    grid-template-columns: 1fr auto;
+  }
+  #panel-character-analysis .analysis-party-mp-chips {
+    grid-column: 1 / -1;
+  }
+  #panel-character-analysis .analysis-party-mp-total {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  #panel-character-analysis .analysis-party-mp-summary > small {
+    grid-column: 1 / -1;
+  }
+}
+
+
+/* Enemy data: keep wide layouts compact without forcing numeric fields to stretch. */
+#panel-character-analysis .analysis-enemy-shared-card .analysis-setup-enemy {
+  width: min(100%, 88rem);
+  max-width: 88rem;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-url-row {
+  width: min(100%, 72rem);
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-part-row {
+  grid-template-columns: max-content clamp(10rem, 18vw, 18rem);
+  width: fit-content;
+  max-width: 100%;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card #char-analysis-enemy-part-select {
+  width: clamp(10rem, 18vw, 18rem);
+  max-width: 100%;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.28rem;
+  align-items: stretch;
+  width: max-content;
+  max-width: 100%;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row {
+  display: contents;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field,
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+  flex: 0 0 auto;
+  min-width: 0;
+  width: max-content;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field input[type="number"] {
+  width: 2.9rem;
+  min-width: 2.9rem;
+  max-width: 2.9rem;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field .analysis-dice-input {
+  grid-template-columns: max-content 2.9rem;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-dice-input > span {
+  font-size: 1.05rem;
+  letter-spacing: -0.04em;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+  width: clamp(12rem, 18vw, 16rem);
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input input {
+  width: 100%;
+  min-width: 0;
+}
+
+@container characteranalysis (max-width: 1400px) {
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.34rem;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row {
+    display: grid;
+    gap: 0.32rem;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main {
+    grid-template-columns:
+      repeat(2, minmax(4.7rem, 5.4rem))
+      repeat(3, minmax(7rem, 8.7rem));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-resist {
+    grid-template-columns: repeat(2, minmax(7rem, 8.7rem));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns:
+      repeat(3, minmax(4.7rem, 5.4rem))
+      minmax(14rem, 24rem);
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    width: auto;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input input {
+    width: 100%;
+  }
+}
+
+@container characteranalysis (max-width: 760px) {
+  #panel-character-analysis .analysis-enemy-shared-card .analysis-setup-enemy,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-url-row,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-part-row,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-grid,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row {
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-resist,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-part-row {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card #char-analysis-enemy-part-select {
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-resist {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@container characteranalysis (max-width: 520px) {
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-resist,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* v102: 敵設定は横幅に応じて 1段・2段・スマホ用の順に組み替える。 */
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-url-row,
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-part-row,
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-grid {
+  min-width: 0;
+  margin: 0;
+}
+
+#panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-part-status {
+  display: none;
+}
+
+@container characteranalysis (min-width: 1400px) {
+  #panel-character-analysis .analysis-enemy-shared-card .analysis-setup-enemy {
+    display: grid;
+    grid-template-columns: minmax(20rem, 0.8fr) minmax(10.5rem, auto) minmax(0, 1.8fr);
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+    max-width: none;
+    padding-block: 0.55rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-url-row {
+    grid-template-columns: minmax(0, 1fr) max-content max-content;
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-part-row {
+    grid-template-columns: max-content minmax(7rem, 10rem);
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card #char-analysis-enemy-part-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.28rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 0.08rem;
+    width: 4.8rem;
+    padding: 0.12rem 0.18rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field-short {
+    width: 3.6rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field > span:first-child,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input > span:first-child {
+    font-size: 0.72rem;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field .analysis-dice-input {
+    grid-template-columns: max-content 2.9rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    width: 8rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row {
+    display: contents;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    width: 8rem;
+  }
+}
+
+@container characteranalysis (min-width: 761px) and (max-width: 1399px) {
+  #panel-character-analysis .analysis-enemy-shared-card .analysis-setup-enemy {
+    display: grid;
+    grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1.28fr);
+    grid-template-areas:
+      "url stats"
+      "part stats";
+    gap: 0.4rem 0.65rem;
+    align-items: center;
+    width: 100%;
+    max-width: none;
+    padding-block: 0.55rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-url-row {
+    grid-area: url;
+    grid-template-columns: minmax(0, 1fr) max-content max-content;
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-part-row {
+    grid-area: part;
+    grid-template-columns: max-content minmax(0, 1fr);
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card #char-analysis-enemy-part-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-grid {
+    grid-area: stats;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: 0.3rem;
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row {
+    display: grid;
+    gap: 0.28rem;
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-resist {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns: repeat(3, minmax(0, 0.68fr)) minmax(8rem, 1.7fr);
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    width: auto;
+  }
+}
+
+/* v103: スマホではナビを横スクロール化し、分析画面の操作を指幅に合わせる。 */
+@media (max-width: 760px) {
+  .sw25-generator-page .main-content {
+    padding: 0.4rem;
+  }
+
+  .sw25-generator-page .generator-layout {
+    gap: 0.55rem;
+  }
+
+  .sw25-generator-page #main-sidebar {
+    gap: 0.5rem;
+  }
+
+  .sw25-generator-page #form-sidebar {
+    flex: 0 0 auto;
+    padding: 0.35rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+
+  .sw25-generator-page #form-sidebar ul {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    width: max-content;
+  }
+
+  .sw25-generator-page #form-sidebar li {
+    flex: 0 0 auto;
+  }
+
+  .sw25-generator-page #form-sidebar li a {
+    min-height: 2.55rem;
+    gap: 0.4rem;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .sw25-generator-page #form-sidebar li a i {
+    width: auto;
+  }
+
+  .sw25-generator-page #money-sidebar-panel {
+    padding: 0.6rem 0.7rem;
+  }
+
+  .sw25-generator-page #money-sidebar-panel h3 {
+    margin-bottom: 0.45rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .sw25-generator-page #money-sidebar-panel .money-row {
+    margin-bottom: 0.3rem;
+  }
+
+  .sw25-generator-page .controls-panel {
+    padding: 0.45rem;
+    border-width: 1px;
+  }
+
+  #panel-character-analysis {
+    --analysis-workspace-gap: 0.5rem;
+  }
+
+  #panel-character-analysis .analysis-card {
+    min-width: 0;
+    padding: 0.58rem;
+    border-radius: 0.45rem;
+  }
+
+  #panel-character-analysis .analysis-card > h4,
+  #panel-character-analysis .analysis-plan-header-row > h4 {
+    font-size: 0.96rem;
+    overflow-wrap: anywhere;
+  }
+
+  #panel-character-analysis .analysis-input-card.compact {
+    padding: 0.6rem;
+  }
+
+  #panel-character-analysis .analysis-url-row-multiple {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-url-row-multiple textarea {
+    grid-column: 1 / -1;
+    min-height: 4.8rem;
+  }
+
+  #panel-character-analysis .analysis-url-row-multiple button,
+  #panel-character-analysis .analysis-enemy-url-row .small-button {
+    min-height: 2.75rem;
+  }
+
+  #panel-character-analysis .analysis-plan-header-row {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  #panel-character-analysis .analysis-plan-header-actions,
+  #panel-character-analysis .analysis-battle-mode-control {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #panel-character-analysis .analysis-battle-mode-control {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    border-radius: 0.45rem;
+  }
+
+  #panel-character-analysis .analysis-battle-mode-control select {
+    width: 100%;
+    min-width: 0;
+    border-radius: 0.35rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-shared-card .analysis-setup-enemy {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    max-width: none;
+    padding: 0.55rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-url-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-url-row input {
+    grid-column: 1 / -1;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-url-row .small-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-part-row {
+    grid-template-columns: max-content minmax(0, 1fr);
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card #char-analysis-enemy-part-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-grid,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row {
+    width: 100%;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-resist,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    display: grid;
+    grid-template-columns: minmax(4.2rem, auto) minmax(0, 1fr);
+    align-items: center;
+    gap: 0.35rem;
+    width: auto;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field input[type="number"],
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field .analysis-dice-input,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input input {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field .analysis-dice-input {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    grid-column: 1 / -1;
+  }
+
+  #panel-character-analysis .analysis-action-slot-head,
+  #panel-character-analysis .analysis-action-result-headbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .sw25-generator-page .analysis-action-result-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.2rem 0.5rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.4rem;
+  }
+
+  .sw25-generator-page .analysis-action-result-row.analysis-action-result-header {
+    display: none;
+  }
+
+  .sw25-generator-page .analysis-action-result-row > :nth-child(1),
+  .sw25-generator-page .analysis-action-result-row > :nth-child(3),
+  .sw25-generator-page .analysis-action-result-row > :nth-child(4) {
+    grid-column: 1 / -1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .sw25-generator-page .analysis-action-result-row > :nth-child(1),
+  .sw25-generator-page .analysis-action-result-row > :nth-child(4) {
+    color: rgba(255, 234, 184, 0.7);
+    font-size: 0.76rem;
+  }
+
+  .sw25-generator-page .analysis-action-result-row > :nth-child(5) {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+    text-align: right;
+  }
+
+  #panel-character-analysis .analysis-match-spark {
+    --analysis-fire-size: min(155vw, 28rem);
+  }
+
+  #panel-character-analysis .analysis-overview-header-row,
+  #panel-character-analysis .analysis-mounts-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #panel-character-analysis .analysis-portrait-banner {
+    min-height: 5.8rem;
+  }
+}
+
+@media (max-width: 360px) {
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-resist,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    grid-column: auto;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    grid-template-columns: minmax(4.2rem, auto) minmax(0, 1fr);
+  }
+}
+
+/* v104: スマホは情報量を保ったまま、読む順番と縦方向の密度を最適化する。 */
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-input-card.compact h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  #panel-character-analysis .analysis-input-card.compact h4 small {
+    display: block;
+    margin: 0.18rem 0 0 1.55rem;
+    font-size: 0.68rem;
+    line-height: 1.35;
+  }
+
+  #panel-character-analysis .analysis-url-row-multiple textarea {
+    flex: 0 0 auto;
+    height: 6.25rem;
+    min-height: 6.25rem;
+    max-height: 10rem;
+    resize: vertical;
+  }
+
+  #panel-character-analysis .analysis-input-card.compact .analysis-note {
+    display: -webkit-box;
+    margin-top: 0.45rem;
+    overflow: hidden;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  #panel-character-analysis .analysis-plan-toggle-button {
+    position: fixed;
+    right: max(0.65rem, env(safe-area-inset-right));
+    bottom: max(0.65rem, env(safe-area-inset-bottom));
+    z-index: 1100;
+    width: auto;
+    min-height: 2.75rem;
+    margin: 0;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid rgba(255, 211, 105, 0.72);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(103, 75, 21, 0.98), rgba(55, 34, 10, 0.98));
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.55), inset 0 0 8px rgba(255, 205, 76, 0.12);
+  }
+
+  #panel-character-analysis:has(.analysis-plan-card.is-temporary-open) .analysis-plan-toggle-button {
+    display: none;
+  }
+
+  #panel-character-analysis .analysis-portrait-banner {
+    height: 7.5rem;
+    min-height: 7.5rem;
+  }
+
+  #panel-character-analysis .analysis-portrait-banner .analysis-overview-header {
+    inset: auto 0 0;
+    gap: 0.16rem;
+    padding: 0.45rem 0.55rem 0.5rem;
+  }
+
+  #panel-character-analysis .analysis-portrait-banner .analysis-overview-header-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.08rem;
+    min-width: 0;
+  }
+
+  #panel-character-analysis .analysis-portrait-banner .analysis-overview-name {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 1.12rem;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #panel-character-analysis .analysis-portrait-banner .analysis-overview-meta,
+  #panel-character-analysis .analysis-portrait-banner .analysis-overview-sub {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.68rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-resist {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: stretch;
+    gap: 0.12rem;
+    min-height: 3.1rem;
+    padding: 0.22rem 0.25rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field > span:first-child,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input > span:first-child {
+    overflow: hidden;
+    font-size: 0.65rem;
+    line-height: 1.1;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field input,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input input {
+    min-height: 1.8rem;
+    padding: 0.2rem 0.3rem;
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-field .analysis-dice-input {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-weakness-input {
+    grid-column: 1 / -1;
+    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+    min-height: 2.35rem;
+  }
+
+  #panel-character-analysis .analysis-definition-list.compact.analysis-attack-detail-list {
+    gap: 0.16rem 0.3rem;
+    padding: 0.25rem 0.3rem;
+    line-height: 1.15;
+  }
+
+  #panel-character-analysis .analysis-definition-list.compact.analysis-attack-detail-list > div:not(.analysis-detail-direct-input-row),
+  #panel-character-analysis .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-chip,
+  #panel-character-analysis .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-type {
+    flex: 0 1 auto;
+    flex-basis: auto;
+    display: inline-flex;
+    min-width: 0;
+    min-height: 0;
+    padding: 0.12rem 0.24rem;
+    align-items: baseline;
+    gap: 0.2rem;
+  }
+
+  #panel-character-analysis .analysis-definition-list.compact.analysis-attack-detail-list dt,
+  #panel-character-analysis .analysis-definition-list.compact.analysis-attack-detail-list dd {
+    min-width: 0;
+    font-size: 0.7rem;
+    line-height: 1.2;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary.analysis-match-summary {
+    grid-template-columns: minmax(0, 0.85fr) minmax(7.2rem, 1.25fr) minmax(0, 0.85fr);
+    gap: 0.28rem;
+    padding: 0.35rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-self {
+    order: 1;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-center {
+    order: 2;
+    min-height: 5.6rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-enemy {
+    order: 3;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-side {
+    min-height: 5.6rem;
+    padding: 0.35rem 0.3rem 0.3rem;
+  }
+
+  #panel-character-analysis .analysis-card > h4 {
+    margin-bottom: 0.55rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot,
+  #panel-character-analysis .analysis-action-result-box {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 330px) {
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-main,
+  #panel-character-analysis .analysis-enemy-compact-card .analysis-enemy-stat-row-scout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* v105: スマホの戦闘プラン導線・オーバーレイ・対決カードを再設計する。 */
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-plan-quick-button {
+    position: fixed;
+    right: max(0.65rem, env(safe-area-inset-right));
+    bottom: max(0.65rem, env(safe-area-inset-bottom));
+    z-index: 1100;
+    display: inline-flex;
+    width: 2.9rem;
+    min-width: 2.9rem;
+    height: 2.9rem;
+    min-height: 2.9rem;
+    padding: 0;
+    border: 1px solid rgba(255, 211, 105, 0.76);
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(111, 79, 20, 0.99), rgba(54, 33, 9, 0.99));
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.62), inset 0 0 9px rgba(255, 205, 76, 0.14);
+    font-size: 1rem;
+  }
+
+  #panel-character-analysis .analysis-plan-toggle-button {
+    display: none;
+  }
+
+  #panel-character-analysis:has(.analysis-plan-card.is-temporary-open) .analysis-plan-quick-button {
+    display: none;
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open {
+    box-sizing: border-box;
+    height: calc(100dvh - 0.7rem);
+    min-height: calc(100dvh - 0.7rem);
+    max-height: calc(100dvh - 0.7rem);
+    padding: 0.38rem;
+    border-color: rgba(214, 166, 66, 0.7);
+    background-color: #160e0c;
+    background-image: linear-gradient(180deg, rgba(45, 27, 17, 0.98), rgba(17, 10, 9, 0.995));
+    box-shadow: 0 18px 56px rgba(0, 0, 0, 0.82), inset 0 0 0 1px rgba(255, 212, 110, 0.08);
+    backdrop-filter: none;
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open > #char-analysis-adjusted {
+    padding: 0;
+    background: #130c0a;
+    scrollbar-gutter: auto;
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open .analysis-plan-header-row {
+    margin: -0.38rem -0.38rem 0.35rem;
+    padding: 0.55rem;
+    border-bottom: 1px solid rgba(214, 166, 66, 0.3);
+    background: #1c110e;
+  }
+
+  #panel-character-analysis .analysis-plan-card.is-temporary-open .analysis-action-result-box {
+    padding: 0.2rem;
+    background: #130c0a;
+  }
+
+  #panel-character-analysis .analysis-portrait-banner {
+    background-position:
+      center,
+      var(--analysis-portrait-x, 50%) clamp(14%, calc(var(--analysis-portrait-y, 50%) - 4%), 52%);
+  }
+
+  #panel-character-analysis .analysis-action-result-box {
+    padding: 0.22rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-card {
+    padding: 0.22rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary.analysis-match-summary {
+    grid-template-columns: minmax(0, 0.9fr) minmax(5.7rem, 1fr) minmax(0, 0.9fr);
+    gap: 0.16rem;
+    padding: 0.22rem;
+    border-radius: 0.48rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-side {
+    min-height: 5.1rem;
+    padding: 0.25rem 0.2rem 0.2rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-center {
+    min-height: 5.1rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-label {
+    margin-bottom: 0.08rem;
+    font-size: 0.62rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-main-label {
+    font-size: 0.58rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-main strong {
+    font-size: 0.92rem;
+    line-height: 1;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-statline {
+    gap: 0.08rem 0.16rem;
+    margin-top: 0.12rem;
+    font-size: 0.56rem;
+    line-height: 1.05;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-stat-chip {
+    min-width: 0;
+    padding: 0.08rem 0.16rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-stat-label {
+    display: inline;
+    flex: 0 0 auto;
+    font-size: 0.48rem;
+    line-height: 1;
+    opacity: 0.78;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-stat-value {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.56rem;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-ribbon {
+    max-width: 100%;
+    padding: 0.12rem 0.25rem;
+    overflow: hidden;
+    font-size: 0.66rem;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-result-head {
+    min-height: 1.8rem;
+    padding: 0.12rem 0.08rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-result-head .analysis-match-judgement {
+    font-size: 0.82rem;
+    line-height: 1.05;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-rate b {
+    font-size: 0.82rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-rate small,
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-dpr small {
+    font-size: 0.5rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-dpr b {
+    font-size: 0.92rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-center-values .analysis-match-dpr {
+    padding: 0.16rem 0.18rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-enemy .analysis-target-count-control {
+    display: inline-grid;
+    grid-template-columns: auto 1.8rem auto;
+    gap: 0.1rem;
+    justify-content: center;
+    width: 100%;
+    margin-top: 0.15rem;
+    font-size: 0.55rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-enemy .analysis-target-count-control > span:first-child {
+    display: inline;
+    font-size: 0.5rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-enemy .analysis-target-count-control em {
+    grid-column: 1 / -1;
+    display: block;
+    font-size: 0.46rem;
+    line-height: 1;
+    text-align: center;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-enemy .analysis-target-count-control input.char-analysis-action-target-count {
+    width: 1.9rem;
+    height: 1.45rem;
+    min-height: 1.45rem;
+    padding: 0.05rem;
+    font-size: 0.68rem;
+    text-align: center;
+  }
+}
+
+/* v106: スマホもPCと同じマッチ情報を表示し、ラベルと値だけ小型化する。 */
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-statline {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  #panel-character-analysis .analysis-action-slot-match-summary .analysis-stat-chip {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 0.08rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* v107: コンパクト結果はスマホ専用の3列＋詳細行へ組み替える。 */
+@media (max-width: 760px) {
+  #panel-character-analysis .analysis-action-slot-match-card.is-compact {
+    padding: 0.28rem 0.3rem;
+    overflow: hidden;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match {
+    display: grid;
+    grid-template-columns: minmax(4.75rem, 0.7fr) minmax(0, 1.7fr) minmax(3.35rem, 0.56fr);
+    grid-template-areas:
+      "title attack result"
+      "formula formula result";
+    gap: 0.18rem 0.28rem;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.72rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-slot-title {
+    grid-area: title;
+    max-width: none;
+    overflow: visible;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-slot-title strong {
+    max-height: 2.1em;
+    overflow: hidden;
+    font-size: 0.72rem;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-slot-title small {
+    overflow: visible;
+    font-size: 0.54rem;
+    line-height: 1.05;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-attack-name {
+    grid-area: attack;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-attack-name .analysis-match-ribbon {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.14rem 0.32rem;
+    overflow: hidden;
+    box-sizing: border-box;
+    font-size: 0.72rem;
+    line-height: 1.12;
+    max-height: 2.24em;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-formulas {
+    grid-area: formula;
+    display: flex;
+    align-items: center;
+    gap: 0.28rem 0.55rem;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-formulas span {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.62rem;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-declarations {
+    display: none;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-result {
+    grid-area: result;
+    align-self: stretch;
+    display: grid;
+    place-content: center;
+    min-width: 0;
+    padding-left: 0.2rem;
+    border-left: 1px solid rgba(241, 212, 138, 0.18);
+    text-align: center;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-result b {
+    font-size: 0.96rem;
+    line-height: 1;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-compact-result small {
+    margin-top: 0.12rem;
+    overflow: visible;
+    font-size: 0.52rem;
+    line-height: 1.08;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-target-count-control.is-compact {
+    grid-column: 1 / -1;
+    display: inline-grid;
+    grid-template-columns: auto 2.4rem auto auto;
+    justify-self: start;
+    gap: 0.12rem;
+    margin-top: 0.1rem;
+    font-size: 0.58rem;
+  }
+
+  #panel-character-analysis .analysis-action-slot-compact-match .analysis-target-count-control.is-compact input {
+    width: 2.4rem;
+    min-width: 2.4rem;
+    height: 1.55rem;
+    min-height: 1.55rem;
+    padding: 0.08rem;
+    font-size: 0.68rem;
+  }
+}
+
+/* v108: PCの攻撃詳細は予約幅を持たず、項目の実文字幅で横並びにする。 */
+@media (min-width: 761px) {
+  #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list,
+  #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.18rem 0.42rem;
+    padding: 0.28rem 0.35rem;
+    overflow: visible;
+  }
+
+  #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list > div:not(.analysis-detail-direct-input-row),
+  #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > div:not(.analysis-detail-direct-input-row),
+  #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-chip,
+  #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-chip,
+  #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-type,
+  #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list > .analysis-detail-type {
+    flex: 0 0 auto;
+    flex-basis: auto;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+    padding: 0.08rem 0.14rem;
+    overflow: visible;
+  }
+
+  #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list dt,
+  #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list dt,
+  #panel-character-analysis .analysis-action-slot-detail-block .analysis-definition-list.compact.analysis-attack-detail-list dd,
+  #panel-character-analysis .analysis-action-slot-detail .analysis-definition-list.compact.analysis-attack-detail-list dd {
+    min-width: 0;
+    max-width: none;
+    overflow: visible;
+    line-height: 1.2;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+}
+
+/* v109: 攻撃行動の消費MPを戦闘プラン／パーティ集計で共通表示する。 */
+#panel-character-analysis .analysis-detail-cost {
+  border-color: rgba(111, 190, 255, 0.34);
+  color: #c8e8ff;
+}
+
+.sw25-generator-page .analysis-action-result-mp {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin-left: auto;
+  padding: 0.22rem 0.48rem;
+  border: 1px solid rgba(111, 190, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(21, 57, 82, 0.38);
+  color: #c8e8ff;
+  white-space: nowrap;
+}
+
+.sw25-generator-page .analysis-action-result-mp small {
+  font-size: 0.7rem;
+  opacity: 0.78;
+}
+
+.sw25-generator-page .analysis-action-result-mp b {
+  font-family: var(--font-latin-ui);
+  font-size: 0.98rem;
+}
+
+.sw25-generator-page .analysis-action-row-mp {
+  color: #b9def7;
+}
+
+#panel-character-analysis .analysis-party-view-head > strong,
+#panel-character-analysis .analysis-party-member-card > header > strong {
+  display: grid;
+  justify-items: end;
+  gap: 0.12rem;
+  line-height: 1;
+}
+
+#panel-character-analysis .analysis-party-view-head .analysis-party-head-mp,
+#panel-character-analysis .analysis-party-member-card > header > strong small,
+#panel-character-analysis .analysis-party-unit-totals small {
+  color: #b9def7;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+#panel-character-analysis .analysis-party-unit-totals {
+  display: grid;
+  justify-items: end;
+  gap: 0.16rem;
+  min-width: 4.9rem;
+}
+
+#panel-character-analysis .analysis-party-unit-totals strong {
+  color: #ffe66f;
+  font-family: var(--font-latin-ui);
+}
+
+/* 立ち絵はカード全面へ引き伸ばさず、右端の透かし枠に全体を収める。 */
+#panel-character-analysis .analysis-party-member-card.has-portrait::before {
+  inset: 0.35rem 0.45rem 0.35rem auto;
+  width: clamp(8rem, 25%, 16rem);
+  background-image: var(--analysis-party-portrait-url);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: contain;
+  opacity: 0.2;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 32%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 32%);
+}
+
+@container characteranalysis (max-width: 520px) {
+  .sw25-generator-page .analysis-action-result-total {
+    flex-wrap: wrap;
+  }
+
+  .sw25-generator-page .analysis-action-result-mp {
+    order: 3;
+    margin-left: 0;
+  }
+
+  #panel-character-analysis .analysis-party-member-card.has-portrait::before {
+    width: min(42%, 9rem);
+    opacity: 0.14;
+  }
+
+  #panel-character-analysis .analysis-party-unit-totals {
+    min-width: 3.7rem;
   }
 }

@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="css/247_guild_common.css" />
   <link rel="stylesheet" href="css/247_guild.css" />
-    <link rel="stylesheet" href="css/sw25_generator.css?v=20260716y" />
+    <link rel="stylesheet" href="css/sw25_generator.css?v=20260717zq" />
   <!-- Fonts and Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -526,25 +526,23 @@
             <div id="panel-character-analysis" class="form-panel">
               <h3><i class="fa-solid fa-chart-simple"></i> キャラシ分析</h3>
               <p class="analysis-lead">
-                ゆとシートⅡのJSONをもとに、戦闘で参照しやすい代表値を概算します。SW2.5の全裁定を自動化するものではなく、CSVの効果概要から補助効果候補を抽出し、手動チェックで反映します。
+                ゆとシートⅡまたはキャラクター保管所のJSONをもとに、戦闘で参照しやすい代表値を概算します。SW2.5の全裁定を自動化するものではなく、CSVの効果概要から補助効果候補を抽出し、手動チェックで反映します。
               </p>
 
               <div class="analysis-input-row">
                 <div class="analysis-card analysis-input-card compact">
-                  <h4><i class="fa-solid fa-link"></i> ゆとシートURL <small>PC・騎獣をまとめて読込</small></h4>
+                  <h4><i class="fa-solid fa-link"></i> キャラクターシートURL <small>PC・騎獣・召喚ユニットをまとめて読込</small></h4>
                   <div class="analysis-url-row analysis-url-row-multiple">
-                    <textarea id="char-analysis-url" rows="3" placeholder="PC・騎獣のゆとシートURLを入力（複数可）&#10;改行またはカンマ区切りに対応"></textarea>
+                    <textarea id="char-analysis-url" rows="3" placeholder="ゆとシート／キャラクター保管所のURLを入力（複数可）&#10;改行・カンマ区切り、JSON全文の貼り付けにも対応"></textarea>
                     <button type="button" id="char-analysis-load-btn" class="add-row-btn">
                       <i class="fa-solid fa-magnifying-glass-chart"></i> 取得して分析
                     </button>
                   </div>
-                  <p class="analysis-note">URLからJSONを取得し、PCと騎獣を自動で振り分けます。複数URLは改行・半角カンマ・全角カンマで区切れます。</p>
-                  <div id="char-analysis-character-list" class="analysis-character-list" hidden aria-label="読み込んだキャラクター一覧"></div>
+                  <p class="analysis-note">URLからJSONを取得し、PC・騎獣・妖精・魔神・ゴーレム候補へ自動で振り分けます。キャラクター保管所は通常URLと末尾 .js の両方に対応し、取得できない場合は .js のJSON全文を貼り付けられます。</p>
                 </div>
               </div>
 
-              <section id="char-analysis-party-buffs" class="analysis-card analysis-card-wide analysis-party-buffs-card" hidden aria-label="パーティバフ割り当て"></section>
-              <section id="char-analysis-mounts" class="analysis-card analysis-card-wide analysis-mounts-card" hidden aria-label="騎獣一覧"></section>
+              <section id="char-analysis-mounts" class="analysis-card analysis-card-wide analysis-mounts-card" hidden aria-label="騎獣・召喚ユニット一覧"></section>
 
               <div id="char-analysis-status" class="analysis-status" aria-live="polite"></div>
 
@@ -561,19 +559,12 @@
                 <p class="analysis-note">設定や敵値を変更すると平均ダメージ/Rは自動で再計算されます。v0.1では単体PC・同一対象の平均ダメージを中心に計算します。補助動作バフは複数ON可能、主動作バフ/デバフはラウンド消費として扱います。</p>
               </section>
 
-              <div class="analysis-result-grid is-analysis-hidden" id="char-analysis-results">
-                <section class="analysis-card analysis-card-wide analysis-overview-card">
-                  <h4><i class="fa-solid fa-id-card"></i> キャラクター概要</h4>
-                  <div id="char-analysis-overview" class="analysis-output muted">JSONを読み込むと表示されます。</div>
-                </section>
+              <div class="analysis-view-mode-bar is-analysis-hidden" id="char-analysis-view-mode-bar" hidden>
+                <button type="button" class="analysis-view-mode-btn is-active" data-analysis-view-mode="individual" aria-pressed="true"><i class="fa-solid fa-user"></i> 個人分析</button>
+                <button type="button" class="analysis-view-mode-btn" data-analysis-view-mode="party" aria-pressed="false"><i class="fa-solid fa-people-group"></i> パーティ集計</button>
+              </div>
 
-                <div class="analysis-left-stack">
-                  <section class="analysis-card analysis-effects-card">
-                    <h4><i class="fa-solid fa-hand-sparkles"></i> 補助効果候補</h4>
-                    <div id="char-analysis-effects" class="analysis-output muted">CSVの効果概要から候補を抽出します。</div>
-                  </section>
-
-                  <section class="analysis-card analysis-enemy-card analysis-enemy-compact-card">
+                  <section id="char-analysis-shared-enemy" class="analysis-card analysis-card-wide analysis-enemy-card analysis-enemy-compact-card analysis-enemy-shared-card is-analysis-hidden" hidden>
                     <details class="analysis-enemy-details">
                       <summary class="analysis-enemy-summary">
                         <span class="analysis-enemy-summary-title"><i class="fa-solid fa-skull"></i> 敵/対戦相手データ（任意）</span>
@@ -581,7 +572,7 @@
                       </summary>
                       <div class="analysis-setup-side analysis-setup-enemy">
                         <div class="analysis-enemy-url-row">
-                          <input type="url" id="char-analysis-enemy-url" placeholder="敵/対戦相手のゆとシートURL（PCシートも可）" />
+                          <input type="url" id="char-analysis-enemy-url" placeholder="敵/対戦相手のゆとシート／キャラクター保管所URL（PCシートも可）" />
                           <button type="button" id="char-analysis-enemy-load-btn" class="small-button">読込</button>
                           <button type="button" id="char-analysis-enemy-dummy-btn" class="small-button">木人</button>
                         </div>
@@ -606,13 +597,44 @@
                             <label class="analysis-enemy-stat-field analysis-enemy-stat-field-short"><span>知名度</span><input type="number" id="char-analysis-enemy-knowledge" /></label>
                             <label class="analysis-enemy-stat-field analysis-enemy-stat-field-short"><span>弱点値</span><input type="number" id="char-analysis-enemy-weakness-value" /></label>
                             <label class="analysis-enemy-stat-field analysis-enemy-stat-field-short"><span>先制値</span><input type="number" id="char-analysis-enemy-initiative-target" /></label>
-                            <label class="analysis-enemy-stat-field analysis-enemy-weakness-input"><span>弱点効果</span><input type="text" id="char-analysis-enemy-weakness-text" placeholder="例: 物理ダメージ+2点" /></label>
+                            <label class="analysis-enemy-stat-field analysis-enemy-weakness-input"><span>弱点効果</span><input type="text" id="char-analysis-enemy-weakness-text" list="char-analysis-enemy-weakness-list" placeholder="例: 物理ダメージ+2点" title="入力した弱点を、攻撃種別・属性が一致する行動の期待値へ適用します" /></label>
+                            <datalist id="char-analysis-enemy-weakness-list">
+                              <option value="命中力+1"></option>
+                              <option value="物理ダメージ+2点"></option>
+                              <option value="魔法ダメージ+2点"></option>
+                              <option value="属性ダメージ+3点"></option>
+                              <option value="回復効果ダメージ+3点"></option>
+                              <option value="なし"></option>
+                              <option value="水・氷属性ダメージ+3点"></option>
+                              <option value="雷属性ダメージ+3点"></option>
+                              <option value="炎属性ダメージ+3点"></option>
+                              <option value="斬撃ダメージ+3点"></option>
+                            </datalist>
                           </div>
                         </div>
                         <div id="char-analysis-enemy-actions" class="analysis-enemy-actions muted" hidden></div>
                       </div>
                     </details>
                   </section>
+
+
+              <div class="analysis-result-grid is-analysis-hidden" id="char-analysis-results">
+                <div id="char-analysis-character-list" class="analysis-character-list" hidden aria-label="読み込んだキャラクター一覧"></div>
+                <section class="analysis-card analysis-card-wide analysis-overview-card">
+                  <div class="analysis-overview-header-row">
+                    <h4><i class="fa-solid fa-id-card"></i> キャラクター概要</h4>
+                    <button type="button" id="char-analysis-plan-quick" class="small-button analysis-plan-quick-button" data-analysis-plan-toggle aria-label="戦闘プランを前面表示" title="戦闘プランを前面表示"><i class="fa-solid fa-calculator"></i></button>
+                  </div>
+                  <div id="char-analysis-overview" class="analysis-output muted">JSONを読み込むと表示されます。</div>
+                </section>
+
+                <div class="analysis-left-stack">
+                  <section class="analysis-card analysis-effects-card">
+                    <h4><i class="fa-solid fa-hand-sparkles"></i> 補助効果候補</h4>
+                    <div id="char-analysis-effects" class="analysis-output muted">CSVの効果概要から候補を抽出します。</div>
+                  </section>
+
+                  <section id="char-analysis-party-buffs" class="analysis-card analysis-party-buffs-card analysis-party-buffs-host-card" hidden aria-label="パーティへのバフ割り当て"></section>
 
                   <section class="analysis-card analysis-weapons-card">
                     <h4><i class="fa-solid fa-gavel"></i> 1R行動・試行設定</h4>
@@ -621,25 +643,27 @@
 
                 </div>
 
+                <button type="button" id="char-analysis-plan-toggle" class="small-button analysis-plan-toggle-button" data-analysis-plan-toggle><i class="fa-solid fa-calculator"></i> 戦闘プランを前面表示</button>
                 <section class="analysis-card analysis-plan-card">
                   <div class="analysis-plan-header-row">
                     <h4><i class="fa-solid fa-calculator"></i> 戦闘プラン・平均ダメージ</h4>
-                    <label class="analysis-battle-mode-control">モード
+                    <div class="analysis-plan-header-actions"><label class="analysis-battle-mode-control">モード
                       <select id="char-analysis-battle-mode">
                         <option value="attack" selected>攻撃モード</option>
                         <option value="defense">防御モード</option>
                         <option value="scout">戦闘準備モード</option>
                       </select>
-                    </label>
+                    </label><button type="button" class="small-button char-analysis-plan-close" aria-label="戦闘プランを閉じる"><i class="fa-solid fa-xmark"></i></button></div>
                   </div>
                   <div id="char-analysis-adjusted" class="analysis-output muted">補助効果や敵値を設定すると更新されます。</div>
                 </section>
 
               </div>
+              <section id="char-analysis-party-view" class="analysis-card analysis-card-wide analysis-party-view" hidden aria-label="パーティ集計"></section>
               <section class="analysis-card analysis-card-wide analysis-implementation-card">
                 <details class="analysis-implementation-details">
                   <summary><span><i class="fa-solid fa-list-check"></i> 仕様・未対応項目</span><small>必要なときに確認</small></summary>
-                  <div id="char-analysis-implementation" class="analysis-output muted">v0.1では単体対象の平均ダメージを中心に計算します。対応: 命中/回避、行使/抵抗、威力表、C値、追加D、防護点、抵抗:半減、判定確実化、威力確実化。平均ダメージ/Rは理論期待値として自動計算し、多数試行はボタン実行時に通常・上振れ・下振れの簡易パターンを試せます。相手が回避/抵抗するかは計算条件で切り替えます。未対応: 範囲攻撃の複数体期待値、複数部位、継続ダメージ、弱点属性補正、薬師道具セット、特殊効果の完全自動反映。</div>
+                  <div id="char-analysis-implementation" class="analysis-output muted">v0.1では単体対象の平均ダメージを中心に計算します。対応: 命中/回避、行使/抵抗、威力表、C値、追加D、防護点、抵抗:半減、判定確実化、威力確実化。平均ダメージ/Rは理論期待値として自動計算し、多数試行はボタン実行時に通常・上振れ・下振れの簡易パターンを試せます。相手が回避/抵抗するかは計算条件で切り替えます。未対応: 複数部位の同時管理、継続ダメージ、薬師道具セット、特殊効果の完全自動反映。敵の弱点は、命中・物理／魔法・属性・斬撃の一致を判定して期待値へ反映します。</div>
                 </details>
               </section>
             </div>
@@ -820,7 +844,7 @@
   <!-- Scripts -->
   <script src="../js/common.js"></script>
   <script src="./data/sw25_data.js"></script>
-    <script src="./js/sw25_generator.js?v=20260716n"></script>
+    <script src="./js/sw25_generator.js?v=20260717zr"></script>
 </body>
 
 </html>
