@@ -1442,6 +1442,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const sw25AnalysisNameOpenSymbols = new Set(["【", "〈", "《", "「", "『", "（", "［", "〔"]);
+  const sw25AnalysisNameCloseSymbols = new Set(["】", "〉", "》", "」", "』", "）", "］", "〕"]);
+  const sw25AnalysisNameSeparatorSymbols = new Set(["・", "＝", "-"]);
+  function renderSw25NameTextHtml(text, { includeAsciiEquals = true } = {}) {
+    return [...String(text || "")].map((character) => {
+      let symbolClass = "";
+      if (sw25AnalysisNameOpenSymbols.has(character)) symbolClass = " is-open";
+      else if (sw25AnalysisNameCloseSymbols.has(character)) symbolClass = " is-close";
+      else if (sw25AnalysisNameSeparatorSymbols.has(character) || (includeAsciiEquals && character === "=")) symbolClass = " is-separator";
+      if (!symbolClass) return escapeAnalysisHtml(character);
+      if (character === "・") symbolClass += " is-middle-dot";
+      else if (character === "＝" || character === "=") symbolClass += " is-equals";
+      else if (character === "-") symbolClass += " is-hyphen";
+      const displayCharacter = character === "・" ? "·" : character === "＝" ? "=" : character;
+      return `<span class="sw25-analysis-name-symbol${symbolClass}">${escapeAnalysisHtml(displayCharacter)}</span>`;
+    }).join("");
+  }
+
   function renderSw25DecoratedNameHtml(name) {
     const value = String(name || "");
     let cursor = 0;
@@ -1457,23 +1475,16 @@ document.addEventListener("DOMContentLoaded", () => {
       cursor += match[0].length;
     }
 
-    const renderRestHtml = (text) => escapeAnalysisHtml(text).replace(/\[([^\]]+)\]/g, (token, raw) => {
+    const renderRestHtml = (text) => String(text || "").split(/(\[[^\]]+\])/g).map((part) => {
+      const match = part.match(/^\[([^\]]+)\]$/);
+      if (!match) return renderSw25NameTextHtml(part);
+      const raw = match[1];
       const key = sw25AnalysisIconAliases[raw] || raw;
-      if (!sw25AnalysisIconLabels[key] && !sw25AnalysisIconLabels[raw]) return token;
+      if (!sw25AnalysisIconLabels[key] && !sw25AnalysisIconLabels[raw]) return renderSw25NameTextHtml(part);
       return renderSw25AnalysisIconHtml(raw);
-    });
+    }).join("");
 
-    const restText = value.slice(cursor);
-    const hasOpenBracket = restText.startsWith("〈");
-    const hasCloseBracket = restText.endsWith("〉");
-    const bodyStart = hasOpenBracket ? 1 : 0;
-    const bodyEnd = hasCloseBracket && restText.length > bodyStart ? -1 : undefined;
-    const bodyText = restText.slice(bodyStart, bodyEnd);
-    const restHtml = [
-      hasOpenBracket ? '<span class="sw25-analysis-name-bracket is-open" aria-hidden="true">〈</span>' : "",
-      renderRestHtml(bodyText),
-      hasCloseBracket ? '<span class="sw25-analysis-name-bracket is-close" aria-hidden="true">〉</span>' : "",
-    ].join("");
+    const restHtml = renderRestHtml(value.slice(cursor));
 
     if (!leadingIcons.length) return restHtml;
     return `<span class="sw25-analysis-decorated-name"><span class="sw25-analysis-decorated-icons">${leadingIcons.join("")}</span><span class="sw25-analysis-decorated-text">${restHtml || ""}</span></span>`;
@@ -5215,7 +5226,7 @@ document.addEventListener("DOMContentLoaded", () => {
       close: { kind: "close", label: "顔アップ", xBase: 50, xRatio: 0.45, yBase: 20, yRatio: 0.6, scaleInfluence: 0.25, scaleMultiplier: 0.58, height: 124 },
       percentx: { kind: "percentx", label: "横基準トリミング", xBase: 50, xRatio: 0.45, yBase: 25, yRatio: 0.6, scaleInfluence: 0.25, scaleMultiplier: 0.58, height: 124 },
       portraitx: { kind: "portraitx", label: "縦長・横基準", xBase: 50, xRatio: 0.62, yBase: 9, yRatio: 0.1, scaleInfluence: 0.3, scaleMultiplier: 0.52, height: 124 },
-      portraitclose: { kind: "portraitclose", label: "縦長・顔寄せ", xBase: 50, xRatio: 0.62, yBase: 9, yRatio: 0.1, scaleInfluence: 0.25, scaleMultiplier: 0.52, height: 124 },
+      portraitclose: { kind: "portraitclose", label: "縦長・顔寄せ", xBase: 50, xRatio: 0.62, yBase: 18, yRatio: 0.1, scaleInfluence: 0.25, scaleMultiplier: 0.52, height: 124 },
       bust: { kind: "bust", label: "バストアップ", xBase: 50, xRatio: 0.55, yBase: 13, yRatio: 0.28, scaleInfluence: 0.35, scaleMultiplier: 0.65, height: 124 },
       upper: { kind: "upper", label: "上半身", xBase: 50, xRatio: 0.62, yBase: 18, yRatio: 0.26, scaleInfluence: 0.4, scaleMultiplier: 0.7, height: 124 },
       cover: { kind: "cover", label: "拡大カバー", xBase: 50, xRatio: 0.62, yBase: 40, yRatio: 0.2, scaleInfluence: 0.35, scaleMultiplier: 0.8, height: 124 },
@@ -8454,13 +8465,20 @@ document.addEventListener("DOMContentLoaded", () => {
     resultClone.querySelectorAll("details").forEach((details) => { details.open = true; });
     replaceCharAnalysisExportFormControls(resultClone);
     await replaceCharAnalysisExportItemIcons(resultClone);
-
+    resultClone.querySelectorAll(".analysis-log-chip strong").forEach((label) => {
+      label.innerHTML = renderSw25NameTextHtml(label.textContent || "", {
+        includeAsciiEquals: false,
+      });
+    });
+    resultClone.querySelectorAll(".analysis-match-self .analysis-match-label").forEach((label) => {
+      label.innerHTML = renderSw25NameTextHtml(label.textContent || "");
+    });
     const hasSimulation = Boolean(resultClone.querySelector(".analysis-simulation-box:not(.is-empty)"));
     const exportSheet = document.createElement("section");
     exportSheet.className = "analysis-plan-export-sheet";
     exportSheet.setAttribute("aria-hidden", "true");
     exportSheet.innerHTML = `<header class="analysis-plan-export-title">
-      <div><span>SW2.5 戦闘プラン</span><h2>${escapeAnalysisHtml(charData.name || "キャラクター")}</h2></div>
+      <div><span>SW2.5 戦闘プラン</span><h2>${renderSw25NameTextHtml(charData.name || "キャラクター")}</h2></div>
       <div class="analysis-plan-export-title-meta"><b>${escapeAnalysisHtml(modeLabel)}</b><span class="${hasSimulation ? "is-complete" : ""}">${hasSimulation ? "多数試行 実行済み" : "理論期待値"}</span></div>
     </header>
     <section class="analysis-plan-export-effects">

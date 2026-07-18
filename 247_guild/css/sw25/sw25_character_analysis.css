@@ -1521,7 +1521,7 @@ min-height: 0;
 
 #panel-character-analysis .analysis-match-judgement {
 color: #fff04c;
-  font-family: "corporate-logo-ver2", sans-serif;
+font-family: "corporate-logo-ver2", sans-serif;
   text-shadow: 0 0 10px rgba(255, 225, 70, 0.45);
   width: 100%;
   padding-inline: 2px;
@@ -1947,7 +1947,7 @@ display: grid;
 
 #panel-character-analysis .analysis-weapon-row-name {
 color: #fff4c8;
-  font-family: "corporate-logo-ver2", sans-serif;
+font-family: "corporate-logo-ver2", sans-serif;
   font-size: 0.98rem;
   line-height: 1.25;
   min-width: 0;
@@ -6561,7 +6561,7 @@ padding: 5px 10px;
     rgba(255, 196, 67, 0.4)
   );
   color: #fff8db;
-  font-family: "corporate-logo-ver2", sans-serif;
+  font-family: "sw25-corporate-logo", sans-serif;
   border-radius: 0;
   display: block;
   width: fit-content;
@@ -6786,10 +6786,14 @@ gap: 3px 5px;
 margin-top: 3px;
 }
 
+#panel-character-analysis .analysis-action-slot-match-summary .analysis-match-ribbon-stack {
+  margin-top: 0.35rem;
+}
+
 #panel-character-analysis .analysis-action-slot-match-summary .analysis-match-ribbon {
 font-size: 0.85rem;
   line-height: 1.05;
-  padding: 3px 7px;
+  padding: 6px 7px 4px;
   transform: none;
 }
 
@@ -7681,20 +7685,26 @@ grid-template-columns: minmax(0, 1fr);
   gap: 0.12rem;
 }
 
-#panel-character-analysis .analysis-plan-export-title span {
+#panel-character-analysis .analysis-plan-export-title > div:first-child > span {
   color: #d9ab58;
   font-size: 0.78rem;
   letter-spacing: 0.12em;
 }
 
 #panel-character-analysis .analysis-plan-export-title h2 {
+  display: inline-block;
   margin: 0;
   color: #fff0ca;
   font-family: "corporate-logo-ver2", sans-serif;
   font-size: 1.8rem;
   font-weight: 700;
   line-height: 1.16;
-  letter-spacing: -0.065em;
+  letter-spacing: -0.2em;
+  font-feature-settings: normal;
+  font-kerning: auto;
+  font-variant-ligatures: none;
+  transform: none;
+  transform-origin: left center;
   text-wrap: balance;
 }
 
@@ -8307,6 +8317,7 @@ grid-template-columns: minmax(0, 1fr);
 #panel-character-analysis .analysis-plan-header-row > h4 {
   min-width: 0;
   margin: 0;
+  padding-bottom: 0;
   line-height: 1.25;
 }
 
@@ -11565,8 +11576,26 @@ grid-template-columns: minmax(0, 1fr);
   padding: 0.75rem;
 }
 
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-result-metric small {
+  overflow: visible;
+  line-height: 1.2;
+  padding-block: 0.06em 0.1em;
+  text-overflow: clip;
+}
+
 #panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary {
   grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.72fr) minmax(0, 1fr);
+}
+
+/* 出力時は中央列が広がるため、固定pxではなく火花の中心を相手側カードの辺へ直接合わせる。 */
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary.match-rank-very-good .analysis-match-spark {
+  left: calc(100% + 6px);
+  --analysis-fire-shift-x: 0px;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary.match-rank-very-bad .analysis-match-spark {
+  left: -6px;
+  --analysis-fire-shift-x: 0px;
 }
 
 #panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-self {
@@ -11588,11 +11617,25 @@ grid-template-columns: minmax(0, 1fr);
   line-height: 1.12;
   min-height: 0.95rem;
   padding-top: 0.08rem;
-  letter-spacing: -0.095em;
-  font-feature-settings: "palt" 1, "kern" 1;
-  font-kerning: normal;
-  transform: scaleX(0.96);
+  font-feature-settings: normal;
+  font-kerning: auto;
+  transform: none;
   transform-origin: left center;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-self .analysis-match-label {
+  letter-spacing: -0.24em;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-enemy .analysis-match-label {
+  letter-spacing: 0.02em;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-self .analysis-match-label .sw25-analysis-name-symbol.is-middle-dot {
+  margin-inline: 0.12em;
+  font-family: inherit;
+  letter-spacing: 0;
+  vertical-align: 0;
 }
 
 #panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-side {
@@ -11620,8 +11663,9 @@ grid-template-columns: minmax(0, 1fr);
   max-width: 100%;
   font-family: "corporate-logo-ver2", sans-serif;
   font-weight: 700;
-  letter-spacing: -0.065em;
-  font-feature-settings: "palt" 1;
+  letter-spacing: 0.02em;
+  font-feature-settings: normal;
+  font-kerning: none;
 }
 
 
@@ -11660,13 +11704,23 @@ grid-template-columns: minmax(0, 1fr);
 }
 
 #panel-character-analysis .analysis-plan-export-sheet .analysis-match-ribbon {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 0.2em;
+  display: block;
+  gap: 0;
   width: fit-content;
   max-width: 100%;
+  padding: 6px 7px 4px;
   overflow: visible;
+  letter-spacing: -0.025em;
+  font-feature-settings: normal;
+  font-kerning: auto;
+  font-weight: 700;
+  line-height: 1.05;
+  text-rendering: auto;
+  transform: none;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-action-slot-match-summary .analysis-match-main strong {
+  letter-spacing: -0.03em;
 }
 
 #panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-decorated-name {
@@ -11680,39 +11734,77 @@ grid-template-columns: minmax(0, 1fr);
 #panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-decorated-icons {
   display: inline-flex;
   align-items: center;
-  gap: 0.1em;
+  gap: 0.08em;
   flex: 0 0 auto;
   white-space: nowrap;
 }
 
 #panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-decorated-text {
-  display: inline-flex;
-  align-items: baseline;
-  padding-left: 0.08em;
+  display: inline-block;
+  padding-left: 0.06em;
+  font-family: inherit;
+  font-weight: inherit;
   font-feature-settings: normal;
   font-kerning: none;
+  font-variant-ligatures: none;
   letter-spacing: normal;
   white-space: nowrap;
   line-height: 1;
 }
 
-#panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-name-bracket {
+#panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-name-symbol {
   display: inline-block;
   flex: 0 0 auto;
-  font-family: inherit;
+  font-family: "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
   font-feature-settings: normal;
   font-kerning: none;
+  font-variant-ligatures: none;
   letter-spacing: 0;
   line-height: 1;
+  vertical-align: 0.02em;
 }
 
-#panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-name-bracket.is-open {
+#panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-name-symbol.is-separator {
+  margin-inline: 0.04em;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-decorated-text .sw25-analysis-name-symbol.is-hyphen {
+  margin-inline: 0.02em 0.05em;
+}
+
+#panel-character-analysis .analysis-plan-export-title h2 .sw25-analysis-name-symbol.is-middle-dot {
+  margin-inline: 0.01em;
+  color: inherit;
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: inherit;
+  line-height: 1;
+  vertical-align: 0;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-name-symbol.is-open {
   margin-right: 0.03em;
-  transform: translateX(0.06em);
 }
 
-#panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-name-bracket.is-close {
-  margin-left: 0.02em;
+#panel-character-analysis .analysis-plan-export-sheet .sw25-analysis-name-symbol.is-close {
+  margin-left: 0.03em;
+}
+
+#panel-character-analysis .analysis-plan-export-sheet .analysis-match-ribbon .sw25-analysis-name-symbol,
+#panel-character-analysis .analysis-plan-export-sheet .analysis-match-ribbon .sw25-analysis-name-symbol.is-separator,
+#panel-character-analysis .analysis-plan-export-sheet .analysis-match-ribbon .sw25-analysis-name-symbol.is-hyphen,
+#panel-character-analysis .analysis-plan-export-sheet .analysis-match-ribbon .sw25-analysis-name-symbol.is-open,
+#panel-character-analysis .analysis-plan-export-sheet .analysis-match-ribbon .sw25-analysis-name-symbol.is-close {
+  display: inline;
+  margin-inline: 0;
+  font-family: inherit;
+  font-weight: inherit;
+  font-feature-settings: inherit;
+  font-kerning: inherit;
+  font-variant-ligatures: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
 }
 
 /* v125: 戦闘プランの角丸を二重に見せる内側グローを除き、1本の輪郭にする。 */
