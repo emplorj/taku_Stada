@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let charAnalysisManualAdjust = createCharAnalysisManualAdjust();
   function createCharAnalysisActionPlan() {
     return {
-      dualWield: false,
+      dualWield: true,
       extraAttack: true,
       fastAction: false,
       slotAttackIds: { main: "", offhand: "", extra: "", magic: "", faMain: "", faOffhand: "", faExtra: "", faMagic: "" },
@@ -1380,10 +1380,10 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const sw25AnalysisItemIconUrls = {
-    "魔": "https://yutorize.work/ytsheet/_core/skin/sw2/img/item_magic.png",
-    "刃": "https://yutorize.work/ytsheet/_core/skin/sw2/img/item_edge.png",
-    "斬": "https://yutorize.work/ytsheet/_core/skin/sw2/img/item_edge.png",
-    "打": "https://yutorize.work/ytsheet/_core/skin/sw2/img/item_blow.png",
+    "魔": "img/yuto/item_magic.png",
+    "刃": "img/yuto/item_edge.png",
+    "斬": "img/yuto/item_edge.png",
+    "打": "img/yuto/item_blow.png",
     "特": "https://yutorize.work/ytsheet/_core/skin/sw2/img/item_local.png",
     "流": "https://yutorize.work/ytsheet/_core/skin/sw2/img/item_school.png",
     "ア": "https://yutorize.work/ytsheet/_core/skin/sw2/img/item_school_a.png",
@@ -1406,7 +1406,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const label = sw25AnalysisIconLabels[key] || sw25AnalysisIconLabels[raw] || key;
     const url = sw25AnalysisItemIconUrls[key];
     if (url) {
-      return `<img class="sw25-analysis-icon sw25-analysis-item-icon ${escapeAnalysisHtml(extraClass)}" src="${escapeAnalysisHtml(url)}" alt="[${escapeAnalysisHtml(raw)}]" title="${escapeAnalysisHtml(label)}" loading="lazy" decoding="async">`;
+      return `<img class="sw25-analysis-icon sw25-analysis-item-icon ${escapeAnalysisHtml(extraClass)}" src="${escapeAnalysisHtml(url)}" alt="[${escapeAnalysisHtml(raw)}]" title="${escapeAnalysisHtml(label)}" data-analysis-icon="${escapeAnalysisHtml(raw)}" loading="lazy" decoding="async">`;
     }
     const classKey = sw25AnalysisIconClassKey(key);
     return `<span class="sw25-analysis-icon sw25-analysis-system-icon sw25-analysis-system-icon-${escapeAnalysisHtml(classKey)} ${escapeAnalysisHtml(extraClass)}" title="${escapeAnalysisHtml(label)}" aria-label="${escapeAnalysisHtml(label)}"><span class="raw">[${escapeAnalysisHtml(raw)}]</span></span>`;
@@ -1443,11 +1443,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSw25DecoratedNameHtml(name) {
-    return escapeAnalysisHtml(name).replace(/\[([^\]]+)\]/g, (token, raw) => {
+    const value = String(name || "");
+    let cursor = 0;
+    const leadingIcons = [];
+    while (cursor < value.length) {
+      const slice = value.slice(cursor);
+      const match = slice.match(/^\[([^\]]+)\]/);
+      if (!match) break;
+      const raw = match[1];
+      const key = sw25AnalysisIconAliases[raw] || raw;
+      if (!sw25AnalysisIconLabels[key] && !sw25AnalysisIconLabels[raw]) break;
+      leadingIcons.push(renderSw25AnalysisIconHtml(raw));
+      cursor += match[0].length;
+    }
+
+    const renderRestHtml = (text) => escapeAnalysisHtml(text).replace(/\[([^\]]+)\]/g, (token, raw) => {
       const key = sw25AnalysisIconAliases[raw] || raw;
       if (!sw25AnalysisIconLabels[key] && !sw25AnalysisIconLabels[raw]) return token;
       return renderSw25AnalysisIconHtml(raw);
     });
+
+    const restText = value.slice(cursor);
+    const hasOpenBracket = restText.startsWith("〈");
+    const hasCloseBracket = restText.endsWith("〉");
+    const bodyStart = hasOpenBracket ? 1 : 0;
+    const bodyEnd = hasCloseBracket && restText.length > bodyStart ? -1 : undefined;
+    const bodyText = restText.slice(bodyStart, bodyEnd);
+    const restHtml = [
+      hasOpenBracket ? '<span class="sw25-analysis-name-bracket is-open" aria-hidden="true">〈</span>' : "",
+      renderRestHtml(bodyText),
+      hasCloseBracket ? '<span class="sw25-analysis-name-bracket is-close" aria-hidden="true">〉</span>' : "",
+    ].join("");
+
+    if (!leadingIcons.length) return restHtml;
+    return `<span class="sw25-analysis-decorated-name"><span class="sw25-analysis-decorated-icons">${leadingIcons.join("")}</span><span class="sw25-analysis-decorated-text">${restHtml || ""}</span></span>`;
   }
 
   function toAnalysisNumber(value, fallback = 0) {
@@ -3225,7 +3254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addWeaponFollowups = (set, setLabel, prefix, sourceBase, keys, labelPrefix = "") => {
       const offhandKey = prefix ? `${prefix}Offhand` : "offhand";
       const extraKey = prefix ? `${prefix}Extra` : "extra";
-      if (caps.dualWield && charAnalysisActionPlan.dualWield) {
+      if (caps.dualWield) {
         keys.push(addSlot({
           key: offhandKey,
           label: `${labelPrefix}2回目`,
@@ -3251,7 +3280,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const addMainActionSet = ({ mainKey, magicKey, maAttackKey, standardPrefix = "", maPrefix, set, setLabel, mainLabel, sourceBase, labelPrefix = "" }) => {
       const actionKeys = [];
-      const dualPrimaryPenalty = (caps.dualWield && charAnalysisActionPlan.dualWield && !(caps.twoSwordStyle || caps.twoSwordMastery)) ? -2 : 0;
+      const dualPrimaryPenalty = (caps.dualWield && !(caps.twoSwordStyle || caps.twoSwordMastery)) ? -2 : 0;
       const mainSlot = { key: mainKey, label: mainLabel, source: `${sourceBase} / 主攻撃`, set, setLabel, penalty: dualPrimaryPenalty, kind: "attack" };
       actionKeys.push(addSlot(mainSlot));
       const mainOption = getCharAnalysisActionSlotSelectedOption(mainSlot, options);
@@ -5948,7 +5977,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <label><span>行動</span>${optionSelect(slot)}</label>
       </div>`;
     };
-    const dualActive = Boolean(charAnalysisActionPlan.dualWield && caps.dualWield);
+    const dualActive = Boolean(caps.dualWield);
     const fastActive = Boolean(charAnalysisActionPlan.fastAction && caps.fastAction);
     const dualLabel = (() => {
       if (!caps.dualWield) return "両手利き 未習得";
@@ -5963,11 +5992,10 @@ document.addEventListener("DOMContentLoaded", () => {
         ${validation.ok ? `<small>常時/FAは宣言消費なし</small>` : `<small>${escapeAnalysisHtml(validation.message)}</small>`}
       </div>
       <div class="analysis-action-plan-chips" role="group" aria-label="1R行動オプション">
-        <label class="analysis-action-chip-toggle${dualActive ? " is-selected" : ""}${!caps.dualWield ? " is-disabled" : ""}" title="クリックで両手利き系の使用を切り替え">
-          <input type="checkbox" class="char-analysis-action-toggle" data-action="dualWield" ${dualActive ? "checked" : ""} ${caps.dualWield ? "" : "disabled"} />
+        <span class="analysis-action-chip-note${dualActive ? " is-selected" : " is-disabled"}" title="両手利き系は習得時に常時適用します">
           <span class="analysis-action-chip-label">${escapeAnalysisHtml(dualLabel)}</span>
-          ${caps.dualWield ? `<span class="analysis-action-chip-state">${dualActive ? "ON" : "OFF"}</span>` : ""}
-        </label>
+          <span class="analysis-action-chip-state">${dualActive ? "自動" : "未習得"}</span>
+        </span>
         <span class="analysis-action-chip-note${caps.extraAttack ? " is-selected" : " is-disabled"}"><span class="analysis-action-chip-label">追加攻撃</span><span class="analysis-action-chip-state">${caps.extraAttack ? "自動" : "未習得"}</span></span>
         <label class="analysis-action-chip-toggle${fastActive ? " is-selected" : ""}${!caps.fastAction ? " is-disabled" : ""}" title="クリックでファストアクションを切り替え">
           <input type="checkbox" class="char-analysis-action-toggle" data-action="fastAction" ${fastActive ? "checked" : ""} ${caps.fastAction ? "" : "disabled"} />
@@ -8259,6 +8287,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function getCharAnalysisPlanExportOverlay() {
+    let overlay = document.getElementById("char-analysis-plan-export-overlay");
+    if (overlay) return overlay;
+    overlay = document.createElement("div");
+    overlay.id = "char-analysis-plan-export-overlay";
+    overlay.className = "analysis-plan-export-overlay";
+    overlay.setAttribute("hidden", "hidden");
+    overlay.setAttribute("aria-hidden", "true");
+    overlay.innerHTML = `<div class="analysis-plan-export-overlay-box" role="status" aria-live="polite" aria-atomic="true">
+      <span class="analysis-plan-export-overlay-spinner" aria-hidden="true"></span>
+      <strong>画像を生成しています…</strong>
+      <small>表示が整うまで少しお待ちください</small>
+    </div>`;
+    document.body.append(overlay);
+    return overlay;
+  }
+
+  function setCharAnalysisPlanExportBusy(active) {
+    const overlay = getCharAnalysisPlanExportOverlay();
+    if (active) {
+      overlay.removeAttribute("hidden");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.classList.add("is-analysis-plan-export-busy");
+    } else {
+      overlay.setAttribute("hidden", "hidden");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("is-analysis-plan-export-busy");
+    }
+  }
+
   function sanitizeCharAnalysisPlanExportFilename(value) {
     const safe = String(value || "キャラクター")
       .replace(/[\\/:*?\"<>|]/g, "_")
@@ -8282,6 +8340,99 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function getCharAnalysisExportIconKey(image) {
+    const raw = String(image?.dataset?.analysisIcon || image?.getAttribute("alt") || "")
+      .replace(/^\[/, "")
+      .replace(/\]$/, "")
+      .trim();
+    return sw25AnalysisIconAliases[raw] || raw;
+  }
+
+  function blobToDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(reader.error || new Error("画像データを読み込めませんでした。"));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function getCharAnalysisExportImageDataUrl(image) {
+    const src = String(image?.currentSrc || image?.src || "").trim();
+    if (src.startsWith("data:")) return src;
+
+    if (image?.complete && image.naturalWidth > 0 && image.naturalHeight > 0) {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(image, 0, 0);
+        const dataUrl = canvas.toDataURL("image/png");
+        if (dataUrl && dataUrl.startsWith("data:image/")) return dataUrl;
+      } catch (_error) {
+        // canvas 化に失敗した場合は fetch フォールバックを試す
+      }
+    }
+
+    const candidates = [];
+    if (src) candidates.push(src);
+    const iconKey = getCharAnalysisExportIconKey(image);
+    const mappedSrc = sw25AnalysisItemIconUrls[iconKey];
+    if (mappedSrc && !candidates.includes(mappedSrc)) candidates.push(mappedSrc);
+
+    for (const candidate of candidates) {
+      try {
+        const resolved = new URL(candidate, window.location.href).toString();
+        const response = await fetch(resolved, { cache: "force-cache" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        const dataUrl = await blobToDataUrl(blob);
+        if (dataUrl) return dataUrl;
+      } catch (_error) {
+        // 次の候補を試す
+      }
+    }
+    return "";
+  }
+
+  async function replaceCharAnalysisExportItemIcons(root) {
+    const itemImages = [...root.querySelectorAll("img.sw25-analysis-item-icon")];
+    await Promise.all(itemImages.map(async (image) => {
+      const dataUrl = await getCharAnalysisExportImageDataUrl(image);
+      if (dataUrl) {
+        image.src = dataUrl;
+        image.removeAttribute("srcset");
+      } else {
+        const key = getCharAnalysisExportIconKey(image);
+        const badge = document.createElement("span");
+        badge.className = `sw25-analysis-icon sw25-analysis-export-item-icon is-${sw25AnalysisIconClassKey(key)}`;
+        badge.textContent = key || "?";
+        badge.setAttribute("aria-label", sw25AnalysisIconLabels[key] || key || "アイテム種別");
+        image.replaceWith(badge);
+      }
+    }));
+    root.querySelectorAll("img").forEach((image) => {
+      image.loading = "eager";
+      image.decoding = "sync";
+      image.crossOrigin = "anonymous";
+    });
+  }
+
+  async function waitForCharAnalysisExportImages(root) {
+    const images = [...root.querySelectorAll("img")];
+    if (!images.length) return;
+    await Promise.all(images.map((image) => {
+      if (image.complete) return image.decode?.().catch(() => {}) || Promise.resolve();
+      return new Promise((resolve) => {
+        const finish = () => resolve();
+        image.addEventListener("load", finish, { once: true });
+        image.addEventListener("error", finish, { once: true });
+        window.setTimeout(finish, 3000);
+      });
+    }));
+  }
+
   async function createCharAnalysisPlanExportImage() {
     if (!charAnalysisCurrent) throw new Error("出力できる戦闘プランがありません。");
     if (typeof window.html2canvas !== "function") throw new Error("画像生成ライブラリを読み込めませんでした。");
@@ -8302,6 +8453,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resultClone.querySelectorAll(".analysis-result-settings-details, .analysis-match-compact-toggle, button").forEach((node) => node.remove());
     resultClone.querySelectorAll("details").forEach((details) => { details.open = true; });
     replaceCharAnalysisExportFormControls(resultClone);
+    await replaceCharAnalysisExportItemIcons(resultClone);
 
     const hasSimulation = Boolean(resultClone.querySelector(".analysis-simulation-box:not(.is-empty)"));
     const exportSheet = document.createElement("section");
@@ -8331,12 +8483,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.append(exportStage);
     try {
       if (document.fonts?.ready) await document.fonts.ready;
+      await waitForCharAnalysisExportImages(exportSheet);
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const exportScale = Math.min(3, Math.max(2.25, (window.devicePixelRatio || 1) * 1.5));
       const canvas = await window.html2canvas(exportSheet, {
         backgroundColor: "#160f0d",
         useCORS: true,
-        scale: Math.min(2, Math.max(1.5, window.devicePixelRatio || 1)),
+        scale: exportScale,
         logging: false,
+        removeContainer: true,
       });
       return {
         canvas,
@@ -8367,6 +8522,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ensureCharAnalysisPlanSimulationForExport();
     const buttons = [...document.querySelectorAll("[data-analysis-plan-export]")];
     buttons.forEach((button) => { button.disabled = true; button.classList.add("is-busy"); });
+    setCharAnalysisPlanExportBusy(true);
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     try {
       if (action === "copy" && navigator.clipboard?.write && typeof window.ClipboardItem === "function") {
         // 画像生成後にwriteを呼ぶと、ブラウザによってはクリック時の操作権限が
@@ -8408,6 +8565,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("戦闘プラン画像の出力に失敗しました。", error);
       showToast(error?.message || "戦闘プラン画像の出力に失敗しました。");
     } finally {
+      setCharAnalysisPlanExportBusy(false);
       buttons.forEach((button) => { button.classList.remove("is-busy"); });
       setCharAnalysisPlanExportButtonsEnabled(Boolean(charAnalysisCurrent));
     }
