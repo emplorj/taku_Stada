@@ -2173,6 +2173,69 @@ document.addEventListener("DOMContentLoaded", () => {
   // グローバルに公開
   window.switchTab = switchTab;
 
+  function initTabNavigationFollow() {
+    const tabNavigation = document.getElementById("tab-navigation");
+    if (!tabNavigation) return;
+
+    const placeholder = document.createElement("div");
+    placeholder.className = "tab-navigation-placeholder";
+    tabNavigation.parentNode.insertBefore(placeholder, tabNavigation);
+
+    let originalTop = 0;
+
+    function updateOriginalTop() {
+      const wasFixed = tabNavigation.classList.contains("is-fixed");
+      if (wasFixed) {
+        tabNavigation.classList.remove("is-fixed");
+        placeholder.classList.remove("is-active");
+      }
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+      originalTop = tabNavigation.getBoundingClientRect().top + scrollTop;
+      if (wasFixed) updateFixedState();
+    }
+
+    function updateFixedMetrics() {
+      const rect = placeholder.classList.contains("is-active")
+        ? placeholder.getBoundingClientRect()
+        : tabNavigation.getBoundingClientRect();
+      tabNavigation.style.setProperty(
+        "--tab-navigation-fixed-left",
+        `${rect.left}px`,
+      );
+      tabNavigation.style.setProperty(
+        "--tab-navigation-fixed-width",
+        `${rect.width}px`,
+      );
+      placeholder.style.height = `${tabNavigation.offsetHeight}px`;
+    }
+
+    function updateFixedState() {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+      const shouldFix = scrollTop > originalTop;
+      if (shouldFix) {
+        updateFixedMetrics();
+        placeholder.classList.add("is-active");
+        tabNavigation.classList.add("is-fixed");
+      } else {
+        tabNavigation.classList.remove("is-fixed");
+        placeholder.classList.remove("is-active");
+        tabNavigation.style.removeProperty("--tab-navigation-fixed-left");
+        tabNavigation.style.removeProperty("--tab-navigation-fixed-width");
+        placeholder.style.height = "";
+      }
+    }
+
+    updateOriginalTop();
+    updateFixedState();
+    window.addEventListener("scroll", updateFixedState, { passive: true });
+    window.addEventListener("resize", () => {
+      updateOriginalTop();
+      updateFixedState();
+    });
+  }
+
+  initTabNavigationFollow();
+
   // Vueアプリ統合
   if (typeof window.GrowthCheckerConfig !== "undefined") {
     const config = Object.assign({}, window.GrowthCheckerConfig);
