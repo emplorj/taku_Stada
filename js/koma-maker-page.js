@@ -12,6 +12,11 @@ const stellarSheathOutputArea = document.getElementById(
 const copyStellarSheathButton = document.getElementById(
   "copyStellarSheathButton",
 );
+const sw25FellowSection = document.getElementById("sw25FellowSection");
+const sw25FellowOutputArea = document.getElementById("sw25FellowOutput");
+const copySw25FellowButton = document.getElementById(
+  "copySw25FellowButton",
+);
 const itemSection = document.getElementById("itemSection");
 const itemOutputHandArea = document.getElementById("itemOutputHand");
 const itemOutputAjitoArea = document.getElementById("itemOutputAjito");
@@ -400,24 +405,35 @@ function setStellarSheathSectionVisible(visible) {
   stellarSheathSection.style.display = visible ? "block" : "none";
 }
 
-function setPrimaryKomaOutputMode(isStellar) {
+function setSw25FellowSectionVisible(visible) {
+  if (!sw25FellowSection) return;
+  sw25FellowSection.style.display = visible ? "block" : "none";
+}
+
+function setPrimaryKomaOutputMode(mode = "") {
+  const isStellar = mode === "stellar";
+  const isSw25Fellow = mode === "sw25-fellow";
   if (komaOutputGrid) {
-    komaOutputGrid.classList.toggle("is-stellar", !!isStellar);
+    komaOutputGrid.classList.toggle("is-stellar", isStellar);
+    komaOutputGrid.classList.toggle("is-sw25-fellow", isSw25Fellow);
   }
   if (primaryKomaOutputTitle) {
     primaryKomaOutputTitle.textContent = isStellar
       ? "ブリンガー用コマ"
-      : "コマ出力";
+      : isSw25Fellow
+        ? "通常出力"
+        : "コマ出力";
   }
   if (copyButton) {
     copyButton.textContent = isStellar
       ? "ブリンガーをコピー"
-      : "コピー";
+      : isSw25Fellow
+        ? "通常コマをコピー"
+        : "コピー";
   }
 }
 
 function resetStellarSheathSection() {
-  setPrimaryKomaOutputMode(false);
   if (stellarSheathOutputArea) {
     stellarSheathOutputArea.value = "ここにシース用コマが出力される。";
   }
@@ -430,7 +446,7 @@ function fillStellarSheathSection(stellarSheathOut) {
   if (!stellarSheathOut) {
     setStellarSheathSectionVisible(false);
     resetStellarSheathSection();
-    return;
+    return false;
   }
 
   let rendered = "";
@@ -447,13 +463,51 @@ function fillStellarSheathSection(stellarSheathOut) {
   if (!rendered) {
     setStellarSheathSectionVisible(false);
     resetStellarSheathSection();
-    return;
+    return false;
   }
 
   if (stellarSheathOutputArea) stellarSheathOutputArea.value = rendered;
   if (copyStellarSheathButton) copyStellarSheathButton.disabled = false;
-  setPrimaryKomaOutputMode(true);
   setStellarSheathSectionVisible(true);
+  return true;
+}
+
+function resetSw25FellowSection() {
+  if (sw25FellowOutputArea) {
+    sw25FellowOutputArea.value = "ここにフェロー用コマが出力される。";
+  }
+  if (copySw25FellowButton) {
+    copySw25FellowButton.disabled = true;
+  }
+}
+
+function fillSw25FellowSection(sw25FellowOut) {
+  if (!sw25FellowOut) {
+    setSw25FellowSectionVisible(false);
+    resetSw25FellowSection();
+    return false;
+  }
+
+  let rendered = "";
+  if (typeof sw25FellowOut === "string") {
+    rendered = sw25FellowOut;
+  } else if (typeof sw25FellowOut === "object") {
+    try {
+      rendered = JSON.stringify(sw25FellowOut);
+    } catch (_) {
+      rendered = "";
+    }
+  }
+  if (!rendered) {
+    setSw25FellowSectionVisible(false);
+    resetSw25FellowSection();
+    return false;
+  }
+
+  if (sw25FellowOutputArea) sw25FellowOutputArea.value = rendered;
+  if (copySw25FellowButton) copySw25FellowButton.disabled = false;
+  setSw25FellowSectionVisible(true);
+  return true;
 }
 
 function setNechronicaSectionVisible(visible) {
@@ -1598,6 +1652,22 @@ if (stellarSheathSection) {
   resetStellarSheathSection();
 }
 
+if (copySw25FellowButton && sw25FellowOutputArea) {
+  copySw25FellowButton.addEventListener("click", () => {
+    const txt = sw25FellowOutputArea.value || "";
+    if (!txt || txt === "ここにフェロー用コマが出力される。") {
+      showToast("まだフェロー用コマが出力されていないようだ！", "error");
+      return;
+    }
+    copyTextWithToast(txt, "フェロー用コマをコピーした！");
+  });
+}
+
+if (sw25FellowSection) {
+  setSw25FellowSectionVisible(false);
+  resetSw25FellowSection();
+}
+
 if (nechronicaPartEditor) {
   nechronicaPartEditor.addEventListener("click", (event) => {
     const target = event.target;
@@ -1912,6 +1982,11 @@ sheetForm.addEventListener("submit", function (event) {
     setStellarSheathSectionVisible(false);
     resetStellarSheathSection();
   }
+  if (sw25FellowSection) {
+    setSw25FellowSectionVisible(false);
+    resetSw25FellowSection();
+  }
+  setPrimaryKomaOutputMode("");
   if (nechronicaSection) {
     setNechronicaSectionVisible(false);
     resetNechronicaSection();
@@ -2095,7 +2170,19 @@ function updatePage(result) {
     result && result.itemLimits,
     result && result.itemSections,
   );
-  fillStellarSheathSection(result && result.stellarSheathOut);
+  const hasStellarSheath = fillStellarSheathSection(
+    result && result.stellarSheathOut,
+  );
+  const hasSw25Fellow = fillSw25FellowSection(
+    result && result.sw25FellowOut,
+  );
+  setPrimaryKomaOutputMode(
+    hasStellarSheath
+      ? "stellar"
+      : hasSw25Fellow
+        ? "sw25-fellow"
+        : "",
+  );
   fillNechronicaSectionFromOutput(sectionSourceText);
   fillShinobigamiInfoSectionFromOutput(sectionSourceText);
 
@@ -2130,6 +2217,11 @@ function showError(error) {
     setStellarSheathSectionVisible(false);
     resetStellarSheathSection();
   }
+  if (sw25FellowSection) {
+    setSw25FellowSectionVisible(false);
+    resetSw25FellowSection();
+  }
+  setPrimaryKomaOutputMode("");
   if (nechronicaSection) {
     setNechronicaSectionVisible(false);
     resetNechronicaSection();

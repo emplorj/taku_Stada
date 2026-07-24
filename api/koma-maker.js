@@ -1836,8 +1836,91 @@ async function fetchDxJsonFromUrl(url) {
   return parseMaybeJsonp(await res.text());
 }
 
+function isYutorizeSw25Url(url) {
+  try {
+    const u = new URL(String(url || ""));
+    return (
+      /(^|\.)yutorize\.(?:work|2-d\.jp)$/i.test(u.hostname) &&
+      /\/ytsheet\/sw2\.5\/?$/i.test(u.pathname)
+    );
+  } catch (_) {
+    return false;
+  }
+}
+
+function buildYutorizeSw25Url(sheetUrl, mode, extraParams = {}) {
+  const u = new URL(String(sheetUrl || ""));
+  if (!isYutorizeSw25Url(u.toString()) || !u.searchParams.get("id")) {
+    throw new Error("ゆとシートSW2.5のURL形式ではないようだ。");
+  }
+  ["mode", "callback", "tool", "propertiesall"].forEach((key) =>
+    u.searchParams.delete(key),
+  );
+  if (mode) u.searchParams.set("mode", mode);
+  Object.entries(extraParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      u.searchParams.set(key, String(value));
+    }
+  });
+  return u.toString();
+}
+
+async function fetchYutorizeSw25Json(sheetUrl) {
+  const jsonUrl = buildYutorizeSw25Url(sheetUrl, "json");
+  const res = await fetch(jsonUrl, {
+    redirect: "follow",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+      Accept: "application/json,text/plain,*/*",
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`ゆとシートJSON取得に失敗したぞ (HTTP ${res.status})`);
+  }
+  const data = JSON.parse(await res.text());
+  if (!data || typeof data !== "object") {
+    throw new Error("ゆとシートJSONの内容を読み取れなかったぞ。");
+  }
+  return data;
+}
+
+async function fetchYutorizeSw25Palette(sheetUrl) {
+  const paletteUrl = buildYutorizeSw25Url(sheetUrl, "palette", {
+    propertiesall: "1",
+    tool: "bcdice",
+  });
+  const res = await fetch(paletteUrl, {
+    redirect: "follow",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+      Accept: "text/plain,*/*",
+    },
+  });
+  if (!res.ok) {
+    throw new Error(
+      `ゆとシートのチャットパレット取得に失敗したぞ (HTTP ${res.status})`,
+    );
+  }
+  return await res.text();
+}
+
 async function fetchAndIdentifySystem(url) {
   const lower = String(url || "").toLowerCase();
+
+  if (isYutorizeSw25Url(url)) {
+    const [yutorizeData, yutorizePalette] = await Promise.all([
+      fetchYutorizeSw25Json(url),
+      fetchYutorizeSw25Palette(url),
+    ]);
+    return {
+      system: "YutorizeSW25",
+      html: "",
+      yutorizeData,
+      yutorizePalette,
+    };
+  }
 
   // appspot系キャラクターシートは共通の display?ajax=1 を使う。
   if (lower.includes("character-sheets.appspot.com/stellar/")) {
@@ -2354,6 +2437,195 @@ async function getDataDX(source, url, img, opt, additionalPalette, comboPalette,
     },
   };
   if (img) out.data.iconUrl = img;
+  return out;
+}
+
+function separateYutorizeSw25Palette(chatPalette) {
+  const parameters = [];
+  const paletteLines = [];
+  const parameterPattern = /^\/\/(.+)=([0-9+\-/*]+)?$/;
+  String(chatPalette || "")
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .forEach((line) => {
+      const matched = parameterPattern.exec(line);
+      if (!matched) {
+        paletteLines.push(line);
+        return;
+      }
+      parameters.push({
+        label: matched[1],
+        value: matched[2] !== undefined ? matched[2] : "",
+      });
+    });
+  return {
+    palette: paletteLines.join("\n"),
+    parameters,
+  };
+}
+
+function getYutorizeSw25ExternalUrl(sheetUrl) {
+  const u = new URL(buildYutorizeSw25Url(sheetUrl, ""));
+  u.searchParams.set("f", "1");
+  return u.toString();
+}
+
+function buildYutorizeSw25Memo(data, playerName) {
+  const characterName = cleanText(data && data.characterName);
+  const aka = cleanText(data && data.aka);
+  const akaRuby = cleanText(data && data.akaRuby);
+  const namePlate = cleanText(data && data.namePlate);
+  let memo = "";
+  if (characterName && aka) memo += `“${aka}”`;
+  if (characterName && aka && akaRuby) memo += ` (${akaRuby})`;
+  if (namePlate && characterName) memo += `${characterName}\n`;
+  memo += `PL: ${playerName || "PL情報無し"}\n`;
+  memo += `${cleanText(data && data.race) || "種族不明"}／${cleanText(data && data.gender) || "性別不明"}／${cleanText(data && data.age) || "年齢不明"}\n`;
+  memo += `穢れ: ${cleanText(data && data.sin) || "0"}　信仰: ${cleanText(data && data.faith) || "―"}\n`;
+  memo += `ランク: ${cleanText(data && data.rank) || "―"}\n\n`;
+  if (cleanText(data && data.imageURL)) {
+    memo += `立ち絵: ${cleanText(data && data.imageCopyright) || "権利情報なし"}`;
+  }
+  return memo;
+}
+
+function buildYutorizeSw25BaseCharacter(
+  data,
+  sheetUrl,
+  paletteText,
+  img,
+  opt,
+  additionalPalette,
+  playerNameOverride,
+) {
+  const paletteData = separateYutorizeSw25Palette(paletteText);
+  const status = [];
+  const originalParams = [];
+  arrayOrEmpty(data && data.unitStatus).forEach((unitData) => {
+    Object.entries(unitData || {}).forEach(([label, rawValue]) => {
+      const value = String(rawValue ?? "");
+      if (/^[0-9/]+$/.test(value)) {
+        const parts = value.split("/");
+        const entry = { label, value: parts[0] };
+        if (parts[1] !== undefined) entry.max = parts[1];
+        status.push(entry);
+      } else {
+        originalParams.push({ label, value });
+      }
+    });
+  });
+
+  let paletteParams = paletteData.parameters.filter(
+    (item) => !/^(威力|C値|防護)[0-9]$/.test(item.label),
+  );
+  paletteParams = paletteParams.filter(
+    (item) => !/^最大[MH]P$/.test(item.label),
+  );
+  if (!toInt(data && data.lvCaster, 0)) {
+    paletteParams = paletteParams.filter(
+      (item) => !/^(魔力修正|行使修正)$/.test(item.label),
+    );
+    if (!toInt(data && data.lvBar, 0)) {
+      paletteParams = paletteParams.filter(
+        (item) => !/^(魔法C|魔法D修正)$/.test(item.label),
+      );
+    }
+  }
+
+  const playerName =
+    cleanText(playerNameOverride) || cleanText(data && data.playerName);
+  let commands = opt[1] ? paletteData.palette : "";
+  if (commands && additionalPalette) commands += `\n${additionalPalette}`;
+  else if (opt[1] && additionalPalette) commands = additionalPalette;
+
+  const out = {
+    kind: "character",
+    data: {
+      playerName,
+      externalUrl: getYutorizeSw25ExternalUrl(sheetUrl),
+      status,
+      initiative: 0,
+      params: originalParams.concat(paletteParams),
+      faces: [],
+      x: 0,
+      y: 0,
+      z: 0,
+      angle: 0,
+      width: 4,
+      height: 4,
+      active: true,
+      secret: false,
+      invisible: false,
+      hideStatus: false,
+      color: cleanText(data && data.nameColor).split(",")[0],
+      roomId: null,
+      commands,
+      speaking: true,
+      name:
+        cleanText(data && data.namePlate) ||
+        cleanText(data && data.characterName) ||
+        cleanText(data && data.aka) ||
+        "名称未設定",
+      memo: opt[0] ? buildYutorizeSw25Memo(data, playerName) : "",
+    },
+  };
+  if (img) out.data.iconUrl = img;
+  return out;
+}
+
+const YUTORIZE_SW25_FELLOW_SLOTS = [
+  { key: "1", roll: 7 },
+  { key: "1-2", roll: 6 },
+  { key: "3", roll: 8 },
+  { key: "3-2", roll: 5 },
+  { key: "5", roll: 9 },
+  { key: "5-2", roll: 4 },
+  { key: "6", roll: 10 },
+  { key: "6-2", roll: 3 },
+];
+
+function cleanYutorizeRichText(value) {
+  return decodeHtml(value)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\r\n?/g, "\n")
+    .trim();
+}
+
+function buildYutorizeSw25FellowCommands(data) {
+  const commands = ["1d フェロー行動表"];
+  YUTORIZE_SW25_FELLOW_SLOTS.forEach(({ key, roll }) => {
+    const action = cleanYutorizeRichText(data && data[`fellow${key}Action`]);
+    if (!action) return;
+    const words = cleanYutorizeRichText(data && data[`fellow${key}Words`]);
+    const target = cleanYutorizeRichText(data && data[`fellow${key}Num`]);
+    const note = cleanYutorizeRichText(data && data[`fellow${key}Note`]);
+    const parts = [
+      `【${roll}】${action}`,
+      words,
+      target ? `達成値：${target}` : "",
+      note ? `効果：${note}` : "",
+    ]
+      .filter(Boolean)
+      .flatMap((part) => String(part).split("\n"))
+      .map((part) => part.trim())
+      .filter(Boolean);
+    commands.push(parts.join("\\n"));
+  });
+  return commands.length > 1 ? commands.join("\n") : "";
+}
+
+function getDataYutorizeSw25Fellow(data, baseCharacter, opt) {
+  const fellowCommands = opt[1] ? buildYutorizeSw25FellowCommands(data) : "";
+  if (!fellowCommands) return null;
+  const out = JSON.parse(JSON.stringify(baseCharacter));
+  const profile = cleanYutorizeRichText(data && data.fellowProfile);
+  if (opt[0] && profile) {
+    out.data.memo = [out.data.memo, "【フェロープロフィール】", profile]
+      .filter(Boolean)
+      .join("\n\n");
+  }
+  out.data.commands = fellowCommands;
   return out;
 }
 
@@ -3572,6 +3844,8 @@ async function processSheetData(formData) {
     stellarData,
     shinobigamiData,
     dx3Data,
+    yutorizeData,
+    yutorizePalette,
   } =
     await fetchAndIdentifySystem(url);
   if (system === "Unknown") {
@@ -3587,6 +3861,8 @@ async function processSheetData(formData) {
   const charName =
     system === "DX3" && dx3Data
       ? getDxName(dx3Data)
+      : system === "YutorizeSW25"
+        ? cleanText(yutorizeData && yutorizeData.characterName)
       : getNameBySystem(html, system);
   let outObj;
   let message = "";
@@ -3594,6 +3870,7 @@ async function processSheetData(formData) {
   let itemLimits = null;
   let itemSections = null;
   let stellarSheathOut = null;
+  let sw25FellowOut = null;
   let comboFound = false;
 
   if (system === "DX3") {
@@ -3617,6 +3894,23 @@ async function processSheetData(formData) {
   } else if (system === "SW25") {
     outObj = getDataSW25(html, url, img);
     message = `${charName}、帝国の鉢巻へようこそ！`;
+  } else if (system === "YutorizeSW25") {
+    outObj = buildYutorizeSw25BaseCharacter(
+      yutorizeData,
+      url,
+      yutorizePalette,
+      img,
+      opt,
+      additionalPalette,
+      plName,
+    );
+    const fellowObj = getDataYutorizeSw25Fellow(
+      yutorizeData,
+      outObj,
+      opt,
+    );
+    sw25FellowOut = fellowObj ? JSON.stringify(fellowObj) : null;
+    message = `${(outObj && outObj.data && outObj.data.name) || charName}、冒険の支度は整ったぞ！`;
   } else if (system === "Nechronica") {
     outObj = getDataNC(html, url, img, opt, additionalPalette);
     message = `${charName}、きみも、心を…取り戻したんだね`;
@@ -3680,6 +3974,7 @@ async function processSheetData(formData) {
     itemLimits,
     itemSections,
     stellarSheathOut,
+    sw25FellowOut,
     comboFound,
   };
 }

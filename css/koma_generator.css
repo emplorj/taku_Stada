@@ -1041,7 +1041,8 @@ body.koma-maker-page {
   align-items: stretch;
 }
 
-.koma-maker-page .koma-output-grid.is-stellar {
+.koma-maker-page .koma-output-grid.is-stellar,
+.koma-maker-page .koma-output-grid.is-sw25-fellow {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -1189,7 +1190,8 @@ body.koma-maker-page {
 }
 
 @media (max-width: 760px) {
-  .koma-maker-page .koma-output-grid.is-stellar {
+  .koma-maker-page .koma-output-grid.is-stellar,
+  .koma-maker-page .koma-output-grid.is-sw25-fellow {
     grid-template-columns: minmax(0, 1fr);
   }
 }
