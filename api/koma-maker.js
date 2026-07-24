@@ -3170,7 +3170,8 @@ function buildStellarCommands(stellarData) {
     "＝＝＝＝＝ステラバトル＝＝＝＝＝",
     "({チャージ}+{ラウンド数})b6 チャージ",
     "",
-    "プチラッキー(3*n)〇を×に\\nダイスブースト(4*n)アタック判定に+1~3ダイス",
+    "プチラッキー(3*n)〇を×に",
+    "ダイスブースト(4*n)アタック判定に+1~3ダイス",
     "リロール(5)判定振り直し",
     "",
     "＝＝＝＝＝スキル＝＝＝＝＝",
@@ -3179,8 +3180,11 @@ function buildStellarCommands(stellarData) {
   skills.forEach((skill, index) => {
     const name = cleanText(skill && skill.name);
     const effect = cleanText(skill && skill.effect);
-    lines.push(`No${index + 1}.${name}`);
-    if (effect) lines.push(effect);
+    lines.push(
+      effect
+        ? `No${index + 1}.${name}\\n${effect}`
+        : `No${index + 1}.${name}`,
+    );
   });
 
   return `${lines.join("\n")}\n`;

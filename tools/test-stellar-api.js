@@ -99,8 +99,24 @@ function invoke(body) {
   assert.deepEqual(output.data.params, [
     { label: "チャージダイス", value: "3" },
   ]);
-  assert.match(output.data.commands, /No1\.騎士のたしなみ\nテスト効果1/);
-  assert.match(output.data.commands, /No2\.掻きむしれ炎禍\nテスト効果2/);
+  assert.ok(
+    output.data.commands.includes(
+      [
+        "プチラッキー(3*n)〇を×に",
+        "ダイスブースト(4*n)アタック判定に+1~3ダイス",
+        "リロール(5)判定振り直し",
+      ].join("\n"),
+    ),
+  );
+  assert.ok(
+    output.data.commands.includes("No1.騎士のたしなみ\\nテスト効果1"),
+  );
+  assert.ok(
+    output.data.commands.includes("No2.掻きむしれ炎禍\\nテスト効果2"),
+  );
+  assert.ok(
+    !output.data.commands.includes("No1.騎士のたしなみ\nテスト効果1"),
+  );
 
   const hidden = await invoke({
     sheet: sheetUrl,
