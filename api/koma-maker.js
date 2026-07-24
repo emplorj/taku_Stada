@@ -2703,11 +2703,13 @@ function buildYutorizeSw25FellowEffectCommands(entries) {
     }
 
     const ratePattern =
-      /k\d+(?:\[[^\]\r\n]+\])?(?:(?:\+|-)(?:魔力点?|[0-9]+))*/gi;
+      /k\d+(?:\[[^\]\r\n]+\])?(?:(?:\+|-)(?:魔力点?|[0-9]+))*(?:[@＠]\d+)?/gi;
     while ((match = ratePattern.exec(note)) !== null) {
       const rawFormula = String(match[0] || "");
       if (!rawFormula) continue;
-      const formula = rawFormula.replace(/魔力点?/g, "{魔力}");
+      const formula = rawFormula
+        .replace(/魔力点?/g, "{魔力}")
+        .replace(/＠/g, "@");
       const after = note.slice(match.index + rawFormula.length);
       const effectLabel = /^\s*(?:の)?\s*回復/.test(after)
         ? "回復"
