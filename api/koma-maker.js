@@ -2746,12 +2746,15 @@ function buildYutorizeSw25FellowCommands(data) {
 
   const actionCommands = [
     ...new Set(
-      entries.flatMap((entry) =>
-        String(entry.action || "")
-          .split(/\r?\n/)
-          .map((part) => part.trim())
-          .filter(Boolean),
-      ),
+      entries
+        .map((entry) =>
+          String(entry.action || "")
+            .split(/\r?\n/)
+            .map((part) => part.trim())
+            .filter(Boolean)
+            .join("\\n"),
+        )
+        .filter(Boolean),
     ),
   ];
   if (actionCommands.length) {
