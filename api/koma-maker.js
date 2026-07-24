@@ -2630,16 +2630,40 @@ function sanitizeYutorizeSw25ChoiceItem(value) {
 function buildYutorizeSw25FellowEffectCommands(entries) {
   const commands = [];
   const seen = new Set();
+  const addCommand = (command) => {
+    if (!command || seen.has(command)) return;
+    commands.push(command);
+    seen.add(command);
+  };
   entries.forEach((entry) => {
     const note = String(entry && entry.note ? entry.note : "");
     let match;
     const fixedDamagePattern = /確定\s*(\d+)\s*ダメージ/g;
     while ((match = fixedDamagePattern.exec(note)) !== null) {
-      const command = `C(${match[1]}) 確定ダメージ（想定出目${entry.roll}）`;
-      if (!seen.has(command)) {
-        commands.push(command);
-        seen.add(command);
-      }
+      addCommand(
+        `C(${match[1]}) 確定ダメージ（想定出目${entry.roll}）`,
+      );
+    }
+
+    const japaneseRatePattern =
+      /威力\s*(\d+)(?:\s*C値\s*(\d+))?((?:\s*(?:\+|-)\s*(?:魔力点?|\d+))*)/gi;
+    while ((match = japaneseRatePattern.exec(note)) !== null) {
+      const rate = match[1];
+      const critical = match[2] ? `[${match[2]}]` : "";
+      const modifier = String(match[3] || "")
+        .replace(/\s+/g, "")
+        .replace(/魔力点?/g, "{魔力}");
+      const after = note.slice(match.index + String(match[0] || "").length);
+      const effectLabel = /^\s*[」』】]?\s*点?\s*回復/.test(after)
+        ? "回復"
+        : /^\s*[」』】]?\s*点?\s*物理ダメージ/.test(after)
+          ? "物理ダメージ"
+          : /^\s*[」』】]?\s*点?\s*魔法ダメージ/.test(after)
+            ? "魔法ダメージ"
+            : "ダメージ";
+      addCommand(
+        `k${rate}${critical}${modifier} ${effectLabel}（想定出目${entry.roll}）`,
+      );
     }
 
     const ratePattern =
@@ -2652,11 +2676,7 @@ function buildYutorizeSw25FellowEffectCommands(entries) {
       const effectLabel = /^\s*(?:の)?\s*回復/.test(after)
         ? "回復"
         : "ダメージ";
-      const command = `${formula} ${effectLabel}（想定出目${entry.roll}）`;
-      if (!seen.has(command)) {
-        commands.push(command);
-        seen.add(command);
-      }
+      addCommand(`${formula} ${effectLabel}（想定出目${entry.roll}）`);
     }
   });
   return commands;
