@@ -1,6 +1,10 @@
 const sheetForm = document.getElementById("sheetForm");
 const submitButton = document.getElementById("submitButton");
 const copyButton = document.getElementById("copyButton");
+const komaOutputGrid = document.getElementById("komaOutputGrid");
+const primaryKomaOutputTitle = document.getElementById(
+  "primaryKomaOutputTitle",
+);
 const stellarSheathSection = document.getElementById("stellarSheathSection");
 const stellarSheathOutputArea = document.getElementById(
   "stellarSheathOutput",
@@ -374,7 +378,24 @@ function setStellarSheathSectionVisible(visible) {
   stellarSheathSection.style.display = visible ? "block" : "none";
 }
 
+function setPrimaryKomaOutputMode(isStellar) {
+  if (komaOutputGrid) {
+    komaOutputGrid.classList.toggle("is-stellar", !!isStellar);
+  }
+  if (primaryKomaOutputTitle) {
+    primaryKomaOutputTitle.textContent = isStellar
+      ? "ブリンガー用コマ"
+      : "コマ出力";
+  }
+  if (copyButton) {
+    copyButton.textContent = isStellar
+      ? "ブリンガーをコピー"
+      : "コピー";
+  }
+}
+
 function resetStellarSheathSection() {
+  setPrimaryKomaOutputMode(false);
   if (stellarSheathOutputArea) {
     stellarSheathOutputArea.value = "ここにシース用コマが出力される。";
   }
@@ -409,6 +430,7 @@ function fillStellarSheathSection(stellarSheathOut) {
 
   if (stellarSheathOutputArea) stellarSheathOutputArea.value = rendered;
   if (copyStellarSheathButton) copyStellarSheathButton.disabled = false;
+  setPrimaryKomaOutputMode(true);
   setStellarSheathSectionVisible(true);
 }
 

@@ -823,9 +823,37 @@ body.koma-maker-page {
   line-height: 1.2;
 }
 
-.koma-maker-page #output {
-  margin-top: 2px;
-  margin-bottom: 3px;
+.koma-maker-page .koma-output-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  width: 90%;
+  max-width: 1000px;
+  margin: 2px auto 3px;
+  align-items: stretch;
+}
+
+.koma-maker-page .koma-output-grid.is-stellar {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.koma-maker-page .koma-output-card,
+.koma-maker-page .stellar-sheath-section,
+.koma-maker-page .stellar-sheath-card {
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.koma-maker-page .koma-output-card #output,
+.koma-maker-page .stellar-sheath-card #stellarSheathOutput {
+  width: 100%;
+  max-width: none;
+  min-height: 150px;
+  margin: 0;
+  resize: vertical;
+  font-size: 0.84em;
+  line-height: 1.25;
 }
 
 .koma-maker-page #itemSection {
@@ -833,17 +861,7 @@ body.koma-maker-page {
 }
 
 .koma-maker-page #stellarSheathSection {
-  margin-top: 8px;
-}
-
-.koma-maker-page .stellar-sheath-card textarea {
-  width: 100%;
-  min-height: 120px;
-  max-width: 100%;
   margin: 0;
-  resize: vertical;
-  font-size: 0.84em;
-  line-height: 1.25;
 }
 
 .koma-maker-page .item-box-grid {
@@ -954,6 +972,12 @@ body.koma-maker-page {
 
 .koma-maker-page .koma-main #plName {
   width: min(360px, 100%);
+}
+
+@media (max-width: 760px) {
+  .koma-maker-page .koma-output-grid.is-stellar {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .koma-maker-page .madeby-title {
