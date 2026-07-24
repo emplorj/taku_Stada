@@ -3380,25 +3380,46 @@ function getShinobigamiSkillName(learnedSkill) {
   );
 }
 
+function padShinobigamiMemoCell(value, width) {
+  const text = String(value || "");
+  const missing = Math.max(0, Number(width) - Array.from(text).length);
+  return `${text}${"　".repeat(missing)}`;
+}
+
+function toFullWidthShinobigamiDigits(value) {
+  return String(value || "").replace(/[0-9]/g, (digit) =>
+    String.fromCharCode(digit.charCodeAt(0) + 0xfee0),
+  );
+}
+
+function buildDefaultShinobigamiInfoLines() {
+  const lines = [
+    "【取得済み情報】",
+    `${padShinobigamiMemoCell("", 4)}${padShinobigamiMemoCell("感情", 5)}${padShinobigamiMemoCell("秘密", 3)}${padShinobigamiMemoCell("居所", 3)}奥義`,
+  ];
+  for (let index = 1; index <= 4; index += 1) {
+    lines.push(
+      `${padShinobigamiMemoCell(`ＰＣ${toFullWidthShinobigamiDigits(index)}`, 4)}${padShinobigamiMemoCell("なし", 5)}${padShinobigamiMemoCell("✕", 3)}${padShinobigamiMemoCell("✕", 3)}✕`,
+    );
+  }
+  return lines;
+}
+
 function buildShinobigamiMemo(shinobigamiData) {
   const base = (shinobigamiData && shinobigamiData.base) || {};
   const lines = [];
   const kana = cleanText(base.nameKana);
+  const baseMemo = cleanText(base.memo);
   if (kana) lines.push(kana);
   lines.push(`PL：${cleanText(base.player) || "○○"}`);
   lines.push(
     "【表の使命】",
     "",
-    "【取得済み情報】",
-    "",
-    "　　　　感情　秘密　居所　奥義",
-    "ＰＣ１　なし  　✕　 　✕ 　   ✕",
-    "ＰＣ２　なし  　✕　 　✕ 　   ✕",
-    "ＰＣ３　なし  　✕　 　✕ 　   ✕",
-    "ＰＣ４　なし  　✕　 　✕ 　   ✕",
+    ...buildDefaultShinobigamiInfoLines(),
     "",
     "その他",
   );
+  if (baseMemo) lines.push(baseMemo);
   return lines.join("\n");
 }
 

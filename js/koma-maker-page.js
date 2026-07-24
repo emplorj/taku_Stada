@@ -519,14 +519,19 @@ function toFullWidthDigits(value) {
   );
 }
 
+function padShinobigamiWideCell(value, width) {
+  const text = String(value || "");
+  const missing = Math.max(0, Number(width) - Array.from(text).length);
+  return `${text}${"　".repeat(missing)}`;
+}
+
 function buildShinobigamiInfoText() {
   if (!shinobigamiInfoState || !Array.isArray(shinobigamiInfoState.rows)) {
     return "";
   }
   const lines = [
     "【取得済み情報】",
-    "",
-    "　　　　感情　秘密　居所　奥義",
+    `${padShinobigamiWideCell("", 4)}${padShinobigamiWideCell("感情", 5)}${padShinobigamiWideCell("秘密", 3)}${padShinobigamiWideCell("居所", 3)}奥義`,
   ];
   shinobigamiInfoState.rows.forEach((row, index) => {
     const pc = `ＰＣ${toFullWidthDigits(index + 1)}`;
@@ -536,9 +541,85 @@ function buildShinobigamiInfoText() {
     const secret = row.secret ? "◯" : "✕";
     const location = row.location ? "◯" : "✕";
     const ougi = row.ougi ? "◯" : "✕";
-    lines.push(`${pc}　${emotion}  　${secret}　 　${location} 　   ${ougi}`);
+    lines.push(
+      `${padShinobigamiWideCell(pc, 4)}${padShinobigamiWideCell(emotion, 5)}${padShinobigamiWideCell(secret, 3)}${padShinobigamiWideCell(location, 3)}${ougi}`,
+    );
   });
   return lines.join("\n");
+}
+
+function isShinobigamiInfoHeaderLine(line) {
+  const compact = String(line || "").replace(/[　\s]/g, "");
+  return (
+    compact.includes("感情") &&
+    compact.includes("秘密") &&
+    compact.includes("居所") &&
+    compact.includes("奥義")
+  );
+}
+
+function replaceShinobigamiInfoBlockInMemo(memo, infoText) {
+  const sourceLines = String(memo || "").split(/\r?\n/);
+  const replacementLines = String(infoText || "").split(/\r?\n/);
+  const startIndex = sourceLines.findIndex(
+    (line) => String(line || "").trim() === "【取得済み情報】",
+  );
+  if (startIndex < 0) {
+    const prefix = sourceLines.filter(
+      (line, index) =>
+        index < sourceLines.length - 1 || String(line || "").trim() !== "",
+    );
+    if (prefix.length && String(prefix[prefix.length - 1] || "").trim()) {
+      prefix.push("");
+    }
+    return [...prefix, ...replacementLines].join("\n");
+  }
+
+  let endIndex = startIndex + 1;
+  while (
+    endIndex < sourceLines.length &&
+    String(sourceLines[endIndex] || "").trim() === ""
+  ) {
+    endIndex += 1;
+  }
+  if (
+    endIndex < sourceLines.length &&
+    isShinobigamiInfoHeaderLine(sourceLines[endIndex])
+  ) {
+    endIndex += 1;
+  }
+  while (
+    endIndex < sourceLines.length &&
+    /^ＰＣ[０-９0-9]+[　\s]/.test(String(sourceLines[endIndex] || ""))
+  ) {
+    endIndex += 1;
+  }
+  return [
+    ...sourceLines.slice(0, startIndex),
+    ...replacementLines,
+    ...sourceLines.slice(endIndex),
+  ].join("\n");
+}
+
+function syncShinobigamiInfoToKomaOutput(infoText) {
+  if (!infoText || !outputArea) return;
+  const noMemoCheckbox = document.getElementById("noMemo");
+  if (noMemoCheckbox && noMemoCheckbox.checked) return;
+
+  let parsed = null;
+  try {
+    parsed = JSON.parse(String(outputArea.value || ""));
+  } catch (_) {
+    return;
+  }
+  if (!parsed || !parsed.data || typeof parsed.data.memo !== "string") return;
+  parsed.data.memo = replaceShinobigamiInfoBlockInMemo(
+    parsed.data.memo,
+    infoText,
+  );
+  const rendered = JSON.stringify(parsed);
+  outputArea.value = rendered;
+  lastRawOutputText = rendered;
 }
 
 function renderShinobigamiInfoOutput() {
@@ -549,6 +630,7 @@ function renderShinobigamiInfoOutput() {
   if (copyShinobigamiInfoButton) {
     copyShinobigamiInfoButton.disabled = !text;
   }
+  syncShinobigamiInfoToKomaOutput(text);
 }
 
 function renderShinobigamiInfoEditor() {
