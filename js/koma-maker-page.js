@@ -62,10 +62,26 @@ const copyCheckedPartsButton = document.getElementById(
 const clearCheckedPartsButton = document.getElementById(
   "clearCheckedPartsButton",
 );
+const shinobigamiInfoSection = document.getElementById(
+  "shinobigamiInfoSection",
+);
+const shinobigamiPlayerCountInput = document.getElementById(
+  "shinobigamiPlayerCount",
+);
+const shinobigamiInfoEditor = document.getElementById(
+  "shinobigamiInfoEditor",
+);
+const shinobigamiInfoOutputArea = document.getElementById(
+  "shinobigamiInfoOutput",
+);
+const copyShinobigamiInfoButton = document.getElementById(
+  "copyShinobigamiInfoButton",
+);
 
 let toastTimer = null;
 let progressTimer = null;
 let nechronicaEditorState = null;
+let shinobigamiInfoState = null;
 let lastRawOutputText = "";
 const DEFAULT_NECHRONICA_KAKERA_TEMPLATE =
   "【記憶のカケラ：初期】\n" +
@@ -437,6 +453,177 @@ function fillStellarSheathSection(stellarSheathOut) {
 function setNechronicaSectionVisible(visible) {
   if (!nechronicaSection) return;
   nechronicaSection.style.display = visible ? "block" : "none";
+}
+
+function setShinobigamiInfoSectionVisible(visible) {
+  if (!shinobigamiInfoSection) return;
+  shinobigamiInfoSection.style.display = visible ? "block" : "none";
+}
+
+function createShinobigamiInfoRow() {
+  return {
+    emotion: false,
+    secret: false,
+    location: false,
+    ougi: false,
+  };
+}
+
+function clampShinobigamiPlayerCount(value) {
+  const count = Number.parseInt(String(value || ""), 10);
+  if (!Number.isFinite(count)) return 4;
+  return Math.min(6, Math.max(1, count));
+}
+
+function resetShinobigamiInfoSection() {
+  shinobigamiInfoState = null;
+  if (shinobigamiPlayerCountInput) shinobigamiPlayerCountInput.value = "4";
+  if (shinobigamiInfoEditor) shinobigamiInfoEditor.innerHTML = "";
+  if (shinobigamiInfoOutputArea) {
+    shinobigamiInfoOutputArea.value =
+      "ここに取得済み情報の管理文が出力される。";
+  }
+  if (copyShinobigamiInfoButton) {
+    copyShinobigamiInfoButton.disabled = true;
+  }
+}
+
+function toFullWidthDigits(value) {
+  return String(value || "").replace(/[0-9]/g, (digit) =>
+    String.fromCharCode(digit.charCodeAt(0) + 0xfee0),
+  );
+}
+
+function buildShinobigamiInfoText() {
+  if (!shinobigamiInfoState || !Array.isArray(shinobigamiInfoState.rows)) {
+    return "";
+  }
+  const lines = [
+    "【取得済み情報】",
+    "",
+    "　　　　感情　秘密　居所　奥義",
+  ];
+  shinobigamiInfoState.rows.forEach((row, index) => {
+    const pc = `ＰＣ${toFullWidthDigits(index + 1)}`;
+    const emotion = row.emotion ? "◯  " : "なし";
+    const secret = row.secret ? "◯" : "✕";
+    const location = row.location ? "◯" : "✕";
+    const ougi = row.ougi ? "◯" : "✕";
+    lines.push(
+      `${pc}　${emotion}  　${secret}　 　${location} 　   ${ougi}`,
+    );
+  });
+  return lines.join("\n");
+}
+
+function renderShinobigamiInfoOutput() {
+  if (!shinobigamiInfoOutputArea) return;
+  const text = buildShinobigamiInfoText();
+  shinobigamiInfoOutputArea.value =
+    text || "ここに取得済み情報の管理文が出力される。";
+  if (copyShinobigamiInfoButton) {
+    copyShinobigamiInfoButton.disabled = !text;
+  }
+}
+
+function renderShinobigamiInfoEditor() {
+  if (!shinobigamiInfoEditor) return;
+  shinobigamiInfoEditor.innerHTML = "";
+  if (!shinobigamiInfoState || !Array.isArray(shinobigamiInfoState.rows)) {
+    return;
+  }
+
+  const header = document.createElement("div");
+  header.className = "shinobigami-info-row shinobigami-info-header";
+  ["PC", "感情", "秘密", "居所", "奥義"].forEach((label) => {
+    const cell = document.createElement("span");
+    cell.textContent = label;
+    header.appendChild(cell);
+  });
+  shinobigamiInfoEditor.appendChild(header);
+
+  shinobigamiInfoState.rows.forEach((row, rowIndex) => {
+    const rowElement = document.createElement("div");
+    rowElement.className = "shinobigami-info-row";
+    const pcLabel = document.createElement("span");
+    pcLabel.className = "shinobigami-pc-label";
+    pcLabel.textContent = `PC${rowIndex + 1}`;
+    rowElement.appendChild(pcLabel);
+
+    [
+      ["emotion", row.emotion, "◯", "なし"],
+      ["secret", row.secret, "◯", "✕"],
+      ["location", row.location, "◯", "✕"],
+      ["ougi", row.ougi, "◯", "✕"],
+    ].forEach(([field, acquired, acquiredLabel, emptyLabel]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "shinobigami-info-toggle";
+      button.classList.toggle("is-acquired", !!acquired);
+      button.dataset.rowIndex = String(rowIndex);
+      button.dataset.field = String(field);
+      button.textContent = acquired ? acquiredLabel : emptyLabel;
+      button.setAttribute(
+        "aria-label",
+        `PC${rowIndex + 1} ${field} ${acquired ? "取得済み" : "未取得"}`,
+      );
+      button.setAttribute("aria-pressed", acquired ? "true" : "false");
+      rowElement.appendChild(button);
+    });
+    shinobigamiInfoEditor.appendChild(rowElement);
+  });
+}
+
+function resizeShinobigamiInfoRows(countValue) {
+  if (!shinobigamiInfoState) return;
+  const count = clampShinobigamiPlayerCount(countValue);
+  while (shinobigamiInfoState.rows.length < count) {
+    shinobigamiInfoState.rows.push(createShinobigamiInfoRow());
+  }
+  if (shinobigamiInfoState.rows.length > count) {
+    shinobigamiInfoState.rows.length = count;
+  }
+  if (shinobigamiPlayerCountInput) {
+    shinobigamiPlayerCountInput.value = String(count);
+  }
+  renderShinobigamiInfoEditor();
+  renderShinobigamiInfoOutput();
+}
+
+function fillShinobigamiInfoSectionFromOutput(rawText) {
+  let parsed = null;
+  try {
+    parsed = JSON.parse(String(rawText || ""));
+  } catch (_) {
+    parsed = null;
+  }
+  const externalUrl = String(
+    parsed && parsed.data && parsed.data.externalUrl
+      ? parsed.data.externalUrl
+      : "",
+  );
+  if (!/character-sheets\.appspot\.com\/shinobigami\//i.test(externalUrl)) {
+    setShinobigamiInfoSectionVisible(false);
+    resetShinobigamiInfoSection();
+    return;
+  }
+
+  const memo = String(
+    parsed && parsed.data && parsed.data.memo ? parsed.data.memo : "",
+  );
+  const memoPlayerCount = (
+    memo.match(/^ＰＣ[０-９0-9]+[　\s]/gm) || []
+  ).length;
+  const playerCount = clampShinobigamiPlayerCount(memoPlayerCount || 4);
+  shinobigamiInfoState = {
+    rows: Array.from({ length: playerCount }, createShinobigamiInfoRow),
+  };
+  if (shinobigamiPlayerCountInput) {
+    shinobigamiPlayerCountInput.value = String(playerCount);
+  }
+  renderShinobigamiInfoEditor();
+  renderShinobigamiInfoOutput();
+  setShinobigamiInfoSectionVisible(true);
 }
 
 function resetNechronicaSection() {
@@ -1442,6 +1629,50 @@ if (nechronicaSection) {
   resetNechronicaSection();
 }
 
+if (shinobigamiInfoEditor) {
+  shinobigamiInfoEditor.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLButtonElement)) return;
+    if (!target.classList.contains("shinobigami-info-toggle")) return;
+    if (!shinobigamiInfoState || !Array.isArray(shinobigamiInfoState.rows)) {
+      return;
+    }
+    const rowIndex = Number(target.dataset.rowIndex || "-1");
+    const field = String(target.dataset.field || "");
+    const row = shinobigamiInfoState.rows[rowIndex];
+    if (
+      !row ||
+      !["emotion", "secret", "location", "ougi"].includes(field)
+    ) {
+      return;
+    }
+    row[field] = !row[field];
+    renderShinobigamiInfoEditor();
+    renderShinobigamiInfoOutput();
+  });
+}
+
+if (shinobigamiPlayerCountInput) {
+  shinobigamiPlayerCountInput.addEventListener("input", () => {
+    resizeShinobigamiInfoRows(shinobigamiPlayerCountInput.value);
+  });
+}
+
+if (copyShinobigamiInfoButton && shinobigamiInfoOutputArea) {
+  copyShinobigamiInfoButton.addEventListener("click", () => {
+    copyTextWithToast(
+      shinobigamiInfoOutputArea.value,
+      "取得済み情報の管理文をコピーした！",
+      "コピーできる管理文がまだ生成されていないようだ！",
+    );
+  });
+}
+
+if (shinobigamiInfoSection) {
+  setShinobigamiInfoSectionVisible(false);
+  resetShinobigamiInfoSection();
+}
+
 sheetForm.addEventListener("submit", function (event) {
   event.preventDefault();
   const sheetUrlValue = document.getElementById("sheetUrl").value.toLowerCase();
@@ -1459,6 +1690,10 @@ sheetForm.addEventListener("submit", function (event) {
   if (nechronicaSection) {
     setNechronicaSectionVisible(false);
     resetNechronicaSection();
+  }
+  if (shinobigamiInfoSection) {
+    setShinobigamiInfoSectionVisible(false);
+    resetShinobigamiInfoSection();
   }
   stopProgressTracking();
   setProgress(0, false);
@@ -1637,6 +1872,7 @@ function updatePage(result) {
   );
   fillStellarSheathSection(result && result.stellarSheathOut);
   fillNechronicaSectionFromOutput(sectionSourceText);
+  fillShinobigamiInfoSectionFromOutput(sectionSourceText);
 
   const txt = outputArea.value || "";
   const canCopy =
@@ -1672,6 +1908,10 @@ function showError(error) {
   if (nechronicaSection) {
     setNechronicaSectionVisible(false);
     resetNechronicaSection();
+  }
+  if (shinobigamiInfoSection) {
+    setShinobigamiInfoSectionVisible(false);
+    resetShinobigamiInfoSection();
   }
   finalizeUiUpdate();
 }

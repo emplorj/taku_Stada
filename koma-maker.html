@@ -11,7 +11,7 @@
   <link rel="icon" href="img/ash.png" type="image/png">
   <link rel="apple-touch-icon" href="img/ash.png">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/koma_generator.css?v=20260724-shared-output-card">
+  <link rel="stylesheet" href="css/koma_generator.css?v=20260724-shinobigami-info">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
@@ -142,6 +142,23 @@
               </div>
             </div>
           </div>
+          <div id="shinobigamiInfoSection" class="shinobigami-info-section" style="display:none;">
+            <p class="message-row"><span>シノビガミ用 取得済み情報メモ</span></p>
+            <p class="shinobigami-info-help">
+              参加人数を設定し、取得した情報を押して◯に切り替えてください。状態はこのページには保存されないため、更新した管理文をコピーしてメモ等へ貼り付けて使います。
+            </p>
+            <div class="shinobigami-info-controls">
+              <label for="shinobigamiPlayerCount">参加人数</label>
+              <input id="shinobigamiPlayerCount" type="number" min="1" max="6" value="4">
+              <span>人</span>
+            </div>
+            <div id="shinobigamiInfoEditor" class="shinobigami-info-editor"></div>
+            <div class="shinobigami-info-copy-container">
+              <textarea id="shinobigamiInfoOutput" disabled>ここに取得済み情報の管理文が出力される。</textarea>
+              <button id="copyShinobigamiInfoButton" class="shinobigami-info-copy-btn" type="button" disabled
+                title="取得済み情報の管理文をコピー"><i class="fa-solid fa-paste"></i></button>
+            </div>
+          </div>
           <div id="itemSection" style="display:none;">
             <p class="message-row"><span>アイテム（パネルにコピペしてね）</span></p>
             <div class="item-box-grid">
@@ -202,7 +219,7 @@
 
   <script src="js/common.js"></script>
   <script src="js/enemies-shared.js"></script>
-  <script src="js/koma-maker-page.js?v=20260724-two-card"></script>
+  <script src="js/koma-maker-page.js?v=20260724-shinobigami-info"></script>
 </body>
 
 </html>
