@@ -11,7 +11,7 @@
   <link rel="icon" href="img/ash.png" type="image/png">
   <link rel="apple-touch-icon" href="img/ash.png">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/koma_generator.css?v=20260724-shinobigami-import">
+  <link rel="stylesheet" href="css/koma_generator.css?v=20260724-shinobigami-paste-area">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
@@ -154,13 +154,18 @@
             </div>
             <div id="shinobigamiInfoEditor" class="shinobigami-info-editor"></div>
             <div class="shinobigami-info-copy-container">
-              <textarea id="shinobigamiInfoOutput">ここに取得済み情報の管理文が出力される。</textarea>
+              <textarea id="shinobigamiInfoOutput" disabled>ここに取得済み情報の管理文が出力される。</textarea>
               <button id="copyShinobigamiInfoButton" class="shinobigami-info-copy-btn" type="button" disabled
                 title="取得済み情報の管理文をコピー"><i class="fa-solid fa-paste"></i></button>
             </div>
-            <button id="importShinobigamiInfoButton" class="hoha shinobigami-info-import-btn" type="button">
-              貼り付けた文を反映
-            </button>
+            <div class="shinobigami-info-import-box">
+              <label for="shinobigamiInfoImport">以前コピーした管理文を貼り付け</label>
+              <textarea id="shinobigamiInfoImport"
+                placeholder="【取得済み情報】から始まる管理文をここへ貼り付け"></textarea>
+              <button id="importShinobigamiInfoButton" class="hoha shinobigami-info-import-btn" type="button">
+                貼り付けた文を反映
+              </button>
+            </div>
           </div>
           <div id="itemSection" style="display:none;">
             <p class="message-row"><span>アイテム（パネルにコピペしてね）</span></p>
@@ -222,7 +227,7 @@
 
   <script src="js/common.js"></script>
   <script src="js/enemies-shared.js"></script>
-  <script src="js/koma-maker-page.js?v=20260724-shinobigami-import"></script>
+  <script src="js/koma-maker-page.js?v=20260724-shinobigami-paste-area"></script>
 </body>
 
 </html>

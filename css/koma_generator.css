@@ -538,16 +538,15 @@ body {
 
 .shinobigami-info-controls input {
   display: inline-block;
-  width: 82px;
-  min-height: 40px;
-  padding: 6px 10px;
+  width: 64px;
+  padding: 0;
   box-sizing: border-box;
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.94);
   color: #142333;
   text-align: center;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   font-weight: 700;
 }
 
@@ -632,6 +631,11 @@ body {
   line-height: 1.35;
 }
 
+#shinobigamiInfoOutput:disabled {
+  opacity: 1;
+  -webkit-text-fill-color: #f3fbff;
+}
+
 .shinobigami-info-copy-btn {
   position: absolute;
   top: 8px;
@@ -652,6 +656,36 @@ body {
   min-width: 180px;
   margin: 8px auto 0;
   padding: 5px 16px;
+}
+
+.shinobigami-info-import-box {
+  width: min(100%, 580px);
+  margin: 12px auto 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.shinobigami-info-import-box label {
+  display: block;
+  margin: 0 0 5px;
+  color: #fff;
+  font-weight: 700;
+}
+
+#shinobigamiInfoImport {
+  width: 100%;
+  min-height: 100px;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px;
+  resize: vertical;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #142333;
+  font-family: monospace;
+  line-height: 1.35;
 }
 
 .shinobigami-info-copy-btn:hover:not(:disabled) {

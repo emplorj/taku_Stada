@@ -80,6 +80,9 @@ const copyShinobigamiInfoButton = document.getElementById(
 const importShinobigamiInfoButton = document.getElementById(
   "importShinobigamiInfoButton",
 );
+const shinobigamiInfoImportArea = document.getElementById(
+  "shinobigamiInfoImport",
+);
 
 let toastTimer = null;
 let progressTimer = null;
@@ -501,6 +504,9 @@ function resetShinobigamiInfoSection() {
   if (shinobigamiInfoOutputArea) {
     shinobigamiInfoOutputArea.value =
       "ここに取得済み情報の管理文が出力される。";
+  }
+  if (shinobigamiInfoImportArea) {
+    shinobigamiInfoImportArea.value = "";
   }
   if (copyShinobigamiInfoButton) {
     copyShinobigamiInfoButton.disabled = true;
@@ -1762,17 +1768,12 @@ if (copyShinobigamiInfoButton && shinobigamiInfoOutputArea) {
       "コピーできる管理文がまだ生成されていないようだ！",
     );
   });
-
-  shinobigamiInfoOutputArea.addEventListener("input", () => {
-    copyShinobigamiInfoButton.disabled =
-      !String(shinobigamiInfoOutputArea.value || "").trim();
-  });
 }
 
-if (importShinobigamiInfoButton && shinobigamiInfoOutputArea) {
+if (importShinobigamiInfoButton && shinobigamiInfoImportArea) {
   importShinobigamiInfoButton.addEventListener("click", () => {
     const imported = importShinobigamiInfoText(
-      shinobigamiInfoOutputArea.value,
+      shinobigamiInfoImportArea.value,
     );
     if (imported) {
       showToast("取得済み情報の管理文を読み込んだ！", "info");
