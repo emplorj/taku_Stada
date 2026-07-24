@@ -3105,12 +3105,22 @@ function getDataSata(
   return out;
 }
 
+function getStellarFlowerLabel(stellarData) {
+  const base = (stellarData && stellarData.base) || {};
+  const flower = base.personalflower || {};
+  return [
+    cleanText(flower.color) ? `${cleanText(flower.color)}色` : "",
+    cleanText(flower.essence),
+  ]
+    .filter(Boolean)
+    .join("の");
+}
+
 function buildStellarMemo(stellarData) {
   const base = (stellarData && stellarData.base) || {};
   const character = base.character || {};
   const hopeDespair = base.hopedespair || {};
   const knight = base.knight || {};
-  const flower = base.personalflower || {};
   const lines = [];
 
   lines.push(`PL：${cleanText(base.player) || "○○"}`);
@@ -3138,12 +3148,7 @@ function buildStellarMemo(stellarData) {
     lines.push(`所属組織：${cleanText(base.organization)}`);
   }
 
-  const flowerLabel = [
-    cleanText(flower.color) ? `${cleanText(flower.color)}色` : "",
-    cleanText(flower.essence),
-  ]
-    .filter(Boolean)
-    .join("の");
+  const flowerLabel = getStellarFlowerLabel(stellarData);
   if (flowerLabel) lines.push(`花章：${flowerLabel}`);
 
   return `${lines.join("\n")}\n`;
@@ -3395,7 +3400,11 @@ async function processSheetData(formData) {
     stellarSheathOut = stellarSheathObj
       ? JSON.stringify(stellarSheathObj)
       : null;
-    message = `${(outObj && outObj.data && outObj.data.name) || "ステラナイト"}、願いの決闘場へようこそ！`;
+    const stellarName =
+      (outObj && outObj.data && outObj.data.name) || "ステラナイト";
+    const flowerLabel =
+      getStellarFlowerLabel(stellarData) || "名もなき花";
+    message = `願いの決闘場に咲き誇るのは${flowerLabel}　指命を遂げよ、${stellarName}よ`;
   }
 
   if (

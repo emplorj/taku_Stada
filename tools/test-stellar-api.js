@@ -74,6 +74,10 @@ function invoke(body) {
     nochp: "false",
   });
   assert.equal(response.statusCode, 200);
+  assert.equal(
+    response.body.message,
+    "願いの決闘場に咲き誇るのは赤色のオダマキ　指命を遂げよ、カズよ",
+  );
   const output = JSON.parse(response.body.out);
   assert.equal(output.kind, "character");
   assert.equal(output.data.name, "カズ");
