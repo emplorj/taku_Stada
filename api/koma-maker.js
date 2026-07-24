@@ -2627,6 +2627,14 @@ function sanitizeYutorizeSw25ChoiceItem(value) {
     .replace(/\)/g, "）");
 }
 
+function getYutorizeSw25FellowActionLabel(entry) {
+  return String(entry && entry.action ? entry.action : "")
+    .split(/\r?\n/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join("／");
+}
+
 function buildYutorizeSw25FellowEffectCommands(entries) {
   const commands = [];
   const seen = new Set();
@@ -2637,16 +2645,18 @@ function buildYutorizeSw25FellowEffectCommands(entries) {
   };
   entries.forEach((entry) => {
     const note = String(entry && entry.note ? entry.note : "");
-    const actionLabel = String(entry && entry.action ? entry.action : "")
-      .split(/\r?\n/)
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .join("／");
+    const actionLabel = getYutorizeSw25FellowActionLabel(entry);
     const commandLabel = actionLabel ? `（${actionLabel}）` : "";
     let match;
-    const fixedDamagePattern = /確定\s*(\d+)\s*ダメージ/g;
-    while ((match = fixedDamagePattern.exec(note)) !== null) {
-      addCommand(`C(${match[1]}) 確定ダメージ${commandLabel}`);
+    const hasRateEffect =
+      /k\d+(?:\[[^\]\r\n]+\])?(?:(?:\+|-)(?:魔力点?|[0-9]+))*/i.test(
+        note,
+      ) || /威力\s*\d+/i.test(note);
+    if (!hasRateEffect) {
+      const fixedDamagePattern = /確定\s*(\d+)\s*ダメージ/g;
+      while ((match = fixedDamagePattern.exec(note)) !== null) {
+        addCommand(`C(${match[1]}) 確定ダメージ${commandLabel}`);
+      }
     }
 
     const japaneseRatePattern =
@@ -2705,28 +2715,26 @@ function buildYutorizeSw25FellowCommands(data) {
   if (!entries.length) return "";
 
   const byKey = new Map(entries.map((entry) => [entry.key, entry]));
-  const commands = ["### ■フェロー行動表", "1d フェロー行動表"];
+  const choiceItems = [];
   YUTORIZE_SW25_FELLOW_GROUPS.forEach((group) => {
     const candidates = group.keys
       .map((key) => byKey.get(key))
       .filter(Boolean);
-    if (!candidates.length) return;
-    if (candidates.length === 1) {
-      const candidate = candidates[0];
-      const directCommand = candidate.command.replace(
-        /^【\d+】/,
-        `【出目${group.dice}／想定${candidate.roll}】`,
-      );
-      commands.push(directCommand);
-      return;
+    const actionChoice =
+      candidates
+        .map((entry) => getYutorizeSw25FellowActionLabel(entry))
+        .filter(Boolean)
+        .join("／") || "行動なし";
+    const sanitizedChoice = sanitizeYutorizeSw25ChoiceItem(actionChoice);
+    const outcomeCount = group.dice.split("・").length;
+    for (let i = 0; i < outcomeCount; i += 1) {
+      choiceItems.push(sanitizedChoice);
     }
-    const choiceItems = candidates.map((entry) =>
-      sanitizeYutorizeSw25ChoiceItem(entry.command),
-    );
-    commands.push(
-      `choice(${choiceItems.join(",")}) フェロー行動（出目${group.dice}）`,
-    );
   });
+  const commands = [
+    "### ■フェロー行動表",
+    `choice(${choiceItems.join(",")}) フェロー行動表`,
+  ];
 
   const effectCommands = buildYutorizeSw25FellowEffectCommands(entries);
   if (effectCommands.length) {
