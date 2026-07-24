@@ -524,13 +524,6 @@ body {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.shinobigami-info-usage {
-  margin: 3px 0;
-  color: #fff;
-  font-size: 0.92em;
-  font-weight: 700;
-}
-
 .shinobigami-info-controls {
   display: flex;
   justify-content: center;

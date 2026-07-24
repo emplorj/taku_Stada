@@ -3416,8 +3416,7 @@ function buildShinobigamiMemo(shinobigamiData) {
   lines.push(`PL：${cleanText(base.player) || "○○"}`);
   lines.push(
     `流儀：${cleanText(base.stylerule) || "-"}`,
-    `仇敵：${cleanText(base.foe) || "-"}`,
-    `信念：${cleanText(base.belief) || "-"}`,
+    `仇敵：${cleanText(base.foe) || "-"}　信念：${cleanText(base.belief) || "-"}`,
     "【表の使命】",
   );
   if (mission) lines.push(mission);
