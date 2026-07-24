@@ -538,14 +538,17 @@ body {
 
 .shinobigami-info-controls input {
   display: inline-block;
-  width: 64px;
-  padding: 4px 6px;
+  width: 82px;
+  min-height: 40px;
+  padding: 6px 10px;
   box-sizing: border-box;
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.94);
   color: #142333;
   text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 .shinobigami-info-editor {
@@ -584,6 +587,19 @@ body {
   font-weight: 700;
 }
 
+.shinobigami-emotion-select {
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 6px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #142333;
+  font-weight: 700;
+  text-align: center;
+}
+
 .shinobigami-info-toggle:hover {
   background: rgba(255, 255, 255, 0.18);
 }
@@ -616,11 +632,6 @@ body {
   line-height: 1.35;
 }
 
-#shinobigamiInfoOutput:disabled {
-  opacity: 1;
-  -webkit-text-fill-color: #f3fbff;
-}
-
 .shinobigami-info-copy-btn {
   position: absolute;
   top: 8px;
@@ -633,6 +644,14 @@ body {
   background: #2a9d69;
   color: #fff;
   cursor: pointer;
+}
+
+.shinobigami-info-import-btn.hoha {
+  display: block;
+  width: auto;
+  min-width: 180px;
+  margin: 8px auto 0;
+  padding: 5px 16px;
 }
 
 .shinobigami-info-copy-btn:hover:not(:disabled) {

@@ -77,6 +77,9 @@ const shinobigamiInfoOutputArea = document.getElementById(
 const copyShinobigamiInfoButton = document.getElementById(
   "copyShinobigamiInfoButton",
 );
+const importShinobigamiInfoButton = document.getElementById(
+  "importShinobigamiInfoButton",
+);
 
 let toastTimer = null;
 let progressTimer = null;
@@ -462,12 +465,28 @@ function setShinobigamiInfoSectionVisible(visible) {
 
 function createShinobigamiInfoRow() {
   return {
-    emotion: false,
+    emotion: "なし",
     secret: false,
     location: false,
     ougi: false,
   };
 }
+
+const SHINOBIGAMI_EMOTION_OPTIONS = [
+  "なし",
+  "共感",
+  "不信",
+  "友情",
+  "怒り",
+  "愛情",
+  "妬み",
+  "忠誠",
+  "侮蔑",
+  "憧憬",
+  "劣等感",
+  "狂信",
+  "殺意",
+];
 
 function clampShinobigamiPlayerCount(value) {
   const count = Number.parseInt(String(value || ""), 10);
@@ -505,13 +524,13 @@ function buildShinobigamiInfoText() {
   ];
   shinobigamiInfoState.rows.forEach((row, index) => {
     const pc = `ＰＣ${toFullWidthDigits(index + 1)}`;
-    const emotion = row.emotion ? "◯  " : "なし";
+    const emotion = SHINOBIGAMI_EMOTION_OPTIONS.includes(row.emotion)
+      ? row.emotion
+      : "なし";
     const secret = row.secret ? "◯" : "✕";
     const location = row.location ? "◯" : "✕";
     const ougi = row.ougi ? "◯" : "✕";
-    lines.push(
-      `${pc}　${emotion}  　${secret}　 　${location} 　   ${ougi}`,
-    );
+    lines.push(`${pc}　${emotion}  　${secret}　 　${location} 　   ${ougi}`);
   });
   return lines.join("\n");
 }
@@ -550,12 +569,24 @@ function renderShinobigamiInfoEditor() {
     pcLabel.textContent = `PC${rowIndex + 1}`;
     rowElement.appendChild(pcLabel);
 
+    const emotionSelect = document.createElement("select");
+    emotionSelect.className = "shinobigami-emotion-select";
+    emotionSelect.dataset.rowIndex = String(rowIndex);
+    emotionSelect.setAttribute("aria-label", `PC${rowIndex + 1} 感情`);
+    SHINOBIGAMI_EMOTION_OPTIONS.forEach((emotion) => {
+      const option = document.createElement("option");
+      option.value = emotion;
+      option.textContent = emotion;
+      option.selected = emotion === row.emotion;
+      emotionSelect.appendChild(option);
+    });
+    rowElement.appendChild(emotionSelect);
+
     [
-      ["emotion", row.emotion, "◯", "なし"],
-      ["secret", row.secret, "◯", "✕"],
+      ["secret", row.secret, "◯", "✕", "秘密"],
       ["location", row.location, "◯", "✕"],
       ["ougi", row.ougi, "◯", "✕"],
-    ].forEach(([field, acquired, acquiredLabel, emptyLabel]) => {
+    ].forEach(([field, acquired, acquiredLabel, emptyLabel, label]) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "shinobigami-info-toggle";
@@ -565,13 +596,64 @@ function renderShinobigamiInfoEditor() {
       button.textContent = acquired ? acquiredLabel : emptyLabel;
       button.setAttribute(
         "aria-label",
-        `PC${rowIndex + 1} ${field} ${acquired ? "取得済み" : "未取得"}`,
+        `PC${rowIndex + 1} ${label || (field === "location" ? "居所" : "奥義")} ${acquired ? "取得済み" : "未取得"}`,
       );
       button.setAttribute("aria-pressed", acquired ? "true" : "false");
       rowElement.appendChild(button);
     });
     shinobigamiInfoEditor.appendChild(rowElement);
   });
+}
+
+function isShinobigamiAcquiredMark(value) {
+  return /^(?:◯|○|⭕)$/.test(String(value || "").trim());
+}
+
+function fromFullWidthDigits(value) {
+  return String(value || "").replace(/[０-９]/g, (digit) =>
+    String.fromCharCode(digit.charCodeAt(0) - 0xfee0),
+  );
+}
+
+function importShinobigamiInfoText(text) {
+  const sourceLines = String(text || "").split(/\r?\n/);
+  const importedRows = new Map();
+
+  sourceLines.forEach((line) => {
+    const match = String(line || "").match(
+      /^ＰＣ([０-９0-9]+)[　\s]+(.+?)\s*$/,
+    );
+    if (!match) return;
+    const pcNumber = Number.parseInt(fromFullWidthDigits(match[1]), 10);
+    if (!Number.isInteger(pcNumber) || pcNumber < 1 || pcNumber > 6) return;
+    const values = String(match[2] || "")
+      .trim()
+      .split(/[　\s]+/)
+      .filter(Boolean);
+    if (values.length < 4) return;
+    importedRows.set(pcNumber, {
+      emotion: SHINOBIGAMI_EMOTION_OPTIONS.includes(values[0])
+        ? values[0]
+        : "なし",
+      secret: isShinobigamiAcquiredMark(values[1]),
+      location: isShinobigamiAcquiredMark(values[2]),
+      ougi: isShinobigamiAcquiredMark(values[3]),
+    });
+  });
+
+  if (!importedRows.size) return false;
+  const playerCount = Math.max(...importedRows.keys());
+  shinobigamiInfoState = {
+    rows: Array.from({ length: playerCount }, (_, index) =>
+      importedRows.get(index + 1) || createShinobigamiInfoRow(),
+    ),
+  };
+  if (shinobigamiPlayerCountInput) {
+    shinobigamiPlayerCountInput.value = String(playerCount);
+  }
+  renderShinobigamiInfoEditor();
+  renderShinobigamiInfoOutput();
+  return true;
 }
 
 function resizeShinobigamiInfoRows(countValue) {
@@ -1642,12 +1724,26 @@ if (shinobigamiInfoEditor) {
     const row = shinobigamiInfoState.rows[rowIndex];
     if (
       !row ||
-      !["emotion", "secret", "location", "ougi"].includes(field)
+      !["secret", "location", "ougi"].includes(field)
     ) {
       return;
     }
     row[field] = !row[field];
     renderShinobigamiInfoEditor();
+    renderShinobigamiInfoOutput();
+  });
+
+  shinobigamiInfoEditor.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+    if (!target.classList.contains("shinobigami-emotion-select")) return;
+    if (!shinobigamiInfoState || !Array.isArray(shinobigamiInfoState.rows)) {
+      return;
+    }
+    const rowIndex = Number(target.dataset.rowIndex || "-1");
+    const row = shinobigamiInfoState.rows[rowIndex];
+    if (!row || !SHINOBIGAMI_EMOTION_OPTIONS.includes(target.value)) return;
+    row.emotion = target.value;
     renderShinobigamiInfoOutput();
   });
 }
@@ -1664,6 +1760,27 @@ if (copyShinobigamiInfoButton && shinobigamiInfoOutputArea) {
       shinobigamiInfoOutputArea.value,
       "取得済み情報の管理文をコピーした！",
       "コピーできる管理文がまだ生成されていないようだ！",
+    );
+  });
+
+  shinobigamiInfoOutputArea.addEventListener("input", () => {
+    copyShinobigamiInfoButton.disabled =
+      !String(shinobigamiInfoOutputArea.value || "").trim();
+  });
+}
+
+if (importShinobigamiInfoButton && shinobigamiInfoOutputArea) {
+  importShinobigamiInfoButton.addEventListener("click", () => {
+    const imported = importShinobigamiInfoText(
+      shinobigamiInfoOutputArea.value,
+    );
+    if (imported) {
+      showToast("取得済み情報の管理文を読み込んだ！", "info");
+      return;
+    }
+    showToast(
+      "PC行を読み取れなかった。コピーした管理文の形式を確認してくれ！",
+      "error",
     );
   });
 }
