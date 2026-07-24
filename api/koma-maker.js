@@ -3407,18 +3407,21 @@ function buildDefaultShinobigamiInfoLines() {
 
 function buildShinobigamiMemo(shinobigamiData) {
   const base = (shinobigamiData && shinobigamiData.base) || {};
+  const scenario = (shinobigamiData && shinobigamiData.scenario) || {};
   const lines = [];
   const kana = cleanText(base.nameKana);
   const baseMemo = cleanText(base.memo);
+  const mission = cleanText(scenario.mission);
   if (kana) lines.push(kana);
   lines.push(`PL：${cleanText(base.player) || "○○"}`);
   lines.push(
+    `流儀：${cleanText(base.stylerule) || "-"}`,
+    `仇敵：${cleanText(base.foe) || "-"}`,
+    `信念：${cleanText(base.belief) || "-"}`,
     "【表の使命】",
-    "",
-    ...buildDefaultShinobigamiInfoLines(),
-    "",
-    "───",
   );
+  if (mission) lines.push(mission);
+  lines.push("", ...buildDefaultShinobigamiInfoLines(), "", "───");
   if (baseMemo) lines.push(baseMemo, "───");
   return lines.join("\n");
 }
