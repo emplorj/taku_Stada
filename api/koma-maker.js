@@ -2744,21 +2744,35 @@ function buildYutorizeSw25FellowCommands(data) {
     `choice(${choiceItems.join(",")}) フェロー行動表`,
   ];
 
-  const actionCommands = [
-    ...new Set(
-      entries
-        .map((entry) =>
-          String(entry.action || "")
-            .split(/\r?\n/)
-            .map((part) => part.trim())
-            .filter(Boolean)
-            .join("\\n"),
-        )
-        .filter(Boolean),
-    ),
-  ];
-  if (actionCommands.length) {
-    commands.push("", "### ■フェロー行動宣言", ...actionCommands);
+  const actionDeclarationCommands = [];
+  YUTORIZE_SW25_FELLOW_GROUPS.forEach((group) => {
+    const groupActions = [
+      ...new Set(
+        group.keys
+          .map((key) => byKey.get(key))
+          .filter(Boolean)
+          .map((entry) =>
+            String(entry.action || "")
+              .split(/\r?\n/)
+              .map((part) => part.trim())
+              .filter(Boolean)
+              .join("\\n"),
+          )
+          .filter(Boolean),
+      ),
+    ];
+    if (!groupActions.length) return;
+    actionDeclarationCommands.push(
+      `### ${group.dice.replace(/・/g, ",")}：`,
+      ...groupActions,
+    );
+  });
+  if (actionDeclarationCommands.length) {
+    commands.push(
+      "",
+      "### ■フェロー行動宣言",
+      ...actionDeclarationCommands,
+    );
   }
 
   const detailCommands = [
