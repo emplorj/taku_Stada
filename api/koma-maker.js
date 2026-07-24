@@ -2775,25 +2775,47 @@ function buildYutorizeSw25FellowCommands(data) {
     );
   }
 
-  const detailCommands = [
-    ...new Set(
-      entries
-        .map((entry) =>
-          [entry.action, entry.words, entry.note]
-            .filter(Boolean)
-            .flatMap((part) => String(part).split(/\r?\n/))
-            .map((part) => part.trim())
-            .filter(Boolean)
-            .join("\\n"),
-        )
-        .filter(Boolean),
-    ),
-  ];
+  const detailCommands = [];
+  YUTORIZE_SW25_FELLOW_GROUPS.forEach((group) => {
+    const groupDetails = [
+      ...new Set(
+        group.keys
+          .map((key) => byKey.get(key))
+          .filter(Boolean)
+          .map((entry) =>
+            [entry.action, entry.words, entry.note]
+              .filter(Boolean)
+              .flatMap((part) => String(part).split(/\r?\n/))
+              .map((part) => part.trim())
+              .filter(Boolean)
+              .join("\\n"),
+          )
+          .filter(Boolean),
+      ),
+    ];
+    if (!groupDetails.length) return;
+    detailCommands.push(
+      `### ${group.dice.replace(/・/g, ",")}：`,
+      ...groupDetails,
+    );
+  });
   if (detailCommands.length) {
     commands.push("", "### ■フェロー行動詳細", ...detailCommands);
   }
 
-  const effectCommands = buildYutorizeSw25FellowEffectCommands(entries);
+  const effectCommands = [];
+  YUTORIZE_SW25_FELLOW_GROUPS.forEach((group) => {
+    const groupEntries = group.keys
+      .map((key) => byKey.get(key))
+      .filter(Boolean);
+    const groupEffects =
+      buildYutorizeSw25FellowEffectCommands(groupEntries);
+    if (!groupEffects.length) return;
+    effectCommands.push(
+      `### ${group.dice.replace(/・/g, ",")}：`,
+      ...groupEffects,
+    );
+  });
   if (effectCommands.length) {
     commands.push("", "### ■フェロー効果", ...effectCommands);
   }
