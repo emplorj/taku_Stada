@@ -2621,6 +2621,7 @@ function getYutorizeSw25FellowEntries(data) {
       roll,
       action,
       words,
+      target,
       note,
       command: parts.join("\\n"),
     };
@@ -2746,26 +2747,30 @@ function buildYutorizeSw25FellowCommands(data) {
 
   const actionDeclarationCommands = [];
   YUTORIZE_SW25_FELLOW_GROUPS.forEach((group) => {
-    const groupActions = [
-      ...new Set(
-        group.keys
-          .map((key) => byKey.get(key))
-          .filter(Boolean)
-          .map((entry) =>
-            String(entry.action || "")
-              .split(/\r?\n/)
-              .map((part) => part.trim())
-              .filter(Boolean)
-              .join("\\n"),
-          )
-          .filter(Boolean),
-      ),
-    ];
-    if (!groupActions.length) return;
+    const groupEntries = group.keys
+      .map((key) => byKey.get(key))
+      .filter(Boolean);
+    if (!groupEntries.length) return;
     actionDeclarationCommands.push(
       `### ${group.dice.replace(/・/g, ",")}：`,
-      ...groupActions,
     );
+    groupEntries.forEach((entry) => {
+      const declaration = [
+        entry.action,
+        entry.words,
+        entry.target ? `達成値：${entry.target}` : "",
+        entry.note,
+      ]
+        .filter(Boolean)
+        .flatMap((part) => String(part).split(/\r?\n/))
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .join("\\n");
+      if (declaration) actionDeclarationCommands.push(declaration);
+      actionDeclarationCommands.push(
+        ...buildYutorizeSw25FellowEffectCommands([entry]),
+      );
+    });
   });
   if (actionDeclarationCommands.length) {
     commands.push(
@@ -2773,51 +2778,6 @@ function buildYutorizeSw25FellowCommands(data) {
       "### ■フェロー行動宣言",
       ...actionDeclarationCommands,
     );
-  }
-
-  const detailCommands = [];
-  YUTORIZE_SW25_FELLOW_GROUPS.forEach((group) => {
-    const groupDetails = [
-      ...new Set(
-        group.keys
-          .map((key) => byKey.get(key))
-          .filter(Boolean)
-          .map((entry) =>
-            [entry.action, entry.words, entry.note]
-              .filter(Boolean)
-              .flatMap((part) => String(part).split(/\r?\n/))
-              .map((part) => part.trim())
-              .filter(Boolean)
-              .join("\\n"),
-          )
-          .filter(Boolean),
-      ),
-    ];
-    if (!groupDetails.length) return;
-    detailCommands.push(
-      `### ${group.dice.replace(/・/g, ",")}：`,
-      ...groupDetails,
-    );
-  });
-  if (detailCommands.length) {
-    commands.push("", "### ■フェロー行動詳細", ...detailCommands);
-  }
-
-  const effectCommands = [];
-  YUTORIZE_SW25_FELLOW_GROUPS.forEach((group) => {
-    const groupEntries = group.keys
-      .map((key) => byKey.get(key))
-      .filter(Boolean);
-    const groupEffects =
-      buildYutorizeSw25FellowEffectCommands(groupEntries);
-    if (!groupEffects.length) return;
-    effectCommands.push(
-      `### ${group.dice.replace(/・/g, ",")}：`,
-      ...groupEffects,
-    );
-  });
-  if (effectCommands.length) {
-    commands.push("", "### ■フェロー効果", ...effectCommands);
   }
   return commands.join("\n");
 }
