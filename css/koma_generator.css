@@ -1062,7 +1062,7 @@ body.koma-maker-page {
   line-height: 1.25;
 }
 
-.koma-maker-page .koma-output-copy-button {
+.koma-maker-page .item-box-card .hoha.koma-output-copy-button {
   display: block;
   width: auto;
   min-width: 120px;
