@@ -2637,12 +2637,16 @@ function buildYutorizeSw25FellowEffectCommands(entries) {
   };
   entries.forEach((entry) => {
     const note = String(entry && entry.note ? entry.note : "");
+    const actionLabel = String(entry && entry.action ? entry.action : "")
+      .split(/\r?\n/)
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .join("／");
+    const commandLabel = actionLabel ? `（${actionLabel}）` : "";
     let match;
     const fixedDamagePattern = /確定\s*(\d+)\s*ダメージ/g;
     while ((match = fixedDamagePattern.exec(note)) !== null) {
-      addCommand(
-        `C(${match[1]}) 確定ダメージ（想定出目${entry.roll}）`,
-      );
+      addCommand(`C(${match[1]}) 確定ダメージ${commandLabel}`);
     }
 
     const japaneseRatePattern =
@@ -2662,7 +2666,7 @@ function buildYutorizeSw25FellowEffectCommands(entries) {
             ? "魔法ダメージ"
             : "ダメージ";
       addCommand(
-        `k${rate}${critical}${modifier} ${effectLabel}（想定出目${entry.roll}）`,
+        `k${rate}${critical}${modifier} ${effectLabel}${commandLabel}`,
       );
     }
 
@@ -2670,14 +2674,14 @@ function buildYutorizeSw25FellowEffectCommands(entries) {
       /[「『【]?\s*(\d+(?:\s*(?:\+|-|\*|\/)\s*\d+)*)\s*[」』】]?\s*点\s*回復/g;
     while ((match = fixedRecoveryPattern.exec(note)) !== null) {
       const formula = String(match[1] || "").replace(/\s+/g, "");
-      addCommand(`C(${formula}) 回復（想定出目${entry.roll}）`);
+      addCommand(`C(${formula}) 回復${commandLabel}`);
     }
 
     const temporaryHpPattern =
       /(?:体力|HP)[^「『【\d]{0,12}[「『【]?\s*(\d+(?:\s*(?:\+|-|\*|\/)\s*\d+)*)\s*[」』】]?\s*点\s*追加/gi;
     while ((match = temporaryHpPattern.exec(note)) !== null) {
       const formula = String(match[1] || "").replace(/\s+/g, "");
-      addCommand(`C(${formula}) HP追加（想定出目${entry.roll}）`);
+      addCommand(`C(${formula}) HP追加${commandLabel}`);
     }
 
     const ratePattern =
@@ -2690,7 +2694,7 @@ function buildYutorizeSw25FellowEffectCommands(entries) {
       const effectLabel = /^\s*(?:の)?\s*回復/.test(after)
         ? "回復"
         : "ダメージ";
-      addCommand(`${formula} ${effectLabel}（想定出目${entry.roll}）`);
+      addCommand(`${formula} ${effectLabel}${commandLabel}`);
     }
   });
   return commands;
