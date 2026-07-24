@@ -3243,7 +3243,12 @@ function getDataStellarSheath(stellarData, url) {
       secret: false,
       invisible: false,
       hideStatus: false,
-      commands: "",
+      commands: [
+        ":投げブーケ+1",
+        ":投げブーケ+2",
+        ":投げブーケ+3",
+        ":投げブーケ=0",
+      ].join("\n"),
     },
   };
 }

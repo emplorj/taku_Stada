@@ -125,7 +125,15 @@ function invoke(body) {
     { label: "投げブーケ", value: "0", max: "0" },
   ]);
   assert.deepEqual(sheathOutput.data.params, []);
-  assert.equal(sheathOutput.data.commands, "");
+  assert.equal(
+    sheathOutput.data.commands,
+    [
+      ":投げブーケ+1",
+      ":投げブーケ+2",
+      ":投げブーケ+3",
+      ":投げブーケ=0",
+    ].join("\n"),
+  );
 
   const hidden = await invoke({
     sheet: sheetUrl,
