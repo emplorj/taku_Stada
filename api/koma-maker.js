@@ -2666,6 +2666,20 @@ function buildYutorizeSw25FellowEffectCommands(entries) {
       );
     }
 
+    const fixedRecoveryPattern =
+      /[「『【]?\s*(\d+(?:\s*(?:\+|-|\*|\/)\s*\d+)*)\s*[」』】]?\s*点\s*回復/g;
+    while ((match = fixedRecoveryPattern.exec(note)) !== null) {
+      const formula = String(match[1] || "").replace(/\s+/g, "");
+      addCommand(`C(${formula}) 回復（想定出目${entry.roll}）`);
+    }
+
+    const temporaryHpPattern =
+      /(?:体力|HP)[^「『【\d]{0,12}[「『【]?\s*(\d+(?:\s*(?:\+|-|\*|\/)\s*\d+)*)\s*[」』】]?\s*点\s*追加/gi;
+    while ((match = temporaryHpPattern.exec(note)) !== null) {
+      const formula = String(match[1] || "").replace(/\s+/g, "");
+      addCommand(`C(${formula}) HP追加（想定出目${entry.roll}）`);
+    }
+
     const ratePattern =
       /k\d+(?:\[[^\]\r\n]+\])?(?:(?:\+|-)(?:魔力点?|[0-9]+))*/gi;
     while ((match = ratePattern.exec(note)) !== null) {
