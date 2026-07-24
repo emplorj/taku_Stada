@@ -2584,6 +2584,13 @@ const YUTORIZE_SW25_FELLOW_SLOTS = [
   { key: "6-2", roll: 3 },
 ];
 
+const YUTORIZE_SW25_FELLOW_GROUPS = [
+  { dice: "1・2", keys: ["1", "1-2"] },
+  { dice: "3・4", keys: ["3", "3-2"] },
+  { dice: "5", keys: ["5", "5-2"] },
+  { dice: "6", keys: ["6", "6-2"] },
+];
+
 function cleanYutorizeRichText(value) {
   return decodeHtml(value)
     .replace(/<br\s*\/?>/gi, "\n")
@@ -2592,11 +2599,10 @@ function cleanYutorizeRichText(value) {
     .trim();
 }
 
-function buildYutorizeSw25FellowCommands(data) {
-  const commands = ["1d フェロー行動表"];
-  YUTORIZE_SW25_FELLOW_SLOTS.forEach(({ key, roll }) => {
+function getYutorizeSw25FellowEntries(data) {
+  return YUTORIZE_SW25_FELLOW_SLOTS.map(({ key, roll }) => {
     const action = cleanYutorizeRichText(data && data[`fellow${key}Action`]);
-    if (!action) return;
+    if (!action) return null;
     const words = cleanYutorizeRichText(data && data[`fellow${key}Words`]);
     const target = cleanYutorizeRichText(data && data[`fellow${key}Num`]);
     const note = cleanYutorizeRichText(data && data[`fellow${key}Note`]);
@@ -2610,9 +2616,97 @@ function buildYutorizeSw25FellowCommands(data) {
       .flatMap((part) => String(part).split("\n"))
       .map((part) => part.trim())
       .filter(Boolean);
-    commands.push(parts.join("\\n"));
+    return { key, roll, action, note, command: parts.join("\\n") };
+  }).filter(Boolean);
+}
+
+function sanitizeYutorizeSw25ChoiceItem(value) {
+  return String(value || "")
+    .replace(/,/g, "，")
+    .replace(/\(/g, "（")
+    .replace(/\)/g, "）");
+}
+
+function buildYutorizeSw25FellowEffectCommands(entries) {
+  const commands = [];
+  const seen = new Set();
+  entries.forEach((entry) => {
+    const note = String(entry && entry.note ? entry.note : "");
+    let match;
+    const fixedDamagePattern = /確定\s*(\d+)\s*ダメージ/g;
+    while ((match = fixedDamagePattern.exec(note)) !== null) {
+      const command = `C(${match[1]}) 確定ダメージ（想定出目${entry.roll}）`;
+      if (!seen.has(command)) {
+        commands.push(command);
+        seen.add(command);
+      }
+    }
+
+    const ratePattern =
+      /k\d+(?:\[[^\]\r\n]+\])?(?:(?:\+|-)(?:魔力点?|[0-9]+))*/gi;
+    while ((match = ratePattern.exec(note)) !== null) {
+      const rawFormula = String(match[0] || "");
+      if (!rawFormula) continue;
+      const formula = rawFormula.replace(/魔力点?/g, "{魔力}");
+      const after = note.slice(match.index + rawFormula.length);
+      const effectLabel = /^\s*(?:の)?\s*回復/.test(after)
+        ? "回復"
+        : "ダメージ";
+      const command = `${formula} ${effectLabel}（想定出目${entry.roll}）`;
+      if (!seen.has(command)) {
+        commands.push(command);
+        seen.add(command);
+      }
+    }
   });
-  return commands.length > 1 ? commands.join("\n") : "";
+  return commands;
+}
+
+function buildYutorizeSw25FellowCommands(data) {
+  const entries = getYutorizeSw25FellowEntries(data);
+  if (!entries.length) return "";
+
+  const byKey = new Map(entries.map((entry) => [entry.key, entry]));
+  const commands = ["### ■フェロー行動表", "1d フェロー行動表"];
+  YUTORIZE_SW25_FELLOW_GROUPS.forEach((group) => {
+    const candidates = group.keys
+      .map((key) => byKey.get(key))
+      .filter(Boolean);
+    if (!candidates.length) return;
+    if (candidates.length === 1) {
+      const candidate = candidates[0];
+      const directCommand = candidate.command.replace(
+        /^【\d+】/,
+        `【出目${group.dice}／想定${candidate.roll}】`,
+      );
+      commands.push(directCommand);
+      return;
+    }
+    const choiceItems = candidates.map((entry) =>
+      sanitizeYutorizeSw25ChoiceItem(entry.command),
+    );
+    commands.push(
+      `choice(${choiceItems.join(",")}) フェロー行動（出目${group.dice}）`,
+    );
+  });
+
+  const effectCommands = buildYutorizeSw25FellowEffectCommands(entries);
+  if (effectCommands.length) {
+    commands.push("", "### ■フェロー効果", ...effectCommands);
+  }
+  return commands.join("\n");
+}
+
+function getYutorizeSw25MagicPower(data) {
+  return Object.entries(data || {}).reduce((max, [key, value]) => {
+    if (
+      !/^magicPower[A-Z]/.test(key) ||
+      /^magicPower(?:Add|Own|Equip|Enhance)/.test(key)
+    ) {
+      return max;
+    }
+    return Math.max(max, toInt(value, 0));
+  }, 0);
 }
 
 function getDataYutorizeSw25Fellow(data, baseCharacter, opt) {
@@ -2624,6 +2718,13 @@ function getDataYutorizeSw25Fellow(data, baseCharacter, opt) {
     out.data.memo = [out.data.memo, "【フェロープロフィール】", profile]
       .filter(Boolean)
       .join("\n\n");
+  }
+  const magicPower = getYutorizeSw25MagicPower(data);
+  if (
+    magicPower > 0 &&
+    !out.data.params.some((item) => item && item.label === "魔力")
+  ) {
+    out.data.params.push({ label: "魔力", value: String(magicPower) });
   }
   out.data.commands = fellowCommands;
   return out;

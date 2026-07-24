@@ -11,7 +11,7 @@
   <link rel="icon" href="img/ash.png" type="image/png">
   <link rel="apple-touch-icon" href="img/ash.png">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/koma_generator.css?v=20260725-yutorize-sw25-fellow">
+  <link rel="stylesheet" href="css/koma_generator.css?v=20260725-fellow-choice">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
@@ -79,21 +79,21 @@
                 <span id="primaryKomaOutputTitle">コマ出力</span>
               </div>
               <textarea id="output" class="koma-output-textarea" disabled>ここに情報が出力される。よく見ておくんだな</textarea>
-              <button id="copyButton" class="hoha" type="button" disabled>コピー</button>
+              <button id="copyButton" class="hoha koma-output-copy-button" type="button" disabled>コピー</button>
             </section>
             <section id="stellarSheathSection" class="item-box-card koma-output-card" style="display:none;">
               <div class="item-box-header">
                 <span>シース用コマ（投げブーケ）</span>
               </div>
               <textarea id="stellarSheathOutput" class="koma-output-textarea" disabled>ここにシース用コマが出力される。</textarea>
-              <button id="copyStellarSheathButton" class="hoha" type="button" disabled>シースをコピー</button>
+              <button id="copyStellarSheathButton" class="hoha koma-output-copy-button" type="button" disabled>シースをコピー</button>
             </section>
             <section id="sw25FellowSection" class="item-box-card koma-output-card" style="display:none;">
               <div class="item-box-header">
                 <span>フェロー出力</span>
               </div>
               <textarea id="sw25FellowOutput" class="koma-output-textarea" disabled>ここにフェロー用コマが出力される。</textarea>
-              <button id="copySw25FellowButton" class="hoha" type="button" disabled>フェローをコピー</button>
+              <button id="copySw25FellowButton" class="hoha koma-output-copy-button" type="button" disabled>フェローをコピー</button>
             </section>
           </div>
           <div id="nechronicaSection" class="nechronica-section" style="display:none;">
@@ -234,7 +234,7 @@
 
   <script src="js/common.js"></script>
   <script src="js/enemies-shared.js"></script>
-  <script src="js/koma-maker-page.js?v=20260725-yutorize-sw25-fellow"></script>
+  <script src="js/koma-maker-page.js?v=20260725-fellow-choice"></script>
 </body>
 
 </html>

@@ -1062,8 +1062,7 @@ body.koma-maker-page {
   line-height: 1.25;
 }
 
-.koma-maker-page #copyButton,
-.koma-maker-page #copyStellarSheathButton {
+.koma-maker-page .koma-output-copy-button {
   display: block;
   width: auto;
   min-width: 120px;

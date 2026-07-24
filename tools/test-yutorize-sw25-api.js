@@ -17,6 +17,7 @@ const fixture = {
   mpTotal: "36",
   lvCaster: "6",
   lvBar: "0",
+  magicPowerBib: "10",
   unitStatus: [
     { HP: "30/30" },
     { MP: "36/36" },
@@ -26,10 +27,14 @@ const fixture = {
   fellow1Action: "[補]悪意の針&lt;br&gt;[主]貫く光条",
   fellow1Words: "「大地ごと抉ってやろう！」",
   fellow1Num: "17",
-  fellow1Note: "1体／確定2ダメージ",
+  fellow1Note: "1体／確定2ダメージ、k30+魔力ダメージ",
   "fellow1-2Action": "スカウト運動判定",
   "fellow1-2Words": "「風の如し！」",
   "fellow1-2Num": "13",
+  fellow3Action: "肉体修復",
+  fellow3Words: "「まだ戦えるだろう？」",
+  fellow3Num: "15",
+  fellow3Note: "1体／k20+魔力回復",
   fellowProfile: "フェローの紹介&lt;br&gt;&lt;br&gt;二段落目",
 };
 
@@ -143,14 +148,24 @@ function invoke(body) {
   const fellow = JSON.parse(response.body.sw25FellowOut);
   assert.equal(fellow.data.name, output.data.name);
   assert.deepEqual(fellow.data.status, output.data.status);
+  assert.deepEqual(fellow.data.params.at(-1), {
+    label: "魔力",
+    value: "10",
+  });
   assert.ok(fellow.data.memo.includes("【フェロープロフィール】"));
   assert.ok(fellow.data.memo.includes("フェローの紹介\n\n二段落目"));
   assert.equal(
     fellow.data.commands,
     [
+      "### ■フェロー行動表",
       "1d フェロー行動表",
-      "【7】[補]悪意の針\\n[主]貫く光条\\n「大地ごと抉ってやろう！」\\n達成値：17\\n効果：1体／確定2ダメージ",
-      "【6】スカウト運動判定\\n「風の如し！」\\n達成値：13",
+      "choice(【7】[補]悪意の針\\n[主]貫く光条\\n「大地ごと抉ってやろう！」\\n達成値：17\\n効果：1体／確定2ダメージ、k30+魔力ダメージ,【6】スカウト運動判定\\n「風の如し！」\\n達成値：13) フェロー行動（出目1・2）",
+      "【出目3・4／想定8】肉体修復\\n「まだ戦えるだろう？」\\n達成値：15\\n効果：1体／k20+魔力回復",
+      "",
+      "### ■フェロー効果",
+      "C(2) 確定ダメージ（想定出目7）",
+      "k30+{魔力} ダメージ（想定出目7）",
+      "k20+{魔力} 回復（想定出目8）",
     ].join("\n"),
   );
 
