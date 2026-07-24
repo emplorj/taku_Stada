@@ -3417,9 +3417,9 @@ function buildShinobigamiMemo(shinobigamiData) {
     "",
     ...buildDefaultShinobigamiInfoLines(),
     "",
-    "その他",
+    "───",
   );
-  if (baseMemo) lines.push(baseMemo);
+  if (baseMemo) lines.push(baseMemo, "───");
   return lines.join("\n");
 }
 

@@ -594,10 +594,35 @@ function replaceShinobigamiInfoBlockInMemo(memo, infoText) {
   ) {
     endIndex += 1;
   }
+  const tailLines = sourceLines.slice(endIndex);
+  let firstContentIndex = tailLines.findIndex(
+    (line) => String(line || "").trim() !== "",
+  );
+  if (
+    firstContentIndex >= 0 &&
+    String(tailLines[firstContentIndex] || "").trim() === "その他"
+  ) {
+    const legacyMemoLines = tailLines
+      .slice(firstContentIndex + 1)
+      .filter(
+        (line, index, values) =>
+          String(line || "").trim() !== "" ||
+          (index > 0 && index < values.length - 1),
+      );
+    const normalizedTail = ["", "───"];
+    if (legacyMemoLines.some((line) => String(line || "").trim())) {
+      normalizedTail.push(...legacyMemoLines, "───");
+    }
+    return [
+      ...sourceLines.slice(0, startIndex),
+      ...replacementLines,
+      ...normalizedTail,
+    ].join("\n");
+  }
   return [
     ...sourceLines.slice(0, startIndex),
     ...replacementLines,
-    ...sourceLines.slice(endIndex),
+    ...tailLines,
   ].join("\n");
 }
 

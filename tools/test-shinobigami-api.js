@@ -115,9 +115,10 @@ function invoke(body) {
       "ＰＣ３　なし　　　✕　　✕　　✕",
       "ＰＣ４　なし　　　✕　　✕　　✕",
       "",
-      "その他",
+      "───",
       "キャラクター設定",
       "関係ないメモも保持する。",
+      "───",
     ].join("\n"),
   );
   assert.equal(
@@ -161,6 +162,20 @@ function invoke(body) {
     ),
   );
   assert.ok(output.data.commands.endsWith("OTFK 【不良高校シーン表】\n"));
+
+  fixture.base.memo = "";
+  const noBaseMemo = await invoke({
+    sheet: sheetUrl,
+    nomemo: "false",
+    nochp: "true",
+  });
+  const noBaseMemoOutput = JSON.parse(noBaseMemo.body.out);
+  assert.ok(noBaseMemoOutput.data.memo.endsWith("\n───"));
+  assert.equal(
+    noBaseMemoOutput.data.memo.split("\n").filter((line) => line === "───")
+      .length,
+    1,
+  );
 
   const hidden = await invoke({
     sheet: sheetUrl,
