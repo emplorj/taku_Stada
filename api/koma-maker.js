@@ -2616,7 +2616,14 @@ function getYutorizeSw25FellowEntries(data) {
       .flatMap((part) => String(part).split("\n"))
       .map((part) => part.trim())
       .filter(Boolean);
-    return { key, roll, action, note, command: parts.join("\\n") };
+    return {
+      key,
+      roll,
+      action,
+      words,
+      note,
+      command: parts.join("\\n"),
+    };
   }).filter(Boolean);
 }
 
@@ -2751,6 +2758,24 @@ function buildYutorizeSw25FellowCommands(data) {
     commands.push("", "### ■フェロー行動宣言", ...actionCommands);
   }
 
+  const detailCommands = [
+    ...new Set(
+      entries
+        .map((entry) =>
+          [entry.action, entry.words, entry.note]
+            .filter(Boolean)
+            .flatMap((part) => String(part).split(/\r?\n/))
+            .map((part) => part.trim())
+            .filter(Boolean)
+            .join("\\n"),
+        )
+        .filter(Boolean),
+    ),
+  ];
+  if (detailCommands.length) {
+    commands.push("", "### ■フェロー行動詳細", ...detailCommands);
+  }
+
   const effectCommands = buildYutorizeSw25FellowEffectCommands(entries);
   if (effectCommands.length) {
     commands.push("", "### ■フェロー効果", ...effectCommands);
@@ -2777,11 +2802,12 @@ function getDataYutorizeSw25Fellow(data, baseCharacter, opt) {
     : "";
   if (!fellowCommands) return null;
   const out = JSON.parse(JSON.stringify(baseCharacter));
-  out.data.memo = "";
-  out.data.params =
-    magicPower > 0
-      ? [{ label: "魔力", value: String(magicPower) }]
-      : [];
+  if (
+    magicPower > 0 &&
+    !out.data.params.some((item) => item && item.label === "魔力")
+  ) {
+    out.data.params.push({ label: "魔力", value: String(magicPower) });
+  }
   out.data.commands = fellowCommands;
   return out;
 }

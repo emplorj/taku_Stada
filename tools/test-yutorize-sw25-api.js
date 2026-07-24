@@ -157,8 +157,13 @@ function invoke(body) {
   const fellow = JSON.parse(response.body.sw25FellowOut);
   assert.equal(fellow.data.name, output.data.name);
   assert.deepEqual(fellow.data.status, output.data.status);
-  assert.deepEqual(fellow.data.params, [{ label: "魔力", value: "10" }]);
-  assert.equal(fellow.data.memo, "");
+  assert.deepEqual(fellow.data.params, [
+    ...output.data.params,
+    { label: "魔力", value: "10" },
+  ]);
+  assert.equal(fellow.data.memo, output.data.memo);
+  assert.ok(!fellow.data.memo.includes("【フェロープロフィール】"));
+  assert.ok(!fellow.data.memo.includes("フェローの紹介"));
   assert.equal(
     fellow.data.commands,
     [
@@ -173,6 +178,13 @@ function invoke(body) {
       "肉体修復",
       "アースハンマー",
       "リムチョッパー投擲",
+      "",
+      "### ■フェロー行動詳細",
+      "[補]悪意の針\\n[主]貫く光条\\n「大地ごと抉ってやろう！」\\n1体／確定2ダメージ、k30+魔力ダメージ",
+      "スカウト運動判定\\n「風の如し！」",
+      "肉体修復\\n「まだ戦えるだろう？」\\n1体／k20+魔力回復、固定なら「8+4」点回復",
+      "アースハンマー\\n「メネフネさんの力で……！」\\nMP3　「威力10C値12+8」点物理ダメージ。一時的に体力を「8」点追加",
+      "リムチョッパー投擲\\n「思いっきり……！」\\n「威力43C値11+8」点物理ダメージ",
       "",
       "### ■フェロー効果",
       "k30+{魔力} ダメージ（[補]悪意の針／[主]貫く光条）",
