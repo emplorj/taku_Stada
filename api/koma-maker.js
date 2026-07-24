@@ -1848,6 +1848,14 @@ async function fetchAndIdentifySystem(url) {
     return { system: "Stellar", html: "", stellarData };
   }
 
+  if (lower.includes("character-sheets.appspot.com/shinobigami/")) {
+    const shinobigamiData = await fetchAppspotDisplayJson(url, "shinobigami");
+    if (!shinobigamiData) {
+      throw new Error("シノビガミのJSON取得に失敗したぞ。");
+    }
+    return { system: "Shinobigami", html: "", shinobigamiData };
+  }
+
   if (lower.includes("character-sheets.appspot.com/satasupe/")) {
     let html;
     try {
@@ -3258,6 +3266,213 @@ function getDataStellarSheath(stellarData, url) {
   };
 }
 
+const SHINOBIGAMI_SKILL_TABLE = [
+  ["絡繰術", "騎乗術", "生存術", "医術", "兵糧術", "異形化"],
+  ["火術", "砲術", "潜伏術", "毒術", "鳥獣術", "召喚術"],
+  ["水術", "手裏剣術", "遁走術", "罠術", "野戦術", "死霊術"],
+  ["針術", "手練", "盗聴術", "調査術", "地の利", "結界術"],
+  ["仕込み", "身体操術", "腹話術", "詐術", "意気", "封術"],
+  ["衣装術", "歩法", "隠形術", "対人術", "用兵術", "言霊術"],
+  ["縄術", "走法", "変装術", "遊芸", "記憶術", "幻術"],
+  ["登術", "飛術", "香術", "九ノ一の術", "見敵術", "瞳術"],
+  ["拷問術", "骨法術", "分身の術", "傀儡の術", "暗号術", "千里眼の術"],
+  ["壊器術", "刀術", "隠蔽術", "流言の術", "伝達術", "憑依術"],
+  ["掘削術", "怪力", "第六感", "経済力", "人脈", "呪術"],
+];
+
+const SHINOBIGAMI_GENERIC_COMMANDS = [
+  "＝＝＝＝＝汎用ダイス＝＝＝＝＝",
+  "d66",
+  "1d6",
+  "2d6",
+  "",
+  "＝＝＝＝＝各種表＝＝＝＝＝",
+  "ST 【シーン表】",
+  "ET 【感情表】",
+  "BT 【戦場表】",
+  "BNT 【新戦場表】",
+  "FT 【ファンブル表】",
+  "WT 【変調表】",
+  "GWT 【戦国変調表】",
+  "YWT 【妖術変調対応表】",
+  "YWT1 【妖術変調対応表-現代】",
+  "YWT2 【妖術変調対応表-戦国】",
+  "MT 【異形表一括】",
+  "MTR 【異形表】",
+  "DSA 【妖魔忍法表A】",
+  "DSB 【妖魔忍法表B】",
+  "DSC 【妖魔忍法表C】",
+  "NMT 【新異形表一括】",
+  "NMTR 【新異形表】",
+  "DSN1 【妖魔忍法表-異霊】",
+  "DSN2 【妖魔忍法表-凶身】",
+  "DSN3 【妖魔忍法表-神化】",
+  "DSN4 【妖魔忍法表-攻激】",
+  "OTAT 【覚醒表】",
+  "NCT1 【忍法授業シーン表-攻撃系】",
+  "NCT2 【忍法授業シーン表-防御系】",
+  "NCT3 【忍法授業シーン表-戦略系】",
+  "HRPT 【パニック表】",
+  "ONDT 【出物表】",
+  "RCT 【ランダム分野決定表】",
+  "RTT1 【ランダム特技決定(器術)】",
+  "RTT2 【ランダム特技決定(体術)】",
+  "RTT3 【ランダム特技決定(忍術)】",
+  "RTT4 【ランダム特技決定(謀術)】",
+  "RTT5 【ランダム特技決定(戦術)】",
+  "RTT6 【ランダム特技決定(妖術)】",
+  "OTS 【数奇効果表】",
+  "PT 【プライズ効果表】",
+];
+
+const SHINOBIGAMI_SCENE_COMMANDS = [
+  "＝＝＝＝＝各種シーン表＝＝＝＝＝",
+  "ST 【シーン表】",
+  "CST 【都市シーン表】",
+  "MST 【館シーン表】",
+  "DST 【出島シーン表】",
+  "TST 【トラブルシーン表】",
+  "NST 【日常シーン表】",
+  "KST 【回想シーン表】",
+  "TKST 【東京シーン表】",
+  "GST 【戦国シーン表】",
+  "GAST 【学校シーン表】",
+  "KYST 【京都シーン表】",
+  "JBST 【神社仏閣シーン表】",
+  "AKST 【秋空に雪舞えばシーン表】",
+  "CLST 【災厄シーン表】",
+  "DXST 【出島EXシーン表】",
+  "HLST 【斜歯ラボシーン表】",
+  "NTST 【夏の終わりシーン表】",
+  "PLST 【培養プラントシーン表】",
+  "HC 【中忍試験シーン表】",
+  "HT 【滅びの塔シーン表】",
+  "HK 【影の街でシーン表】",
+  "HY 【夜行列車シーン表】",
+  "HO 【病院シーン表】",
+  "HR 【龍動シーン表】",
+  "HM 【密室シーン表】",
+  "HS 【催眠シーン表】",
+  "TC 【カジノシーン表】",
+  "TRM 【ロードムービーシーン表】",
+  "TMC 【マスカレイド・キャッスルシーン表】",
+  "TGS 【月天に死の咲くシーン表】",
+  "TKH 【恋人との日々シーン表】",
+  "TKG 【学校（黒星祭）シーン表】",
+  "TMG 【魔都学園シーン表】",
+  "TMT 【魔都東京シーン表】",
+  "OTFK 【不良高校シーン表】",
+];
+
+function getShinobigamiSkillName(learnedSkill) {
+  const hiddenSkill = cleanText(learnedSkill && learnedSkill.hiddenSkill);
+  if (hiddenSkill) return hiddenSkill;
+
+  const id = cleanText(learnedSkill && learnedSkill.id);
+  const match = id.match(/^skills\.row(\d+)\.name(\d+)$/);
+  if (!match) return "";
+  const row = Number(match[1]);
+  const column = Number(match[2]);
+  return (
+    (SHINOBIGAMI_SKILL_TABLE[row] &&
+      SHINOBIGAMI_SKILL_TABLE[row][column]) ||
+    ""
+  );
+}
+
+function buildShinobigamiMemo(shinobigamiData) {
+  const base = (shinobigamiData && shinobigamiData.base) || {};
+  const lines = [];
+  const kana = cleanText(base.nameKana);
+  if (kana) lines.push(kana);
+  lines.push(`PL：${cleanText(base.player) || "○○"}`);
+  lines.push(
+    "【表の使命】",
+    "",
+    "【取得済み情報】",
+    "",
+    "　　　　感情　秘密　居所　奥義",
+    "ＰＣ１　なし  　✕　 　✕ 　   ✕",
+    "ＰＣ２　なし  　✕　 　✕ 　   ✕",
+    "ＰＣ３　なし  　✕　 　✕ 　   ✕",
+    "ＰＣ４　なし  　✕　 　✕ 　   ✕",
+    "",
+    "その他",
+  );
+  return lines.join("\n");
+}
+
+function buildShinobigamiCommands(shinobigamiData) {
+  const learned = Array.isArray(shinobigamiData && shinobigamiData.learned)
+    ? shinobigamiData.learned
+    : [];
+  const ninpou = Array.isArray(shinobigamiData && shinobigamiData.ninpou)
+    ? shinobigamiData.ninpou
+    : [];
+  const lines = learned
+    .map(getShinobigamiSkillName)
+    .filter(Boolean)
+    .map((name) => `SG＠12#2>=5 行為判定(特技：${name})`);
+
+  lines.push("", ...SHINOBIGAMI_GENERIC_COMMANDS, "", "＝＝＝＝＝忍法＝＝＝＝＝");
+  ninpou.forEach((item) => {
+    const name = cleanText(item && item.name);
+    if (!name) return;
+    const type = cleanText(item && item.type);
+    const typeLabel = type ? `${type}忍法` : "忍法";
+    const targetSkill = cleanText(item && item.targetSkill) || "-";
+    const cost = cleanText(item && item.cost) || "-";
+    const range = cleanText(item && item.range) || "-";
+    lines.push(
+      `${name}　${typeLabel}　指定特技：${targetSkill}　コスト：${cost}　間合：${range}`,
+    );
+  });
+  lines.push("", ...SHINOBIGAMI_SCENE_COMMANDS);
+  return `${lines.join("\n")}\n`;
+}
+
+function getDataShinobigami(
+  shinobigamiData,
+  url,
+  img,
+  opt,
+  additionalPalette,
+) {
+  const base = (shinobigamiData && shinobigamiData.base) || {};
+  const skills = (shinobigamiData && shinobigamiData.skills) || {};
+  const damage = skills.damage || {};
+  const lifeLabels = ["器術", "体術", "忍術", "謀術", "戦術", "妖術"];
+  let commands = opt[1] ? buildShinobigamiCommands(shinobigamiData) : "";
+  if (additionalPalette) {
+    commands += (commands ? "\n" : "") + additionalPalette;
+  }
+
+  const out = {
+    kind: "character",
+    data: {
+      name: cleanText(base.name) || "(名前未設定)",
+      memo: opt[0] ? buildShinobigamiMemo(shinobigamiData) : "",
+      externalUrl: String(url || "").replace(/^https:/i, "http:"),
+      status: [
+        ...lifeLabels.map((label, index) => ({
+          label,
+          value: damage[`check${index}`] ? "0" : "1",
+          max: "1",
+        })),
+        { label: "追加生命力", value: 0, max: 0 },
+      ],
+      params: [],
+      active: true,
+      secret: false,
+      invisible: false,
+      hideStatus: false,
+      commands,
+    },
+  };
+  if (img) out.data.iconUrl = img;
+  return out;
+}
+
 function getSatasupeItemLimits(satasupeData) {
   const base = (satasupeData && satasupeData.base) || {};
   const abl = base.abl || {};
@@ -3327,7 +3542,14 @@ async function processSheetData(formData) {
     };
   }
 
-  const { system, html, satasupeData, stellarData, dx3Data } =
+  const {
+    system,
+    html,
+    satasupeData,
+    stellarData,
+    shinobigamiData,
+    dx3Data,
+  } =
     await fetchAndIdentifySystem(url);
   if (system === "Unknown") {
     return {
@@ -3405,6 +3627,15 @@ async function processSheetData(formData) {
     const flowerLabel =
       getStellarFlowerLabel(stellarData) || "名もなき花";
     message = `願いの決闘場に咲き誇るのは${flowerLabel}　指命を遂げよ、${stellarName}よ`;
+  } else if (system === "Shinobigami") {
+    outObj = getDataShinobigami(
+      shinobigamiData,
+      url,
+      img,
+      opt,
+      additionalPalette,
+    );
+    message = `忍務を遂行せよ、${(outObj && outObj.data && outObj.data.name) || "忍び"}。`;
   }
 
   if (
