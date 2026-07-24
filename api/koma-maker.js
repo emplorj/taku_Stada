@@ -1733,14 +1733,14 @@ async function fetchViaPhantom(url) {
   throw new Error("PhantomJSCloudからのHTML取得に失敗しました。");
 }
 
-async function fetchSatasupeDisplayJson(sheetUrl) {
+async function fetchAppspotDisplayJson(sheetUrl, systemPath) {
   try {
     const u = new URL(sheetUrl);
     const key = u.searchParams.get("key");
     if (!key) return null;
 
     const api = new URL(
-      "https://character-sheets.appspot.com/satasupe/display",
+      `https://character-sheets.appspot.com/${systemPath}/display`,
     );
     api.searchParams.set("key", key);
     api.searchParams.set("ajax", "1");
@@ -1762,7 +1762,6 @@ async function fetchSatasupeDisplayJson(sheetUrl) {
     return null;
   }
 }
-
 
 function cleanText(value) {
   if (value === null || value === undefined) return "";
@@ -1840,15 +1839,23 @@ async function fetchDxJsonFromUrl(url) {
 async function fetchAndIdentifySystem(url) {
   const lower = String(url || "").toLowerCase();
 
-  // サタスペは appspot の display?ajax=1 を使う。
-  if (lower.includes("satasupe") || lower.includes("appspot.com")) {
+  // appspot系キャラクターシートは共通の display?ajax=1 を使う。
+  if (lower.includes("character-sheets.appspot.com/stellar/")) {
+    const stellarData = await fetchAppspotDisplayJson(url, "stellar");
+    if (!stellarData) {
+      throw new Error("銀剣のステラナイツのJSON取得に失敗したぞ。");
+    }
+    return { system: "Stellar", html: "", stellarData };
+  }
+
+  if (lower.includes("character-sheets.appspot.com/satasupe/")) {
     let html;
     try {
       html = await fetchViaPhantom(url);
     } catch (_) {
       html = await fetchRawHtml(url);
     }
-    const satasupeData = await fetchSatasupeDisplayJson(url);
+    const satasupeData = await fetchAppspotDisplayJson(url, "satasupe");
     return { system: "Satasupe", html, satasupeData };
   }
 
@@ -3098,6 +3105,121 @@ function getDataSata(
   return out;
 }
 
+function buildStellarMemo(stellarData) {
+  const base = (stellarData && stellarData.base) || {};
+  const character = base.character || {};
+  const hopeDespair = base.hopedespair || {};
+  const knight = base.knight || {};
+  const flower = base.personalflower || {};
+  const lines = [];
+
+  lines.push(`PL：${cleanText(base.player) || "○○"}`);
+
+  const knightLabel = [cleanText(hopeDespair.choice), cleanText(knight.type)]
+    .filter(Boolean)
+    .join("の");
+  if (knightLabel) lines.push(knightLabel);
+  if (cleanText(hopeDespair.detail)) {
+    lines.push(`希望表：${cleanText(hopeDespair.detail)}`);
+  }
+  if (cleanText(base.yourstory)) {
+    lines.push(`あなたの物語：${cleanText(base.yourstory)}`);
+  }
+  if (cleanText(base.wish)) lines.push(`願い表：${cleanText(base.wish)}`);
+
+  const personality = [
+    cleanText(character["1st"]),
+    cleanText(character["2nd"]),
+  ].filter(Boolean);
+  if (personality.length) {
+    lines.push(`性格表${personality.join("にして")}`);
+  }
+  if (cleanText(base.organization)) {
+    lines.push(`所属組織：${cleanText(base.organization)}`);
+  }
+
+  const flowerLabel = [
+    cleanText(flower.color) ? `${cleanText(flower.color)}色` : "",
+    cleanText(flower.essence),
+  ]
+    .filter(Boolean)
+    .join("の");
+  if (flowerLabel) lines.push(`花章：${flowerLabel}`);
+
+  return `${lines.join("\n")}\n`;
+}
+
+function buildStellarCommands(stellarData) {
+  const skills = Array.isArray(stellarData && stellarData.skills)
+    ? stellarData.skills
+    : [];
+  const lines = [
+    "＝＝＝＝＝ステータス＝＝＝＝＝ ",
+    "{耐久値} 【耐久値】",
+    "{防御力} 【防御力】",
+    "{ブーケ} 【ブーケ】",
+    "{ラウンド数} 【ラウンド数】",
+    "＝＝＝＝＝パラメータ＝＝＝＝＝ ",
+    "{チャージダイス} 【初期チャージダイス】",
+    "＝＝＝＝各種表＝＝＝＝",
+    "STA シチュエーションA表",
+    "STB シチュエーションB表",
+    "STC シチュエーションC表",
+    "TT お題表",
+    "",
+    "＝＝＝＝＝ステラバトル＝＝＝＝＝",
+    "({チャージ}+{ラウンド数})b6 チャージ",
+    "",
+    "プチラッキー(3*n)〇を×に\\nダイスブースト(4*n)アタック判定に+1~3ダイス",
+    "リロール(5)判定振り直し",
+    "",
+    "＝＝＝＝＝スキル＝＝＝＝＝",
+  ];
+
+  skills.forEach((skill, index) => {
+    const name = cleanText(skill && skill.name);
+    const effect = cleanText(skill && skill.effect);
+    lines.push(`No${index + 1}.${name}`);
+    if (effect) lines.push(effect);
+  });
+
+  return `${lines.join("\n")}\n`;
+}
+
+function getDataStellar(stellarData, url, img, opt, additionalPalette) {
+  const base = (stellarData && stellarData.base) || {};
+  const status = (stellarData && stellarData.status) || {};
+  let commands = opt[1] ? buildStellarCommands(stellarData) : "";
+  if (additionalPalette) {
+    commands += (commands ? "\n" : "") + additionalPalette;
+  }
+
+  const out = {
+    kind: "character",
+    data: {
+      name: cleanText(base.name) || "(名前未設定)",
+      memo: opt[0] ? buildStellarMemo(stellarData) : "",
+      externalUrl: url,
+      status: [
+        { label: "耐久値", value: cleanText(status.hp), max: "" },
+        { label: "防御力", value: cleanText(status.defense), max: "6" },
+        { label: "ブーケ", value: "0", max: "200" },
+        { label: "ラウンド数", value: "1", max: "1" },
+      ],
+      params: [
+        { label: "チャージダイス", value: cleanText(status.charge) },
+      ],
+      active: true,
+      secret: false,
+      invisible: false,
+      hideStatus: false,
+      commands,
+    },
+  };
+  if (img) out.data.iconUrl = img;
+  return out;
+}
+
 function getSatasupeItemLimits(satasupeData) {
   const base = (satasupeData && satasupeData.base) || {};
   const abl = base.abl || {};
@@ -3167,7 +3289,8 @@ async function processSheetData(formData) {
     };
   }
 
-  const { system, html, satasupeData, dx3Data } = await fetchAndIdentifySystem(url);
+  const { system, html, satasupeData, stellarData, dx3Data } =
+    await fetchAndIdentifySystem(url);
   if (system === "Unknown") {
     return {
       message:
@@ -3226,6 +3349,15 @@ async function processSheetData(formData) {
     itemLimits = getSatasupeItemLimits(satasupeData);
     itemSections = getSatasupeItemSections(satasupeData);
     message = `ククク、${(outObj && outObj.data && outObj.data.name) || charName}よ。涅槃で待つ`;
+  } else if (system === "Stellar") {
+    outObj = getDataStellar(
+      stellarData,
+      url,
+      img,
+      opt,
+      additionalPalette,
+    );
+    message = `${(outObj && outObj.data && outObj.data.name) || "ステラナイト"}、願いの決闘場へようこそ！`;
   }
 
   if (

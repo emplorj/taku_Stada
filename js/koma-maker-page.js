@@ -253,9 +253,8 @@ function copyTextWithToast(text, successMessage, emptyMessage = "") {
 }
 
 const PL_NAME_STORAGE_KEY = "komaMakerPlName";
-const DEFAULT_GAS_KOMA_MAKER_API_URL =
-  "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
-const DEFAULT_VERCEL_API_BASES = ["https://taku-stada.vercel.app"];
+const KOMA_MAKER_API_URL =
+  "https://taku-stada.vercel.app/api/koma-maker";
 
 if (plNameInput) {
   plNameInput.value = localStorage.getItem(PL_NAME_STORAGE_KEY) || "";
@@ -264,114 +263,7 @@ if (plNameInput) {
   });
 }
 
-function normalizeBaseUrl(baseUrl) {
-  return String(baseUrl || "").replace(/\/+$/, "");
-}
-
-function isInvalidApiBase(baseUrl) {
-  const normalized = normalizeBaseUrl(baseUrl);
-  if (!normalized) return true;
-  try {
-    const u = new URL(normalized);
-    // ローカルのファイル名から https://koma-maker.html.vercel.app のような
-    // 架空の候補を作ってしまった場合は使わない。
-    if (/\.html\.vercel\.app$/i.test(u.hostname)) return true;
-    return false;
-  } catch (_) {
-    return true;
-  }
-}
-
-function getConfiguredApiBase() {
-  const params = new URLSearchParams(window.location.search);
-  const apiBaseFromQuery = normalizeBaseUrl(params.get("apiBase") || "");
-  if (apiBaseFromQuery) {
-    if (!isInvalidApiBase(apiBaseFromQuery)) {
-      localStorage.setItem("komaMakerApiBase", apiBaseFromQuery);
-      return apiBaseFromQuery;
-    }
-    localStorage.removeItem("komaMakerApiBase");
-    return "";
-  }
-
-  const fromStorage = normalizeBaseUrl(localStorage.getItem("komaMakerApiBase") || "");
-  if (fromStorage) {
-    if (!isInvalidApiBase(fromStorage)) return fromStorage;
-    localStorage.removeItem("komaMakerApiBase");
-  }
-
-  return "";
-}
-
-function guessVercelApiBaseFromPath() {
-  const parts = String(window.location.pathname || "")
-    .split("/")
-    .filter(Boolean);
-  if (!parts.length) return "";
-  const repoName = parts[0].toLowerCase().replace(/_/g, "-");
-  if (!repoName || repoName.includes(".")) return "";
-  return `https://${repoName}.vercel.app`;
-}
-
-function getApiCandidates() {
-  const configuredBase = normalizeBaseUrl(getConfiguredApiBase());
-  const guessedBase = normalizeBaseUrl(guessVercelApiBaseFromPath());
-  const isGitHubPages = window.location.hostname.endsWith("github.io");
-  const defaultBases = DEFAULT_VERCEL_API_BASES.map(normalizeBaseUrl).filter(Boolean);
-
-  const gasCandidates = [
-    {
-      url: DEFAULT_GAS_KOMA_MAKER_API_URL,
-      kind: "gas",
-    },
-  ];
-
-  const externalCandidates = [
-    configuredBase
-      ? {
-          url: configuredBase.includes("script.google.com/")
-            ? configuredBase
-            : `${configuredBase}/api/koma-maker`,
-          kind: configuredBase.includes("script.google.com/") ? "gas" : "vercel",
-        }
-      : null,
-    ...defaultBases.map((b) => ({ url: `${b}/api/koma-maker`, kind: "vercel" })),
-    guessedBase && !isInvalidApiBase(guessedBase)
-      ? { url: `${guessedBase}/api/koma-maker`, kind: "vercel" }
-      : null,
-  ].filter(Boolean);
-
-  // GitHub Pages には同一オリジンの /api が存在しないため、
-  // 405/404 ノイズを避けるために相対候補は出さない。
-  const sameOriginCandidates = isGitHubPages
-    ? []
-    : [
-        { url: new URL("/api/koma-maker", window.location.origin).toString(), kind: "vercel" },
-        { url: new URL("../api/koma-maker", window.location.href).toString(), kind: "vercel" },
-        { url: new URL("./api/koma-maker", window.location.href).toString(), kind: "vercel" },
-      ];
-
-  // GAS側の更新を反映するため、通常はGAS版を最優先で使う。
-  // GAS版が未対応として返したシステムだけ、下の postToKomaMakerApi() で次候補へフォールバックする。
-  const candidates = [...gasCandidates, ...externalCandidates, ...sameOriginCandidates];
-  const seen = new Set();
-  return candidates.filter((candidate) => {
-    if (!candidate || !candidate.url || seen.has(candidate.url)) return false;
-    seen.add(candidate.url);
-    return true;
-  });
-}
-
-function buildKomaMakerApiRequest(candidate, formData) {
-  const isGas = candidate && candidate.kind === "gas";
-  if (isGas) {
-    return {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      cache: "no-store",
-      body: JSON.stringify({ tool: "komaMaker", data: formData }),
-    };
-  }
+function buildKomaMakerApiRequest(formData) {
   return {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -381,88 +273,43 @@ function buildKomaMakerApiRequest(candidate, formData) {
 }
 
 async function postToKomaMakerApi(formData) {
-  const endpoints = getApiCandidates();
-  let lastError = null;
-
-  for (const endpoint of endpoints) {
-    try {
-      const endpointUrl = endpoint && endpoint.url ? endpoint.url : String(endpoint || "");
-      setProgressAtLeast(18, true);
-      const response = await fetch(
-        endpointUrl,
-        buildKomaMakerApiRequest(endpoint, formData),
-      );
-      setProgressAtLeast(78, true);
-
-      let data = null;
-      try {
-        data = await response.json();
-        setProgressAtLeast(86, true);
-      } catch (_) {}
-
-      if (response.status === 404) {
-        lastError = new Error(`APIエラー (HTTP 404): ${endpointUrl}`);
-        continue;
-      }
-
-      if (!response.ok) {
-        const message =
-          data && data.message
-            ? data.message
-            : `APIエラー (HTTP ${response.status}): ${endpointUrl}`;
-        throw new Error(message);
-      }
-
-      if (!data) throw new Error(`APIの応答がJSONではない: ${endpointUrl}`);
-      if (data.status === "error") {
-        throw new Error(data.message || `APIエラー: ${endpointUrl}`);
-      }
-      if (
-        endpoint &&
-        endpoint.kind === "gas" &&
-        String(data.out || "").includes("エラー発生") &&
-        String(data.message || "").includes("対応していない")
-      ) {
-        lastError = new Error(`GAS版未対応のため次候補へフォールバック: ${endpointUrl}`);
-        continue;
-      }
-      setProgressAtLeast(90, true);
-      return data;
-    } catch (error) {
-      lastError = error;
-    }
-  }
-  const error = lastError || new Error("APIエンドポイントの解決に失敗した。");
-  error.attemptedEndpoints = endpoints.map((endpoint) =>
-    endpoint && endpoint.url ? endpoint.url : String(endpoint || ""),
+  setProgressAtLeast(18, true);
+  const response = await fetch(
+    KOMA_MAKER_API_URL,
+    buildKomaMakerApiRequest(formData),
   );
-  throw error;
+  setProgressAtLeast(78, true);
+
+  let data = null;
+  try {
+    data = await response.json();
+    setProgressAtLeast(86, true);
+  } catch (_) {}
+
+  if (!response.ok) {
+    const message =
+      data && data.message
+        ? data.message
+        : `APIエラー (HTTP ${response.status}): ${KOMA_MAKER_API_URL}`;
+    throw new Error(message);
+  }
+
+  if (!data) {
+    throw new Error(`APIの応答がJSONではない: ${KOMA_MAKER_API_URL}`);
+  }
+  if (data.status === "error") {
+    throw new Error(data.message || `APIエラー: ${KOMA_MAKER_API_URL}`);
+  }
+  setProgressAtLeast(90, true);
+  return data;
 }
 
 async function submitSheetData(formData) {
   try {
     return await postToKomaMakerApi(formData);
   } catch (e) {
-    const attempted =
-      e && e.attemptedEndpoints && e.attemptedEndpoints.length
-        ? ` 試行先: ${e.attemptedEndpoints.join(" | ")}`
-        : "";
-
-    if (window.location.hostname.endsWith("github.io")) {
-      const suggestedBase = normalizeBaseUrl(
-        getConfiguredApiBase() || DEFAULT_GAS_KOMA_MAKER_API_URL,
-      );
-      const helpUrl = new URL(window.location.href);
-      if (suggestedBase) helpUrl.searchParams.set("apiBase", suggestedBase);
-
-      throw new Error(
-        "GAS版 KomaMaker API への接続に失敗した。" +
-          ` 推奨: ${helpUrl.toString()}` +
-          attempted,
-      );
-    }
-
-    throw new Error("KomaMaker API への接続に失敗した。" + attempted);
+    const detail = e && e.message ? `: ${e.message}` : "";
+    throw new Error(`Vercel版 KomaMaker API への接続に失敗した${detail}`);
   }
 }
 
@@ -1172,7 +1019,9 @@ function fillItemSectionFromOutput(
         ? outObj.data.externalUrl
         : "",
     );
-    isSatasupe = /satasupe|appspot\.com/i.test(externalUrl);
+    isSatasupe = /character-sheets\.appspot\.com\/satasupe\//i.test(
+      externalUrl,
+    );
   } catch (_) {
     memo = "";
     isSatasupe = false;
