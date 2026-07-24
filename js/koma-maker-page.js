@@ -1,6 +1,13 @@
 const sheetForm = document.getElementById("sheetForm");
 const submitButton = document.getElementById("submitButton");
 const copyButton = document.getElementById("copyButton");
+const stellarSheathSection = document.getElementById("stellarSheathSection");
+const stellarSheathOutputArea = document.getElementById(
+  "stellarSheathOutput",
+);
+const copyStellarSheathButton = document.getElementById(
+  "copyStellarSheathButton",
+);
 const itemSection = document.getElementById("itemSection");
 const itemOutputHandArea = document.getElementById("itemOutputHand");
 const itemOutputAjitoArea = document.getElementById("itemOutputAjito");
@@ -360,6 +367,49 @@ function setupItemCopyButton(button, textarea, emptyText, successMessage) {
 function setItemSectionVisible(visible) {
   if (!itemSection) return;
   itemSection.style.display = visible ? "block" : "none";
+}
+
+function setStellarSheathSectionVisible(visible) {
+  if (!stellarSheathSection) return;
+  stellarSheathSection.style.display = visible ? "block" : "none";
+}
+
+function resetStellarSheathSection() {
+  if (stellarSheathOutputArea) {
+    stellarSheathOutputArea.value = "ここにシース用コマが出力される。";
+  }
+  if (copyStellarSheathButton) {
+    copyStellarSheathButton.disabled = true;
+  }
+}
+
+function fillStellarSheathSection(stellarSheathOut) {
+  if (!stellarSheathOut) {
+    setStellarSheathSectionVisible(false);
+    resetStellarSheathSection();
+    return;
+  }
+
+  let rendered = "";
+  if (typeof stellarSheathOut === "string") {
+    rendered = stellarSheathOut;
+  } else if (typeof stellarSheathOut === "object") {
+    try {
+      rendered = JSON.stringify(stellarSheathOut);
+    } catch (_) {
+      rendered = "";
+    }
+  }
+
+  if (!rendered) {
+    setStellarSheathSectionVisible(false);
+    resetStellarSheathSection();
+    return;
+  }
+
+  if (stellarSheathOutputArea) stellarSheathOutputArea.value = rendered;
+  if (copyStellarSheathButton) copyStellarSheathButton.disabled = false;
+  setStellarSheathSectionVisible(true);
 }
 
 function setNechronicaSectionVisible(visible) {
@@ -1125,6 +1175,25 @@ if (itemSection) {
   resetItemSection();
 }
 
+if (
+  copyStellarSheathButton &&
+  stellarSheathOutputArea
+) {
+  copyStellarSheathButton.addEventListener("click", () => {
+    const txt = stellarSheathOutputArea.value || "";
+    if (!txt || txt === "ここにシース用コマが出力される。") {
+      showToast("まだシース用コマが出力されていないようだ！", "error");
+      return;
+    }
+    copyTextWithToast(txt, "シース用コマをコピーした！");
+  });
+}
+
+if (stellarSheathSection) {
+  setStellarSheathSectionVisible(false);
+  resetStellarSheathSection();
+}
+
 if (nechronicaPartEditor) {
   nechronicaPartEditor.addEventListener("click", (event) => {
     const target = event.target;
@@ -1361,6 +1430,10 @@ sheetForm.addEventListener("submit", function (event) {
     setItemSectionVisible(false);
     resetItemSection();
   }
+  if (stellarSheathSection) {
+    setStellarSheathSectionVisible(false);
+    resetStellarSheathSection();
+  }
   if (nechronicaSection) {
     setNechronicaSectionVisible(false);
     resetNechronicaSection();
@@ -1540,6 +1613,7 @@ function updatePage(result) {
     result && result.itemLimits,
     result && result.itemSections,
   );
+  fillStellarSheathSection(result && result.stellarSheathOut);
   fillNechronicaSectionFromOutput(sectionSourceText);
 
   const txt = outputArea.value || "";
@@ -1568,6 +1642,10 @@ function showError(error) {
   if (itemSection) {
     setItemSectionVisible(false);
     resetItemSection();
+  }
+  if (stellarSheathSection) {
+    setStellarSheathSectionVisible(false);
+    resetStellarSheathSection();
   }
   if (nechronicaSection) {
     setNechronicaSectionVisible(false);

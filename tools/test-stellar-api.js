@@ -19,6 +19,7 @@ const fixture = {
     { name: "騎士のたしなみ", effect: "テスト効果1" },
     { name: "掻きむしれ炎禍", effect: "テスト効果2" },
   ],
+  sheath: { name: "リーフ" },
   status: { charge: "3", defense: "3", hp: "11" },
 };
 
@@ -117,6 +118,14 @@ function invoke(body) {
   assert.ok(
     !output.data.commands.includes("No1.騎士のたしなみ\nテスト効果1"),
   );
+  const sheathOutput = JSON.parse(response.body.stellarSheathOut);
+  assert.equal(sheathOutput.kind, "character");
+  assert.equal(sheathOutput.data.name, "リーフ");
+  assert.deepEqual(sheathOutput.data.status, [
+    { label: "投げブーケ", value: "0", max: "0" },
+  ]);
+  assert.deepEqual(sheathOutput.data.params, []);
+  assert.equal(sheathOutput.data.commands, "");
 
   const hidden = await invoke({
     sheet: sheetUrl,

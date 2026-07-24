@@ -3224,6 +3224,30 @@ function getDataStellar(stellarData, url, img, opt, additionalPalette) {
   return out;
 }
 
+function getDataStellarSheath(stellarData, url) {
+  const sheath = (stellarData && stellarData.sheath) || {};
+  const name = cleanText(sheath.name);
+  if (!name) return null;
+
+  return {
+    kind: "character",
+    data: {
+      name,
+      memo: "",
+      externalUrl: url,
+      status: [
+        { label: "投げブーケ", value: "0", max: "0" },
+      ],
+      params: [],
+      active: true,
+      secret: false,
+      invisible: false,
+      hideStatus: false,
+      commands: "",
+    },
+  };
+}
+
 function getSatasupeItemLimits(satasupeData) {
   const base = (satasupeData && satasupeData.base) || {};
   const abl = base.abl || {};
@@ -3314,6 +3338,7 @@ async function processSheetData(formData) {
   let eff = [[1, 2]];
   let itemLimits = null;
   let itemSections = null;
+  let stellarSheathOut = null;
   let comboFound = false;
 
   if (system === "DX3") {
@@ -3361,6 +3386,10 @@ async function processSheetData(formData) {
       opt,
       additionalPalette,
     );
+    const stellarSheathObj = getDataStellarSheath(stellarData, url);
+    stellarSheathOut = stellarSheathObj
+      ? JSON.stringify(stellarSheathObj)
+      : null;
     message = `${(outObj && outObj.data && outObj.data.name) || "ステラナイト"}、願いの決闘場へようこそ！`;
   }
 
@@ -3382,6 +3411,7 @@ async function processSheetData(formData) {
     eff,
     itemLimits,
     itemSections,
+    stellarSheathOut,
     comboFound,
   };
 }

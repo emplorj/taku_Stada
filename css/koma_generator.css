@@ -832,6 +832,20 @@ body.koma-maker-page {
   margin-top: 4px;
 }
 
+.koma-maker-page #stellarSheathSection {
+  margin-top: 8px;
+}
+
+.koma-maker-page .stellar-sheath-card textarea {
+  width: 100%;
+  min-height: 120px;
+  max-width: 100%;
+  margin: 0;
+  resize: vertical;
+  font-size: 0.84em;
+  line-height: 1.25;
+}
+
 .koma-maker-page .item-box-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(180px, 1fr));
