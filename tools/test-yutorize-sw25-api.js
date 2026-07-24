@@ -157,17 +157,22 @@ function invoke(body) {
   const fellow = JSON.parse(response.body.sw25FellowOut);
   assert.equal(fellow.data.name, output.data.name);
   assert.deepEqual(fellow.data.status, output.data.status);
-  assert.deepEqual(fellow.data.params.at(-1), {
-    label: "魔力",
-    value: "10",
-  });
-  assert.ok(fellow.data.memo.includes("【フェロープロフィール】"));
-  assert.ok(fellow.data.memo.includes("フェローの紹介\n\n二段落目"));
+  assert.deepEqual(fellow.data.params, [{ label: "魔力", value: "10" }]);
+  assert.equal(fellow.data.memo, "");
   assert.equal(
     fellow.data.commands,
     [
       "### ■フェロー行動表",
+      "1D6 フェロー行動表",
       "choice([補]悪意の針／[主]貫く光条／スカウト運動判定,[補]悪意の針／[主]貫く光条／スカウト運動判定,肉体修復,肉体修復,アースハンマー,リムチョッパー投擲) フェロー行動表",
+      "",
+      "### ■フェロー行動宣言",
+      "[補]悪意の針",
+      "[主]貫く光条",
+      "スカウト運動判定",
+      "肉体修復",
+      "アースハンマー",
+      "リムチョッパー投擲",
       "",
       "### ■フェロー効果",
       "k30+{魔力} ダメージ（[補]悪意の針／[主]貫く光条）",
