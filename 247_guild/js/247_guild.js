@@ -90,12 +90,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const closeMenu = () => {
       hamburger.classList.remove("is-open");
       body.classList.remove("side-menu-open");
+      hamburger.setAttribute("aria-expanded", "false");
     };
 
     // ハンバーガーボタンクリックでメニューを開閉
     hamburger.addEventListener("click", function () {
-      hamburger.classList.toggle("is-open");
-      body.classList.toggle("side-menu-open");
+      const willOpen = !body.classList.contains("side-menu-open");
+      hamburger.classList.toggle("is-open", willOpen);
+      body.classList.toggle("side-menu-open", willOpen);
+      hamburger.setAttribute("aria-expanded", String(willOpen));
     });
 
     // ナビゲーションリンククリックでメニューを閉じる & スムーズスクロール
@@ -126,6 +129,13 @@ document.addEventListener("DOMContentLoaded", function () {
         closeMenu();
       }
     });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && body.classList.contains("side-menu-open")) {
+        closeMenu();
+        hamburger.focus();
+      }
+    });
   }
 
   /* ===================================================
@@ -136,13 +146,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalImg = document.getElementById("modal-map-image");
     const closeModal = document.querySelector(".map-modal-close");
     const body = document.body;
+    let lastModalTrigger = null;
 
     // モーダルを開く共通関数
     const openModal = (imageElement) => {
       if (imageElement) {
+        lastModalTrigger = imageElement.closest(".map-container-clickable");
         mapModal.style.display = "block";
         modalImg.src = imageElement.src;
+        modalImg.alt = `${imageElement.alt}の拡大表示`;
         body.classList.add("modal-open");
+        closeModal.focus();
       }
     };
 
@@ -150,6 +164,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const closeMapModal = () => {
       mapModal.style.display = "none";
       body.classList.remove("modal-open");
+      if (lastModalTrigger) {
+        lastModalTrigger.focus();
+      }
     };
 
     // クリック可能な全てのコンテナ (地図と見取り図) にイベントリスナーを設定
@@ -195,6 +212,11 @@ document.addEventListener("DOMContentLoaded", function () {
     closeModal.addEventListener("click", closeMapModal);
     mapModal.addEventListener("click", (event) => {
       if (event.target === mapModal) {
+        closeMapModal();
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && body.classList.contains("modal-open")) {
         closeMapModal();
       }
     });
