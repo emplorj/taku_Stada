@@ -60,8 +60,12 @@ const TRPG_SYSTEM_COLORS = {
 // 1. グローバルスコープの関数と定数
 // ==========================================================================
 function topFunction() {
-  document.body.scrollTop = 0;
-  document.documentElement.scrollTop = 0;
+  window.scrollTo({
+    top: 0,
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth",
+  });
 }
 function copyCodeToClipboard(elementId) {
   const codeElement = document.getElementById(elementId);

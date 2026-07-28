@@ -13,7 +13,7 @@
   <meta property="og:url" content="https://emplorj.github.io/taku_Stada/247_guild/index.html" />
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="css/247_guild_common.css">
-  <link rel="stylesheet" href="css/247_guild.css">
+  <link rel="stylesheet" href="css/247_guild.css?v=3.5.4">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="../css/featured-character.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,21 +50,62 @@
         <span></span>
         <span></span>
       </button>
+      <div class="scroll-progress" aria-hidden="true"><span></span></div>
     </header>
 
     <main>
       <!-- 1. ヒーローセクション -->
       <section id="hero">
         <img src="../img/hachimaki.svg" class="hero-logo" alt="">
-        <h1>冒険者ギルド「帝国の鉢巻」</h1>
-        <h2>お仕事はいつでもお待ちしております～</h2>
-        <p>「帝国の鉢巻」亭は、港湾都市ハーヴェスの南郊、街の外れにある冒険者ギルドです。信頼度はハーヴェスでも指折り…だと思います。たぶん。<br>
-          腕に覚えのある方、一攫千金を夢見る方、どなたでも歓迎いたします～。依頼をこなして、有名になってみませんか？</p>
+        <div class="hero-content">
+          <p class="hero-eyebrow">ハーヴェス南郊・冒険者ギルド本部登録済</p>
+          <p class="hero-kicker">冒険者ギルド</p>
+          <h1>帝国の鉢巻</h1>
+          <h2>お仕事はいつでもお待ちしております～</h2>
+          <p class="hero-lead">港湾都市ハーヴェス南郊、街の外れにある冒険者ギルドです。新人さんも熟練者さんも歓迎。依頼をこなして、有名になってみませんか？</p>
+          <div class="hero-actions" aria-label="主要なご案内">
+            <a class="hero-button hero-button-primary" href="#visitor-guide">
+              <span>初めての方へ</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+            <a class="hero-button hero-button-secondary" href="#requests">
+              <span>依頼掲示板を見る</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+          <ul class="hero-trust-list" aria-label="ギルドの特徴">
+            <li>冒険者登録・依頼仲介</li>
+            <li>酒場・宿泊併設</li>
+            <li>遠征手配対応</li>
+          </ul>
+        </div>
       </section>
 
       <!-- 2. ギルド概要 -->
       <section id="about" class="content-section">
         <h2><i class="fa-solid fa-scroll"></i>ギルド概要</h2>
+        <div class="guild-status-overview" aria-label="営業・利用案内">
+          <div class="guild-status-heading">
+            <p class="guild-status-title">営業・利用案内</p>
+            <p class="guild-status-current"><span aria-hidden="true"></span>営業中</p>
+          </div>
+          <dl class="guild-status-grid">
+            <div>
+              <dt><i class="fa-solid fa-location-dot" aria-hidden="true"></i>所在地</dt>
+              <dd>ハーヴェス南郊・街の外れ<br><small>周辺地図 G8付近</small></dd>
+            </div>
+            <div>
+              <dt><i class="fa-solid fa-clock" aria-hidden="true"></i>通常受付</dt>
+              <dd>早朝から夜まで<br><small>深夜は当直職員が緊急対応</small></dd>
+            </div>
+            <div>
+              <dt><i class="fa-solid fa-calendar-check" aria-hidden="true"></i>休業</dt>
+              <dd>原則として無休<br><small>臨時休業は掲示板で告知</small></dd>
+            </div>
+            <div>
+              <dt><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>主なご案内</dt>
+              <dd>冒険者登録・依頼仲介<br><small>酒場・宿泊・遠征手配</small></dd>
+            </div>
+          </dl>
+        </div>
         <p>
           私たち「帝国の鉢巻亭」は、港湾都市ハーヴェスの南側に広がる郊外、街の外れに拠点を構える冒険者ギルドです。冒険者ギルド本部にも正式に登録されており、冒険者登録や正規依頼の仲介、功績の記録などを行っています。必要な手続きは、ええ、ちゃんとやっていますよ。日々の運営は……まあ、だいぶ大らかですけど。<br>
           中心街からは少し離れていますが、そのぶん広々としていて、大がかりな訓練や魔動機の整備にも便利なんですよ。「帝国」というのは、将来それくらい大きな存在になろう、という目標から付けた名前なんだそうです。「鉢巻」は、もちろんニシナさんのトレードマークですね。ギルドマスター「ミカ・ニシナ」さんの指揮のもと、ベテランから私みたいな新人まで、色々な冒険者さんが集まって、毎日いろんな依頼に挑んでいます。<br>
@@ -195,7 +236,7 @@
       <!-- 4. 依頼一覧 -->
       <section id="requests" class="content-section">
         <h2><i class="fa-solid fa-bullhorn"></i>募集中依頼です～</h2>
-        <div class="card-container request-list">
+        <div id="active-request-list" class="card-container request-list expandable-content request-list-collapsed">
           <div class="request-card">
             <div class="request-card-header">
               <h3>蛮族退治</h3>
@@ -296,6 +337,12 @@
             <p class="request-desc">「ヒドラがあちこちで出現している。費用や環境の問題で、1人しか呼べない。助けてほしい。」</p>
           </div>
         </div>
+        <button class="content-expand-button" type="button" aria-expanded="false"
+          aria-controls="active-request-list" data-expand-label="募集中依頼をすべて見る"
+          data-collapse-label="依頼を閉じる">
+          <span>募集中依頼をすべて見る</span>
+          <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+        </button>
         <div class="hydra-solo-showcase">
           <h4 class="showcase-title">"ヒドラ討伐ソロ！" 挑戦者たちの記録</h4>
           <!-- Swiper -->
@@ -331,10 +378,16 @@
             </div>
           </details>
         </div>
-        <details>
-          <summary class="sub-heading">
-            <i class="fa-solid fa-book-bookmark"></i>達成済み依頼の報告書です
-          </summary>
+        <div class="completed-requests-panel">
+          <header class="regional-news-header completed-requests-header">
+            <div>
+              <p class="regional-news-kicker completed-requests-kicker">
+                <i class="fa-solid fa-book-bookmark" aria-hidden="true"></i> GUILD ARCHIVE
+              </p>
+              <h3 class="completed-requests-heading">達成済み依頼</h3>
+            </div>
+            <p>当ギルドで受注・仲介した依頼の報告書です。冒険者さんたちの功績と、次の依頼に役立つ記録を保管しています。</p>
+          </header>
           <p class="section-desc">
             達成した依頼の報告書は、冒険者さんたちの功績がちゃんと目に見えるように、っていうニシナさんの方針でギルドの<a href="https://amzn.asia/d/hjhIeZu"
               target="_blank">大きい青いファイル</a>にファイリングされています。ここではその一部を掲示しています。全ての報告書はギルドで閲覧できますので、興味のある方はお声がけくださいね～。
@@ -364,19 +417,30 @@
               冒険者ギルド「ランブリング・ワンダラー」で始まる依頼。
             ・#19『父の遺した書物』
               冒険者ギルド「旅人の音律亭」が受けた依頼。
+            ・#13・#15『Avior; or, The Dragon』
+              遠方の竜狩りを巡る二隊の記録。依頼の出発点には当ギルドも関係するが、
+              個別の達成報告より「各地の時事」で一連の事件として扱う。
+            ・#23・#24『アビス・イン・カレイドスコープ』
+              当ギルドへ持ち込まれた依頼だが、同型の魔域が繰り返し確認されているため、
+              現在は「各地の時事」の注意情報としてまとめる。
             ・#54・#55『天の光は全て…』
             ・#56『城と奇跡と魔法王』
+              上記3件は帝国の鉢巻亭を窓口としない、別系列の大規模事件。
+            ・#48『あるいは鉄と波の歌』
+            ・#52『万象の奇夜』
             ・#57『TIMELINEの終わり』
-              上記4件は帝国の鉢巻亭を窓口としない、別系列の大規模事件。
+              上記3件は、分裂した奈落教の各派と、それらが引き起こした異常を追う一連の事件。
+              「近隣・各地の時事」では三事件をまとめて扱うこと。
             ・#70『魔法学園の噂　そのいち』
             ・#72『魔法学園の噂　そのに』
             ・#78『魔法学園の噂　そのさん』
               上記3件は魔導の学府ユーシズを舞台とする学園側の事件。
-            ・#79『奈落の中心で█を叫んだ██』[26.5.27-29]
-              冒険者ギルド本部から直接招集された依頼。帝国の鉢巻亭の実績ではない。
-              同名の#74とは別の回なので混同しないこと。
+            ・#74・#79『奈落の中心で█を叫んだ██』
+              冒険者ギルド本部から直接招集された、二段階の大規模事件。
+              同名だが別の回で、#74の海上魔域から#79の世界規模の再発へ続く。
 
             これらのログを、登場人物や世界設定を説明する資料として参照するのは構わない。
+            また、「近隣・各地の時事」へ外部の事件として掲載してもよい。
             ただし、当ギルドに縁のある冒険者が参加しただけで、帝国の鉢巻亭の実績にはしないこと。
 
             この欄へ掲載してよいのは、帝国の鉢巻亭が依頼を受注・仲介した、所属者を派遣した、
@@ -387,7 +451,29 @@
             style属性のorderはシナリオの経過番号に基づく並び順のために使用しますが、
             ページ本文にはシナリオ番号を表示しません。
           -->
-          <div class="card-container request-list completed-request-list">
+          <article class="early-guild-record">
+            <header class="early-guild-record-header">
+              <div>
+                <p class="early-guild-record-kicker">START-DASH ACTIVITY ARCHIVE</p>
+                <h3><i class="fa-solid fa-box-archive" aria-hidden="true"></i> 卓スタダ活動記録</h3>
+              </div>
+              <span>卓スタダ</span>
+            </header>
+            <p class="early-guild-record-intro">
+              「卓スタダ」を通して、登録された新人さんたちが受けた依頼を、受付記録の順にまとめました。調査、聞き込み、護衛、蛮族や奈落への対処まで、ずいぶん仕事の幅が広かったんですねぇ。
+            </p>
+            <ol class="early-guild-timeline">
+              <li><strong>旧ワーグハイプ地下水道の調査</strong><span>地下水道を調べ、汚染された魔物と魔動機を退けて地下施設の存在を確認。</span></li>
+              <li><strong>異端審問</strong><span>ライフォス神殿と連携した新人向け依頼。行方不明者を捜索し、邪神を信奉する者の企みへ対処。</span></li>
+              <li><strong>くじ、食事、悪事に勇気を添えて</strong><span>街で聞き込みと証拠集めを行い、食材の流通を妨げていた悪事を解決。のちに再募集された記録もあります。</span></li>
+              <li><strong>離れ御殿の大掃除</strong><span>侯爵家の別荘に巣食った魔物を討伐。途中で奈落に飲み込まれながらも、全員が帰還。</span></li>
+              <li><strong>Fall and Llaf!!</strong><span>街の衛兵から始まった調査が滝裏の魔域へ発展。新人隊は魔域を破壊し、依頼を完遂。</span></li>
+              <li><strong>蛮族を駆逐せよ</strong><span>襲撃された村を救援し、蛮族の拠点と奈落の核を攻略。後年にも同種の依頼が再募集されています。</span></li>
+            </ol>
+          </article>
+
+          <div id="completed-request-list"
+            class="card-container request-list completed-request-list expandable-content completed-request-list-collapsed">
             <div class="request-card" style="order: 21;">
               <div class="request-card-header">
                 <h3>帝路追想 スターダストアビス</h3>
@@ -418,34 +504,20 @@
                 色々な理由で発生する、すっごく難しい単独任務です。ギルドの強い冒険者さんたちがこれに挑戦して、見事に撃退した記録がいくつか残ってるみたいです。腕に自信のある方は、次の脅威に備えておいてくださいね。
               </p>
             </div>
-            <div class="request-card" style="order: 4;">
-              <div class="request-card-header">
-                <h3>離れ御殿の大掃除</h3>
-                <span class="request-status unavailable">達成済</span>
-              </div>
-              <p class="request-meta"><strong>達成者:</strong> オリヴィエ, マゼリィ, メア, ユト, マリアン</p>
-              <p class="request-desc">
-                オダチン侯爵っていう方の別荘に巣食った魔物をやっつける依頼だったみたいです。途中で奈落に飲み込まれるっていう大変なこともあったみたいですけど、それも乗り越えて、無事に依頼を達成したそうです。すごいですよね…。
-              </p>
-            </div>
-            <div class="request-card" style="order: 1;">
-              <div class="request-card-header">
-                <h3>旧ワーグハイプ地下水道の調査</h3>
-                <span class="request-status unavailable">達成済</span>
-              </div>
-              <p class="request-meta"><strong>達成者:</strong> ジムノペディ, アンリ, シェイナ, ファウナ, ヘロン</p>
-              <p class="request-desc">
-                遺跡ギルドからの依頼で、旧ワーグハイプ遺跡の地下水道を調査したみたいです。奥の方で待ち構えていた強力な魔動機を壊して、地下に眠っていた大きな施設の存在を明らかにしたそうですよ。</p>
-            </div>
             <div class="request-card" style="order: 29;">
               <div class="request-card-header">
                 <h3>侭造幻域 ベネポレンス</h3>
                 <span class="request-status unavailable">達成済</span>
               </div>
-              <p class="request-meta"><strong>達成者:</strong> ステファニー, フェイ, シュリア, ゾロメ</p>
+              <p class="request-meta"><strong>記録:</strong> 三次にわたる試験運用</p>
               <p class="request-desc">
-                ジンとかいう変なんが作り出した、謎の魔域の踏破依頼です。初陣だった私も無理やり参加させられましたが、皆さんの協力もあって、なんとか最深部のボスを撃破しました。道中、色々な顔のジンが出てきて本当に悪夢のようでした……。もう二度と行きたくないですね…。
+                ジンとかいう変なんが作り出した、人工的な訓練領域の踏破記録です。贈り物や札を選びながら進む妙な仕組みで、なぜか道中には毎回、色々な姿のジンが出ます。意味が分かりません。
               </p>
+              <ol class="request-series-list">
+                <li><strong>A隊：</strong>冒険者として初陣の私を含めたパーティで最深部を踏破しました。もう二度と行きたくないです。</li>
+                <li><strong>B隊：</strong>別の冒険者隊が再試験を実施し、領域を踏破。帰還後には、ジンから出所の怪しい揚げ物が振る舞われたそうです。</li>
+                <li><strong>C隊：</strong>ギルドの食費……正確にはポテトの塩代を理由に三度目の試験を実施。踏破自体は成功しましたが、終了処理中に領域の核で異常が起き、記録はそこで途切れています。</li>
+              </ol>
             </div>
             <div class="request-card" style="order: 81;">
               <div class="request-card-header">
@@ -465,16 +537,6 @@
               <p class="request-meta"><strong>達成者:</strong> テオドラ, レズナー, イーリス・ドラクネス, イヴェリーナ</p>
               <p class="request-desc">
                 ギルドで実力の近い冒険者さんを募り、即席のパーティを編成して行った遺跡調査です。未確認の脅威に遭遇する厳しい調査となりましたが、全員が遺跡を脱出し、発見した品も持ち帰ることができました。脱出後に接続坑道が崩落したため、現在は同じ経路から立ち入ることができません。
-              </p>
-            </div>
-            <div class="request-card" style="order: 3;">
-              <div class="request-card-header">
-                <h3>くじ、食事、悪事に勇気を添えて</h3>
-                <span class="request-status unavailable">達成済</span>
-              </div>
-              <p class="request-meta"><strong>達成者:</strong> ベニート＝カーマイン, パリス・アートソン, ウィソ, ジーナ, リーフィー・シン・ドラゴン</p>
-              <p class="request-desc">
-                冒険者登録を済ませたばかりの新人さんたちが挑んだ、スタートダッシュ企画での初仕事です。街を巡って聞き込みと証拠集めを行い、食材の流通を妨げていた悪事を解決しました。剣や魔法だけでなく、足と頭を使うのも冒険者のお仕事ですからね。帰還後には、ギルドの料理人さんたちから食事も振る舞われました。
               </p>
             </div>
             <div class="request-card" style="order: 41;">
@@ -578,12 +640,216 @@
               </p>
             </div>
           </div>
-        </details>
+          <button class="content-expand-button completed-requests-expand-button" type="button" aria-expanded="false"
+            aria-controls="completed-request-list" data-expand-label="達成済み依頼をすべて見る"
+            data-collapse-label="達成済み依頼を閉じる">
+            <span>達成済み依頼をすべて見る</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <aside class="regional-news-board regional-news-board-brief" aria-labelledby="regional-news-title">
+          <header class="regional-news-header">
+            <div>
+              <p class="regional-news-kicker"><i class="fa-solid fa-newspaper" aria-hidden="true"></i> GUILD DISPATCHES
+              </p>
+              <h3 id="regional-news-title">時事短信</h3>
+            </div>
+            <p>
+              各地のギルド、公的機関、学内新聞などから届いた出来事を短くまとめています。当ギルドの達成実績とは限りません。
+            </p>
+          </header>
+
+          <div id="regional-news-list" class="regional-news-grid expandable-content regional-news-list-collapsed">
+          <article class="regional-news-article">
+            <div class="regional-news-labels">
+              <span class="regional-news-region">コルガナ近海・ラクシア各地</span>
+              <span class="regional-news-status resolved">終息</span>
+            </div>
+            <div class="regional-news-body">
+              <p class="regional-news-source">冒険者ギルド本部発表</p>
+              <h4>海上の超巨大魔域から世界規模の異変へ――二段階の奈落災害が終息</h4>
+              <p>
+                コルガナ近海に現れた超巨大魔域では「異界の王」が撃破されましたが、残された〈エルピスの鍵〉を発端として、のちにラクシア各地が同時に魔域化する異変へ発展しました。本部から招集された冒険者たちは各地を救援し、中心にいた魔神王ヴェンデ＝ルゴルタを放逐。現在は各地の状態も復旧しています。
+              </p>
+              <p class="regional-news-note">
+                二件ともギルド本部の直接管轄です。「帝国の鉢巻亭」の達成済み依頼には含まれません。
+              </p>
+            </div>
+          </article>
+
+            <article class="regional-news-article">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">魔導の学府ユーシズ</span>
+                <span class="regional-news-status ongoing">続報待ち</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">「七色のマナ」関係者報告</p>
+                <h4>学園地下で奈落の魔域が相次いで発生、教師・学生らが対処</h4>
+                <p>
+                  魔導学園「七色のマナ」で、奈落の魔域の発生と学生の失踪が相次いでいます。調査にあたった学生たちは地下霊廟に隠された区画と計画の一端を発見。その後は教師や各地の冒険者も加わり、複数の魔域を破壊しました。ただし首謀者ローレル・トッドは逃走しており、校舎周辺でも新たな異変が確認されています。
+                </p>
+              </div>
+            </article>
+
+            <article class="regional-news-article">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">ユーシズ中央区</span>
+                <span class="regional-news-status resolved">鎮圧</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">現地救援隊からの報告</p>
+                <h4>蛮族勢力による中央区襲撃、魔獣を含む部隊を撃退</h4>
+                <p>
+                  ユーシズ中央区へ蛮族勢力が侵入し、大型の魔獣を投入する襲撃事件が発生しました。現地の術師やゴーレム部隊に加え、ハーヴェスから列車で急行した冒険者たちが応戦し、襲撃部隊を撃退。市街の火災も鎮火しています。当ギルドからはゾロメさんが救援へ加わりました。……受付の途中だったんですけどねぇ。
+                </p>
+              </div>
+            </article>
+
+            <article class="regional-news-article regional-news-series">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">ハーヴェス近海ほか</span>
+                <span class="regional-news-status resolved">主要事件終息</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">各地のギルド・調査隊からの報告</p>
+                <h4>分裂した奈落教を巡る三事件、海・星・絵画の異常を相次いで鎮圧</h4>
+                <p>
+                  分裂した奈落教を巡り、ハーヴェス近海の魔動戦艦〈プロキシマ〉、カスロット砂漠を覆った異常な夜、マカジャハットの絵画を入口とする魔域という三事件が相次ぎました。各地の冒険者隊は、深海派・宇宙派・色彩の魔神に関わる主要な脅威をそれぞれ鎮圧。戦艦は再び海へ沈み、隕石の異変と絵画の魔域も失われています。
+                </p>
+                <p class="regional-news-note">
+                  確認された三事件の主要な脅威は鎮圧済みです。ただし、分裂した奈落教の全容や、ほかの分派の所在まで判明したわけではありません。
+                </p>
+              </div>
+            </article>
+
+            <article class="regional-news-article">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">ランドール地方</span>
+                <span class="regional-news-status resolved">解決</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">ランブリング・ワンダラー報告</p>
+                <h5>森の洞窟で行商人らを救助</h5>
+                <p>
+                  森を通る行商人が蛮族に襲われ、商品と従業員が行方不明になる事件がありました。「ランブリング・ワンダラー」から派遣された冒険者隊は、蛮族が拠点としていた洞窟を攻略。奪われた商品の一部を回収し、生存していた従業員を救助しました。洞窟内では封印扉と意思を持つ魔剣も確認され、魔剣は外へ流出しないよう冒険者のひとりが管理しているそうです。
+                </p>
+              </div>
+            </article>
+
+            <article class="regional-news-article">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">旅人の音律亭</span>
+                <span class="regional-news-status resolved">依頼完了</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">旅人の音律亭・依頼報告</p>
+                <h5>封鎖された図書館で、一族の禁呪記録を発見</h5>
+                <p>
+                  依頼人の父が遺した書物を捜すため、「旅人の音律亭」の冒険者隊が封鎖された図書館を調査しました。魔導書や魔物に守られた内部を踏破した結果、グリエット家が禁呪に関わってきた過去と、それを断ち切ろうとした父の手紙を発見。書物は依頼人へ引き渡されましたが、記された一族の問題は今後も調査が必要とみられます。
+                </p>
+              </div>
+            </article>
+
+            <article class="regional-news-article regional-news-series">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">ガイザール山脈方面</span>
+                <span class="regional-news-status resolved">竜狩り終結</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">二隊の遠征記録</p>
+                <h4>アヴィオールを巡る二つの竜狩り、襲撃を受けた街の復興始まる</h4>
+                <p>
+                  遠方の山脈へ向かった二つの冒険者隊が、長く続いていた竜狩りへ相次いで参加しました。道中では多数の竜や地下に残された遺構を確認。人族と蛮族、出自の異なる冒険者たちがそれぞれの経路から事件へ迫り、最後には街を襲った赤炎の竜を討ち取りました。被害を受けた街では騎士団と領主による復興が進み、地下区画も新たな街の一部として整備される予定です。
+                </p>
+                <p class="regional-news-note">出発時の旅費などに当ギルドも関わっていますが、二隊をまたぐ遠方の事件として、こちらへまとめて掲載しています。</p>
+              </div>
+            </article>
+
+            <article class="regional-news-article">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">ハーヴェス郊外</span>
+                <span class="regional-news-status ongoing">再発注意</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">当ギルド受付・二次にわたる調査</p>
+                <h5>景色を変え続ける「万華鏡奈落」を相次いで破壊</h5>
+                <p>
+                  並行世界の鏡像を映し、内部の景色や住民を次々に変化させる特殊な奈落の魔域が、ハーヴェス郊外で二度確認されました。いずれも依頼人のペルキュラ・ブルースターさんと冒険者隊が内部を調査し、「暗黒の枝」と呼ばれる核を破壊しています。依頼人は同型魔域の研究を続けているため、再発にはご注意ください。……受付を蹴破る勢いで入ってくる方ですので、そちらにもご注意ください。
+                </p>
+              </div>
+            </article>
+
+            <article class="regional-news-article">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">グランティン沖</span>
+                <span class="regional-news-status resolved">危機回避</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">二隊の現地報告</p>
+                <h5>不夜航宙船街「A.R.C.」を確認、発進危機を回避</h5>
+                <p>
+                  魔動機文明時代の全領域対応型移民船、不夜航宙船街「A.R.C.」が海中から発見されました。二隊にわたる調査と制圧の結果、暴走していた中枢システムは沈黙し、ラクシア全土へ被害を及ぼしかねなかった発進も停止。船長・副船長との交渉が始まり、休眠中の者を含めると小都市規模になる乗員の今後が協議されています。
+                </p>
+              </div>
+            </article>
+
+            <article class="regional-news-article">
+              <div class="regional-news-labels">
+                <span class="regional-news-region">所在地不定</span>
+                <span class="regional-news-status resolved">再封印</span>
+              </div>
+              <div class="regional-news-body">
+                <p class="regional-news-source">冒険者ギルド広域報告</p>
+                <h5>虚空から出現した城、周辺諸国への強制支配が解除</h5>
+                <p>
+                  盗掘者が古い封印へ触れた直後、虚空から巨大な城が出現し、周囲約300kmの国々が城主へ強制的に服従する異変が発生しました。通常の冒険者では近づくことも難しい状況でしたが、集結した超越者・求道者たちが城内へ進入。封じられていた古の魔女を退け、城を再封印したことで諸国への支配は解除されています。
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <button class="content-expand-button regional-news-expand-button" type="button" aria-expanded="false"
+            aria-controls="regional-news-list" data-expand-label="時事短信をすべて見る"
+            data-collapse-label="時事短信を閉じる">
+            <span>時事短信をすべて見る</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+
+          <footer class="regional-news-footer">
+            <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
+            <p>
+              掲載内容は到着した報告をもとにゾロメが短信へまとめています。連作や関連事件は、ひとつの記事にまとめている場合がありますよ～。
+            </p>
+          </footer>
+        </aside>
       </section>
 
       <!-- 5. お知らせとウワサ -->
       <section id="news-rumors" class="content-section">
         <h2><i class="fa-solid fa-map-pin"></i>ギルド掲示板</h2>
+        <article class="guild-diary-feature">
+          <header>
+            <p><i class="fa-solid fa-book-open" aria-hidden="true"></i> GUILD DAYBOOK</p>
+            <h3>ある日の帝国の鉢巻亭――書類、取材、模擬戦</h3>
+            <span>職員記録より</span>
+          </header>
+          <div class="guild-diary-grid">
+            <section>
+              <h4>午前：書類仕事が終わりません</h4>
+              <p>繁忙期の受付では、印章を探したり、ファラージさんに手伝ってもらったり、積み上がった書類がなぜか燃えたりしていました。燃やした方は「処理した」と主張していましたが、ポポロさんには通じませんでした。当然です。</p>
+            </section>
+            <section>
+              <h4>午後：取材と予告なしの模擬戦</h4>
+              <p>そこへ“記者探偵”レイチェル・フォードさんが取材に来訪。さらに他ギルドの冒険者さんたちが、勝てば看板をもらうという条件で模擬戦を申し込みました。ニシナさんたち創立メンバーも応戦し、看板は無事でした。挑戦者の皆さんには、その後の書類仕事を手伝っていただきました。</p>
+            </section>
+            <section>
+              <h4>夜：創立メンバーは今も冒険者です</h4>
+              <p>騒ぎのあとも、ニシナさん、リリさん、ポポロさんたちは「まだ冒険を続けたい」と話していました。帰還後の食卓には、ジンがサーモンのムニエルを出してくれたそうです。普段のポテトとルートビア以外が出る日も、まあ、あるんですよ。</p>
+            </section>
+          </div>
+          <p class="guild-diary-note">この日に持ち込まれた正体不明の遺物は、後日の検討資料へ回されています。現在使える施設ではありませんので、勝手に起動しないでくださいね。</p>
+        </article>
         <div class="special-announcement">
           <h3><i class="fa-solid fa-star"></i>特別告知<i class="fa-solid fa-star"></i></h3>
           <p class="announcement-title">「帝国の鉢巻 特別訓練魔域（仮）」</p>
@@ -699,7 +965,7 @@
                 最近、冒険者さんたちの間で「<strong>"記者探偵"レイチェル・フォード</strong>」と名乗る、不思議な女性の目撃情報が増えているんです。なんでも冒険者の活躍を嗅ぎつけては、ドラゴンに乗ってどこにでも現れるだけでなく、<strong>時には全く違う場所で、ほぼ同時に目撃されることもある</strong>とか…。彼女に見初められると、いきなり熱烈な取材が始まるみたいですよ。
               </p>
               <p>
-                彼女の記事に載ると、その冒険者の知名度はサバナイ中に知れ渡ると言われていて、新人さんにとっては大きなチャンスになるかもしれません。ただ、彼女自身も相当な腕利きで、取材のためなら危険な場所にも平気でついてくるそうです。…その取材に付き合っているうちに、いつの間にかとんでもない事件に巻き込まれていた、なんて話も聞きますので、関わる時は少しだけ覚悟がいるかもしれませんね！
+                彼女の記事に載ると、その冒険者の知名度は遠い地方中に知れ渡ると言われていて、新人さんにとっては大きなチャンスになるかもしれません。ただ、彼女自身も相当な腕利きで、取材のためなら危険な場所にも平気でついてくるそうです。…その取材に付き合っているうちに、いつの間にかとんでもない事件に巻き込まれていた、なんて話も聞きますので、関わる時は少しだけ覚悟がいるかもしれませんね！
               </p>
             </div>
           </div>
@@ -833,61 +1099,81 @@
       <section id="staff" class="content-section">
         <h2><i class="fa-solid fa-users-gear"></i>ギルドスタッフ</h2>
         <div class="card-container">
-          <div class="member-card" data-adventurer-level="13">
+          <div class="member-card" data-adventurer-level="13"
+            data-profile-sections="冒険者として|ギルドマスターとして|気前のよさと赤字|戦闘">
             <img class="img-nishina" src="../img/portrait/ニシナ正面.png" alt="ニシナの画像">
             <h3 class="character-name">ミカ・ニシナ</h3>
             <p class="character-job">人間 / ギルドマスター</p>
             <p class="member-desc">
-              「帝国の鉢巻亭」の設立者であり、ギルドマスターです。遠いサバナイ地方のご出身で、昔はリリさんやポポロさん、ファラージさんたちと一緒にパーティを組んで冒険されていたそうです。今でも自分で依頼へ出ようとすることがありますが、普段はギルドの運営と依頼の取りまとめを担当されています。利益をあんまり考えておらず、新人向けのキャンペーンで採算を度外視してしまうなど、その気前の良すぎるサービス精神が赤字の主な原因だと伺っております…。本当に、もう少し考えてほしいですねぇ…。<br>戦闘面では、マギスフィアを爆発させたりパイルバンカーを放ったり、マテリアルカードを使った、経費を顧みないド派手な戦い方をするため、皆さんが前線に出さないよう苦労している、というウワサです。
+              「帝国の鉢巻亭」の設立者であり、ギルドマスターです。遠い遠い地方地方のご出身で、ギルドを構える以前から各地を巡ってきた冒険者でもあります。今も現役を退いたつもりはないらしく、書類仕事が続くと「体を動かしたい」と言い出して、自分で依頼や模擬戦へ出ようとすることがあります。<br>
+              普段はギルド全体の方針を決め、依頼の取りまとめや冒険者さんたちの面倒を見ています。新人さんにも物怖じせず声をかけ、困っている人がいれば先に手を差し伸べる方です。受付や共同経営者の皆さんへ仕事を任せる一方、ご本人も現場へ出ようとするので、書類の決裁と冒険の予定がぶつかることもしばしばあります。ギルドマスターには収まっていますけど、根っこのところは今も冒険者なんでしょうね。<br>
+              新人向けの道具配布やキャンペーンを次々に始め、酒場や食事のサービスにも力を入れてくださる、とても気前の良い方です。ただし利益をあんまり考えておらず、そのサービス精神が赤字の主な原因だと伺っております。ほかの共同経営者さんたちは、ニシナさんの思いつきで仕事と経費が増えるたびに止める側へ回っています。本当に、もう少し相談してから始めてほしいですねぇ……。<br>
+              戦闘面では、マギスフィアを爆発させたり、パイルバンカーを放ったり、マテリアルカードを大量に使ったりと、経費を顧みないド派手な戦い方をされます。ポポロさんの計算では、ニシナさんが本気で一度戦うと一万ガメルほど飛ぶそうです。その実力が頼りになることは間違いないんですけど、皆さんが前線に出さないよう苦労しているのは、危険だからというより帳簿を守るためなのかもしれません。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="13">
+          <div class="member-card" data-adventurer-level="13"
+            data-profile-sections="来歴|工房と経営業務|人柄と戦闘">
             <img
               src="https://storage.ccfolia-cdn.net/users/lGj39L47sihBEN6Qi1CJVker2St2/files/2b42238d82d594a5172ad977edf44599788ae5c0237b2921c806d4b020165072?t=1761652688257"
               alt="リリの画像">
             <h3 class="character-name" style="font-size: 1.3rem;">ラズヒェル・リリベラード</h3>
             <p class="character-job">ナイトメア / 共同経営者・魔動機技師</p>
             <p class="member-desc">
-              ギルドの設立に携わり、現在は共同経営と職員業務も担っている優秀な魔動機技師です。皆からはリリさんって呼ばれているようですね～。サバナイ地方のご出身で、昔はニシナさん、ポポロさん、ファラージさんたちとパーティを組んで冒険を共にされていたそうです。地下の工房で冒険者が持ち込む魔動機の修理や改造を一手に引き受けています。今でも冒険者を引退したわけではなく、必要があれば依頼へ出ることもあります。自身の発明品のテストを依頼してくることもありますし、時には自作の便利な道具を譲ってくださることもあるみたいですよ。戦闘面では、二丁拳銃を使ってくるそうです。
+              ギルドの設立に携わり、現在は共同経営と職員業務も担っている優秀な魔動機技師です。皆からはリリさんって呼ばれているようですね～。遠い地方地方のご出身で、昔はニシナさん、ポポロさん、ファラージさんたちとパーティを組んで冒険を共にされていたそうです。<br>
+              地下の工房で、冒険者さんが持ち込む魔動機の修理や改造を一手に引き受けています。自身の発明品のテストを依頼してくることもありますし、時には自作の便利な道具を譲ってくださることもあるみたいですよ。共同経営者として書類の決裁も担当されていますが、忙しい時には印鑑ごと他の職員へ預けていることがありますので、急ぎの書類は受付で担当者を確認してください。<br>
+              かなり歯に衣着せぬ方で、突然やってきた取材やニシナさんの思いつきには、容赦のない言葉を返されます。ただ、それでも必要な仕事や戦闘にはきっちり参加してくださるんですよね。今でも冒険者を引退したわけではなく、ギルドへ模擬戦を挑んできた方々を相手にした際は、カービンの砲撃と連射で前衛を一気に制圧したそうです。最後は投石だけで決着をつけたとか。二丁拳銃を使う時もあるそうですし、工房の技師だから後方担当だろう、とは思わないほうがよさそうです。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="13">
+          <div class="member-card" data-adventurer-level="13"
+            data-profile-sections="来歴|新人冒険者の案内|経営と戦闘">
             <img
               src="https://storage.ccfolia-cdn.net/users/YGq1iXldbNUeVeITyzT9ML9DROD3/files/744763fbfb27a2a6f336d7e1cc35f4af646542030638112c83aae465cda882d8?t=1761649547081"
               alt="ポポロの画像">
             <h3 class="character-name">ポポロ・リック</h3>
             <p class="character-job">グラスランナー / 共同経営者・先輩冒険者</p>
             <p class="member-desc">
-              ギルドの設立に携わり、現在は共同経営と職員業務を担いながら、新人冒険者の案内役を務めることが多い、面倒見の良い先輩です。マカジャハットのご出身で、ニシナさんやリリさん、ファラージさんたちとは同じパーティの仲間だったとか。普段はギルドにいますが、冒険者を引退したわけではなく、依頼へ出ることもあります。斥候としての腕は一流で、数々の修羅場をくぐり抜けてきたと伺っております。戦闘面では、回避しながら囮攻撃を使ってくるそうです。
+              ギルドの設立に携わり、現在は共同経営と職員業務を担いながら、新人冒険者の案内役を務めることが多い、面倒見の良い先輩です。マカジャハットのご出身で、ニシナさんやリリさん、ファラージさんたちとは同じパーティの仲間だったとか。<br>
+              掲示板の前で迷っている新人さんへ声をかけ、希望する仕事、想定される魔物、依頼人の性格、報酬まで見比べて、実力に合った依頼を勧めてくださいます。依頼の受理やスタートダッシュキャンペーンの道具配布を担当することもあります。ただ、景品箱を紹介する時の口上が妙に胡散臭く聞こえるらしく、本当に無料なのに詐欺を疑われていたことがありました。ご本人の善意とギルドマスターの赤字覚悟によるものですので、そこは信じてあげてくださいね。<br>
+              普段は軽い調子ですけど、書類を燃やす人や仕事を増やすニシナさんを止める側に回ることが多く、共同経営者の中ではかなり現実的な方です。ニシナさんが本気で戦うと一度に一万ガメルほど飛ぶ、と具体的に叱っていた記録もあります。冒険者を引退したわけではなく、斥候としての腕は一流です。回避しながら相手を引きつけ、投擲武器と挑発攻撃を使って戦うため、新人さんの案内役だから戦闘も穏やかだろう、とは思わないでくださいね。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="??">
+          <div class="member-card" data-adventurer-level="??"
+            data-profile-sections="受付と依頼審査|知識と依頼説明|人柄と記録">
             <img src="../img/portrait/ポラリス.png" alt="ポラリスの画像">
             <h3 class="character-name">ポラリス</h3>
             <p class="character-job">ルーンフォーク？ / ギルド職員</p>
             <p class="member-desc">
-              依頼の審査や受付を担当されている、とても親切な職員さんです。冒険者さんの実力と実績を見て、受けられる依頼を判断したり、危険性や条件を説明したり、帰還後の報告と精算まで取りまとめてくださいます。ギルドの中ではかなりの古株で、ほとんどの冒険者さんが「初めてギルドに来た時からいた」って言ってますね。無表情のまま冗談を言うことがあるので、たまにびっくりさせられます。ウワサでは、いざという時には強力な武器で戦闘支援もしてくれる、とっても頼りになる方らしいですよ。
+              依頼の審査や受付を担当されている、とても親切な職員さんです。冒険者さんの実力と実績を見て、受けられる依頼を判断したり、危険性や条件を説明したり、帰還後の報告と精算まで取りまとめてくださいます。希望者が条件を満たしていない場合も、ただ断るだけではなく、その場で実力に合う別の依頼を掲示板から選んで渡してくださるんですよ。<br>
+              遺跡、魔動機文明、浮遊大陸などの知識にも詳しく、未知の警備魔動機が残る可能性や、戦利品の買い取り条件まで含めて説明されます。説明は冷静で正確なんですけど、「コロッサスがいた場合は十秒ほどで死亡することも珍しくありません」みたいなことを同じ調子でおっしゃるので、聞いている側が後から怖くなることがありますね。<br>
+              ギルドの中ではかなりの古株で、ほとんどの冒険者さんが「初めてギルドに来た時からいた」って言ってます。無表情のまま冗談を言うこともありますし、自由すぎる依頼人や職員の私物にはかなり厳しいです。以前、絶対に損傷させないでほしいと念を押した浮遊大陸が海へ沈んだ時には、三日ほど泣きながら仕事をしていたそうです……。それでも受付を止めなかったあたり、本当に責任感の強い方なんでしょうね。ウワサでは、いざという時には強力な武器で戦闘支援もしてくれる、とっても頼りになる方らしいですよ。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="??">
+          <div class="member-card" data-adventurer-level="??"
+            data-profile-sections="担当業務|魔動機と遠征支援|人柄">
             <img src="../img/portrait/アルフィルク.png" alt="アルフィルクの画像">
             <h3 class="character-name">アルフィルク</h3>
             <p class="character-job">ルーンフォーク？ / ギルド職員</p>
             <p class="member-desc">
-              ポラリスさんの妹さんで、帳簿や依頼書類、受付時の映像記録といった裏方のお仕事を担当されています。とっても明るくてお喋り好きなんですけど、そのせいで冒険者さんと話し込んじゃって仕事が進まなくなるから、と裏方に回された…なんてウワサも…。なので、皆さんが顔を合わせる機会は少ないかもしれませんね。
+              ポラリスさんの妹さんで、帳簿や依頼書類、受付時の映像記録、遠征中の通信管理、帰還後の報酬精算といった裏方のお仕事を担当されています。マギスフィアに残した依頼人の映像を冒険者さんへ見せたり、聞き込み用の似顔絵を描いたりするほか、戦利品の買い取りまで手際よく進めてくださいます。<br>
+              魔動機の扱いにもかなり詳しく、市販の通話のピアスを改造して使用時間の制限をなくしたり、通信が途絶えた遠征隊をギルドから支援したりしたこともあります。修理の相談も受けているそうで、本人いわく「トースターとか直せますよ」とのことです。どこまで直せるんでしょうね。<br>
+              とっても明るくてお喋り好きなんですけど、そのせいで冒険者さんと話し込んで仕事が進まなくなるから、と裏方に回された…なんてウワサもあります。お掃除は少し苦手らしく、ポラリスさんに叱られている姿もたまに見かけますね。普段は軽い調子ですけど、遠征隊と二日も連絡が取れなくなった時には本気で心配していたそうです。皆さんが顔を合わせる機会は少なくても、旅先から聞こえる声には、ちゃんと気を配ってくださっていますよ。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="??">
+          <div class="member-card" data-adventurer-level="??"
+            data-profile-sections="新人案内と冒険道具|人柄と仕事|受付で会えたら">
             <img
               src="https://storage.ccfolia-cdn.net/users/lGj39L47sihBEN6Qi1CJVker2St2/files/d6934c681f4660f145652f1f19462a9e2006ab7520f5391cd5d5f0edaef106ff"
               alt="ネリーさんの画像">
             <h3 class="character-name">ネリー</h3>
             <p class="character-job">メリア / ギルド職員</p>
             <p class="member-desc">
-              冒険者登録や新人さんの案内、スタートダッシュキャンペーンの説明などを担当されている職員の方です。グミキノコ風の受付ということになっているらしいですが……親切に対応してくださいますよ。
+              冒険者登録や新人さんの案内、スタートダッシュキャンペーンの説明などを担当されている職員の方です。新人さんへ配る冒険道具の抽選箱を抱えて現れ、サングラスから〈迷わずのチョーク〉、〈悪魔の血盤〉、酒の種まで、当たった品の使い方をひとつずつ説明してくださったこともあります。変わった品物にも詳しく、受付職員として冒険道具の知識はかなり頼りになりますよ。<br>
+              明るく気さくな方ですが、「新人さんが31人も増えたので、ぶっちゃけ大赤字です」と普通に話してしまうくらい率直なところがあります。キャンペーンの案内だけでなく、掲示板から新人向けの初仕事を選んで勧めるなど、冒険者さんが最初の一歩を踏み出すところまで面倒を見てくださいます。<br>
+              ご本人は「結構レアキャラ」とおっしゃっていますので、受付で会えた方は少し運がいいのかもしれません。グミキノコ風の受付ということになっているらしいですが……親切に対応してくださいますよ。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="5">
+          <div class="member-card" data-adventurer-level="5"
+            data-profile-sections="新卒事務員ゾロメ">
             <img
               src="https://storage.ccfolia-cdn.net/users/NeaHf2XCQ4RTWIb3r0EOKpcsQhF2/files/d280c0b260b17823a1100a212b759eed9e8736a3d810f70a542919c053e35ea2"
               alt="ゾロメの画像">
@@ -897,7 +1183,8 @@
               ギルドの事務員を務めております、ゾロメ・ベストマンです。魔法学園を卒業して、最近ギルドに入ったばかりの新卒です。依頼の受付や契約書、記録管理、報酬の支払いのほか、予算管理や物資調達も担当しております。最近、あのジンとかいう変なのに無理やり変な魔域探索に付き合わされて、冒険者デビューも果たしました…。実務経験はまだ浅いですが、精一杯頑張りますので、どうぞよろしくお願いいたします～。あ、あと、天地使い…ジオマンサーっていうのもやっています。まだまだ半人前ですけど、いつか皆さんのお役に立てるように頑張りますね！
             </p>
           </div>
-          <div id="staff-mari" class="member-card" data-adventurer-level="??">
+          <div id="staff-mari" class="member-card" data-adventurer-level="??"
+            data-profile-sections="担当業務|謎の多い一面">
             <img
               src="https://storage.ccfolia-cdn.net/users/3ACvJZrkC3drwGIMeHHAsAFz6uJ3/files/345528aacb576cf172d69d2655a0a093a5ad5ca7864e50b1dd710d33886710cd?t=1784643898428"
               alt="まりちゃんの画像">
@@ -908,7 +1195,8 @@
               ……それだけなら、とても仕事のできる方なんですけどね。なぜアルバイトの方が私物の飛空艇を持っていて、それを依頼の送迎に出せるんでしょうか。「覚えておくといいことがある」とも言われましたけど、何があるのかは教えてくれませんでした。聞いても普通に流されます。なんなんですかねぇ、もう……。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="13">
+          <div class="member-card" data-adventurer-level="13"
+            data-profile-sections="ギルドでの仕事|戦闘と素性">
             <img
               src="https://storage.ccfolia-cdn.net/users%2FlGj39L47sihBEN6Qi1CJVker2St2%2Ffiles%2Fadb0103f071cd9791426b323bca6826be0b8eb3606018abc6258a9bf653ec121?alt=media&token=731be2ad-27f3-446b-ad11-b4ed94a9ab67"
               alt="バイトさんの画像">
@@ -919,7 +1207,8 @@
               戦闘面では、体をギルドに置いたまま幽体で戦うという、非常に特殊な戦い方をされるようです。以前、単独でヒドラを討伐した実績もあり、その実力は計り知れません…。……いつか名前を教えてくれる日は来るのでしょうか。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="???" data-role="その他">
+          <div class="member-card" data-adventurer-level="???" data-role="その他"
+            data-profile-sections="出所不明|意味不明な技能">
             <img src="../img/portrait/JinFace.png" alt="ジンの画像">
             <h3 class="character-name">ジン (<a
                 href="https://jp.finalfantasyxiv.com/lodestone/character/53872646/"
@@ -1065,7 +1354,7 @@
           <div id="facility-submarine" class="facility-item">
             <h3><i class="fa-solid fa-water"></i>潜水艦「コルト・コーリーヴス号」</h3>
             <p>
-              最近、氷海の海底から引き揚げられた魔動機文明時代の潜水艦です。リリさんの手によって整備され、今ではギルドの貴重な移動手段となっています。水中での活動が可能になり、冒険の幅がぐっと広がりました！……なお、現在は船体にわざわざ「にしなちゃん号」と書き直されていますが、記録上の名称はコルト・コーリーヴス号です。誰が何のために書き直したのかは、私に聞かないでください。あと、私、乗り物酔いするんですけど、大丈夫ですかねぇ。
+              最近、氷海の海底から引き揚げられた魔動機文明時代の潜水艦です。リリさんの手によって整備され、今ではギルドの貴重な移動手段となっています。水中での活動が可能になり、冒険の幅がぐっと広がりました！……なお、現在は船体にわざわざ「にしなちゃん号」と書き直されていますが、記録上の名称はコルト・コーリーヴス号です。誰が何のために書き直したのかは、私に聞かないでください。
             </p>
           </div>
           <div id="facility-airship" class="facility-item">
@@ -1099,7 +1388,7 @@
         </p>
 
         <div id="location-details">
-          <div class="location-category">
+          <div class="location-category location-category-masonry">
             <h3><i class="fa-solid fa-store"></i>街の施設</h3>
             <div id="location-general-store" class="location-item">
               <h4>冒険者ギルド「ドラゴンファイア」</h4>
@@ -1282,7 +1571,13 @@
         <!-- ▼ ここに移動・修正して貼り付け ▼ -->
         <div id="update-log">
           <h4><i class="fa-solid fa-clock-rotate-left"></i> 更新履歴</h4>
-          <div class="log-content">
+          <div id="update-log-content" class="log-content expandable-content log-content-collapsed">
+            <p><strong>ver 3.5:</strong> ギルドのある一日と卓スタダ初期の活動記録を追加し、ベネポレンスと各地から届いた時事短信を増補しました。</p>
+            <p><strong>ver 3.4:</strong> 当ギルドの依頼実績とは別に、各地から届いた事件を紹介する「近隣・各地の時事」を追加しました。</p>
+            <p><strong>ver 3.3:</strong> ニシナさんの職員紹介に、冒険者・経営と戦闘に関する記録を追記しました。</p>
+            <p><strong>ver 3.2:</strong> ポポロさん、リリさん、ポラリスさんの職員紹介を、過去の業務・戦闘記録から追記しました。</p>
+            <p><strong>ver 3.1:</strong> ネリーさんとアルフィルクさんの職員紹介を、過去の業務記録をもとに追記しました。</p>
+            <p><strong>ver 3.0:</strong> 営業・利用案内の早見表と、依頼掲示板・更新履歴の「すべて見る」表示を追加しました。</p>
             <p><strong>ver 2.9:</strong> ギルド設立前のパーティと、建物・名称の由来を追記しました。</p>
             <p><strong>ver 2.8:</strong> 達成済み依頼を経過順に整理。危険地帯と特別な場所の記録も増補しました。（報告書が、かなり増えました…）</p>
             <p><strong>ver 2.7:</strong> まりちゃんの職員紹介と、遠征手配・飛空艇に関する情報を追加。</p>
@@ -1294,6 +1589,12 @@
             <p><strong>ver 2.1:</strong> ギルド外壁の修繕完了。（爆発事故の件です、もう勘弁してください…）</p>
             <p><strong>ver 2.0:</strong> サイトリニューアルオープン！</p>
           </div>
+          <button class="content-expand-button content-expand-button-compact" type="button" aria-expanded="false"
+            aria-controls="update-log-content" data-expand-label="更新履歴をすべて見る"
+            data-collapse-label="更新履歴を閉じる">
+            <span>更新履歴をすべて見る</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
         </div>
       </section>
 
@@ -1306,13 +1607,31 @@
       <div class="map-modal-caption">ピンチ操作で拡大・縮小できます</div>
     </div>
 
+    <dialog id="staff-profile-dialog" class="staff-profile-dialog" aria-labelledby="staff-dialog-name">
+      <button class="staff-dialog-close" type="button" aria-label="職員紹介を閉じる">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <div class="staff-dialog-header">
+        <img class="staff-dialog-image" src="" alt="">
+        <div class="staff-dialog-identity">
+          <p class="staff-dialog-level"></p>
+          <h3 id="staff-dialog-name"></h3>
+          <p class="staff-dialog-job"></p>
+        </div>
+      </div>
+      <div class="staff-dialog-description"></div>
+    </dialog>
+
+    <button onclick="topFunction()" id="backToTopBtn" type="button" aria-label="ページの先頭へ戻る"
+      title="ページの先頭へ戻る">▲</button>
+
     <footer>
       <img src="../img/hachimaki.svg" alt="" class="footer-logo">
       <p>© 冒険者ギルド「帝国の鉢巻」,ゾロメ・ベストマン</p>
     </footer>
     <script src="../js/common.js"></script>
     <script src="../js/featured-character.js"></script>
-    <script src="js/247_guild.js"></script>
+    <script src="js/247_guild.js?v=3.3.2"></script>
     <script src="js/hydra_ranking.js"></script>
     <script src="../js/dice_roller.js"></script>
   </div>

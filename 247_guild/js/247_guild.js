@@ -63,9 +63,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // スムーズスクロール関数
-  const smoothScrollTo = (targetId) => {
+  let facilityHighlightTimer = null;
+  const smoothScrollTo = (targetId, options = {}) => {
     const targetElement = document.querySelector(targetId);
     if (targetElement) {
+      const isFacility = targetElement.classList.contains("facility-item");
+      const updateHash = options.updateHash !== false;
       const headerOffset = document.querySelector(".page-header").offsetHeight; // ヘッダーの高さを取得
       const elementPosition =
         targetElement.getBoundingClientRect().top + window.pageYOffset;
@@ -75,6 +78,33 @@ document.addEventListener("DOMContentLoaded", function () {
         top: offsetPosition,
         behavior: "smooth",
       });
+
+      if (updateHash && window.location.hash !== targetId) {
+        window.history.pushState(null, "", targetId);
+      } else if (!updateHash && window.location.hash) {
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}${window.location.search}`,
+        );
+      }
+
+      if (isFacility) {
+        if (facilityHighlightTimer) {
+          window.clearTimeout(facilityHighlightTimer);
+        }
+        document
+          .querySelectorAll(".facility-item.anchor-highlight")
+          .forEach((item) => item.classList.remove("anchor-highlight"));
+        targetElement.classList.remove("anchor-highlight");
+        window.requestAnimationFrame(() => {
+          targetElement.classList.add("anchor-highlight");
+        });
+        facilityHighlightTimer = window.setTimeout(() => {
+          targetElement.classList.remove("anchor-highlight");
+          facilityHighlightTimer = null;
+        }, 2400);
+      }
     }
   };
 
@@ -186,7 +216,9 @@ document.addEventListener("DOMContentLoaded", function () {
           if (hotspotLink) {
             // ホットスポットがクリックされたら施設案内へジャンプ
             event.preventDefault();
-            smoothScrollTo(hotspotLink.getAttribute("href"));
+            smoothScrollTo(hotspotLink.getAttribute("href"), {
+              updateHash: false,
+            });
           } else if (window.innerWidth <= 768) {
             // ホットスポット以外がクリックされ、かつスマホ表示の場合のみ拡大
             openModal(imageToZoom);
@@ -195,7 +227,9 @@ document.addEventListener("DOMContentLoaded", function () {
           // 地図の場合のクリック処理
           if (hotspotLink) {
             event.preventDefault();
-            smoothScrollTo(hotspotLink.getAttribute("href"));
+            smoothScrollTo(hotspotLink.getAttribute("href"), {
+              updateHash: false,
+            });
           } else if (window.innerWidth <= 768) {
             openModal(imageToZoom);
           }
@@ -220,6 +254,105 @@ document.addEventListener("DOMContentLoaded", function () {
         closeMapModal();
       }
     });
+  }
+
+  /* ===================================================
+     現代的なページナビゲーションとスクロール演出
+     =================================================== */
+  const progressBar = document.querySelector(".scroll-progress span");
+  let scrollUpdateQueued = false;
+
+  const updateScrollUi = () => {
+    const scrollableHeight =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const scrollRatio =
+      scrollableHeight > 0 ? Math.min(window.scrollY / scrollableHeight, 1) : 0;
+
+    if (progressBar) {
+      progressBar.style.transform = `scaleX(${scrollRatio})`;
+    }
+    scrollUpdateQueued = false;
+  };
+
+  const requestScrollUiUpdate = () => {
+    if (!scrollUpdateQueued) {
+      scrollUpdateQueued = true;
+      window.requestAnimationFrame(updateScrollUi);
+    }
+  };
+
+  window.addEventListener("scroll", requestScrollUiUpdate, { passive: true });
+  window.addEventListener("resize", requestScrollUiUpdate);
+  updateScrollUi();
+
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (!prefersReducedMotion && "IntersectionObserver" in window) {
+    document.documentElement.classList.add("has-reveal-motion");
+    const revealTargets = document.querySelectorAll(
+      ".service-guide-card, .request-card, .member-card, .facility-item, .location-item, .guild-history-note, .guild-exterior",
+    );
+
+    revealTargets.forEach((target, index) => {
+      target.classList.add("reveal-item");
+      target.style.setProperty("--reveal-order", String(index % 4));
+    });
+
+    const revealObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        rootMargin: "0px 0px -8% 0px",
+        threshold: 0.08,
+      },
+    );
+
+    revealTargets.forEach((target) => revealObserver.observe(target));
+  }
+
+  const sectionLinks = Array.from(
+    document.querySelectorAll('.page-nav a[href^="#"]'),
+  );
+  const sectionLinkMap = new Map(
+    sectionLinks.map((link) => [link.getAttribute("href").slice(1), link]),
+  );
+  const observedSections = Array.from(sectionLinkMap.keys())
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+
+  if ("IntersectionObserver" in window && observedSections.length > 0) {
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (!visibleEntry) return;
+        sectionLinks.forEach((link) => {
+          link.classList.remove("active");
+          link.removeAttribute("aria-current");
+        });
+        const activeLink = sectionLinkMap.get(visibleEntry.target.id);
+        if (activeLink) {
+          activeLink.classList.add("active");
+          activeLink.setAttribute("aria-current", "location");
+        }
+      },
+      {
+        rootMargin: "-22% 0px -62% 0px",
+        threshold: [0, 0.1, 0.35],
+      },
+    );
+
+    observedSections.forEach((section) => sectionObserver.observe(section));
   }
   // 「戻る」リンクの機能
   const backToPreviousPageLink = document.getElementById("back-link");
@@ -370,6 +503,26 @@ function adjustStaffCardFontSizes() {
 // ページ読み込み時にギルドスタッフのカードにもフォントサイズ調整を適用
 adjustStaffCardFontSizes();
 
+// --- 長い一覧を「すべて見る」で段階表示する機能 ---
+document.querySelectorAll(".content-expand-button").forEach((button) => {
+  const contentId = button.getAttribute("aria-controls");
+  const content = contentId ? document.getElementById(contentId) : null;
+  const label = button.querySelector("span");
+
+  if (!content || !label) {
+    return;
+  }
+
+  button.addEventListener("click", () => {
+    const willExpand = button.getAttribute("aria-expanded") !== "true";
+    content.classList.toggle("is-expanded", willExpand);
+    button.setAttribute("aria-expanded", String(willExpand));
+    label.textContent = willExpand
+      ? button.dataset.collapseLabel
+      : button.dataset.expandLabel;
+  });
+});
+
 // --- ギルドスタッフにも冒険者レベルを表示する機能 ---
 const memberCards = document.querySelectorAll("#staff .member-card");
 memberCards.forEach((card) => {
@@ -394,3 +547,84 @@ memberCards.forEach((card) => {
     card.insertBefore(levelElement, card.firstChild);
   }
 });
+
+// --- ギルドスタッフの詳しい紹介ダイアログ ---
+const staffDialog = document.getElementById("staff-profile-dialog");
+if (staffDialog) {
+  const dialogImage = staffDialog.querySelector(".staff-dialog-image");
+  const dialogName = staffDialog.querySelector("#staff-dialog-name");
+  const dialogJob = staffDialog.querySelector(".staff-dialog-job");
+  const dialogLevel = staffDialog.querySelector(".staff-dialog-level");
+  const dialogDescription = staffDialog.querySelector(
+    ".staff-dialog-description",
+  );
+  const dialogClose = staffDialog.querySelector(".staff-dialog-close");
+  let lastStaffDialogTrigger = null;
+
+  memberCards.forEach((card) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "staff-profile-button";
+    button.innerHTML =
+      '<span>詳しい紹介を見る</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
+
+    button.addEventListener("click", () => {
+      const image = card.querySelector("img");
+      const name = card.querySelector(".character-name");
+      const job = card.querySelector(".character-job");
+      const level = card.querySelector(".adventurer-level");
+      const description = card.querySelector(".member-desc");
+
+      dialogImage.src = image?.src || "";
+      dialogImage.alt = image?.alt || "";
+      dialogName.textContent = name?.textContent.trim() || "";
+      dialogJob.textContent = job?.textContent.trim() || "";
+      dialogLevel.textContent = level?.textContent.trim() || "";
+      dialogDescription.replaceChildren();
+
+      const sectionTitles = (card.dataset.profileSections || "紹介").split(
+        "|",
+      );
+      const descriptionParts = (description?.innerHTML || "")
+        .split(/<br\s*\/?>/gi)
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+      descriptionParts.forEach((descriptionHtml, index) => {
+        const section = document.createElement("section");
+        section.className = "staff-dialog-section";
+
+        const heading = document.createElement("h4");
+        heading.textContent =
+          sectionTitles[index] || `補足 ${String(index + 1)}`;
+
+        const paragraph = document.createElement("p");
+        paragraph.innerHTML = descriptionHtml;
+
+        section.append(heading, paragraph);
+        dialogDescription.appendChild(section);
+      });
+
+      lastStaffDialogTrigger = button;
+      document.body.classList.add("staff-dialog-open");
+      staffDialog.showModal();
+    });
+
+    card.appendChild(button);
+  });
+
+  const closeStaffDialog = () => {
+    staffDialog.close();
+  };
+
+  dialogClose.addEventListener("click", closeStaffDialog);
+  staffDialog.addEventListener("click", (event) => {
+    if (event.target === staffDialog) {
+      closeStaffDialog();
+    }
+  });
+  staffDialog.addEventListener("close", () => {
+    document.body.classList.remove("staff-dialog-open");
+    lastStaffDialogTrigger?.focus();
+  });
+}
