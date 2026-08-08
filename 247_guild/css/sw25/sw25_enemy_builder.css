@@ -1,0 +1,1671 @@
+#panel-enemy-builder {
+  --enemy-builder-gold: #c8a464;
+  --enemy-builder-gold-bright: #f0cf85;
+  --enemy-builder-panel: rgba(14, 12, 10, 0.82);
+  --enemy-builder-panel-soft: rgba(255, 255, 255, 0.035);
+  --enemy-builder-border: rgba(200, 164, 100, 0.28);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 69rem;
+  margin-inline: auto;
+  color: #eee5d5;
+}
+
+#panel-enemy-builder input,
+#panel-enemy-builder select,
+#panel-enemy-builder textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(200, 164, 100, 0.35);
+  border-radius: 6px;
+  background: rgba(5, 5, 5, 0.56);
+  color: #f5ead7;
+}
+
+#panel-enemy-builder input,
+#panel-enemy-builder select {
+  min-height: 2.15rem;
+  padding: 0.35rem 0.5rem;
+}
+
+#panel-enemy-builder textarea {
+  padding: 0.55rem 0.65rem;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+#panel-enemy-builder input:focus,
+#panel-enemy-builder select:focus,
+#panel-enemy-builder textarea:focus {
+  border-color: var(--enemy-builder-gold-bright);
+  outline: 2px solid rgba(240, 207, 133, 0.16);
+  outline-offset: 1px;
+}
+
+.enemy-builder-heading,
+.enemy-builder-section-title,
+.enemy-builder-heading-actions,
+.enemy-builder-output-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.enemy-builder-heading {
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--enemy-builder-border);
+}
+
+.enemy-builder-heading h3,
+.enemy-builder-section-title h4 {
+  margin: 0;
+}
+
+.enemy-builder-heading p {
+  max-width: 56rem;
+  margin: 0.3rem 0 0;
+  color: #c9bdac;
+  font-size: 0.88rem;
+}
+
+.enemy-builder-heading-actions {
+  flex: 0 0 auto;
+}
+
+.enemy-builder-ability-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.enemy-builder-import-bar {
+  display: grid;
+  grid-template-columns: max-content minmax(12rem, 1fr) max-content;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--enemy-builder-border);
+  border-radius: 8px;
+  background: var(--enemy-builder-panel-soft);
+}
+
+.enemy-builder-import-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #d8c9b4;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+#panel-enemy-builder #enemy-builder-import-source {
+  min-width: 0;
+  min-height: 1.9rem;
+  padding-block: 0.2rem;
+}
+
+#panel-enemy-builder #enemy-builder-import-button {
+  min-height: 1.9rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.enemy-builder-import-status {
+  grid-column: 2 / -1;
+  min-height: 1em;
+  color: #bcae9b;
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.enemy-builder-quick-card,
+.enemy-builder-card {
+  border: 1px solid var(--enemy-builder-border);
+  border-radius: 11px;
+  background: linear-gradient(145deg, rgba(200, 164, 100, 0.06), var(--enemy-builder-panel));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.035);
+}
+
+.enemy-builder-quick-card {
+  margin-bottom: 0.8rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.enemy-builder-dream-card { padding: 0; }
+
+.enemy-builder-dream-toggle {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.8rem 0.9rem;
+  color: var(--enemy-builder-gold-bright);
+  cursor: pointer;
+  list-style: none;
+}
+
+.enemy-builder-dream-toggle::-webkit-details-marker { display: none; }
+.enemy-builder-dream-toggle > span { font-size: 1.05rem; font-weight: 800; }
+.enemy-builder-dream-toggle small { color: #aa9d8a; font-size: 0.75rem; }
+.enemy-builder-dream-chevron { transition: transform 0.2s ease; }
+.enemy-builder-dream-card[open] .enemy-builder-dream-chevron { transform: rotate(180deg); }
+
+.enemy-builder-dream-controls {
+  padding: 0.75rem 0.9rem 0.9rem;
+  border-top: 1px solid var(--enemy-builder-border);
+}
+
+.enemy-builder-dream-card > .enemy-builder-dream-summary {
+  margin: 0 0.9rem 0.9rem;
+}
+
+.enemy-builder-card {
+  min-width: 0;
+  padding: 0.85rem;
+}
+
+.enemy-builder-section-title {
+  min-height: 2rem;
+  margin-bottom: 0.65rem;
+}
+
+.enemy-builder-section-title small {
+  display: block;
+  margin-top: 0.15rem;
+  color: #ac9f8c;
+  font-size: 0.75rem;
+}
+
+.enemy-builder-badge {
+  padding: 0.18rem 0.55rem;
+  border: 1px solid rgba(240, 207, 133, 0.34);
+  border-radius: 999px;
+  color: #f4d890;
+  background: rgba(200, 164, 100, 0.1);
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+
+.enemy-builder-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.enemy-builder-quick-grid > button { min-height: 2.45rem; }
+.enemy-builder-quick-grid [hidden] { display: none !important; }
+
+.enemy-builder-dream-summary {
+  margin: 0.65rem 0 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(240, 207, 133, 0.24);
+  border-radius: 7px;
+  color: #dbc9aa;
+  background: rgba(200, 164, 100, 0.07);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.enemy-builder-quick-grid label,
+.enemy-builder-fields label,
+.enemy-builder-notes-card label,
+.enemy-builder-core-field {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.enemy-builder-parts-summary {
+  display: grid;
+  justify-content: start;
+  gap: 0.3rem;
+  margin-top: 0.45rem;
+}
+
+.enemy-builder-parts-toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+}
+
+.enemy-builder-manual-toggle {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.2rem 0.32rem 0.16rem 0.22rem;
+  border: 1px solid var(--enemy-builder-border);
+  border-radius: 5px;
+  color: #dbc9aa;
+  background: var(--enemy-builder-panel-soft);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.enemy-builder-split-parts-toggle {
+  margin: 0;
+}
+
+.enemy-builder-split-parts-toggle[hidden] { display: none; }
+
+#panel-enemy-builder .enemy-builder-manual-toggle input {
+  width: 0.9rem;
+  height: 0.9rem;
+  min-height: 0.9rem;
+  margin: 0;
+  accent-color: var(--enemy-builder-gold);
+}
+
+.enemy-builder-parts-fields {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+  align-items: center;
+}
+
+.enemy-builder-parts-fields label {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.enemy-builder-parts-fields label > span:first-child {
+  color: #bcae9b;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.enemy-builder-parts-main-inputs {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.enemy-builder-parts-parenthesis {
+  color: #a99b87;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.enemy-builder-parts-fields input[readonly] {
+  color: #a89c8c;
+  background: rgba(5, 5, 5, 0.3);
+}
+
+.enemy-builder-quick-grid label > span,
+.enemy-builder-fields label > span,
+.enemy-builder-notes-card label > span,
+.enemy-builder-core-field > span {
+  color: #d8c9b4;
+  font-size: 0.77rem;
+  font-weight: 700;
+}
+
+.enemy-builder-quick-grid .add-row-btn {
+  min-height: 2.15rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.enemy-builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.9fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.enemy-builder-basics-card,
+.enemy-builder-notes-card,
+.enemy-builder-parts-card,
+.enemy-builder-output-card { grid-column: 1 / -1; grid-row: auto; }
+
+.enemy-builder-abilities-card {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.enemy-builder-ability-preview-card {
+  grid-column: 2;
+  grid-row: 3;
+  align-self: stretch;
+  position: relative;
+  max-height: none;
+  overflow: visible;
+}
+
+.enemy-builder-fields {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.38rem 0.55rem;
+  max-width: none;
+}
+
+.enemy-builder-fields label {
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.enemy-builder-fields label > span {
+  white-space: nowrap;
+}
+
+.enemy-builder-fields .enemy-builder-level-field { grid-column: span 2; }
+.enemy-builder-fields .enemy-builder-name-field { grid-column: span 7; }
+.enemy-builder-fields .enemy-builder-taxa-field { grid-column: span 3; min-width: 0; }
+
+.enemy-builder-race-inline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.enemy-builder-race-inline[hidden] { display: none; }
+
+.enemy-builder-race-inline-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.enemy-builder-fields .enemy-builder-third-field { grid-column: span 4; }
+.enemy-builder-fields .enemy-builder-half-field { grid-column: span 6; }
+.enemy-builder-fields .enemy-builder-quarter-field { grid-column: span 3; }
+.enemy-builder-fields .enemy-builder-three-quarter-field { grid-column: span 9; }
+
+.enemy-builder-reputation-pair {
+  display: grid;
+  grid-template-columns: 4.5rem auto 4.5rem;
+  gap: 0.2rem;
+  align-items: center;
+  width: 10rem;
+  max-width: 100%;
+}
+
+.enemy-builder-reputation-pair > span {
+  color: #a99b87;
+  text-align: center;
+}
+
+#panel-enemy-builder .enemy-builder-fields .enemy-builder-level-field input,
+#panel-enemy-builder .enemy-builder-fields .enemy-builder-quarter-field input[type="number"] {
+  width: 4.5rem;
+  max-width: 100%;
+}
+
+#panel-enemy-builder input[type="number"] {
+  height: 1.7rem;
+  min-height: 1.7rem;
+  padding: 1px 2px;
+  font-family: var(--font-latin-ui);
+  font-size: 1.2rem;
+  font-weight: var(--font-latin-ui-weight, 300);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+#panel-enemy-builder #enemy-builder-parts-total,
+#panel-enemy-builder #enemy-builder-parts-breakdown,
+#panel-enemy-builder #enemy-builder-core-parts {
+  height: 1.55rem;
+  min-height: 1.55rem;
+  padding: 1px 0.32rem;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+#panel-enemy-builder #enemy-builder-parts-total {
+  width: 3.5rem;
+  text-align: center;
+}
+
+#panel-enemy-builder #enemy-builder-parts-breakdown {
+  width: 14rem;
+}
+
+#panel-enemy-builder #enemy-builder-core-parts {
+  width: 10rem;
+}
+
+#enemy-builder-mobility {
+  font-family: var(--font-latin-ui, inherit);
+  font-size: 1.2rem;
+  font-weight: var(--font-latin-ui-weight, 300);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+#panel-enemy-builder #enemy-builder-language,
+#panel-enemy-builder #enemy-builder-habitat,
+#panel-enemy-builder #enemy-builder-weakness,
+#panel-enemy-builder #enemy-builder-mobility {
+  width: 25rem;
+  max-width: 100%;
+}
+
+#panel-enemy-builder .enemy-builder-multi-field {
+  min-width: 0;
+}
+
+#panel-enemy-builder .enemy-builder-field-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #bcae9b;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+#panel-enemy-builder .enemy-builder-multi-control {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+#panel-enemy-builder .enemy-builder-multi-control > input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#panel-enemy-builder .enemy-builder-multi-picker {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+#panel-enemy-builder .enemy-builder-multi-picker > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid #746047;
+  border-radius: 0.32rem;
+  background: #655f58;
+  color: #fff;
+  padding: 0.34rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+#panel-enemy-builder .enemy-builder-multi-picker > summary::-webkit-details-marker { display: none; }
+
+#panel-enemy-builder .enemy-builder-multi-picker-panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.3rem);
+  right: 0;
+  width: min(26rem, 72vw);
+  padding: 0.6rem;
+  border: 1px solid #65513b;
+  border-radius: 0.45rem;
+  background: #241d18;
+  box-shadow: 0 0.7rem 1.5rem rgba(0, 0, 0, 0.36);
+}
+
+#panel-enemy-builder .enemy-builder-multi-picker-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.7rem;
+  margin-bottom: 0.42rem;
+  color: inherit;
+  opacity: 0.82;
+  font-size: 0.66rem;
+  line-height: 1.1;
+}
+
+#panel-enemy-builder .enemy-builder-multi-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  white-space: nowrap;
+}
+
+#panel-enemy-builder .enemy-builder-multi-legend-swatch {
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  box-sizing: border-box;
+  color: var(--enemy-builder-gold-bright);
+  font-size: 0.6rem;
+  font-weight: 900;
+}
+
+#panel-enemy-builder .enemy-builder-multi-legend-swatch.is-frequent {
+  background: var(--enemy-builder-panel-soft);
+  box-shadow: inset 2px 0 var(--enemy-builder-gold);
+}
+
+#panel-enemy-builder .enemy-builder-multi-legend-swatch.is-selected {
+  border-color: var(--enemy-builder-gold-bright);
+  background: var(--enemy-builder-panel-soft);
+  box-shadow: inset 0 0 0 1px var(--enemy-builder-gold-bright);
+}
+
+#panel-enemy-builder .enemy-builder-multi-option-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(7.2rem, 1fr));
+  gap: 0.28rem;
+}
+
+#panel-enemy-builder button.enemy-builder-multi-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  min-height: 1.55rem;
+  padding: 0.18rem 0.32rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 650;
+  line-height: 1.15;
+  text-align: left;
+  cursor: pointer;
+}
+
+#panel-enemy-builder button.enemy-builder-multi-option:hover {
+  border-color: var(--enemy-builder-border);
+  background: var(--enemy-builder-panel-soft);
+}
+
+#panel-enemy-builder button.enemy-builder-multi-option.is-frequent {
+  border-color: transparent;
+  background: var(--enemy-builder-panel-soft);
+  box-shadow: inset 2px 0 var(--enemy-builder-gold);
+}
+
+#panel-enemy-builder button.enemy-builder-multi-option.is-selected {
+  border-color: var(--enemy-builder-gold-bright);
+  background: var(--enemy-builder-panel-soft);
+  color: var(--enemy-builder-gold-bright);
+  box-shadow: inset 0 0 0 1px var(--enemy-builder-gold-bright);
+}
+
+#panel-enemy-builder button.enemy-builder-multi-option::before {
+  content: "✓";
+  flex: 0 0 0.78rem;
+  width: 0.78rem;
+  margin-right: 0.22rem;
+  color: var(--enemy-builder-gold-bright);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-align: center;
+  visibility: hidden;
+}
+
+#panel-enemy-builder button.enemy-builder-multi-option.is-selected::before {
+  visibility: visible;
+}
+
+#panel-enemy-builder .enemy-builder-multi-option-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#panel-enemy-builder .enemy-builder-multi-custom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(188, 174, 155, 0.18);
+}
+
+#panel-enemy-builder .enemy-builder-multi-custom input { min-width: 0; }
+
+.enemy-builder-fields .enemy-builder-check-pair {
+  display: grid;
+  width: 10.5rem;
+  max-width: 100%;
+}
+
+.enemy-builder-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.enemy-builder-parts-table {
+  width: 100%;
+  min-width: 56rem;
+  border-collapse: separate;
+  border-spacing: 0.3rem 0.35rem;
+}
+
+.enemy-builder-parts-table th {
+  color: #bcae9b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.enemy-builder-parts-table th:first-child { width: 28%; }
+.enemy-builder-parts-table th:last-child { width: 2rem; }
+#panel-enemy-builder .enemy-builder-parts-table input {
+  min-width: 4rem;
+  height: 1.7rem;
+  min-height: 1.7rem;
+  padding: 1px 2px;
+}
+
+#panel-enemy-builder .enemy-builder-parts-table .enemy-builder-part-damage {
+  height: 1.7rem;
+  min-height: 1.7rem;
+  padding: 1px 2px;
+  font-family: var(--font-latin-ui, inherit);
+  font-size: 1.2rem;
+  font-weight: var(--font-latin-ui-weight, 300);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.enemy-builder-check-pair {
+  display: grid;
+  grid-template-columns: minmax(3.2rem, 1fr) auto minmax(3.2rem, 1fr) auto;
+  gap: 0.15rem;
+  align-items: center;
+}
+
+#panel-enemy-builder .enemy-builder-check-pair input {
+  min-width: 0;
+  height: 1.7rem;
+  min-height: 1.7rem;
+  padding: 1px 2px;
+  text-align: center;
+}
+
+.enemy-builder-check-pair span {
+  color: #a99b87;
+  font-size: 0.82rem;
+}
+
+.enemy-builder-remove-part,
+.enemy-builder-remove-ability {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgba(210, 108, 94, 0.35);
+  border-radius: 6px;
+  color: #e6a39a;
+  background: rgba(130, 35, 28, 0.16);
+  cursor: pointer;
+}
+
+.enemy-builder-core-field {
+  grid-template-columns: 5rem minmax(0, 1fr);
+  align-items: center;
+  margin: 0.35rem 0.3rem 0;
+}
+
+#panel-enemy-builder .s-icon {
+  --s-icon-color: #ead6ae;
+  display: inline-block;
+  position: relative;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 1em;
+  color: transparent;
+  font-style: normal;
+  line-height: 1;
+  text-align: center;
+  vertical-align: text-bottom;
+}
+
+#panel-enemy-builder .s-icon > .raw {
+  display: block;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+#panel-enemy-builder .s-icon::before,
+#panel-enemy-builder .s-icon::after {
+  display: grid;
+  position: absolute;
+  inset: -0.2em 0 0;
+  justify-items: center;
+  align-items: center;
+  color: var(--s-icon-color);
+  font-family: "Material Symbols Outlined";
+  font-weight: bold;
+  pointer-events: none;
+}
+
+#panel-enemy-builder .s-icon.all::before { content: "\e241"; }
+#panel-enemy-builder .s-icon.part::before { content: "\e3a6"; }
+#panel-enemy-builder .s-icon.passive::before { content: "\ef4a"; }
+#panel-enemy-builder .s-icon.setup::before,
+#panel-enemy-builder .s-icon.preparation::before { content: "\e86b"; }
+#panel-enemy-builder .s-icon.major::before {
+  content: "\e037";
+  font-variation-settings: "FILL" 1;
+  transform: scale(1.2) translateX(-0.08em);
+}
+#panel-enemy-builder .s-icon.minor::before {
+  content: "\e01f";
+  font-variation-settings: "FILL" 1;
+  transform: scaleY(1.3);
+}
+#panel-enemy-builder .s-icon.declaration::before,
+#panel-enemy-builder .s-icon.active::before {
+  content: "\e625";
+  transform: scale(-0.95, 1) translate(0.05em, 0.08em);
+}
+#panel-enemy-builder .s-icon.reaction::before { content: "\e627"; }
+#panel-enemy-builder .s-icon.uplift::before {
+  content: "\eba6";
+  transform: rotate(90deg) scaleX(1.2);
+  text-shadow: 0 0 0 var(--text-color), 0 0 0 var(--text-color);
+}
+#panel-enemy-builder .s-icon.calm::before {
+  content: "\ebab";
+  transform: rotate(90deg) scaleX(1.2);
+  text-shadow: 0 0 0 var(--text-color), 0 0 0 var(--text-color);
+}
+#panel-enemy-builder .s-icon.heart::before { content: "\e87d"; }
+#panel-enemy-builder .s-icon.major0::before { content: "〆"; font-family: inherit; }
+#panel-enemy-builder .s-icon.minor0::before { content: "\e838"; }
+#panel-enemy-builder .s-icon.active0::before { content: "\e834"; }
+#panel-enemy-builder .s-icon.condition::before {
+  content: "▽";
+  font-family: inherit;
+  text-shadow: 0 0 0 var(--text-color);
+}
+#panel-enemy-builder .s-icon.selection::before {
+  content: "▼";
+  font-family: inherit;
+  text-shadow: 0 0 0 var(--text-color);
+}
+#panel-enemy-builder .s-icon.m-card[data-color="赤"]::before { content: "\e91d"; color: #a00; font-variation-settings: "FILL" 1; }
+#panel-enemy-builder .s-icon.m-card[data-color="緑"]::before { content: "\e123"; color: #0c3; font-variation-settings: "FILL" 1; }
+#panel-enemy-builder .s-icon.m-card[data-color="黒"]::before { content: "\ead5"; color: #777; font-variation-settings: "FILL" 1; }
+#panel-enemy-builder .s-icon.m-card[data-color="白"]::before { content: "\e87d"; color: #aaa; font-variation-settings: "FILL" 0; }
+#panel-enemy-builder .s-icon.m-card[data-color="金"]::before { content: "\e3e4"; color: #f90; font-variation-settings: "FILL" 1; }
+#panel-enemy-builder.night .s-icon.m-card[data-color="白"]::before,
+.night #panel-enemy-builder .s-icon.m-card[data-color="白"]::before { color: #bbb; font-variation-settings: "FILL" 1; }
+
+#panel-enemy-builder .enemy-builder-symbol-select,
+#panel-enemy-builder .enemy-builder-symbol-select option {
+  font-family: "Noto Serif JP", "Material Symbols Outlined", sans-serif;
+  font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 24;
+  font-feature-settings: "liga" 1;
+}
+
+#enemy-builder-add-ability {
+  flex: 0 0 auto;
+  min-height: 2.15rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.enemy-builder-suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-height: 1.85rem;
+  margin: 0.6rem 0;
+}
+
+.enemy-builder-marker-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+  margin: 0.55rem 0 0.25rem;
+  padding: 0.45rem 0.55rem;
+  border-left: 3px solid rgba(200, 164, 100, 0.55);
+  color: #a99d8b;
+  background: rgba(200, 164, 100, 0.045);
+  font-size: 0.68rem;
+}
+
+.enemy-builder-marker-guide > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.enemy-builder-suggestion-chips::before {
+  content: "おすすめ";
+  align-self: center;
+  margin-right: 0.1rem;
+  color: #9f927f;
+  font-size: 0.7rem;
+}
+
+.enemy-builder-suggestion-chips button {
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(200, 164, 100, 0.28);
+  border-radius: 999px;
+  color: #ead8b8;
+  background: rgba(200, 164, 100, 0.08);
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.enemy-builder-suggestion-chips button:hover {
+  border-color: var(--enemy-builder-gold-bright);
+  background: rgba(200, 164, 100, 0.16);
+}
+
+.enemy-builder-ability-list {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 30rem;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.enemy-builder-ability-list:empty::before {
+  content: "能力はまだありません。検索欄またはおすすめから追加できます。";
+  padding: 1rem;
+  border: 1px dashed rgba(200, 164, 100, 0.24);
+  border-radius: 8px;
+  color: #998c7b;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.enemy-builder-ability-row {
+  padding: 0.55rem;
+  border: 1px solid rgba(200, 164, 100, 0.2);
+  border-radius: 8px;
+  background: var(--enemy-builder-panel-soft);
+}
+
+.enemy-builder-ability-name-field {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content 6rem;
+  gap: 0.45rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.enemy-builder-ability-inline-params {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.enemy-builder-ability-inline-params:empty { display: none; }
+
+.enemy-builder-ability-inline-params label {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.enemy-builder-ability-inline-params label > span {
+  color: #b8aa95;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+#panel-enemy-builder .enemy-builder-ability-inline-params .enemy-builder-param-input {
+  width: 5.4rem;
+  min-height: 2.15rem;
+}
+
+#panel-enemy-builder .enemy-builder-ability-inline-params .enemy-builder-param-input[data-param-key="finaleName"] {
+  width: min(14rem, 32vw);
+}
+
+.enemy-builder-ability-part-field > span {
+  color: #bcae9b;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.enemy-builder-ability-name-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 0.15rem;
+  border: 1px solid rgba(200, 164, 100, 0.25);
+  border-radius: 6px;
+  background: rgba(5, 5, 5, 0.3);
+}
+
+#panel-enemy-builder .enemy-builder-ability-name-switch button {
+  width: 100%;
+  min-height: 1.7rem;
+  padding: 0.15rem 0.45rem;
+  border: 0;
+  border-radius: 4px;
+  color: #8d8274;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+#panel-enemy-builder .enemy-builder-ability-name-switch button[aria-pressed="true"] {
+  color: #f0cf85;
+  background: rgba(200, 164, 100, 0.16);
+}
+
+.enemy-builder-ability-name-controls {
+  min-width: 0;
+}
+
+.enemy-builder-ability-name-controls > [hidden] { display: none; }
+
+.enemy-builder-ability-name-input {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.enemy-builder-ability-name-input[hidden] { display: none; }
+
+.enemy-builder-ability-row-head {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 12rem);
+  gap: 0.45rem;
+  align-items: end;
+  margin-bottom: 0.45rem;
+}
+
+.enemy-builder-ability-row-head.is-single-part {
+  display: none;
+}
+
+.enemy-builder-ability-part-field[hidden] { display: none; }
+
+.enemy-builder-ability-order-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.2rem;
+}
+
+#panel-enemy-builder .enemy-builder-ability-order-actions button {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 2.15rem;
+  padding: 0;
+  border: 1px solid rgba(200, 164, 100, 0.28);
+  border-radius: 5px;
+  color: #d8c7aa;
+  background: rgba(5, 5, 5, 0.4);
+  cursor: pointer;
+}
+
+#panel-enemy-builder .enemy-builder-ability-order-actions button:disabled {
+  color: #665e53;
+  cursor: default;
+  opacity: 0.45;
+}
+
+#panel-enemy-builder .enemy-builder-ability-order-actions .enemy-builder-remove-ability {
+  color: #df8d82;
+  border-color: rgba(190, 70, 55, 0.35);
+}
+
+.enemy-builder-ability-part-field {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.enemy-builder-ability-markers {
+  display: flex;
+  gap: 0.2rem;
+  align-items: center;
+  min-height: 2.15rem;
+  padding: 0.2rem;
+  border: 1px solid rgba(200, 164, 100, 0.28);
+  border-radius: 6px;
+  background: rgba(5, 5, 5, 0.38);
+}
+
+.enemy-builder-ability-name-input .enemy-builder-ability-markers {
+  min-height: 2.15rem;
+}
+
+#panel-enemy-builder .enemy-builder-marker-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.65rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #796f62;
+  background: transparent;
+  font-family: "Material Symbols Outlined";
+  font-size: 1rem;
+  font-variation-settings: "FILL" 1, "wght" 700, "GRAD" 0, "opsz" 24;
+  cursor: pointer;
+}
+
+#panel-enemy-builder .enemy-builder-marker-toggle[aria-pressed="true"] {
+  border-color: rgba(240, 207, 133, 0.42);
+  color: #f0cf85;
+  background: rgba(200, 164, 100, 0.16);
+}
+
+.enemy-builder-guided-editor {
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(200, 164, 100, 0.18);
+  border-radius: 7px;
+  background: rgba(200, 164, 100, 0.045);
+}
+
+.enemy-builder-guided-editor summary {
+  padding: 0.42rem 0.55rem;
+  color: #dbc69e;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+.enemy-builder-contest-editor {
+  margin: 0 0 0.4rem;
+  border-top: 1px solid var(--enemy-builder-border);
+}
+
+.enemy-builder-contest-editor[hidden] { display: none; }
+
+.enemy-builder-contest-editor summary {
+  padding: 0.35rem 0.5rem;
+  color: #bfa974;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.enemy-builder-contest-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.35rem 0.45rem;
+  align-items: end;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.enemy-builder-contest-controls label {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.enemy-builder-contest-controls label[hidden] { display: none; }
+
+.enemy-builder-contest-controls label > span:first-child {
+  color: #b8aa95;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+#panel-enemy-builder .enemy-builder-contest-mode { width: 8rem; }
+.enemy-builder-contest-value-pair {
+  display: grid;
+  grid-template-columns: 4.6rem auto 4.6rem auto;
+  gap: 0.15rem;
+  align-items: center;
+}
+.enemy-builder-contest-value-pair.is-fixed-only { grid-template-columns: 4.6rem; }
+.enemy-builder-contest-value-pair.is-fixed-only .enemy-builder-contest-base,
+.enemy-builder-contest-value-pair.is-fixed-only .enemy-builder-contest-paren { display: none; }
+#panel-enemy-builder .enemy-builder-contest-base,
+#panel-enemy-builder .enemy-builder-contest-fixed {
+  width: 4.6rem;
+  min-width: 0;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.enemy-builder-contest-paren { color: #a99b87; font-size: 0.82rem; }
+#panel-enemy-builder .enemy-builder-contest-opposition { width: 8.5rem; }
+#panel-enemy-builder .enemy-builder-contest-result { width: 5.5rem; }
+
+.enemy-builder-use-limit-editor {
+  margin: 0 0 0.4rem;
+  border-top: 1px solid rgba(200, 164, 100, 0.13);
+}
+
+.enemy-builder-use-limit-editor summary {
+  padding: 0.35rem 0.5rem;
+  color: #bfa974;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.enemy-builder-use-limit-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.55rem;
+  align-items: end;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.enemy-builder-use-limit-controls label {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.enemy-builder-use-limit-controls label > span {
+  color: #b8aa95;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+#panel-enemy-builder .enemy-builder-use-limit-controls select { width: 13rem; }
+#panel-enemy-builder .enemy-builder-use-limit-count input { width: 5.2rem; }
+.enemy-builder-use-limit-count[hidden] { display: none; }
+
+.enemy-builder-assist-specific {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1fr) auto;
+  gap: 0.45rem;
+  align-items: end;
+  padding: 0.5rem;
+  border-top: 1px solid rgba(200, 164, 100, 0.13);
+}
+
+.enemy-builder-assist-selected {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-height: 1.8rem;
+  padding: 0.35rem;
+  border: 1px dashed rgba(200, 164, 100, 0.2);
+  border-radius: 6px;
+}
+
+.enemy-builder-assist-selected:empty::before {
+  content: "まだ選択されていません";
+  align-self: center;
+  color: #817665;
+  font-size: 0.68rem;
+}
+
+#panel-enemy-builder .enemy-builder-assist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.55rem;
+  padding: 0.18rem 0.45rem;
+  border: 1px solid rgba(200, 164, 100, 0.3);
+  border-radius: 999px;
+  color: #ead8b8;
+  background: rgba(200, 164, 100, 0.1);
+  cursor: pointer;
+  font-size: 0.7rem;
+}
+
+.enemy-builder-assist-magic {
+  grid-template-columns: repeat(3, minmax(0, 7rem));
+  width: max-content;
+  max-width: 100%;
+}
+
+.enemy-builder-assist-magic > label:first-child { grid-column: 1 / 3; }
+.enemy-builder-assist-magic [data-assist-action="add-magic-system"] { grid-column: 3; }
+.enemy-builder-assist-magic [data-assist-action="set-magic-title"] { grid-column: 1 / -1; }
+
+.enemy-builder-ability-params {
+  margin: 0 0 0.4rem;
+  border-top: 1px solid rgba(200, 164, 100, 0.13);
+}
+
+.enemy-builder-ability-params summary {
+  padding: 0.35rem 0.5rem;
+  color: #d3b777;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+.enemy-builder-ability-param-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.55rem;
+  align-items: end;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.enemy-builder-ability-param-grid label {
+  display: grid;
+  gap: 0.2rem;
+  width: max-content;
+}
+
+.enemy-builder-ability-param-grid label[hidden] {
+  display: none;
+}
+
+.enemy-builder-ability-param-grid label > span {
+  color: #b8aa95;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+#panel-enemy-builder .enemy-builder-param-input {
+  width: 8rem;
+  min-height: 2rem;
+  padding: 1px 5px;
+  font-size: 0.9rem;
+}
+
+#panel-enemy-builder .enemy-builder-param-input[type="number"] {
+  width: 5.2rem;
+  font-family: var(--font-latin-ui);
+  font-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+#panel-enemy-builder .enemy-builder-param-input[data-param-key="spellsongName"],
+#panel-enemy-builder .enemy-builder-param-input[data-param-key="finaleName"] {
+  width: 14rem;
+  max-width: min(14rem, 70vw);
+}
+
+.enemy-builder-assist-specific label {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.enemy-builder-assist-specific label > span {
+  color: #b8aa95;
+  font-size: 0.67rem;
+  font-weight: 700;
+}
+
+.enemy-builder-assist-add {
+  min-height: 2.15rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.enemy-builder-ability-body::placeholder {
+  color: #817665;
+  opacity: 1;
+}
+
+#panel-enemy-builder .enemy-builder-ability-body {
+  height: 4.8rem;
+  min-height: 4.8rem;
+  resize: vertical;
+}
+
+.enemy-builder-ability-preview-card {
+  padding: 0;
+}
+
+.enemy-builder-ability-preview-details {
+  position: sticky;
+  top: 0.75rem;
+}
+
+.enemy-builder-ability-preview-details > summary {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.8rem 0.9rem;
+  color: var(--enemy-builder-gold-bright);
+  cursor: pointer;
+  list-style: none;
+}
+
+.enemy-builder-ability-preview-card .enemy-builder-ability-preview-details > summary {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.4rem;
+}
+
+.enemy-builder-ability-preview-card .enemy-builder-ability-preview-details > summary > span {
+  overflow: hidden;
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enemy-builder-ability-preview-card .enemy-builder-ability-preview-details > summary small {
+  display: none;
+}
+
+.enemy-builder-ability-preview-details > summary::-webkit-details-marker { display: none; }
+.enemy-builder-ability-preview-details > summary > span { font-size: 0.95rem; font-weight: 800; }
+.enemy-builder-ability-preview-details > summary small { color: #aa9d8a; font-size: 0.72rem; }
+.enemy-builder-preview-chevron { transition: transform 0.2s ease; }
+.enemy-builder-ability-preview-details[open] .enemy-builder-preview-chevron { transform: rotate(180deg); }
+
+.enemy-builder-ability-preview-document {
+  margin: 0 0.75rem 0.75rem;
+  border: 1px solid #c7c7c7;
+  color: #171717;
+  background: rgba(252, 252, 249, 0.97);
+  font-family: "Noto Serif JP", serif;
+  line-height: 1.65;
+}
+
+.enemy-builder-ability-preview-heading {
+  padding: 0.18rem 0.55rem;
+  color: #111;
+  background: #d9d9d9;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.enemy-builder-ability-preview {
+  padding: 0.35rem 0.55rem 0.55rem;
+}
+
+.enemy-builder-ability-preview-group + .enemy-builder-ability-preview-group {
+  margin-top: 0.65rem;
+}
+
+.enemy-builder-ability-preview-group h5 {
+  display: flex;
+  gap: 0.18rem;
+  align-items: center;
+  margin: 0 0 0.25rem;
+  padding-bottom: 0.08rem;
+  border-bottom: 1px solid #aaa;
+  color: #111;
+  font-size: 0.82rem;
+}
+
+.enemy-builder-ability-preview-entry + .enemy-builder-ability-preview-entry {
+  margin-top: 0.62rem;
+}
+
+.enemy-builder-ability-preview-title {
+  display: flex;
+  gap: 0.28rem;
+  align-items: center;
+  color: #111;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.enemy-builder-ability-preview-markers {
+  display: inline-flex;
+  gap: 0.1rem;
+  flex: 0 0 auto;
+  align-items: center;
+  padding-top: 0;
+}
+
+#panel-enemy-builder .enemy-builder-ability-preview .s-icon {
+  --s-icon-color: #222;
+  width: 1em;
+  height: 1em;
+  flex-basis: 1em;
+}
+
+.enemy-builder-ability-preview-entry p,
+.enemy-builder-ability-preview-empty {
+  margin: 0.14rem 0 0 1.35rem;
+  color: #222;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.enemy-builder-ability-preview-empty {
+  margin-left: 0;
+  color: #666;
+}
+
+.enemy-builder-notes-card {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.enemy-builder-notes-card .enemy-builder-section-title { margin-bottom: 0; }
+
+.enemy-builder-loot-editor {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.enemy-builder-loot-label {
+  color: #d8c9b4;
+  font-size: 0.77rem;
+  font-weight: 700;
+}
+
+.enemy-builder-loot-header,
+.enemy-builder-loot-row {
+  display: grid;
+  grid-template-columns: minmax(5rem, 0.45fr) minmax(10rem, 1.55fr) 2rem;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.enemy-builder-loot-header {
+  padding: 0 0.25rem;
+  color: #9f927f;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.enemy-builder-loot-rows {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.enemy-builder-remove-loot {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgba(210, 108, 94, 0.35);
+  border-radius: 6px;
+  color: #e6a39a;
+  background: rgba(130, 35, 28, 0.16);
+  cursor: pointer;
+}
+
+#enemy-builder-add-loot {
+  justify-self: start;
+  margin-top: 0.15rem;
+}
+
+.enemy-builder-output-card textarea {
+  min-height: 15rem;
+  color: #dce9dc;
+  background: rgba(2, 10, 5, 0.55);
+  font-family: Consolas, "Noto Sans Mono CJK JP", monospace;
+  font-size: 0.78rem;
+}
+
+.enemy-builder-output-card .enemy-builder-section-title {
+  flex-wrap: wrap;
+}
+
+.enemy-builder-output-card .enemy-builder-section-title h4 {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.enemy-builder-output-card select {
+  flex: 0 1 14rem;
+  width: min(14rem, 100%);
+  min-width: 10rem;
+}
+
+.enemy-builder-output-note {
+  margin: -0.15rem 0 0.5rem;
+  color: #a99c88;
+  font-size: 0.76rem;
+}
+
+.enemy-builder-output-guide {
+  margin: 0 0 0.6rem;
+  padding: 0.45rem 0.55rem;
+  border-left: 3px solid var(--enemy-builder-gold);
+  color: inherit;
+  background: var(--enemy-builder-panel-soft);
+  font-size: 0.76rem;
+  opacity: 0.82;
+  line-height: 1.55;
+}
+
+.enemy-builder-output-guide a {
+  color: var(--enemy-builder-gold-bright);
+}
+
+.enemy-builder-output-actions {
+  justify-content: flex-end;
+  margin-top: 0.55rem;
+}
+
+@media (max-width: 760px) {
+  .controls-panel:has(#panel-enemy-builder.active) { padding: 12px; }
+  .enemy-builder-heading { align-items: flex-start; flex-direction: column; }
+  .enemy-builder-heading-actions { width: 100%; flex-wrap: wrap; }
+  .enemy-builder-heading-actions button { flex: 1 1 auto; }
+  .enemy-builder-import-bar { grid-template-columns: minmax(0, 1fr) max-content; }
+  .enemy-builder-import-label { grid-column: 1 / -1; }
+  .enemy-builder-import-status { grid-column: 1 / -1; }
+  .enemy-builder-quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .enemy-builder-quick-grid .add-row-btn { grid-column: 1 / -1; }
+  .enemy-builder-fields { grid-template-columns: 1fr; }
+  .enemy-builder-fields .enemy-builder-level-field,
+  .enemy-builder-fields .enemy-builder-name-field,
+  .enemy-builder-fields .enemy-builder-taxa-field,
+  .enemy-builder-fields .enemy-builder-third-field,
+  .enemy-builder-fields .enemy-builder-half-field,
+  .enemy-builder-fields .enemy-builder-quarter-field,
+  .enemy-builder-fields .enemy-builder-three-quarter-field { grid-column: 1; }
+  #panel-enemy-builder #enemy-builder-language,
+  #panel-enemy-builder #enemy-builder-habitat,
+  #panel-enemy-builder #enemy-builder-weakness,
+  #panel-enemy-builder #enemy-builder-mobility { width: 18rem; }
+  .enemy-builder-abilities-card .enemy-builder-section-title { flex-direction: column; }
+  .enemy-builder-ability-actions { width: 100%; flex-wrap: wrap; }
+  .enemy-builder-ability-actions button { flex: 1 1 10rem; }
+  .enemy-builder-ability-name-field { grid-template-columns: max-content minmax(0, 1fr) 6rem; }
+  .enemy-builder-ability-inline-params { grid-column: 2; grid-row: 2; justify-self: start; }
+  .enemy-builder-contest-controls { flex-wrap: wrap; }
+  .enemy-builder-ability-order-actions { grid-column: 3; grid-row: 1; }
+  .enemy-builder-ability-row-head { grid-template-columns: minmax(7.5rem, 12rem); }
+  .enemy-builder-ability-row-head.is-single-part { display: none; }
+  .enemy-builder-parts-fields { width: 100%; }
+  .enemy-builder-section-title { align-items: flex-start; }
+  .enemy-builder-assist-specific { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .enemy-builder-assist-magic { grid-template-columns: repeat(2, minmax(0, 7rem)); }
+  .enemy-builder-assist-magic > label:first-child { grid-column: 1; }
+  .enemy-builder-assist-magic [data-assist-action="add-magic-system"] { grid-column: 2; }
+  .enemy-builder-assist-add { grid-column: 1 / -1; }
+  .enemy-builder-loot-header,
+  .enemy-builder-loot-row { grid-template-columns: minmax(4.5rem, 0.5fr) minmax(0, 1.5fr) 2rem; }
+}
+
+@media (max-width: 980px) {
+  .enemy-builder-layout { grid-template-columns: minmax(0, 1fr); }
+  .enemy-builder-basics-card,
+  .enemy-builder-notes-card,
+  .enemy-builder-parts-card,
+  .enemy-builder-abilities-card,
+  .enemy-builder-ability-preview-card,
+  .enemy-builder-output-card { grid-column: 1; }
+  .enemy-builder-ability-preview-card {
+    position: static;
+    max-height: none;
+    overflow: hidden;
+  }
+  .enemy-builder-ability-preview-details { position: static; }
+}
+#panel-enemy-builder .enemy-builder-param-input[data-param-key="warCryName"],
+#panel-enemy-builder .enemy-builder-param-input[data-param-key="formationName"],
+#panel-enemy-builder .enemy-builder-param-input[data-param-key="weaponName"] {
+  width: 15rem;
+  max-width: min(15rem, 72vw);
+}
+
+#panel-enemy-builder .enemy-builder-param-input[data-param-key="usage"],
+#panel-enemy-builder .enemy-builder-param-input[data-param-key="accuracy"],
+#panel-enemy-builder .enemy-builder-param-input[data-param-key="bonusDamage"] {
+  width: 5.2rem;
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+#panel-enemy-builder .enemy-builder-assist-collection .enemy-builder-assist-option {
+  min-width: min(18rem, 62vw);
+}
+
+@media (max-width: 640px) {
+  #panel-enemy-builder .enemy-builder-multi-picker-panel {
+    right: auto;
+    left: 0;
+    width: min(22rem, calc(100vw - 3rem));
+  }
+
+  #panel-enemy-builder .enemy-builder-multi-option-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 390px) {
+  #panel-enemy-builder .enemy-builder-multi-option-list {
+    grid-template-columns: 1fr;
+  }
+
+  .enemy-builder-import-bar { grid-template-columns: 1fr; }
+  .enemy-builder-import-label,
+  .enemy-builder-import-status { grid-column: 1; }
+  #panel-enemy-builder #enemy-builder-import-button { width: 100%; }
+
+  .enemy-builder-parts-main-field,
+  .enemy-builder-parts-core-field {
+    width: 100%;
+  }
+
+  .enemy-builder-parts-main-inputs {
+    flex: 1 1 auto;
+  }
+
+  #panel-enemy-builder #enemy-builder-parts-breakdown,
+  #panel-enemy-builder #enemy-builder-core-parts {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}

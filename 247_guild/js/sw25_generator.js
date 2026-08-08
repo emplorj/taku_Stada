@@ -10984,6 +10984,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .trim();
   }
 
+  window.sw25EnemyImportUtils = Object.assign(window.sw25EnemyImportUtils || {}, {
+    buildYutorizeModeJsonUrl,
+    fetchYutorizeEnemyJsonFromUrl,
+    isYutorizeEnemyJson,
+    cleanYutorizeText,
+  });
+
   function pickYutorizeNumber(value, fallback = "0") {
     const text = String(value ?? "").trim();
     if (!text) return fallback;

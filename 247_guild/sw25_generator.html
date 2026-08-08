@@ -16,12 +16,14 @@
   <link rel="stylesheet" href="css/247_guild_common.css" />
   <link rel="stylesheet" href="css/247_guild.css" />
     <link rel="stylesheet" href="css/sw25_generator.css?v=20260718zzbj" />
+  <link rel="stylesheet" href="css/sw25/sw25_enemy_builder.css?v=20260808k" />
   <!-- Fonts and Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+JP:wght@400;700&display=swap"
     rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="./js/vendor/dom_capture-1.4.1.min.js?v=1.4.1"></script>
 </head>
 
@@ -59,6 +61,10 @@
               <li>
                 <a href="#" class="sidebar-link" data-target="panel-enemy-enhancement"><i class="fa-solid fa-ghost"></i>
                   敵強化</a>
+              </li>
+              <li>
+                <a href="#" class="sidebar-link" data-target="panel-enemy-builder"><i class="fa-solid fa-skull-crossbones"></i>
+                  エネミー作成</a>
               </li>
               <li>
                 <a href="#" class="sidebar-link" data-target="panel-character-analysis"><i
@@ -523,6 +529,211 @@
               </div>
             </div>
 
+            <!-- エネミー即席制作パネル -->
+            <div id="panel-enemy-builder" class="form-panel">
+              <div class="enemy-builder-heading">
+                <div>
+                  <h3><i class="fa-solid fa-skull-crossbones"></i> エネミー即席制作</h3>
+                  <p>公式エネミーを手早く転記し、能力候補の本文を補完してココフォリア用コマにできます。</p>
+                </div>
+                <div class="enemy-builder-heading-actions">
+                  <button type="button" id="enemy-builder-reset" class="small-button"><i class="fa-solid fa-rotate-left"></i> リセット</button>
+                </div>
+              </div>
+
+              <div class="enemy-builder-import-bar">
+                <label class="enemy-builder-import-label" for="enemy-builder-import-source"><i class="fa-solid fa-file-import" aria-hidden="true"></i><span>インポート</span></label>
+                <input type="text" id="enemy-builder-import-source" autocomplete="off" placeholder="ゆとシートURL / mode=json / ココフォリア用コマJSON" aria-label="ゆとシートURL、ゆとシートJSON、またはココフォリア用コマJSON" />
+                <button type="button" id="enemy-builder-import-button" class="small-button"><i class="fa-solid fa-download" aria-hidden="true"></i> 読込</button>
+                <span id="enemy-builder-import-status" class="enemy-builder-import-status" aria-live="polite"></span>
+              </div>
+
+              <details class="enemy-builder-quick-card enemy-builder-dream-card">
+                <summary class="enemy-builder-dream-toggle">
+                  <span><i class="fa-solid fa-wand-magic-sparkles"></i> 夢幻の魔物</span>
+                  <small>AL・分類・性格から自動生成</small>
+                  <i class="fa-solid fa-chevron-down enemy-builder-dream-chevron" aria-hidden="true"></i>
+                </summary>
+                <input type="hidden" id="enemy-builder-generation-mode" value="dream" />
+                <input type="hidden" id="enemy-builder-preset" value="custom" />
+                <input type="hidden" id="enemy-builder-role" value="balanced" />
+                <input type="hidden" id="enemy-builder-part-count" value="1" />
+                <div class="enemy-builder-quick-grid enemy-builder-dream-controls">
+                  <label><span>AL（PC平均レベル・1～10）</span><input type="number" id="enemy-builder-dream-al" min="1" max="10" value="5" /></label>
+                  <label><span>PC人数</span><input type="number" id="enemy-builder-dream-players" min="1" max="5" value="4" /></label>
+                  <label><span>分類</span>
+                    <select id="enemy-builder-dream-taxa">
+                      <option value="random">おまかせ</option>
+                      <option value="蛮族">蛮族</option><option value="動物">動物</option><option value="植物">植物</option>
+                      <option value="アンデッド">アンデッド</option><option value="魔法生物">魔法生物</option>
+                      <option value="幻獣">幻獣</option><option value="妖精">妖精</option><option value="魔神">魔神</option><option value="人族">人族</option>
+                    </select>
+                  </label>
+                  <label><span>性格</span>
+                    <select id="enemy-builder-dream-personality">
+                      <option value="random">1dで決定</option>
+                      <option value="instinct">本能に従う</option>
+                      <option value="aggressive">攻撃的</option>
+                      <option value="brutal">残忍</option>
+                      <option value="cautious">慎重</option>
+                      <option value="cunning">狡猾</option>
+                      <option value="rational">理性的</option>
+                    </select>
+                  </label>
+                  <label><span>編成ダイス</span>
+                    <select id="enemy-builder-dream-roll"><option value="random">1dを振る</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select>
+                  </label>
+                  <button type="button" id="enemy-builder-dream-generate" class="add-row-btn"><i class="fa-solid fa-dice"></i> 夢幻の魔物を生成</button>
+                </div>
+                <p id="enemy-builder-dream-summary" class="enemy-builder-dream-summary" hidden></p>
+              </details>
+
+              <div class="enemy-builder-layout">
+                <section class="enemy-builder-card enemy-builder-basics-card">
+                  <div class="enemy-builder-section-title"><h4><i class="fa-solid fa-address-card"></i> 基本データ</h4></div>
+                  <div class="enemy-builder-fields">
+                    <label class="enemy-builder-level-field"><span>レベル</span><input type="number" id="enemy-builder-level" min="1" max="30" /></label>
+                    <label class="enemy-builder-name-field"><span>名称</span><input type="text" id="enemy-builder-name" /></label>
+                    <div class="enemy-builder-taxa-field">
+                      <label><span>分類</span><input type="text" id="enemy-builder-taxa" list="enemy-builder-taxa-list" autocomplete="off" /></label>
+                      <label id="enemy-builder-race-field" class="enemy-builder-race-inline" hidden>
+                        <span class="enemy-builder-race-inline-label">種族</span>
+                        <select id="enemy-builder-race" aria-label="人族の種族"></select>
+                      </label>
+                    </div>
+                    <label class="enemy-builder-third-field"><span>知能</span><input type="text" id="enemy-builder-intelligence" list="enemy-builder-intelligence-list" /></label>
+                    <label class="enemy-builder-third-field"><span>知覚</span><input type="text" id="enemy-builder-perception" list="enemy-builder-perception-list" /></label>
+                    <label class="enemy-builder-third-field"><span>反応</span><input type="text" id="enemy-builder-reaction" list="enemy-builder-reaction-list" /></label>
+                    <div class="enemy-builder-half-field enemy-builder-language-field enemy-builder-multi-field">
+                      <span class="enemy-builder-field-label">言語</span>
+                      <div class="enemy-builder-multi-control">
+                        <input type="text" id="enemy-builder-language"  aria-label="言語" />
+                        <details class="enemy-builder-multi-picker" data-multi-picker="language">
+                          <summary>選択</summary>
+                          <div class="enemy-builder-multi-picker-panel" id="enemy-builder-language-picker"></div>
+                        </details>
+                      </div>
+                    </div>
+                    <div class="enemy-builder-half-field enemy-builder-multi-field">
+                      <span class="enemy-builder-field-label">生息地</span>
+                      <div class="enemy-builder-multi-control">
+                        <input type="text" id="enemy-builder-habitat" aria-label="生息地" />
+                        <details class="enemy-builder-multi-picker" data-multi-picker="habitat">
+                          <summary>選択</summary>
+                          <div class="enemy-builder-multi-picker-panel" id="enemy-builder-habitat-picker"></div>
+                        </details>
+                      </div>
+                    </div>
+                    <label class="enemy-builder-half-field"><span>知名度／弱点値</span><span class="enemy-builder-reputation-pair"><input type="number" id="enemy-builder-reputation" aria-label="知名度" /><span>／</span><input type="number" id="enemy-builder-weakness-value" aria-label="弱点値" /></span></label>
+                    <label class="enemy-builder-half-field"><span>弱点</span><input type="text" id="enemy-builder-weakness" list="enemy-builder-weakness-list" /></label>
+                    <label class="enemy-builder-quarter-field"><span>先制値</span><input type="number" id="enemy-builder-initiative" /></label>
+                    <label class="enemy-builder-three-quarter-field"><span>移動速度</span><input type="text" id="enemy-builder-mobility" list="enemy-builder-mobility-list" title="通常／特殊移動の順で入力できます。移動方法は括弧内に記載します。" /></label>
+                    <label class="enemy-builder-half-field"><span>生命抵抗</span><span class="enemy-builder-check-pair"><input type="number" id="enemy-builder-vit-resist" aria-label="生命抵抗力基準値" /><span>（</span><input type="number" id="enemy-builder-vit-resist-fix" aria-label="生命抵抗力固定値" /><span>）</span></span></label>
+                    <label class="enemy-builder-half-field"><span>精神抵抗</span><span class="enemy-builder-check-pair"><input type="number" id="enemy-builder-mnd-resist" aria-label="精神抵抗力基準値" /><span>（</span><input type="number" id="enemy-builder-mnd-resist-fix" aria-label="精神抵抗力固定値" /><span>）</span></span></label>
+                  </div>
+                </section>
+
+                <section class="enemy-builder-card enemy-builder-parts-card">
+                  <div class="enemy-builder-section-title">
+                    <h4><i class="fa-solid fa-heart-pulse"></i> 部位</h4>
+                    <button type="button" id="enemy-builder-add-part" class="small-button"><i class="fa-solid fa-plus"></i> 部位追加</button>
+                  </div>
+                  <div class="enemy-builder-table-wrap">
+                    <table class="enemy-builder-parts-table">
+                      <thead><tr><th>攻撃方法（部位）</th><th>命中力</th><th>打撃点</th><th>回避力</th><th>防護</th><th>HP</th><th>MP</th><th></th></tr></thead>
+                      <tbody id="enemy-builder-parts"></tbody>
+                    </table>
+                  </div>
+                  <div class="enemy-builder-parts-summary">
+                    <div class="enemy-builder-parts-toggle-row">
+                      <label class="enemy-builder-manual-toggle"><input type="checkbox" id="enemy-builder-parts-manual" /><span>部位数と内訳を手動入力する</span></label>
+                      <label class="enemy-builder-manual-toggle enemy-builder-split-parts-toggle" hidden><input type="checkbox" id="enemy-builder-split-duplicate-parts" /><span>同名部位を個別に分ける</span></label>
+                    </div>
+                    <div class="enemy-builder-parts-fields">
+                      <label class="enemy-builder-parts-main-field">
+                        <span>部位数</span>
+                        <span class="enemy-builder-parts-main-inputs">
+                          <input type="number" id="enemy-builder-parts-total" min="1" value="1" readonly />
+                          <span class="enemy-builder-parts-parenthesis">（</span>
+                          <input type="text" id="enemy-builder-parts-breakdown" aria-label="部位の内訳" readonly />
+                          <span class="enemy-builder-parts-parenthesis">）</span>
+                        </span>
+                      </label>
+                      <label class="enemy-builder-parts-core-field"><span>コア部位</span><input type="text" id="enemy-builder-core-parts" list="enemy-builder-core-parts-list" /></label>
+                    </div>
+                    <datalist id="enemy-builder-core-parts-list"></datalist>
+                  </div>
+                </section>
+
+                <section class="enemy-builder-card enemy-builder-abilities-card">
+                  <div class="enemy-builder-section-title">
+                    <div><h4><i class="fa-solid fa-sparkles"></i> 特殊能力</h4><small>各能力欄の候補を選ぶと、型・名前・本文が自動入力されます。内容はそのまま編集できます。</small></div>
+                    <div class="enemy-builder-ability-actions">
+                      <button type="button" id="enemy-builder-copy-abilities" class="small-button copy-btn" title="魔物知識判定成功後などに、ココフォリアのメモ末尾へ貼る特殊能力全文をコピー"><i class="fa-solid fa-copy"></i> 特殊能力コピー</button>
+                      <button type="button" id="enemy-builder-add-ability" class="small-button"><i class="fa-solid fa-plus"></i> 能力欄を追加</button>
+                    </div>
+                  </div>
+                  <div class="enemy-builder-marker-guide" aria-label="特殊能力の記号対応表">
+                    <span><i class="s-icon part" aria-hidden="true"><span class="raw">●</span></i>適用部位ごとに見出しを自動出力</span>
+                    <span><i class="s-icon passive" aria-hidden="true"><span class="raw">[常]</span></i>常時型</span>
+                    <span><i class="s-icon setup" aria-hidden="true"><span class="raw">[準]</span></i>戦闘準備型</span>
+                    <span><i class="s-icon major" aria-hidden="true"><span class="raw">[主]</span></i>主動作型</span>
+                    <span><i class="s-icon minor" aria-hidden="true"><span class="raw">[補]</span></i>補助動作型</span>
+                    <span><i class="s-icon declaration" aria-hidden="true"><span class="raw">[宣]</span></i>宣言型</span>
+                  </div>
+                  <div id="enemy-builder-abilities" class="enemy-builder-ability-list"></div>
+                </section>
+
+                <section class="enemy-builder-card enemy-builder-ability-preview-card">
+                  <details class="enemy-builder-ability-preview-details" open>
+                    <summary>
+                      <span><i class="fa-solid fa-align-left"></i> 特殊能力・文章プレビュー</span>
+                      <small>部位見出しと能力記号を含む、実際に読む形で確認できます</small>
+                      <i class="fa-solid fa-chevron-down enemy-builder-preview-chevron" aria-hidden="true"></i>
+                    </summary>
+                    <div class="enemy-builder-ability-preview-document">
+                      <div class="enemy-builder-ability-preview-heading">特殊能力</div>
+                      <div id="enemy-builder-ability-preview" class="enemy-builder-ability-preview" aria-live="polite"></div>
+                    </div>
+                  </details>
+                </section>
+
+                <section class="enemy-builder-card enemy-builder-notes-card enemy-builder-loot-card">
+                  <div class="enemy-builder-section-title"><h4><i class="fa-solid fa-box-open"></i> 戦利品</h4></div>
+                  <div class="enemy-builder-loot-editor">
+                    <div class="enemy-builder-loot-header"><span>出目</span><span>内容</span><span></span></div>
+                    <div id="enemy-builder-loot" class="enemy-builder-loot-rows"></div>
+                    <button type="button" id="enemy-builder-add-loot" class="small-button"><i class="fa-solid fa-plus"></i> 戦利品を追加</button>
+                  </div>
+                </section>
+
+                <section class="enemy-builder-card enemy-builder-notes-card enemy-builder-description-card">
+                  <div class="enemy-builder-section-title"><h4><i class="fa-solid fa-book-open"></i> 解説</h4></div>
+                  <label><textarea id="enemy-builder-description" rows="7"></textarea></label>
+                </section>
+
+                <section class="enemy-builder-card enemy-builder-output-card">
+                  <div class="enemy-builder-section-title">
+                    <h4><i class="fa-solid fa-file-export"></i> 出力</h4>
+                    <select id="enemy-builder-output-format" aria-label="出力形式"><option value="yuto">ゆとシート用JSON</option><option value="ccfolia">ココフォリア用コマJSON</option></select>
+                  </div>
+                  <p id="enemy-builder-output-note" class="enemy-builder-output-note">ゆとシート用JSONは「別のデータを開く」のJSON入力へ。保存前に内容を確認してください。</p>
+                  <p class="enemy-builder-output-guide">このツールは、エネミーをサッと作るための簡易作成用です。細かく作り込む場合やPLに見せるシートとして使う場合は、<a href="https://yutorize.work/ytsheet/sw2.5/?type=m" target="_blank" rel="noopener noreferrer">ゆとシートⅡのSW2.5魔物シート</a>を使ってください。</p>
+                  <textarea id="enemy-builder-output" rows="12" readonly></textarea>
+                  <div class="enemy-builder-output-actions">
+                    <button type="button" id="enemy-builder-copy" class="small-button copy-btn"><i class="fa-solid fa-copy"></i> <span id="enemy-builder-copy-label">ゆとシートJSONをコピー</span></button>
+                    <button type="button" id="enemy-builder-download" class="small-button"><i class="fa-solid fa-download"></i> <span id="enemy-builder-download-label">ゆとシートJSONを保存</span></button>
+                  </div>
+                </section>
+              </div>
+
+              <datalist id="enemy-builder-taxa-list"><option value="未分類"></option><option value="人族"></option><option value="蛮族"></option><option value="動物"></option><option value="植物"></option><option value="アンデッド"></option><option value="魔法生物"></option><option value="魔動機"></option><option value="幻獣"></option><option value="妖精"></option><option value="魔神"></option><option value="神族"></option><option value="その他"></option></datalist>
+              <datalist id="enemy-builder-intelligence-list"><option value="なし"></option><option value="命令を聞く"></option><option value="動物並み"></option><option value="低い"></option><option value="人間並み"></option><option value="高い"></option></datalist>
+              <datalist id="enemy-builder-perception-list"><option value="五感"></option><option value="五感（暗視）"></option><option value="魔法"></option><option value="五感（魔法）"></option><option value="機械"></option></datalist>
+              <datalist id="enemy-builder-reaction-list"><option value="友好的"></option><option value="中立"></option><option value="敵対的"></option><option value="腹具合による"></option><option value="命令による"></option></datalist>
+              <datalist id="enemy-builder-weakness-list"><option value="命中力+1"></option><option value="物理ダメージ+2点"></option><option value="魔法ダメージ+2点"></option><option value="回復効果ダメージ+3点"></option><option value="炎属性ダメージ+3点"></option><option value="水・氷属性ダメージ+3点"></option><option value="風属性ダメージ+3点"></option><option value="雷属性ダメージ+3点"></option><option value="衝撃属性ダメージ+3点"></option><option value="断空属性ダメージ+3点"></option></datalist>
+            </div>
+
             <!-- キャラシ分析パネル -->
             <div id="panel-character-analysis" class="form-panel">
               <h3><i class="fa-solid fa-chart-simple"></i> キャラシ分析</h3>
@@ -847,8 +1058,70 @@
 
   <!-- Scripts -->
   <script src="../js/common.js"></script>
-  <script src="./data/sw25_data.js"></script>
-    <script src="./js/sw25_generator.js?v=20260718zzbb"></script>
+  <script src="./data/sw25_data.js?v=20260807c"></script>
+  <datalist id="enemy-builder-mobility-list">
+    <option value="10"></option>
+    <option value="15"></option>
+    <option value="20"></option>
+    <option value="10（四足）"></option>
+    <option value="20（四足）"></option>
+    <option value="20（飛行）"></option>
+    <option value="10／20（飛行）"></option>
+    <option value="20／40（飛行）"></option>
+    <option value="10（回転）／―"></option>
+    <option value="15（車輪）／―"></option>
+    <option value="―／20（飛行）"></option>
+  </datalist>
+  <datalist id="enemy-builder-breath-name-list">
+    <option value="火炎"></option><option value="炎"></option><option value="氷雪"></option><option value="冷気"></option><option value="吹雪"></option>
+    <option value="毒煙"></option><option value="毒"></option><option value="毒ガス"></option><option value="瘴気"></option>
+    <option value="燐光"></option><option value="燦光"></option><option value="光"></option>
+    <option value="疾風"></option><option value="烈風"></option><option value="大地"></option><option value="砂塵"></option>
+    <option value="雷電"></option><option value="雷光"></option><option value="電撃"></option>
+    <option value="眠り"></option><option value="呪詛"></option><option value="衝撃"></option><option value="断空"></option>
+  </datalist>
+  <datalist id="enemy-builder-attribute-list">
+    <option value="土"></option><option value="水・氷"></option><option value="炎"></option><option value="風"></option>
+    <option value="雷"></option><option value="純エネルギー"></option><option value="毒"></option><option value="病気"></option>
+    <option value="精神効果"></option><option value="呪い"></option><option value="衝撃"></option><option value="断空"></option>
+  </datalist>
+  <datalist id="enemy-builder-resistance-list">
+    <option value="毒"></option><option value="病気"></option><option value="精神効果"></option>
+    <option value="毒、病気、精神効果"></option><option value="毒、呪い"></option><option value="病気、精神効果"></option>
+    <option value="土"></option><option value="水・氷"></option><option value="炎"></option><option value="風"></option>
+    <option value="雷"></option><option value="純エネルギー"></option><option value="呪い"></option>
+    <option value="衝撃"></option><option value="断空"></option>
+  </datalist>
+  <datalist id="enemy-builder-contest-opposition-list">
+    <option value="生命抵抗力"></option><option value="精神抵抗力"></option><option value="回避力"></option><option value="回避"></option>
+  </datalist>
+  <datalist id="enemy-builder-contest-result-list">
+    <option value="半減"></option><option value="消滅"></option>
+  </datalist>
+  <datalist id="enemy-builder-ability-target-list">
+    <option value="1体"></option><option value="1体X"></option><option value="1体全"></option><option value="2体"></option>
+    <option value="1体+1体"></option><option value="1体X+1体X"></option><option value="術者"></option><option value="接触点"></option>
+    <option value="任意の地点"></option><option value="任意の3地点"></option><option value="特殊"></option>
+    <option value="1エリア(半径2m)/空間"></option><option value="1エリア(半径3m)/5"></option><option value="1エリア(半径3m)/空間"></option><option value="1エリア(半径3m)/すべて"></option>
+    <option value="1エリア(半径4m)/10"></option><option value="1エリア(半径5m)/15"></option><option value="1エリア(半径5m)/空間"></option><option value="1エリア(半径5m)/すべて"></option>
+    <option value="1エリア(半径6m)/20"></option><option value="1エリア(半径6m)/空間"></option><option value="1エリア(半径6m)/すべて"></option><option value="2～3エリア(半径10m)/空間"></option>
+    <option value="全エリア(半径20m)/空間"></option><option value="全エリア(半径30m)/空間"></option><option value="全エリア(半径30m)/すべて"></option>
+    <option value="全エリア(半径50m)/すべて"></option><option value="全エリア(半径100m)/空間"></option><option value="全エリア(半径500m)/空間"></option>
+    <option value="全エリア(半径500m)/すべて"></option><option value="全エリア(半径1km)/空間"></option><option value="全エリア(半径10km)/空間"></option><option value="全エリア(半径10km)/すべて"></option>
+    <option value="全エリア(半径10m～50m)/空間"></option><option value="2×2×10mまでの空間"></option><option value="1×100mまでの空間"></option>
+  </datalist>
+  <datalist id="enemy-builder-ability-range-shape-list">
+    <option value="術者/-"></option><option value="2(30m)/起点指定"></option><option value="接触/-"></option><option value="1(10m)/起点指定"></option>
+    <option value="1(10m)/射撃"></option><option value="2(30m)/射撃"></option><option value="2(30m)/貫通"></option><option value="2(50m)/貫通"></option>
+    <option value="2(50m)/起点指定"></option><option value="2(無限)/-"></option><option value="2(20m)/射撃"></option><option value="2(50m)/射撃"></option>
+    <option value="1(移動力m)/突破"></option><option value="2(無限)/起点指定"></option><option value="2(100m)/起点指定"></option><option value="2(1m)/起点指定"></option>
+    <option value="2(100m)/射撃"></option>
+  </datalist>
+  <datalist id="enemy-builder-attack-obstruction-list">
+    <option value="+4"></option><option value="+3"></option><option value="+2"></option><option value="不可"></option><option value="なし"></option>
+  </datalist>
+  <script src="./js/sw25_enemy_builder.js?v=20260808q"></script>
+    <script src="./js/sw25_generator.js?v=20260718zzbc"></script>
   <!-- Cloudflare Web Analytics -->
   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6860c746c8204efd894e2e37fe7fbfcf"}'></script>
   <!-- End Cloudflare Web Analytics -->
