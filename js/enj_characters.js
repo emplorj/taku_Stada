@@ -7,7 +7,7 @@
   const COLOR_NAMES = "red|orange|yellow|green|cyan|blue|purple|pink|gray";
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
 
-  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-asc", view: "list", selectedId: null, variantIndex: 0, cardVariantIndexes: new Map() };
+  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", selectedId: null, variantIndex: 0, detailImageMode: "normal", cardVariantIndexes: new Map() };
   const grid = document.getElementById("character-grid");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
@@ -112,7 +112,18 @@
       id: String(character.id ?? ""),
       registrationName: character.registrationName || variants[0]?.name || "名称未設定",
       representativeIndex: Math.max(0, Math.min(Number(character.representativeIndex) || 0, Math.max(variants.length - 1, 0))),
-      variants: variants.map((variant) => ({ ...variant, faces: Array.isArray(variant.faces) ? variant.faces : [] })),
+      // Image-audit extension point: after this normalization, compare each
+      // character's variants by fullBodyUrl/battleFullBodyUrl and system/variant.
+      // This is where duplicate, stale, and missing battle-image checks belong.
+      variants: variants.map((variant) => ({
+        ...variant,
+        // Older API payloads call this field firstAppearance; keep both shapes usable.
+        debut: variant.debut || variant.firstAppearance || "",
+        // The filename is retained as metadata for future image audits; rendering uses the URL.
+        battleFullBodyUrl: variant.battleFullBodyUrl || "",
+        battleFullBodyFileName: variant.battleFullBodyFileName || "",
+        faces: Array.isArray(variant.faces) ? variant.faces : []
+      })),
     };
   }
 
@@ -133,7 +144,13 @@
     const representative = representativeOf(character);
     return [...new Set([...imageCandidatesOf(representative), ...imageCandidatesOf(variant)])];
   };
-  const detailImageOf = (variant) => displayableImageUrl(variant.fullBodyUrl || variant.imageUrl || variant.faceUrl || variant.faces?.[0]?.iconUrl);
+  const detailImageOf = (variant, mode = "normal") => {
+    if (mode === "battle") {
+      const battleImage = displayableImageUrl(variant.battleFullBodyUrl);
+      if (battleImage) return battleImage;
+    }
+    return displayableImageUrl(variant.fullBodyUrl || variant.imageUrl || variant.faceUrl || variant.faces?.[0]?.iconUrl);
+  };
   const cardSummaryOf = (variant) => variant.intro || [
     variant.job,
     variant.age ? `${variant.age}歳` : "",
@@ -170,17 +187,45 @@
   }
   const cardVariantOf = (character) => character.variants[cardVariantIndexOf(character)] || representativeOf(character);
   const cardNameOf = (character) => cardVariantOf(character).name || character.registrationName;
-  const earliestDebutOf = (character) => character.variants.map((variant) => variant.debut).filter(Boolean).sort()[0] || "9999-99";
+  const sortVariantOf = (character) => cardVariantOf(character);
+  function numericValueOf(value) {
+    const match = String(value ?? "").trim().match(/^(\d+(?:\.\d+)?)/);
+    return match ? Number(match[1]) : null;
+  }
+  function dateValueOf(value) {
+    const match = String(value ?? "").match(/(\d{4})(?:\D+(\d{1,2}))?(?:\D+(\d{1,2}))?/);
+    if (!match) return null;
+    const year = Number(match[1]), month = Number(match[2] || 1), day = Number(match[3] || 1);
+    return Number.isFinite(year) && month >= 1 && month <= 12 && day >= 1 && day <= 31 ? Date.UTC(year, month - 1, day) : null;
+  }
+  function compareOptionalNumbers(left, right, direction = 1) {
+    const leftMissing = left === null || !Number.isFinite(left);
+    const rightMissing = right === null || !Number.isFinite(right);
+    if (leftMissing || rightMissing) return leftMissing === rightMissing ? 0 : leftMissing ? 1 : -1;
+    return (left - right) * direction;
+  }
+  function numericIdOf(character) {
+    const value = numericValueOf(character.id);
+    return value === null ? Number.MAX_SAFE_INTEGER : value;
+  }
   const nameCollator = new Intl.Collator("ja", { numeric: true, sensitivity: "base" });
   function filteredCharacters() {
     const items = state.characters.filter((character) =>
       (!state.query || characterSearchText(character).includes(state.query)) &&
       character.variants.some(variantMatchesFilters));
     return items.sort((a, b) => {
-      if (state.sort === "debut-asc") return earliestDebutOf(a).localeCompare(earliestDebutOf(b)) || Number(a.id) - Number(b.id);
-      if (state.sort === "debut-desc") return earliestDebutOf(b).localeCompare(earliestDebutOf(a)) || Number(a.id) - Number(b.id);
-      if (state.sort === "name-asc") return nameCollator.compare(cardNameOf(a), cardNameOf(b)) || Number(a.id) - Number(b.id);
-      return Number(a.id) - Number(b.id);
+      const aVariant = sortVariantOf(a), bVariant = sortVariantOf(b);
+      const idAscending = numericIdOf(a) - numericIdOf(b) || nameCollator.compare(a.id, b.id);
+      if (state.sort === "id-desc") return -idAscending;
+      if (state.sort === "id-asc") return idAscending;
+      if (state.sort === "debut-asc") return compareOptionalNumbers(dateValueOf(aVariant.debut), dateValueOf(bVariant.debut), 1) || idAscending;
+      if (state.sort === "debut-desc") return compareOptionalNumbers(dateValueOf(aVariant.debut), dateValueOf(bVariant.debut), -1) || idAscending;
+      if (state.sort === "age-asc") return compareOptionalNumbers(numericValueOf(aVariant.age), numericValueOf(bVariant.age), 1) || idAscending;
+      if (state.sort === "age-desc") return compareOptionalNumbers(numericValueOf(aVariant.age), numericValueOf(bVariant.age), -1) || idAscending;
+      if (state.sort === "height-asc") return compareOptionalNumbers(numericValueOf(aVariant.height), numericValueOf(bVariant.height), 1) || idAscending;
+      if (state.sort === "height-desc") return compareOptionalNumbers(numericValueOf(aVariant.height), numericValueOf(bVariant.height), -1) || idAscending;
+      if (state.sort === "name-asc") return nameCollator.compare(cardNameOf(a), cardNameOf(b)) || idAscending;
+      return -idAscending;
     });
   }
 
@@ -245,7 +290,10 @@
   function renderDetail() {
     const character = state.characters.find((item) => item.id === state.selectedId);
     if (!character) return;
-    const variant = character.variants[state.variantIndex] || representativeOf(character), image = detailImageOf(variant);
+    const variant = character.variants[state.variantIndex] || representativeOf(character);
+    const hasBattleImage = Boolean(displayableImageUrl(variant.battleFullBodyUrl));
+    if (!hasBattleImage) state.detailImageMode = "normal";
+    const image = detailImageOf(variant, state.detailImageMode);
     const headerMeta = [
       variant.location ? `<span><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${escapeHtml(variant.location)}</span>` : "",
       variant.debut ? `<time datetime="${escapeHtml(variant.debut)}"><i class="fa-regular fa-calendar" aria-hidden="true"></i>初登場 ${escapeHtml(variant.debut)}</time>` : ""
@@ -256,6 +304,7 @@
       detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson]])
     ].join("");
     const actions = [detailAction(variant.driveUrl, "fa-brands fa-google-drive", "Driveを開く"), detailAction(variant.characterSheetUrl, "fa-regular fa-file-lines", "キャラシを開く")].join("");
+    const imageModeTabs = hasBattleImage ? `<div class="detail-image-mode" role="group" aria-label="立ち絵の種類"><button type="button" data-detail-image-mode="normal" aria-pressed="${state.detailImageMode === "normal"}">通常</button><button type="button" data-detail-image-mode="battle" aria-pressed="${state.detailImageMode === "battle"}">戦闘</button></div>` : "";
     const expressionSection = variant.faces.length ? `<section class="detail-section expression-section"><div class="expression-heading"><div><h3>ココフォリア表情 <small>${variant.faces.length}</small></h3><p>選んだ表情を立ち絵の横に表示します。</p></div><div class="expression-heading__actions">${variant.fullBodyUrl ? '<button class="expression-reset" type="button" data-show-fullbody><i class="fa-solid fa-person" aria-hidden="true"></i> 全身図のみ</button>' : ""}${variant.differenceJson ? '<button class="expression-reset" type="button" data-copy-json><i class="fa-regular fa-copy" aria-hidden="true"></i> 表情をコピー</button>' : ""}</div></div><div class="expression-grid">${variant.faces.map((face, index) => {
       const faceUrl = safeUrl(face.iconUrl);
       return faceUrl ? `<button class="expression-button" type="button" data-face-index="${index}" aria-pressed="false" title="${escapeHtml(face.label || `差分${index + 1}`)}"><img src="${escapeHtml(faceUrl)}" alt="${escapeHtml(face.label || `差分${index + 1}`)}" loading="lazy"><span>${escapeHtml(face.label || `差分${index + 1}`)}</span></button>` : "";
@@ -264,7 +313,7 @@
     detail.style.setProperty("--character-system-color", systemColorOf(variant.system));
     detail.innerHTML = `<div class="character-detail__visual"><span class="detail-visual-id" aria-hidden="true">#${escapeHtml(String(character.id).padStart(3, "0"))}</span>${image ? `<img id="detail-main-image" src="${escapeHtml(image)}" alt="${escapeHtml(variant.name || character.registrationName)}">` : `<span class="character-detail__image-placeholder" aria-hidden="true">${escapeHtml(character.registrationName.slice(0, 1))}</span>`}<div id="detail-face-preview" class="detail-face-preview" hidden><img alt=""><span aria-hidden="true">FACE</span></div></div>
       <div class="character-detail__content"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p><h2 id="detail-name">${escapeHtml(variant.name || character.registrationName)}</h2>${headerMeta ? `<div class="detail-meta">${headerMeta}</div>` : ""}
-        ${variant.intro ? `<div class="detail-lead detail-richtext">${renderMarkdown(variant.intro)}</div>` : ""}${variant.quote ? `<div class="detail-quote detail-richtext">${renderMarkdown(variant.quote)}</div>` : ""}${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}
+        ${variant.intro ? `<div class="detail-lead detail-richtext">${renderMarkdown(variant.intro)}</div>` : ""}${variant.quote ? `<div class="detail-quote detail-richtext">${renderMarkdown(variant.quote)}</div>` : ""}${imageModeTabs}${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}
         <div class="detail-sections">${richSection("性格", variant.personality)}${richSection("好き・大事", variant.likes)}${richSection("苦手・弱点", variant.weaknesses)}${richSection("関係キャラ", variant.relations)}${richSection("見どころ", variant.highlights)}${richSection("モチーフ・制作意図", variant.motif)}${richSection("キャラ語り", variant.commentary)}${expressionSection}</div>
       </div>`;
   }
@@ -274,6 +323,7 @@
     if (!character) return;
     state.selectedId = character.id;
     state.variantIndex = variantIndex === null ? character.representativeIndex : Number(variantIndex);
+    state.detailImageMode = "normal";
     renderDetail();
     if (!dialog.open) dialog.showModal();
     document.documentElement.classList.add("character-dialog-open");
@@ -359,8 +409,14 @@
   }, true);
   grid.addEventListener("keydown", (event) => { if (event.target.closest("[data-cycle-variant]") || !["Enter", " "].includes(event.key)) return; const card = event.target.closest("[data-character-id]"); if (card) { event.preventDefault(); openCharacter(card.dataset.characterId, card.dataset.cardVariantIndex); } });
   detail.addEventListener("click", (event) => {
+    const imageModeButton = event.target.closest("[data-detail-image-mode]");
+    if (imageModeButton) {
+      state.detailImageMode = imageModeButton.dataset.detailImageMode === "battle" ? "battle" : "normal";
+      renderDetail();
+      return;
+    }
     const variantTab = event.target.closest("[data-variant-index]");
-    if (variantTab) { state.variantIndex = Number(variantTab.dataset.variantIndex); renderDetail(); return; }
+    if (variantTab) { state.variantIndex = Number(variantTab.dataset.variantIndex); state.detailImageMode = "normal"; renderDetail(); return; }
     const faceButton = event.target.closest("[data-face-index]");
     if (faceButton) {
       const character = state.characters.find((item) => item.id === state.selectedId);
