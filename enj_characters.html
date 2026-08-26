@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>エンJキャラ図鑑</title>
+  <meta name="description" content="エンJのキャラクターを、姿や世界線ごとに眺められる個人キャラクター図鑑です。">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/enj_characters.css?v=20260826g">
+</head>
+<body class="enj-catalog-page">
+  <div id="header-placeholder"></div>
+
+  <main class="main-content catalog-main">
+    <header class="catalog-hero">
+      <p class="catalog-eyebrow">CHARACTER ARCHIVE</p>
+      <h1>エンJキャラ図鑑</h1>
+      <p>同じ人物の、違う時代や世界の姿まで。ユニークIDを軸にまとめた個人キャラクターアーカイブ。</p>
+    </header>
+
+    <section class="catalog-toolbar" aria-label="キャラクター検索">
+      <label class="catalog-search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input id="character-search" type="search" placeholder="名前・システム・キーワードで探す">
+      </label>
+      <label class="catalog-system-filter">
+        <span>システム</span>
+        <select id="system-filter"><option value="">すべて</option></select>
+      </label>
+      <label class="catalog-system-filter">
+        <span>場所</span>
+        <select id="location-filter"><option value="">すべて</option></select>
+      </label>
+      <label class="catalog-system-filter">
+        <span>年</span>
+        <select id="year-filter"><option value="">すべて</option></select>
+      </label>
+      <label class="catalog-system-filter">
+        <span>性別</span>
+        <select id="sex-filter"><option value="">すべて</option></select>
+      </label>
+      <label class="catalog-system-filter">
+        <span>並び順</span>
+        <select id="sort-select">
+          <option value="id-asc">#番号が若い順</option>
+          <option value="debut-asc">初登場が古い順</option>
+          <option value="debut-desc">初登場が新しい順</option>
+          <option value="name-asc">名前 あ→ん</option>
+        </select>
+      </label>
+      <div class="catalog-view-toggle" role="group" aria-label="表示方法">
+        <button type="button" data-view="list" aria-pressed="true" title="名前つき一覧"><i class="fa-solid fa-list" aria-hidden="true"></i><span>一覧</span></button>
+        <button type="button" data-view="grid" aria-pressed="false" title="アイコン一覧"><i class="fa-solid fa-grip" aria-hidden="true"></i><span>アイコン</span></button>
+      </div>
+      <p id="catalog-count" class="catalog-count" aria-live="polite"></p>
+    </section>
+
+    <div id="catalog-status" class="catalog-status" role="status">キャラクターを読み込んでいます…</div>
+    <section id="character-grid" class="character-grid" aria-live="polite"></section>
+  </main>
+
+  <dialog id="character-dialog" class="character-dialog" aria-labelledby="detail-name">
+    <button class="dialog-close" type="button" aria-label="閉じる"><i class="fa-solid fa-xmark"></i></button>
+    <div id="character-detail"></div>
+  </dialog>
+
+  <div id="catalog-toast" class="catalog-toast" role="status" aria-live="polite"></div>
+
+  <footer><p>© 2026 卓スタダ.</p></footer>
+  <script src="js/common.js"></script>
+  <script src="js/enj_characters.js?v=20260826g"></script>
+</body>
+</html>

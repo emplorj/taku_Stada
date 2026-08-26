@@ -1,4 +1,35 @@
-﻿// Adobe Fonts Typekit
+// ==========================================================================
+// 0. フォント Preload（即時実行 — DOMContentLoaded を待たない）
+// ==========================================================================
+(function () {
+  // common.js 自身の <script> タグから fonts/ への相対パスを解決
+  var scripts = document.getElementsByTagName("script");
+  var baseFontPath = "fonts/"; // デフォルト（ルート直下の HTML 用）
+  for (var i = 0; i < scripts.length; i++) {
+    var src = scripts[i].getAttribute("src") || "";
+    if (src.indexOf("common.js") !== -1) {
+      // "js/common.js" → "fonts/"、 "../js/common.js" → "../fonts/" など
+      baseFontPath = src.replace(/js\/common\.js.*$/, "fonts/");
+      break;
+    }
+  }
+  var fonts = [
+    { href: baseFontPath + "HigashiOme-Gothic-C.woff2", type: "font/woff2" },
+    { href: baseFontPath + "ExcelsiorSans.woff2",       type: "font/woff2" }
+  ];
+  var head = document.head || document.getElementsByTagName("head")[0];
+  for (var j = 0; j < fonts.length; j++) {
+    var link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "font";
+    link.type = fonts[j].type;
+    link.href = fonts[j].href;
+    link.crossOrigin = "anonymous"; // フォントの preload には必須
+    head.appendChild(link);
+  }
+})();
+
+// Adobe Fonts Typekit
 (function(d) {
   var config = {
     kitId: 'wia6iii',
