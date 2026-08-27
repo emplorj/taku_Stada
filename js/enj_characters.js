@@ -421,10 +421,19 @@
     const groups = quoteGroupsOf(value);
     return groups.length ? `<div class="detail-quotes">${groups.map((lines) => `<blockquote class="detail-quote detail-richtext">${renderMarkdown(lines.join("\n"))}</blockquote>`).join("")}</div>` : "";
   }
-  function quoteSpotlightHtml(value) {
-    const groups = quoteGroupsOf(value);
-    if (!groups.length) return "";
-    return `<div class="detail-quote-spotlight" aria-label="代表セリフ">${groups.map((lines, index) => `<p class="detail-quote-spotlight__line${index === 0 ? " is-active" : ""}" data-quote-spotlight-index="${index}">${escapeHtml(lines.join("\n"))}</p>`).join("")}</div>`;
+function quoteSpotlightHtml(value) {
+  const groups = quoteGroupsOf(value);
+  if (!groups.length) return "";
+  const verticalText = (text) => escapeHtml(text)
+    // Half-width punctuation has no reliable vertical alternate in all Mincho fonts.
+    // Normalize it here so the vertical quotation always keeps a one-character cell.
+    .replace(/[!?]/g, (mark) => mark === "!" ? "！" : "？")
+    .replace(/\d{1,4}/g, (digits) => `<span class="vertical-tcy">${digits}</span>`);
+    return `<div class="detail-quote-spotlight" aria-label="代表セリフ">${groups.map((lines, index) => {
+      const text = lines.join("\n");
+      const compact = text.replace(/\s/g, "").length > 54 ? " is-compact" : "";
+      return `<p class="detail-quote-spotlight__line${index === 0 ? " is-active" : ""}${compact}" data-quote-spotlight-index="${index}">${verticalText(text)}</p>`;
+    }).join("")}</div>`;
   }
   function stopQuoteSpotlight() {
     if (quoteSpotlightTimer !== null) clearInterval(quoteSpotlightTimer);

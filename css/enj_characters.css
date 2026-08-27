@@ -548,8 +548,10 @@
   opacity: 0.26;
 }
 .character-detail__visual > img { position: absolute; z-index: 1; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; transform: translate(var(--detail-portrait-offset-x, 0px), var(--detail-portrait-offset-y, 0px)) scale(var(--detail-portrait-scale, 1)); transform-origin: center bottom; cursor: zoom-in; }
-.detail-quote-spotlight { position: absolute; z-index: 4; top: 13%; right: 16px; bottom: 17%; width: min(4.1em, 14%); overflow: hidden; pointer-events: none; }
-.detail-quote-spotlight__line { position: absolute; inset: 0; display: block; margin: 0; overflow: hidden; color: rgba(255, 251, 239, 0.94); font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(0.96rem, 1.45vw, 1.22rem); font-weight: 600; line-height: 1.8; letter-spacing: 0.11em; text-align: start; text-shadow: 0 2px 7px rgba(4, 10, 29, 0.85); white-space: pre-wrap; writing-mode: vertical-rl; opacity: 0; transform: translateY(8px); transition: opacity 620ms ease, transform 620ms ease; }
+.detail-quote-spotlight { position: absolute; z-index: 4; top: 13%; right: 10px; bottom: 13%; width: min(6.2em, 25%); overflow: hidden; pointer-events: none; }
+.detail-quote-spotlight__line { position: absolute; inset: 0; display: block; margin: 0; overflow: hidden; color: rgba(255, 251, 239, 0.94); font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(0.96rem, 1.45vw, 1.22rem); font-weight: 600; line-height: 1.8; letter-spacing: 0.11em; text-align: start; text-shadow: 0 2px 7px rgba(4, 10, 29, 0.85); white-space: pre-wrap; writing-mode: vertical-rl; text-orientation: upright; line-break: strict; hanging-punctuation: none; font-feature-settings: "vert" 1; opacity: 0; transform: translateY(8px); transition: opacity 620ms ease, transform 620ms ease; }
+.detail-quote-spotlight__line.is-compact { font-size: clamp(0.82rem, 1.2vw, 1.02rem); line-height: 1.62; letter-spacing: 0.07em; }
+.detail-quote-spotlight__line .vertical-tcy { display: inline-block; text-combine-upright: all; letter-spacing: 0; text-align: center; }
 .detail-quote-spotlight__line.is-active { opacity: 1; transform: translateY(0); }
 .detail-image-switcher { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(12px, 2vw, 26px); pointer-events: none; }
 .detail-image-switcher button { position: relative; width: clamp(42px, 4vw, 58px); height: clamp(42px, 4vw, 58px); border: 0; border-radius: 50%; color: #fff; background: rgba(58, 70, 91, 0.72); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28); font-size: clamp(1.1rem, 2vw, 1.7rem); cursor: pointer; opacity: 0; pointer-events: auto; transform: scale(0.9); transition: opacity 150ms ease, background 150ms ease, transform 150ms ease; }
@@ -969,7 +971,7 @@ html.character-dialog-open body { overflow: hidden; overscroll-behavior: none; }
   .character-detail { height: auto; display: block; }
   .character-detail__visual { min-height: 260px; height: min(38dvh, 330px); padding: 0; border-left: 0; border-bottom: 1px solid var(--catalog-border); }
   .character-detail__visual > img { top: 5%; left: 14%; width: 72%; height: 92%; }
-  .detail-quote-spotlight { top: 14%; right: 10px; bottom: 16%; width: 3.5em; }
+  .detail-quote-spotlight { top: 11%; right: 8px; bottom: 10%; width: min(6.2em, 32%); }
   .detail-visual-id { right: 14px; bottom: 12px; font-size: clamp(4rem, 22vw, 6.5rem); }
   .expression-preview-row .detail-face-preview { width: 108px; border-radius: 12px; }
   .character-detail__content { overflow: visible; padding-top: 30px; }
