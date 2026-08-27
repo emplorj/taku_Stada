@@ -337,6 +337,11 @@
   margin-left: 12px;
   background: var(--catalog-panel);
 }
+.character-grid[data-view="list"] .character-card__visual img {
+  /* 顔アイコンは正方形の枠へ無理に拡大せず、元の画角を保つ。 */
+  object-fit: contain;
+  object-position: center;
+}
 
 .character-grid[data-view="list"] .character-card__body {
   position: relative;
