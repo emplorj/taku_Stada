@@ -347,7 +347,8 @@
   align-items: flex-start;
   flex-direction: column;
   justify-content: center;
-  padding: 9px 18px;
+  /* 左のアイコンに近すぎないよう、情報ブロックはカード内側へ少し寄せる。 */
+  padding: 9px 18px 9px clamp(24px, 3vw, 42px);
   /* システム名・名前・補足の行高ぶん下がって見えるので、視覚中心へ寄せる。 */
   transform: none;
 }
@@ -958,7 +959,7 @@ html.character-dialog-open body { overflow: hidden; overscroll-behavior: none; }
   .character-grid[data-view="grid"] .character-card { border-width: 2px; border-radius: 10px; }
   .character-grid[data-view="list"] .character-card { height: 72px; min-height: 72px; grid-template-columns: 72px minmax(0, 1fr) 80px 44px; }
   .character-grid[data-view="list"] .character-card__visual { width: 72px; height: 72px; }
-  .character-grid[data-view="list"] .character-card__body { padding: 8px 13px; transform: translateY(-4px); }
+  .character-grid[data-view="list"] .character-card__body { padding: 8px 13px 8px clamp(17px, 4vw, 24px); transform: translateY(-4px); }
   .character-grid[data-view="list"] .character-card__variant-cycle { grid-column: 4; gap: 4px; min-width: 46px; padding: 0 7px; box-shadow: 0 0 0 4px rgba(9, 23, 68, 0.82); }
   .character-grid[data-view="list"] .character-card__portrait-window { grid-column: 3; width: 80px; height: 72px; }
   .character-grid[data-view="list"] .character-card__id { margin-left: 8px; font-size: 3.85rem; }
