@@ -175,7 +175,15 @@
     });
     const blocks = [];
     let paragraph = [], listType = "", listItems = [], quoteLines = [];
-    const flushParagraph = () => { if (paragraph.length) blocks.push(`<p>${paragraph.map(inlineMarkdown).join("<br>")}</p>`); paragraph = []; };
+    const paragraphHtml = (lines) => {
+      const [firstLine = "", ...continuation] = lines;
+      // （推測）などの短い先頭注記は、折返しを本文の開始位置に揃える。
+      const parenthetical = firstLine.match(/^([（(][^）)\n]{1,12}[）)])[\s　]*(.+)$/);
+      if (!parenthetical) return `<p>${lines.map(inlineMarkdown).join("<br>")}</p>`;
+      const body = [parenthetical[2], ...continuation].map(inlineMarkdown).join("<br>");
+      return `<p class="detail-parenthetical"><span class="detail-parenthetical__label">${inlineMarkdown(parenthetical[1])}</span><span class="detail-parenthetical__body">${body}</span></p>`;
+    };
+    const flushParagraph = () => { if (paragraph.length) blocks.push(paragraphHtml(paragraph)); paragraph = []; };
     const flushList = () => { if (listItems.length) blocks.push(`<${listType}>${listItems.map((item) => `<li>${inlineMarkdown(item)}</li>`).join("")}</${listType}>`); listType = ""; listItems = []; };
     const flushQuote = () => { if (quoteLines.length) blocks.push(`<blockquote>${quoteLines.map(inlineMarkdown).join("<br>")}</blockquote>`); quoteLines = []; };
     const flushAll = () => { flushParagraph(); flushList(); flushQuote(); };
@@ -424,15 +432,24 @@
 function quoteSpotlightHtml(value) {
   const groups = quoteGroupsOf(value);
   if (!groups.length) return "";
-  const verticalText = (text) => escapeHtml(text)
+  const verticalText = (text) => {
     // Half-width punctuation has no reliable vertical alternate in all Mincho fonts.
     // Normalize it here so the vertical quotation always keeps a one-character cell.
-    .replace(/[!?]/g, (mark) => mark === "!" ? "！" : "？")
-    .replace(/\d{1,4}/g, (digits) => `<span class="vertical-tcy">${digits}</span>`);
+    const normalized = String(text ?? "").replace(/[!?]/g, (mark) => mark === "!" ? "！" : "？");
+    let html = "", cursor = 0;
+    normalized.replace(/[A-Za-z]+|\d+/g, (token, offset) => {
+      html += escapeHtml(normalized.slice(cursor, offset));
+      html += token.length <= 4 ? `<span class="vertical-tcy">${escapeHtml(token)}</span>` : escapeHtml(token);
+      cursor = offset + token.length;
+      return token;
+    });
+    return html + escapeHtml(normalized.slice(cursor));
+  };
     return `<div class="detail-quote-spotlight" aria-label="代表セリフ">${groups.map((lines, index) => {
       const text = lines.join("\n");
       const compact = text.replace(/\s/g, "").length > 54 ? " is-compact" : "";
-      return `<p class="detail-quote-spotlight__line${index === 0 ? " is-active" : ""}${compact}" data-quote-spotlight-index="${index}">${verticalText(text)}</p>`;
+      const hanging = /^[「『“"]/.test(text) ? " has-opening-quote" : "";
+      return `<p class="detail-quote-spotlight__line${index === 0 ? " is-active" : ""}${compact}${hanging}" data-quote-spotlight-index="${index}">${verticalText(text)}</p>`;
     }).join("")}</div>`;
   }
   function stopQuoteSpotlight() {
