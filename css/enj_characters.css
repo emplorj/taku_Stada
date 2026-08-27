@@ -321,7 +321,7 @@
   height: 96px;
   min-height: 96px;
   display: grid;
-  grid-template-columns: 100px minmax(0, 1fr) minmax(96px, 128px) 76px;
+  grid-template-columns: 108px minmax(0, 1fr) minmax(96px, 128px) 76px;
   border-left: 4px solid var(--character-system-color);
   border-radius: 12px;
   /* 巨大なユニーク番号も含め、カードの角でだけ確実に切る。 */
@@ -331,9 +331,9 @@
 .character-grid[data-view="list"] .character-card__visual {
   grid-column: 1;
   grid-row: 1;
-  width: 84px;
-  height: 84px;
-  align-self: center;
+  width: 96px;
+  height: 96px;
+  align-self: start;
   margin-left: 12px;
   background: var(--catalog-panel);
 }
@@ -971,7 +971,7 @@ html.character-dialog-open body { overflow: hidden; overscroll-behavior: none; }
   .character-grid[data-view="grid"] { gap: 7px; }
   .character-grid[data-view="grid"] .character-card { border-width: 2px; border-radius: 10px; }
   .character-grid[data-view="list"] .character-card { height: 72px; min-height: 72px; grid-template-columns: 82px minmax(0, 1fr) 80px 44px; }
-  .character-grid[data-view="list"] .character-card__visual { width: 64px; height: 64px; align-self: center; margin-left: 8px; }
+  .character-grid[data-view="list"] .character-card__visual { width: 72px; height: 72px; align-self: start; margin-left: 8px; }
   .character-grid[data-view="list"] .character-card__body { padding: 8px 13px 8px clamp(17px, 4vw, 24px); transform: translateY(-4px); }
   .character-grid[data-view="list"] .character-card__variant-cycle { grid-column: 4; gap: 4px; min-width: 46px; padding: 0 7px; box-shadow: 0 0 0 4px rgba(9, 23, 68, 0.82); }
   .character-grid[data-view="list"] .character-card__portrait-window { grid-column: 3; width: 80px; height: 72px; }
