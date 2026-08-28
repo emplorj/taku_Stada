@@ -43,6 +43,10 @@ window.GrowthCheckerConfig = {
     parsedLogs: [],
     characterDialogueSelection: {},
     rawLogSelection: [],
+    displayedDialogueCounts: {},
+    dialogueInitialDisplayCount: 100,
+    dialoguePageSize: 200,
+    skipLogContentParsing: false,
     alwaysExcludeRolls: ["SAN", "SAN値チェック", "正気度ロール"],
     conditionalRolls: [
       "幸運",
@@ -148,9 +152,20 @@ window.GrowthCheckerConfig = {
         this.selectedChartCharacter = null;
         this.characterDialogueSelection = {};
         this.rawLogSelection = [];
+        this.displayedDialogueCounts = {};
+        this.skipLogContentParsing = false;
         this.isCoCLog = true;
         this.activeTool = "growth";
         this.detectedVersion = null;
+        return;
+      }
+
+      this.displayedDialogueCounts = {};
+
+      // log-player.js からは解析済みデータ一式を受け取るため、
+      // この watcher 側の解析・初期化を丸ごと重ねない。
+      if (this.skipLogContentParsing) {
+        this.skipLogContentParsing = false;
         return;
       }
 
@@ -572,7 +587,8 @@ window.GrowthCheckerConfig = {
         grouped[targetName].dialogues.push({
           id: index,
           tab: log.tab,
-          message: this.decodeHtmlEntities(log.messageHtml),
+          // 読み込み時にプレーンテキスト化済み。発言ごとのDOM生成は行わない。
+          message: log.message,
           selected:
             this.characterDialogueSelection[originalCharName]?.[index] || false,
         });
@@ -652,6 +668,41 @@ window.GrowthCheckerConfig = {
       const textarea = document.createElement("textarea");
       textarea.innerHTML = text.replace(/<br\s*\/?>/gi, "\n");
       return textarea.value;
+    },
+    visibleDialogues(charData) {
+      const limit =
+        this.displayedDialogueCounts[charData.character] ||
+        this.dialogueInitialDisplayCount;
+      return charData.dialogues.slice(0, limit);
+    },
+    remainingDialogueCount(charData) {
+      const limit =
+        this.displayedDialogueCounts[charData.character] ||
+        this.dialogueInitialDisplayCount;
+      return Math.max(0, charData.dialogues.length - limit);
+    },
+    loadMoreDialogues(charData) {
+      const current =
+        this.displayedDialogueCounts[charData.character] ||
+        this.dialogueInitialDisplayCount;
+      this.$set(
+        this.displayedDialogueCounts,
+        charData.character,
+        current + this.dialoguePageSize,
+      );
+    },
+    setDialogueSelection(dialogueId, isChecked) {
+      const originalLog = this.parsedLogs[dialogueId];
+      if (!originalLog) return;
+      const originalCharName = originalLog.character || "（名前なし）";
+      if (!this.characterDialogueSelection[originalCharName]) {
+        this.$set(this.characterDialogueSelection, originalCharName, {});
+      }
+      this.$set(
+        this.characterDialogueSelection[originalCharName],
+        dialogueId,
+        isChecked,
+      );
     },
     handleFile(file) {
       if (!file) return;

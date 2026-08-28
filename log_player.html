@@ -496,8 +496,9 @@
                   </h3>
                 </summary>
                 <ul>
-                  <li v-for="(dialogue, index) in charData.dialogues" :key="index">
-                    <input type="checkbox" v-model="dialogue.selected" class="dialogue-checkbox">
+                  <li v-for="dialogue in visibleDialogues(charData)" :key="dialogue.id">
+                    <input type="checkbox" :checked="dialogue.selected"
+                      @change="setDialogueSelection(dialogue.id, $event.target.checked)" class="dialogue-checkbox">
                     <span class="log-tab-badge">[{{ dialogue.tab }}]</span>
                     <span class="log-text">{{ dialogue.message }}</span>
                     <button class="jump-to-log-button" @click="jumpToLog(dialogue.id)" title="ログプレイヤーで開く"
@@ -510,6 +511,13 @@
                     </button>
                   </li>
                 </ul>
+                <div v-if="remainingDialogueCount(charData) > 0" style="text-align: center; padding: 12px 20px 20px;">
+                  <button class="copy-all-button" @click="loadMoreDialogues(charData)">
+                    <i class="fa-solid fa-angles-down"></i>
+                    さらに {{ Math.min(dialoguePageSize, remainingDialogueCount(charData)) }} 件表示
+                    （残り {{ remainingDialogueCount(charData) }} 件）
+                  </button>
+                </div>
               </details>
 
             </div>
@@ -598,8 +606,8 @@
 
       <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
       <script src="js/common.js"></script>
-      <script src="js/growth_checker.js"></script>
-      <script src="js/log-player.js?v=20260723"></script>
+      <script src="js/growth_checker.js?v=20260828"></script>
+      <script src="js/log-player.js?v=20260828"></script>
   <!-- Cloudflare Web Analytics -->
   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6860c746c8204efd894e2e37fe7fbfcf"}'></script>
   <!-- End Cloudflare Web Analytics -->
