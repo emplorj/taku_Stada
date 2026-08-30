@@ -1,9 +1,13 @@
 (() => {
   "use strict";
 
-  const CHARACTER_API_URL =
-    "https://script.google.com/macros/s/AKfycbx9NnqKeIqA9TehZa9sxdYK_gsoWWtTcOK3pessvmOY_61_yXDi2wkHQt-6n7oj6A/exec?tool=characters";
-  const LOCAL_PREVIEW_URL = "data/enj_characters.preview.json";
+  const CHARACTER_API_BASE_URL =
+    "https://script.google.com/macros/s/AKfycbx9NnqKeIqA9TehZa9sxdYK_gsoWWtTcOK3pessvmOY_61_yXDi2wkHQt-6n7oj6A/exec";
+  const CHARACTER_INDEX_API_URL = `${CHARACTER_API_BASE_URL}?tool=index`;
+  const LOCAL_PREVIEW_URL = "data/enj_characters.preview.json?v=20260830b";
+  // GASが返した最新の名鑑を次回起動用に残す。静的控えが古くても、
+  // 一度でも最新版を受け取っていれば次のハード再読み込みから即表示できる。
+  const CHARACTER_CACHE_KEY = "enj-character-catalog-index-v2";
   const COLOR_NAMES = "red|orange|yellow|green|cyan|blue|purple|pink|gray";
   // NJMC / エンパイア以外は、名鑑に現れた順で距離感のある仮名にする。
   // シートには実際の場所名を入れたままでよい。
@@ -12,7 +16,7 @@
   const locationDisplayNames = new Map();
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
 
-  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", selectedId: null, variantIndex: 0, detailImageMode: "normal", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false };
+  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
   const grid = document.getElementById("character-grid");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
@@ -30,6 +34,7 @@
   const dialog = document.getElementById("character-dialog");
   const imageLightbox = document.getElementById("character-image-lightbox");
   const imageLightboxImage = document.getElementById("character-image-lightbox-image");
+  let tagPopover = null;
   let imageLightboxCloseTimer = null;
   let quoteSpotlightTimer = null;
   const detail = document.getElementById("character-detail");
@@ -54,6 +59,17 @@
     try {
       const url = new URL(String(value), location.href);
       return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+    } catch (_error) { return ""; }
+  }
+
+  // 編集用のGoogleスプレッドシートは、公開ページから直接開かせない。
+  // 公開したいキャラシ情報は `公開キャラシ` タブ経由の publicCharacterSheet を使う。
+  function publicCharacterSheetUrl(value) {
+    const href = safeUrl(value);
+    if (!href) return "";
+    try {
+      const url = new URL(href);
+      return url.hostname === "docs.google.com" && url.pathname.startsWith("/spreadsheets/") ? "" : href;
     } catch (_error) { return ""; }
   }
 
@@ -119,26 +135,31 @@
 
   function inlineMarkdown(value) {
     const tokens = [];
-    let text = String(value ?? "").replace(/\[\[([^\[\]\n]+)\]\]/g, (match, target) => {
+    const token = (html) => {
+      const key = `\u0000TOKEN${tokens.length}\u0000`;
+      tokens.push(html);
+      return key;
+    };
+    let text = String(value ?? "")
+      // ゆとシート互換のルビ。HTML化を先に退避して、以後の記法解析から守る。
+      .replace(/\|([^|《》\r\n]+)《([^《》\r\n]+)》/g, (_match, label, reading) => token(`<ruby>${escapeHtml(label)}<rt>${escapeHtml(reading)}</rt></ruby>`))
+      .replace(/\[\[([^\[\]\n]+)\]\]/g, (match, target) => {
       // [[表示名>名前#ID]] とすると、文中の表記と検索先を分けられる。
+      // ゆとシート互換の [[表示名>URL]] は外部リンクとしても読める。
       // 旧来の | も受け付けるが、新規記入は > を使う。
       const separator = target.includes(">") ? ">" : "|";
       const [labelSource, referenceSource] = target.split(separator).map((part) => part.trim());
+      const href = safeUrl(referenceSource);
+      if (href) return token(`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(labelSource || href)}</a>`);
       const reference = characterReferenceOf(referenceSource || labelSource);
       if (!reference) return match;
-      const key = `\u0000REF${tokens.length}\u0000`;
       // ファイル名の貼り付けだけは読めるキャラ名に置換する。
       // [[テオドラ]] のような呼称は、書いた表記をそのまま見せる。
       const label = referenceSource
         ? (labelSource || reference.label || `#${reference.id}`)
         : (reference.autoLabel ? reference.label : (labelSource || reference.label || `#${reference.id}`));
-      tokens.push(`<button class="character-reference" type="button" data-character-reference="${escapeHtml(`${reference.id}:${reference.variantIndex}`)}">${escapeHtml(label)}</button>`);
-      return key;
-    }).replace(/`([^`\n]+)`/g, (_match, code) => {
-      const key = `\u0000CODE${tokens.length}\u0000`;
-      tokens.push(`<code>${escapeHtml(code)}</code>`);
-      return key;
-    });
+      return token(`<button class="character-reference" type="button" data-character-reference="${escapeHtml(`${reference.id}:${reference.variantIndex}`)}">${escapeHtml(label)}</button>`);
+    }).replace(/`([^`\n]+)`/g, (_match, code) => token(`<code>${escapeHtml(code)}</code>`));
     text = escapeHtml(text);
     const openColor = new RegExp(`&lt;span class=(?:&quot;|&#39;)(${COLOR_NAMES})(?:&quot;|&#39;)&gt;`, "gi");
     text = text.replace(openColor, (_match, color) => `<span class="md-color-${color.toLowerCase()}">`);
@@ -147,7 +168,12 @@
       const href = safeUrl(url);
       return href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${label}</a>` : label;
     });
+    // {{ }} はゆとシートの透明記法。|| || は従来どおりクリックで開く名鑑のネタバレ。
+    text = text.replace(/\{\{(.+?)\}\}/g, '<span class="transparent-text">$1</span>');
     text = text.replace(/\|\|(.+?)\|\|/g, '<span class="spoiler-text" role="button" tabindex="0" aria-label="ネタバレを表示">$1</span>');
+    text = text.replace(/'''(.+?)'''/g, "<em>$1</em>");
+    text = text.replace(/''(.+?)''/g, "<strong>$1</strong>");
+    text = text.replace(/%%(.+?)%%/g, "<del>$1</del>");
     text = text.replace(/~~(.+?)~~/g, "<del>$1</del>");
     text = text.replace(/__\*\*\*(.+?)\*\*\*__/g, "<u><strong><em>$1</em></strong></u>");
     text = text.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
@@ -158,10 +184,7 @@
     text = text.replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
     text = text.replace(/(^|[^_])_([^_\n]+)_/g, "$1<em>$2</em>");
     text = text.replace(/\\([\\`*{}_\[\]()#+\-.!|>~])/g, "$1");
-    tokens.forEach((html, index) => {
-      text = text.replace(`\u0000REF${index}\u0000`, html);
-      text = text.replace(`\u0000CODE${index}\u0000`, html);
-    });
+    tokens.forEach((html, index) => { text = text.replace(`\u0000TOKEN${index}\u0000`, html); });
     return text;
   }
 
@@ -213,14 +236,17 @@
 
   function parsePortraitAdjustment(value) {
     if (value === undefined || value === null || value === "") return {};
-    const [scale, offsetY, offsetX, listOffsetY] = String(value).trim().split(/[，,\s]+/);
-    const parsedScale = Number(scale), parsedOffsetY = Number(offsetY), parsedOffsetX = Number(offsetX), parsedListOffsetY = Number(listOffsetY);
+    const [scale, offsetY, offsetX, listOffsetY, iconOffsetY, iconOffsetX] = String(value).trim().split(/[，,\s]+/);
+    const parsedScale = Number(scale), parsedOffsetY = Number(offsetY), parsedOffsetX = Number(offsetX), parsedListOffsetY = Number(listOffsetY), parsedIconOffsetY = Number(iconOffsetY), parsedIconOffsetX = Number(iconOffsetX);
     return {
       ...(Number.isFinite(parsedScale) ? { scale: parsedScale } : {}),
       ...(Number.isFinite(parsedOffsetY) ? { offsetY: parsedOffsetY } : {}),
       ...(Number.isFinite(parsedOffsetX) ? { offsetX: parsedOffsetX } : {}),
       // 4項目目は一覧右側だけに足す上下補正。空欄なら従来と同じ 0。
-      ...(Number.isFinite(parsedListOffsetY) ? { listOffsetY: parsedListOffsetY } : {})
+      ...(Number.isFinite(parsedListOffsetY) ? { listOffsetY: parsedListOffsetY } : {}),
+      // 5・6項目目は一覧左の顔アイコンだけを動かす補正。未指定なら従来どおり中央。
+      ...(Number.isFinite(parsedIconOffsetY) ? { iconOffsetY: parsedIconOffsetY } : {}),
+      ...(Number.isFinite(parsedIconOffsetX) ? { iconOffsetX: parsedIconOffsetX } : {})
     };
   }
 
@@ -281,6 +307,11 @@
     const variants = Array.isArray(character.variants) ? character.variants : [];
     return {
       ...character,
+      // 旧来の完全 payload / 静的控えは detailLoaded を持たないため、
+      // 詳細専用の値が一つでもあれば読み込み済みとして扱う。
+      detailLoaded: Boolean(character.detailLoaded || variants.some((variant) =>
+        variant.differenceJson || variant.quote || variant.personality || variant.driveUrl || variant.characterSheetUrl
+      )),
       id: String(character.id ?? ""),
       registrationName: character.registrationName || variants[0]?.name || "名称未設定",
       representativeIndex: Math.max(0, Math.min(Number(character.representativeIndex) || 0, Math.max(variants.length - 1, 0))),
@@ -292,8 +323,19 @@
         // 「特殊」は名称にかかわらず、通常立ち絵とは別の追加立ち絵として扱う。
         const specialFullBodyUrl = variant.specialFullBodyUrl || variant.specialUrl || variant["特殊"] || variant.battleFullBodyUrl || "";
         const specialFullBodyFileName = variant.specialFullBodyFileName || variant.specialFileName || variant["特殊ファイル名"] || variant.battleFullBodyFileName || "";
+        const publicSource = [variant.publicCharacterSheet, variant.publicSheet, variant.publicData, variant["公開キャラシ"]]
+          .find((value) => value && typeof value === "object" && !Array.isArray(value)) || {};
+        const publicValue = (...keys) => {
+          for (const key of keys) {
+            const value = publicSource[key] ?? variant[key];
+            if (value !== undefined && value !== null && String(value).trim()) return String(value).trim();
+          }
+          return "";
+        };
         return {
         ...variant,
+        // APIの二つ名を正規名に寄せつつ、旧epithet payloadも表示できるようにする。
+        aka: String(variant.aka || variant.epithet || "").trim(),
         // Older API payloads call this field firstAppearance; keep both shapes usable.
         debut: variant.debut || variant.firstAppearance || "",
         specialFullBodyUrl,
@@ -308,6 +350,32 @@
         // Positive values move the portrait right.
         portraitOffsetX: variant.portraitOffsetX ?? variant.fullBodyOffsetX ?? adjustment.offsetX ?? 0,
         listPortraitOffsetY: variant.listPortraitOffsetY ?? adjustment.listOffsetY ?? 0,
+        cardIconOffsetY: variant.cardIconOffsetY ?? adjustment.iconOffsetY ?? 0,
+        cardIconOffsetX: variant.cardIconOffsetX ?? adjustment.iconOffsetX ?? 0,
+        // 任意列。APIがまだこの列を返さない期間も空欄として安全に扱う。
+        portrayalTips: String(variant.portrayalTips || variant["他の人が演じるときのコツ"] || "").trim(),
+        appearanceScenarios: String(variant.appearanceScenarios || variant["登場シナリオ"] || "").trim(),
+        tips: String(variant.tips || variant["TIPS"] || "").trim(),
+        enJReview: String(variant.enJReview || variant.enjReview || variant["エンJ人物評"] || "").trim(),
+        achievement: String(variant.achievement ?? variant.selfAchievement ?? variant["やれた度"] ?? "").trim(),
+        communityReview: String(variant.communityReview || variant.everyoneReview || variant["みんな評"] || "").trim(),
+        commentReview: String(variant.commentReview || variant["コメント評"] || "").trim(),
+        aiReview: String(variant.aiReview || variant["AI人物評"] || "").trim(),
+        // `公開キャラシ` タブ由来の任意データ。APIが未対応の間は空のままなので、
+        // 既存のCharacters APIレスポンスには影響しない。
+        publicCharacterSheet: {
+          codeName: publicValue("codeName", "codename", "コードネーム"),
+          personalData: publicValue("personalData", "パーソナルデータ"),
+          notes: publicValue("notes", "備考"),
+          skills: publicValue("skills", "技能"),
+          dLois: publicValue("dLois", "dRois", "Dロイス"),
+          syndromes: publicValue("syndromes", "syndrome", "シンドローム"),
+          effects: publicValue("effects", "エフェクト"),
+          weapons: publicValue("weapons", "武器"),
+          combos: publicValue("combos", "コンボ")
+        },
+        tags: String(variant.tags || variant["タグ"] || "").trim(),
+        reading: String(variant.reading || variant["読み"] || "").trim(),
         faces: Array.isArray(variant.faces) ? variant.faces : []
       };
       }),
@@ -335,6 +403,11 @@
   const cardIconCandidatesOf = (variant) => [variant.iconUrl, variant.imageUrl, variant.faceUrl]
     .map((url) => displayableImageUrl(url, 240)).filter(Boolean);
   const cardIconOf = (character, variant) => cardIconCandidatesOf(variant)[0] || cardIconCandidatesOf(representativeOf(character))[0] || "";
+  // シートの「アイコン」列そのものが埋まっている時だけ、左のアイコンを少し右へ逃がす。
+  // imageUrl / faceUrl へのフォールバックには反応させず、列に明示的なアイコンがある場合だけに限定する。
+  const hasCatalogIconOf = (variant) => Boolean(safeUrl(variant?.iconUrl));
+  const catalogIconOffsetXOf = (variant) => hasCatalogIconOf(variant) ? 5 : 0;
+  const effectiveCardIconOffsetXOf = (variant) => cardIconOffsetXOf(variant) + catalogIconOffsetXOf(variant);
   // 一覧右側も、詳細と同じ「立ち絵調整」の倍率をそのまま使う。
   // 枠の形だけが異なり、一覧専用の追加拡大はしない。
   const listPortraitScaleFor = (_image, scale) => scale;
@@ -372,6 +445,8 @@
   const portraitOffsetYOf = (variant) => Math.max(-180, Math.min(180, Number(variant.portraitOffsetY) || 0));
   const portraitOffsetXOf = (variant) => Math.max(-180, Math.min(180, Number(variant.portraitOffsetX) || 0));
   const listPortraitOffsetYOf = (variant) => Math.max(-180, Math.min(180, Number(variant.listPortraitOffsetY) || 0));
+  const cardIconOffsetYOf = (variant) => Math.max(-96, Math.min(96, Number(variant.cardIconOffsetY) || 0));
+  const cardIconOffsetXOf = (variant) => Math.max(-96, Math.min(96, Number(variant.cardIconOffsetX) || 0));
   const ageLabelOf = (value) => {
     const age = String(value ?? "").trim();
     if (!age || /歳/.test(age)) return age;
@@ -402,7 +477,28 @@
     const parts = [escapeHtml(variant.job), gender, escapeHtml(ageLabelOf(variant.age)), escapeHtml(variant.variant)];
     return parts.filter(Boolean).join(" <span class=\"character-card__summary-separator\" aria-hidden=\"true\">/</span> ") || escapeHtml(variant.name || "プロフィール未入力");
   };
-  const cardTaglineOf = (variant) => String(variant.epithet || variant.catchCopy || "").trim();
+  const cardTaglineOf = (variant) => String(variant.catchCopy || variant.aka || variant.epithet || "").trim();
+  function yutorizeRubyHtml(value) {
+    const source = String(value || "").trim();
+    if (!source) return "";
+    const pattern = /\|([^|《》\r\n]+)《([^《》\r\n]+)》/g;
+    const rubyTokens = [];
+    let text = "", cursor = 0, match;
+    while ((match = pattern.exec(source))) {
+      text += source.slice(cursor, match.index);
+      // inlineMarkdown は _ を斜体として解釈するため、目印には記法文字を含めない。
+      const key = `\uE000AKARUBY${rubyTokens.length}\uE001`;
+      rubyTokens.push(`<ruby>${escapeHtml(match[1])}<rt>${escapeHtml(match[2])}</rt></ruby>`);
+      text += key;
+      cursor = match.index + match[0].length;
+    }
+    text += source.slice(cursor);
+    // 二つ名・キャッチコピーも本文と同じ軽量マークアップを通す。
+    // ルビは先にトークンへ退避することで、**太字** 等と安全に併用できる。
+    let html = inlineMarkdown(text);
+    rubyTokens.forEach((ruby, index) => { html = html.replace(`\uE000AKARUBY${index}\uE001`, ruby); });
+    return html;
+  }
   function quoteGroupsOf(value) {
     const groups = [];
     let current = [];
@@ -425,12 +521,44 @@
     if (current.length) groups.push(current);
     return groups;
   }
+  // ChatGPT などからセルへ貼った時、ごくまれに内容全体が連結されたまま
+  // 二重になることがある。意図的な反復を消さないよう、全文が完全に二等分で
+  // 一致する場合だけ表示側で一方を取り除く。
+  function withoutAccidentalDuplicate(value) {
+    const text = String(value || "").replace(/\r\n?/g, "\n").trim();
+    if (text.length < 40) return text;
+    // ブロック間に改行が一つだけ残った「本文\n本文」も救済する。
+    const blockRepeat = text.match(/^([\s\S]{40,}?)(?:\n{1,3})\1$/);
+    if (blockRepeat) return blockRepeat[1].trim();
+    if (text.length % 2) return text;
+    const midpoint = text.length / 2;
+    const first = text.slice(0, midpoint).trim();
+    const second = text.slice(midpoint).trim();
+    return first && first === second ? first : text;
+  }
   function characterQuotesHtml(value) {
-    const groups = quoteGroupsOf(value);
+    const groups = quoteGroupsOf(withoutAccidentalDuplicate(value));
     return groups.length ? `<div class="detail-quotes">${groups.map((lines) => `<blockquote class="detail-quote detail-richtext">${renderMarkdown(lines.join("\n"))}</blockquote>`).join("")}</div>` : "";
   }
+  // ココフォリアのラベルは @驚」 のようにコマンド用の記号を含むことがある。
+  // 元データはコピー用にそのまま保持し、名鑑では人間が読む部分だけを整える。
+  function faceLabelInfo(value, index) {
+    const raw = String(value || "").trim();
+    const display = (raw || `差分${index + 1}`).replace(/^[@＠]+/, "").replace(/[」｣]+$/, "").trim() || `差分${index + 1}`;
+    const normalized = display.normalize("NFKC").toLowerCase();
+    let tone = "other";
+    // ファイル名・表情ラベルで繰り返し使われる略称を優先する。
+    if (/^(n\d*|通常|無|真|真顔|まがお|ノーマル|neutral)$/.test(normalized)) tone = "neutral";
+    // `w` はココフォリアで「笑い」に使われる短縮ラベル。
+    else if (/^(w\d*|sm\d*|smile)$/.test(normalized) || /笑|喜|楽|にこ|照|きら|恍惚|ガッツ|てへ/.test(display)) tone = "joy";
+    else if (/^(ang|angry)$/.test(normalized) || /怒|殺|睨|荒|激|ムッ|まじぎれ|狂/.test(display)) tone = "anger";
+    else if (/^(sad|sh)$/.test(normalized) || /哀|悲|泣|涙|号泣|苦|沈|落/.test(display)) tone = "sad";
+    else if (/^(cl|close)$/.test(normalized) || /閉|眠|寝|目閉|考|静観|半目|穏|思|じと|逸ら/.test(display)) tone = "closed";
+    else if (/驚|オドロキ|びっくり|焦|汗|困|恐|怯|がーん|がびん|エラー|やば|あれ|バツ|＞＜|[!?！？]/.test(display)) tone = "surprise";
+    return { raw, display, tone };
+  }
 function quoteSpotlightHtml(value) {
-  const groups = quoteGroupsOf(value);
+  const groups = quoteGroupsOf(withoutAccidentalDuplicate(value));
   if (!groups.length) return "";
   const verticalText = (text) => {
     // Half-width punctuation has no reliable vertical alternate in all Mincho fonts.
@@ -494,13 +622,135 @@ function quoteSpotlightHtml(value) {
   }
   const locationLabelOf = (location) => locationDisplayNames.get(location) || location;
   const locationLabelsOf = (variant) => locationsOf(variant.location).map(locationLabelOf);
+  // タグは入力時の見た目（ネタバレ・取り消し）を残す一方、検索・集計では
+  // 同じ語として扱う。例: ||記憶喪失|| / ~~記憶喪失~~ / %%記憶喪失%% → 記憶喪失。
+  // ネタバレかどうかの公開判断はタグ本文ではなく、この装飾で持てるようにする。
+  function tagInfoOf(value) {
+    const raw = String(value || "").trim();
+    let text = raw;
+    let spoiler = false;
+    let struck = false;
+    // 記法を重ねてもよいので、外側から順番にほどく。
+    let changed = true;
+    while (text && changed) {
+      changed = false;
+      const spoilerMatch = text.match(/^\|\|([\s\S]+)\|\|$/);
+      if (spoilerMatch) {
+        spoiler = true;
+        text = spoilerMatch[1].trim();
+        changed = true;
+        continue;
+      }
+      const strikeMatch = text.match(/^(?:~~|%%)([\s\S]+?)(?:~~|%%)$/);
+      if (strikeMatch) {
+        struck = true;
+        text = strikeMatch[1].trim();
+        changed = true;
+      }
+    }
+    const label = text.replace(/\s+/g, " ").trim();
+    return {
+      raw,
+      label,
+      key: label.normalize("NFKC").toLocaleLowerCase("ja"),
+      spoiler,
+      struck
+    };
+  }
+  function tagsOf(value) {
+    const seen = new Set();
+    return String(value || "").split(/[、,，\n\r]+/)
+      .map(tagInfoOf)
+      .filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
+  }
+  function generatedTag(label, source, extra = {}) {
+    return { ...tagInfoOf(label), source, ...extra };
+  }
+  // ジョブ欄は一つの文章として保ちつつ、検索用タグでは種族・役割・シンドロームを
+  // それぞれ拾う。DX3の末尾A〜Dはワークスの区分なので、UGN支部長C → UGN支部長
+  // のように一段まとめる。
+  function jobTagsOf(value) {
+    const seen = new Set();
+    return String(value || "").split(/[、,，/／・]+/)
+      .map((item) => item.replace(/\s+/g, " ").trim())
+      .map((item) => /^(?:UGN(?:支部長|エージェント|チルドレン)|レネゲイドビーイング)[A-D]$/i.test(item) ? item.slice(0, -1) : item)
+      .map((item) => generatedTag(item, "job"))
+      .filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
+  }
+  function catalogTagsOf(character, variant) {
+    const manual = tagsOf(variant.tags).map((tag) => ({ ...tag, source: "manual" }));
+    const derived = [
+      variant.system ? generatedTag(variant.system, "system") : null,
+      ...jobTagsOf(variant.job),
+      character.variants.length > 1 ? generatedTag("コンバートあり", "auto") : null,
+      yearOf(variant.debut) ? generatedTag(`初登場 ${yearOf(variant.debut)}年`, "auto") : null
+    ].filter(Boolean);
+    const seen = new Set();
+    return [...manual, ...derived].filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
+  }
+  function catalogAffinityTagsOf(variant) {
+    return [
+      variant.alignment ? generatedTag(`アライメント: ${variant.alignment}`, "affinity") : null,
+      variant.firstPerson ? generatedTag(`一人称: ${variant.firstPerson}`, "affinity") : null
+    ].filter(Boolean);
+  }
+  const tagSearchTextOf = (character, variant) => [...catalogTagsOf(character, variant), ...catalogAffinityTagsOf(variant)].map((tag) => tag.label).join(" ");
+  function catalogTagHtml(tag, variant) {
+    const classes = ["catalog-tag", `catalog-tag--${tag.source || "manual"}`];
+    if (tag.struck) classes.push("is-retired");
+    const color = ["system", "job"].includes(tag.source) ? systemColorOf(variant.system) : "";
+    const title = tag.struck ? `${tag.label}（過去の属性）` : `${tag.label}で絞り込む`;
+    return `<button type="button" class="${classes.join(" ")}" data-tag-search="${escapeHtml(tag.label)}"${color ? ` style="--tag-color:${escapeHtml(color)}"` : ""} title="${escapeHtml(title)}">${escapeHtml(tag.label)}</button>`;
+  }
+  function compactCatalogTagsHtml(character, variant, limit = 3) {
+    // 一覧では、すでに表示済みのシステム・ジョブ・性別などを重ねない。
+    // 手入力のタグだけをシステム行に添え、生成タグは検索用として残す。
+    const tags = tagsOf(variant.tags).filter((tag) => !tag.spoiler);
+    if (!tags.length) return "";
+    const shown = tags.slice(0, limit);
+    const rest = tags.length - shown.length;
+    return `<span class="character-card__tags character-card__tags--inline" aria-label="タグ">${shown.map((tag) => catalogTagHtml(tag, variant)).join("")}${rest ? `<button type="button" class="character-card__tags-more" data-show-more-tags aria-label="残り${rest}個のタグを表示">+${rest}</button>` : ""}</span>`;
+  }
+
+  function closeTagPopover() {
+    tagPopover?.remove();
+    tagPopover = null;
+  }
+
+  function searchByCatalogTag(value) {
+    const tag = tagInfoOf(value).label;
+    if (!tag) return;
+    state.query = tag.toLocaleLowerCase("ja");
+    search.value = tag;
+    renderCards();
+  }
+
+  function showMoreCatalogTags(trigger, character, variant) {
+    const tags = tagsOf(variant.tags).filter((tag) => !tag.spoiler).slice(3);
+    if (!tags.length) return;
+    closeTagPopover();
+    const rect = trigger.getBoundingClientRect();
+    tagPopover = document.createElement("div");
+    tagPopover.className = "catalog-tag-popover";
+    tagPopover.setAttribute("role", "dialog");
+    tagPopover.setAttribute("aria-label", "残りのタグ");
+    tagPopover.innerHTML = `<strong>ほかのタグ</strong><div>${tags.map((tag) => catalogTagHtml(tag, variant)).join("")}</div>`;
+    document.body.appendChild(tagPopover);
+    const width = tagPopover.offsetWidth;
+    tagPopover.style.left = `${Math.max(12, Math.min(rect.left, window.innerWidth - width - 12))}px`;
+    tagPopover.style.top = `${Math.max(12, rect.bottom + 8)}px`;
+    tagPopover.querySelectorAll("[data-tag-search]").forEach((button) => button.addEventListener("click", () => {
+      closeTagPopover();
+      searchByCatalogTag(button.dataset.tagSearch);
+    }));
+  }
   function locationSortKey(variant) {
     const locations = locationsOf(variant.location);
     const rank = locations.includes("NJMC") ? 0 : locations.includes("エンパイア") ? 1 : 2;
     return `${rank}:${locationLabelsOf(variant).join("、")}`;
   }
-  const characterSearchText = (character) => [character.registrationName, character.id, ...character.variants.flatMap((variant) => [variant.name, variant.variant, variant.epithet, variant.catchCopy, variant.system, variant.location, ...locationLabelsOf(variant), variant.sex, variant.keyword, variant.intro, variant.job])].filter(Boolean).join(" ").toLocaleLowerCase("ja");
-  const variantSearchText = (character, variant) => [character.registrationName, character.id, variant.name, variant.variant, variant.epithet, variant.catchCopy, variant.system, variant.location, ...locationLabelsOf(variant), variant.sex, variant.keyword, variant.intro, variant.job].filter(Boolean).join(" ").toLocaleLowerCase("ja");
+  const characterSearchText = (character) => [character.registrationName, character.id, ...character.variants.flatMap((variant) => [variant.name, variant.variant, variant.aka, variant.epithet, variant.catchCopy, variant.system, variant.location, ...locationLabelsOf(variant), variant.sex, variant.keyword, tagSearchTextOf(character, variant), variant.intro, variant.job])].filter(Boolean).join(" ").toLocaleLowerCase("ja");
+  const variantSearchText = (character, variant) => [character.registrationName, character.id, variant.name, variant.variant, variant.aka, variant.epithet, variant.catchCopy, variant.system, variant.location, ...locationLabelsOf(variant), variant.sex, variant.keyword, tagSearchTextOf(character, variant), variant.intro, variant.job].filter(Boolean).join(" ").toLocaleLowerCase("ja");
   function yearOf(value) {
     const year = String(value || "").match(/(?:^|\D)(\d{4})(?:\D|$)/)?.[1];
     return year || "";
@@ -618,9 +868,9 @@ function quoteSpotlightHtml(value) {
       const cycleButton = grouped && character.variants.length > 1 ? `<button class="character-card__variant-cycle" type="button" data-cycle-variant aria-label="次の姿「${escapeHtml(nextVariant.variant || nextVariant.name || nextVariant.system || `姿${nextIndex + 1}`)}」へ切り替える" title="次の姿へ切替"><i class="fa-solid fa-repeat" aria-hidden="true"></i><span>${variantIndex + 1}/${character.variants.length}</span></button>` : "";
       const adjustButton = state.portraitAdjustMode ? `<button class="character-card__portrait-adjust" type="button" data-adjust-portrait aria-label="${escapeHtml(displayName)}の立ち絵を調整" title="立ち絵調整"><i class="fa-solid fa-sliders" aria-hidden="true"></i></button>` : "";
       return `<article class="character-card${grouped && character.variants.length > 1 ? " has-variants" : ""}" tabindex="0" data-character-id="${escapeHtml(character.id)}" data-card-variant-index="${variantIndex}" aria-label="${escapeHtml(displayName)}を開く" title="${escapeHtml(displayName)}" style="--character-system-color:${escapeHtml(systemColorOf(variant.system))}">
-        <div class="character-card__visual">${visualImage ? `<img${sharedPortraitSource ? ' class="is-body-preview"' : ""} src="${escapeHtml(visualImage)}" alt="${escapeHtml(displayName)}" loading="lazy" decoding="async" fetchpriority="low" data-image-candidates="${escapeHtml(JSON.stringify(visualCandidates))}">` : `<span class="character-card__initial" aria-hidden="true">${escapeHtml(displayName.slice(0, 1))}</span>`}</div>
+        <div class="character-card__visual">${visualImage ? `<img${sharedPortraitSource ? ' class="is-body-preview"' : ""} src="${escapeHtml(visualImage)}" alt="${escapeHtml(displayName)}" loading="lazy" decoding="async" fetchpriority="low" data-image-candidates="${escapeHtml(JSON.stringify(visualCandidates))}" style="--card-icon-offset-y:${escapeHtml(cardIconOffsetYOf(variant))}px;--card-icon-offset-x:${escapeHtml(effectiveCardIconOffsetXOf(variant))}px">` : `<span class="character-card__initial" aria-hidden="true">${escapeHtml(displayName.slice(0, 1))}</span>`}</div>
         ${sidePortrait ? `<div class="character-card__portrait-window" aria-hidden="true"><img src="${escapeHtml(sidePortrait)}" alt="" loading="lazy" decoding="async" fetchpriority="low" style="--card-portrait-list-scale:${escapeHtml(listPortraitScaleFor(null, portraitScaleOf(variant)).toFixed(3))};--card-portrait-list-offset-y:${escapeHtml(listPortraitOffsetYOf(variant).toFixed(2))}px;--card-portrait-list-offset-x:${escapeHtml((portraitOffsetXOf(variant) * 0.25).toFixed(2))}px"></div>` : ""}
-        <div class="character-card__body"><p class="character-card__systems">${systemLabels}${sortIndicator}</p>${cardTaglineOf(variant) ? `<p class="character-card__tagline">${escapeHtml(cardTaglineOf(variant))}</p>` : ""}<h2>${escapeHtml(displayName)}</h2><p class="character-card__intro">${cardSummaryHtmlOf(variant)}</p></div>
+        <div class="character-card__body"><p class="character-card__systems">${systemLabels}${sortIndicator}${compactCatalogTagsHtml(character, variant)}</p>${cardTaglineOf(variant) ? `<p class="character-card__tagline">${yutorizeRubyHtml(cardTaglineOf(variant))}</p>` : ""}<h2>${escapeHtml(displayName)}</h2><p class="character-card__intro">${cardSummaryHtmlOf(variant)}</p></div>
         <span class="character-card__id" aria-hidden="true">#${escapeHtml(String(character.id).padStart(3, "0"))}</span>
         ${cycleButton}
         ${adjustButton}
@@ -737,7 +987,7 @@ function quoteSpotlightHtml(value) {
   function renderMergeSelect() {
     const options = state.characters.flatMap((character) => character.variants
       .map((variant, variantIndex) => ({ character, variant, variantIndex }))
-      .filter(({ variant }) => String(variant.differenceJson || "").trim()))
+      .filter(({ variant }) => variant.hasDifference || String(variant.differenceJson || "").trim()))
       .sort((left, right) => numericIdOf(left.character) - numericIdOf(right.character) || nameCollator.compare(left.variant.name || "", right.variant.name || ""));
     mergeSelect.innerHTML = '<option value="">手入力する</option>' + options.map(({ character, variant, variantIndex }) => {
       const label = `#${String(character.id).padStart(3, "0")}　${variant.name || character.registrationName}${variant.variant ? `（${variant.variant}）` : ""}`;
@@ -750,7 +1000,7 @@ function quoteSpotlightHtml(value) {
     if (separator < 0) return null;
     const character = state.characters.find((item) => item.id === key.slice(0, separator));
     const variant = character?.variants[Number(key.slice(separator + 1))];
-    return character && variant ? { character, variant } : null;
+    return character && variant ? { character, variant, variantIndex: Number(key.slice(separator + 1)) } : null;
   }
 
   function activePortraitAdjustment() {
@@ -792,18 +1042,38 @@ function quoteSpotlightHtml(value) {
     };
   }
 
-  function setPortraitControllerVariables(scale, offsetY, offsetX, listOffsetY = 0) {
+  function listPreviewGeometry() {
+    const active = activePortraitAdjustment();
+    const card = active && [...grid.querySelectorAll("[data-character-id]")].find((item) =>
+      item.dataset.characterId === active.character.id && Number(item.dataset.cardVariantIndex) === active.variantIndex
+    );
+    const windowRect = card?.querySelector(".character-card__portrait-window")?.getBoundingClientRect();
+    // カードがフィルタで消えている時だけ、一覧の標準枠へフォールバックする。
+    return {
+      width: Math.max(1, Math.round(windowRect?.width || (window.matchMedia("(max-width: 640px)").matches ? 80 : 128))),
+      height: Math.max(1, Math.round(windowRect?.height || (window.matchMedia("(max-width: 640px)").matches ? 72 : 96))),
+    };
+  }
+
+  function setPortraitControllerVariables(scale, offsetY, offsetX, listOffsetY = 0, iconOffsetY = 0, iconOffsetX = 0, catalogIconOffsetX = 0) {
     const geometry = detailPreviewGeometry();
+    const listGeometry = listPreviewGeometry();
     portraitAdjustController.style.setProperty("--detail-portrait-scale", scale);
     portraitAdjustController.style.setProperty("--list-portrait-scale", scale);
     // 詳細枠は画面サイズで縦横比が変わるため、プレビューも同じ比率・実寸換算にする。
     portraitAdjustController.style.setProperty("--controller-detail-preview-width", `${geometry.previewWidth}px`);
     portraitAdjustController.style.setProperty("--controller-detail-preview-height", `${geometry.previewHeight}px`);
+    // 一覧右側はカードの実寸を採用する。ここが 84px 固定だったため、
+    // 実カード（96px）とプレビューで縦の切れ方がずれていた。
+    portraitAdjustController.style.setProperty("--controller-list-preview-width", `${listGeometry.width}px`);
+    portraitAdjustController.style.setProperty("--controller-list-preview-height", `${listGeometry.height}px`);
     portraitAdjustController.style.setProperty("--controller-detail-offset-y", `${(offsetY * geometry.offsetScaleY).toFixed(2)}px`);
     portraitAdjustController.style.setProperty("--controller-detail-offset-x", `${(offsetX * geometry.offsetScaleX).toFixed(2)}px`);
     // 一覧は上半身トリミング用の独立した縦位置。詳細の上下値は混ぜない。
     portraitAdjustController.style.setProperty("--list-portrait-offset-y", `${listOffsetY}px`);
     portraitAdjustController.style.setProperty("--list-portrait-offset-x", `${(offsetX * 0.25).toFixed(2)}px`);
+    portraitAdjustController.style.setProperty("--controller-icon-offset-y", `${iconOffsetY}px`);
+    portraitAdjustController.style.setProperty("--controller-icon-offset-x", `${iconOffsetX + catalogIconOffsetX}px`);
   }
 
   function renderPortraitAdjustController() {
@@ -813,16 +1083,18 @@ function quoteSpotlightHtml(value) {
       return;
     }
     const { character, variant, variantIndex } = active;
-    const scale = portraitScaleOf(variant), offsetY = portraitOffsetYOf(variant), offsetX = portraitOffsetXOf(variant), listOffsetY = listPortraitOffsetYOf(variant);
+    const scale = portraitScaleOf(variant), offsetY = portraitOffsetYOf(variant), offsetX = portraitOffsetXOf(variant), listOffsetY = listPortraitOffsetYOf(variant), iconOffsetY = cardIconOffsetYOf(variant), iconOffsetX = cardIconOffsetXOf(variant);
     // 詳細と同じURLを使い、ブラウザキャッシュも共有する。
     const image = detailImageOf(variant) || "";
     portraitAdjustController.hidden = false;
-    setPortraitControllerVariables(scale, offsetY, offsetX, listOffsetY);
-    portraitAdjustController.innerHTML = `<header><strong>#${escapeHtml(String(character.id).padStart(3, "0"))} ${escapeHtml(variant.name || character.registrationName)}</strong><button type="button" data-close-portrait-adjustment aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header><p>シートへ貼る値：<code data-controller-adjustment-value>${scale.toFixed(2)},${offsetY},${offsetX},${listOffsetY}</code></p><div class="portrait-adjust-controller__previews"><figure><figcaption>詳細（共通値）</figcaption><div class="portrait-adjust-controller__detail-preview">${image ? `<img src="${escapeHtml(image)}" alt="">` : ""}</div></figure><figure><figcaption>一覧右側</figcaption><div class="portrait-adjust-controller__list-preview">${image ? `<img src="${escapeHtml(image)}" alt="">` : ""}</div></figure></div><div class="portrait-adjust-controller__controls"><label><span>倍率 <output data-controller-scale-output>${scale.toFixed(2)}</output></span><input type="range" min="0.8" max="1.3" step="0.01" value="${scale}" data-controller-scale><input type="number" min="0.8" max="1.3" step="0.01" value="${scale}" data-controller-scale></label><label><span>共通上下 <output data-controller-offset-y-output>${offsetY}px</output></span><input type="range" min="-180" max="180" step="1" value="${offsetY}" data-controller-offset-y><input type="number" min="-180" max="180" step="1" value="${offsetY}" data-controller-offset-y></label><label><span>左右 <output data-controller-offset-x-output>${offsetX}px</output></span><input type="range" min="-180" max="180" step="1" value="${offsetX}" data-controller-offset-x><input type="number" min="-180" max="180" step="1" value="${offsetX}" data-controller-offset-x></label><label><span>一覧上下 <output data-controller-list-offset-y-output>${listOffsetY}px</output></span><input type="range" min="-180" max="180" step="1" value="${listOffsetY}" data-controller-list-offset-y><input type="number" min="-180" max="180" step="1" value="${listOffsetY}" data-controller-list-offset-y></label></div><button class="portrait-adjust-controller__copy" type="button" data-copy-controller-adjustment><i class="fa-regular fa-copy" aria-hidden="true"></i>値をコピー</button>`;
+    const catalogIconOffsetX = catalogIconOffsetXOf(variant);
+    setPortraitControllerVariables(scale, offsetY, offsetX, listOffsetY, iconOffsetY, iconOffsetX, catalogIconOffsetX);
+    const icon = cardIconOf(character, variant) || image;
+    portraitAdjustController.innerHTML = `<header><strong>#${escapeHtml(String(character.id).padStart(3, "0"))} ${escapeHtml(variant.name || character.registrationName)}</strong><button type="button" data-close-portrait-adjustment aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header><p>シートへ貼る値：<code data-controller-adjustment-value>${scale.toFixed(2)},${offsetY},${offsetX},${listOffsetY},${iconOffsetY},${iconOffsetX}</code></p><div class="portrait-adjust-controller__previews"><figure><figcaption>詳細（共通値）</figcaption><div class="portrait-adjust-controller__detail-preview">${image ? `<img src="${escapeHtml(image)}" alt="">` : ""}</div></figure><figure><figcaption>一覧右側</figcaption><div class="portrait-adjust-controller__list-preview">${image ? `<img src="${escapeHtml(image)}" alt="">` : ""}</div></figure><figure><figcaption>一覧左アイコン</figcaption><div class="portrait-adjust-controller__icon-preview">${icon ? `<img src="${escapeHtml(icon)}" alt="">` : ""}</div></figure></div><div class="portrait-adjust-controller__controls"><label><span>倍率 <output data-controller-scale-output>${scale.toFixed(2)}</output></span><input type="range" min="0.8" max="1.3" step="0.01" value="${scale}" data-controller-scale><input type="number" min="0.8" max="1.3" step="0.01" value="${scale}" data-controller-scale></label><label><span>共通上下 <output data-controller-offset-y-output>${offsetY}px</output></span><input type="range" min="-180" max="180" step="1" value="${offsetY}" data-controller-offset-y><input type="number" min="-180" max="180" step="1" value="${offsetY}" data-controller-offset-y></label><label><span>左右 <output data-controller-offset-x-output>${offsetX}px</output></span><input type="range" min="-180" max="180" step="1" value="${offsetX}" data-controller-offset-x><input type="number" min="-180" max="180" step="1" value="${offsetX}" data-controller-offset-x></label><label><span>一覧上下 <output data-controller-list-offset-y-output>${listOffsetY}px</output></span><input type="range" min="-180" max="180" step="1" value="${listOffsetY}" data-controller-list-offset-y><input type="number" min="-180" max="180" step="1" value="${listOffsetY}" data-controller-list-offset-y></label><label><span>左アイコン上下 <output data-controller-icon-offset-y-output>${iconOffsetY}px</output></span><input type="range" min="-96" max="96" step="1" value="${iconOffsetY}" data-controller-icon-offset-y><input type="number" min="-96" max="96" step="1" value="${iconOffsetY}" data-controller-icon-offset-y></label><label><span>左アイコン左右 <output data-controller-icon-offset-x-output>${iconOffsetX}px</output></span><input type="range" min="-96" max="96" step="1" value="${iconOffsetX}" data-controller-icon-offset-x><input type="number" min="-96" max="96" step="1" value="${iconOffsetX}" data-controller-icon-offset-x></label></div><button class="portrait-adjust-controller__copy" type="button" data-copy-controller-adjustment><i class="fa-regular fa-copy" aria-hidden="true"></i>値をコピー</button>`;
     portraitAdjustController.querySelectorAll("[data-controller-scale]").forEach((control) => { control.max = "2"; control.setAttribute("list", "portrait-scale-mark"); control.title = "標準上限は 1.30。2.00 まで拡大できます。"; });
   }
 
-  function applyPortraitAdjustment(scale, offsetY, offsetX, listOffsetY) {
+  function applyPortraitAdjustment(scale, offsetY, offsetX, listOffsetY, iconOffsetY, iconOffsetX) {
     const active = activePortraitAdjustment();
     if (!active) return;
     const { character, variant, variantIndex } = active;
@@ -830,17 +1102,26 @@ function quoteSpotlightHtml(value) {
     variant.portraitOffsetY = offsetY;
     variant.portraitOffsetX = offsetX;
     variant.listPortraitOffsetY = listOffsetY;
-    setPortraitControllerVariables(scale, offsetY, offsetX, listOffsetY);
+    variant.cardIconOffsetY = iconOffsetY;
+    variant.cardIconOffsetX = iconOffsetX;
+    setPortraitControllerVariables(scale, offsetY, offsetX, listOffsetY, iconOffsetY, iconOffsetX, catalogIconOffsetXOf(variant));
     portraitAdjustController.querySelectorAll("[data-controller-scale]").forEach((control) => { control.value = String(scale); });
     portraitAdjustController.querySelectorAll("[data-controller-offset-y]").forEach((control) => { control.value = String(offsetY); });
     portraitAdjustController.querySelectorAll("[data-controller-offset-x]").forEach((control) => { control.value = String(offsetX); });
     portraitAdjustController.querySelectorAll("[data-controller-list-offset-y]").forEach((control) => { control.value = String(listOffsetY); });
+    portraitAdjustController.querySelectorAll("[data-controller-icon-offset-y]").forEach((control) => { control.value = String(iconOffsetY); });
+    portraitAdjustController.querySelectorAll("[data-controller-icon-offset-x]").forEach((control) => { control.value = String(iconOffsetX); });
     portraitAdjustController.querySelector("[data-controller-scale-output]").textContent = scale.toFixed(2);
     portraitAdjustController.querySelector("[data-controller-offset-y-output]").textContent = `${offsetY}px`;
     portraitAdjustController.querySelector("[data-controller-offset-x-output]").textContent = `${offsetX}px`;
     portraitAdjustController.querySelector("[data-controller-list-offset-y-output]").textContent = `${listOffsetY}px`;
-    portraitAdjustController.querySelector("[data-controller-adjustment-value]").textContent = `${scale.toFixed(2)},${offsetY},${offsetX},${listOffsetY}`;
+    portraitAdjustController.querySelector("[data-controller-adjustment-value]").textContent = `${scale.toFixed(2)},${offsetY},${offsetX},${listOffsetY},${iconOffsetY},${iconOffsetX}`;
     [...grid.querySelectorAll("[data-character-id]")].filter((card) => card.dataset.characterId === character.id && Number(card.dataset.cardVariantIndex) === variantIndex).forEach((card) => {
+      const icon = card.querySelector(".character-card__visual img");
+      if (icon) {
+        icon.style.setProperty("--card-icon-offset-y", `${iconOffsetY}px`);
+        icon.style.setProperty("--card-icon-offset-x", `${effectiveCardIconOffsetXOf(variant)}px`);
+      }
       const image = card.querySelector(".character-card__portrait-window img");
       if (!image) return;
       image.style.setProperty("--card-portrait-list-scale", listPortraitScaleFor(image, scale).toFixed(3));
@@ -854,6 +1135,47 @@ function quoteSpotlightHtml(value) {
     }
   }
 
+  // 読みは「日本語 / Romanization」を一組として見せる。別名・本名などを
+  // ||...|| に入れた場合は、名鑑本文と同じネタバレ開示扱いにする。
+  function detailReadingFact(value) {
+    const lines = String(value ?? "").replace(/\r\n?/g, "\n").split("\n").map((line) => line.trim()).filter(Boolean);
+    if (!lines.length) return "";
+    const lineHtml = lines.map((line) => {
+      const spoilerMatch = line.match(/^\|\|([\s\S]+)\|\|$/);
+      const content = (spoilerMatch ? spoilerMatch[1] : line).trim();
+      const parts = content.split(/\s*\/\s*/, 2);
+      const hasRomanization = parts.length === 2 && /^[A-Za-z0-9][A-Za-z0-9 .’'\-]*$/.test(parts[1]);
+      const reading = hasRomanization
+        ? `<span class="detail-reading__name">${escapeHtml(parts[0])}</span><span class="detail-reading__roman">${escapeHtml(parts[1])}</span>`
+        : `<span class="detail-reading__name">${escapeHtml(content)}</span>`;
+      const item = `<span class="detail-reading__item">${reading}</span>`;
+      return spoilerMatch
+        ? `<span class="spoiler-text detail-reading__spoiler" role="button" tabindex="0" aria-label="秘匿された読み・別名を表示">${item}</span>`
+        : item;
+    }).join("");
+    return `<div class="detail-fact detail-fact--reading"><dt>読み・別名</dt><dd><div class="detail-reading">${lineHtml}</div></dd></div>`;
+  }
+
+  // 詳細名のルビは、公開されている「読み」だけを使う。秘匿の本名・別名は
+  // ここで拾わず、読み・別名欄を開いた時だけ確認できるようにする。
+  function publicKanaReadingOf(value) {
+    const line = String(value ?? "").replace(/\r\n?/g, "\n").split("\n")
+      .map((item) => item.trim())
+      .find((item) => item && !/^(?:\|\|[\s\S]*\|\||%%[\s\S]*%%|~~[\s\S]*~~)$/.test(item));
+    if (!line) return "";
+    const reading = line.split(/\s*\/\s*/, 1)[0].trim();
+    return /[ぁ-ゖァ-ヺー]/.test(reading) ? reading : "";
+  }
+
+  function detailNameHtml(name, readingValue) {
+    const displayName = String(name || "").trim();
+    const reading = publicKanaReadingOf(readingValue);
+    if (reading && /[\u3400-\u9fff々〆ヶ]/.test(displayName)) {
+      return `<ruby class="detail-name-ruby">${escapeHtml(displayName)}<rt>${escapeHtml(reading)}</rt></ruby>`;
+    }
+    return escapeHtml(displayName);
+  }
+
   function detailFact(label, value) {
     if (value === undefined || value === null || value === "") return "";
     if (label === "アライメント") {
@@ -865,20 +1187,43 @@ function quoteSpotlightHtml(value) {
     return `<div class="detail-fact"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
   }
   function detailFactGroup(title, icon, entries, extraClass = "") {
-    const facts = entries.map(([label, value]) => detailFact(label, value)).join("");
+    const facts = entries.map(([label, value]) => label === "読み" ? detailReadingFact(value) : detailFact(label, value)).join("");
     return facts ? `<section class="detail-fact-group ${extraClass}"><h3><i class="${icon}" aria-hidden="true"></i>${escapeHtml(title)}</h3><dl>${facts}</dl></section>` : "";
   }
   function detailAction(url, icon, label) {
     const href = safeUrl(url);
     return href ? `<a class="detail-action" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"><i class="${icon}" aria-hidden="true"></i>${escapeHtml(label)}</a>` : "";
   }
-  const richSection = (title, value) => value ? `<section class="detail-section"><h3>${escapeHtml(title)}</h3><div class="detail-richtext">${renderMarkdown(value)}</div></section>` : "";
+  const richSection = (title, value, className = "") => {
+    const content = withoutAccidentalDuplicate(value);
+    return content ? `<section class="detail-section ${className}"><h3>${escapeHtml(title)}</h3><div class="detail-richtext">${renderMarkdown(content)}</div></section>` : "";
+  };
+  const keywordSection = (value) => {
+    const keywords = String(value || "").split(/[、,，\n]/).map((item) => item.trim()).filter(Boolean);
+    return keywords.length ? `<section class="detail-section detail-section--keywords"><h3>性格Keyword</h3><div class="detail-keywords">${keywords.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div></section>` : "";
+  };
+  const achievementValueOf = (value) => {
+    const score = Number(String(value || "").trim());
+    return Number.isInteger(score) && score >= 1 && score <= 6 ? score : null;
+  };
+  const reviewSection = (title, value, notice, className = "") => {
+    const content = withoutAccidentalDuplicate(value);
+    if (!content) return "";
+    return `<section class="detail-section detail-review ${className}"><h3>${escapeHtml(title)}</h3>${notice ? `<p class="detail-review__notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>${escapeHtml(notice)}</p>` : ""}<div class="detail-richtext">${renderMarkdown(content)}</div></section>`;
+  };
+  const achievementSection = (value) => {
+    const score = achievementValueOf(value);
+    if (!score) return "";
+    const label = score === 6 ? "特別評価" : "自己評価";
+    return `<section class="detail-section detail-achievement" data-achievement="${score}"><div><h3>やれた度</h3><p>${label}。本人が感じた「どれだけやれたか」の記録です。</p></div><span class="detail-achievement__badge" aria-label="やれた度 ${score}">${score}</span></section>`;
+  };
 
   function renderDetail() {
     stopQuoteSpotlight();
     const character = state.characters.find((item) => item.id === state.selectedId);
     if (!character) return;
     const variant = character.variants[state.variantIndex] || representativeOf(character);
+    const akaHtml = yutorizeRubyHtml(variant.aka || variant.epithet);
     const detailImages = detailImagesOf(variant);
     const hasAlternateImage = detailImages.length > 1;
     if (!detailImages.some((imageItem) => imageItem.key === state.detailImageMode)) state.detailImageMode = "normal";
@@ -888,24 +1233,36 @@ function quoteSpotlightHtml(value) {
       variant.debut ? `<time datetime="${escapeHtml(variant.debut)}"><i class="fa-regular fa-calendar" aria-hidden="true"></i>初登場 ${escapeHtml(variant.debut)}</time>` : ""
     ].filter(Boolean).join("");
     const facts = [
-      detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job], ["アライメント", variant.alignment], ["髪色", variant.hair]], "detail-fact-group--features"),
-      detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height]]),
-      detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson]])
+      detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job], ["アライメント", variant.alignment]], "detail-fact-group--features"),
+      detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair]], "detail-fact-group--person"),
+      detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson], ["読み", variant.reading]], "detail-fact-group--calling")
     ].join("");
-    const actions = [detailAction(variant.driveUrl, "fa-brands fa-google-drive", "Driveを開く"), detailAction(variant.characterSheetUrl, "fa-regular fa-file-lines", "キャラシを開く")].join("");
+    const actions = [detailAction(variant.driveUrl, "fa-brands fa-google-drive", "Driveを開く"), detailAction(publicCharacterSheetUrl(variant.characterSheetUrl), "fa-regular fa-file-lines", "キャラシを開く")].join("");
     const variantTabs = character.variants.length > 1 ? `<nav class="variant-tabs" aria-label="姿・システムを切り替え"><span>切替</span>${character.variants.map((item, index) => {
       const label = item.variant || item.system || `姿 ${index + 1}`;
       return `<button class="variant-tab" type="button" data-variant-index="${index}" aria-selected="${index === state.variantIndex}">${escapeHtml(label)}</button>`;
     }).join("")}</nav>` : "";
     const imageSwitcher = hasAlternateImage ? `<div class="detail-image-switcher" role="group" aria-label="立ち絵を切り替え"><button type="button" data-detail-image-cycle="-1" data-tooltip="前の立ち絵" aria-label="前の立ち絵を表示"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button><button type="button" data-detail-image-cycle="1" data-tooltip="次の立ち絵" aria-label="次の立ち絵を表示"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>` : "";
-    const faceImage = displayableImageUrl(variant.faceUrl);
+    // 顔列が空でも、ココフォリアの先頭表情をモーダル上のプレビューに使える。
+    const faceImage = displayableImageUrl(variant.faceUrl || variant.faces?.[0]?.iconUrl);
+    const facePreviewLayoutKey = `${character.id}:${state.variantIndex}`;
+    const facePreviewLayout = state.facePreviewLayouts.get(facePreviewLayoutKey);
+    const facePreviewHidden = state.facePreviewHidden.has(facePreviewLayoutKey);
+    const expressionPaletteHidden = state.expressionPaletteHidden.has(facePreviewLayoutKey);
+    const facePreviewStyle = facePreviewLayout
+      ? ` style="left:${facePreviewLayout.left}px;top:${facePreviewLayout.top}px;width:${facePreviewLayout.size}px;right:auto"`
+      : "";
     const facePreview = faceImage
-      ? `<div id="detail-face-preview" class="detail-face-preview"><img src="${escapeHtml(faceImage)}" alt="${escapeHtml(`${variant.name || character.registrationName}の顔画像`)}"><span aria-hidden="true">FACE</span></div>`
-      : `<div id="detail-face-preview" class="detail-face-preview" hidden><img alt=""><span aria-hidden="true">FACE</span></div>`;
-    const expressionSection = variant.faces.length ? `<section class="detail-section expression-section"><div class="expression-heading"><div><h3>ココフォリア表情 <small>${variant.faces.length}</small></h3><p>選んだ表情をこの場所で確認できます。</p></div><div class="expression-heading__actions">${variant.fullBodyUrl ? '<button class="expression-reset" type="button" data-show-fullbody><i class="fa-solid fa-person" aria-hidden="true"></i> 全身図のみ</button>' : ""}${variant.differenceJson ? '<button class="expression-reset" type="button" data-copy-json><i class="fa-regular fa-copy" aria-hidden="true"></i> 表情をコピー</button>' : ""}</div></div><div class="expression-preview-row">${facePreview}</div><div class="expression-grid">${variant.faces.map((face, index) => {
+      ? `<div id="detail-face-preview" class="detail-face-preview" data-face-preview-key="${escapeHtml(facePreviewLayoutKey)}"${facePreviewHidden ? " hidden" : ""}${facePreviewStyle}><div class="detail-face-preview__handle" data-face-preview-handle title="ドラッグして移動"><i class="fa-solid fa-grip-lines" aria-hidden="true"></i><span>顔プレビュー</span></div><img src="${escapeHtml(faceImage)}" alt="${escapeHtml(`${variant.name || character.registrationName}の顔画像`)}"><span aria-hidden="true">FACE</span><button type="button" class="detail-face-preview__close" data-face-preview-close aria-label="顔プレビューを隠す" title="顔プレビューを隠す"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button><button type="button" class="detail-face-preview__resize" data-face-preview-resize aria-label="顔アイコンの大きさを変える"></button></div>`
+      : `<div id="detail-face-preview" class="detail-face-preview" data-face-preview-key="${escapeHtml(facePreviewLayoutKey)}" hidden><img alt=""><span aria-hidden="true">FACE</span><button type="button" class="detail-face-preview__resize" data-face-preview-resize aria-label="顔アイコンの大きさを変える"></button></div>`;
+    // 表情は本文タブから切り離した浮動パレットに置く。本文の高さを奪わず、
+    // タブやスクロールを切り替えても、立ち絵の横でいつでも選択できる。
+    const expressionSection = variant.faces.length ? `<section class="expression-section expression-palette" data-expression-palette-key="${escapeHtml(facePreviewLayoutKey)}"${expressionPaletteHidden ? " hidden" : ""}><header class="expression-heading"><div><p class="detail-section__eyebrow">COCOFOLIA</p><h3>ココフォリア表情 <small>${variant.faces.length}</small></h3><p>選んだ表情は右の立ち絵に反映されます。</p></div><div class="expression-heading__actions"><button class="expression-reset expression-face-preview-toggle" type="button" data-show-face-preview${facePreviewHidden ? "" : " hidden"}><i class="fa-regular fa-image" aria-hidden="true"></i> 顔プレビュー</button>${variant.differenceJson ? '<button class="expression-reset" type="button" data-copy-json><i class="fa-regular fa-copy" aria-hidden="true"></i> 表情をコピー</button>' : ""}<button class="expression-palette__close" type="button" data-expression-palette-close aria-label="表情パレットを隠す" title="表情パレットを隠す"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></header><div class="expression-tray__body"><div class="expression-grid">${variant.faces.map((face, index) => {
       const faceUrl = safeUrl(face.iconUrl);
-      return faceUrl ? `<button class="expression-button" type="button" data-face-index="${index}" aria-pressed="false" title="${escapeHtml(face.label || `差分${index + 1}`)}"><img src="${escapeHtml(faceUrl)}" alt="${escapeHtml(face.label || `差分${index + 1}`)}" loading="lazy"><span>${escapeHtml(face.label || `差分${index + 1}`)}</span></button>` : "";
-    }).join("")}</div></section>` : "";
+      const label = faceLabelInfo(face.label, index);
+      return faceUrl ? `<button class="expression-button" type="button" data-face-index="${index}" data-face-tone="${label.tone}" aria-pressed="false" title="${escapeHtml(label.display)}"><img src="${escapeHtml(faceUrl)}" alt="${escapeHtml(label.display)}" loading="lazy" decoding="async"><span>${escapeHtml(label.display)}</span></button>` : "";
+    }).join("")}</div></div></section>` : "";
+    const expressionPaletteLauncher = variant.faces.length ? `<button class="expression-palette-launcher" type="button" data-expression-palette-show${expressionPaletteHidden ? "" : " hidden"}><i class="fa-regular fa-face-smile" aria-hidden="true"></i> 表情一覧を開く（${variant.faces.length}）</button>` : "";
     const portraitScale = portraitScaleOf(variant), portraitOffsetY = portraitOffsetYOf(variant), portraitOffsetX = portraitOffsetXOf(variant);
     const listPreviewImage = bodyImageCandidatesOf(variant)[0] || "";
     const portraitTuning = `<details class="portrait-tuning"><summary><i class="fa-solid fa-sliders" aria-hidden="true"></i>立ち絵調整</summary><p>倍率・上下・左右を試し、値をシートの「立ち絵調整」列へ貼り付けます。下のプレビューは一覧右側と同じ縮小換算です。</p><div class="portrait-tuning__control"><label>倍率 <output data-portrait-scale-output>${portraitScale.toFixed(2)}</output></label><input type="range" min="0.8" max="1.3" step="0.01" value="${portraitScale}" data-portrait-scale><input type="number" min="0.8" max="1.3" step="0.01" value="${portraitScale}" data-portrait-scale></div><div class="portrait-tuning__control"><label>上下位置 <output data-portrait-offset-y-output>${portraitOffsetY}px</output></label><input type="range" min="-180" max="180" step="1" value="${portraitOffsetY}" data-portrait-offset-y><input type="number" min="-180" max="180" step="1" value="${portraitOffsetY}" data-portrait-offset-y></div><div class="portrait-tuning__control"><label>左右位置 <output data-portrait-offset-x-output>${portraitOffsetX}px</output></label><input type="range" min="-180" max="180" step="1" value="${portraitOffsetX}" data-portrait-offset-x><input type="number" min="-180" max="180" step="1" value="${portraitOffsetX}" data-portrait-offset-x></div>${listPreviewImage ? `<div class="portrait-tuning__list-preview"><span>一覧右側プレビュー</span><div><img src="${escapeHtml(listPreviewImage)}" alt="" aria-hidden="true"></div></div>` : ""}<div class="portrait-tuning__result"><code data-portrait-adjustment-value>${portraitScale.toFixed(2)},${portraitOffsetY},${portraitOffsetX}</code><button type="button" data-copy-portrait-adjustment><i class="fa-regular fa-copy" aria-hidden="true"></i>値をコピー</button></div></details>`;
@@ -914,11 +1271,79 @@ function quoteSpotlightHtml(value) {
     detail.style.setProperty("--detail-portrait-scale", portraitScaleOf(variant));
     detail.style.setProperty("--detail-portrait-offset-y", `${portraitOffsetYOf(variant)}px`);
     detail.style.setProperty("--detail-portrait-offset-x", `${portraitOffsetXOf(variant)}px`);
-    detail.innerHTML = `<div class="character-detail__visual"><span class="detail-visual-id" aria-hidden="true">#${escapeHtml(String(character.id).padStart(3, "0"))}</span>${image ? `<img id="detail-main-image" src="${escapeHtml(image)}" alt="${escapeHtml(variant.name || character.registrationName)}">` : `<span class="character-detail__image-placeholder" aria-hidden="true">${escapeHtml(character.registrationName.slice(0, 1))}</span>`}${quoteSpotlightHtml(variant.quote)}${imageSwitcher}</div>
-      <div class="character-detail__content"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p><h2 id="detail-name">${escapeHtml(variant.name || character.registrationName)}</h2>${headerMeta ? `<div class="detail-meta">${headerMeta}</div>` : ""}${variantTabs}
-        ${variant.intro ? `<div class="detail-lead detail-richtext">${renderMarkdown(variant.intro)}</div>` : ""}${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}
-        <div class="detail-sections">${richSection("性格", variant.personality)}${richSection("好き・大事", variant.likes)}${richSection("苦手・弱点", variant.weaknesses)}${richSection("関係キャラ", variant.relations)}${richSection("見どころ", variant.highlights)}${richSection("モチーフ・制作意図", variant.motif)}${richSection("キャラ語り", variant.commentary)}</div>${variant.quote ? `<section class="detail-section detail-quotes-section"><h3>セリフ集</h3>${characterQuotesHtml(variant.quote)}</section>` : ""}${expressionSection}
-      </div>`;
+    const profileCore = [
+      richSection("性格", variant.personality, "detail-section--personality"),
+      richSection("好き・大事", variant.likes),
+      richSection("苦手・弱点", variant.weaknesses),
+      keywordSection(variant.keyword),
+    ].join("");
+    const personContent = [
+      profileCore ? `<section class="detail-profile-core"><header><p class="detail-section__eyebrow">CHARACTER</p><h3>キャラクター</h3></header>${profileCore}</section>` : "",
+      richSection("関係キャラ", variant.relations),
+      richSection("キャラ語り", variant.commentary),
+      variant.quote ? `<section class="detail-section detail-quotes-section"><h3>セリフ集</h3>${characterQuotesHtml(variant.quote)}</section>` : ""
+    ].join("");
+    const recordContent = [
+      richSection("登場シナリオ", variant.appearanceScenarios),
+      richSection("見どころ", variant.highlights, "detail-section--highlights"),
+      richSection("モチーフ・制作意図", variant.motif, "detail-section--motif"),
+      richSection("TIPS・設定メモ", variant.tips),
+    ].join("");
+    const reviewContent = [
+      reviewSection("エンJ人物評", variant.enJReview, "本人による人物評・所感です。"),
+      achievementSection(variant.achievement),
+      reviewSection("みんな評", variant.communityReview, "当時の感想です。現在の人物像と一致しない場合があります。"),
+      reviewSection("コメント評", variant.commentReview, "個別のコメント・思い出を含む主観的な記録です。"),
+      reviewSection("AI人物評", variant.aiReview, "AIがログや資料をもとに行った読み解きです。事実そのものではなく、解釈として扱ってください。"),
+      reviewSection("他の人が演じるときのコツ", variant.portrayalTips, "別の人が演じる際の目安です。シナリオや関係性に合わせて調整してください。")
+    ].join("");
+    const publicSheet = variant.publicCharacterSheet || {};
+    const publicSheetContent = [
+  publicSheet.codeName ? `<section class="detail-public-sheet__headline"><p>コードネーム</p><h3>${inlineMarkdown(publicSheet.codeName)}</h3></section>` : "",
+      richSection("パーソナルデータ", publicSheet.personalData),
+      richSection("備考", publicSheet.notes),
+      richSection("技能", publicSheet.skills),
+      richSection("Dロイス", publicSheet.dLois),
+      richSection("シンドローム", publicSheet.syndromes),
+      richSection("エフェクト", publicSheet.effects),
+      richSection("武器", publicSheet.weapons),
+      richSection("コンボ", publicSheet.combos)
+    ].join("");
+    const detailTabs = [
+      { id: "person", label: "人物", content: personContent },
+      { id: "record", label: "記録", content: recordContent },
+      { id: "data", label: "データ", content: publicSheetContent ? `<div class="detail-public-sheet">${publicSheetContent}</div>` : "" },
+      { id: "review", label: "評・演じ方", content: reviewContent }
+    ].filter((tab) => tab.content);
+    if (!detailTabs.some((tab) => tab.id === state.detailContentTab)) state.detailContentTab = detailTabs[0]?.id || "person";
+    const detailTabsHtml = detailTabs.length ? `<div class="detail-content-tabs" role="tablist" aria-label="キャラクター詳細の内容"><div class="detail-content-tabs__buttons">${detailTabs.map((tab) => `<button type="button" role="tab" id="detail-tab-${tab.id}" aria-selected="${tab.id === state.detailContentTab}" aria-controls="detail-panel-${tab.id}" data-detail-content-tab="${tab.id}">${escapeHtml(tab.label)}</button>`).join("")}</div>${detailTabs.map((tab) => `<section class="detail-content-panel" id="detail-panel-${tab.id}" role="tabpanel" aria-labelledby="detail-tab-${tab.id}"${tab.id === state.detailContentTab ? "" : " hidden"}>${tab.content}</section>`).join("")}</div>` : "";
+    detail.innerHTML = `<div class="character-detail__visual"><span class="detail-visual-id" aria-hidden="true">#${escapeHtml(String(character.id).padStart(3, "0"))}</span>${image ? `<img id="detail-main-image" src="${escapeHtml(image)}" alt="${escapeHtml(variant.name || character.registrationName)}" decoding="async">` : `<span class="character-detail__image-placeholder" aria-hidden="true">${escapeHtml(character.registrationName.slice(0, 1))}</span>`}${quoteSpotlightHtml(variant.quote)}${imageSwitcher}</div>
+      <div class="character-detail__left"><div class="character-detail__content"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p><h2 id="detail-name">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${headerMeta ? `<div class="detail-meta">${headerMeta}</div>` : ""}${variantTabs}
+        ${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}
+        ${detailTabsHtml}</div></div>${expressionSection}${expressionPaletteLauncher}`;
+    dialog.querySelector("#detail-face-preview")?.remove();
+    dialog.insertAdjacentHTML("beforeend", facePreview);
+    if (!facePreviewLayout && faceImage) requestAnimationFrame(() => {
+      const preview = dialog.querySelector("#detail-face-preview");
+      if (!preview || preview.hidden) return;
+      const dialogRect = dialog.getBoundingClientRect();
+      const previewRect = preview.getBoundingClientRect();
+      // 初期位置はモーダルの外側。右に余白がなければ左へ逃がす。
+      // 好きな位置へ動かした後は state.facePreviewLayouts の位置を優先する。
+      const visualRect = dialog.querySelector(".character-detail__visual")?.getBoundingClientRect();
+      const outsideGap = 18;
+      const rightLeft = dialogRect.width + outsideGap;
+      const leftLeft = -previewRect.width - outsideGap;
+      const fitsRight = dialogRect.left + rightLeft + previewRect.width <= window.innerWidth - 8;
+      const fitsLeft = dialogRect.left + leftLeft >= 8;
+      const fallbackLeft = Math.max(16, dialogRect.width - previewRect.width - 20);
+      const left = fitsRight ? rightLeft : (fitsLeft ? leftLeft : fallbackLeft);
+      const top = Math.max(12, Math.min(dialogRect.height - previewRect.height - 12, visualRect ? visualRect.top - dialogRect.top + 40 : 28));
+      preview.style.left = `${Math.round(left)}px`;
+      preview.style.right = "auto";
+      preview.style.bottom = "auto";
+      preview.style.top = `${Math.round(top)}px`;
+    });
     startQuoteSpotlight();
   }
 
@@ -933,18 +1358,109 @@ function quoteSpotlightHtml(value) {
       setTimeout(() => window.scrollTo({ top, left: 0, behavior: "auto" }), 0);
     }));
   }
-  function openCharacter(id, variantIndex = null, options = {}) {
+  // 一覧を先に表示した後、余裕のある時だけ全員分の詳細を一括で温める。
+  // 個別閲覧が来たらこの通信は中断して、1人分の詳細取得を先に通す。
+  function cancelCatalogDetailWarmup() {
+    if (state.detailWarmupTimer) {
+      clearTimeout(state.detailWarmupTimer);
+      state.detailWarmupTimer = null;
+    }
+    if (state.detailWarmupController) {
+      state.detailWarmupController.abort();
+      state.detailWarmupController = null;
+    }
+  }
+  function scheduleCatalogDetailWarmup(delay = 1200) {
+    if (!state.characters.some((character) => !character.detailLoaded)) return;
+    if (state.detailWarmupTimer || state.detailWarmupController) return;
+    const begin = () => {
+      state.detailWarmupTimer = null;
+      // この間に個別クリック済み、または一覧が全詳細化済みなら何もしない。
+      if (state.selectedId || !state.characters.some((character) => !character.detailLoaded)) return;
+      const controller = new AbortController();
+      state.detailWarmupController = controller;
+      fetchCharacterPayload(`${CHARACTER_API_BASE_URL}?tool=characters&_=${Date.now()}`, { cache: "no-store", signal: controller.signal })
+        .then((payload) => {
+          // 開いている詳細や、先に1件だけ取得した詳細を applyCharacterPayload が保持する。
+          applyCharacterPayload(payload);
+        })
+        .catch((error) => {
+          // 個別閲覧を優先するための中断は正常な制御フロー。画面へは出さない。
+          if (error?.name !== "AbortError") console.info("Background character-detail warmup was skipped.", error);
+        })
+        .finally(() => {
+          if (state.detailWarmupController === controller) state.detailWarmupController = null;
+        });
+    };
+    state.detailWarmupTimer = setTimeout(begin, Math.max(0, delay));
+  }
+  async function loadCharacterDetail(id) {
+    const characterId = String(id);
+    const current = state.characters.find((item) => item.id === characterId);
+    if (!current || current.detailLoaded) return current || null;
+    // 全員分の背景取得より、いま開こうとしている1人を優先する。
+    cancelCatalogDetailWarmup();
+    if (state.detailRequests.has(characterId)) return state.detailRequests.get(characterId);
+    const request = (async () => {
+      const applyDetail = (sourceCharacter) => {
+        const detailed = normalizeCharacter({ ...sourceCharacter, detailLoaded: true });
+        const index = state.characters.findIndex((item) => item.id === characterId);
+        if (index >= 0) state.characters[index] = detailed;
+        return detailed;
+      };
+      try {
+        const source = `${CHARACTER_API_BASE_URL}?tool=character&id=${encodeURIComponent(characterId)}&_=${Date.now()}`;
+        const response = await fetch(source, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (payload?.status !== "success" || !payload.character || !isCatalogCharacter(payload.character)) {
+          throw new Error(payload?.message || "Unexpected detail response");
+        }
+        return applyDetail(payload.character);
+      } catch (detailError) {
+        // 新しい1件取得APIを未デプロイの間だけ、旧APIの全件応答から対象を救済する。
+        // 正式デプロイ後はここへ入らず、常に1人分だけを読む。
+        console.info("Character detail endpoint is unavailable; using legacy detail fallback.", detailError);
+        const legacy = await fetchCharacterPayload(`${CHARACTER_API_BASE_URL}?_=${Date.now()}`, { cache: "no-store" });
+        const legacyCharacter = legacy.characters.find((item) => String(item?.id) === characterId);
+        if (!legacyCharacter || !isCatalogCharacter(legacyCharacter)) throw detailError;
+        return applyDetail(legacyCharacter);
+      }
+    })().finally(() => state.detailRequests.delete(characterId));
+    state.detailRequests.set(characterId, request);
+    return request;
+  }
+
+  async function openCharacter(id, variantIndex = null, options = {}) {
     const character = state.characters.find((item) => item.id === String(id));
     if (!character) return;
     if (!dialog.open) rememberCatalogScroll();
+    // クリックした本人を待たせない。背景の全詳細取得はここで譲る。
+    cancelCatalogDetailWarmup();
     state.openedFromUrl = Boolean(options.fromUrl);
     state.selectedId = character.id;
     state.variantIndex = variantIndex === null ? character.representativeIndex : Number(variantIndex);
     state.detailImageMode = "normal";
+    state.detailLoadingId = character.detailLoaded ? null : character.id;
     renderDetail();
     if (!dialog.open) dialog.showModal();
     restoreDetailScroll();
     document.documentElement.classList.add("character-dialog-open");
+    if (character.detailLoaded) return;
+    try {
+      await loadCharacterDetail(character.id);
+      if (state.selectedId === character.id) {
+        state.detailLoadingId = null;
+        renderDetail();
+        restoreDetailScroll();
+      }
+    } catch (error) {
+      console.warn("Character detail could not be loaded.", error);
+      if (state.selectedId === character.id) {
+        state.detailLoadingId = null;
+        showToast("詳細情報を取得できませんでした");
+      }
+    }
   }
   function closeCharacter() {
     rememberDetailScroll();
@@ -953,9 +1469,13 @@ function quoteSpotlightHtml(value) {
     if (dialog.open) dialog.close();
     document.documentElement.classList.remove("character-dialog-open");
     state.selectedId = null;
+    state.detailLoadingId = null;
     if (state.openedFromUrl) history.replaceState(null, "", location.pathname);
     state.openedFromUrl = false;
     restoreCatalogScroll();
+    // モーダルを閉じた後にだけ、残りの全詳細を裏で温め直す。
+    // 読んでいる最中に巨大なレスポンスを処理して描画を重くしないため。
+    scheduleCatalogDetailWarmup(1600);
   }
   function activeDetailVariant() {
     const character = state.characters.find((item) => item.id === state.selectedId);
@@ -1008,9 +1528,33 @@ function quoteSpotlightHtml(value) {
     }
     showToast("ココフォリア表情をコピーしました");
   }
-  function runCharacterMerge() {
+  function mergeSelectionForInput(input) {
+    if (state.mergeSelection) return state.mergeSelection;
+    const raw = cleanMergeInput(input), parsed = parseJsonLoose(raw);
+    const targets = [];
+    addMergeTarget(targets, parsed?.data?.name || raw);
+    if (parsed?.data?.memo) addMergeTarget(targets, String(parsed.data.memo).split(/\r?\n/)[0]);
+    let best = null, bestScore = 0;
+    state.characters.forEach((character) => character.variants.forEach((variant, variantIndex) => {
+      const score = mergeScore(variant, character, targets);
+      if (score > bestScore) { best = { character, variant, variantIndex }; bestScore = score; }
+    }));
+    return best;
+  }
+  async function runCharacterMerge() {
     if (!state.characters.length) { mergeStatus.textContent = "名鑑データを読み込み中です。少し待ってください。"; return; }
-    const result = mergeCharacterJson(mergeInput.value, state.mergeSelection);
+    let selected = mergeSelectionForInput(mergeInput.value);
+    if (selected?.variant?.hasDifference && !selected.variant.differenceJson) {
+      mergeStatus.textContent = "差分を読み込んでいます…";
+      try {
+        const detailed = await loadCharacterDetail(selected.character.id);
+        selected = detailed ? { character: detailed, variant: detailed.variants[selected.variantIndex], variantIndex: selected.variantIndex } : null;
+      } catch (error) {
+        console.warn("Character difference could not be loaded.", error);
+        selected = null;
+      }
+    }
+    const result = mergeCharacterJson(mergeInput.value, selected);
     if (result.error) {
       mergeOutput.value = "";
       mergeCopy.disabled = true;
@@ -1026,48 +1570,161 @@ function quoteSpotlightHtml(value) {
     element.setAttribute("aria-label", revealed ? "ネタバレを隠す" : "ネタバレを表示");
   }
 
-  async function loadCharacters() {
-    status.hidden = false;
-    try {
-      let payload = null, lastError = null;
-      const sources = [CHARACTER_API_URL, LOCAL_PREVIEW_URL];
-      for (const source of sources) {
-        try {
-          // Apps Script / 中継CDNが同じURLの古い応答を返すことがあるため、
-          // 本番APIだけは毎回読み込み用の識別子を付けて最新のシートを取得する。
-          const requestUrl = source === CHARACTER_API_URL
-            ? `${source}&_=${Date.now()}`
-            : source;
-          const response = await fetch(requestUrl, { cache: "no-store" });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const candidate = await response.json();
-          if (candidate.status !== "success" || !Array.isArray(candidate.characters)) throw new Error(candidate.message || "Unexpected response");
-          payload = candidate;
-          break;
-        } catch (error) { lastError = error; }
-      }
-      if (!payload) throw lastError || new Error("Character data could not be loaded");
-      state.characters = payload.characters.map(normalizeCharacter).filter((character) => character.variants.length);
-      buildLocationDisplayNames();
-    } catch (error) {
-      console.warn("Character API could not be loaded.", error);
-      status.textContent = "キャラクターデータを読み込めませんでした。少し待ってから再読み込みしてください。";
+  function isCharacterPayload(value) {
+    return value?.status === "success" && Array.isArray(value.characters);
+  }
+
+  function isCatalogCharacter(character) {
+    // 名鑑の末尾に置いている補助ヘッダー（例: 「ﾕﾆｰｸID」）を、
+    // APIがデータ行として返してもカード化しない。通常の ID は数値運用。
+    return /^\d+$/.test(String(character?.id ?? "").trim());
+  }
+
+  function applyCharacterPayload(payload, { openInitial = false } = {}) {
+    const currentById = new Map(state.characters.map((character) => [character.id, character]));
+    state.characters = payload.characters
+      .filter(isCatalogCharacter)
+      .map(normalizeCharacter)
+      .map((incoming) => {
+        // 一覧更新が詳細取得より後に終わっても、開き済みの重い詳細情報は捨てない。
+        const loaded = currentById.get(incoming.id);
+        if (!loaded?.detailLoaded) return incoming;
+        return normalizeCharacter({
+          ...incoming,
+          detailLoaded: true,
+          variants: incoming.variants.map((variant, index) => ({
+            ...(loaded.variants[index] || {}),
+            ...variant
+          }))
+        });
+      })
+      .filter((character) => character.variants.length);
+    buildLocationDisplayNames();
+    if (!state.characters.length) {
+      grid.innerHTML = '<div class="catalog-empty"><h2>表示できるキャラクターがいません</h2><p>スプレッドシートで「非公開」にしていない行が表示対象です。</p></div>';
       count.textContent = "0 characters";
       return;
     }
-    status.hidden = true;
-    if (!state.characters.length) {
-      grid.innerHTML = '<div class="catalog-empty"><h2>表示できるキャラクターがいません</h2><p>スプレッドシートで「非公開」にしていない行が表示対象です。</p></div>';
-      count.textContent = "0 characters"; return;
-    }
-    renderSystemFilter(); renderMergeSelect(); renderCards();
+    renderSystemFilter();
+    renderMergeSelect();
+    renderCards();
     const initialId = new URLSearchParams(location.search).get("id");
-    if (initialId) openCharacter(initialId, null, { fromUrl: true });
+    if (openInitial && initialId) openCharacter(initialId, null, { fromUrl: true });
+  }
+
+  async function fetchCharacterPayload(source, options = {}) {
+    const response = await fetch(source, options);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    if (!isCharacterPayload(payload)) throw new Error(payload?.message || "Unexpected response");
+    return payload;
+  }
+
+  function readCachedCharacterPayload() {
+    try {
+      const storage = globalThis.localStorage;
+      if (!storage) return null;
+      const raw = storage.getItem(CHARACTER_CACHE_KEY);
+      if (!raw) return null;
+      const payload = JSON.parse(raw);
+      return isCharacterPayload(payload) ? payload : null;
+    } catch (error) {
+      console.warn("Saved character catalog cache could not be read.", error);
+      return null;
+    }
+  }
+
+  function saveCachedCharacterPayload(payload) {
+    try {
+      const storage = globalThis.localStorage;
+      if (!storage) return;
+      storage.setItem(CHARACTER_CACHE_KEY, JSON.stringify(payload));
+    } catch (error) {
+      // 保存できなくても表示・更新は正常に続ける（容量制限やプライベート閲覧向け）。
+      console.warn("Latest character catalog could not be saved locally.", error);
+    }
+  }
+
+  function payloadGeneratedAt(payload) {
+    const time = Date.parse(String(payload?.generatedAt || ""));
+    return Number.isFinite(time) ? time : 0;
+  }
+
+  async function loadCharacters() {
+    status.hidden = false;
+    status.textContent = "キャラクターを読み込んでいます…";
+    // 公開版には静的一覧ファイルを配置していない。そこで存在しない控えの 404 を
+    // 待ってから API を反映することがないよう、控えはローカル表示時だけ読む。
+    // 公開版はブラウザ内控え → 最新 index API の順で即時表示する。
+    const useLocalPreview = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    const previewRequest = useLocalPreview
+      ? fetchCharacterPayload(LOCAL_PREVIEW_URL, { cache: "no-cache" })
+      : Promise.resolve(null);
+    // 一覧用は軽い index だけ取得する。詳細本文・表情JSONは開いた時にだけ取得する。
+    const apiRequest = fetchCharacterPayload(`${CHARACTER_INDEX_API_URL}&_=${Date.now()}`, { cache: "no-store" });
+    const savedPreview = readCachedCharacterPayload();
+    let renderedPreview = false;
+    if (savedPreview) {
+      applyCharacterPayload(savedPreview, { openInitial: true });
+      renderedPreview = true;
+      status.hidden = true;
+    }
+    try {
+      const preview = await previewRequest;
+      if (!preview) throw new Error("Local preview is not used on this host.");
+      // ブラウザ控えより新しい静的控えだけを採用する。通常は API がすぐ上書きするが、
+      // ここで古い控えを描画し直さないことが「開幕でタグが消える」対策になる。
+      if (!savedPreview || payloadGeneratedAt(preview) > payloadGeneratedAt(savedPreview)) {
+        applyCharacterPayload(preview, { openInitial: !renderedPreview });
+        renderedPreview = true;
+        status.hidden = true;
+      }
+    } catch (error) {
+      if (useLocalPreview) console.warn("Character preview could not be loaded.", error);
+      // ブラウザ内控えがあれば、API が応答するまでそのまま表示を続ける。
+      if (savedPreview) {
+        renderedPreview = true;
+        status.hidden = true;
+      }
+    }
+    try {
+      const latest = await apiRequest;
+      saveCachedCharacterPayload(latest);
+      applyCharacterPayload(latest, { openInitial: !renderedPreview });
+      status.hidden = true;
+      scheduleCatalogDetailWarmup();
+    } catch (error) {
+      console.warn("Character API could not be loaded.", error);
+      if (renderedPreview) {
+        console.info("最新のキャラクターデータは取得できなかったため、ローカル控えを表示しています。");
+        status.hidden = true;
+        scheduleCatalogDetailWarmup();
+        return;
+      }
+      status.textContent = "キャラクターデータを読み込めませんでした。少し待ってから再読み込みしてください。";
+      count.textContent = "0 characters";
+    }
   }
 
   grid.addEventListener("click", (event) => {
     const card = event.target.closest("[data-character-id]");
     if (!card) return;
+    const moreTagsButton = event.target.closest("[data-show-more-tags]");
+    if (moreTagsButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const character = state.characters.find((item) => item.id === card.dataset.characterId);
+      const variant = character?.variants[Number(card.dataset.cardVariantIndex)];
+      if (character && variant) showMoreCatalogTags(moreTagsButton, character, variant);
+      return;
+    }
+    const tagButton = event.target.closest("[data-tag-search]");
+    if (tagButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      searchByCatalogTag(tagButton.dataset.tagSearch);
+      return;
+    }
     if (event.target.closest("[data-adjust-portrait]")) {
       state.activePortraitAdjustment = { characterId: card.dataset.characterId, variantIndex: Number(card.dataset.cardVariantIndex) };
       renderPortraitAdjustController();
@@ -1106,7 +1763,13 @@ function quoteSpotlightHtml(value) {
     if (variant) image.style.setProperty("--card-portrait-list-scale", listPortraitScaleFor(image, portraitScaleOf(variant)).toFixed(3));
     image.classList.add("is-ready");
   }, true);
-  grid.addEventListener("keydown", (event) => { if (event.target.closest("[data-cycle-variant]") || !["Enter", " "].includes(event.key)) return; const card = event.target.closest("[data-character-id]"); if (card) { event.preventDefault(); openCharacter(card.dataset.characterId, card.dataset.cardVariantIndex); } });
+  grid.addEventListener("keydown", (event) => { if (event.target.closest("[data-cycle-variant], [data-tag-search], [data-show-more-tags]") || !["Enter", " "].includes(event.key)) return; const card = event.target.closest("[data-character-id]"); if (card) { event.preventDefault(); openCharacter(card.dataset.characterId, card.dataset.cardVariantIndex); } });
+  document.addEventListener("pointerdown", (event) => {
+    if (!tagPopover || event.target.closest(".catalog-tag-popover, [data-show-more-tags]")) return;
+    closeTagPopover();
+  });
+  window.addEventListener("resize", closeTagPopover);
+  window.addEventListener("scroll", closeTagPopover, true);
   mergeRun.addEventListener("click", runCharacterMerge);
   mergeCopy.addEventListener("click", () => { if (mergeOutput.value) copyText(mergeOutput.value); });
   mergeSelect.addEventListener("change", () => {
@@ -1163,14 +1826,145 @@ function quoteSpotlightHtml(value) {
     const offsetYControl = event.target.closest("[data-controller-offset-y]");
     const offsetXControl = event.target.closest("[data-controller-offset-x]");
     const listOffsetYControl = event.target.closest("[data-controller-list-offset-y]");
-    if (!scaleControl && !offsetYControl && !offsetXControl && !listOffsetYControl) return;
+    const iconOffsetYControl = event.target.closest("[data-controller-icon-offset-y]");
+    const iconOffsetXControl = event.target.closest("[data-controller-icon-offset-x]");
+    if (!scaleControl && !offsetYControl && !offsetXControl && !listOffsetYControl && !iconOffsetYControl && !iconOffsetXControl) return;
     const scale = Math.max(0.8, Math.min(2, Number(scaleControl?.value ?? portraitAdjustController.querySelector("[data-controller-scale]")?.value) || 1));
     const offsetY = Math.max(-180, Math.min(180, Number(offsetYControl?.value ?? portraitAdjustController.querySelector("[data-controller-offset-y]")?.value) || 0));
     const offsetX = Math.max(-180, Math.min(180, Number(offsetXControl?.value ?? portraitAdjustController.querySelector("[data-controller-offset-x]")?.value) || 0));
     const listOffsetY = Math.max(-180, Math.min(180, Number(listOffsetYControl?.value ?? portraitAdjustController.querySelector("[data-controller-list-offset-y]")?.value) || 0));
-    applyPortraitAdjustment(scale, offsetY, offsetX, listOffsetY);
+    const iconOffsetY = Math.max(-96, Math.min(96, Number(iconOffsetYControl?.value ?? portraitAdjustController.querySelector("[data-controller-icon-offset-y]")?.value) || 0));
+    const iconOffsetX = Math.max(-96, Math.min(96, Number(iconOffsetXControl?.value ?? portraitAdjustController.querySelector("[data-controller-icon-offset-x]")?.value) || 0));
+    applyPortraitAdjustment(scale, offsetY, offsetX, listOffsetY, iconOffsetY, iconOffsetX);
+  });
+  // 顔アイコンは詳細モーダル上で自由に動かせる。配置はキャラ・姿ごとにこの閲覧中だけ保持する。
+  let facePreviewGesture = null;
+  dialog.addEventListener("pointerdown", (event) => {
+    const preview = event.target.closest("#detail-face-preview");
+    if (!preview || preview.hidden) return;
+    const mode = event.target.closest("[data-face-preview-resize]") ? "resize" : event.target.closest("[data-face-preview-handle]") ? "move" : "";
+    if (!mode) return;
+    const detailRect = dialog.getBoundingClientRect();
+    const previewRect = preview.getBoundingClientRect();
+    facePreviewGesture = {
+      pointerId: event.pointerId,
+      preview,
+      mode,
+      startX: event.clientX,
+      startY: event.clientY,
+      left: previewRect.left - detailRect.left,
+      top: previewRect.top - detailRect.top,
+      size: previewRect.width,
+    };
+    preview.setPointerCapture?.(event.pointerId);
+    preview.classList.add("is-dragging");
+    event.preventDefault();
+  });
+  dialog.addEventListener("pointermove", (event) => {
+    if (!facePreviewGesture || event.pointerId !== facePreviewGesture.pointerId) return;
+    const gesture = facePreviewGesture;
+    const detailRect = dialog.getBoundingClientRect();
+    const dx = event.clientX - gesture.startX, dy = event.clientY - gesture.startY;
+    let size = gesture.size;
+    let left = gesture.left, top = gesture.top;
+    if (gesture.mode === "resize") {
+      // 顔プレビューはモーダルの外にも置ける。モーダル幅ではなく、実際の画面端までを
+      // 上限にしないと、右外に出した瞬間に拡大できなくなってしまう。
+      const viewportLeft = detailRect.left + left;
+      const viewportTop = detailRect.top + top;
+      const maxSize = Math.max(72, Math.min(
+        360,
+        window.innerWidth - viewportLeft - 8,
+        window.innerHeight - viewportTop - 8
+      ));
+      size = Math.max(72, Math.min(maxSize, gesture.size + Math.max(dx, dy)));
+    } else {
+      const minLeft = Math.max(-size - 20, 8 - detailRect.left);
+      const maxLeft = Math.min(detailRect.width + 20, window.innerWidth - 8 - detailRect.left - size);
+      left = Math.max(minLeft, Math.min(maxLeft, gesture.left + dx));
+      top = Math.max(0, Math.min(detailRect.height - size, gesture.top + dy));
+    }
+    gesture.preview.style.left = `${Math.round(left)}px`;
+    gesture.preview.style.top = `${Math.round(top)}px`;
+    gesture.preview.style.right = "auto";
+    gesture.preview.style.width = `${Math.round(size)}px`;
+    const key = gesture.preview.dataset.facePreviewKey;
+    if (key) state.facePreviewLayouts.set(key, { left: Math.round(left), top: Math.round(top), size: Math.round(size) });
+  });
+  const finishFacePreviewGesture = (event) => {
+    if (!facePreviewGesture || event.pointerId !== facePreviewGesture.pointerId) return;
+    facePreviewGesture.preview.releasePointerCapture?.(event.pointerId);
+    facePreviewGesture.preview.classList.remove("is-dragging");
+    facePreviewGesture = null;
+  };
+  dialog.addEventListener("pointerup", finishFacePreviewGesture);
+  dialog.addEventListener("pointercancel", finishFacePreviewGesture);
+  dialog.addEventListener("click", (event) => {
+    const closeFacePreview = event.target.closest("[data-face-preview-close]");
+    if (closeFacePreview) {
+      const preview = closeFacePreview.closest("#detail-face-preview");
+      const key = preview?.dataset.facePreviewKey;
+      if (key) state.facePreviewHidden.add(key);
+      if (preview) preview.hidden = true;
+      detail.querySelector("[data-show-face-preview]")?.removeAttribute("hidden");
+      return;
+    }
+    const showFacePreview = event.target.closest("[data-show-face-preview]");
+    if (showFacePreview) {
+      const preview = dialog.querySelector("#detail-face-preview");
+      const key = preview?.dataset.facePreviewKey;
+      if (key) state.facePreviewHidden.delete(key);
+      if (preview) preview.hidden = false;
+      showFacePreview.setAttribute("hidden", "");
+    }
   });
   detail.addEventListener("click", (event) => {
+    const tagButton = event.target.closest("[data-tag-search]");
+    if (tagButton) {
+      event.preventDefault();
+      const tag = tagInfoOf(tagButton.dataset.tagSearch).label;
+      closeCharacter();
+      state.query = tag.toLocaleLowerCase("ja");
+      search.value = tag;
+      renderCards();
+      return;
+    }
+    const closeExpressionPalette = event.target.closest("[data-expression-palette-close]");
+    if (closeExpressionPalette) {
+      const palette = closeExpressionPalette.closest("[data-expression-palette-key]");
+      const key = palette?.dataset.expressionPaletteKey;
+      if (key) state.expressionPaletteHidden.add(key);
+      if (palette) palette.hidden = true;
+      detail.querySelector("[data-expression-palette-show]")?.removeAttribute("hidden");
+      return;
+    }
+    const showExpressionPalette = event.target.closest("[data-expression-palette-show]");
+    if (showExpressionPalette) {
+      const palette = detail.querySelector("[data-expression-palette-key]");
+      const key = palette?.dataset.expressionPaletteKey;
+      if (key) state.expressionPaletteHidden.delete(key);
+      if (palette) palette.hidden = false;
+      showExpressionPalette.setAttribute("hidden", "");
+      return;
+    }
+    const detailContentTab = event.target.closest("[data-detail-content-tab]");
+    if (detailContentTab) {
+      event.preventDefault();
+      const detailContent = detail.querySelector(".character-detail__content");
+      const scrollTop = detailContent?.scrollTop || 0;
+      state.detailContentTab = detailContentTab.dataset.detailContentTab || "person";
+      detail.querySelectorAll("[data-detail-content-tab]").forEach((button) => {
+        button.setAttribute("aria-selected", String(button === detailContentTab));
+      });
+      detail.querySelectorAll(".detail-content-panel").forEach((panel) => {
+        panel.hidden = panel.id !== `detail-panel-${state.detailContentTab}`;
+      });
+      detailContentTab.focus({ preventScroll: true });
+      requestAnimationFrame(() => {
+        if (detailContent) detailContent.scrollTop = scrollTop;
+      });
+      return;
+    }
     const characterReference = event.target.closest("[data-character-reference]");
     if (characterReference) {
       const [id, variantIndex] = String(characterReference.dataset.characterReference || "").split(":");
@@ -1207,13 +2001,7 @@ function quoteSpotlightHtml(value) {
       const character = state.characters.find((item) => item.id === state.selectedId);
       const face = character?.variants[state.variantIndex]?.faces[Number(faceButton.dataset.faceIndex)];
       const preview = document.getElementById("detail-face-preview"), previewImage = preview?.querySelector("img"), url = safeUrl(face?.iconUrl);
-      if (preview && previewImage && url) { previewImage.src = url; previewImage.alt = face.label || "表情差分"; preview.hidden = false; detail.querySelectorAll("[data-face-index]").forEach((button) => button.setAttribute("aria-pressed", String(button === faceButton))); }
-      return;
-    }
-    if (event.target.closest("[data-show-fullbody]")) {
-      const preview = document.getElementById("detail-face-preview");
-      if (preview) preview.hidden = true;
-      detail.querySelectorAll("[data-face-index]").forEach((button) => button.setAttribute("aria-pressed", "false"));
+      if (preview && previewImage && url) { const key = preview.dataset.facePreviewKey; if (key) state.facePreviewHidden.delete(key); previewImage.src = url; previewImage.alt = faceLabelInfo(face.label, Number(faceButton.dataset.faceIndex)).display; preview.hidden = false; detail.querySelector("[data-show-face-preview]")?.setAttribute("hidden", ""); detail.querySelectorAll("[data-face-index]").forEach((button) => button.setAttribute("aria-pressed", String(button === faceButton))); }
       return;
     }
     if (event.target.closest("[data-copy-json]")) { const character = state.characters.find((item) => item.id === state.selectedId); copyText(character?.variants[state.variantIndex]?.differenceJson || ""); return; }
@@ -1250,7 +2038,12 @@ function quoteSpotlightHtml(value) {
   dialog.addEventListener("close", () => document.documentElement.classList.remove("character-dialog-open"));
   imageLightbox.addEventListener("click", (event) => { if (event.target === imageLightbox || event.target === imageLightboxImage || event.target.closest(".character-image-lightbox__close")) closeImageLightbox(); });
   imageLightbox.addEventListener("cancel", (event) => { event.preventDefault(); closeImageLightbox(); });
-  search.addEventListener("input", () => { state.query = search.value.trim().toLocaleLowerCase("ja"); renderCards(); });
+  search.addEventListener("input", () => {
+    // タグだけは表示記法まで入力しても同じ語として探せる。
+    // 例: 記憶喪失 / ||記憶喪失|| / ~~記憶喪失~~ / %%記憶喪失%%。
+    state.query = tagInfoOf(search.value).label.toLocaleLowerCase("ja");
+    renderCards();
+  });
   systemFilter.addEventListener("change", () => { state.system = systemFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   locationFilter.addEventListener("change", () => { state.location = locationFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   yearFilter.addEventListener("change", () => { state.year = yearFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
