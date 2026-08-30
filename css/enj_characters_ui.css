@@ -44,3 +44,63 @@
   background: rgba(255, 255, 255, .08);
   text-decoration: none;
 }
+
+/* Ruby sits above the large name, so reserve a little more air from the kicker/system tag. */
+.enj-catalog-page #detail-name:has(.detail-name-ruby) {
+  margin-top: 14px;
+}
+
+.enj-catalog-page .detail-name-ruby rt {
+  line-height: 1;
+  transform: translateY(-0.05em);
+}
+
+/*
+ * Reference the old vertical .image p.words treatment: stronger Mincho,
+ * larger glyphs, and a dense dark outline. Keep the current black edging,
+ * but make the face read more like a bold title than body copy.
+ */
+.enj-catalog-page .detail-quote-spotlight {
+  width: min(8.2em, 31%);
+}
+
+.enj-catalog-page .detail-quote-spotlight__line {
+  color: #fff;
+  font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(1.38rem, 2.15vw, 1.95rem);
+  font-weight: 800;
+  line-height: 1.55;
+  letter-spacing: 0.075em;
+  -webkit-text-stroke: 0.7px rgba(0, 0, 0, 0.96);
+  paint-order: stroke fill;
+  text-shadow:
+    #05070c 0.12rem 0,
+    #05070c -0.12rem 0,
+    #05070c 0 -0.12rem,
+    #05070c 0 0.12rem,
+    #05070c 0.09rem 0.09rem,
+    #05070c -0.09rem 0.09rem,
+    #05070c 0.09rem -0.09rem,
+    #05070c -0.09rem -0.09rem,
+    0 2px 5px rgba(0, 0, 0, 0.92);
+}
+
+.enj-catalog-page .detail-quote-spotlight__line.is-compact {
+  font-size: clamp(1.02rem, 1.55vw, 1.38rem);
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .enj-catalog-page .detail-quote-spotlight {
+    width: min(7.2em, 38%);
+  }
+
+  .enj-catalog-page .detail-quote-spotlight__line {
+    font-size: clamp(1.08rem, 4.2vw, 1.45rem);
+  }
+
+  .enj-catalog-page .detail-quote-spotlight__line.is-compact {
+    font-size: clamp(0.92rem, 3.5vw, 1.2rem);
+  }
+}
