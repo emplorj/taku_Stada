@@ -5,12 +5,8 @@
   const dialog = document.getElementById("character-dialog");
   if (!detail) return;
 
-  // Normal characters use one spoken quotation as one card, even when the
-  // spreadsheet cell contains multiple 「…」「…」 quotations on the same line.
-  // #162 ゆうすけ is intentionally different: his narration is part of the
-  // quote collection, and the existing blank-paragraph (two-newline) groups
-  // are the authored units, so we leave those groups untouched.
-  const SPOKEN_QUOTE_PATTERN = /「[^」]*」|『[^』]*』|“[^”]*”|"[^"\n]*"/g;
+  // セリフ枠の単位はスプレッドシートでの改行。ひとつの行に
+  // 「…」「…」と連ねた場合も、掛け合いを含む一つの枠として保つ。
   let normalizeFrame = 0;
   let spotlightTimer = null;
 
@@ -18,25 +14,6 @@
     const name = detail.querySelector("#detail-name")?.textContent?.trim() || "";
     const kicker = detail.querySelector(".detail-kicker")?.textContent?.trim() || "";
     return name === "ゆうすけ" || /^#162(?:\D|$)/.test(kicker);
-  }
-
-  function spokenQuotes(text) {
-    return String(text || "").match(SPOKEN_QUOTE_PATTERN) || [];
-  }
-
-  function meaningfulNodes(element) {
-    return [...element.childNodes].filter((node) =>
-      node.nodeType === Node.ELEMENT_NODE || String(node.textContent || "").trim()
-    );
-  }
-
-  function wholeLineSpoiler(element) {
-    const nodes = meaningfulNodes(element);
-    return nodes.length === 1 &&
-      nodes[0].nodeType === Node.ELEMENT_NODE &&
-      nodes[0].classList.contains("spoiler-text")
-      ? nodes[0]
-      : null;
   }
 
   function splitAtBreaks(parent) {
@@ -77,18 +54,6 @@
     return card;
   }
 
-  function plainFragment(text, spoilerTemplate = null) {
-    const fragment = document.createDocumentFragment();
-    if (spoilerTemplate) {
-      const spoiler = spoilerTemplate.cloneNode(false);
-      spoiler.textContent = text;
-      fragment.append(spoiler);
-    } else {
-      fragment.append(document.createTextNode(text));
-    }
-    return fragment;
-  }
-
   function normalizeQuoteCards() {
     const container = detail.querySelector(".detail-quotes");
     if (!container || container.dataset.quoteUnitsNormalized) return;
@@ -106,22 +71,12 @@
         const text = probe.textContent.trim();
         if (!text) return;
 
-        const quotes = spokenQuotes(text);
-        if (quotes.length <= 1) {
-          nextCards.push(quoteCard(source, fragment));
-          return;
-        }
-
-        // A spoiler may wrap several adjacent quotations in one sheet line.
-        // Split those quotations into separate cards while keeping each card
-        // independently revealable with the existing delegated spoiler handler.
-        const spoilerTemplate = wholeLineSpoiler(probe);
-        quotes.forEach((quote) => nextCards.push(quoteCard(source, plainFragment(quote, spoilerTemplate))));
+        nextCards.push(quoteCard(source, fragment));
       });
     });
 
     if (nextCards.length) container.replaceChildren(...nextCards);
-    container.dataset.quoteUnitsNormalized = "spoken-quote";
+    container.dataset.quoteUnitsNormalized = "line";
   }
 
   function clearSpotlightTimer() {
@@ -158,17 +113,14 @@
     const nextLines = [];
     [...container.querySelectorAll("[data-quote-spotlight-index]")].forEach((source) => {
       const text = source.textContent.trim();
-      const quotes = spokenQuotes(text);
-      const units = quotes.length ? quotes : (text ? [text] : []);
-      units.forEach((unit) => {
-        const line = source.cloneNode(false);
-        const normalized = unit.replace(/[!?]/g, (mark) => mark === "!" ? "！" : "？");
-        line.textContent = normalized;
-        line.classList.remove("is-active", "is-compact", "has-opening-quote");
-        if (normalized.replace(/\s/g, "").length > 54) line.classList.add("is-compact");
-        if (/^[「『“"]/.test(normalized)) line.classList.add("has-opening-quote");
-        nextLines.push(line);
-      });
+      if (!text) return;
+      const line = source.cloneNode(false);
+      const normalized = text.replace(/[!?]/g, (mark) => mark === "!" ? "！" : "？");
+      line.textContent = normalized;
+      line.classList.remove("is-active", "is-compact", "has-opening-quote");
+      if (normalized.replace(/\s/g, "").length > 54) line.classList.add("is-compact");
+      if (/^[「『“"]/.test(normalized)) line.classList.add("has-opening-quote");
+      nextLines.push(line);
     });
 
     nextLines.forEach((line, index) => {
@@ -176,7 +128,7 @@
       line.classList.toggle("is-active", index === 0);
     });
     if (nextLines.length) container.replaceChildren(...nextLines);
-    container.dataset.quoteUnitsNormalized = "spoken-quote";
+    container.dataset.quoteUnitsNormalized = "line";
     startSpotlightTimer(container);
   }
 
