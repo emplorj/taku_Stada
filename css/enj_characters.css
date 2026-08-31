@@ -531,6 +531,8 @@
 .character-grid[data-view="grid"] .character-card__initial { font-size: clamp(2.5rem, 8vw, 5rem); }
 .character-grid[data-view="grid"] .character-card__body { padding: 12px 13px 14px; }
 .character-grid[data-view="grid"] .character-card h2 { overflow: hidden; font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
+.character-grid[data-view="grid"] .character-card__systems span + span::before,
+.character-grid[data-view="grid"] .character-card__systems .character-card__system + .character-card__system::before { display: none; }
 .character-grid[data-view="grid"] .character-card__intro {
   display: -webkit-box;
   min-height: 2.8em;
