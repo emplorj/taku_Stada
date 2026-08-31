@@ -980,6 +980,14 @@ function quoteSpotlightHtml(value) {
     const alignment = String(value || "");
     return alignment.includes("善") ? "good" : alignment.includes("悪") ? "evil" : alignment.includes("中立") ? "neutral" : "";
   };
+  const alignmentSortKeyOf = (value) => {
+    const orderRank = { lawful: 0, neutral: 1, chaotic: 2 };
+    const moralityRank = { good: 0, neutral: 1, evil: 2 };
+    const order = alignmentOrderOf(value);
+    const morality = alignmentMoralityOf(value);
+    // 未設定・独自表記は通常の9分類の後ろに置き、同種の中では名称順にする。
+    return `${orderRank[order] ?? 9}${moralityRank[morality] ?? 9}:${String(value || "")}`;
+  };
   const variantMatchesFilters = (variant) =>
     (!state.system || variant.system === state.system) &&
     (!state.location || locationsOf(variant.location).includes(state.location)) &&
@@ -1078,7 +1086,7 @@ function quoteSpotlightHtml(value) {
       if (state.sort === "system-asc") return compareOptionalText(aVariant.system, bVariant.system) || idAscending;
       if (state.sort === "location-asc") return compareOptionalText(locationSortKey(aVariant), locationSortKey(bVariant)) || idAscending;
       if (state.sort === "sex-asc") return compareOptionalText(genderCategoryOf(aVariant.sex), genderCategoryOf(bVariant.sex)) || idAscending;
-      if (state.sort === "alignment-asc") return compareOptionalText(aVariant.alignment, bVariant.alignment) || idAscending;
+      if (state.sort === "alignment-asc") return compareOptionalText(alignmentSortKeyOf(aVariant.alignment), alignmentSortKeyOf(bVariant.alignment)) || idAscending;
       if (state.sort === "job-asc") return compareOptionalText(aVariant.job, bVariant.job) || idAscending;
       if (state.sort === "hair-asc") return compareOptionalText(hairSortKey(aVariant), hairSortKey(bVariant)) || idAscending;
       if (state.sort === "variant-asc") return compareOptionalText(aVariant.variant, bVariant.variant) || idAscending;
