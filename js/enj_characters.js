@@ -573,6 +573,18 @@
     rubyTokens.forEach((ruby, index) => { html = html.replace(`\uE000AKARUBY${index}\uE001`, ruby); });
     return html;
   }
+  function speechLinesOf(value) {
+    const line = String(value || "").trim();
+    if (!line) return [];
+    // 1行の中に連続している「セリフ」は、別カードではなく同じカード内の改行にする。
+    // ||…|| は公開側のネタバレ指定なので、マーカーを保ったまま分ける。
+    const spoiler = line.match(/^\|\|([\s\S]*)\|\|$/);
+    const inner = spoiler ? spoiler[1] : line;
+    const quotes = inner.match(/「(?:[^「]|『[^』]*』)*」|『[^『]*』/g) || [];
+    const rest = inner.replace(/「(?:[^「]|『[^』]*』)*」|『[^『]*』/g, "").trim();
+    if (!quotes.length || rest) return [line];
+    return spoiler ? quotes.map((quote) => `||${quote}||`) : quotes;
+  }
   function quoteGroupsOf(value) {
     const groups = [];
     let current = [];
@@ -587,9 +599,9 @@
       const previousStartsSpeech = current.length && /^[「『“\"]/.test(current[0]);
       if (startsSpeech || !previousStartsSpeech) {
         if (current.length) groups.push(current);
-        current = [line];
+        current = speechLinesOf(line);
       } else {
-        current.push(line);
+        current.push(...speechLinesOf(line));
       }
     });
     if (current.length) groups.push(current);
@@ -636,12 +648,9 @@ function quoteSpotlightHtml(value) {
     .replace(/\|\|[\s\S]*?\|\|/g, "")
     .replace(/^>\s?/gm, "")
     .trim();
-  // 縦書きの代表セリフは、一つずつ切り替える。1行に複数の「」がある場合や、
-  // 秘匿表示（||…||）は候補から外す。シート側で記号を外せば自動的に候補へ入る。
-  const quotes = source.match(/「(?:[^「]|『[^』]*』)*」|『[^『]*』/g) || [];
-  const groups = quotes.length
-    ? quotes.map((quote) => [quote])
-    : quoteGroupsOf(source);
+  // 縦書きの代表セリフは、入力の1行ごとに切り替える。1行内の連続した「」は
+  // 同じ場面の台詞として改行し、秘匿表示（||…||）は候補から外す。
+  const groups = quoteGroupsOf(source);
   if (!groups.length) return "";
   const verticalText = (text) => {
     // Half-width punctuation has no reliable vertical alternate in all Mincho fonts.
@@ -1454,10 +1463,11 @@ function quoteSpotlightHtml(value) {
     if (!record || record.status === "loading") return `<p class="detail-public-sheet__state"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 公開キャラデータを読み込んでいます…</p>`;
     if (record.status === "error") return `<p class="detail-public-sheet__state is-error">公開キャラデータを取得できませんでした。時間を置いて詳細を開き直してください。</p>`;
     const sheet = record.data || {};
-    const table = (title, headers, rows) => rows?.length ? `<section class="detail-public-sheet__section"><h3>${title}</h3><div class="detail-public-sheet__table"><table><thead><tr>${headers.map((item) => `<th>${escapeHtml(item)}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((value) => `<td>${publicSheetText(value)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>` : "";
     const effects = (title, values) => values?.length ? `<section class="detail-public-sheet__section"><h3>${title}</h3><div class="detail-public-sheet__effects">${values.map((item) => `<details class="detail-public-sheet__effect"><summary><strong>${escapeHtml(item.name || "名称なし")}</strong><span>${escapeHtml([item.syndrome, item.timing, publicSheetLevel(item.level)].filter(Boolean).join(" / "))}</span></summary>${item.effect ? `<p>${publicSheetText(item.effect)}</p>` : ""}</details>`).join("")}</div></section>` : "";
     const combos = sheet.combos?.length ? `<section class="detail-public-sheet__section"><h3>コンボ</h3><div class="detail-public-sheet__cards">${sheet.combos.map((item) => { const description = publicSheetDescriptionWithoutRepeatedTitle(item.name, item.description); return `<article><header><strong>${escapeHtml(item.name || "名称なし")}</strong><span>${escapeHtml([item.timing, item.skill, item.encroachment && `侵蝕 ${item.encroachment}`].filter(Boolean).join(" / "))}</span></header>${description ? `<p>${publicSheetText(description)}</p>` : ""}</article>`; }).join("")}</div></section>` : "";
-    return `<div class="detail-public-sheet__headline"><p>公開キャラデータ</p><h3>${escapeHtml(sheet.name || "")}${sheet.nameKana ? `<small>${escapeHtml(sheet.nameKana)}</small>` : ""}</h3>${sheet.codename ? `<p>コードネーム：${escapeHtml(sheet.codename)}${sheet.codenameKana ? `（${escapeHtml(sheet.codenameKana)}）` : ""}</p>` : ""}</div><section class="detail-public-sheet__section"><h3>プロフィール</h3><dl>${publicSheetRows([["ワークス", sheet.profile?.works], ["カヴァー", sheet.profile?.cover], ["年齢", sheet.profile?.age], ["性別", sheet.profile?.sex], ["身長", sheet.profile?.height && `${sheet.profile.height}cm`], ["体重", sheet.profile?.weight && `${sheet.profile.weight}kg`]])}</dl>${sheet.profile?.description ? `<p class="detail-public-sheet__description">${publicSheetText(sheet.profile.description)}</p>` : ""}</section>${sheet.syndromes?.length ? `<section class="detail-public-sheet__section"><h3>シンドローム</h3><p class="detail-public-sheet__chips">${sheet.syndromes.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</p></section>` : ""}<section class="detail-public-sheet__section"><h3>ステータス・能力値</h3><dl>${publicSheetRows([["HP", sheet.status?.hp], ["侵蝕率", sheet.status?.erosion], ["行動値", sheet.status?.initiative], ["移動値", sheet.status?.move], ["財産点", sheet.status?.fortune], ["装甲値", sheet.status?.armor], ["肉体", sheet.abilities?.body], ["感覚", sheet.abilities?.sense], ["精神", sheet.abilities?.mind], ["社会", sheet.abilities?.social]])}</dl></section>${table("技能", ["技能", "能力", "ダイス", "修正", "備考"], (sheet.skills || []).map((item) => [item.name, item.ability, item.dice, item.modifier, item.notes]))}${effects("エフェクト", sheet.effects)}${effects("イージーエフェクト", sheet.easyEffects)}${combos}`;
+    const skills = (sheet.skills || []).map((item) => [item.name, item.ability, item.dice, item.modifier, item.notes]);
+    const skillsSection = skills.length ? `<details class="detail-public-sheet__section detail-public-sheet__skills"><summary><span>技能</span><small>${skills.length}件</small></summary><div class="detail-public-sheet__table"><table><thead><tr>${["技能", "能力", "ダイス", "修正", "備考"].map((item) => `<th>${escapeHtml(item)}</th>`).join("")}</tr></thead><tbody>${skills.map((row) => `<tr>${row.map((value) => `<td>${publicSheetText(value)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></details>` : "";
+    return `<div class="detail-public-sheet__headline"><p>公開キャラデータ</p>${sheet.nameKana ? `<small>${escapeHtml(sheet.nameKana)}</small>` : ""}<h3>${escapeHtml(sheet.name || "")}</h3>${sheet.codename ? `<p>コードネーム：${escapeHtml(sheet.codename)}${sheet.codenameKana ? `（${escapeHtml(sheet.codenameKana)}）` : ""}</p>` : ""}</div><section class="detail-public-sheet__section"><h3>プロフィール</h3><dl>${publicSheetRows([["ワークス", sheet.profile?.works], ["カヴァー", sheet.profile?.cover], ["年齢", sheet.profile?.age], ["性別", sheet.profile?.sex], ["身長", sheet.profile?.height && `${sheet.profile.height}cm`], ["体重", sheet.profile?.weight && `${sheet.profile.weight}kg`]])}</dl>${sheet.profile?.description ? `<p class="detail-public-sheet__description">${publicSheetText(sheet.profile.description)}</p>` : ""}</section>${sheet.syndromes?.length ? `<section class="detail-public-sheet__section"><h3>シンドローム</h3><p class="detail-public-sheet__chips">${sheet.syndromes.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</p></section>` : ""}<section class="detail-public-sheet__section detail-public-sheet__status"><h3>ステータス</h3><div class="detail-public-sheet__status-grid"><dl>${publicSheetRows([["HP", sheet.status?.hp], ["侵蝕率", sheet.status?.erosion], ["行動値", sheet.status?.initiative], ["移動値", sheet.status?.move], ["財産点", sheet.status?.fortune], ["装甲値", sheet.status?.armor]])}</dl><div><h4>能力値</h4><dl>${publicSheetRows([["肉体", sheet.abilities?.body], ["感覚", sheet.abilities?.sense], ["精神", sheet.abilities?.mind], ["社会", sheet.abilities?.social]])}</dl></div></div></section>${skillsSection}${combos}${effects("エフェクト", sheet.effects)}${effects("イージーエフェクト", sheet.easyEffects)}`;
   }
   function loadRemotePublicSheet(character, variant) {
     const key = publicSheetKeyOf(character, variant), url = publicSheetApiUrlOf(character, variant);
