@@ -610,7 +610,16 @@
     return { raw, display, tone };
   }
 function quoteSpotlightHtml(value) {
-  const groups = quoteGroupsOf(withoutAccidentalDuplicate(value));
+  const source = withoutAccidentalDuplicate(value)
+    .replace(/\|\|/g, "")
+    .replace(/^>\s?/gm, "")
+    .trim();
+  // 縦書きの代表セリフは、一つずつ切り替える。1行に複数の「」がある場合や、
+  // 秘匿表示の記号（||）が混在していても、セリフ本文だけを取り出す。
+  const quotes = source.match(/「(?:[^「]|『[^』]*』)*」|『[^『]*』/g) || [];
+  const groups = quotes.length
+    ? quotes.map((quote) => [quote])
+    : quoteGroupsOf(source);
   if (!groups.length) return "";
   const verticalText = (text) => {
     // Half-width punctuation has no reliable vertical alternate in all Mincho fonts.
