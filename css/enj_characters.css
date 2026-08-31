@@ -1252,16 +1252,16 @@ html.character-dialog-open body { overflow: hidden; overscroll-behavior: none; }
   .catalog-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .character-grid[data-view="grid"] { gap: 7px; }
   .character-grid[data-view="grid"] .character-card { border-width: 2px; border-radius: 10px; }
-  .character-grid[data-view="list"] .character-card { height: 72px; min-height: 72px; grid-template-columns: 82px minmax(0, 1fr) 80px 44px; }
-  .character-grid[data-view="list"] .character-card__visual { width: 72px; height: 72px; align-self: start; margin-left: 0; }
-  .character-grid[data-view="list"] .character-card__body { padding: 8px 13px 8px clamp(17px, 4vw, 24px); transform: translateY(-4px); }
-  /* 72px の一覧では、二つ名・名前・基本情報を優先する。
-     タグまで同時に置くとチップの上端だけがカード下から覗いてしまうため、
-     狭い画面では詳細／アイコン表示で確認できるようにする。 */
+  /* スマホでは右の立ち絵小窓を外して本文を優先する。
+     タグ・二つ名・名前・基本情報を同時に読めるよう、カードにも少し高さを渡す。 */
+  .character-grid[data-view="list"] .character-card { height: 92px; min-height: 92px; grid-template-columns: 82px minmax(0, 1fr) 44px; }
+  .character-grid[data-view="list"] .character-card:not(.has-variants) { grid-template-columns: 82px minmax(0, 1fr); }
+  .character-grid[data-view="list"] .character-card__visual { width: 82px; height: 82px; align-self: end; margin-left: 0; }
+  .character-grid[data-view="list"] .character-card__body { padding: 7px 9px 7px clamp(12px, 3vw, 18px); transform: none; }
   .character-grid[data-view="list"] .character-card__tags:not(.character-card__tags--inline) { display: none; }
-  .character-grid[data-view="list"] .character-card__tags--inline { display: inline-flex; max-width: min(52vw, 250px); }
-  .character-grid[data-view="list"] .character-card__variant-cycle { grid-column: 4; gap: 4px; min-width: 46px; padding: 0 7px; box-shadow: 0 0 0 4px rgba(9, 23, 68, 0.82); }
-  .character-grid[data-view="list"] .character-card__portrait-window { grid-column: 3; width: 80px; height: 72px; }
+  .character-grid[data-view="list"] .character-card__tags--inline { display: inline-flex; max-width: min(43vw, 190px); }
+  .character-grid[data-view="list"] .character-card__variant-cycle { grid-column: 3; gap: 4px; min-width: 38px; padding: 0 5px; box-shadow: none; }
+  .character-grid[data-view="list"] .character-card__portrait-window { display: none; }
   .character-grid[data-view="list"] .character-card__id { margin-left: 8px; font-size: 3.85rem; }
   .character-grid[data-view="grid"] .character-card__body { padding: 8px 9px 10px; }
   .character-grid[data-view="grid"] .character-card__systems { gap: 2px 5px; font-size: 0.62rem; }
