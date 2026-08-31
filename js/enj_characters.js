@@ -781,6 +781,9 @@ function quoteSpotlightHtml(value) {
       variant.system ? generatedTag(variant.system, "system") : null,
       ...jobTagsOf(variant.job, variant.system),
       character.variants.length > 1 ? generatedTag("コンバートあり", "auto") : null,
+      variant.alignment ? generatedTag(variant.alignment, "auto") : null,
+      hairColorOf(variant) ? generatedTag(hairColorOf(variant), "auto") : null,
+      yearOf(variant.debut) ? generatedTag(`${yearOf(variant.debut)}年`, "auto") : null,
       yearOf(variant.debut) ? generatedTag(`初登場 ${yearOf(variant.debut)}年`, "auto") : null
     ].filter(Boolean);
     const seen = new Set();
@@ -788,7 +791,6 @@ function quoteSpotlightHtml(value) {
   }
   function catalogAffinityTagsOf(variant) {
     return [
-      variant.alignment ? generatedTag(`アライメント: ${variant.alignment}`, "affinity") : null,
       variant.firstPerson ? generatedTag(`一人称: ${variant.firstPerson}`, "affinity") : null
     ].filter(Boolean);
   }
