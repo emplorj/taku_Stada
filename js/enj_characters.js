@@ -799,9 +799,10 @@ function quoteSpotlightHtml(value) {
     const tags = [...manual, ...jobs].filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
     return prioritizeCatalogTags(tags);
   }
+  const withoutJobClassSuffix = (value) => String(value || "").trim().replace(/[Ａ-ＤA-D]$/, "");
   // ジョブ欄は一つの文章として保ちつつ、検索用タグでは種族・役割・シンドロームを
-  // それぞれ拾う。DX3の末尾A〜Dはワークスの区分なので、UGN支部長C → UGN支部長
-  // のように一段まとめる。銀剣・SWの固有書式だけ、さらに名前を分解する。
+  // それぞれ拾う。DX3の末尾A〜Dはワークスの区分なので、FHエージェントC →
+  // FHエージェントのように一段まとめる。銀剣・SWの固有書式だけ、さらに名前を分解する。
   function jobTagsOf(value, system = "") {
     const seen = new Set();
     const supportsJobSubtypes = ["銀剣", "SW", "SW2.5"].includes(String(system || "").trim());
@@ -818,7 +819,7 @@ function quoteSpotlightHtml(value) {
         if (parenthesized) return [parenthesized[1].trim(), parenthesized[2].trim()];
         return [item];
       })
-      .map((item) => /^(?:UGN(?:支部長|エージェント|チルドレン)|レネゲイドビーイング)[A-D]$/i.test(item) ? item.slice(0, -1) : item)
+      .map(withoutJobClassSuffix)
       .map((item) => generatedTag(item, "job"))
       .filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
   }
@@ -1200,7 +1201,7 @@ function quoteSpotlightHtml(value) {
   function normalizedJobToken(value, keepClass = state.jobDetailMode) {
     const token = String(value || "").trim();
     if (!token) return "";
-    return !keepClass && /^UGNエージェント[Ａ-ＺA-Z]+$/.test(token) ? "UGNエージェント" : token;
+    return keepClass ? token : withoutJobClassSuffix(token);
   }
   function jobTokensOf(value) {
     return String(value || "").split(/[・、,，/／\n\r]+/).map((token) => normalizedJobToken(token)).filter(Boolean);

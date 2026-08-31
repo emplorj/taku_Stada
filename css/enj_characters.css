@@ -343,7 +343,7 @@
 .catalog-tag--combat { border-color: color-mix(in srgb, var(--tag-color, #9cb8eb) 78%, transparent); background: color-mix(in srgb, var(--tag-color, #496797) 8%, transparent); color: color-mix(in srgb, var(--tag-color, #f7fbff) 34%, #fff); }
 .catalog-tag.is-spoiler { --tag-color: #907aa9; color: #eee6f7; background: rgba(90, 69, 115, 0.3); font-style: italic; }
 .catalog-tag.is-spoiler::before { margin-right: 0.28em; font-family: "Font Awesome 6 Free"; font-style: normal; content: "\f070"; }
-.catalog-tag.is-retired { opacity: 0.66; text-decoration: line-through; text-decoration-thickness: 0.12em; }
+.catalog-tag.is-retired { --tag-color: #a92f3d; opacity: 1; border-color: rgba(220, 83, 96, 0.86); color: #ffc1c6; background: linear-gradient(135deg, rgba(9, 4, 9, 0.96), rgba(112, 22, 34, 0.76)); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6); text-decoration: line-through; text-decoration-color: #721824; text-decoration-thickness: 0.12em; }
 .character-card__tags-more { flex: 0 0 auto; align-self: center; padding: 0; border: 0; color: var(--catalog-text-muted); background: transparent; font: 800 0.68rem/1 var(--font-latin-ui); cursor: pointer; }
 .character-card__tags-more:hover, .character-card__tags-more:focus-visible { color: #fff; outline: none; text-decoration: underline; text-underline-offset: 2px; }
 .catalog-tag-popover { position: fixed; z-index: 2800; width: min(290px, calc(100vw - 24px)); padding: 9px 10px 10px; border: 1px solid rgba(146, 194, 255, 0.45); border-radius: 10px; color: #eaf3ff; background: rgba(7, 20, 62, 0.98); box-shadow: 0 14px 34px rgba(0, 0, 0, 0.36); }
