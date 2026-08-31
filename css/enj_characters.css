@@ -618,7 +618,7 @@
 .detail-quote-spotlight__line { position: absolute; inset: 0; display: block; box-sizing: border-box; margin: 0; overflow: hidden; color: #fff; font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(0.9rem, 1.32vw, 1.12rem); font-weight: 600; line-height: 1.76; letter-spacing: 0.1em; text-align: start; -webkit-text-stroke: 0.85px rgba(2, 6, 16, 0.92); paint-order: stroke fill; text-shadow: 0 2px 5px rgba(4, 10, 29, 0.9); white-space: pre-wrap; writing-mode: vertical-rl; text-orientation: upright; word-break: normal; overflow-wrap: normal; line-break: strict; hanging-punctuation: none; font-feature-settings: "vert" 1; opacity: 0; transform: translateY(8px); transition: opacity 620ms ease, transform 620ms ease; }
 .detail-quote-spotlight__line.is-compact { font-size: clamp(0.78rem, 1.1vw, 0.94rem); line-height: 1.56; letter-spacing: 0.065em; }
 .detail-quote-spotlight__line .vertical-tcy { display: inline-block; text-combine-upright: all; letter-spacing: 0; text-align: center; }
-.detail-quote-spotlight__line.has-opening-quote { padding-inline-start: 1em; text-indent: -1em; }
+.detail-quote-spotlight__line.has-opening-quote { padding-inline-start: 0.2em; text-indent: 0; }
 .detail-quote-spotlight__line.is-active { opacity: 1; transform: translateY(0); }
 .detail-image-switcher { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(12px, 2vw, 26px); pointer-events: none; }
 .detail-image-switcher button { position: relative; width: clamp(42px, 4vw, 58px); height: clamp(42px, 4vw, 58px); border: 0; border-radius: 50%; color: #fff; background: rgba(58, 70, 91, 0.72); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28); font-size: clamp(1.1rem, 2vw, 1.7rem); cursor: pointer; opacity: 0; pointer-events: auto; transform: scale(0.9); transition: opacity 150ms ease, background 150ms ease, transform 150ms ease; }
@@ -915,6 +915,7 @@
 .detail-content-panel[hidden] { display: none; }
 @keyframes detail-content-panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 .detail-public-sheet { padding-top: 8px; }
+.detail-public-sheet--standalone > .detail-action { margin: 0 0 14px; padding: 7px 13px; }
 .detail-public-sheet__headline {
   margin: 18px 0 0;
   padding: 15px 17px;

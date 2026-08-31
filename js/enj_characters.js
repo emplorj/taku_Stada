@@ -20,7 +20,7 @@
   const locationDisplayNames = new Map();
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
 
-  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), publicSheetRequests: new Map(), publicSheets: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
+  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", publicSheetOpen: false, cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), publicSheetRequests: new Map(), publicSheets: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
   const grid = document.getElementById("character-grid");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
@@ -1404,12 +1404,16 @@ function quoteSpotlightHtml(value) {
   const publicSheetApiUrlOf = (character, variant) => PUBLIC_SHEET_API_BY_VARIANT[publicSheetKeyOf(character, variant)] || "";
   const publicSheetText = (value) => escapeHtml(String(value ?? "")).replace(/\n/g, "<br>");
   const publicSheetRows = (entries) => entries.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${publicSheetText(value)}</dd></div>`).join("");
+  const publicSheetLevel = (value) => {
+    const level = String(value ?? "").trim();
+    return level ? (/^Lv/i.test(level) ? level : `Lv${level}`) : "";
+  };
   function remotePublicSheetHtml(record) {
     if (!record || record.status === "loading") return `<p class="detail-public-sheet__state"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 公開キャラデータを読み込んでいます…</p>`;
     if (record.status === "error") return `<p class="detail-public-sheet__state is-error">公開キャラデータを取得できませんでした。時間を置いて詳細を開き直してください。</p>`;
     const sheet = record.data || {};
     const table = (title, headers, rows) => rows?.length ? `<section class="detail-public-sheet__section"><h3>${title}</h3><div class="detail-public-sheet__table"><table><thead><tr>${headers.map((item) => `<th>${escapeHtml(item)}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((value) => `<td>${publicSheetText(value)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>` : "";
-    const effects = (title, values) => values?.length ? `<section class="detail-public-sheet__section"><h3>${title}</h3><div class="detail-public-sheet__cards">${values.map((item) => `<article><header><strong>${escapeHtml(item.name || "名称なし")}</strong><span>${escapeHtml([item.syndrome, item.timing, item.level && `Lv${item.level}`].filter(Boolean).join(" / "))}</span></header><p>${publicSheetText(item.effect)}</p></article>`).join("")}</div></section>` : "";
+    const effects = (title, values) => values?.length ? `<section class="detail-public-sheet__section"><h3>${title}</h3><div class="detail-public-sheet__cards">${values.map((item) => `<article><header><strong>${escapeHtml(item.name || "名称なし")}</strong><span>${escapeHtml([item.syndrome, item.timing, publicSheetLevel(item.level)].filter(Boolean).join(" / "))}</span></header><p>${publicSheetText(item.effect)}</p></article>`).join("")}</div></section>` : "";
     const combos = sheet.combos?.length ? `<section class="detail-public-sheet__section"><h3>コンボ</h3><div class="detail-public-sheet__cards">${sheet.combos.map((item) => `<article><header><strong>${escapeHtml(item.name || "名称なし")}</strong><span>${escapeHtml([item.timing, item.skill, item.encroachment && `侵蝕 ${item.encroachment}`].filter(Boolean).join(" / "))}</span></header><p>${publicSheetText(item.description)}</p></article>`).join("")}</div></section>` : "";
     return `<div class="detail-public-sheet__headline"><p>公開キャラデータ</p><h3>${escapeHtml(sheet.name || "")}${sheet.nameKana ? `<small>${escapeHtml(sheet.nameKana)}</small>` : ""}</h3>${sheet.codename ? `<p>コードネーム：${escapeHtml(sheet.codename)}${sheet.codenameKana ? `（${escapeHtml(sheet.codenameKana)}）` : ""}</p>` : ""}</div><section class="detail-public-sheet__section"><h3>プロフィール</h3><dl>${publicSheetRows([["ワークス", sheet.profile?.works], ["カヴァー", sheet.profile?.cover], ["年齢", sheet.profile?.age], ["性別", sheet.profile?.sex], ["身長", sheet.profile?.height && `${sheet.profile.height}cm`], ["体重", sheet.profile?.weight && `${sheet.profile.weight}kg`]])}</dl>${sheet.profile?.description ? `<p class="detail-public-sheet__description">${publicSheetText(sheet.profile.description)}</p>` : ""}</section>${sheet.syndromes?.length ? `<section class="detail-public-sheet__section"><h3>シンドローム</h3><p class="detail-public-sheet__chips">${sheet.syndromes.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</p></section>` : ""}<section class="detail-public-sheet__section"><h3>ステータス・能力値</h3><dl>${publicSheetRows([["HP", sheet.status?.hp], ["侵蝕率", sheet.status?.erosion], ["行動値", sheet.status?.initiative], ["移動値", sheet.status?.move], ["財産点", sheet.status?.fortune], ["装甲値", sheet.status?.armor], ["肉体", sheet.abilities?.body], ["感覚", sheet.abilities?.sense], ["精神", sheet.abilities?.mind], ["社会", sheet.abilities?.social]])}</dl></section>${table("技能", ["技能", "能力", "ダイス", "修正", "備考"], (sheet.skills || []).map((item) => [item.name, item.ability, item.dice, item.modifier, item.notes]))}${effects("エフェクト", sheet.effects)}${effects("イージーエフェクト", sheet.easyEffects)}${combos}`;
   }
@@ -1485,7 +1489,8 @@ function quoteSpotlightHtml(value) {
       detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair]], "detail-fact-group--person"),
       detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson], ["読み", variant.reading]], "detail-fact-group--calling")
     ].join("");
-    const actions = [detailAction(variant.driveUrl, "fa-brands fa-google-drive", "Driveを開く"), detailAction(publicCharacterSheetUrl(variant.characterSheetUrl), "fa-regular fa-file-lines", "キャラシを開く")].join("");
+    const hasPublicSheet = Boolean(publicSheetApiUrlOf(character, variant) || Object.values(variant.publicCharacterSheet || {}).some(Boolean));
+    const actions = [detailAction(variant.driveUrl, "fa-brands fa-google-drive", "Driveを開く"), hasPublicSheet ? `<button class="detail-action" type="button" data-open-public-sheet><i class="fa-regular fa-file-lines" aria-hidden="true"></i>キャラシを開く</button>` : detailAction(publicCharacterSheetUrl(variant.characterSheetUrl), "fa-regular fa-file-lines", "キャラシを開く")].join("");
     const variantTabs = character.variants.length > 1 ? `<nav class="variant-tabs" aria-label="姿・システムを切り替え"><span>切替</span>${character.variants.map((item, index) => {
       const label = item.variant || item.system || `姿 ${index + 1}`;
       return `<button class="variant-tab" type="button" data-variant-index="${index}" aria-selected="${index === state.variantIndex}">${escapeHtml(label)}</button>`;
@@ -1569,15 +1574,15 @@ function quoteSpotlightHtml(value) {
     const detailTabs = [
       { id: "person", label: "人物", content: personContent },
       { id: "record", label: "記録", content: recordContent },
-      { id: "data", label: "データ", content: publicSheetContent ? `<div class="detail-public-sheet">${publicSheetContent}</div>` : "" },
       { id: "review", label: "評・演じ方", content: reviewContent }
     ].filter((tab) => tab.content);
     if (!detailTabs.some((tab) => tab.id === state.detailContentTab)) state.detailContentTab = detailTabs[0]?.id || "person";
-    const detailTabsHtml = detailTabs.length ? `<div class="detail-content-tabs" role="tablist" aria-label="キャラクター詳細の内容"><div class="detail-content-tabs__buttons">${detailTabs.map((tab) => `<button type="button" role="tab" id="detail-tab-${tab.id}" aria-selected="${tab.id === state.detailContentTab}" aria-controls="detail-panel-${tab.id}" data-detail-content-tab="${tab.id}">${escapeHtml(tab.label)}</button>`).join("")}</div>${detailTabs.map((tab) => `<section class="detail-content-panel" id="detail-panel-${tab.id}" role="tabpanel" aria-labelledby="detail-tab-${tab.id}"${tab.id === state.detailContentTab ? "" : " hidden"}>${tab.content}</section>`).join("")}</div>` : "";
+    const detailTabsHtml = state.publicSheetOpen
+      ? `<section class="detail-public-sheet detail-public-sheet--standalone" data-public-sheet-view><button class="detail-action" type="button" data-close-public-sheet><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>詳細へ戻る</button>${publicSheetContent}</section>`
+      : detailTabs.length ? `<div class="detail-content-tabs" role="tablist" aria-label="キャラクター詳細の内容"><div class="detail-content-tabs__buttons">${detailTabs.map((tab) => `<button type="button" role="tab" id="detail-tab-${tab.id}" aria-selected="${tab.id === state.detailContentTab}" aria-controls="detail-panel-${tab.id}" data-detail-content-tab="${tab.id}">${escapeHtml(tab.label)}</button>`).join("")}</div>${detailTabs.map((tab) => `<section class="detail-content-panel" id="detail-panel-${tab.id}" role="tabpanel" aria-labelledby="detail-tab-${tab.id}"${tab.id === state.detailContentTab ? "" : " hidden"}>${tab.content}</section>`).join("")}</div>` : "";
+    const detailSummaryHtml = state.publicSheetOpen ? "" : `${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${headerMeta ? `<div class="detail-meta">${headerMeta}</div>` : ""}${detailTagsHtml}${variantTabs}${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}`;
     detail.innerHTML = `<div class="character-detail__visual"><span class="detail-visual-id" aria-hidden="true">#${escapeHtml(String(character.id).padStart(3, "0"))}</span>${image ? `<img id="detail-main-image" src="${escapeHtml(image)}" alt="${escapeHtml(variant.name || character.registrationName)}" decoding="async">` : `<span class="character-detail__image-placeholder" aria-hidden="true">${escapeHtml(character.registrationName.slice(0, 1))}</span>`}${quoteSpotlightHtml(variant.quote)}${imageSwitcher}</div>
-      <div class="character-detail__left"><div class="character-detail__content"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p><h2 id="detail-name">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${headerMeta ? `<div class="detail-meta">${headerMeta}</div>` : ""}${detailTagsHtml}${variantTabs}
-        ${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}
-        ${detailTabsHtml}</div></div>${expressionSection}${expressionPaletteLauncher}`;
+      <div class="character-detail__left"><div class="character-detail__content"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p><h2 id="detail-name">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${detailSummaryHtml}${detailTabsHtml}</div></div>${state.publicSheetOpen ? "" : expressionSection}${state.publicSheetOpen ? "" : expressionPaletteLauncher}`;
     const authorSelect = detail.querySelector('[name="author"]');
     const commentKeyInput = detail.querySelector('[name="writeKey"]');
     if (authorSelect && commentKeyInput) {
@@ -1586,8 +1591,8 @@ function quoteSpotlightHtml(value) {
       authorSelect.addEventListener("change", applyStoredKey);
     }
     dialog.querySelector("#detail-face-preview")?.remove();
-    dialog.insertAdjacentHTML("beforeend", facePreview);
-    if (!compatibleFacePreviewLayout && faceImage) requestAnimationFrame(() => {
+    if (!state.publicSheetOpen) dialog.insertAdjacentHTML("beforeend", facePreview);
+    if (!state.publicSheetOpen && !compatibleFacePreviewLayout && faceImage) requestAnimationFrame(() => {
       const preview = dialog.querySelector("#detail-face-preview");
       if (!preview || preview.hidden) return;
       const dialogRect = dialog.getBoundingClientRect();
@@ -1712,6 +1717,7 @@ function quoteSpotlightHtml(value) {
     state.selectedId = character.id;
     state.variantIndex = variantIndex === null ? character.representativeIndex : Number(variantIndex);
     state.detailImageMode = "normal";
+    state.publicSheetOpen = false;
     state.detailLoadingId = character.detailLoaded ? null : character.id;
     renderDetail();
     if (!dialog.open) dialog.showModal();
@@ -1741,6 +1747,7 @@ function quoteSpotlightHtml(value) {
     document.documentElement.classList.remove("character-dialog-open");
     state.selectedId = null;
     state.detailLoadingId = null;
+    state.publicSheetOpen = false;
     if (state.openedFromUrl) history.replaceState(null, "", location.pathname);
     state.openedFromUrl = false;
     restoreCatalogScroll();
@@ -2289,6 +2296,25 @@ function quoteSpotlightHtml(value) {
       showExpressionPalette.setAttribute("hidden", "");
       return;
     }
+    const openPublicSheet = event.target.closest("[data-open-public-sheet]");
+    if (openPublicSheet) {
+      event.preventDefault();
+      state.publicSheetOpen = true;
+      renderDetail();
+      requestAnimationFrame(() => {
+        const content = detail.querySelector(".character-detail__content");
+        content?.scrollTo({ top: 0, behavior: "auto" });
+      });
+      return;
+    }
+    const closePublicSheet = event.target.closest("[data-close-public-sheet]");
+    if (closePublicSheet) {
+      event.preventDefault();
+      state.publicSheetOpen = false;
+      renderDetail();
+      detail.querySelector(".character-detail__content")?.scrollTo({ top: 0, behavior: "auto" });
+      return;
+    }
     const detailContentTab = event.target.closest("[data-detail-content-tab]");
     if (detailContentTab) {
       event.preventDefault();
@@ -2337,7 +2363,7 @@ function quoteSpotlightHtml(value) {
       return;
     }
     const variantTab = event.target.closest("[data-variant-index]");
-    if (variantTab) { rememberDetailScroll(); state.variantIndex = Number(variantTab.dataset.variantIndex); state.detailImageMode = "normal"; renderDetail(); restoreDetailScroll(); return; }
+    if (variantTab) { rememberDetailScroll(); state.variantIndex = Number(variantTab.dataset.variantIndex); state.detailImageMode = "normal"; state.publicSheetOpen = false; renderDetail(); restoreDetailScroll(); return; }
     const faceButton = event.target.closest("[data-face-index]");
     if (faceButton) {
       const character = state.characters.find((item) => item.id === state.selectedId);
