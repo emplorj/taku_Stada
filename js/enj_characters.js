@@ -747,22 +747,24 @@ function quoteSpotlightHtml(value) {
     const manual = tagsOf(variant.tags)
       .filter((tag) => tag.label !== variant.system)
       .map((tag) => ({ ...tag, source: "manual" }));
-    const jobs = jobTagsOf(variant.job);
+    const jobs = jobTagsOf(variant.job, variant.system);
     const seen = new Set();
     const tags = [...manual, ...jobs].filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
     return prioritizeCatalogTags(tags);
   }
   // ジョブ欄は一つの文章として保ちつつ、検索用タグでは種族・役割・シンドロームを
   // それぞれ拾う。DX3の末尾A〜Dはワークスの区分なので、UGN支部長C → UGN支部長
-  // のように一段まとめる。
-  function jobTagsOf(value) {
+  // のように一段まとめる。銀剣・SWの固有書式だけ、さらに名前を分解する。
+  function jobTagsOf(value, system = "") {
     const seen = new Set();
+    const supportsJobSubtypes = ["銀剣", "SW", "SW2.5"].includes(String(system || "").trim());
     return String(value || "").split(/[、,，/／・]+/)
       .map((item) => item.replace(/\s+/g, " ").trim())
       .flatMap((item) => {
         // 赤色のヒガンバナ → 赤色 / ヒガンバナ。
         // ルーンフォーク（戦闘型ルーンフォーク） → ルーンフォーク / 戦闘型ルーンフォーク。
-        // 元のジョブ欄はそのままなので、全文検索も失わない。
+        // 銀剣・SWのジョブ固有書式として扱う。元のジョブ欄はそのままなので、全文検索も失わない。
+        if (!supportsJobSubtypes) return [item];
         const colored = item.match(/^(.+色)の(.+)$/);
         if (colored) return [colored[1], colored[2]];
         const parenthesized = item.match(/^(.+?)[（(]([^（）()]+)[）)]$/);
@@ -777,7 +779,7 @@ function quoteSpotlightHtml(value) {
     const manual = tagsOf(variant.tags).map((tag) => ({ ...tag, source: "manual" }));
     const derived = [
       variant.system ? generatedTag(variant.system, "system") : null,
-      ...jobTagsOf(variant.job),
+      ...jobTagsOf(variant.job, variant.system),
       character.variants.length > 1 ? generatedTag("コンバートあり", "auto") : null,
       yearOf(variant.debut) ? generatedTag(`初登場 ${yearOf(variant.debut)}年`, "auto") : null
     ].filter(Boolean);
