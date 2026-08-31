@@ -743,7 +743,10 @@ function quoteSpotlightHtml(value) {
     return prioritizeCatalogTags(tagsOf(value));
   }
   function visibleCardTagsOf(variant) {
-    const manual = tagsOf(variant.tags).map((tag) => ({ ...tag, source: "manual" }));
+    // システム名は左端のシステムラベルとして一度だけ表示する。
+    const manual = tagsOf(variant.tags)
+      .filter((tag) => tag.label !== variant.system)
+      .map((tag) => ({ ...tag, source: "manual" }));
     const jobs = jobTagsOf(variant.job);
     const seen = new Set();
     const tags = [...manual, ...jobs].filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
