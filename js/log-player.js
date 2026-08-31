@@ -2263,8 +2263,48 @@ document.addEventListener("DOMContentLoaded", () => {
     // methods の追加
     config.methods = Object.assign({}, config.methods, {
       setExternalLogs: function (logs, rawContent, isHtml) {
+        // GrowthCheckerConfig の watcher に同じHTMLを再解析させない。
+        this.skipLogContentParsing = true;
         this.logContent = rawContent;
         this.parsedLogs = logs;
+        this.displayedDialogueCounts = {};
+
+        const nextDialogueSelection = {};
+        const nextRawLogSelection = new Array(this.parsedLogs.length).fill(
+          false,
+        );
+        const nextMergeTargets = {};
+        this.parsedLogs.forEach((log, index) => {
+          const charName = log.character || "（名前なし）";
+          if (!nextDialogueSelection[charName]) {
+            nextDialogueSelection[charName] = {};
+          }
+          nextDialogueSelection[charName][index] = false;
+          if (log.character) {
+            nextMergeTargets[log.character] = log.character;
+          }
+        });
+        this.characterDialogueSelection = nextDialogueSelection;
+        this.rawLogSelection = nextRawLogSelection;
+
+        // 従来どおり、表記が近いキャラクター名は自動的にまとめる。
+        const sortedCharNames = Object.keys(nextMergeTargets).sort();
+        const processedForMerge = new Set();
+        for (let i = 0; i < sortedCharNames.length; i++) {
+          const char1 = sortedCharNames[i];
+          if (processedForMerge.has(char1)) continue;
+          for (let j = i + 1; j < sortedCharNames.length; j++) {
+            const char2 = sortedCharNames[j];
+            if (processedForMerge.has(char2)) continue;
+            if (this.areNamesSimilar(char1, char2)) {
+              const target = char1.length >= char2.length ? char1 : char2;
+              const source = char1.length < char2.length ? char1 : char2;
+              nextMergeTargets[source] = target;
+              processedForMerge.add(source);
+            }
+          }
+        }
+        this.mergeTargets = nextMergeTargets;
 
         // タブ更新
         const tabs = new Set(["メイン", "情報", "雑談"]);

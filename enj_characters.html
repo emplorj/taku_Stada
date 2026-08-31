@@ -8,7 +8,8 @@
   <meta name="description" content="エンJのキャラクターを、姿や世界線ごとに眺められる個人キャラクター図鑑です。">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="css/enj_characters.css?v=20260826g">
+  <link rel="stylesheet" href="css/enj_characters.css?v=20260831b">
+  <link rel="stylesheet" href="css/enj_characters_ui.css?v=20260830c">
 </head>
 <body class="enj-catalog-page">
   <div id="header-placeholder"></div>
@@ -44,20 +45,50 @@
       <label class="catalog-system-filter">
         <span>並び順</span>
         <select id="sort-select">
-          <option value="id-asc">#番号が若い順</option>
-          <option value="debut-asc">初登場が古い順</option>
+          <option value="id-desc">#番号が新しい順</option>
+          <option value="id-asc">#番号が古い順</option>
           <option value="debut-desc">初登場が新しい順</option>
+          <option value="debut-asc">初登場が古い順</option>
+          <option value="age-asc">年齢が若い順</option>
+          <option value="age-desc">年齢が高い順</option>
+          <option value="height-asc">身長が低い順</option>
+          <option value="height-desc">身長が高い順</option>
           <option value="name-asc">名前 あ→ん</option>
+          <option value="system-asc">システム順</option>
+          <option value="location-asc">場所順</option>
+          <option value="sex-asc">性別順</option>
+          <option value="alignment-asc">アライメント順</option>
+          <option value="job-asc">ジョブ順</option>
+          <option value="hair-asc">髪色順</option>
+          <option value="variant-asc">姿順</option>
         </select>
       </label>
       <div class="catalog-view-toggle" role="group" aria-label="表示方法">
         <button type="button" data-view="list" aria-pressed="true" title="名前つき一覧"><i class="fa-solid fa-list" aria-hidden="true"></i><span>一覧</span></button>
         <button type="button" data-view="grid" aria-pressed="false" title="アイコン一覧"><i class="fa-solid fa-grip" aria-hidden="true"></i><span>アイコン</span></button>
       </div>
-      <p id="catalog-count" class="catalog-count" aria-live="polite"></p>
+      <div class="catalog-mode-toggle" role="group" aria-label="表示単位">
+        <button type="button" data-catalog-mode="unique" aria-pressed="true" title="同じ人物の姿をまとめて表示する">人物ごと</button>
+        <button type="button" data-catalog-mode="variants" aria-pressed="false" title="姿・システムをすべて個別に表示する">すべて表示</button>
+      </div>
+      <button id="portrait-adjust-toggle" class="catalog-portrait-toggle" type="button" aria-pressed="false"><i class="fa-solid fa-sliders" aria-hidden="true"></i>立ち絵調整</button>
+      <button id="catalog-stats-toggle" class="catalog-portrait-toggle" type="button" aria-expanded="false"><i class="fa-solid fa-chart-column" aria-hidden="true"></i>統計</button>
+      <div class="catalog-count-wrap" aria-live="polite"><span id="catalog-status" class="catalog-status" role="status" hidden></span><p id="catalog-count" class="catalog-count"></p></div>
+      <div id="active-tag-filters" class="catalog-active-tags" aria-live="polite" hidden></div>
     </section>
 
-    <div id="catalog-status" class="catalog-status" role="status">キャラクターを読み込んでいます…</div>
+    <details class="catalog-merge" id="character-merge">
+      <summary><i class="fa-solid fa-object-group" aria-hidden="true"></i>コママージ</summary>
+      <p>名前またはココフォリアのキャラクターJSONを入れると、名鑑にある表情差分を統合します。</p>
+      <label>名鑑から選ぶ<select id="character-merge-select"><option value="">手入力する</option></select></label>
+      <label>入力<textarea id="character-merge-input" rows="5" placeholder="キャラ名 または ココフォリアJSON"></textarea></label>
+      <div class="catalog-merge__actions"><button id="character-merge-run" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>統合する</button><button id="character-merge-copy" type="button" disabled><i class="fa-regular fa-copy" aria-hidden="true"></i>コピー</button></div>
+      <p id="character-merge-status" class="catalog-merge__status" role="status"></p>
+      <label>出力<textarea id="character-merge-output" rows="8" readonly></textarea></label>
+    </details>
+
+    <section id="catalog-statistics" class="catalog-statistics" hidden aria-live="polite"></section>
+
     <section id="character-grid" class="character-grid" aria-live="polite"></section>
   </main>
 
@@ -65,11 +96,19 @@
     <button class="dialog-close" type="button" aria-label="閉じる"><i class="fa-solid fa-xmark"></i></button>
     <div id="character-detail"></div>
   </dialog>
+  <dialog id="character-image-lightbox" class="character-image-lightbox" aria-label="立ち絵を拡大表示">
+    <button type="button" class="character-image-lightbox__close" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <img id="character-image-lightbox-image" alt="">
+  </dialog>
 
   <div id="catalog-toast" class="catalog-toast" role="status" aria-live="polite"></div>
+  <aside id="portrait-adjust-controller" class="portrait-adjust-controller" hidden aria-label="立ち絵調整コントローラー"></aside>
+  <datalist id="portrait-scale-mark"><option value="1.3" label="標準上限 1.30"></option></datalist>
 
   <footer><p>© 2026 卓スタダ.</p></footer>
   <script src="js/common.js"></script>
-  <script src="js/enj_characters.js?v=20260826g"></script>
+  <script src="js/enj_characters_ruby.js?v=20260828a"></script>
+  <script src="js/enj_characters.js?v=20260831e"></script>
+  <script src="js/enj_characters_quotes.js?v=20260830b"></script>
 </body>
 </html>
