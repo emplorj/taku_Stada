@@ -1132,7 +1132,7 @@ function quoteSpotlightHtml(value) {
       const alignment = String(variant.alignment || "").trim();
       const alignmentOrder = alignmentOrderOf(alignment);
       const alignmentMorality = alignmentMoralityOf(alignment);
-      const alignmentBadge = showAlignment && alignment ? `<span class="character-card__alignment alignment-badge alignment-badge--${alignmentOrder || "other"} alignment-badge--${alignmentMorality === "good" ? "good" : alignmentMorality === "evil" ? "evil" : "moral-neutral"}">${escapeHtml(alignment)}</span>` : "";
+      const alignmentBadge = showAlignment && alignment ? `<span class="character-card__alignment-separator" aria-hidden="true">/</span><span class="character-card__alignment alignment-badge alignment-badge--${alignmentOrder || "other"} alignment-badge--${alignmentMorality === "good" ? "good" : alignmentMorality === "evil" ? "evil" : "moral-neutral"}">${escapeHtml(alignment)}</span>` : "";
       const nextIndex = (variantIndex + 1) % character.variants.length;
       const nextVariant = character.variants[nextIndex] || {};
       const sortIndicator = sortIndicatorOf(variant);

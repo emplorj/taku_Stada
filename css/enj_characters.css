@@ -325,10 +325,10 @@
 .character-card__systems span { color: var(--label-system-color, var(--character-system-color)); white-space: nowrap; transition: opacity 160ms ease; }
 .character-card__systems .character-card__system { color: var(--label-system-color, var(--character-system-color)); white-space: nowrap; cursor: pointer; transition: opacity 160ms ease, filter 160ms ease; }
 .character-card__systems .character-card__system:hover, .character-card__systems .character-card__system:focus-visible { filter: brightness(1.32); text-decoration: underline; text-underline-offset: 0.2em; outline: none; }
-.character-card__alignment { flex: 0 0 auto; padding: 2px 6px; font-size: .63rem; letter-spacing: 0; }
+.character-card__alignment-separator { flex: 0 0 auto; color: #8298bd !important; font-size: .72rem; font-weight: 400; letter-spacing: 0; }
+.character-card__alignment { flex: 0 0 auto; padding: 1px 5px; color: #f5f8ff !important; font-size: .58rem; letter-spacing: 0; line-height: 1.2; }
 .character-card__systems .is-current { opacity: 1; }
 .character-card__systems .is-other { opacity: 0.38; }
-.character-card__systems span + span::before { margin-right: 8px; color: #8298bd; content: "/"; }
 .character-card__systems .character-card__system + .character-card__system::before { display: inline-block; margin-right: 8px; color: #8298bd; content: "/"; }
 .character-card__intro { margin: 5px 0 0; overflow: hidden; color: var(--catalog-text-muted); font-size: 0.82rem; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
 .character-card__tags { display: flex; min-width: 0; max-width: 100%; gap: 4px; margin-top: 3px; overflow: hidden; white-space: nowrap; }
@@ -1321,7 +1321,7 @@ html.character-dialog-open body { overflow: hidden; overscroll-behavior: none; }
   .character-grid[data-view="list"] .character-card__id { margin-left: 8px; font-size: 3.85rem; }
   .character-grid[data-view="grid"] .character-card__body { padding: 8px 9px 10px; }
   .character-grid[data-view="grid"] .character-card__systems { gap: 2px 5px; font-size: 0.62rem; }
-  .character-grid[data-view="grid"] .character-card__systems span + span::before { margin-right: 5px; }
+  .character-grid[data-view="grid"] .character-card__systems .character-card__system + .character-card__system::before { margin-right: 5px; }
   .character-grid[data-view="grid"] .character-card h2 { font-size: 0.86rem; }
   .character-grid[data-view="grid"] .character-card__intro { display: -webkit-box; font-size: 0.72rem; }
   .character-dialog { overflow-y: auto; }
