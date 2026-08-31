@@ -1028,7 +1028,7 @@ function quoteSpotlightHtml(value) {
       const systems = grouped ? [...new Set(character.variants.map((item) => item.system).filter(Boolean))] : [variant.system].filter(Boolean);
       const systemLabels = (systems.length ? systems : ["OTHER"]).map((system) => system === "OTHER"
         ? `<span class="is-current" style="--label-system-color:${escapeHtml(systemColorOf(system))}">OTHER</span>`
-        : `<button type="button" class="character-card__system ${system === variant.system ? "is-current" : "is-other"}" data-system-filter="${escapeHtml(system)}" style="--label-system-color:${escapeHtml(systemColorOf(system))}" title="${escapeHtml(system)}で絞り込む">${escapeHtml(system)}</button>`).join("");
+        : `<span class="character-card__system ${system === variant.system ? "is-current" : "is-other"}" data-system-filter="${escapeHtml(system)}" role="button" tabindex="0" style="--label-system-color:${escapeHtml(systemColorOf(system))}" title="${escapeHtml(system)}で絞り込む">${escapeHtml(system)}</span>`).join("");
       const nextIndex = (variantIndex + 1) % character.variants.length;
       const nextVariant = character.variants[nextIndex] || {};
       const sortIndicator = sortIndicatorOf(variant);
@@ -1976,7 +1976,13 @@ function quoteSpotlightHtml(value) {
     if (variant) image.style.setProperty("--card-portrait-list-scale", listPortraitScaleFor(image, portraitScaleOf(variant)).toFixed(3));
     image.classList.add("is-ready");
   }, true);
-  grid.addEventListener("keydown", (event) => { if (event.target.closest("[data-cycle-variant], [data-tag-search], [data-show-more-tags], [data-system-filter]") || !["Enter", " "].includes(event.key)) return; const card = event.target.closest("[data-character-id]"); if (card) { event.preventDefault(); openCharacter(card.dataset.characterId, card.dataset.cardVariantIndex); } });
+  grid.addEventListener("keydown", (event) => {
+    const systemButton = event.target.closest("[data-system-filter]");
+    if (systemButton && ["Enter", " "].includes(event.key)) { event.preventDefault(); systemButton.click(); return; }
+    if (event.target.closest("[data-cycle-variant], [data-tag-search], [data-show-more-tags]") || !["Enter", " "].includes(event.key)) return;
+    const card = event.target.closest("[data-character-id]");
+    if (card) { event.preventDefault(); openCharacter(card.dataset.characterId, card.dataset.cardVariantIndex); }
+  });
   document.addEventListener("pointerdown", (event) => {
     if (!tagPopover || event.target.closest(".catalog-tag-popover, [data-show-more-tags]")) return;
     closeTagPopover();
