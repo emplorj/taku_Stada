@@ -8,6 +8,7 @@
   // GASが返した最新の名鑑を次回起動用に残す。静的控えが古くても、
   // 一度でも最新版を受け取っていれば次のハード再読み込みから即表示できる。
   const CHARACTER_CACHE_KEY = "enj-character-catalog-index-v2";
+  const COMMENT_WRITE_KEY_STORAGE = "enj-character-comment-write-key";
   const COLOR_NAMES = "red|orange|yellow|green|cyan|blue|purple|pink|gray";
   // NJMC / エンパイア以外は、名鑑に現れた順で距離感のある仮名にする。
   // シートには実際の場所名を入れたままでよい。
@@ -16,7 +17,7 @@
   const locationDisplayNames = new Map();
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
 
-  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
+  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
   const grid = document.getElementById("character-grid");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
@@ -31,6 +32,7 @@
   const statistics = document.getElementById("catalog-statistics");
   const count = document.getElementById("catalog-count");
   const status = document.getElementById("catalog-status");
+  const activeTagFilters = document.getElementById("active-tag-filters");
   const dialog = document.getElementById("character-dialog");
   const imageLightbox = document.getElementById("character-image-lightbox");
   const imageLightboxImage = document.getElementById("character-image-lightbox-image");
@@ -695,21 +697,52 @@ function quoteSpotlightHtml(value) {
     ].filter(Boolean);
   }
   const tagSearchTextOf = (character, variant) => [...catalogTagsOf(character, variant), ...catalogAffinityTagsOf(variant)].map((tag) => tag.label).join(" ");
-  function catalogTagHtml(tag, variant) {
+  function spoilerTagKeyOf(character, variant, tag) {
+    return `${character.id}:${variant.fileName || variant.name || variant.system}:${tag.key}`;
+  }
+  function queryMatchesTag(tag) {
+    const query = String(state.query || "").trim().normalize("NFKC").toLocaleLowerCase("ja");
+    return Boolean(query && tag.key.includes(query));
+  }
+  function catalogTagHtml(tag, variant, spoilerKey = "") {
     const classes = ["catalog-tag", `catalog-tag--${tag.source || "manual"}`];
     if (tag.struck) classes.push("is-retired");
     const color = ["system", "job"].includes(tag.source) ? systemColorOf(variant.system) : "";
+    const isMaskedSpoiler = tag.spoiler && !state.revealedSpoilerTags.has(spoilerKey);
+    if (isMaskedSpoiler) {
+      classes.push("is-spoiler");
+      return `<button type="button" class="${classes.join(" ")}" data-reveal-spoiler-tag data-spoiler-key="${escapeHtml(spoilerKey)}" data-spoiler-label="${escapeHtml(tag.label)}" title="ネタバレタグ：クリックして表示">ネタバレ</button>`;
+    }
     const title = tag.struck ? `${tag.label}（過去の属性）` : `${tag.label}で絞り込む`;
-    return `<button type="button" class="${classes.join(" ")}" data-tag-search="${escapeHtml(tag.label)}"${color ? ` style="--tag-color:${escapeHtml(color)}"` : ""} title="${escapeHtml(title)}">${escapeHtml(tag.label)}</button>`;
+    const selected = state.tagFilters.has(tag.key);
+    return `<button type="button" class="${classes.join(" ")}" data-tag-search="${escapeHtml(tag.label)}" aria-pressed="${selected}"${color ? ` style="--tag-color:${escapeHtml(color)}"` : ""} title="${escapeHtml(title)}">${escapeHtml(tag.label)}</button>`;
   }
   function compactCatalogTagsHtml(character, variant, limit = 3) {
     // 一覧では、すでに表示済みのシステム・ジョブ・性別などを重ねない。
     // 手入力のタグだけをシステム行に添え、生成タグは検索用として残す。
-    const tags = tagsOf(variant.tags).filter((tag) => !tag.spoiler);
+    // ネタバレタグは通常は伏せるが、その語で検索した時だけ先頭に出す。
+    const manualTags = tagsOf(variant.tags);
+    const tags = [
+      ...manualTags.filter((tag) => tag.spoiler && (queryMatchesTag(tag) || state.tagFilters.has(tag.key))),
+      ...manualTags.filter((tag) => !tag.spoiler)
+    ];
     if (!tags.length) return "";
     const shown = tags.slice(0, limit);
     const rest = tags.length - shown.length;
-    return `<span class="character-card__tags character-card__tags--inline" aria-label="タグ">${shown.map((tag) => catalogTagHtml(tag, variant)).join("")}${rest ? `<button type="button" class="character-card__tags-more" data-show-more-tags aria-label="残り${rest}個のタグを表示">+${rest}</button>` : ""}</span>`;
+    return `<span class="character-card__tags character-card__tags--inline" aria-label="タグ">${shown.map((tag) => catalogTagHtml(tag, variant, spoilerTagKeyOf(character, variant, tag))).join("")}${rest ? `<button type="button" class="character-card__tags-more" data-show-more-tags aria-label="残り${rest}個のタグを表示">+${rest}</button>` : ""}</span>`;
+  }
+
+  function revealSpoilerTag(button) {
+    const key = button.dataset.spoilerKey;
+    const label = button.dataset.spoilerLabel;
+    if (!key || !label) return;
+    state.revealedSpoilerTags.add(key);
+    button.classList.remove("is-spoiler");
+    button.removeAttribute("data-reveal-spoiler-tag");
+    button.dataset.tagSearch = label;
+    button.title = `${label}で絞り込む`;
+    button.setAttribute("aria-pressed", String(state.tagFilters.has(tagInfoOf(label).key)));
+    button.textContent = label;
   }
 
   function closeTagPopover() {
@@ -717,16 +750,36 @@ function quoteSpotlightHtml(value) {
     tagPopover = null;
   }
 
-  function searchByCatalogTag(value) {
+  function renderActiveTagFilters() {
+    if (!activeTagFilters) return;
+    if (!state.tagFilters.size) {
+      activeTagFilters.hidden = true;
+      activeTagFilters.innerHTML = "";
+      return;
+    }
+    const entries = [...state.tagFilters.entries()];
+    activeTagFilters.hidden = false;
+    activeTagFilters.innerHTML = `<span class="catalog-active-tags__label">タグ絞り込み（すべて一致）</span><span class="catalog-active-tags__list">${entries.map(([key, label]) => `<button type="button" class="catalog-active-tags__item" data-remove-tag-filter="${escapeHtml(key)}" title="${escapeHtml(label)}を条件から外す">${escapeHtml(label)} <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`).join("")}</span><button type="button" class="catalog-active-tags__clear" data-clear-tag-filters>すべて外す</button>`;
+  }
+
+  function toggleCatalogTagFilter(value) {
     const tag = tagInfoOf(value).label;
     if (!tag) return;
-    state.query = tag.toLocaleLowerCase("ja");
-    search.value = tag;
+    const key = tagInfoOf(tag).key;
+    if (state.tagFilters.has(key)) state.tagFilters.delete(key);
+    else state.tagFilters.set(key, tag);
+    state.cardVariantIndexes.clear();
     renderCards();
   }
 
+  function searchByCatalogTag(value) { toggleCatalogTagFilter(value); }
+
   function showMoreCatalogTags(trigger, character, variant) {
-    const tags = tagsOf(variant.tags).filter((tag) => !tag.spoiler).slice(3);
+    const manualTags = tagsOf(variant.tags);
+    const tags = [
+      ...manualTags.filter((tag) => tag.spoiler && (queryMatchesTag(tag) || state.tagFilters.has(tag.key))),
+      ...manualTags.filter((tag) => !tag.spoiler)
+    ].slice(3);
     if (!tags.length) return;
     closeTagPopover();
     const rect = trigger.getBoundingClientRect();
@@ -734,11 +787,12 @@ function quoteSpotlightHtml(value) {
     tagPopover.className = "catalog-tag-popover";
     tagPopover.setAttribute("role", "dialog");
     tagPopover.setAttribute("aria-label", "残りのタグ");
-    tagPopover.innerHTML = `<strong>ほかのタグ</strong><div>${tags.map((tag) => catalogTagHtml(tag, variant)).join("")}</div>`;
+    tagPopover.innerHTML = `<strong>ほかのタグ</strong><div>${tags.map((tag) => catalogTagHtml(tag, variant, spoilerTagKeyOf(character, variant, tag))).join("")}</div>`;
     document.body.appendChild(tagPopover);
     const width = tagPopover.offsetWidth;
     tagPopover.style.left = `${Math.max(12, Math.min(rect.left, window.innerWidth - width - 12))}px`;
     tagPopover.style.top = `${Math.max(12, rect.bottom + 8)}px`;
+    tagPopover.querySelectorAll("[data-reveal-spoiler-tag]").forEach((button) => button.addEventListener("click", () => revealSpoilerTag(button)));
     tagPopover.querySelectorAll("[data-tag-search]").forEach((button) => button.addEventListener("click", () => {
       closeTagPopover();
       searchByCatalogTag(button.dataset.tagSearch);
@@ -760,12 +814,37 @@ function quoteSpotlightHtml(value) {
     (!state.location || locationsOf(variant.location).includes(state.location)) &&
     (!state.year || yearOf(variant.debut) === state.year) &&
     (!state.sex || genderCategoryOf(variant.sex) === state.sex);
+  function tagsMatchSelectedFilters(character, variants) {
+    if (!state.tagFilters.size) return true;
+    const available = new Set(variants.flatMap((variant) => [
+      ...catalogTagsOf(character, variant),
+      ...catalogAffinityTagsOf(variant)
+    ].map((tag) => tag.key)));
+    return [...state.tagFilters.keys()].every((key) => available.has(key));
+  }
+  // 「人物ごと」では、同一ユニークIDの姿をまたいで条件を満たせば残す。
+  // 「すべて表示」では、ひとつの姿自身が選択済みタグをすべて持つ時だけ残す。
+  const characterMatchesTagFilters = (character) => tagsMatchSelectedFilters(character, character.variants);
+  const variantMatchesTagFilters = (character, variant) => tagsMatchSelectedFilters(character, [variant]);
   function cardVariantIndexOf(character) {
+    const hasSearchTarget = Boolean(String(state.query || "").trim() || state.tagFilters.size);
+    const hasFieldFilter = Boolean(state.system || state.location || state.year || state.sex);
     const selectedIndex = state.cardVariantIndexes.get(character.id);
+    // ユーザーが切替を押した後は、検索中でもその選択を尊重する。
     if (Number.isInteger(selectedIndex) && character.variants[selectedIndex]) return selectedIndex;
-    if (!state.system && !state.location && !state.year && !state.sex) return character.representativeIndex;
-    const matchedIndex = character.variants.findIndex(variantMatchesFilters);
-    return matchedIndex >= 0 ? matchedIndex : character.representativeIndex;
+    // 検索・タグ指定中は、代表姿ではなく実際に一致した姿をカードに採用する。
+    // 例: 同一人物の「超越」姿だけにタグがあるなら、その姿を一覧に出す。
+    if (!hasSearchTarget && !hasFieldFilter) return character.representativeIndex;
+    const matchedIndex = character.variants.findIndex((variant) =>
+      variantMatchesFilters(variant) &&
+      (!state.query || variantSearchText(character, variant).includes(state.query)) &&
+      variantMatchesTagFilters(character, variant)
+    );
+    // 人物ごとのAND条件が別の姿に分散している場合だけ、同じ人物内で
+    // まず通常フィルターに一致する姿へ戻す。
+    if (matchedIndex >= 0) return matchedIndex;
+    const fieldMatchedIndex = character.variants.findIndex(variantMatchesFilters);
+    return fieldMatchedIndex >= 0 ? fieldMatchedIndex : character.representativeIndex;
   }
   const cardVariantOf = (character) => character.variants[cardVariantIndexOf(character)] || representativeOf(character);
   const cardNameOf = (character) => cardVariantOf(character).name || character.registrationName;
@@ -833,18 +912,19 @@ function quoteSpotlightHtml(value) {
   }
   function filteredCatalogItems() {
     const grouped = state.characters
-      .filter((character) => (!state.query || characterSearchText(character).includes(state.query)) && character.variants.some(variantMatchesFilters))
+      .filter((character) => (!state.query || characterSearchText(character).includes(state.query)) && character.variants.some(variantMatchesFilters) && characterMatchesTagFilters(character))
       .map((character) => {
         const variantIndex = cardVariantIndexOf(character);
         return { character, variantIndex, variant: character.variants[variantIndex] || representativeOf(character), grouped: true };
       });
     if (state.catalogMode === "unique") return grouped.sort(compareCatalogItems);
     return state.characters.flatMap((character) => character.variants.map((variant, variantIndex) => ({ character, variant, variantIndex, grouped: false })))
-      .filter((item) => (!state.query || variantSearchText(item.character, item.variant).includes(state.query)) && variantMatchesFilters(item.variant))
+      .filter((item) => (!state.query || variantSearchText(item.character, item.variant).includes(state.query)) && variantMatchesFilters(item.variant) && variantMatchesTagFilters(item.character, item.variant))
       .sort(compareCatalogItems);
   }
 
   function renderCards() {
+    renderActiveTagFilters();
     const items = filteredCatalogItems();
     count.textContent = `${items.length} ${state.catalogMode === "unique" ? "characters" : "variants"}`;
     grid.dataset.view = state.view;
@@ -1211,6 +1291,7 @@ function quoteSpotlightHtml(value) {
     if (!content) return "";
     return `<section class="detail-section detail-review ${className}"><h3>${escapeHtml(title)}</h3>${notice ? `<p class="detail-review__notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>${escapeHtml(notice)}</p>` : ""}<div class="detail-richtext">${renderMarkdown(content)}</div></section>`;
   };
+  const commentComposer = (character, variant) => `<section class="detail-section detail-comment-composer"><h3><i class="fa-regular fa-comment-dots" aria-hidden="true"></i>コメントを書く</h3><p>送信した内容はこの姿の「コメント評」に追記され、公開ページへ表示されます。</p><form data-comment-form><input type="hidden" name="id" value="${escapeHtml(character.id)}"><input type="hidden" name="name" value="${escapeHtml(variant.name)}"><input type="hidden" name="variant" value="${escapeHtml(variant.variant)}"><input type="hidden" name="system" value="${escapeHtml(variant.system)}"><label>名前 <small>任意</small><input name="author" type="text" maxlength="48" autocomplete="nickname" placeholder="表示名"></label><label>コメント<textarea name="comment" rows="5" maxlength="2500" required placeholder="このキャラクターへのコメント・思い出など"></textarea></label><details class="detail-comment-composer__key"><summary>書き込みキー</summary><p>荒らし防止用です。このブラウザを閉じるまでだけ保持します。</p><input name="writeKey" type="password" autocomplete="current-password" required placeholder="個人用の書き込みキー"></details><p class="detail-comment-composer__status" data-comment-status role="status"></p><button type="submit" class="detail-comment-composer__submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i>コメントを送信</button></form></section>`;
   const achievementSection = (value) => {
     const score = achievementValueOf(value);
     if (!score) return "";
@@ -1232,6 +1313,10 @@ function quoteSpotlightHtml(value) {
       variant.location ? `<span><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${escapeHtml(locationLabelsOf(variant).join(" / "))}</span>` : "",
       variant.debut ? `<time datetime="${escapeHtml(variant.debut)}"><i class="fa-regular fa-calendar" aria-hidden="true"></i>初登場 ${escapeHtml(variant.debut)}</time>` : ""
     ].filter(Boolean).join("");
+    // 一覧では省略される手入力タグも、詳細では全部確認できるようにする。
+    // ||ネタバレ||・~~過去属性~~ は検索用の正規化名を保ったまま表示する。
+    const detailTags = tagsOf(variant.tags);
+    const detailTagsHtml = detailTags.length ? `<section class="detail-tags" aria-label="タグ"><p class="detail-section__eyebrow">TAGS</p><div>${detailTags.map((tag) => catalogTagHtml({ ...tag, source: "manual" }, variant, spoilerTagKeyOf(character, variant, tag))).join("")}</div></section>` : "";
     const facts = [
       detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job], ["アライメント", variant.alignment]], "detail-fact-group--features"),
       detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair]], "detail-fact-group--person"),
@@ -1292,11 +1377,12 @@ function quoteSpotlightHtml(value) {
     const reviewContent = [
       reviewSection("エンJ人物評", variant.enJReview, "本人による人物評・所感です。"),
       achievementSection(variant.achievement),
-      reviewSection("みんな評", variant.communityReview, "当時の感想です。現在の人物像と一致しない場合があります。"),
-      reviewSection("コメント評", variant.commentReview, "個別のコメント・思い出を含む主観的な記録です。"),
-      reviewSection("AI人物評", variant.aiReview, "AIがログや資料をもとに行った読み解きです。事実そのものではなく、解釈として扱ってください。"),
-      reviewSection("他の人が演じるときのコツ", variant.portrayalTips, "別の人が演じる際の目安です。シナリオや関係性に合わせて調整してください。")
-    ].join("");
+        reviewSection("みんな評", variant.communityReview, "当時の感想です。現在の人物像と一致しない場合があります。"),
+        reviewSection("コメント評", variant.commentReview, "個別のコメント・思い出を含む主観的な記録です。"),
+        commentComposer(character, variant),
+        reviewSection("AI人物評", variant.aiReview, "AIがログや資料をもとに行った読み解きです。事実そのものではなく、解釈として扱ってください。"),
+        reviewSection("他の人が演じるときのコツ", variant.portrayalTips, "別の人が演じる際の目安です。シナリオや関係性に合わせて調整してください。"),
+      ].join("");
     const publicSheet = variant.publicCharacterSheet || {};
     const publicSheetContent = [
   publicSheet.codeName ? `<section class="detail-public-sheet__headline"><p>コードネーム</p><h3>${inlineMarkdown(publicSheet.codeName)}</h3></section>` : "",
@@ -1318,9 +1404,12 @@ function quoteSpotlightHtml(value) {
     if (!detailTabs.some((tab) => tab.id === state.detailContentTab)) state.detailContentTab = detailTabs[0]?.id || "person";
     const detailTabsHtml = detailTabs.length ? `<div class="detail-content-tabs" role="tablist" aria-label="キャラクター詳細の内容"><div class="detail-content-tabs__buttons">${detailTabs.map((tab) => `<button type="button" role="tab" id="detail-tab-${tab.id}" aria-selected="${tab.id === state.detailContentTab}" aria-controls="detail-panel-${tab.id}" data-detail-content-tab="${tab.id}">${escapeHtml(tab.label)}</button>`).join("")}</div>${detailTabs.map((tab) => `<section class="detail-content-panel" id="detail-panel-${tab.id}" role="tabpanel" aria-labelledby="detail-tab-${tab.id}"${tab.id === state.detailContentTab ? "" : " hidden"}>${tab.content}</section>`).join("")}</div>` : "";
     detail.innerHTML = `<div class="character-detail__visual"><span class="detail-visual-id" aria-hidden="true">#${escapeHtml(String(character.id).padStart(3, "0"))}</span>${image ? `<img id="detail-main-image" src="${escapeHtml(image)}" alt="${escapeHtml(variant.name || character.registrationName)}" decoding="async">` : `<span class="character-detail__image-placeholder" aria-hidden="true">${escapeHtml(character.registrationName.slice(0, 1))}</span>`}${quoteSpotlightHtml(variant.quote)}${imageSwitcher}</div>
-      <div class="character-detail__left"><div class="character-detail__content"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p><h2 id="detail-name">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${headerMeta ? `<div class="detail-meta">${headerMeta}</div>` : ""}${variantTabs}
+      <div class="character-detail__left"><div class="character-detail__content"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p><h2 id="detail-name">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${headerMeta ? `<div class="detail-meta">${headerMeta}</div>` : ""}${detailTagsHtml}${variantTabs}
         ${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}
         ${detailTabsHtml}</div></div>${expressionSection}${expressionPaletteLauncher}`;
+    const savedCommentKey = sessionStorage.getItem(COMMENT_WRITE_KEY_STORAGE);
+    const commentKeyInput = detail.querySelector('[name="writeKey"]');
+    if (commentKeyInput && savedCommentKey) commentKeyInput.value = savedCommentKey;
     dialog.querySelector("#detail-face-preview")?.remove();
     dialog.insertAdjacentHTML("beforeend", facePreview);
     if (!facePreviewLayout && faceImage) requestAnimationFrame(() => {
@@ -1718,6 +1807,13 @@ function quoteSpotlightHtml(value) {
       if (character && variant) showMoreCatalogTags(moreTagsButton, character, variant);
       return;
     }
+    const spoilerTagButton = event.target.closest("[data-reveal-spoiler-tag]");
+    if (spoilerTagButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      revealSpoilerTag(spoilerTagButton);
+      return;
+    }
     const tagButton = event.target.closest("[data-tag-search]");
     if (tagButton) {
       event.preventDefault();
@@ -1919,14 +2015,17 @@ function quoteSpotlightHtml(value) {
     }
   });
   detail.addEventListener("click", (event) => {
+    const spoilerTagButton = event.target.closest("[data-reveal-spoiler-tag]");
+    if (spoilerTagButton) {
+      event.preventDefault();
+      revealSpoilerTag(spoilerTagButton);
+      return;
+    }
     const tagButton = event.target.closest("[data-tag-search]");
     if (tagButton) {
       event.preventDefault();
-      const tag = tagInfoOf(tagButton.dataset.tagSearch).label;
       closeCharacter();
-      state.query = tag.toLocaleLowerCase("ja");
-      search.value = tag;
-      renderCards();
+      searchByCatalogTag(tagButton.dataset.tagSearch);
       return;
     }
     const closeExpressionPalette = event.target.closest("[data-expression-palette-close]");
@@ -2007,6 +2106,50 @@ function quoteSpotlightHtml(value) {
     if (event.target.closest("[data-copy-json]")) { const character = state.characters.find((item) => item.id === state.selectedId); copyText(character?.variants[state.variantIndex]?.differenceJson || ""); return; }
     const spoiler = event.target.closest(".spoiler-text"); if (spoiler) activateSpoiler(spoiler);
   });
+  detail.addEventListener("submit", async (event) => {
+    const form = event.target.closest("[data-comment-form]");
+    if (!form) return;
+    event.preventDefault();
+    const submit = form.querySelector('button[type="submit"]');
+    const statusLine = form.querySelector("[data-comment-status]");
+    const formData = new FormData(form);
+    const comment = String(formData.get("comment") || "").trim();
+    const writeKey = String(formData.get("writeKey") || "").trim();
+    if (!comment) {
+      if (statusLine) statusLine.textContent = "コメントを入力してください。";
+      return;
+    }
+    if (!writeKey) {
+      if (statusLine) statusLine.textContent = "書き込みキーを入力してください。";
+      form.querySelector('[name="writeKey"]')?.focus();
+      return;
+    }
+    if (submit) submit.disabled = true;
+    if (statusLine) statusLine.textContent = "コメントを保存しています…";
+    try {
+      const body = new URLSearchParams();
+      body.set("tool", "appendComment");
+      ["id", "name", "variant", "system", "author", "comment"].forEach((key) => body.set(key, String(formData.get(key) || "")));
+      body.set("writeKey", writeKey);
+      const response = await fetch(CHARACTER_API_BASE_URL, { method: "POST", body, cache: "no-store" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      if (payload?.status !== "success") throw new Error(payload?.message || "コメントを保存できませんでした。");
+      try { sessionStorage.setItem(COMMENT_WRITE_KEY_STORAGE, writeKey); } catch (_error) { /* 保存不可でも今回の送信は成功扱い。 */ }
+      const character = state.characters.find((item) => item.id === state.selectedId);
+      const activeVariant = character?.variants[state.variantIndex];
+      if (activeVariant && String(character.id) === String(formData.get("id"))) {
+        activeVariant.commentReview = String(payload.commentReview || "");
+        renderDetail();
+      }
+      showToast(payload.message || "コメントを保存しました。");
+    } catch (error) {
+      const message = error?.message || "コメントを保存できませんでした。";
+      if (statusLine) statusLine.textContent = message;
+    } finally {
+      if (submit) submit.disabled = false;
+    }
+  });
   detail.addEventListener("input", (event) => {
     const scaleControl = event.target.closest("[data-portrait-scale]");
     const offsetControl = event.target.closest("[data-portrait-offset-y]");
@@ -2042,6 +2185,7 @@ function quoteSpotlightHtml(value) {
     // タグだけは表示記法まで入力しても同じ語として探せる。
     // 例: 記憶喪失 / ||記憶喪失|| / ~~記憶喪失~~ / %%記憶喪失%%。
     state.query = tagInfoOf(search.value).label.toLocaleLowerCase("ja");
+    state.cardVariantIndexes.clear();
     renderCards();
   });
   systemFilter.addEventListener("change", () => { state.system = systemFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
@@ -2049,6 +2193,18 @@ function quoteSpotlightHtml(value) {
   yearFilter.addEventListener("change", () => { state.year = yearFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   sexFilter.addEventListener("change", () => { state.sex = sexFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   sortSelect.addEventListener("change", () => { state.sort = sortSelect.value; renderCards(); });
+  activeTagFilters?.addEventListener("click", (event) => {
+    const removeButton = event.target.closest("[data-remove-tag-filter]");
+    if (removeButton) {
+      state.tagFilters.delete(removeButton.dataset.removeTagFilter);
+      renderCards();
+      return;
+    }
+    if (event.target.closest("[data-clear-tag-filters]")) {
+      state.tagFilters.clear();
+      renderCards();
+    }
+  });
   viewToggle.addEventListener("click", (event) => {
     const button = event.target.closest("[data-view]");
     if (!button) return;
