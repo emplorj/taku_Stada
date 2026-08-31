@@ -9,6 +9,9 @@
   // 一度でも最新版を受け取っていれば次のハード再読み込みから即表示できる。
   const CHARACTER_CACHE_KEY = "enj-character-catalog-index-v2";
   const COMMENT_AUTHOR_KEYS_STORAGE = "enj-character-comment-author-keys-v1";
+  const PUBLIC_SHEET_API_BY_VARIANT = Object.freeze({
+    "22:DX3": "https://script.google.com/macros/s/AKfycbw79S1-1Pi4xFemp5AxHjBa2LCtpOXwz0xwsRDECA_5ab59pyLUyVSPU0kzi3DBUfIE/exec?id=riyu"
+  });
   const COLOR_NAMES = "red|orange|yellow|green|cyan|blue|purple|pink|gray";
   // NJMC / エンパイア以外は、名鑑に現れた順で距離感のある仮名にする。
   // シートには実際の場所名を入れたままでよい。
@@ -17,7 +20,7 @@
   const locationDisplayNames = new Map();
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
 
-  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
+  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), publicSheetRequests: new Map(), publicSheets: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
   const grid = document.getElementById("character-grid");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
@@ -1397,6 +1400,32 @@ function quoteSpotlightHtml(value) {
     const content = withoutAccidentalDuplicate(value);
     return content ? `<section class="detail-section ${className}"><h3>${escapeHtml(title)}</h3><div class="detail-richtext">${renderMarkdown(content)}</div></section>` : "";
   };
+  const publicSheetKeyOf = (character, variant) => `${character.id}:${variant.system}`;
+  const publicSheetApiUrlOf = (character, variant) => PUBLIC_SHEET_API_BY_VARIANT[publicSheetKeyOf(character, variant)] || "";
+  const publicSheetText = (value) => escapeHtml(String(value ?? "")).replace(/\n/g, "<br>");
+  const publicSheetRows = (entries) => entries.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${publicSheetText(value)}</dd></div>`).join("");
+  function remotePublicSheetHtml(record) {
+    if (!record || record.status === "loading") return `<p class="detail-public-sheet__state"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 公開キャラデータを読み込んでいます…</p>`;
+    if (record.status === "error") return `<p class="detail-public-sheet__state is-error">公開キャラデータを取得できませんでした。時間を置いて詳細を開き直してください。</p>`;
+    const sheet = record.data || {};
+    const table = (title, headers, rows) => rows?.length ? `<section class="detail-public-sheet__section"><h3>${title}</h3><div class="detail-public-sheet__table"><table><thead><tr>${headers.map((item) => `<th>${escapeHtml(item)}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((value) => `<td>${publicSheetText(value)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>` : "";
+    const effects = (title, values) => values?.length ? `<section class="detail-public-sheet__section"><h3>${title}</h3><div class="detail-public-sheet__cards">${values.map((item) => `<article><header><strong>${escapeHtml(item.name || "名称なし")}</strong><span>${escapeHtml([item.syndrome, item.timing, item.level && `Lv${item.level}`].filter(Boolean).join(" / "))}</span></header><p>${publicSheetText(item.effect)}</p></article>`).join("")}</div></section>` : "";
+    const combos = sheet.combos?.length ? `<section class="detail-public-sheet__section"><h3>コンボ</h3><div class="detail-public-sheet__cards">${sheet.combos.map((item) => `<article><header><strong>${escapeHtml(item.name || "名称なし")}</strong><span>${escapeHtml([item.timing, item.skill, item.encroachment && `侵蝕 ${item.encroachment}`].filter(Boolean).join(" / "))}</span></header><p>${publicSheetText(item.description)}</p></article>`).join("")}</div></section>` : "";
+    return `<div class="detail-public-sheet__headline"><p>公開キャラデータ</p><h3>${escapeHtml(sheet.name || "")}${sheet.nameKana ? `<small>${escapeHtml(sheet.nameKana)}</small>` : ""}</h3>${sheet.codename ? `<p>コードネーム：${escapeHtml(sheet.codename)}${sheet.codenameKana ? `（${escapeHtml(sheet.codenameKana)}）` : ""}</p>` : ""}</div><section class="detail-public-sheet__section"><h3>プロフィール</h3><dl>${publicSheetRows([["ワークス", sheet.profile?.works], ["カヴァー", sheet.profile?.cover], ["年齢", sheet.profile?.age], ["性別", sheet.profile?.sex], ["身長", sheet.profile?.height && `${sheet.profile.height}cm`], ["体重", sheet.profile?.weight && `${sheet.profile.weight}kg`]])}</dl>${sheet.profile?.description ? `<p class="detail-public-sheet__description">${publicSheetText(sheet.profile.description)}</p>` : ""}</section>${sheet.syndromes?.length ? `<section class="detail-public-sheet__section"><h3>シンドローム</h3><p class="detail-public-sheet__chips">${sheet.syndromes.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</p></section>` : ""}<section class="detail-public-sheet__section"><h3>ステータス・能力値</h3><dl>${publicSheetRows([["HP", sheet.status?.hp], ["侵蝕率", sheet.status?.erosion], ["行動値", sheet.status?.initiative], ["移動値", sheet.status?.move], ["財産点", sheet.status?.fortune], ["装甲値", sheet.status?.armor], ["肉体", sheet.abilities?.body], ["感覚", sheet.abilities?.sense], ["精神", sheet.abilities?.mind], ["社会", sheet.abilities?.social]])}</dl></section>${table("技能", ["技能", "能力", "ダイス", "修正", "備考"], (sheet.skills || []).map((item) => [item.name, item.ability, item.dice, item.modifier, item.notes]))}${effects("エフェクト", sheet.effects)}${effects("イージーエフェクト", sheet.easyEffects)}${combos}`;
+  }
+  function loadRemotePublicSheet(character, variant) {
+    const key = publicSheetKeyOf(character, variant), url = publicSheetApiUrlOf(character, variant);
+    if (!url || state.publicSheetRequests.has(key) || state.publicSheets.has(key)) return;
+    state.publicSheets.set(key, { status: "loading" });
+    const request = fetch(url, { cache: "no-store" }).then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    }).then((data) => state.publicSheets.set(key, { status: "ready", data })).catch(() => state.publicSheets.set(key, { status: "error" })).finally(() => {
+      state.publicSheetRequests.delete(key);
+      if (dialog.open && state.selectedId === character.id && state.variantIndex === character.variants.indexOf(variant)) renderDetail();
+    });
+    state.publicSheetRequests.set(key, request);
+  }
   const keywordSection = (value) => {
     const keywords = String(value || "").split(/[、,，\n]/).map((item) => item.trim()).filter(Boolean);
     return keywords.length ? `<section class="detail-section detail-section--keywords"><h3>性格Keyword</h3><div class="detail-keywords">${keywords.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div></section>` : "";
@@ -1525,7 +1554,8 @@ function quoteSpotlightHtml(value) {
         reviewSection("他の人が演じるときのコツ", variant.portrayalTips, "別の人が演じる際の目安です。シナリオや関係性に合わせて調整してください。"),
       ].join("");
     const publicSheet = variant.publicCharacterSheet || {};
-    const publicSheetContent = [
+    const remotePublicSheet = state.publicSheets.get(publicSheetKeyOf(character, variant));
+    const publicSheetContent = remotePublicSheet ? remotePublicSheetHtml(remotePublicSheet) : [
   publicSheet.codeName ? `<section class="detail-public-sheet__headline"><p>コードネーム</p><h3>${inlineMarkdown(publicSheet.codeName)}</h3></section>` : "",
       richSection("パーソナルデータ", publicSheet.personalData),
       richSection("備考", publicSheet.notes),
@@ -1584,6 +1614,7 @@ function quoteSpotlightHtml(value) {
       preview.style.bottom = "auto";
       preview.style.top = `${Math.round(top)}px`;
     });
+    loadRemotePublicSheet(character, variant);
     startQuoteSpotlight();
   }
 
