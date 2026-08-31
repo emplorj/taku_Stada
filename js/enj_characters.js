@@ -1446,10 +1446,16 @@ function quoteSpotlightHtml(value) {
     const faceImage = displayableImageUrl(variant.faceUrl || variant.faces?.[0]?.iconUrl);
     const facePreviewLayoutKey = `${character.id}:${state.variantIndex}`;
     const facePreviewLayout = state.facePreviewLayouts.get(facePreviewLayoutKey);
+    // 顔プレビューは画面幅ごとに置き場所を分ける。PC で右外へ動かした
+    // 座標を、そのままスマホ幅で復元して閉じるボタンと重ねないようにする。
+    const compactFacePreview = window.matchMedia("(max-width: 640px)").matches;
+    const compatibleFacePreviewLayout = facePreviewLayout && facePreviewLayout.compact === compactFacePreview
+      ? facePreviewLayout
+      : null;
     const facePreviewHidden = state.facePreviewHidden.has(facePreviewLayoutKey);
     const expressionPaletteHidden = state.expressionPaletteHidden.has(facePreviewLayoutKey);
-    const facePreviewStyle = facePreviewLayout
-      ? ` style="left:${facePreviewLayout.left}px;top:${facePreviewLayout.top}px;width:${facePreviewLayout.size}px;right:auto"`
+    const facePreviewStyle = compatibleFacePreviewLayout
+      ? ` style="left:${compatibleFacePreviewLayout.left}px;top:${compatibleFacePreviewLayout.top}px;width:${compatibleFacePreviewLayout.size}px;right:auto"`
       : "";
     const facePreview = faceImage
       ? `<div id="detail-face-preview" class="detail-face-preview" data-face-preview-key="${escapeHtml(facePreviewLayoutKey)}"${facePreviewHidden ? " hidden" : ""}${facePreviewStyle}><div class="detail-face-preview__handle" data-face-preview-handle title="ドラッグして移動"><i class="fa-solid fa-grip-lines" aria-hidden="true"></i><span>顔プレビュー</span></div><img src="${escapeHtml(faceImage)}" alt="${escapeHtml(`${variant.name || character.registrationName}の顔画像`)}"><span aria-hidden="true">FACE</span><button type="button" class="detail-face-preview__close" data-face-preview-close aria-label="顔プレビューを隠す" title="顔プレビューを隠す"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button><button type="button" class="detail-face-preview__resize" data-face-preview-resize aria-label="顔アイコンの大きさを変える"></button></div>`
@@ -1531,7 +1537,7 @@ function quoteSpotlightHtml(value) {
     }
     dialog.querySelector("#detail-face-preview")?.remove();
     dialog.insertAdjacentHTML("beforeend", facePreview);
-    if (!facePreviewLayout && faceImage) requestAnimationFrame(() => {
+    if (!compatibleFacePreviewLayout && faceImage) requestAnimationFrame(() => {
       const preview = dialog.querySelector("#detail-face-preview");
       if (!preview || preview.hidden) return;
       const dialogRect = dialog.getBoundingClientRect();
@@ -1545,8 +1551,14 @@ function quoteSpotlightHtml(value) {
       const fitsRight = dialogRect.left + rightLeft + previewRect.width <= window.innerWidth - 8;
       const fitsLeft = dialogRect.left + leftLeft >= 8;
       const fallbackLeft = Math.max(16, dialogRect.width - previewRect.width - 20);
-      const left = fitsRight ? rightLeft : (fitsLeft ? leftLeft : fallbackLeft);
-      const top = Math.max(12, Math.min(dialogRect.height - previewRect.height - 12, visualRect ? visualRect.top - dialogRect.top + 40 : 28));
+      const visualTop = visualRect ? visualRect.top - dialogRect.top : 0;
+      const visualBottom = visualRect ? visualRect.bottom - dialogRect.top : dialogRect.height;
+      // 狭い画面にはモーダル外の余白がないため、立ち絵の左下へ。
+      // 右側の縦書きセリフ・右上の閉じるボタンを隠さない。
+      const left = compactFacePreview ? 16 : (fitsRight ? rightLeft : (fitsLeft ? leftLeft : fallbackLeft));
+      const top = compactFacePreview
+        ? Math.max(12, visualBottom - previewRect.height - 16)
+        : Math.max(12, Math.min(dialogRect.height - previewRect.height - 12, visualTop + 40));
       preview.style.left = `${Math.round(left)}px`;
       preview.style.right = "auto";
       preview.style.bottom = "auto";
@@ -2120,7 +2132,7 @@ function quoteSpotlightHtml(value) {
     gesture.preview.style.right = "auto";
     gesture.preview.style.width = `${Math.round(size)}px`;
     const key = gesture.preview.dataset.facePreviewKey;
-    if (key) state.facePreviewLayouts.set(key, { left: Math.round(left), top: Math.round(top), size: Math.round(size) });
+    if (key) state.facePreviewLayouts.set(key, { left: Math.round(left), top: Math.round(top), size: Math.round(size), compact: window.matchMedia("(max-width: 640px)").matches });
   });
   const finishFacePreviewGesture = (event) => {
     if (!facePreviewGesture || event.pointerId !== facePreviewGesture.pointerId) return;

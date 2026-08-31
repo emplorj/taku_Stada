@@ -1242,6 +1242,9 @@ html.character-dialog-open body { overflow: hidden; overscroll-behavior: none; }
 
 @media (max-width: 640px) {
   .catalog-toolbar { align-items: stretch; flex-direction: column; gap: 8px; }
+  /* 縦並びでは flex: 1 が余った高さを検索欄へ配ってしまう。
+     検索欄は操作に必要な高さだけに固定し、一覧を先に見せる。 */
+  .catalog-search { flex: 0 0 auto; min-height: 52px; }
   .catalog-system-filter { justify-content: space-between; }
   .catalog-system-filter select { flex: 1; }
   .catalog-count { margin-left: 0; padding-left: 8px; }
