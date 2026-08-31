@@ -759,6 +759,16 @@ function quoteSpotlightHtml(value) {
     const seen = new Set();
     return String(value || "").split(/[、,，/／・]+/)
       .map((item) => item.replace(/\s+/g, " ").trim())
+      .flatMap((item) => {
+        // 赤色のヒガンバナ → 赤色 / ヒガンバナ。
+        // ルーンフォーク（戦闘型ルーンフォーク） → ルーンフォーク / 戦闘型ルーンフォーク。
+        // 元のジョブ欄はそのままなので、全文検索も失わない。
+        const colored = item.match(/^(.+色)の(.+)$/);
+        if (colored) return [colored[1], colored[2]];
+        const parenthesized = item.match(/^(.+?)[（(]([^（）()]+)[）)]$/);
+        if (parenthesized) return [parenthesized[1].trim(), parenthesized[2].trim()];
+        return [item];
+      })
       .map((item) => /^(?:UGN(?:支部長|エージェント|チルドレン)|レネゲイドビーイング)[A-D]$/i.test(item) ? item.slice(0, -1) : item)
       .map((item) => generatedTag(item, "job"))
       .filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
