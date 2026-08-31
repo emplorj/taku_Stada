@@ -614,11 +614,12 @@
   opacity: 0.26;
 }
 .character-detail__visual > img { position: absolute; z-index: 1; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; transform: translate(var(--detail-portrait-offset-x, 0px), var(--detail-portrait-offset-y, 0px)) scale(var(--detail-portrait-scale, 1)); transform-origin: center bottom; cursor: zoom-in; }
-.detail-quote-spotlight { position: absolute; z-index: 4; top: 13%; right: 10px; bottom: 13%; width: min(6.2em, 25%); overflow: hidden; pointer-events: none; }
-.detail-quote-spotlight__line { position: absolute; inset: 0; display: block; box-sizing: border-box; margin: 0; overflow: hidden; color: #fff; font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(0.9rem, 1.32vw, 1.12rem); font-weight: 600; line-height: 1.76; letter-spacing: 0.1em; text-align: start; -webkit-text-stroke: 0.85px rgba(2, 6, 16, 0.92); paint-order: stroke fill; text-shadow: 0 2px 5px rgba(4, 10, 29, 0.9); white-space: pre-wrap; writing-mode: vertical-rl; text-orientation: upright; word-break: normal; overflow-wrap: normal; line-break: strict; hanging-punctuation: none; font-feature-settings: "vert" 1; opacity: 0; transform: translateY(8px); transition: opacity 620ms ease, transform 620ms ease; }
-.detail-quote-spotlight__line.is-compact { font-size: clamp(0.78rem, 1.1vw, 0.94rem); line-height: 1.56; letter-spacing: 0.065em; }
+.detail-quote-spotlight { position: absolute; z-index: 4; top: 13%; right: 10px; bottom: 13%; width: min(8.6em, 34%); overflow: visible; pointer-events: none; }
+.detail-quote-spotlight__line { position: absolute; inset: 0; display: block; box-sizing: border-box; margin: 0; overflow: visible; color: #fff; font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(0.84rem, 1.18vw, 1.02rem); font-weight: 600; line-height: 1.54; letter-spacing: 0.075em; text-align: start; -webkit-text-stroke: 0.85px rgba(2, 6, 16, 0.92); paint-order: stroke fill; text-shadow: 0 2px 5px rgba(4, 10, 29, 0.9); white-space: pre-wrap; writing-mode: vertical-rl; text-orientation: upright; word-break: normal; overflow-wrap: normal; line-break: strict; hanging-punctuation: none; font-feature-settings: "vert" 1; opacity: 0; transform: translateY(8px); transition: opacity 620ms ease, transform 620ms ease; }
+.detail-quote-spotlight__line.is-compact { font-size: clamp(0.72rem, 0.98vw, 0.86rem); line-height: 1.4; letter-spacing: 0.05em; }
+.detail-quote-spotlight__line.is-extra-compact { font-size: clamp(0.66rem, 0.86vw, 0.78rem); line-height: 1.28; letter-spacing: 0.025em; }
 .detail-quote-spotlight__line .vertical-tcy { display: inline-block; text-combine-upright: all; letter-spacing: 0; text-align: center; }
-.detail-quote-spotlight__line.has-opening-quote { padding-inline-start: 0.2em; text-indent: 0; }
+.detail-quote-spotlight__line.has-opening-quote { padding-inline-start: 0.35em; text-indent: 0; }
 .detail-quote-spotlight__line.is-active { opacity: 1; transform: translateY(0); }
 .detail-image-switcher { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(12px, 2vw, 26px); pointer-events: none; }
 .detail-image-switcher button { position: relative; width: clamp(42px, 4vw, 58px); height: clamp(42px, 4vw, 58px); border: 0; border-radius: 50%; color: #fff; background: rgba(58, 70, 91, 0.72); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28); font-size: clamp(1.1rem, 2vw, 1.7rem); cursor: pointer; opacity: 0; pointer-events: auto; transform: scale(0.9); transition: opacity 150ms ease, background 150ms ease, transform 150ms ease; }
@@ -1294,7 +1295,7 @@ html.character-dialog-open body { overflow: hidden; overscroll-behavior: none; }
   .character-detail__left { display: block; }
   .character-detail__visual { min-height: 260px; height: min(38dvh, 330px); padding: 0; border-left: 0; border-bottom: 1px solid var(--catalog-border); }
   .character-detail__visual > img { top: 5%; left: 14%; width: 72%; height: 92%; }
-  .detail-quote-spotlight { top: 11%; right: 8px; bottom: 10%; width: min(6.2em, 32%); }
+  .detail-quote-spotlight { top: 11%; right: 8px; bottom: 10%; width: min(8.2em, 43%); }
   .detail-visual-id { right: 14px; bottom: 12px; font-size: clamp(4rem, 22vw, 6.5rem); }
   .expression-palette { position: relative; left: auto; bottom: auto; width: auto; margin: 14px 22px 0; }
   .expression-palette-launcher { position: relative; left: auto; bottom: auto; margin: 14px 22px 0; }

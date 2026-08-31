@@ -627,9 +627,11 @@ function quoteSpotlightHtml(value) {
   };
     return `<div class="detail-quote-spotlight" aria-label="代表セリフ">${groups.map((lines, index) => {
       const text = lines.join("\n");
-      const compact = text.replace(/\s/g, "").length > 54 ? " is-compact" : "";
+      const characterCount = text.replace(/\s/g, "").length;
+      const compact = characterCount > 36 ? " is-compact" : "";
+      const extraCompact = characterCount > 68 ? " is-extra-compact" : "";
       const hanging = /^[「『“"]/.test(text) ? " has-opening-quote" : "";
-      return `<p class="detail-quote-spotlight__line${index === 0 ? " is-active" : ""}${compact}${hanging}" data-quote-spotlight-index="${index}">${verticalText(text)}</p>`;
+      return `<p class="detail-quote-spotlight__line${index === 0 ? " is-active" : ""}${compact}${extraCompact}${hanging}" data-quote-spotlight-index="${index}">${verticalText(text)}</p>`;
     }).join("")}</div>`;
   }
   function stopQuoteSpotlight() {
