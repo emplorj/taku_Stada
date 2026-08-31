@@ -2553,6 +2553,17 @@ function quoteSpotlightHtml(value) {
   sexFilter.addEventListener("change", () => { state.sex = sexFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   alignmentOrderFilter.addEventListener("change", () => { state.alignmentOrder = alignmentOrderFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   alignmentMoralityFilter.addEventListener("change", () => { state.alignmentMorality = alignmentMoralityFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
+  document.querySelector(".catalog-alignment-guide")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-alignment-guide-filter-order]");
+    if (!button) return;
+    state.statFilter = null;
+    state.alignmentOrder = button.dataset.alignmentGuideFilterOrder || "";
+    state.alignmentMorality = button.dataset.alignmentGuideFilterMorality || "";
+    alignmentOrderFilter.value = state.alignmentOrder;
+    alignmentMoralityFilter.value = state.alignmentMorality;
+    state.cardVariantIndexes.clear();
+    renderCards();
+  });
   sortSelect.addEventListener("change", () => { state.sort = sortSelect.value; renderCards(); });
   activeTagFilters?.addEventListener("click", (event) => {
     if (event.target.closest("[data-clear-stat-filter]")) {
