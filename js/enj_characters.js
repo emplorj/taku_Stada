@@ -814,7 +814,7 @@ function quoteSpotlightHtml(value) {
     const selected = state.tagFilters.has(tag.key);
     return `<button type="button" class="${classes.join(" ")}" data-tag-search="${escapeHtml(tag.label)}" aria-pressed="${selected}"${color ? ` style="--tag-color:${escapeHtml(color)}"` : ""} title="${escapeHtml(title)}">${escapeHtml(tag.label)}</button>`;
   }
-  function compactCatalogTagsHtml(character, variant, limit = 3) {
+  function compactCatalogTagsHtml(character, variant, limit = state.view === "grid" ? 1 : 3) {
     // 一覧では、すでに表示済みのシステム・ジョブ・性別などを重ねない。
     // 手入力のタグだけをシステム行に添え、生成タグは検索用として残す。
     // ネタバレタグは通常は伏せるが、その語で検索した時だけ先頭に出す。
