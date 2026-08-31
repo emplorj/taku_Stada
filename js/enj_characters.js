@@ -979,7 +979,8 @@ function quoteSpotlightHtml(value) {
   };
   const alignmentMoralityOf = (value) => {
     const alignment = String(value || "");
-    return alignment.includes("善") ? "good" : alignment.includes("悪") ? "evil" : alignment.includes("中立") ? "neutral" : "";
+    // 既存データの「中立」表記も読めるよう残しつつ、名鑑の正式な中央軸は「中庸」。
+    return alignment.includes("善") ? "good" : alignment.includes("悪") ? "evil" : /中庸|中立/.test(alignment) ? "neutral" : "";
   };
   const alignmentSortKeyOf = (value) => {
     const orderRank = { lawful: 0, neutral: 1, chaotic: 2 };
