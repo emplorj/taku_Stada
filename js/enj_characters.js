@@ -734,10 +734,20 @@ function quoteSpotlightHtml(value) {
       return tag;
     });
   }
-  function prioritizedManualTags(value) {
-    const tags = decorateCombatTags(tagsOf(value));
+  function prioritizeCatalogTags(tags) {
+    const decorated = decorateCombatTags(tags);
     const priority = (tag) => tag.tagKind === "role" ? 0 : tag.tagKind === "combat" ? 1 : 2;
-    return tags.sort((left, right) => priority(left) - priority(right));
+    return decorated.sort((left, right) => priority(left) - priority(right));
+  }
+  function prioritizedManualTags(value) {
+    return prioritizeCatalogTags(tagsOf(value));
+  }
+  function visibleCardTagsOf(variant) {
+    const manual = tagsOf(variant.tags).map((tag) => ({ ...tag, source: "manual" }));
+    const jobs = jobTagsOf(variant.job);
+    const seen = new Set();
+    const tags = [...manual, ...jobs].filter((tag) => tag.label && !seen.has(tag.key) && (seen.add(tag.key), true));
+    return prioritizeCatalogTags(tags);
   }
   // ジョブ欄は一つの文章として保ちつつ、検索用タグでは種族・役割・シンドロームを
   // それぞれ拾う。DX3の末尾A〜Dはワークスの区分なので、UGN支部長C → UGN支部長
@@ -793,7 +803,7 @@ function quoteSpotlightHtml(value) {
     // 一覧では、すでに表示済みのシステム・ジョブ・性別などを重ねない。
     // 手入力のタグだけをシステム行に添え、生成タグは検索用として残す。
     // ネタバレタグは通常は伏せるが、その語で検索した時だけ先頭に出す。
-    const manualTags = prioritizedManualTags(variant.tags);
+    const manualTags = visibleCardTagsOf(variant);
     const tags = [
       ...manualTags.filter((tag) => tag.spoiler && (queryMatchesTag(tag) || state.tagFilters.has(tag.key))),
       ...manualTags.filter((tag) => !tag.spoiler)
@@ -847,7 +857,7 @@ function quoteSpotlightHtml(value) {
   function searchByCatalogTag(value) { toggleCatalogTagFilter(value); }
 
   function showMoreCatalogTags(trigger, character, variant) {
-    const manualTags = prioritizedManualTags(variant.tags);
+    const manualTags = visibleCardTagsOf(variant);
     const tags = [
       ...manualTags.filter((tag) => tag.spoiler && (queryMatchesTag(tag) || state.tagFilters.has(tag.key))),
       ...manualTags.filter((tag) => !tag.spoiler)
