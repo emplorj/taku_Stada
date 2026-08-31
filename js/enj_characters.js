@@ -715,6 +715,30 @@ function quoteSpotlightHtml(value) {
   function generatedTag(label, source, extra = {}) {
     return { ...tagInfoOf(label), source, ...extra };
   }
+  // ロールは塗り、戦闘手段・戦術は同じロール色の枠線で見せる。
+  // 例: [タンク] [白兵] は青、[DPS] [射撃] は赤。ロール不明なら中立色。
+  const ROLE_TAG_COLORS = Object.freeze({
+    DPS: "#ef5a67",
+    "タンク": "#5c9ded",
+    "ヒーラー": "#63c878",
+    "支援": "#a47af2",
+    "探索": "#e2b84b"
+  });
+  const COMBAT_STYLE_TAGS = new Set(["白兵", "射撃", "魔法", "RC", "召喚", "単体", "範囲", "妨害"]);
+  function decorateCombatTags(tags) {
+    const role = tags.find((tag) => ROLE_TAG_COLORS[tag.label]);
+    const roleColor = role ? ROLE_TAG_COLORS[role.label] : "";
+    return tags.map((tag) => {
+      if (ROLE_TAG_COLORS[tag.label]) return { ...tag, tagKind: "role", tagColor: ROLE_TAG_COLORS[tag.label] };
+      if (COMBAT_STYLE_TAGS.has(tag.label)) return { ...tag, tagKind: "combat", tagColor: roleColor };
+      return tag;
+    });
+  }
+  function prioritizedManualTags(value) {
+    const tags = decorateCombatTags(tagsOf(value));
+    const priority = (tag) => tag.tagKind === "role" ? 0 : tag.tagKind === "combat" ? 1 : 2;
+    return tags.sort((left, right) => priority(left) - priority(right));
+  }
   // ジョブ欄は一つの文章として保ちつつ、検索用タグでは種族・役割・シンドロームを
   // それぞれ拾う。DX3の末尾A〜Dはワークスの区分なので、UGN支部長C → UGN支部長
   // のように一段まとめる。
@@ -753,8 +777,9 @@ function quoteSpotlightHtml(value) {
   }
   function catalogTagHtml(tag, variant, spoilerKey = "") {
     const classes = ["catalog-tag", `catalog-tag--${tag.source || "manual"}`];
+    if (tag.tagKind) classes.push(`catalog-tag--${tag.tagKind}`);
     if (tag.struck) classes.push("is-retired");
-    const color = ["system", "job"].includes(tag.source) ? systemColorOf(variant.system) : "";
+    const color = tag.tagColor || (["system", "job"].includes(tag.source) ? systemColorOf(variant.system) : "");
     const isMaskedSpoiler = tag.spoiler && !state.revealedSpoilerTags.has(spoilerKey);
     if (isMaskedSpoiler) {
       classes.push("is-spoiler");
@@ -768,7 +793,7 @@ function quoteSpotlightHtml(value) {
     // 一覧では、すでに表示済みのシステム・ジョブ・性別などを重ねない。
     // 手入力のタグだけをシステム行に添え、生成タグは検索用として残す。
     // ネタバレタグは通常は伏せるが、その語で検索した時だけ先頭に出す。
-    const manualTags = tagsOf(variant.tags);
+    const manualTags = prioritizedManualTags(variant.tags);
     const tags = [
       ...manualTags.filter((tag) => tag.spoiler && (queryMatchesTag(tag) || state.tagFilters.has(tag.key))),
       ...manualTags.filter((tag) => !tag.spoiler)
@@ -822,7 +847,7 @@ function quoteSpotlightHtml(value) {
   function searchByCatalogTag(value) { toggleCatalogTagFilter(value); }
 
   function showMoreCatalogTags(trigger, character, variant) {
-    const manualTags = tagsOf(variant.tags);
+    const manualTags = prioritizedManualTags(variant.tags);
     const tags = [
       ...manualTags.filter((tag) => tag.spoiler && (queryMatchesTag(tag) || state.tagFilters.has(tag.key))),
       ...manualTags.filter((tag) => !tag.spoiler)
@@ -1377,7 +1402,7 @@ function quoteSpotlightHtml(value) {
     ].filter(Boolean).join("");
     // 一覧では省略される手入力タグも、詳細では全部確認できるようにする。
     // ||ネタバレ||・~~過去属性~~ は検索用の正規化名を保ったまま表示する。
-    const detailTags = tagsOf(variant.tags);
+    const detailTags = prioritizedManualTags(variant.tags);
     const detailTagsHtml = detailTags.length ? `<section class="detail-tags" aria-label="タグ"><p class="detail-section__eyebrow">TAGS</p><div>${detailTags.map((tag) => catalogTagHtml({ ...tag, source: "manual" }, variant, spoilerTagKeyOf(character, variant, tag))).join("")}</div></section>` : "";
     const facts = [
       detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job], ["アライメント", variant.alignment]], "detail-fact-group--features"),

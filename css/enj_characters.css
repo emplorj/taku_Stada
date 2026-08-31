@@ -326,6 +326,9 @@
 .catalog-tag[aria-pressed="true"] { border-color: color-mix(in srgb, var(--tag-color, #dcecff) 88%, #fff); color: #fff; background: color-mix(in srgb, var(--tag-color, #6d8fc6) 52%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--tag-color, #dcecff) 36%, transparent); }
 .catalog-tag--auto { --tag-color: #86b9ff; }
 .catalog-tag--affinity { --tag-color: #d8a3ff; }
+/* 役割は塗り、白兵・射撃・魔法などの戦闘手段は役割色の枠線だけを借りる。 */
+.catalog-tag--role { border-color: color-mix(in srgb, var(--tag-color, #9cb8eb) 88%, #fff); background: color-mix(in srgb, var(--tag-color, #496797) 38%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tag-color, #9cb8eb) 20%, transparent); }
+.catalog-tag--combat { border-color: color-mix(in srgb, var(--tag-color, #9cb8eb) 78%, transparent); background: color-mix(in srgb, var(--tag-color, #496797) 8%, transparent); color: color-mix(in srgb, var(--tag-color, #f7fbff) 34%, #fff); }
 .catalog-tag.is-spoiler { --tag-color: #907aa9; color: #eee6f7; background: rgba(90, 69, 115, 0.3); font-style: italic; }
 .catalog-tag.is-spoiler::before { margin-right: 0.28em; font-family: "Font Awesome 6 Free"; font-style: normal; content: "\f070"; }
 .catalog-tag.is-retired { opacity: 0.66; text-decoration: line-through; text-decoration-thickness: 0.12em; }
