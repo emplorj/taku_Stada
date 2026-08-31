@@ -8,7 +8,7 @@
   // GASが返した最新の名鑑を次回起動用に残す。静的控えが古くても、
   // 一度でも最新版を受け取っていれば次のハード再読み込みから即表示できる。
   const CHARACTER_CACHE_KEY = "enj-character-catalog-index-v2";
-  const COMMENT_WRITE_KEY_STORAGE = "enj-character-comment-write-key";
+  const COMMENT_AUTHOR_KEYS_STORAGE = "enj-character-comment-author-keys-v1";
   const COLOR_NAMES = "red|orange|yellow|green|cyan|blue|purple|pink|gray";
   // NJMC / エンパイア以外は、名鑑に現れた順で距離感のある仮名にする。
   // シートには実際の場所名を入れたままでよい。
@@ -49,6 +49,8 @@
   const mergeStatus = document.getElementById("character-merge-status");
   const portraitAdjustController = document.getElementById("portrait-adjust-controller");
   let toastTimer = null;
+  let commentAuthors = [];
+  let commentAuthorsRequest = null;
 
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -62,6 +64,45 @@
       const url = new URL(String(value), location.href);
       return ["http:", "https:"].includes(url.protocol) ? url.href : "";
     } catch (_error) { return ""; }
+  }
+
+  function commentAuthorKeys() {
+    try {
+      const raw = globalThis.localStorage?.getItem(COMMENT_AUTHOR_KEYS_STORAGE);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (_error) { return {}; }
+  }
+
+  function commentAuthorKeyOf(author) {
+    return String(commentAuthorKeys()[String(author || "").trim()] || "");
+  }
+
+  function saveCommentAuthorKey(author, key) {
+    const name = String(author || "").trim();
+    const value = String(key || "").trim();
+    if (!name || !value) return;
+    try {
+      const saved = commentAuthorKeys();
+      saved[name] = value;
+      globalThis.localStorage?.setItem(COMMENT_AUTHOR_KEYS_STORAGE, JSON.stringify(saved));
+    } catch (_error) { /* 保存できなくても送信自体は続ける。 */ }
+  }
+
+  function loadCommentAuthors() {
+    if (commentAuthorsRequest) return commentAuthorsRequest;
+    commentAuthorsRequest = fetch(`${CHARACTER_API_BASE_URL}?tool=commentAuthors`, { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((payload) => {
+        commentAuthors = Array.isArray(payload?.authors) ? payload.authors.map((value) => String(value || "").trim()).filter(Boolean) : [];
+        if (dialog?.open) renderDetail();
+        return commentAuthors;
+      })
+      .catch((error) => { console.warn("Comment author list could not be loaded.", error); return []; });
+    return commentAuthorsRequest;
   }
 
   // 編集用のGoogleスプレッドシートは、公開ページから直接開かせない。
@@ -362,6 +403,12 @@
         achievement: String(variant.achievement ?? variant.selfAchievement ?? variant["やれた度"] ?? "").trim(),
         communityReview: String(variant.communityReview || variant.everyoneReview || variant["みんな評"] || "").trim(),
         commentReview: String(variant.commentReview || variant["コメント評"] || "").trim(),
+        commentEntries: Array.isArray(variant.commentEntries) ? variant.commentEntries.map((entry) => ({
+          id: String(entry?.id || "").trim(),
+          author: String(entry?.author || "").trim(),
+          createdAt: String(entry?.createdAt || "").trim(),
+          comment: String(entry?.comment || "").trim()
+        })).filter((entry) => entry.id && entry.comment) : [],
         aiReview: String(variant.aiReview || variant["AI人物評"] || "").trim(),
         // `公開キャラシ` タブ由来の任意データ。APIが未対応の間は空のままなので、
         // 既存のCharacters APIレスポンスには影響しない。
@@ -1291,7 +1338,22 @@ function quoteSpotlightHtml(value) {
     if (!content) return "";
     return `<section class="detail-section detail-review ${className}"><h3>${escapeHtml(title)}</h3>${notice ? `<p class="detail-review__notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>${escapeHtml(notice)}</p>` : ""}<div class="detail-richtext">${renderMarkdown(content)}</div></section>`;
   };
-  const commentComposer = (character, variant) => `<section class="detail-section detail-comment-composer"><h3><i class="fa-regular fa-comment-dots" aria-hidden="true"></i>コメントを書く</h3><p>送信した内容はこの姿の「コメント評」に追記され、公開ページへ表示されます。</p><form data-comment-form><input type="hidden" name="id" value="${escapeHtml(character.id)}"><input type="hidden" name="name" value="${escapeHtml(variant.name)}"><input type="hidden" name="variant" value="${escapeHtml(variant.variant)}"><input type="hidden" name="system" value="${escapeHtml(variant.system)}"><label>名前 <small>任意</small><input name="author" type="text" maxlength="48" autocomplete="nickname" placeholder="表示名"></label><label>コメント<textarea name="comment" rows="5" maxlength="2500" required placeholder="このキャラクターへのコメント・思い出など"></textarea></label><details class="detail-comment-composer__key"><summary>書き込みキー</summary><p>荒らし防止用です。このブラウザを閉じるまでだけ保持します。</p><input name="writeKey" type="password" autocomplete="current-password" required placeholder="個人用の書き込みキー"></details><p class="detail-comment-composer__status" data-comment-status role="status"></p><button type="submit" class="detail-comment-composer__submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i>コメントを送信</button></form></section>`;
+  const commentEntriesSection = (variant) => {
+    const entries = Array.isArray(variant.commentEntries) ? variant.commentEntries : [];
+    if (!entries.length) return "";
+    return `<section class="detail-section detail-comment-entries"><h3>コメント</h3><div>${entries.map((entry) => {
+      const editable = Boolean(commentAuthorKeyOf(entry.author));
+      return `<article class="detail-comment-entry"><header><strong>${escapeHtml(entry.author || "匿名")}</strong><time>${escapeHtml(entry.createdAt)}</time>${editable ? `<button type="button" data-edit-comment="${escapeHtml(entry.id)}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>編集</button>` : ""}</header><div class="detail-richtext">${renderMarkdown(entry.comment)}</div></article>`;
+    }).join("")}</div></section>`;
+  };
+  const commentComposer = (character, variant) => {
+    const saved = commentAuthorKeys();
+    const preferredAuthor = Object.keys(saved).find((author) => commentAuthors.includes(author)) || "";
+    const options = commentAuthors.length
+      ? `<option value="">投稿者を選ぶ</option>${commentAuthors.map((author) => `<option value="${escapeHtml(author)}"${author === preferredAuthor ? " selected" : ""}>${escapeHtml(author)}</option>`).join("")}`
+      : `<option value="">投稿者候補を読み込み中…</option>`;
+    return `<section class="detail-section detail-comment-composer"><h3><i class="fa-regular fa-comment-dots" aria-hidden="true"></i>コメントを書く</h3><p>送信した内容はこの姿の「コメント評」に追記され、公開ページへ表示されます。</p><form data-comment-form><input type="hidden" name="id" value="${escapeHtml(character.id)}"><input type="hidden" name="name" value="${escapeHtml(variant.name)}"><input type="hidden" name="variant" value="${escapeHtml(variant.variant)}"><input type="hidden" name="system" value="${escapeHtml(variant.system)}"><input type="hidden" name="commentId" value=""><label>投稿者<select name="author" required${commentAuthors.length ? "" : " disabled"}>${options}</select></label><label>コメント<textarea name="comment" rows="5" maxlength="2500" required placeholder="このキャラクターへのコメント・思い出など"></textarea></label><details class="detail-comment-composer__key"><summary>編集キー</summary><p>初回投稿時に短いキーを発行し、このブラウザに保存します。同じ投稿者名のコメント編集・追記に使います。</p><input name="writeKey" type="password" autocomplete="current-password" placeholder="保存済みの編集キー"></details><p class="detail-comment-composer__status" data-comment-status role="status"></p><button type="submit" class="detail-comment-composer__submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span data-comment-submit-label>コメントを送信</span></button></form></section>`;
+  };
   const achievementSection = (value) => {
     const score = achievementValueOf(value);
     if (!score) return "";
@@ -1379,6 +1441,7 @@ function quoteSpotlightHtml(value) {
       achievementSection(variant.achievement),
         reviewSection("みんな評", variant.communityReview, "当時の感想です。現在の人物像と一致しない場合があります。"),
         reviewSection("コメント評", variant.commentReview, "個別のコメント・思い出を含む主観的な記録です。"),
+        commentEntriesSection(variant),
         commentComposer(character, variant),
         reviewSection("AI人物評", variant.aiReview, "AIがログや資料をもとに行った読み解きです。事実そのものではなく、解釈として扱ってください。"),
         reviewSection("他の人が演じるときのコツ", variant.portrayalTips, "別の人が演じる際の目安です。シナリオや関係性に合わせて調整してください。"),
@@ -1407,9 +1470,13 @@ function quoteSpotlightHtml(value) {
       <div class="character-detail__left"><div class="character-detail__content"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p><h2 id="detail-name">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${headerMeta ? `<div class="detail-meta">${headerMeta}</div>` : ""}${detailTagsHtml}${variantTabs}
         ${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}
         ${detailTabsHtml}</div></div>${expressionSection}${expressionPaletteLauncher}`;
-    const savedCommentKey = sessionStorage.getItem(COMMENT_WRITE_KEY_STORAGE);
+    const authorSelect = detail.querySelector('[name="author"]');
     const commentKeyInput = detail.querySelector('[name="writeKey"]');
-    if (commentKeyInput && savedCommentKey) commentKeyInput.value = savedCommentKey;
+    if (authorSelect && commentKeyInput) {
+      const applyStoredKey = () => { commentKeyInput.value = commentAuthorKeyOf(authorSelect.value); };
+      applyStoredKey();
+      authorSelect.addEventListener("change", applyStoredKey);
+    }
     dialog.querySelector("#detail-face-preview")?.remove();
     dialog.insertAdjacentHTML("beforeend", facePreview);
     if (!facePreviewLayout && faceImage) requestAnimationFrame(() => {
@@ -2028,6 +2095,28 @@ function quoteSpotlightHtml(value) {
       searchByCatalogTag(tagButton.dataset.tagSearch);
       return;
     }
+    const editComment = event.target.closest("[data-edit-comment]");
+    if (editComment) {
+      const form = detail.querySelector("[data-comment-form]");
+      if (!form) return;
+      const commentId = String(editComment.dataset.editComment || "");
+      const entry = (activeDetailVariant()?.commentEntries || []).find((item) => String(item.id) === commentId);
+      if (!entry) return;
+      const author = String(entry.author || "");
+      const value = String(entry.comment || "");
+      const authorSelect = form.querySelector('[name="author"]');
+      if (authorSelect) authorSelect.value = author;
+      const commentIdInput = form.querySelector('[name="commentId"]');
+      if (commentIdInput) commentIdInput.value = commentId;
+      const commentInput = form.querySelector('[name="comment"]');
+      if (commentInput) commentInput.value = value;
+      const keyInput = form.querySelector('[name="writeKey"]');
+      if (keyInput) keyInput.value = commentAuthorKeyOf(author);
+      form.querySelector("[data-comment-submit-label]").textContent = "コメントを更新";
+      form.scrollIntoView({ block: "center", behavior: "smooth" });
+      commentInput?.focus();
+      return;
+    }
     const closeExpressionPalette = event.target.closest("[data-expression-palette-close]");
     if (closeExpressionPalette) {
       const palette = closeExpressionPalette.closest("[data-expression-palette-key]");
@@ -2114,13 +2203,20 @@ function quoteSpotlightHtml(value) {
     const statusLine = form.querySelector("[data-comment-status]");
     const formData = new FormData(form);
     const comment = String(formData.get("comment") || "").trim();
+    const author = String(formData.get("author") || "").trim();
     const writeKey = String(formData.get("writeKey") || "").trim();
+    const commentId = String(formData.get("commentId") || "").trim();
     if (!comment) {
       if (statusLine) statusLine.textContent = "コメントを入力してください。";
       return;
     }
-    if (!writeKey) {
-      if (statusLine) statusLine.textContent = "書き込みキーを入力してください。";
+    if (!author) {
+      if (statusLine) statusLine.textContent = "投稿者を選んでください。";
+      form.querySelector('[name="author"]')?.focus();
+      return;
+    }
+    if (commentId && !writeKey) {
+      if (statusLine) statusLine.textContent = "編集キーを入力してください。";
       form.querySelector('[name="writeKey"]')?.focus();
       return;
     }
@@ -2128,18 +2224,21 @@ function quoteSpotlightHtml(value) {
     if (statusLine) statusLine.textContent = "コメントを保存しています…";
     try {
       const body = new URLSearchParams();
-      body.set("tool", "appendComment");
+      body.set("tool", commentId ? "editComment" : "appendComment");
       ["id", "name", "variant", "system", "author", "comment"].forEach((key) => body.set(key, String(formData.get(key) || "")));
+      if (commentId) body.set("commentId", commentId);
       body.set("writeKey", writeKey);
       const response = await fetch(CHARACTER_API_BASE_URL, { method: "POST", body, cache: "no-store" });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
       if (payload?.status !== "success") throw new Error(payload?.message || "コメントを保存できませんでした。");
-      try { sessionStorage.setItem(COMMENT_WRITE_KEY_STORAGE, writeKey); } catch (_error) { /* 保存不可でも今回の送信は成功扱い。 */ }
+      if (payload.writeKey) saveCommentAuthorKey(author, payload.writeKey);
+      else if (writeKey) saveCommentAuthorKey(author, writeKey);
       const character = state.characters.find((item) => item.id === state.selectedId);
       const activeVariant = character?.variants[state.variantIndex];
       if (activeVariant && String(character.id) === String(formData.get("id"))) {
         activeVariant.commentReview = String(payload.commentReview || "");
+        activeVariant.commentEntries = Array.isArray(payload.commentEntries) ? payload.commentEntries : activeVariant.commentEntries;
         renderDetail();
       }
       showToast(payload.message || "コメントを保存しました。");
@@ -2220,5 +2319,7 @@ function quoteSpotlightHtml(value) {
     catalogModeToggle.querySelectorAll("[data-catalog-mode]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
     renderCards();
   });
+  // 一覧表示を待たせず、投稿者候補は並行で取得する。
+  loadCommentAuthors();
   loadCharacters();
 })();

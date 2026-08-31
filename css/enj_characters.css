@@ -922,10 +922,13 @@
 .detail-comment-composer label { display: grid; gap: 5px; color: #dbe8fb; font-weight: 700; font-size: 0.86rem; }
 .detail-comment-composer label small { color: var(--catalog-text-muted); font-weight: 400; }
 .detail-comment-composer input,
+.detail-comment-composer select,
 .detail-comment-composer textarea { width: 100%; border: 1px solid color-mix(in srgb, var(--character-system-color, var(--catalog-accent)) 40%, var(--catalog-border)); border-radius: 9px; color: #eff6ff; background: rgba(4, 14, 45, 0.62); font: inherit; }
-.detail-comment-composer input { min-height: 2.35rem; padding: 0.45rem 0.65rem; }
+.detail-comment-composer input,
+.detail-comment-composer select { min-height: 2.35rem; padding: 0.45rem 0.65rem; }
 .detail-comment-composer textarea { min-height: 8rem; padding: 0.65rem; resize: vertical; line-height: 1.65; }
 .detail-comment-composer input:focus,
+.detail-comment-composer select:focus,
 .detail-comment-composer textarea:focus { border-color: var(--character-system-color, var(--catalog-accent)); outline: 2px solid color-mix(in srgb, var(--character-system-color, var(--catalog-accent)) 30%, transparent); outline-offset: 1px; }
 .detail-comment-composer__key { border: 1px solid var(--catalog-border); border-radius: 9px; background: rgba(4, 14, 45, 0.3); }
 .detail-comment-composer__key summary { padding: 0.55rem 0.65rem; color: #cddcf3; cursor: pointer; font-size: 0.82rem; }
@@ -936,6 +939,12 @@
 .detail-comment-composer__submit:hover,
 .detail-comment-composer__submit:focus-visible { background: color-mix(in srgb, var(--character-system-color, var(--catalog-accent)) 34%, rgba(7, 21, 60, 0.82)); outline: none; }
 .detail-comment-composer__submit:disabled { cursor: wait; opacity: 0.65; }
+.detail-comment-entries > div { display: grid; gap: 10px; }
+.detail-comment-entry { padding: 12px 14px; border: 1px solid rgba(146, 194, 255, 0.18); border-radius: 10px; background: rgba(5, 15, 49, 0.28); }
+.detail-comment-entry > header { display: flex; align-items: center; gap: 8px; min-width: 0; margin-bottom: 8px; color: #dce9fa; }
+.detail-comment-entry > header strong { color: #fff; font-size: 0.9rem; }
+.detail-comment-entry > header time { color: var(--catalog-text-muted); font: 0.72rem var(--font-latin-ui); }
+.detail-comment-entry > header button { margin-left: auto; flex: 0 0 auto; padding: 4px 7px; border: 1px solid var(--catalog-border); border-radius: 7px; color: #dcecff; background: rgba(255,255,255,0.05); cursor: pointer; font-size: 0.72rem; }
 .detail-achievement { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .detail-achievement h3 { margin-bottom: 5px; }
 .detail-achievement p { margin: 0; color: var(--catalog-text-muted); font-size: 0.82rem; }
