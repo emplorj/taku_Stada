@@ -42,13 +42,15 @@
   const locationDisplayNames = new Map();
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
 
-  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", publicSheetOpen: false, cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), publicSheetRequests: new Map(), publicSheets: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
+  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", alignmentOrder: "", alignmentMorality: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", publicSheetOpen: false, cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), publicSheetRequests: new Map(), publicSheets: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
   const grid = document.getElementById("character-grid");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
   const locationFilter = document.getElementById("location-filter");
   const yearFilter = document.getElementById("year-filter");
   const sexFilter = document.getElementById("sex-filter");
+  const alignmentOrderFilter = document.getElementById("alignment-order-filter");
+  const alignmentMoralityFilter = document.getElementById("alignment-morality-filter");
   const sortSelect = document.getElementById("sort-select");
   const viewToggle = document.querySelector(".catalog-view-toggle");
   const catalogModeToggle = document.querySelector(".catalog-mode-toggle");
@@ -970,11 +972,21 @@ function quoteSpotlightHtml(value) {
     }
     return true;
   }
+  const alignmentOrderOf = (value) => {
+    const alignment = String(value || "");
+    return alignment.includes("秩序") ? "lawful" : alignment.includes("中立") ? "neutral" : alignment.includes("混沌") ? "chaotic" : "";
+  };
+  const alignmentMoralityOf = (value) => {
+    const alignment = String(value || "");
+    return alignment.includes("善") ? "good" : alignment.includes("悪") ? "evil" : alignment.includes("中立") ? "neutral" : "";
+  };
   const variantMatchesFilters = (variant) =>
     (!state.system || variant.system === state.system) &&
     (!state.location || locationsOf(variant.location).includes(state.location)) &&
     (!state.year || yearOf(variant.debut) === state.year) &&
     (!state.sex || genderCategoryOf(variant.sex) === state.sex) &&
+    (!state.alignmentOrder || alignmentOrderOf(variant.alignment) === state.alignmentOrder) &&
+    (!state.alignmentMorality || alignmentMoralityOf(variant.alignment) === state.alignmentMorality) &&
     statFilterMatches(variant);
   function tagsMatchSelectedFilters(character, variants) {
     if (!state.tagFilters.size) return true;
@@ -990,7 +1002,7 @@ function quoteSpotlightHtml(value) {
   const variantMatchesTagFilters = (character, variant) => tagsMatchSelectedFilters(character, [variant]);
   function cardVariantIndexOf(character) {
     const hasSearchTarget = Boolean(String(state.query || "").trim() || state.tagFilters.size);
-    const hasFieldFilter = Boolean(state.system || state.location || state.year || state.sex);
+    const hasFieldFilter = Boolean(state.system || state.location || state.year || state.sex || state.alignmentOrder || state.alignmentMorality);
     const selectedIndex = state.cardVariantIndexes.get(character.id);
     // ユーザーが切替を押した後は、検索中でもその選択を尊重する。
     if (Number.isInteger(selectedIndex) && character.variants[selectedIndex]) return selectedIndex;
@@ -2523,6 +2535,8 @@ function quoteSpotlightHtml(value) {
   locationFilter.addEventListener("change", () => { state.location = locationFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   yearFilter.addEventListener("change", () => { state.year = yearFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   sexFilter.addEventListener("change", () => { state.sex = sexFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
+  alignmentOrderFilter.addEventListener("change", () => { state.alignmentOrder = alignmentOrderFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
+  alignmentMoralityFilter.addEventListener("change", () => { state.alignmentMorality = alignmentMoralityFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   sortSelect.addEventListener("change", () => { state.sort = sortSelect.value; renderCards(); });
   activeTagFilters?.addEventListener("click", (event) => {
     if (event.target.closest("[data-clear-stat-filter]")) {
