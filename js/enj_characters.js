@@ -17,7 +17,7 @@
   const locationDisplayNames = new Map();
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
 
-  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
+  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
   const grid = document.getElementById("character-grid");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
@@ -849,14 +849,16 @@ function quoteSpotlightHtml(value) {
 
   function renderActiveTagFilters() {
     if (!activeTagFilters) return;
-    if (!state.tagFilters.size) {
+    if (!state.tagFilters.size && !state.statFilter) {
       activeTagFilters.hidden = true;
       activeTagFilters.innerHTML = "";
       return;
     }
     const entries = [...state.tagFilters.entries()];
     activeTagFilters.hidden = false;
-    activeTagFilters.innerHTML = `<span class="catalog-active-tags__label">タグ絞り込み（すべて一致）</span><span class="catalog-active-tags__list">${entries.map(([key, label]) => `<button type="button" class="catalog-active-tags__item" data-remove-tag-filter="${escapeHtml(key)}" title="${escapeHtml(label)}を条件から外す">${escapeHtml(label)} <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`).join("")}</span><button type="button" class="catalog-active-tags__clear" data-clear-tag-filters>すべて外す</button>`;
+    const tagFilters = entries.length ? `<span class="catalog-active-tags__label">タグ絞り込み（すべて一致）</span><span class="catalog-active-tags__list">${entries.map(([key, label]) => `<button type="button" class="catalog-active-tags__item" data-remove-tag-filter="${escapeHtml(key)}" title="${escapeHtml(label)}を条件から外す">${escapeHtml(label)} <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`).join("")}</span><button type="button" class="catalog-active-tags__clear" data-clear-tag-filters>すべて外す</button>` : "";
+    const statFilter = state.statFilter ? `<span class="catalog-active-tags__label">統計から絞り込み</span><button type="button" class="catalog-active-tags__item" data-clear-stat-filter title="統計の条件を外す">${escapeHtml(state.statFilter.label)} <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>` : "";
+    activeTagFilters.innerHTML = `${statFilter}${tagFilters}`;
   }
 
   function toggleCatalogTagFilter(value) {
@@ -876,7 +878,7 @@ function quoteSpotlightHtml(value) {
     const tags = [
       ...manualTags.filter((tag) => tag.spoiler && (queryMatchesTag(tag) || state.tagFilters.has(tag.key))),
       ...manualTags.filter((tag) => !tag.spoiler)
-    ].slice(3);
+    ].slice(state.view === "grid" ? 1 : 3);
     if (!tags.length) return;
     closeTagPopover();
     const rect = trigger.getBoundingClientRect();
@@ -906,11 +908,27 @@ function quoteSpotlightHtml(value) {
     const year = String(value || "").match(/(?:^|\D)(\d{4})(?:\D|$)/)?.[1];
     return year || "";
   }
+  function statFilterMatches(variant) {
+    const filter = state.statFilter;
+    if (!filter) return true;
+    const label = filter.value;
+    if (filter.kind === "alignment") return String(variant.alignment || "") === label;
+    if (filter.kind === "job") return jobTokensOf(variant.job).includes(label);
+    if (filter.kind === "job-combination") return jobCombinationsOf(variant.job).includes(label);
+    if (filter.kind === "hair") return hairColorOf(variant) === label;
+    if (filter.kind === "age" || filter.kind === "height") {
+      const range = label.match(/^(\d+)–(\d+)/);
+      const value = numericValueOf(filter.kind === "age" ? variant.age : variant.height);
+      return Boolean(range && value !== null && value >= Number(range[1]) && value <= Number(range[2]));
+    }
+    return true;
+  }
   const variantMatchesFilters = (variant) =>
     (!state.system || variant.system === state.system) &&
     (!state.location || locationsOf(variant.location).includes(state.location)) &&
     (!state.year || yearOf(variant.debut) === state.year) &&
-    (!state.sex || genderCategoryOf(variant.sex) === state.sex);
+    (!state.sex || genderCategoryOf(variant.sex) === state.sex) &&
+    statFilterMatches(variant);
   function tagsMatchSelectedFilters(character, variants) {
     if (!state.tagFilters.size) return true;
     const available = new Set(variants.flatMap((variant) => [
@@ -1076,10 +1094,10 @@ function quoteSpotlightHtml(value) {
     values.filter(Boolean).forEach((value) => counts.set(String(value), (counts.get(String(value)) || 0) + 1));
     return [...counts.entries()].sort((a, b) => b[1] - a[1] || nameCollator.compare(a[0], b[0])).slice(0, limit);
   }
-  function statBars(title, entries, emptyText = "データなし", colorOf = () => "", scrollable = false) {
+  function statBars(title, entries, emptyText = "データなし", colorOf = () => "", scrollable = false, filterKind = "") {
     if (!entries.length) return `<section class="catalog-stat-card"><h3>${escapeHtml(title)}</h3><p class="catalog-stat-empty">${emptyText}</p></section>`;
     const max = Math.max(...entries.map(([, value]) => value), 1);
-    return `<section class="catalog-stat-card${scrollable ? " catalog-stat-card--scroll" : ""}"><h3>${escapeHtml(title)}</h3><div class="catalog-stat-bars">${entries.map(([label, value], index) => { const color = colorOf(label); return `<div class="catalog-stat-bar"><span title="${escapeHtml(label)}">${escapeHtml(label)}</span><i><b style="--bar-width:${(value / max * 100).toFixed(2)}%;${color ? `--bar-color:${escapeHtml(color)};` : ""}--bar-delay:${Math.min(index, 12) * 38}ms"></b></i><strong>${value}</strong></div>`; }).join("")}</div></section>`;
+    return `<section class="catalog-stat-card${scrollable ? " catalog-stat-card--scroll" : ""}"><h3>${escapeHtml(title)}</h3><div class="catalog-stat-bars">${entries.map(([label, value], index) => { const color = colorOf(label); const body = `<span title="${escapeHtml(label)}">${escapeHtml(label)}</span><i><b style="--bar-width:${(value / max * 100).toFixed(2)}%;${color ? `--bar-color:${escapeHtml(color)};` : ""}--bar-delay:${Math.min(index, 12) * 38}ms"></b></i><strong>${value}</strong>`; return filterKind ? `<button type="button" class="catalog-stat-bar catalog-stat-bar--button" data-stat-filter-kind="${filterKind}" data-stat-filter-value="${escapeHtml(label)}" aria-label="${escapeHtml(`${title}：${label}で絞り込む`)}">${body}</button>` : `<div class="catalog-stat-bar">${body}</div>`; }).join("")}</div></section>`;
   }
   function numberBuckets(values, size, suffix) {
     const numbers = values.map(numericValueOf).filter((value) => value !== null);
@@ -1097,7 +1115,7 @@ function quoteSpotlightHtml(value) {
     if (!total) return statBars("性別", []);
     let position = 0;
     const stops = entries.map(([, value, color]) => { const next = position + value / total * 100; const stop = `${color} ${position.toFixed(2)}% ${next.toFixed(2)}%`; position = next; return stop; });
-    return `<section class="catalog-stat-card catalog-stat-card--gender"><h3>性別</h3><div class="catalog-stat-donut" style="--stat-donut:conic-gradient(${stops.join(",")})"><strong>${total}</strong><span>人</span></div><ul>${entries.map(([label, value, color]) => `<li><i style="--legend-color:${color}"></i>${label}<b>${value}</b></li>`).join("")}</ul></section>`;
+    return `<section class="catalog-stat-card catalog-stat-card--gender"><h3>性別</h3><div class="catalog-stat-donut" style="--stat-donut:conic-gradient(${stops.join(",")})"><strong>${total}</strong><span>人</span></div><ul>${entries.map(([label, value, color]) => `<li><button type="button" data-stat-filter-kind="sex" data-stat-filter-value="${escapeHtml(label)}"><i style="--legend-color:${color}"></i>${label}<b>${value}</b></button></li>`).join("")}</ul></section>`;
   }
   function alignmentColorOf(value) {
     const text = String(value || "");
@@ -1147,7 +1165,7 @@ function quoteSpotlightHtml(value) {
     const jobModeLabel = state.jobDetailMode ? "ABCも分ける" : "区分をまとめる";
     const jobs = jobEntriesWithSystem(variants, jobTokensOf);
     const jobCombinations = jobEntriesWithSystem(variants, jobCombinationsOf);
-    statistics.innerHTML = `<header><div><p>現在の表示を集計</p><h2>キャラクター統計 <small>${variants.length}件</small></h2></div><button type="button" data-close-stats aria-label="統計を閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header><div class="catalog-stat-options"><span>UGNエージェントの区分</span><button type="button" data-toggle-job-detail aria-pressed="${state.jobDetailMode}">${jobModeLabel}</button></div><div class="catalog-stat-grid">${statBars("アライメント", frequencyEntries(variants.map((variant) => variant.alignment), 9), "データなし", alignmentColorOf)}${genderDonut(variants)}${statBars("システム", frequencyEntries(variants.map((variant) => variant.system), Infinity), "データなし", systemColorOf, true)}${statBars("ジョブ", jobs.entries, "データなし", (label) => jobs.colors.get(label), true)}${statBars("ジョブの組合せ", jobCombinations.entries, "組合せデータなし", (label) => jobCombinations.colors.get(label), true)}${statBars("髪色", frequencyEntries(variants.map(hairColorOf), 8), "データなし", hairColorVisualOf)}${statBars("初登場年", debutYearEntries(variants), "データなし")}${statBars("年齢の分布", numberBuckets(variants.map((variant) => variant.age), 10, "歳"), "年齢を数値として読めるキャラがいません")}${statBars("身長の分布", numberBuckets(variants.map((variant) => variant.height).filter((value) => numericValueOf(value) > 0), 10, "cm"), "身長を数値として読めるキャラがいません")}</div>`;
+    statistics.innerHTML = `<header><div><p>現在の表示を集計</p><h2>キャラクター統計 <small>${variants.length}件</small></h2></div><button type="button" data-close-stats aria-label="統計を閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header><div class="catalog-stat-options"><span>UGNエージェントの区分</span><button type="button" data-toggle-job-detail aria-pressed="${state.jobDetailMode}">${jobModeLabel}</button></div><div class="catalog-stat-grid">${statBars("アライメント", frequencyEntries(variants.map((variant) => variant.alignment), 9), "データなし", alignmentColorOf, false, "alignment")}${genderDonut(variants)}${statBars("システム", frequencyEntries(variants.map((variant) => variant.system), Infinity), "データなし", systemColorOf, true, "system")}${statBars("ジョブ", jobs.entries, "データなし", (label) => jobs.colors.get(label), true, "job")}${statBars("ジョブの組合せ", jobCombinations.entries, "組合せデータなし", (label) => jobCombinations.colors.get(label), true, "job-combination")}${statBars("髪色", frequencyEntries(variants.map(hairColorOf), 8), "データなし", hairColorVisualOf, false, "hair")}${statBars("初登場年", debutYearEntries(variants), "データなし", () => "", false, "year")}${statBars("年齢の分布", numberBuckets(variants.map((variant) => variant.age), 10, "歳"), "年齢を数値として読めるキャラがいません", () => "", false, "age")}${statBars("身長の分布", numberBuckets(variants.map((variant) => variant.height).filter((value) => numericValueOf(value) > 0), 10, "cm"), "身長を数値として読めるキャラがいません", () => "", false, "height")}</div>`;
   }
 
   function renderSystemFilter() {
@@ -2048,6 +2066,29 @@ function quoteSpotlightHtml(value) {
       renderStatistics(filteredCatalogItems());
       return;
     }
+    const statFilterButton = event.target.closest("[data-stat-filter-kind]");
+    if (statFilterButton) {
+      const kind = statFilterButton.dataset.statFilterKind || "";
+      const value = statFilterButton.dataset.statFilterValue || "";
+      const title = statFilterButton.closest(".catalog-stat-card")?.querySelector("h3")?.textContent || "統計";
+      if (!kind || !value) return;
+      // 既存のプルダウンで表せるものはそちらにも反映し、
+      // それ以外は統計専用の条件として一覧へ渡す。
+      const usesSelect = ["system", "year", "sex"].includes(kind);
+      state.statFilter = usesSelect ? null : { kind, value, label: `${title}: ${value}` };
+      if (kind === "system") { state.system = value; systemFilter.value = value; }
+      if (kind === "year") { state.year = value; yearFilter.value = value; }
+      if (kind === "sex") {
+        state.sex = value === "男性" ? "male" : value === "女性" ? "female" : "unknown";
+        sexFilter.value = state.sex;
+      }
+      state.cardVariantIndexes.clear();
+      state.statsOpen = false;
+      statsToggle.setAttribute("aria-expanded", "false");
+      renderCards();
+      requestAnimationFrame(() => grid.scrollIntoView({ block: "start", behavior: "smooth" }));
+      return;
+    }
     if (event.target.closest("[data-close-stats]")) {
       state.statsOpen = false;
       statsToggle.setAttribute("aria-expanded", "false");
@@ -2373,6 +2414,11 @@ function quoteSpotlightHtml(value) {
   sexFilter.addEventListener("change", () => { state.sex = sexFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   sortSelect.addEventListener("change", () => { state.sort = sortSelect.value; renderCards(); });
   activeTagFilters?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-clear-stat-filter]")) {
+      state.statFilter = null;
+      renderCards();
+      return;
+    }
     const removeButton = event.target.closest("[data-remove-tag-filter]");
     if (removeButton) {
       state.tagFilters.delete(removeButton.dataset.removeTagFilter);
