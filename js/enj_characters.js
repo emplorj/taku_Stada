@@ -1118,6 +1118,12 @@ function quoteSpotlightHtml(value) {
       const systemLabels = (systems.length ? systems : ["OTHER"]).map((system) => system === "OTHER"
         ? `<span class="is-current" style="--label-system-color:${escapeHtml(systemColorOf(system))}">OTHER</span>`
         : `<span class="character-card__system ${system === variant.system ? "is-current" : "is-other"}" data-system-filter="${escapeHtml(system)}" role="button" tabindex="0" style="--label-system-color:${escapeHtml(systemColorOf(system))}" title="${escapeHtml(system)}で絞り込む">${escapeHtml(system)}</span>`).join("");
+      // アライメントを条件・並び順に使っている時だけ、一覧上でも判断根拠を見せる。
+      const showAlignment = Boolean(state.alignmentOrder || state.alignmentMorality || state.sort === "alignment-asc");
+      const alignment = String(variant.alignment || "").trim();
+      const alignmentOrder = alignmentOrderOf(alignment);
+      const alignmentMorality = alignmentMoralityOf(alignment);
+      const alignmentBadge = showAlignment && alignment ? `<span class="character-card__alignment alignment-badge alignment-badge--${alignmentOrder || "other"} alignment-badge--${alignmentMorality === "good" ? "good" : alignmentMorality === "evil" ? "evil" : "moral-neutral"}">${escapeHtml(alignment)}</span>` : "";
       const nextIndex = (variantIndex + 1) % character.variants.length;
       const nextVariant = character.variants[nextIndex] || {};
       const sortIndicator = sortIndicatorOf(variant);
@@ -1126,7 +1132,7 @@ function quoteSpotlightHtml(value) {
       return `<article class="character-card${grouped && character.variants.length > 1 ? " has-variants" : ""}" tabindex="0" data-character-id="${escapeHtml(character.id)}" data-card-variant-index="${variantIndex}" aria-label="${escapeHtml(displayName)}を開く" title="${escapeHtml(displayName)}" style="--character-system-color:${escapeHtml(systemColorOf(variant.system))}">
         <div class="character-card__visual">${visualImage ? `<img${sharedPortraitSource ? ' class="is-body-preview"' : ""} src="${escapeHtml(visualImage)}" alt="${escapeHtml(displayName)}" loading="lazy" decoding="async" fetchpriority="low" data-image-candidates="${escapeHtml(JSON.stringify(visualCandidates))}" style="--card-icon-offset-y:${escapeHtml(cardIconOffsetYOf(variant))}px;--card-icon-offset-x:${escapeHtml(effectiveCardIconOffsetXOf(variant))}px">` : `<span class="character-card__initial" aria-hidden="true">${escapeHtml(displayName.slice(0, 1))}</span>`}</div>
         ${sidePortrait ? `<div class="character-card__portrait-window" aria-hidden="true"><img src="${escapeHtml(sidePortrait)}" alt="" loading="lazy" decoding="async" fetchpriority="low" style="--card-portrait-list-scale:${escapeHtml(listPortraitScaleFor(null, portraitScaleOf(variant)).toFixed(3))};--card-portrait-list-offset-y:${escapeHtml(listPortraitOffsetYOf(variant).toFixed(2))}px;--card-portrait-list-offset-x:${escapeHtml((portraitOffsetXOf(variant) * 0.25).toFixed(2))}px"></div>` : ""}
-        <div class="character-card__body"><p class="character-card__systems">${systemLabels}${sortIndicator}${compactCatalogTagsHtml(character, variant)}</p>${cardTaglineOf(variant) ? `<p class="character-card__tagline">${yutorizeRubyHtml(cardTaglineOf(variant))}</p>` : ""}<h2>${escapeHtml(displayName)}</h2><p class="character-card__intro">${cardSummaryHtmlOf(variant)}</p></div>
+        <div class="character-card__body"><p class="character-card__systems">${systemLabels}${alignmentBadge}${sortIndicator}${compactCatalogTagsHtml(character, variant)}</p>${cardTaglineOf(variant) ? `<p class="character-card__tagline">${yutorizeRubyHtml(cardTaglineOf(variant))}</p>` : ""}<h2>${escapeHtml(displayName)}</h2><p class="character-card__intro">${cardSummaryHtmlOf(variant)}</p></div>
         <span class="character-card__id" aria-hidden="true">#${escapeHtml(String(character.id).padStart(3, "0"))}</span>
         ${cycleButton}
         ${adjustButton}
