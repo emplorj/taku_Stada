@@ -94,11 +94,38 @@ let progressTimer = null;
 let nechronicaEditorState = null;
 let shinobigamiInfoState = null;
 let lastRawOutputText = "";
+let sw25EnemyConverterMode = false;
 const DEFAULT_NECHRONICA_KAKERA_TEMPLATE =
   "【記憶のカケラ：初期】\n" +
   "「テキスト」\n" +
   "----------------------------------------------------------------------------\n" +
   "【記憶のカケラ：取得】";
+
+function runSw25EnemyConversion(inputText) {
+  try {
+    const converter = window.sw25EnemySheetConverter;
+    if (!converter || typeof converter.convert !== "function") {
+      throw new Error("変換機能を初期化できませんでした。ページを再読み込みしてください。");
+    }
+    const result = converter.convert(inputText);
+    const rendered = JSON.stringify(result.value, null, 2);
+    sw25EnemyConverterMode = true;
+    lastRawOutputText = rendered;
+    outputArea.value = rendered;
+    copyButton.disabled = false;
+    if (primaryKomaOutputTitle) primaryKomaOutputTitle.textContent = "ゆとシートJSON出力";
+    messageArea.textContent = result.warnings.length
+      ? `ゆとシート用JSONへ変換した。要確認：${result.warnings.join("、")}。`
+      : "敵シートのデータを、ゆとシート用JSONへ変換した。";
+    outputArea.scrollIntoView({ behavior: "smooth", block: "center" });
+    return true;
+  } catch (error) {
+    outputArea.value = "";
+    copyButton.disabled = true;
+    messageArea.textContent = error?.message || "変換に失敗しました。";
+    return false;
+  }
+}
 
 function getNechronicaShared() {
   const shared =
@@ -367,7 +394,7 @@ copyButton.addEventListener("click", () => {
   }
   navigator.clipboard
     .writeText(txt)
-    .then(() => showToast(message("komaJsonCopySuccess"), "info"))
+    .then(() => showToast(sw25EnemyConverterMode ? "ゆとシート用JSONをコピーした！" : message("komaJsonCopySuccess"), "info"))
     .catch((err) => {
       showToast("コピーに失敗したようだ… ブラウザの権限を確認しろ！", "error");
       console.error("Clipboard copy failed: ", err);
@@ -1970,7 +1997,15 @@ if (shinobigamiInfoSection) {
 
 sheetForm.addEventListener("submit", function (event) {
   event.preventDefault();
-  const sheetUrlValue = document.getElementById("sheetUrl").value.toLowerCase();
+  const sheetUrlRaw = document.getElementById("sheetUrl").value.trim();
+  const sheetUrlValue = sheetUrlRaw.toLowerCase();
+
+  if (sheetUrlRaw.startsWith("{") || (/"kind"\s*:\s*"character"/i.test(sheetUrlRaw) && sheetUrlRaw.includes('"data"'))) {
+    runSw25EnemyConversion(sheetUrlRaw);
+    return;
+  }
+
+  sw25EnemyConverterMode = false;
 
   submitButton.disabled = true;
   copyButton.disabled = true;
