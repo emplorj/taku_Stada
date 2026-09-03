@@ -428,6 +428,7 @@
         tips: String(variant.tips || variant["TIPS"] || "").trim(),
         enJReview: String(variant.enJReview || variant.enjReview || variant["エンJ人物評"] || "").trim(),
         achievement: String(variant.achievement ?? variant.selfAchievement ?? variant["やれた度"] ?? "").trim(),
+        roughStatus: String(variant.roughStatus || variant.miscStatus || variant["雑ステータス"] || "").trim(),
         communityReview: String(variant.communityReview || variant.everyoneReview || variant["みんな評"] || "").trim(),
         commentReview: String(variant.commentReview || variant["コメント評"] || "").trim(),
         commentEntries: Array.isArray(variant.commentEntries) ? variant.commentEntries.map((entry) => ({
@@ -1450,6 +1451,10 @@ function quoteSpotlightHtml(value) {
 
   function detailFact(label, value) {
     if (value === undefined || value === null || value === "") return "";
+    if (label === "雑ステータス") {
+      const lines = String(value).replace(/<br\s*\/?>/gi, "\n").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      return `<div class="detail-fact detail-fact--rough-status"><dt>${escapeHtml(label)}</dt><dd>${lines.map(escapeHtml).join("<br>")}</dd></div>`;
+    }
     if (label === "アライメント") {
       const alignment = String(value).trim();
       const tone = alignment.startsWith("秩序") ? "lawful" : alignment.startsWith("中立") ? "neutral" : alignment.startsWith("混沌") ? "chaotic" : "other";
@@ -1566,7 +1571,7 @@ function quoteSpotlightHtml(value) {
     const detailTagsHtml = detailTags.length ? `<section class="detail-tags" aria-label="タグ"><p class="detail-section__eyebrow">TAGS</p><div>${detailTags.map((tag) => catalogTagHtml({ ...tag, source: "manual" }, variant, spoilerTagKeyOf(character, variant, tag))).join("")}</div></section>` : "";
     const facts = [
       detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job], ["アライメント", variant.alignment]], "detail-fact-group--features"),
-      detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair]], "detail-fact-group--person"),
+      detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair], ["雑ステータス", variant.roughStatus]], "detail-fact-group--person"),
       detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson], ["読み", variant.reading]], "detail-fact-group--calling")
     ].join("");
     const hasPublicSheet = Boolean(publicSheetApiUrlOf(character, variant) || Object.values(variant.publicCharacterSheet || {}).some(Boolean));
@@ -1635,7 +1640,6 @@ function quoteSpotlightHtml(value) {
         reviewSection("コメント評", variant.commentReview, "個別のコメント・思い出を含む主観的な記録です。"),
         commentEntriesSection(variant),
         commentComposer(character, variant),
-        reviewSection("AI人物評", variant.aiReview, "AIがログや資料をもとに行った読み解きです。事実そのものではなく、解釈として扱ってください。"),
         reviewSection("他の人が演じるときのコツ", variant.portrayalTips, "別の人が演じる際の目安です。シナリオや関係性に合わせて調整してください。"),
       ].join("");
     const publicSheet = variant.publicCharacterSheet || {};
