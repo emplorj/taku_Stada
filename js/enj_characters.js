@@ -1451,10 +1451,6 @@ function quoteSpotlightHtml(value) {
 
   function detailFact(label, value) {
     if (value === undefined || value === null || value === "") return "";
-    if (label === "雑ステータス") {
-      const lines = String(value).replace(/<br\s*\/?>/gi, "\n").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      return `<div class="detail-fact detail-fact--rough-status"><dt>${escapeHtml(label)}</dt><dd>${lines.map(escapeHtml).join("<br>")}</dd></div>`;
-    }
     if (label === "アライメント") {
       const alignment = String(value).trim();
       const tone = alignment.startsWith("秩序") ? "lawful" : alignment.startsWith("中立") ? "neutral" : alignment.startsWith("混沌") ? "chaotic" : "other";
@@ -1462,6 +1458,14 @@ function quoteSpotlightHtml(value) {
       return `<div class="detail-fact"><dt>${escapeHtml(label)}</dt><dd><span class="alignment-badge alignment-badge--${tone} alignment-badge--${morality}">${escapeHtml(value)}</span></dd></div>`;
     }
     return `<div class="detail-fact"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
+  }
+  function roughStatusEntries(value) {
+    return String(value || "").replace(/<br\s*\/?>/gi, "\n").split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
+      const separator = line.search(/[:：]/);
+      return separator >= 0
+        ? [line.slice(0, separator).trim(), line.slice(separator + 1).trim()]
+        : ["雑ステータス", line];
+    }).filter(([label, status]) => label && status);
   }
   function detailFactGroup(title, icon, entries, extraClass = "") {
     const facts = entries.map(([label, value]) => label === "読み" ? detailReadingFact(value) : detailFact(label, value)).join("");
@@ -1571,7 +1575,7 @@ function quoteSpotlightHtml(value) {
     const detailTagsHtml = detailTags.length ? `<section class="detail-tags" aria-label="タグ"><p class="detail-section__eyebrow">TAGS</p><div>${detailTags.map((tag) => catalogTagHtml({ ...tag, source: "manual" }, variant, spoilerTagKeyOf(character, variant, tag))).join("")}</div></section>` : "";
     const facts = [
       detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job], ["アライメント", variant.alignment]], "detail-fact-group--features"),
-      detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair], ["雑ステータス", variant.roughStatus]], "detail-fact-group--person"),
+      detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair], ...roughStatusEntries(variant.roughStatus)], "detail-fact-group--person"),
       detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson], ["読み", variant.reading]], "detail-fact-group--calling")
     ].join("");
     const hasPublicSheet = Boolean(publicSheetApiUrlOf(character, variant) || Object.values(variant.publicCharacterSheet || {}).some(Boolean));
