@@ -1467,7 +1467,10 @@ function quoteSpotlightHtml(value) {
         ? [line.slice(0, separator).trim(), line.slice(separator + 1).trim()]
         : ["雑ステータス", line];
       const characterCount = Array.from(status.replace(/\s/g, "")).length;
-      return [label, status, characterCount >= 6 && characterCount <= 10 ? "detail-fact--rough-compact" : ""];
+      const sizeClass = characterCount >= 6 && characterCount <= 7
+        ? "detail-fact--rough-compact detail-fact--rough-single-line"
+        : characterCount <= 10 && characterCount >= 8 ? "detail-fact--rough-compact" : "";
+      return [label, status, sizeClass];
     }).filter(([label, status]) => label && status);
   }
   function detailFactGroup(title, icon, entries, extraClass = "") {
