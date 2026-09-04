@@ -1449,26 +1449,29 @@ function quoteSpotlightHtml(value) {
     return escapeHtml(displayName);
   }
 
-  function detailFact(label, value) {
+  function detailFact(label, value, extraClass = "") {
     if (value === undefined || value === null || value === "") return "";
+    const className = `detail-fact${extraClass ? ` ${extraClass}` : ""}`;
     if (label === "アライメント") {
       const alignment = String(value).trim();
       const tone = alignment.startsWith("秩序") ? "lawful" : alignment.startsWith("中立") ? "neutral" : alignment.startsWith("混沌") ? "chaotic" : "other";
       const morality = alignment.includes("善") ? "good" : alignment.includes("悪") ? "evil" : "moral-neutral";
-      return `<div class="detail-fact"><dt>${escapeHtml(label)}</dt><dd><span class="alignment-badge alignment-badge--${tone} alignment-badge--${morality}">${escapeHtml(value)}</span></dd></div>`;
+      return `<div class="${className}"><dt>${escapeHtml(label)}</dt><dd><span class="alignment-badge alignment-badge--${tone} alignment-badge--${morality}">${escapeHtml(value)}</span></dd></div>`;
     }
-    return `<div class="detail-fact"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
+    return `<div class="${className}"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
   }
   function roughStatusEntries(value) {
     return String(value || "").replace(/<br\s*\/?>/gi, "\n").split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
       const separator = line.search(/[:：]/);
-      return separator >= 0
+      const [label, status] = separator >= 0
         ? [line.slice(0, separator).trim(), line.slice(separator + 1).trim()]
         : ["雑ステータス", line];
+      const characterCount = Array.from(status.replace(/\s/g, "")).length;
+      return [label, status, characterCount >= 6 && characterCount <= 10 ? "detail-fact--rough-compact" : ""];
     }).filter(([label, status]) => label && status);
   }
   function detailFactGroup(title, icon, entries, extraClass = "") {
-    const facts = entries.map(([label, value]) => label === "読み" ? detailReadingFact(value) : detailFact(label, value)).join("");
+    const facts = entries.map(([label, value, factClass]) => label === "読み" ? detailReadingFact(value) : detailFact(label, value, factClass)).join("");
     return facts ? `<section class="detail-fact-group ${extraClass}"><h3><i class="${icon}" aria-hidden="true"></i>${escapeHtml(title)}</h3><dl>${facts}</dl></section>` : "";
   }
   function detailAction(url, icon, label) {
