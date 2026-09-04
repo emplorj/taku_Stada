@@ -655,7 +655,7 @@
 }
 .character-detail__visual > img { position: absolute; z-index: 1; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; transform: translate(var(--detail-portrait-offset-x, 0px), var(--detail-portrait-offset-y, 0px)) scale(var(--detail-portrait-scale, 1)); transform-origin: center bottom; cursor: zoom-in; }
 .detail-quote-spotlight { position: absolute; z-index: 4; top: 13%; right: 10px; bottom: 13%; width: min(8.6em, 34%); overflow: visible; pointer-events: none; }
-.detail-quote-spotlight__line { position: absolute; inset: 0; display: block; box-sizing: border-box; margin: 0; overflow: visible; color: #fff; font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(0.84rem, 1.18vw, 1.02rem); font-weight: 600; line-height: 1.54; letter-spacing: 0.075em; text-align: start; -webkit-text-stroke: 0.85px rgba(2, 6, 16, 0.92); paint-order: stroke fill; text-shadow: 0 2px 5px rgba(4, 10, 29, 0.9); white-space: pre-wrap; writing-mode: vertical-rl; text-orientation: upright; word-break: normal; overflow-wrap: normal; line-break: strict; hanging-punctuation: none; font-feature-settings: "vert" 1; opacity: 0; transform: translateY(8px); transition: opacity 620ms ease, transform 620ms ease; }
+.detail-quote-spotlight__line { position: absolute; inset: 0; display: block; box-sizing: border-box; margin: 0; overflow: visible; color: #fff; font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(0.84rem, 1.18vw, 1.02rem); font-weight: 600; line-height: 1.54; letter-spacing: 0.075em; text-align: start; -webkit-text-stroke: 0.85px rgba(2, 6, 16, 0.92); paint-order: stroke fill; text-shadow: 0 2px 5px rgba(4, 10, 29, 0.9); white-space: pre-wrap; writing-mode: vertical-rl; text-orientation: mixed; word-break: normal; overflow-wrap: normal; line-break: strict; hanging-punctuation: none; font-feature-settings: "vert" 1, "vrt2" 1; opacity: 0; transform: translateY(8px); transition: opacity 620ms ease, transform 620ms ease; }
 .detail-quote-spotlight__line.is-compact { font-size: clamp(0.72rem, 0.98vw, 0.86rem); line-height: 1.4; letter-spacing: 0.05em; }
 .detail-quote-spotlight__line.is-extra-compact { font-size: clamp(0.66rem, 0.86vw, 0.78rem); line-height: 1.28; letter-spacing: 0.025em; }
 .detail-quote-spotlight__line .vertical-tcy { display: inline-block; text-combine-upright: all; letter-spacing: 0; text-align: center; }
@@ -728,6 +728,7 @@
 .enj-catalog-page .character-detail__content > h2 { margin: 2px 0 8px; color: #ffffff; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.05; }
 .detail-name-ruby { ruby-position: over; ruby-align: center; }
 .detail-name-ruby rt { color: color-mix(in srgb, var(--character-system-color, var(--catalog-accent)) 68%, #f2f7ff); font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 0.32em; font-weight: 700; letter-spacing: 0.14em; }
+.detail-header-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin-bottom: 2px; }
 .detail-kicker { margin: 0; color: var(--character-system-color, var(--catalog-accent)); font-size: 0.82rem; letter-spacing: 0.12em; }
 .detail-aka {
   position: relative;
@@ -745,9 +746,9 @@
 .detail-aka ruby { ruby-align: center; ruby-position: over; }
 .detail-aka rt { color: color-mix(in srgb, var(--character-system-color, var(--catalog-accent)) 78%, white); font-size: 0.55em; font-weight: 600; letter-spacing: 0.08em; }
 .detail-aka .character-reference { color: inherit; }
-.detail-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; }
+.detail-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
 .detail-meta span,
-.detail-meta time { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border: 1px solid var(--catalog-border); border-radius: 999px; color: #d9e6fa; background: rgba(255, 255, 255, 0.04); font-size: 0.8rem; }
+.detail-meta time { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border: 1px solid var(--catalog-border); border-radius: 999px; color: #d9e6fa; background: rgba(255, 255, 255, 0.04); font-size: 0.72rem; }
 .detail-meta i { color: var(--character-system-color, var(--catalog-accent)); }
 .detail-tags { margin: 8px 0 -2px; }
 .detail-tags > div { display: flex; flex-wrap: wrap; gap: 6px; }
