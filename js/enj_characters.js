@@ -60,12 +60,21 @@
   const count = document.getElementById("catalog-count");
   const status = document.getElementById("catalog-status");
   const activeTagFilters = document.getElementById("active-tag-filters");
+  const heroFaceStage = document.getElementById("catalog-hero-faces");
+  const heroFaceLayers = [...document.querySelectorAll(".catalog-hero__face")];
   const dialog = document.getElementById("character-dialog");
   const imageLightbox = document.getElementById("character-image-lightbox");
   const imageLightboxImage = document.getElementById("character-image-lightbox-image");
   let tagPopover = null;
   let imageLightboxCloseTimer = null;
   let quoteSpotlightTimer = null;
+  let heroFaceTimer = null;
+  let heroFaceSwapTimer = null;
+  let heroFaceUrls = [];
+  let heroFaceSignature = "";
+  let heroFaceCursor = -1;
+  let heroFaceActiveLayer = -1;
+  let heroFaceSwapToken = 0;
   const detail = document.getElementById("character-detail");
   const toast = document.getElementById("catalog-toast");
   const mergeInput = document.getElementById("character-merge-input");
@@ -469,6 +478,97 @@
     const driveId = driveFile?.[1] || driveOpen;
     return driveId ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(driveId)}&sz=w${Math.max(64, Math.round(size))}` : url;
   }
+
+  function shuffled(values) {
+    const result = [...values];
+    for (let index = result.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+    }
+    return result;
+  }
+
+  function heroFaceCandidates() {
+    const seen = new Set();
+    return state.characters.map((character) => {
+      const representative = representativeOf(character);
+      const variants = [representative, ...character.variants.filter((variant) => variant !== representative)];
+      return variants.map((variant) => displayableImageUrl(variant.faceUrl, 720)).find(Boolean) || "";
+    }).filter((url) => {
+      if (!url || seen.has(url)) return false;
+      seen.add(url);
+      return true;
+    });
+  }
+
+  function showNextHeroFace(attempt = 0) {
+    if (!heroFaceStage || !heroFaceLayers.length || !heroFaceUrls.length || attempt >= heroFaceUrls.length) return;
+    heroFaceCursor = (heroFaceCursor + 1) % heroFaceUrls.length;
+    const url = heroFaceUrls[heroFaceCursor];
+    const nextLayerIndex = heroFaceActiveLayer === 0 ? 1 : 0;
+    const nextLayer = heroFaceLayers[nextLayerIndex];
+    const swapToken = ++heroFaceSwapToken;
+
+    // 前回の退場位置から、見えないまま右側の入場位置へ戻しておく。
+    nextLayer.classList.remove("is-active", "is-leaving");
+    nextLayer.onload = () => {
+      if (swapToken !== heroFaceSwapToken) return;
+      heroFaceStage.hidden = false;
+
+      const enterNextFace = () => {
+        if (swapToken !== heroFaceSwapToken) return;
+        nextLayer.classList.remove("is-leaving");
+        nextLayer.classList.add("is-active");
+        heroFaceActiveLayer = nextLayerIndex;
+        heroFaceSwapTimer = null;
+      };
+      const currentLayer = heroFaceActiveLayer >= 0 ? heroFaceLayers[heroFaceActiveLayer] : null;
+      if (!currentLayer || currentLayer === nextLayer) {
+        enterNextFace();
+        return;
+      }
+
+      // 前の顔を完全に左へ退場させてから、次の顔を右から入れる。
+      // 退場と入場を同時にしないことで、顔同士が重ならないようにする。
+      currentLayer.classList.remove("is-active");
+      currentLayer.classList.add("is-leaving");
+      heroFaceActiveLayer = -1;
+      if (heroFaceSwapTimer !== null) clearTimeout(heroFaceSwapTimer);
+      heroFaceSwapTimer = setTimeout(enterNextFace, 500);
+    };
+    nextLayer.onerror = () => {
+      if (swapToken !== heroFaceSwapToken) return;
+      showNextHeroFace(attempt + 1);
+    };
+    nextLayer.src = url;
+  }
+
+  function configureHeroFaces() {
+    const candidates = heroFaceCandidates();
+    const signature = [...candidates].sort().join("\n");
+    if (signature === heroFaceSignature) return;
+
+    if (heroFaceTimer !== null) clearInterval(heroFaceTimer);
+    heroFaceTimer = null;
+    if (heroFaceSwapTimer !== null) clearTimeout(heroFaceSwapTimer);
+    heroFaceSwapTimer = null;
+    heroFaceSignature = signature;
+    heroFaceUrls = shuffled(candidates);
+    heroFaceCursor = -1;
+    heroFaceSwapToken += 1;
+
+    if (!heroFaceUrls.length) {
+      if (heroFaceStage) heroFaceStage.hidden = true;
+      return;
+    }
+
+    showNextHeroFace();
+    if (heroFaceUrls.length > 1 && !globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      heroFaceTimer = setInterval(() => {
+        if (!document.hidden && !dialog.open) showNextHeroFace();
+      }, 6500);
+    }
+  }
   const imageCandidatesOf = (variant) => [variant.iconUrl, variant.imageUrl, variant.faceUrl, variant.fullBodyUrl, variant.faces?.[0]?.iconUrl]
     .map((url) => displayableImageUrl(url, 320)).filter(Boolean);
   const imageOf = (variant) => imageCandidatesOf(variant)[0] || "";
@@ -658,11 +758,21 @@ function quoteSpotlightHtml(value) {
   const verticalText = (text) => {
     // Half-width punctuation has no reliable vertical alternate in all Mincho fonts.
     // Normalize it here so the vertical quotation always keeps a one-character cell.
-    const normalized = String(text ?? "").replace(/[!?]/g, (mark) => mark === "!" ? "！" : "？");
+    const normalized = String(text ?? "")
+      .replace(/[!?]/g, (mark) => mark === "!" ? "！" : "？")
+      // 半角括弧は縦組みで横用字形が回転され、中心からずれて見えるため、
+      // 縦書き用字形を持つ全角括弧へ揃える。
+      .replace(/[()]/g, (mark) => mark === "(" ? "（" : "）");
     let html = "", cursor = 0;
-    normalized.replace(/[A-Za-z]+|\d+/g, (token, offset) => {
+    normalized.replace(/[A-Za-z]+|\d+|[…⋯]/g, (token, offset) => {
       html += escapeHtml(normalized.slice(cursor, offset));
-      html += token.length <= 4 ? `<span class="vertical-tcy">${escapeHtml(token)}</span>` : escapeHtml(token);
+      if (/^[…⋯]$/.test(token)) {
+        // U+2026/U+22EF はブラウザやフォントによって縦書きでも横3点のままになる。
+        // 縦組み専用字形 U+FE19 に置き換え、確実に縦3点で表示する。
+        html += `<span class="vertical-ellipsis" aria-label="${escapeHtml(token)}">︙</span>`;
+      } else {
+        html += token.length <= 4 ? `<span class="vertical-tcy">${escapeHtml(token)}</span>` : escapeHtml(token);
+      }
       cursor = offset + token.length;
       return token;
     });
@@ -691,6 +801,16 @@ function quoteSpotlightHtml(value) {
       activeIndex = (activeIndex + 1) % lines.length;
       lines[activeIndex].classList.add("is-active");
     }, 5200);
+  }
+  function systemBackdropOf(variant) {
+    if (/誰がロック/.test(String(variant.appearanceScenarios || ""))) return "rock";
+    const system = String(variant.system || "");
+    if (/^(SW|ソード.?ワールド)/i.test(system)) return "sw";
+    if (/^(マモブル|マモノスクランブル)/.test(system)) return "mb";
+    if (/^(ネクロニカ|NC)/i.test(system)) return "nc";
+    if (/^サタスペ/.test(system)) return "sata";
+    if (/^(STL|銀剣|ステラナイツ)/i.test(system)) return "sk";
+    return "machi";
   }
   function systemColorOf(system) {
     const name = String(system || "");
@@ -1110,6 +1230,8 @@ function quoteSpotlightHtml(value) {
 
   function renderCards() {
     renderActiveTagFilters();
+    const filterCount = [state.system, state.location, state.year, state.sex, state.alignmentOrder, state.alignmentMorality].filter(Boolean).length;
+    document.getElementById("filter-badge").textContent = filterCount ? `(${filterCount})` : "";
     const items = filteredCatalogItems();
     count.textContent = `${items.length} ${state.catalogMode === "unique" ? "characters" : "variants"}`;
     grid.dataset.view = state.view;
@@ -1124,7 +1246,7 @@ function quoteSpotlightHtml(value) {
       const visualImage = sharedPortraitSource ? bodyImage : image;
       const visualCandidates = sharedPortraitSource ? [bodyImage] : imageCandidates;
       // 左のアイコンと元画像が同じでも、右側は全身立ち絵の表示領域として常に使う。
-      const sidePortrait = bodyImage;
+      const sidePortrait = state.view === "list" && !globalThis.matchMedia("(max-width: 640px)").matches ? bodyImage : "";
       const systems = grouped ? [...new Set(character.variants.map((item) => item.system).filter(Boolean))] : [variant.system].filter(Boolean);
       const systemLabels = (systems.length ? systems : ["OTHER"]).map((system) => system === "OTHER"
         ? `<span class="is-current" style="--label-system-color:${escapeHtml(systemColorOf(system))}">OTHER</span>`
@@ -1408,20 +1530,36 @@ function quoteSpotlightHtml(value) {
     }
   }
 
-  // 読みは「日本語 / Romanization」を一組として見せる。別名・本名などを
-  // ||...|| に入れた場合は、名鑑本文と同じネタバレ開示扱いにする。
+  // 1行目は読み、2行目以降は別名として見せる。
+  // 別名の「名前：読み / Romanization」は「別名 名前（読み / Romanization）」へ
+  // 整形する。別名・本名などを ||...|| に入れた場合は、名鑑本文と同じ
+  // ネタバレ開示扱いにする。
   function detailReadingFact(value) {
     const lines = String(value ?? "").replace(/\r\n?/g, "\n").split("\n").map((line) => line.trim()).filter(Boolean);
     if (!lines.length) return "";
-    const lineHtml = lines.map((line) => {
+    const lineHtml = lines.map((line, lineIndex) => {
       const spoilerMatch = line.match(/^\|\|([\s\S]+)\|\|$/);
       const content = (spoilerMatch ? spoilerMatch[1] : line).trim();
       const parts = content.split(/\s*\/\s*/, 2);
       const hasRomanization = parts.length === 2 && /^[A-Za-z0-9][A-Za-z0-9 .’'\-]*$/.test(parts[1]);
-      const reading = hasRomanization
-        ? `<span class="detail-reading__name">${escapeHtml(parts[0])}</span><span class="detail-reading__roman">${escapeHtml(parts[1])}</span>`
-        : `<span class="detail-reading__name">${escapeHtml(content)}</span>`;
-      const item = `<span class="detail-reading__item">${reading}</span>`;
+      const primaryText = hasRomanization ? parts[0] : content;
+      const aliasSeparator = primaryText.search(/[:：]/);
+      const isAlias = lineIndex > 0 || aliasSeparator >= 0;
+      let reading;
+
+      if (isAlias) {
+        const aliasName = (aliasSeparator >= 0 ? primaryText.slice(0, aliasSeparator) : primaryText).trim();
+        const aliasKana = (aliasSeparator >= 0 ? primaryText.slice(aliasSeparator + 1) : "").trim();
+        const sameAsAliasName = aliasKana && aliasKana.normalize("NFKC").replace(/[\s　]+/g, "") === aliasName.normalize("NFKC").replace(/[\s　]+/g, "");
+        const aliasDetails = [sameAsAliasName ? "" : aliasKana, hasRomanization ? parts[1] : ""].filter(Boolean);
+        reading = `<span class="detail-reading__label">別名</span><span class="detail-reading__name">${escapeHtml(aliasName)}</span>${aliasDetails.length ? `<span class="detail-reading__alias-detail">（${aliasDetails.map(escapeHtml).join(" / ")}）</span>` : ""}`;
+      } else {
+        reading = hasRomanization
+          ? `<span class="detail-reading__name">${escapeHtml(primaryText)}</span><span class="detail-reading__roman">${escapeHtml(parts[1])}</span>`
+          : `<span class="detail-reading__name">${escapeHtml(content)}</span>`;
+      }
+
+      const item = `<span class="detail-reading__item${isAlias ? " detail-reading__item--alias" : ""}">${reading}</span>`;
       return spoilerMatch
         ? `<span class="spoiler-text detail-reading__spoiler" role="button" tabindex="0" aria-label="秘匿された読み・別名を表示">${item}</span>`
         : item;
@@ -1467,9 +1605,16 @@ function quoteSpotlightHtml(value) {
         ? [line.slice(0, separator).trim(), line.slice(separator + 1).trim()]
         : ["雑ステータス", line];
       const characterCount = Array.from(status.replace(/\s/g, "")).length;
-      const sizeClass = characterCount >= 6 && characterCount <= 7
-        ? "detail-fact--rough-compact detail-fact--rough-single-line"
-        : characterCount <= 10 && characterCount >= 8 ? "detail-fact--rough-compact" : "";
+      let sizeClass = "";
+      if (characterCount >= 15) {
+        sizeClass = "detail-fact--rough-extra-dense";
+      } else if (characterCount >= 11) {
+        sizeClass = "detail-fact--rough-dense";
+      } else if (characterCount >= 8) {
+        sizeClass = "detail-fact--rough-compact";
+      } else if (characterCount >= 6) {
+        sizeClass = "detail-fact--rough-compact detail-fact--rough-single-line";
+      }
       return [label, status, sizeClass];
     }).filter(([label, status]) => label && status);
   }
@@ -1561,6 +1706,38 @@ function quoteSpotlightHtml(value) {
     return `<section class="detail-section detail-achievement" data-achievement="${score}"><div><h3>やれた度</h3><p>${label}。本人が感じた「どれだけやれたか」の記録です。</p></div><span class="detail-achievement__badge" aria-label="やれた度 ${score}">${score}</span></section>`;
   };
 
+  function updateCompactDetailName() {
+    const name = detail.querySelector("#detail-name"), tabs = detail.querySelector(".detail-content-tabs__buttons");
+    if (!name || !tabs) return;
+    const scroller = matchMedia("(max-width: 640px)").matches ? dialog : detail.querySelector(".character-detail__content");
+    tabs.classList.toggle("has-compact-name", name.getBoundingClientRect().bottom <= scroller.getBoundingClientRect().top + 2);
+  }
+  dialog.addEventListener("scroll", updateCompactDetailName, true);
+  function fitDetailTypography() {
+    if (!dialog.open) return;
+    const stripes = detail.querySelector(".detail-visual-stripes");
+    if (stripes) stripes.innerHTML = "<i></i>".repeat(Math.max(0, Math.floor((stripes.clientWidth - 4) / 26)));
+    updateCompactDetailName();
+    const name = detail.querySelector("#detail-name");
+    if (name) {
+      name.style.removeProperty("font-size");
+      let size = parseFloat(getComputedStyle(name).fontSize);
+      // Measure the actual font, including ruby, rather than guessing from character count.
+      while (name.scrollWidth > name.clientWidth + 1 && size > 10) {
+        size -= 1;
+        name.style.fontSize = `${size}px`;
+      }
+    }
+    detail.querySelectorAll(".detail-quote-spotlight__line").forEach((line) => {
+      line.style.removeProperty("font-size");
+      let size = parseFloat(getComputedStyle(line).fontSize);
+      while ((line.scrollWidth > line.clientWidth + 1 || line.scrollHeight > line.clientHeight + 1) && size > 12) {
+        size -= 1;
+        line.style.fontSize = `${size}px`;
+      }
+    });
+  }
+  document.fonts?.ready.then(() => requestAnimationFrame(fitDetailTypography));
   function renderDetail() {
     stopQuoteSpotlight();
     const character = state.characters.find((item) => item.id === state.selectedId);
@@ -1580,8 +1757,8 @@ function quoteSpotlightHtml(value) {
     const detailTags = prioritizedManualTags(variant.tags);
     const detailTagsHtml = detailTags.length ? `<section class="detail-tags" aria-label="タグ"><p class="detail-section__eyebrow">TAGS</p><div>${detailTags.map((tag) => catalogTagHtml({ ...tag, source: "manual" }, variant, spoilerTagKeyOf(character, variant, tag))).join("")}</div></section>` : "";
     const facts = [
-      detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job], ["アライメント", variant.alignment]], "detail-fact-group--features"),
-      detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair], ...roughStatusEntries(variant.roughStatus)], "detail-fact-group--person"),
+      detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job]], "detail-fact-group--features"),
+      detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair], ["アライメント", variant.alignment], ...roughStatusEntries(variant.roughStatus)], "detail-fact-group--person"),
       detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson], ["読み", variant.reading]], "detail-fact-group--calling")
     ].join("");
     const hasPublicSheet = Boolean(publicSheetApiUrlOf(character, variant) || Object.values(variant.publicCharacterSheet || {}).some(Boolean));
@@ -1611,7 +1788,7 @@ function quoteSpotlightHtml(value) {
       : `<div id="detail-face-preview" class="detail-face-preview" data-face-preview-key="${escapeHtml(facePreviewLayoutKey)}" hidden><img alt=""><span aria-hidden="true">FACE</span><button type="button" class="detail-face-preview__resize" data-face-preview-resize aria-label="顔アイコンの大きさを変える"></button></div>`;
     // 表情は本文タブから切り離した浮動パレットに置く。本文の高さを奪わず、
     // タブやスクロールを切り替えても、立ち絵の横でいつでも選択できる。
-    const expressionSection = variant.faces.length ? `<section class="expression-section expression-palette" data-expression-palette-key="${escapeHtml(facePreviewLayoutKey)}"${expressionPaletteHidden ? " hidden" : ""}><header class="expression-heading"><div><p class="detail-section__eyebrow">COCOFOLIA</p><h3>ココフォリア表情 <small>${variant.faces.length}</small></h3><p>選んだ表情は右の立ち絵に反映されます。</p></div><div class="expression-heading__actions"><button class="expression-reset expression-face-preview-toggle" type="button" data-show-face-preview${facePreviewHidden ? "" : " hidden"}><i class="fa-regular fa-image" aria-hidden="true"></i> 顔プレビュー</button>${variant.differenceJson ? '<button class="expression-reset" type="button" data-copy-json><i class="fa-regular fa-copy" aria-hidden="true"></i> 表情をコピー</button>' : ""}<button class="expression-palette__close" type="button" data-expression-palette-close aria-label="表情パレットを隠す" title="表情パレットを隠す"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></header><div class="expression-tray__body"><div class="expression-grid">${variant.faces.map((face, index) => {
+    const expressionSection = variant.faces.length ? `<section class="expression-section expression-palette" data-expression-palette-key="${escapeHtml(facePreviewLayoutKey)}"${expressionPaletteHidden ? " hidden" : ""}><header class="expression-heading"><div><p class="detail-section__eyebrow">COCOFOLIA</p><h3>ココフォリア表情 <small>${variant.faces.length}</small></h3><p>表情を選んでプレビュー。</p></div><div class="expression-heading__actions"><button class="expression-reset expression-face-preview-toggle" type="button" data-show-face-preview${facePreviewHidden ? "" : " hidden"}><i class="fa-regular fa-image" aria-hidden="true"></i> 顔プレビュー</button>${variant.differenceJson ? '<button class="expression-reset" type="button" data-copy-json><i class="fa-regular fa-copy" aria-hidden="true"></i> 表情をコピー</button>' : ""}<button class="expression-palette__close" type="button" data-expression-palette-close aria-label="表情パレットを隠す" title="表情パレットを隠す"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></header><div class="expression-tray__body"><div class="expression-grid">${variant.faces.map((face, index) => {
       const faceUrl = safeUrl(face.iconUrl);
       const label = faceLabelInfo(face.label, index);
       return faceUrl ? `<button class="expression-button" type="button" data-face-index="${index}" data-face-tone="${label.tone}" aria-pressed="false" title="${escapeHtml(label.display)}"><img src="${escapeHtml(faceUrl)}" alt="${escapeHtml(label.display)}" loading="lazy" decoding="async"><span>${escapeHtml(label.display)}</span></button>` : "";
@@ -1622,6 +1799,7 @@ function quoteSpotlightHtml(value) {
     const portraitTuning = `<details class="portrait-tuning"><summary><i class="fa-solid fa-sliders" aria-hidden="true"></i>立ち絵調整</summary><p>倍率・上下・左右を試し、値をシートの「立ち絵調整」列へ貼り付けます。下のプレビューは一覧右側と同じ縮小換算です。</p><div class="portrait-tuning__control"><label>倍率 <output data-portrait-scale-output>${portraitScale.toFixed(2)}</output></label><input type="range" min="0.8" max="1.3" step="0.01" value="${portraitScale}" data-portrait-scale><input type="number" min="0.8" max="1.3" step="0.01" value="${portraitScale}" data-portrait-scale></div><div class="portrait-tuning__control"><label>上下位置 <output data-portrait-offset-y-output>${portraitOffsetY}px</output></label><input type="range" min="-180" max="180" step="1" value="${portraitOffsetY}" data-portrait-offset-y><input type="number" min="-180" max="180" step="1" value="${portraitOffsetY}" data-portrait-offset-y></div><div class="portrait-tuning__control"><label>左右位置 <output data-portrait-offset-x-output>${portraitOffsetX}px</output></label><input type="range" min="-180" max="180" step="1" value="${portraitOffsetX}" data-portrait-offset-x><input type="number" min="-180" max="180" step="1" value="${portraitOffsetX}" data-portrait-offset-x></div>${listPreviewImage ? `<div class="portrait-tuning__list-preview"><span>一覧右側プレビュー</span><div><img src="${escapeHtml(listPreviewImage)}" alt="" aria-hidden="true"></div></div>` : ""}<div class="portrait-tuning__result"><code data-portrait-adjustment-value>${portraitScale.toFixed(2)},${portraitOffsetY},${portraitOffsetX}</code><button type="button" data-copy-portrait-adjustment><i class="fa-regular fa-copy" aria-hidden="true"></i>値をコピー</button></div></details>`;
     detail.className = "character-detail";
     detail.style.setProperty("--character-system-color", systemColorOf(variant.system));
+    detail.dataset.backdrop = systemBackdropOf(variant);
     detail.style.setProperty("--detail-portrait-scale", portraitScaleOf(variant));
     detail.style.setProperty("--detail-portrait-offset-y", `${portraitOffsetYOf(variant)}px`);
     detail.style.setProperty("--detail-portrait-offset-x", `${portraitOffsetXOf(variant)}px`);
@@ -1670,13 +1848,14 @@ function quoteSpotlightHtml(value) {
       { id: "record", label: "記録", content: recordContent },
       { id: "review", label: "評・演じ方", content: reviewContent }
     ].filter((tab) => tab.content);
-    if (!detailTabs.some((tab) => tab.id === state.detailContentTab)) state.detailContentTab = detailTabs[0]?.id || "person";
+    if (state.detailContentTab !== "basic" && !detailTabs.some((tab) => tab.id === state.detailContentTab)) state.detailContentTab = "basic";
+    const detailSummaryHtml = state.publicSheetOpen ? "" : `${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${detailTagsHtml}${variantTabs}${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}`;
+    const allDetailTabs = [{ id: "basic", label: "基本情報", content: detailSummaryHtml }, ...detailTabs];
     const detailTabsHtml = state.publicSheetOpen
-      ? `<section class="detail-public-sheet detail-public-sheet--standalone" data-public-sheet-view><button class="detail-action" type="button" data-close-public-sheet><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>詳細へ戻る</button>${publicSheetContent}</section>`
-      : detailTabs.length ? `<div class="detail-content-tabs" role="tablist" aria-label="キャラクター詳細の内容"><div class="detail-content-tabs__buttons">${detailTabs.map((tab) => `<button type="button" role="tab" id="detail-tab-${tab.id}" aria-selected="${tab.id === state.detailContentTab}" aria-controls="detail-panel-${tab.id}" data-detail-content-tab="${tab.id}">${escapeHtml(tab.label)}</button>`).join("")}</div>${detailTabs.map((tab) => `<section class="detail-content-panel" id="detail-panel-${tab.id}" role="tabpanel" aria-labelledby="detail-tab-${tab.id}"${tab.id === state.detailContentTab ? "" : " hidden"}>${tab.content}</section>`).join("")}</div>` : "";
-    const detailSummaryHtml = state.publicSheetOpen ? "" : `${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${detailTagsHtml}${variantTabs}${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}`;
-    detail.innerHTML = `<div class="character-detail__visual"><span class="detail-visual-id" aria-hidden="true">#${escapeHtml(String(character.id).padStart(3, "0"))}</span>${image ? `<img id="detail-main-image" src="${escapeHtml(image)}" alt="${escapeHtml(variant.name || character.registrationName)}" decoding="async">` : `<span class="character-detail__image-placeholder" aria-hidden="true">${escapeHtml(character.registrationName.slice(0, 1))}</span>`}${quoteSpotlightHtml(variant.quote)}${imageSwitcher}</div>
-      <div class="character-detail__left"><div class="character-detail__content"><div class="detail-header-row"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p>${state.publicSheetOpen || !headerMeta ? "" : `<div class="detail-meta">${headerMeta}</div>`}</div><h2 id="detail-name">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${detailSummaryHtml}${detailTabsHtml}</div></div>${state.publicSheetOpen ? "" : expressionSection}${state.publicSheetOpen ? "" : expressionPaletteLauncher}`;
+      ? `<section class="detail-public-sheet detail-public-sheet--standalone" data-public-sheet-view><button class="detail-action" type="button" data-close-public-sheet>詳細へ戻る</button>${publicSheetContent}</section>`
+      : `<div class="detail-content-tabs"><div class="detail-content-tabs__buttons" role="tablist" aria-label="キャラクター詳細の内容"><span class="detail-compact-name" aria-hidden="true">${escapeHtml(variant.name || character.registrationName)}</span>${allDetailTabs.map((tab) => `<button type="button" role="tab" id="detail-tab-${tab.id}" aria-selected="${tab.id === state.detailContentTab}" aria-controls="detail-panel-${tab.id}" data-detail-content-tab="${tab.id}">${escapeHtml(tab.label)}</button>`).join("")}</div>${allDetailTabs.map((tab) => `<section class="detail-content-panel" id="detail-panel-${tab.id}" role="tabpanel" aria-labelledby="detail-tab-${tab.id}"${tab.id === state.detailContentTab ? "" : " hidden"}>${tab.content}</section>`).join("")}</div>`;
+    detail.innerHTML = `<div class="character-detail__visual"><div class="detail-visual-heading" aria-hidden="true"><span class="detail-visual-id">#${escapeHtml(String(character.id).padStart(3, "0"))}</span><span class="detail-visual-stripes"></span></div>${image ? `<img id="detail-main-image" src="${escapeHtml(image)}" alt="${escapeHtml(variant.name || character.registrationName)}" decoding="async">` : `<span class="character-detail__image-placeholder" aria-hidden="true">${escapeHtml(character.registrationName.slice(0, 1))}</span>`}${quoteSpotlightHtml(variant.quote)}${imageSwitcher}</div>
+      <div class="character-detail__left"><div class="character-detail__content"><div class="detail-header-row"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p>${state.publicSheetOpen || !headerMeta ? "" : `<div class="detail-meta">${headerMeta}</div>`}</div><h2 id="detail-name" tabindex="-1">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${state.publicSheetOpen ? "" : akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${detailTabsHtml}</div>${state.publicSheetOpen ? "" : expressionSection}${state.publicSheetOpen ? "" : expressionPaletteLauncher}</div>`;
     const authorSelect = detail.querySelector('[name="author"]');
     const commentKeyInput = detail.querySelector('[name="writeKey"]');
     if (authorSelect && commentKeyInput) {
@@ -1715,6 +1894,7 @@ function quoteSpotlightHtml(value) {
     });
     loadRemotePublicSheet(character, variant);
     startQuoteSpotlight();
+    requestAnimationFrame(fitDetailTypography);
   }
 
   function rememberCatalogScroll() {
@@ -1739,30 +1919,6 @@ function quoteSpotlightHtml(value) {
       state.detailWarmupController.abort();
       state.detailWarmupController = null;
     }
-  }
-  function scheduleCatalogDetailWarmup(delay = 1200) {
-    if (!state.characters.some((character) => !character.detailLoaded)) return;
-    if (state.detailWarmupTimer || state.detailWarmupController) return;
-    const begin = () => {
-      state.detailWarmupTimer = null;
-      // この間に個別クリック済み、または一覧が全詳細化済みなら何もしない。
-      if (state.selectedId || !state.characters.some((character) => !character.detailLoaded)) return;
-      const controller = new AbortController();
-      state.detailWarmupController = controller;
-      fetchCharacterPayload(`${CHARACTER_API_BASE_URL}?tool=characters&_=${Date.now()}`, { cache: "no-store", signal: controller.signal })
-        .then((payload) => {
-          // 開いている詳細や、先に1件だけ取得した詳細を applyCharacterPayload が保持する。
-          applyCharacterPayload(payload);
-        })
-        .catch((error) => {
-          // 個別閲覧を優先するための中断は正常な制御フロー。画面へは出さない。
-          if (error?.name !== "AbortError") console.info("Background character-detail warmup was skipped.", error);
-        })
-        .finally(() => {
-          if (state.detailWarmupController === controller) state.detailWarmupController = null;
-        });
-    };
-    state.detailWarmupTimer = setTimeout(begin, Math.max(0, delay));
   }
   async function loadCharacterDetail(id) {
     const characterId = String(id);
@@ -1802,6 +1958,7 @@ function quoteSpotlightHtml(value) {
   }
 
   async function openCharacter(id, variantIndex = null, options = {}) {
+    loadCommentAuthors();
     const character = state.characters.find((item) => item.id === String(id));
     if (!character) return;
     if (!dialog.open) rememberCatalogScroll();
@@ -1809,12 +1966,19 @@ function quoteSpotlightHtml(value) {
     cancelCatalogDetailWarmup();
     state.openedFromUrl = Boolean(options.fromUrl);
     state.selectedId = character.id;
+    state.detailContentTab = "basic";
     state.variantIndex = variantIndex === null ? character.representativeIndex : Number(variantIndex);
     state.detailImageMode = "normal";
     state.publicSheetOpen = false;
     state.detailLoadingId = character.detailLoaded ? null : character.id;
     renderDetail();
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) {
+      dialog.showModal();
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        dialog.animate([{ opacity: 0, transform: "translateY(10px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 240, easing: "cubic-bezier(.2,.8,.2,1)" });
+        detail.querySelector(".character-detail__visual")?.animate([{ opacity: .3, translate: "12px 0" }, { opacity: 1, translate: "0 0" }], { duration: 300, easing: "ease-out" });
+      }
+    }
     restoreDetailScroll();
     document.documentElement.classList.add("character-dialog-open");
     if (character.detailLoaded) return;
@@ -1847,7 +2011,7 @@ function quoteSpotlightHtml(value) {
     restoreCatalogScroll();
     // モーダルを閉じた後にだけ、残りの全詳細を裏で温め直す。
     // 読んでいる最中に巨大なレスポンスを処理して描画を重くしないため。
-    scheduleCatalogDetailWarmup(1600);
+
   }
   function activeDetailVariant() {
     const character = state.characters.find((item) => item.id === state.selectedId);
@@ -1972,6 +2136,7 @@ function quoteSpotlightHtml(value) {
       })
       .filter((character) => character.variants.length);
     buildLocationDisplayNames();
+    configureHeroFaces();
     if (!state.characters.length) {
       grid.innerHTML = '<div class="catalog-empty"><h2>表示できるキャラクターがいません</h2><p>スプレッドシートで「非公開」にしていない行が表示対象です。</p></div>';
       count.textContent = "0 characters";
@@ -2064,13 +2229,13 @@ function quoteSpotlightHtml(value) {
       saveCachedCharacterPayload(latest);
       applyCharacterPayload(latest, { openInitial: !renderedPreview });
       status.hidden = true;
-      scheduleCatalogDetailWarmup();
+
     } catch (error) {
       console.warn("Character API could not be loaded.", error);
       if (renderedPreview) {
         console.info("最新のキャラクターデータは取得できなかったため、ローカル控えを表示しています。");
         status.hidden = true;
-        scheduleCatalogDetailWarmup();
+
         return;
       }
       status.textContent = "キャラクターデータを読み込めませんでした。少し待ってから再読み込みしてください。";
@@ -2164,6 +2329,16 @@ function quoteSpotlightHtml(value) {
     closeTagPopover();
   });
   window.addEventListener("resize", closeTagPopover);
+  let detailResizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(detailResizeTimer);
+    detailResizeTimer = setTimeout(() => {
+      if (!dialog.open) return;
+      rememberDetailScroll();
+      renderDetail();
+      restoreDetailScroll();
+    }, 150);
+  });
   window.addEventListener("scroll", closeTagPopover, true);
   mergeRun.addEventListener("click", runCharacterMerge);
   mergeCopy.addEventListener("click", () => { if (mergeOutput.value) copyText(mergeOutput.value); });
@@ -2423,7 +2598,7 @@ function quoteSpotlightHtml(value) {
       });
       detailContentTab.focus({ preventScroll: true });
       requestAnimationFrame(() => {
-        if (detailContent) detailContent.scrollTop = scrollTop;
+        if (detailContent) detailContent.scrollTop = 0;
       });
       return;
     }
@@ -2554,12 +2729,25 @@ function quoteSpotlightHtml(value) {
   dialog.addEventListener("close", () => document.documentElement.classList.remove("character-dialog-open"));
   imageLightbox.addEventListener("click", (event) => { if (event.target === imageLightbox || event.target === imageLightboxImage || event.target.closest(".character-image-lightbox__close")) closeImageLightbox(); });
   imageLightbox.addEventListener("cancel", (event) => { event.preventDefault(); closeImageLightbox(); });
+  document.getElementById("catalog-reset").addEventListener("click", () => {
+    clearTimeout(searchTimer);
+    search.value = state.query = "";
+    for (const [key, control] of [["system", systemFilter], ["location", locationFilter], ["year", yearFilter], ["sex", sexFilter], ["alignmentOrder", alignmentOrderFilter], ["alignmentMorality", alignmentMoralityFilter]]) {
+      state[key] = control.value = "";
+    }
+    state.tagFilters.clear(); state.statFilter = null; state.cardVariantIndexes.clear();
+    renderCards();
+  });
+  let searchTimer;
   search.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
     // タグだけは表示記法まで入力しても同じ語として探せる。
     // 例: 記憶喪失 / ||記憶喪失|| / ~~記憶喪失~~ / %%記憶喪失%%。
     state.query = tagInfoOf(search.value).label.toLocaleLowerCase("ja");
     state.cardVariantIndexes.clear();
     renderCards();
+    }, 120);
   });
   systemFilter.addEventListener("change", () => { state.system = systemFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
   locationFilter.addEventListener("change", () => { state.location = locationFilter.value; state.cardVariantIndexes.clear(); renderCards(); });
@@ -2612,6 +2800,22 @@ function quoteSpotlightHtml(value) {
     renderCards();
   });
   // 一覧表示を待たせず、投稿者候補は並行で取得する。
-  loadCommentAuthors();
+  // One moving capsule per toggle; adapt to font loading and narrow screens.
+  [viewToggle, catalogModeToggle].forEach((toggle) => {
+    const updateCapsule = () => {
+      const selected = toggle.querySelector('[aria-pressed="true"]');
+      if (!selected) return;
+      toggle.style.setProperty("--capsule-x", `${selected.offsetLeft}px`);
+      toggle.style.setProperty("--capsule-y", `${selected.offsetTop}px`);
+      toggle.style.setProperty("--capsule-width", `${selected.offsetWidth}px`);
+      toggle.style.setProperty("--capsule-height", `${selected.offsetHeight}px`);
+      toggle.classList.add("has-moving-capsule");
+    };
+    const observer = new ResizeObserver(updateCapsule);
+    observer.observe(toggle);
+    toggle.querySelectorAll("button").forEach((button) => observer.observe(button));
+    toggle.addEventListener("click", () => requestAnimationFrame(updateCapsule));
+    updateCapsule();
+  });
   loadCharacters();
 })();

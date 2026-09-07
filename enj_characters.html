@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,58 +9,77 @@
   <meta name="description" content="エンJのキャラクターを、姿や世界線ごとに眺められる個人キャラクター図鑑です。">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="css/enj_characters.css?v=20260905d">
-  <link rel="stylesheet" href="css/enj_characters_ui.css?v=20260830c">
+  <link rel="stylesheet" href="css/enj_characters.css?v=20260906k">
+  <link rel="stylesheet" href="css/enj_characters_ui.css?v=20260907polish">
 </head>
+
 <body class="enj-catalog-page">
   <div id="header-placeholder"></div>
 
   <main class="main-content catalog-main">
     <header class="catalog-hero">
-      <p class="catalog-eyebrow">CHARACTER ARCHIVE</p>
-      <h1>エンJキャラ図鑑</h1>
-      <p>同じ人物の、違う時代や世界の姿まで。ユニークIDを軸にまとめた個人キャラクターアーカイブ。</p>
+      <div class="catalog-hero__copy">
+        <p class="catalog-eyebrow">CHARACTER ARCHIVE</p>
+        <h1>エンJキャラ図鑑</h1>
+        <p class="catalog-hero__description">変なキャラがいっぱい登場！</p>
+      </div>
+      <div id="catalog-hero-faces" class="catalog-hero__faces" aria-hidden="true" hidden>
+        <img class="catalog-hero__face" alt="" decoding="async">
+        <img class="catalog-hero__face" alt="" decoding="async">
+      </div>
     </header>
 
     <section class="catalog-toolbar" aria-label="キャラクター検索">
+      <div class="catalog-discovery">
       <label class="catalog-search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input id="character-search" type="search" placeholder="名前・システム・キーワードで探す">
+        <input aria-label="キャラクターを検索" id="character-search" type="search" placeholder="名前・システム・キーワードで探す">
       </label>
+      <details class="catalog-filters"><summary>絞り込み <span id="filter-badge"></span></summary><div class="catalog-filters__body">
       <label class="catalog-system-filter">
         <span>システム</span>
-        <select id="system-filter"><option value="">すべて</option></select>
+        <select id="system-filter">
+          <option value="">すべて</option>
+        </select>
       </label>
       <label class="catalog-system-filter">
         <span>場所</span>
-        <select id="location-filter"><option value="">すべて</option></select>
+        <select id="location-filter">
+          <option value="">すべて</option>
+        </select>
       </label>
       <label class="catalog-system-filter">
         <span>年</span>
-        <select id="year-filter"><option value="">すべて</option></select>
+        <select id="year-filter">
+          <option value="">すべて</option>
+        </select>
       </label>
       <label class="catalog-system-filter">
         <span>性別</span>
-        <select id="sex-filter"><option value="">すべて</option></select>
-      </label>
-      <label class="catalog-system-filter">
-        <span>秩序軸</span>
-        <select id="alignment-order-filter">
+        <select id="sex-filter">
           <option value="">すべて</option>
+        </select>
+      </label>
+<div class="catalog-alignment-field"><span class="catalog-alignment-label">アライメント</span><div class="catalog-alignment-pair" role="group" aria-label="アライメント">      <label class="catalog-system-filter">
+        <span class="catalog-visually-hidden">秩序軸</span>
+        <select id="alignment-order-filter">
+          <option value="">秩序軸：すべて</option>
           <option value="lawful">秩序</option>
           <option value="neutral">中立</option>
           <option value="chaotic">混沌</option>
         </select>
       </label>
       <label class="catalog-system-filter">
-        <span>善悪軸</span>
+        <span class="catalog-visually-hidden">善悪軸</span>
         <select id="alignment-morality-filter">
-          <option value="">すべて</option>
+          <option value="">善悪軸：すべて</option>
           <option value="good">善</option>
           <option value="neutral">中庸</option>
           <option value="evil">悪</option>
         </select>
-      </label>
+      </label></div></div>
+      <button type="button" id="catalog-reset">条件をリセット</button></div></details></div>
+      <div class="catalog-display-controls">
       <label class="catalog-system-filter">
         <span>並び順</span>
         <select id="sort-select">
@@ -82,33 +102,101 @@
         </select>
       </label>
       <div class="catalog-view-toggle" role="group" aria-label="表示方法">
-        <button type="button" data-view="list" aria-pressed="true" title="名前つき一覧"><i class="fa-solid fa-list" aria-hidden="true"></i><span>一覧</span></button>
-        <button type="button" data-view="grid" aria-pressed="false" title="アイコン一覧"><i class="fa-solid fa-grip" aria-hidden="true"></i><span>アイコン</span></button>
+        <button type="button" data-view="list" aria-pressed="true" title="名前つき一覧"><i class="fa-solid fa-list"
+            aria-hidden="true"></i><span>一覧</span></button>
+        <button type="button" data-view="grid" aria-pressed="false" title="アイコン一覧"><i class="fa-solid fa-grip"
+            aria-hidden="true"></i><span>アイコン</span></button>
       </div>
       <div class="catalog-mode-toggle" role="group" aria-label="表示単位">
         <button type="button" data-catalog-mode="unique" aria-pressed="true" title="同じ人物の姿をまとめて表示する">人物ごと</button>
         <button type="button" data-catalog-mode="variants" aria-pressed="false" title="姿・システムをすべて個別に表示する">すべて表示</button>
       </div>
-      <button id="portrait-adjust-toggle" class="catalog-portrait-toggle" type="button" aria-pressed="false"><i class="fa-solid fa-sliders" aria-hidden="true"></i>立ち絵調整</button>
-      <button id="catalog-stats-toggle" class="catalog-portrait-toggle" type="button" aria-expanded="false"><i class="fa-solid fa-chart-column" aria-hidden="true"></i>統計</button>
-      <div class="catalog-count-wrap" aria-live="polite"><span id="catalog-status" class="catalog-status" role="status" hidden></span><p id="catalog-count" class="catalog-count"></p></div>
+      <button id="portrait-adjust-toggle" class="catalog-portrait-toggle" type="button" aria-pressed="false"><i
+          class="fa-solid fa-sliders" aria-hidden="true"></i>立ち絵調整</button>
+      <button id="catalog-stats-toggle" class="catalog-portrait-toggle" type="button" aria-expanded="false"><i
+          class="fa-solid fa-chart-column" aria-hidden="true"></i>統計</button>
+      <div class="catalog-count-wrap" aria-live="polite"><span id="catalog-status" class="catalog-status" role="status"
+          hidden></span>
+        <p id="catalog-count" class="catalog-count"></p>
+      </div>
+      </div>
       <div id="active-tag-filters" class="catalog-active-tags" aria-live="polite" hidden></div>
     </section>
 
-    <details class="catalog-alignment-guide">
+    <section id="catalog-statistics" class="catalog-statistics" hidden aria-live="polite"></section>
+
+    <section id="character-grid" class="character-grid" aria-label="キャラクター一覧" aria-live="polite"></section>
+    <div class="catalog-utilities">    <details class="catalog-alignment-guide">
       <summary><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>アライメントについて <small>9分類の見方</small></summary>
       <div class="catalog-alignment-guide__body">
         <p>アライメントは、法律を守るか・犯罪者か・感じがよいかではなく、<strong>利害・義務・道徳が衝突した時に何を優先するか</strong>を見るための目安です。</p>
         <div class="catalog-alignment-guide__axes">
-          <section><h3>秩序／中立／混沌</h3><dl><div><dt>秩序</dt><dd>国・組織・共同体全体を優先しやすい。</dd></div><div><dt>中立</dt><dd>仲間・家族・身近な人間関係を優先しやすい。</dd></div><div><dt>混沌</dt><dd>自分自身の信念・欲望・判断を最終基準にしやすい。</dd></div></dl></section>
-          <section><h3>善／中庸／悪</h3><dl><div><dt>善</dt><dd>他者を助け、傷つけない方向を強く取る。</dd></div><div><dt>中庸</dt><dd>現実・損得・関係性を組み合わせて判断する。</dd></div><div><dt>悪</dt><dd>必要なら、他者を害する選択を自覚的に取れる。</dd></div></dl></section>
+          <section>
+            <h3>秩序／中立／混沌</h3>
+            <dl>
+              <div>
+                <dt>秩序</dt>
+                <dd>国・組織・共同体全体を優先しやすい。</dd>
+              </div>
+              <div>
+                <dt>中立</dt>
+                <dd>仲間・家族・身近な人間関係を優先しやすい。</dd>
+              </div>
+              <div>
+                <dt>混沌</dt>
+                <dd>自分自身の信念・欲望・判断を最終基準にしやすい。</dd>
+              </div>
+            </dl>
+          </section>
+          <section>
+            <h3>善／中庸／悪</h3>
+            <dl>
+              <div>
+                <dt>善</dt>
+                <dd>他者を助け、傷つけない方向を強く取る。</dd>
+              </div>
+              <div>
+                <dt>中庸</dt>
+                <dd>現実・損得・関係性を組み合わせて判断する。</dd>
+              </div>
+              <div>
+                <dt>悪</dt>
+                <dd>必要なら、他者を害する選択を自覚的に取れる。</dd>
+              </div>
+            </dl>
+          </section>
         </div>
         <div class="catalog-alignment-guide__grid">
-          <button type="button" class="is-lawful is-good" data-alignment-guide-filter-order="lawful" data-alignment-guide-filter-morality="good" title="秩序・善で絞り込む"><strong>秩序・善</strong><span>共同体を守りながら、本人も善くあろうとする。</span></button><button type="button" class="is-lawful is-moral-neutral" data-alignment-guide-filter-order="lawful" data-alignment-guide-filter-morality="neutral" title="秩序・中庸で絞り込む"><strong>秩序・中庸</strong><span>秩序を尊重する現実主義者。必要な妥協も受け入れる。</span></button><button type="button" class="is-lawful is-evil" data-alignment-guide-filter-order="lawful" data-alignment-guide-filter-morality="evil" title="秩序・悪で絞り込む"><strong>秩序・悪</strong><span>悪だと理解していても、大義のために背負う。</span></button>
-          <button type="button" class="is-neutral is-good" data-alignment-guide-filter-order="neutral" data-alignment-guide-filter-morality="good" title="中立・善で絞り込む"><strong>中立・善</strong><span>身近な人を放っておけない。自分の人生や利益も捨てない。</span></button><button type="button" class="is-neutral is-moral-neutral" data-alignment-guide-filter-order="neutral" data-alignment-guide-filter-morality="neutral" title="中立・中庸で絞り込む"><strong>中立・中庸</strong><span>身近な関係・損得・個人的信念をすり合わせる。</span></button><button type="button" class="is-neutral is-evil" data-alignment-guide-filter-order="neutral" data-alignment-guide-filter-morality="evil" title="中立・悪で絞り込む"><strong>中立・悪</strong><span>自分や身内の目的のためなら、悪事も選べる。</span></button>
-          <button type="button" class="is-chaotic is-good" data-alignment-guide-filter-order="chaotic" data-alignment-guide-filter-morality="good" title="混沌・善で絞り込む"><strong>混沌・善</strong><span>自分自身の正しさを基準にし、その結果として人を救う。</span></button><button type="button" class="is-chaotic is-moral-neutral" data-alignment-guide-filter-order="chaotic" data-alignment-guide-filter-morality="neutral" title="混沌・中庸で絞り込む"><strong>混沌・中庸</strong><span>社会の基準ではなく、自分固有の美学・欲求・尺度で動く。</span></button><button type="button" class="is-chaotic is-evil" data-alignment-guide-filter-order="chaotic" data-alignment-guide-filter-morality="evil" title="混沌・悪で絞り込む"><strong>混沌・悪</strong><span>他人のルールより自分を優先し、被害を承知で悪を選ぶ。</span></button>
+          <button type="button" class="is-lawful is-good" data-alignment-guide-filter-order="lawful"
+            data-alignment-guide-filter-morality="good"
+            title="秩序・善で絞り込む"><strong>秩序・善</strong><span>共同体を守りながら、本人も善くあろうとする。</span></button><button type="button"
+            class="is-lawful is-moral-neutral" data-alignment-guide-filter-order="lawful"
+            data-alignment-guide-filter-morality="neutral"
+            title="秩序・中庸で絞り込む"><strong>秩序・中庸</strong><span>秩序を尊重する現実主義者。必要な妥協も受け入れる。</span></button><button
+            type="button" class="is-lawful is-evil" data-alignment-guide-filter-order="lawful"
+            data-alignment-guide-filter-morality="evil"
+            title="秩序・悪で絞り込む"><strong>秩序・悪</strong><span>悪だと理解していても、大義のために背負う。</span></button>
+          <button type="button" class="is-neutral is-good" data-alignment-guide-filter-order="neutral"
+            data-alignment-guide-filter-morality="good"
+            title="中立・善で絞り込む"><strong>中立・善</strong><span>身近な人を放っておけない。自分の人生や利益も捨てない。</span></button><button
+            type="button" class="is-neutral is-moral-neutral" data-alignment-guide-filter-order="neutral"
+            data-alignment-guide-filter-morality="neutral"
+            title="中立・中庸で絞り込む"><strong>中立・中庸</strong><span>身近な関係・損得・個人的信念をすり合わせる。</span></button><button type="button"
+            class="is-neutral is-evil" data-alignment-guide-filter-order="neutral"
+            data-alignment-guide-filter-morality="evil"
+            title="中立・悪で絞り込む"><strong>中立・悪</strong><span>自分や身内の目的のためなら、悪事も選べる。</span></button>
+          <button type="button" class="is-chaotic is-good" data-alignment-guide-filter-order="chaotic"
+            data-alignment-guide-filter-morality="good"
+            title="混沌・善で絞り込む"><strong>混沌・善</strong><span>自分自身の正しさを基準にし、その結果として人を救う。</span></button><button type="button"
+            class="is-chaotic is-moral-neutral" data-alignment-guide-filter-order="chaotic"
+            data-alignment-guide-filter-morality="neutral"
+            title="混沌・中庸で絞り込む"><strong>混沌・中庸</strong><span>社会の基準ではなく、自分固有の美学・欲求・尺度で動く。</span></button><button
+            type="button" class="is-chaotic is-evil" data-alignment-guide-filter-order="chaotic"
+            data-alignment-guide-filter-morality="evil"
+            title="混沌・悪で絞り込む"><strong>混沌・悪</strong><span>他人のルールより自分を優先し、被害を承知で悪を選ぶ。</span></button>
         </div>
-        <p class="catalog-alignment-guide__try"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>自分のキャラでも当てはめてみよう！　気になる分類を押すと、そのキャラクターだけに絞り込めます。</p>
+        <p class="catalog-alignment-guide__try"><i class="fa-solid fa-hand-pointer"
+            aria-hidden="true"></i>自分のキャラでも当てはめてみよう！　気になる分類を押すと、そのキャラクターだけに絞り込めます。</p>
         <p class="catalog-alignment-guide__note">一度だけの極端な場面ではなく、複数場面で繰り返される判断を見るための分類です。</p>
       </div>
     </details>
@@ -116,16 +204,19 @@
     <details class="catalog-merge" id="character-merge">
       <summary><i class="fa-solid fa-object-group" aria-hidden="true"></i>コママージ</summary>
       <p>名前またはココフォリアのキャラクターJSONを入れると、名鑑にある表情差分を統合します。</p>
-      <label>名鑑から選ぶ<select id="character-merge-select"><option value="">手入力する</option></select></label>
+      <label>名鑑から選ぶ<select id="character-merge-select">
+          <option value="">手入力する</option>
+        </select></label>
       <label>入力<textarea id="character-merge-input" rows="5" placeholder="キャラ名 または ココフォリアJSON"></textarea></label>
-      <div class="catalog-merge__actions"><button id="character-merge-run" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>統合する</button><button id="character-merge-copy" type="button" disabled><i class="fa-regular fa-copy" aria-hidden="true"></i>コピー</button></div>
+      <div class="catalog-merge__actions"><button id="character-merge-run" type="button"><i
+            class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>統合する</button><button
+          id="character-merge-copy" type="button" disabled><i class="fa-regular fa-copy"
+            aria-hidden="true"></i>コピー</button></div>
       <p id="character-merge-status" class="catalog-merge__status" role="status"></p>
       <label>出力<textarea id="character-merge-output" rows="8" readonly></textarea></label>
     </details>
 
-    <section id="catalog-statistics" class="catalog-statistics" hidden aria-live="polite"></section>
-
-    <section id="character-grid" class="character-grid" aria-live="polite"></section>
+</div>
   </main>
 
   <dialog id="character-dialog" class="character-dialog" aria-labelledby="detail-name">
@@ -133,18 +224,24 @@
     <div id="character-detail"></div>
   </dialog>
   <dialog id="character-image-lightbox" class="character-image-lightbox" aria-label="立ち絵を拡大表示">
-    <button type="button" class="character-image-lightbox__close" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <button type="button" class="character-image-lightbox__close" aria-label="閉じる"><i class="fa-solid fa-xmark"
+        aria-hidden="true"></i></button>
     <img id="character-image-lightbox-image" alt="">
   </dialog>
 
   <div id="catalog-toast" class="catalog-toast" role="status" aria-live="polite"></div>
   <aside id="portrait-adjust-controller" class="portrait-adjust-controller" hidden aria-label="立ち絵調整コントローラー"></aside>
-  <datalist id="portrait-scale-mark"><option value="1.3" label="標準上限 1.30"></option></datalist>
+  <datalist id="portrait-scale-mark">
+    <option value="1.3" label="標準上限 1.30"></option>
+  </datalist>
 
-  <footer><p>© 2026 卓スタダ.</p></footer>
-  <script src="js/common.js"></script>
-  <script src="js/enj_characters_ruby.js?v=20260828a"></script>
-  <script src="js/enj_characters.js?v=20260905d"></script>
-  <script src="js/enj_characters_quotes.js?v=20260831a"></script>
+  <footer>
+    <p>© 2026 卓スタダ.</p>
+  </footer>
+  <script defer src="js/common.js"></script>
+  <script defer src="js/enj_characters_ruby.js?v=20260828a"></script>
+  <script defer src="js/enj_characters.js?v=20260907polish"></script>
+  <script defer src="js/enj_characters_quotes.js?v=20260831a"></script>
 </body>
+
 </html>
