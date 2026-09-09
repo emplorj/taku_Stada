@@ -1,0 +1,154 @@
+/* Shared finish for the six workspaces. Fonts and state colours stay local. */
+#char-sheet-form .sw25-workspace {
+  --workspace-surface: #211f1c;
+  --workspace-border: #484137;
+  --workspace-muted: #bbb4a8;
+  --workspace-gold: #dec18a;
+  --enemy-builder-panel: #211f1c;
+  --enemy-builder-border: #484137;
+  min-width: 0;
+}
+#panel-basic, #panel-general-skills { container: sw25workspace / inline-size; }
+#char-sheet-form .sw25-workspace > h3,
+.sw25-generator-page #panel-enemy-builder .enemy-builder-heading h3 {
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  color: #f5edde;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  text-shadow: none;
+}
+#char-sheet-form .sw25-workspace :is(.workspace-lead, .analysis-lead, .enemy-enhancement-howto) {
+  margin: 0 0 14px;
+  color: var(--workspace-muted);
+  font-size: .85rem;
+  line-height: 1.8;
+}
+#char-sheet-form .sw25-workspace :is(
+  .workspace-card, .equipment-container, .general-skill-header,
+  .enhancement-column, .enemy-enhancement-modern,
+  .enemy-builder-card, .enemy-builder-quick-card, .analysis-card
+) {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 16px;
+  background: var(--workspace-surface);
+  border: 1px solid var(--workspace-border);
+  border-radius: 12px;
+  box-shadow: none;
+}
+#char-sheet-form .sw25-workspace h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--workspace-border);
+  color: #f2eadc;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-shadow: none;
+}
+#char-sheet-form .sw25-workspace :is(input[type="text"], input[type="number"], select, textarea) {
+  border-color: #575044;
+  border-radius: 6px;
+  background-color: #191816;
+}
+#char-sheet-form .sw25-workspace :is(.small-button, .add-row-btn, .unit-btn) {
+  min-height: 34px;
+  border-radius: 6px;
+}
+#char-sheet-form .sw25-workspace :is(.small-button, .add-row-btn, .unit-btn):not(:disabled):not(.active):not(.selected):not([aria-pressed="true"]) {
+  background-color: #28241e;
+  border: 1px solid #665a45;
+  color: #e1d1b5;
+}
+#char-sheet-form .sw25-workspace :is(.small-button, .add-row-btn, .unit-btn):not(:disabled):hover {
+  background-color: #393228;
+}
+#char-sheet-form .sw25-workspace :is(
+  #copy-personal-data-btn, #copy-items-list-btn, #randomize-skill-all-btn,
+  #apply-enemy-enhancement-btn, #enemy-builder-import-button, #char-analysis-load-btn
+):not(:disabled) {
+  background: #d8ba7f;
+  border: 1px solid #e8ce9e;
+  color: #241e14;
+}
+#char-sheet-form .sw25-workspace :is(
+  #copy-personal-data-btn, #copy-items-list-btn, #randomize-skill-all-btn,
+  #apply-enemy-enhancement-btn, #enemy-builder-import-button, #char-analysis-load-btn
+):not(:disabled):hover { background: #e9cd98; }
+#char-sheet-form .sw25-workspace :is(input, select, textarea, button, summary):focus-visible {
+  outline: 2px solid #f0ce8e;
+  outline-offset: 3px;
+  box-shadow: none;
+}
+#char-sheet-form .sw25-workspace .section-divider {
+  border: 0;
+  border-top: 1px solid var(--workspace-border);
+  margin: 16px 0;
+}
+/* Basic information: edit and output side by side without a nested list scroll. */
+#panel-basic #personal-data-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+#panel-basic #personal-data-fields-container {
+  margin: 0;
+  padding: 0;
+  max-height: none;
+  overflow: visible;
+}
+#panel-basic .personal-data-row { gap: 8px; padding: 6px 0; }
+#panel-basic .personal-data-value-wrapper { min-width: 0; }
+#panel-basic .personal-output-card { display: flex; flex-direction: column; gap: 12px; }
+#panel-basic .generated-data-header { margin: 0; gap: 12px; }
+#panel-basic .generated-data-header h4 { margin: 0; padding: 0; border: 0; }
+#panel-basic #personal-data-output { flex: 1; min-height: 240px; width: 100%; }
+/* Equipment keeps its aligned numeric columns and scrolls horizontally when needed. */
+#panel-equipment-items > .section-divider { display: none; }
+#panel-equipment-items .equipment-container { margin-bottom: 16px; }
+#panel-equipment-items .equipment-header { border-color: var(--workspace-border); padding-bottom: 10px; }
+#panel-equipment-items .dynamic-rows-container { margin-top: 8px; padding-top: 0; border-top: 0; }
+#panel-equipment-items .item-controls-footer { gap: 12px; flex-wrap: wrap; }
+#panel-equipment-items :is(.action-buttons-group, .copy-buttons-group) { gap: 8px; flex-wrap: wrap; }
+#panel-equipment-items :is(#items-output, #cashbook) { min-height: 120px; }
+/* Skills: one outer scrolling surface, preserving the progress and level controls. */
+#panel-general-skills .general-skill-header { gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+#panel-general-skills > .section-divider { display: none; }
+#panel-general-skills .general-skill-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+#panel-general-skills .general-skill-buttons .add-row-btn { margin-top: 0; }
+#panel-general-skills #general-skills-container { max-height: none; overflow: visible; padding: 0; margin-top: 0; gap: 12px; }
+#panel-general-skills .general-skill-row {
+  padding: 12px 16px;
+  background: var(--workspace-surface);
+  border: 1px solid var(--workspace-border);
+  border-radius: 10px;
+}
+#panel-general-skills .level-guide-text { border-color: #665a45; line-height: 1.7; }
+/* Preserve specialised editors, popovers and analysis modes; unify their shell. */
+#panel-enemy-enhancement .enhancement-io-container { gap: 16px; }
+#panel-enemy-enhancement .input-actions { gap: 8px; }
+#panel-enemy-enhancement .enemy-enhancement-note { color: var(--workspace-muted); line-height: 1.7; }
+#panel-enemy-builder .enemy-builder-heading { border-bottom: 0; margin-bottom: 14px; padding-bottom: 0; }
+#panel-enemy-builder .enemy-builder-import-bar { border-color: var(--workspace-border); border-radius: 10px; }
+#panel-enemy-builder .enemy-builder-layout { gap: 16px; }
+#panel-character-analysis .analysis-input-row { gap: 16px; }
+#panel-character-analysis .analysis-status:empty { display: none; }
+#panel-character-analysis .analysis-note { color: var(--workspace-muted); line-height: 1.7; }
+@container sw25workspace (max-width: 850px) {
+  #panel-basic #personal-data-editor { grid-template-columns: minmax(0, 1fr); }
+  #panel-general-skills .general-skill-row { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+  #panel-general-skills .skill-name-cell { grid-column: 1; }
+  #panel-general-skills .level-control-wrapper { grid-column: 1; grid-row: 2; }
+  #panel-general-skills .level-guide-text { grid-column: 1 / -1; grid-row: 3; }
+  #panel-general-skills .remove-row-btn { grid-column: 2; grid-row: 1; }
+  #panel-general-skills .skill-level-progress { max-width: 100%; min-width: 0; }
+  #panel-general-skills .segmented-progress-bar { width: min(400px, 45cqw); }
+}
+@container sw25workspace (max-width: 450px) {
+  #panel-basic .personal-data-row { flex-wrap: wrap; }
+  #panel-basic .personal-data-key { flex-basis: 100%; }
+  #panel-basic .personal-data-value-wrapper { flex-basis: calc(100% - 40px); }
+}

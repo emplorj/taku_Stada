@@ -114,12 +114,11 @@
     [...container.querySelectorAll("[data-quote-spotlight-index]")].forEach((source) => {
       const text = source.textContent.trim();
       if (!text) return;
-      const line = source.cloneNode(false);
+      const line = source.cloneNode(true);
       const normalized = text.replace(/[!?]/g, (mark) => mark === "!" ? "！" : "？");
-      line.textContent = normalized;
-      line.classList.remove("is-active", "is-compact", "has-opening-quote");
-      if (normalized.replace(/\s/g, "").length > 54) line.classList.add("is-compact");
-      if (/^[「『“"]/.test(normalized)) line.classList.add("has-opening-quote");
+      // Keep the ruby markup created by the renderer.
+      // Typography is determined by the renderer, excluding ruby readings.
+      line.classList.remove("is-active");
       nextLines.push(line);
     });
 

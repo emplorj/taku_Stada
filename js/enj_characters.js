@@ -2,12 +2,13 @@
   "use strict";
 
   const CHARACTER_API_BASE_URL =
-    "https://script.google.com/macros/s/AKfycbx9NnqKeIqA9TehZa9sxdYK_gsoWWtTcOK3pessvmOY_61_yXDi2wkHQt-6n7oj6A/exec";
+    "https://script.google.com/macros/s/AKfycbz561gTV1WJKEQVip8JVDqDvqPACZXEj9x3ptMBzTwpSNBHWbMeCc9BxjL51C4dDKRy/exec";
   const CHARACTER_INDEX_API_URL = `${CHARACTER_API_BASE_URL}?tool=index`;
   const LOCAL_PREVIEW_URL = "data/enj_characters.preview.json?v=20260830b";
   // GASが返した最新の名鑑を次回起動用に残す。静的控えが古くても、
   // 一度でも最新版を受け取っていれば次のハード再読み込みから即表示できる。
-  const CHARACTER_CACHE_KEY = "enj-character-catalog-index-v2";
+  // 詳細本文は台詞のルビ記法も含むため、旧い詳細入りキャッシュを再利用しない。
+  const CHARACTER_CACHE_KEY = "enj-character-catalog-index-v4";
   const COMMENT_AUTHOR_KEYS_STORAGE = "enj-character-comment-author-keys-v1";
   const PUBLIC_SHEET_API_BASE_URL = "https://script.google.com/macros/s/AKfycbw79S1-1Pi4xFemp5AxHjBa2LCtpOXwz0xwsRDECA_5ab59pyLUyVSPU0kzi3DBUfIE/exec";
   const PUBLIC_SHEET_ID_BY_VARIANT = Object.freeze({
@@ -386,11 +387,9 @@
     const variants = Array.isArray(character.variants) ? character.variants : [];
     return {
       ...character,
-      // 旧来の完全 payload / 静的控えは detailLoaded を持たないため、
-      // 詳細専用の値が一つでもあれば読み込み済みとして扱う。
-      detailLoaded: Boolean(character.detailLoaded || variants.some((variant) =>
-        variant.differenceJson || variant.quote || variant.personality || variant.driveUrl || variant.characterSheetUrl
-      )),
+      // 一覧にたまたま詳細用の列が混ざっていても、詳細APIを読み飛ばさない。
+      // detailLoaded は loadCharacterDetail() が明示的に付ける読み込み完了印だけを信用する。
+      detailLoaded: Boolean(character.detailLoaded),
       id: String(character.id ?? ""),
       registrationName: character.registrationName || variants[0]?.name || "名称未設定",
       representativeIndex: Math.max(0, Math.min(Number(character.representativeIndex) || 0, Math.max(variants.length - 1, 0))),
@@ -433,6 +432,7 @@
         cardIconOffsetX: variant.cardIconOffsetX ?? adjustment.iconOffsetX ?? 0,
         // 任意列。APIがまだこの列を返さない期間も空欄として安全に扱う。
         portrayalTips: String(variant.portrayalTips || variant["他の人が演じるときのコツ"] || "").trim(),
+        appellation: String(variant.appellation || variant["呼称"] || "").trim(),
         appearanceScenarios: String(variant.appearanceScenarios || variant["登場シナリオ"] || "").trim(),
         tips: String(variant.tips || variant["TIPS"] || "").trim(),
         enJReview: String(variant.enJReview || variant.enjReview || variant["エンJ人物評"] || "").trim(),
@@ -651,7 +651,8 @@
   };
   const cardSummaryHtmlOf = (variant) => {
     const gender = genderBadgeOf(variant.sex);
-    const parts = [escapeHtml(variant.job), gender, escapeHtml(ageLabelOf(variant.age)), escapeHtml(variant.variant)];
+    // 「姿」は差分選択用の列なので、一覧の紹介文には表示しない。
+    const parts = [escapeHtml(variant.job), gender, escapeHtml(ageLabelOf(variant.age))];
     return parts.filter(Boolean).join(" <span class=\"character-card__summary-separator\" aria-hidden=\"true\">/</span> ") || escapeHtml(variant.name || "プロフィール未入力");
   };
   const cardTaglineOf = (variant) => String(variant.catchCopy || variant.aka || variant.epithet || "").trim();
@@ -763,28 +764,39 @@ function quoteSpotlightHtml(value) {
       // 半角括弧は縦組みで横用字形が回転され、中心からずれて見えるため、
       // 縦書き用字形を持つ全角括弧へ揃える。
       .replace(/[()]/g, (mark) => mark === "(" ? "（" : "）");
-    let html = "", cursor = 0;
-    normalized.replace(/[A-Za-z]+|\d+|[…⋯]/g, (token, offset) => {
-      html += escapeHtml(normalized.slice(cursor, offset));
-      if (/^[…⋯]$/.test(token)) {
-        // U+2026/U+22EF はブラウザやフォントによって縦書きでも横3点のままになる。
-        // 縦組み専用字形 U+FE19 に置き換え、確実に縦3点で表示する。
-        html += `<span class="vertical-ellipsis" aria-label="${escapeHtml(token)}">︙</span>`;
-      } else {
-        html += token.length <= 4 ? `<span class="vertical-tcy">${escapeHtml(token)}</span>` : escapeHtml(token);
-      }
-      cursor = offset + token.length;
-      return token;
-    });
-    return html + escapeHtml(normalized.slice(cursor));
+    const verticalPlainHtml = (source) => {
+      let html = "", cursor = 0;
+      source.replace(/[A-Za-z]+|\d+|[…⋯]/g, (token, offset) => {
+        html += escapeHtml(source.slice(cursor, offset));
+        if (/^[…⋯]$/.test(token)) {
+          // U+2026/U+22EF はブラウザやフォントによって縦書きでも横3点のままになる。
+          // 縦組み専用字形 U+FE19 に置き換え、確実に縦3点で表示する。
+          html += `<span class="vertical-ellipsis" aria-label="${escapeHtml(token)}">︙</span>`;
+        } else {
+          html += token.length <= 4 ? `<span class="vertical-tcy">${escapeHtml(token)}</span>` : escapeHtml(token);
+        }
+        cursor = offset + token.length;
+        return token;
+      });
+      return html + escapeHtml(source.slice(cursor));
+    };
+    // 代表セリフも、本文側と同じゆとシート式ルビを受け付ける。
+    const rubyPattern = /\|([^|《》\r\n]+)《([^《》\r\n]+)》/g;
+    let html = "", cursor = 0, match;
+    while ((match = rubyPattern.exec(normalized))) {
+      html += verticalPlainHtml(normalized.slice(cursor, match.index));
+      html += `<ruby class="vertical-ruby"><span class="vertical-ruby__base">${verticalPlainHtml(match[1])}</span><rt class="vertical-ruby__reading">${escapeHtml(match[2])}</rt></ruby>`;
+      cursor = match.index + match[0].length;
+    }
+    return html + verticalPlainHtml(normalized.slice(cursor));
   };
     return `<div class="detail-quote-spotlight" aria-label="代表セリフ">${groups.map((lines, index) => {
       const text = lines.join("\n");
-      const characterCount = text.replace(/\s/g, "").length;
+      const characterCount = text.replace(/\|([^|《》\r\n]+)《([^《》\r\n]+)》/g, "$1").replace(/\s/g, "").length;
       const compact = characterCount > 36 ? " is-compact" : "";
       const extraCompact = characterCount > 68 ? " is-extra-compact" : "";
       const hanging = /^[「『“"]/.test(text) ? " has-opening-quote" : "";
-      return `<p class="detail-quote-spotlight__line${index === 0 ? " is-active" : ""}${compact}${extraCompact}${hanging}" data-quote-spotlight-index="${index}">${verticalText(text)}</p>`;
+      return `<p class="detail-quote-spotlight__line${index === 0 ? " is-active" : ""}${compact}${extraCompact}${hanging}" data-quote-spotlight-index="${index}">${hanging ? '<span class="detail-quote-opening" aria-hidden="true">' + escapeHtml(text[0]) + '</span>' + verticalText(text.slice(1)) : verticalText(text)}</p>`;
     }).join("")}</div>`;
   }
   function stopQuoteSpotlight() {
@@ -1020,7 +1032,7 @@ function quoteSpotlightHtml(value) {
 
   function renderActiveTagFilters() {
     if (!activeTagFilters) return;
-    if (!state.tagFilters.size && !state.statFilter) {
+    if (!state.tagFilters.size && !state.statFilter && !state.alignmentOrder && !state.alignmentMorality) {
       activeTagFilters.hidden = true;
       activeTagFilters.innerHTML = "";
       return;
@@ -1029,7 +1041,9 @@ function quoteSpotlightHtml(value) {
     activeTagFilters.hidden = false;
     const tagFilters = entries.length ? `<span class="catalog-active-tags__label">タグ絞り込み（すべて一致）</span><span class="catalog-active-tags__list">${entries.map(([key, label]) => `<button type="button" class="catalog-active-tags__item" data-remove-tag-filter="${escapeHtml(key)}" title="${escapeHtml(label)}を条件から外す">${escapeHtml(label)} <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`).join("")}</span><button type="button" class="catalog-active-tags__clear" data-clear-tag-filters>すべて外す</button>` : "";
     const statFilter = state.statFilter ? `<span class="catalog-active-tags__label">統計から絞り込み</span><button type="button" class="catalog-active-tags__item" data-clear-stat-filter title="統計の条件を外す">${escapeHtml(state.statFilter.label)} <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>` : "";
-    activeTagFilters.innerHTML = `${statFilter}${tagFilters}`;
+    const alignmentLabel = [{ lawful: "秩序", neutral: "中立", chaotic: "混沌" }[state.alignmentOrder], { good: "善", neutral: "中庸", evil: "悪" }[state.alignmentMorality]].filter(Boolean).join("・");
+    const alignmentFilter = alignmentLabel ? `<button type="button" class="catalog-active-tags__item" data-clear-alignment-filter aria-label="アライメント ${alignmentLabel}の絞り込みを解除">${alignmentLabel} × 解除</button>` : "";
+    activeTagFilters.innerHTML = `${alignmentFilter}${statFilter}${tagFilters}`;
   }
 
   function toggleCatalogTagFilter(value) {
@@ -1251,8 +1265,8 @@ function quoteSpotlightHtml(value) {
       const systemLabels = (systems.length ? systems : ["OTHER"]).map((system) => system === "OTHER"
         ? `<span class="is-current" style="--label-system-color:${escapeHtml(systemColorOf(system))}">OTHER</span>`
         : `<span class="character-card__system ${system === variant.system ? "is-current" : "is-other"}" data-system-filter="${escapeHtml(system)}" role="button" tabindex="0" style="--label-system-color:${escapeHtml(systemColorOf(system))}" title="${escapeHtml(system)}で絞り込む">${escapeHtml(system)}</span>`).join("");
-      // アライメントを条件・並び順に使っている時だけ、一覧上でも判断根拠を見せる。
-      const showAlignment = Boolean(state.alignmentOrder || state.alignmentMorality || state.sort === "alignment-asc");
+      // 一覧でもキャラクターの傾向が見えるよう、アライメントは常時表示する。
+      const showAlignment = true;
       const alignment = String(variant.alignment || "").trim();
       const alignmentOrder = alignmentOrderOf(alignment);
       const alignmentMorality = alignmentMoralityOf(alignment);
@@ -1260,7 +1274,10 @@ function quoteSpotlightHtml(value) {
       const nextIndex = (variantIndex + 1) % character.variants.length;
       const nextVariant = character.variants[nextIndex] || {};
       const sortIndicator = sortIndicatorOf(variant);
-      const cycleButton = grouped && character.variants.length > 1 ? `<button class="character-card__variant-cycle" type="button" data-cycle-variant aria-label="次の姿「${escapeHtml(nextVariant.variant || nextVariant.name || nextVariant.system || `姿${nextIndex + 1}`)}」へ切り替える" title="次の姿へ切替"><i class="fa-solid fa-repeat" aria-hidden="true"></i><span>${variantIndex + 1}/${character.variants.length}</span></button>` : "";
+      const poseLabel = String(variant.variant || "").trim();
+      const cycleCount = `${variantIndex + 1}/${character.variants.length}`;
+      const cycleLabel = poseLabel ? `<span class="character-card__variant-label" title="${escapeHtml(poseLabel)}">${escapeHtml(poseLabel)}</span>` : "";
+      const cycleButton = grouped && character.variants.length > 1 ? `<button class="character-card__variant-cycle" type="button" data-cycle-variant aria-label="次の姿「${escapeHtml(nextVariant.variant || nextVariant.name || nextVariant.system || `姿${nextIndex + 1}`)}」へ切り替える" title="次の姿へ切替"><i class="fa-solid fa-repeat" aria-hidden="true"></i>${cycleLabel}<small>${cycleCount}</small></button>` : "";
       const adjustButton = state.portraitAdjustMode ? `<button class="character-card__portrait-adjust" type="button" data-adjust-portrait aria-label="${escapeHtml(displayName)}の立ち絵を調整" title="立ち絵調整"><i class="fa-solid fa-sliders" aria-hidden="true"></i></button>` : "";
       return `<article class="character-card${grouped && character.variants.length > 1 ? " has-variants" : ""}" tabindex="0" data-character-id="${escapeHtml(character.id)}" data-card-variant-index="${variantIndex}" aria-label="${escapeHtml(displayName)}を開く" title="${escapeHtml(displayName)}" style="--character-system-color:${escapeHtml(systemColorOf(variant.system))}">
         <div class="character-card__visual">${visualImage ? `<img${sharedPortraitSource ? ' class="is-body-preview"' : ""} src="${escapeHtml(visualImage)}" alt="${escapeHtml(displayName)}" loading="lazy" decoding="async" fetchpriority="low" data-image-candidates="${escapeHtml(JSON.stringify(visualCandidates))}" style="--card-icon-offset-y:${escapeHtml(cardIconOffsetYOf(variant))}px;--card-icon-offset-x:${escapeHtml(effectiveCardIconOffsetXOf(variant))}px">` : `<span class="character-card__initial" aria-hidden="true">${escapeHtml(displayName.slice(0, 1))}</span>`}</div>
@@ -1530,29 +1547,27 @@ function quoteSpotlightHtml(value) {
     }
   }
 
-  // 1行目は読み、2行目以降は別名として見せる。
-  // 別名の「名前：読み / Romanization」は「別名 名前（読み / Romanization）」へ
-  // 整形する。別名・本名などを ||...|| に入れた場合は、名鑑本文と同じ
-  // ネタバレ開示扱いにする。
+  // 1行目は主読み、2行目以降は別名として、どちらも「名前 + ローマ字」の
+  // 同じ表示単位で並べる。別名が「名前：カタカナ読み / Romanization」の形なら
+  // カタカナ読みだけを補足し、名前と同じ場合は重ねて出さない。
+  // 別名・本名などを ||...|| に入れた場合は、名鑑本文と同じネタバレ開示扱いにする。
   function detailReadingFact(value) {
     const lines = String(value ?? "").replace(/\r\n?/g, "\n").split("\n").map((line) => line.trim()).filter(Boolean);
     if (!lines.length) return "";
-    const lineHtml = lines.map((line, lineIndex) => {
+    const readingItem = (line, isAlias = false) => {
       const spoilerMatch = line.match(/^\|\|([\s\S]+)\|\|$/);
       const content = (spoilerMatch ? spoilerMatch[1] : line).trim();
       const parts = content.split(/\s*\/\s*/, 2);
       const hasRomanization = parts.length === 2 && /^[A-Za-z0-9][A-Za-z0-9 .’'\-]*$/.test(parts[1]);
       const primaryText = hasRomanization ? parts[0] : content;
       const aliasSeparator = primaryText.search(/[:：]/);
-      const isAlias = lineIndex > 0 || aliasSeparator >= 0;
       let reading;
 
       if (isAlias) {
         const aliasName = (aliasSeparator >= 0 ? primaryText.slice(0, aliasSeparator) : primaryText).trim();
         const aliasKana = (aliasSeparator >= 0 ? primaryText.slice(aliasSeparator + 1) : "").trim();
         const sameAsAliasName = aliasKana && aliasKana.normalize("NFKC").replace(/[\s　]+/g, "") === aliasName.normalize("NFKC").replace(/[\s　]+/g, "");
-        const aliasDetails = [sameAsAliasName ? "" : aliasKana, hasRomanization ? parts[1] : ""].filter(Boolean);
-        reading = `<span class="detail-reading__label">別名</span><span class="detail-reading__name">${escapeHtml(aliasName)}</span>${aliasDetails.length ? `<span class="detail-reading__alias-detail">（${aliasDetails.map(escapeHtml).join(" / ")}）</span>` : ""}`;
+        reading = `<span class="detail-reading__label">別名</span><span class="detail-reading__name">${escapeHtml(aliasName)}</span>${!sameAsAliasName && aliasKana ? `<span class="detail-reading__alias-detail">（${escapeHtml(aliasKana)}）</span>` : ""}${hasRomanization ? `<span class="detail-reading__roman">${escapeHtml(parts[1])}</span>` : ""}`;
       } else {
         reading = hasRomanization
           ? `<span class="detail-reading__name">${escapeHtml(primaryText)}</span><span class="detail-reading__roman">${escapeHtml(parts[1])}</span>`
@@ -1563,7 +1578,8 @@ function quoteSpotlightHtml(value) {
       return spoilerMatch
         ? `<span class="spoiler-text detail-reading__spoiler" role="button" tabindex="0" aria-label="秘匿された読み・別名を表示">${item}</span>`
         : item;
-    }).join("");
+    };
+    const lineHtml = lines.map((line, index) => readingItem(line, index > 0)).join("");
     return `<div class="detail-fact detail-fact--reading"><dt>読み・別名</dt><dd><div class="detail-reading">${lineHtml}</div></dd></div>`;
   }
 
@@ -1590,13 +1606,48 @@ function quoteSpotlightHtml(value) {
   function detailFact(label, value, extraClass = "") {
     if (value === undefined || value === null || value === "") return "";
     const className = `detail-fact${extraClass ? ` ${extraClass}` : ""}`;
+    if (["一人称", "二人称"].includes(label)) {
+      // 「あーし（表向き）」のような補足は本文から分け、ある時だけ ? で開ける。
+      const notes = [];
+      const content = String(value).replace(/<br\s*\/?>/gi, "\n").split(/\r?\n/).map((line) => line.split(/([／/])/).map((part) => {
+        if (part === "／" || part === "/") return part;
+        const match = part.trim().match(/^(.+?)[（(]([^（）()]+)[）)]$/);
+        if (!match) return inlineMarkdown(part.trim());
+        const name = match[1].trim();
+        notes.push([name, match[2].trim()]);
+        return inlineMarkdown(name);
+      }).join("")).join("<br>");
+      const help = notes.length ? `<details class="detail-calling-help"><summary aria-label="${escapeHtml(label)}の補足を表示"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></summary><div class="detail-calling-help__panel" role="tooltip">${notes.map(([name, note]) => `<div><strong>${inlineMarkdown(name)}</strong><span>${inlineMarkdown(note)}</span></div>`).join("")}</div></details>` : "";
+      return `<div class="${className} detail-fact--calling-context"><dt>${escapeHtml(label)}${help}</dt><dd>${content}</dd></div>`;
+    }
+    if (label === "呼称") {
+      const text = String(value).replace(/<br\s*\/?>/gi, "\n").trim();
+      if (!text) return "";
+      // 《名前：呼び方》だけを特殊呼称として畳む。通常の呼称は常に読める位置に残す。
+      const special = [];
+      const normalLines = text.split(/\r?\n/).map((line) => {
+        const normal = line.split(/[／/]/).map((part) => {
+          const item = part.trim();
+          if (/^《[^《》]+》$/.test(item)) {
+            special.push(item);
+            return "";
+          }
+          return item;
+        }).filter(Boolean);
+        return normal.join("／");
+      }).filter(Boolean);
+      const normalHtml = normalLines.length ? `<span class="detail-appellation__normal">${inlineMarkdown(normalLines.join("\n")).replace(/\r?\n/g, "<br>")}</span>` : "";
+      const specialHtml = special.length ? `<details class="detail-appellation"><summary>特殊呼称</summary><div class="detail-appellation__panel">${special.map((item) => `<div>${inlineMarkdown(item.slice(1, -1))}</div>`).join("")}</div></details>` : "";
+      return `<div class="${className}"><dt>呼称${specialHtml}</dt><dd>${normalHtml}</dd></div>`;
+    }
     if (label === "アライメント") {
       const alignment = String(value).trim();
       const tone = alignment.startsWith("秩序") ? "lawful" : alignment.startsWith("中立") ? "neutral" : alignment.startsWith("混沌") ? "chaotic" : "other";
       const morality = alignment.includes("善") ? "good" : alignment.includes("悪") ? "evil" : "moral-neutral";
-      return `<div class="${className}"><dt>${escapeHtml(label)}</dt><dd><span class="alignment-badge alignment-badge--${tone} alignment-badge--${morality}">${escapeHtml(value)}</span></dd></div>`;
+      return `<div class="${className} detail-fact--alignment"><dt>アライメント</dt><dd><span class="alignment-badge alignment-badge--${tone} alignment-badge--${morality}">${escapeHtml(value)}</span></dd></div>`;
     }
-    return `<div class="${className}"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
+    const content = ["一人称", "二人称", "呼称"].includes(label) ? inlineMarkdown(String(value)) : escapeHtml(value);
+    return `<div class="${className}"><dt>${escapeHtml(label)}</dt><dd>${content}</dd></div>`;
   }
   function roughStatusEntries(value) {
     return String(value || "").replace(/<br\s*\/?>/gi, "\n").split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
@@ -1715,8 +1766,20 @@ function quoteSpotlightHtml(value) {
   dialog.addEventListener("scroll", updateCompactDetailName, true);
   function fitDetailTypography() {
     if (!dialog.open) return;
-    const stripes = detail.querySelector(".detail-visual-stripes");
-    if (stripes) stripes.innerHTML = "<i></i>".repeat(Math.max(0, Math.floor((stripes.clientWidth - 4) / 26)));
+    const visual = detail.querySelector(".character-detail__visual");
+    if (visual && !visual.querySelector(".detail-visual-stripes--bottom")) {
+      const bottomStripes = document.createElement("span");
+      bottomStripes.className = "detail-visual-stripes detail-visual-stripes--bottom";
+      bottomStripes.setAttribute("aria-hidden", "true");
+      visual.append(bottomStripes);
+    }
+    // 斜線1本ぶんの実幅に合わせ、バーを閉じるボタンの手前まで伸ばす。
+    const topStripes = detail.querySelector(".detail-visual-heading .detail-visual-stripes");
+    // 最後の斜線をボタンの下へ送らず、専用に確保した横幅内で止める。
+    // 1本あたりの実効幅は 13px（幅15px・右マージン-2px）。
+    if (topStripes) topStripes.innerHTML = "<i></i>".repeat(Math.max(0, Math.floor((topStripes.clientWidth - 2) / 13)));
+    const bottomStripes = visual?.querySelector(".detail-visual-stripes--bottom");
+    if (bottomStripes) bottomStripes.innerHTML = "<i></i>".repeat(Math.max(0, Math.floor((bottomStripes.clientWidth - 2) / 13)));
     updateCompactDetailName();
     const name = detail.querySelector("#detail-name");
     if (name) {
@@ -1759,10 +1822,11 @@ function quoteSpotlightHtml(value) {
     const facts = [
       detailFactGroup("特徴", "fa-solid fa-fingerprint", [["ジョブ", variant.job]], "detail-fact-group--features"),
       detailFactGroup("人物", "fa-solid fa-user", [["性別", variant.sex], ["年齢", variant.age], ["身長", variant.height], ["髪色", variant.hair], ["アライメント", variant.alignment], ...roughStatusEntries(variant.roughStatus)], "detail-fact-group--person"),
-      detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson], ["読み", variant.reading]], "detail-fact-group--calling")
+      detailFactGroup("呼び方", "fa-solid fa-comments", [["一人称", variant.firstPerson], ["二人称", variant.secondPerson], ["呼称", variant.appellation, "detail-fact--appellation"], ["読み", variant.reading]], "detail-fact-group--calling")
     ].join("");
     const hasPublicSheet = Boolean(publicSheetApiUrlOf(character, variant) || Object.values(variant.publicCharacterSheet || {}).some(Boolean));
-    const actions = [detailAction(variant.driveUrl, "fa-brands fa-google-drive", "Driveを開く"), hasPublicSheet ? `<button class="detail-action" type="button" data-open-public-sheet><i class="fa-regular fa-file-lines" aria-hidden="true"></i>キャラシを開く</button>` : detailAction(publicCharacterSheetUrl(variant.characterSheetUrl), "fa-regular fa-file-lines", "キャラシを開く")].join("");
+    const sheetAction = (hasPublicSheet ? `<button class="detail-action" type="button" data-open-public-sheet><i class="fa-regular fa-file-lines" aria-hidden="true"></i>キャラシを開く</button>` : detailAction(publicCharacterSheetUrl(variant.characterSheetUrl), "fa-regular fa-file-lines", "キャラシを開く")).replace('class="detail-action"', 'class="detail-action detail-resource-link detail-resource-link--sheet"').replaceAll("キャラシを開く", "キャラシ");
+    const driveAction = detailAction(variant.driveUrl, "fa-brands fa-google-drive", "Drive").replace('class="detail-action"', 'class="detail-action detail-resource-link"');
     const variantTabs = character.variants.length > 1 ? `<nav class="variant-tabs" aria-label="姿・システムを切り替え"><span>切替</span>${character.variants.map((item, index) => {
       const label = item.variant || item.system || `姿 ${index + 1}`;
       return `<button class="variant-tab" type="button" data-variant-index="${index}" aria-selected="${index === state.variantIndex}">${escapeHtml(label)}</button>`;
@@ -1788,7 +1852,7 @@ function quoteSpotlightHtml(value) {
       : `<div id="detail-face-preview" class="detail-face-preview" data-face-preview-key="${escapeHtml(facePreviewLayoutKey)}" hidden><img alt=""><span aria-hidden="true">FACE</span><button type="button" class="detail-face-preview__resize" data-face-preview-resize aria-label="顔アイコンの大きさを変える"></button></div>`;
     // 表情は本文タブから切り離した浮動パレットに置く。本文の高さを奪わず、
     // タブやスクロールを切り替えても、立ち絵の横でいつでも選択できる。
-    const expressionSection = variant.faces.length ? `<section class="expression-section expression-palette" data-expression-palette-key="${escapeHtml(facePreviewLayoutKey)}"${expressionPaletteHidden ? " hidden" : ""}><header class="expression-heading"><div><p class="detail-section__eyebrow">COCOFOLIA</p><h3>ココフォリア表情 <small>${variant.faces.length}</small></h3><p>表情を選んでプレビュー。</p></div><div class="expression-heading__actions"><button class="expression-reset expression-face-preview-toggle" type="button" data-show-face-preview${facePreviewHidden ? "" : " hidden"}><i class="fa-regular fa-image" aria-hidden="true"></i> 顔プレビュー</button>${variant.differenceJson ? '<button class="expression-reset" type="button" data-copy-json><i class="fa-regular fa-copy" aria-hidden="true"></i> 表情をコピー</button>' : ""}<button class="expression-palette__close" type="button" data-expression-palette-close aria-label="表情パレットを隠す" title="表情パレットを隠す"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></header><div class="expression-tray__body"><div class="expression-grid">${variant.faces.map((face, index) => {
+    const expressionSection = variant.faces.length ? `<section class="expression-section expression-palette" data-expression-palette-key="${escapeHtml(facePreviewLayoutKey)}"${expressionPaletteHidden ? " hidden" : ""}><header class="expression-heading"><div><p class="detail-section__eyebrow">COCOFOLIA</p><h3>ココフォリア表情 <small>${variant.faces.length}</small></h3><p>表情を選んでプレビュー。</p></div><div class="expression-heading__actions">${driveAction}<button class="expression-reset expression-face-preview-toggle" type="button" data-show-face-preview${facePreviewHidden ? "" : " hidden"}><i class="fa-regular fa-image" aria-hidden="true"></i> 顔プレビュー</button>${variant.differenceJson ? '<button class="expression-reset" type="button" data-copy-json><i class="fa-regular fa-copy" aria-hidden="true"></i> 表情をコピー</button>' : ""}<button class="expression-palette__close" type="button" data-expression-palette-close aria-label="表情パレットを隠す" title="表情パレットを隠す"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></header><div class="expression-tray__body"><div class="expression-grid">${variant.faces.map((face, index) => {
       const faceUrl = safeUrl(face.iconUrl);
       const label = faceLabelInfo(face.label, index);
       return faceUrl ? `<button class="expression-button" type="button" data-face-index="${index}" data-face-tone="${label.tone}" aria-pressed="false" title="${escapeHtml(label.display)}"><img src="${escapeHtml(faceUrl)}" alt="${escapeHtml(label.display)}" loading="lazy" decoding="async"><span>${escapeHtml(label.display)}</span></button>` : "";
@@ -1849,13 +1913,13 @@ function quoteSpotlightHtml(value) {
       { id: "review", label: "評・演じ方", content: reviewContent }
     ].filter((tab) => tab.content);
     if (state.detailContentTab !== "basic" && !detailTabs.some((tab) => tab.id === state.detailContentTab)) state.detailContentTab = "basic";
-    const detailSummaryHtml = state.publicSheetOpen ? "" : `${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${detailTagsHtml}${variantTabs}${actions ? `<div class="detail-actions">${actions}</div>` : ""}${facts ? `<div class="detail-facts">${facts}</div>` : ""}`;
+    const detailSummaryHtml = state.publicSheetOpen ? "" : `${state.detailLoadingId === character.id ? '<p class="detail-loading-message"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> 詳細情報を読み込んでいます…</p>' : ""}${detailTagsHtml}${variantTabs}${facts ? `<div class="detail-facts">${facts}</div>` : ""}`;
     const allDetailTabs = [{ id: "basic", label: "基本情報", content: detailSummaryHtml }, ...detailTabs];
     const detailTabsHtml = state.publicSheetOpen
       ? `<section class="detail-public-sheet detail-public-sheet--standalone" data-public-sheet-view><button class="detail-action" type="button" data-close-public-sheet>詳細へ戻る</button>${publicSheetContent}</section>`
       : `<div class="detail-content-tabs"><div class="detail-content-tabs__buttons" role="tablist" aria-label="キャラクター詳細の内容"><span class="detail-compact-name" aria-hidden="true">${escapeHtml(variant.name || character.registrationName)}</span>${allDetailTabs.map((tab) => `<button type="button" role="tab" id="detail-tab-${tab.id}" aria-selected="${tab.id === state.detailContentTab}" aria-controls="detail-panel-${tab.id}" data-detail-content-tab="${tab.id}">${escapeHtml(tab.label)}</button>`).join("")}</div>${allDetailTabs.map((tab) => `<section class="detail-content-panel" id="detail-panel-${tab.id}" role="tabpanel" aria-labelledby="detail-tab-${tab.id}"${tab.id === state.detailContentTab ? "" : " hidden"}>${tab.content}</section>`).join("")}</div>`;
     detail.innerHTML = `<div class="character-detail__visual"><div class="detail-visual-heading" aria-hidden="true"><span class="detail-visual-id">#${escapeHtml(String(character.id).padStart(3, "0"))}</span><span class="detail-visual-stripes"></span></div>${image ? `<img id="detail-main-image" src="${escapeHtml(image)}" alt="${escapeHtml(variant.name || character.registrationName)}" decoding="async">` : `<span class="character-detail__image-placeholder" aria-hidden="true">${escapeHtml(character.registrationName.slice(0, 1))}</span>`}${quoteSpotlightHtml(variant.quote)}${imageSwitcher}</div>
-      <div class="character-detail__left"><div class="character-detail__content"><div class="detail-header-row"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p>${state.publicSheetOpen || !headerMeta ? "" : `<div class="detail-meta">${headerMeta}</div>`}</div><h2 id="detail-name" tabindex="-1">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${state.publicSheetOpen ? "" : akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${detailTabsHtml}</div>${state.publicSheetOpen ? "" : expressionSection}${state.publicSheetOpen ? "" : expressionPaletteLauncher}</div>`;
+      <div class="character-detail__left"><div class="character-detail__content"><div class="detail-header-row"><p class="detail-kicker">#${escapeHtml(character.id)}${variant.system ? ` ・ ${escapeHtml(variant.system)}` : ""}</p>${state.publicSheetOpen || !headerMeta ? "" : `<div class="detail-meta">${headerMeta}</div>`}${sheetAction}</div><h2 id="detail-name" tabindex="-1">${detailNameHtml(variant.name || character.registrationName, variant.reading)}</h2>${state.publicSheetOpen ? "" : akaHtml ? `<p class="detail-aka">${akaHtml}</p>` : ""}${detailTabsHtml}</div>${state.publicSheetOpen ? "" : expressionSection}${state.publicSheetOpen ? "" : expressionPaletteLauncher}</div>`;
     const authorSelect = detail.querySelector('[name="author"]');
     const commentKeyInput = detail.querySelector('[name="writeKey"]');
     if (authorSelect && commentKeyInput) {
@@ -2138,7 +2202,7 @@ function quoteSpotlightHtml(value) {
     buildLocationDisplayNames();
     configureHeroFaces();
     if (!state.characters.length) {
-      grid.innerHTML = '<div class="catalog-empty"><h2>表示できるキャラクターがいません</h2><p>スプレッドシートで「非公開」にしていない行が表示対象です。</p></div>';
+      grid.innerHTML = '<div class="catalog-empty"><h2>表示できるキャラクターがいません</h2><p>条件を変えるか、スプレッドシートのデータを確認してください。</p></div>';
       count.textContent = "0 characters";
       return;
     }
@@ -2292,6 +2356,36 @@ function quoteSpotlightHtml(value) {
       return;
     }
     openCharacter(card.dataset.characterId, card.dataset.cardVariantIndex);
+  });
+  // GASの単体詳細は通信・実行開始に少し時間がかかる。カードを読もうとして
+  // 止まった時点でだけ先読みし、クリック時は同じリクエストをそのまま待つ。
+  // 一覧を通過するだけでは読まないよう、短い待機を入れている。
+  let detailPrefetchTimer = null;
+  const cancelDetailPrefetch = () => {
+    if (detailPrefetchTimer) clearTimeout(detailPrefetchTimer);
+    detailPrefetchTimer = null;
+  };
+  const prefetchCardDetail = (card) => {
+    const characterId = String(card?.dataset.characterId || "");
+    if (!characterId || state.characters.find((item) => item.id === characterId)?.detailLoaded) return;
+    cancelDetailPrefetch();
+    detailPrefetchTimer = setTimeout(() => {
+      detailPrefetchTimer = null;
+      loadCharacterDetail(characterId).catch((error) => console.warn("Character detail prefetch could not be loaded.", error));
+    }, 80);
+  };
+  grid.addEventListener("pointerover", (event) => {
+    const card = event.target.closest("[data-character-id]");
+    if (!card || card.contains(event.relatedTarget) || event.target.closest("button, [data-system-filter], [data-tag-search]")) return;
+    prefetchCardDetail(card);
+  });
+  grid.addEventListener("pointerout", (event) => {
+    const card = event.target.closest("[data-character-id]");
+    if (card && !card.contains(event.relatedTarget)) cancelDetailPrefetch();
+  });
+  grid.addEventListener("focusin", (event) => {
+    const card = event.target.closest("[data-character-id]");
+    if (card && !event.target.closest("button, [data-system-filter], [data-tag-search]")) prefetchCardDetail(card);
   });
   grid.addEventListener("error", (event) => {
     const image = event.target.closest("img[data-image-candidates]");
@@ -2768,6 +2862,13 @@ function quoteSpotlightHtml(value) {
   });
   sortSelect.addEventListener("change", () => { state.sort = sortSelect.value; renderCards(); });
   activeTagFilters?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-clear-alignment-filter]")) {
+      state.alignmentOrder = state.alignmentMorality = "";
+      alignmentOrderFilter.value = alignmentMoralityFilter.value = "";
+      state.cardVariantIndexes.clear();
+      renderCards();
+      return;
+    }
     if (event.target.closest("[data-clear-stat-filter]")) {
       state.statFilter = null;
       renderCards();

@@ -43,6 +43,8 @@
   src: url("../fonts/ExcelsiorSans.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
+  /* Latin glyphs are optically smaller than the Japanese UI face. */
+  size-adjust: 128%;
   ascent-override: 88%;
   descent-override: 12%;
   line-gap-override: 0%;

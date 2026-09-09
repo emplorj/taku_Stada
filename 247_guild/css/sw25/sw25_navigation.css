@@ -1,0 +1,103 @@
+/* Enabled by navigation.js only, so the original tabs remain the fallback. */
+.sw25-scroll-desktop .controls-panel:has(#char-sheet-form) {
+  --sw25-frame-height: calc(100dvh - 250px);
+  height: var(--sw25-frame-height);
+  max-height: none;
+  box-sizing: border-box;
+  padding: 25px 30px;
+  overflow-y: auto;
+  /* navigation.js settles only between sections, not inside tall editors. */
+  scroll-snap-type: none;
+  scroll-padding-top: 25px;
+}
+.sw25-scroll-desktop .controls-panel #char-sheet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  height: auto;
+}
+.sw25-scroll-desktop #char-sheet-form > .form-panel {
+  display: block;
+  flex: none;
+  min-height: calc(var(--sw25-frame-height) - 54px);
+  box-sizing: border-box;
+  animation: none;
+}
+.sw25-scroll-desktop #char-sheet-form > #panel-regulation-growth {
+  display: flex;
+  flex-direction: column;
+}
+.sw25-scroll-desktop #char-sheet-form > .form-panel + .form-panel {
+  border-top: 1px solid #484137;
+  padding-top: 20px;
+}
+.sw25-scroll-mobile .generator-layout { display: block; }
+.sw25-scroll-mobile #main-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 8px;
+  box-sizing: border-box;
+  background: #211f1c;
+  border: 1px solid #484137;
+  border-radius: 8px;
+}
+.sw25-scroll-mobile #form-sidebar { display: none; }
+.sw25-scroll-mobile .mobile-workspace-nav {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+.mobile-workspace-nav label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.sw25-scroll-mobile #mobile-workspace-select {
+  width: 100%;
+  min-height: 42px;
+  background-color: #191816;
+  border-color: #665a45;
+}
+.sw25-scroll-mobile #mobile-money-toggle {
+  display: none;
+  min-height: 42px;
+  padding: 6px 10px;
+  color: #dec18a;
+  background: transparent;
+  border: 1px solid #665a45;
+  border-radius: 6px;
+  font: inherit;
+  font-size: .8rem;
+}
+.sw25-scroll-mobile.sw25-money-relevant #mobile-money-toggle { display: block; }
+.sw25-scroll-mobile #money-sidebar-panel { display: none; }
+.sw25-scroll-mobile.sw25-money-relevant.sw25-money-open #money-sidebar-panel {
+  display: block;
+  margin-top: 8px;
+}
+.sw25-scroll-mobile .controls-panel:has(#char-sheet-form) {
+  height: auto;
+  max-height: none;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 12px;
+  overflow: visible;
+  scroll-margin-top: 76px;
+}
+.sw25-scroll-mobile .controls-panel #char-sheet-form { display: block; height: auto; }
+.sw25-scroll-mobile #char-sheet-form > .form-panel { animation: none; }
+.sw25-scroll-mobile #panel-regulation-growth #growth-results-container {
+  max-height: none;
+  overflow-y: visible;
+}
+.sw25-scroll-mobile .mobile-workspace-nav :is(select, button):focus-visible {
+  outline: 2px solid #f0ce8e;
+  outline-offset: 2px;
+}

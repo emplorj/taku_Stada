@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="css/247_guild.css" />
     <link rel="stylesheet" href="css/sw25_generator.css?v=20260718zzbj" />
   <link rel="stylesheet" href="css/sw25/sw25_enemy_builder.css?v=20260808k" />
+  <link rel="stylesheet" href="css/sw25/sw25_regulation_preview.css?v=20260910e" />
+  <link rel="stylesheet" href="css/sw25/sw25_workspace.css?v=20260910b" />
+  <link rel="stylesheet" href="css/sw25/sw25_navigation.css?v=20260910c" />
   <!-- Fonts and Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -41,6 +44,11 @@
     <main class="main-content">
       <div class="generator-layout">
         <div id="main-sidebar">
+          <div class="mobile-workspace-nav" hidden>
+            <label for="mobile-workspace-select">表示する項目</label>
+            <select id="mobile-workspace-select"></select>
+            <button type="button" id="mobile-money-toggle" aria-expanded="false" aria-controls="money-sidebar-panel">残金 <span id="mobile-money-remaining">0</span> G <span aria-hidden="true">▾</span></button>
+          </div>
           <nav id="form-sidebar">
             <ul>
               <li>
@@ -99,10 +107,15 @@
           <form id="char-sheet-form">
             <!-- 作成レギュレーション & 成長結果 -->
             <div id="panel-regulation-growth" class="form-panel active">
+              <div class="regulation-intro">
+                <span class="regulation-eyebrow">CHARACTER CREATION</span>
+                <h2>レギュレーション・成長</h2>
+                <p>作成レベル帯を選び、能力値と優先順位を設定してから成長を振ります。</p>
+              </div>
               <div class="panel-3-column-layout">
                 <!-- カラム1: レギュレーション -->
                 <div class="panel-column">
-                  <h3>作成レギュレーション</h3>
+                  <h3><span class="regulation-step" aria-hidden="true">01</span> 作成レギュレーション</h3>
                   <div class="regulation-container">
                     <div class="regulation-row-top">
                       <div class="form-item-inline">
@@ -129,7 +142,7 @@
                       <div class="regulation-actions">
                         <button type="button" id="roll-growth-btn">
                           <i class="fa-solid fa-dice"></i>
-                          成長
+                          成長を振る
                         </button>
                         <button type="button" id="copy-regulation-btn">
                           <i class="fa-solid fa-copy"></i>
@@ -142,7 +155,7 @@
 
                 <!-- カラム2: 優先度・合計 -->
                 <div class="panel-column">
-                  <h3 id="priority-total-heading">優先度・合計</h3>
+                  <h3 id="priority-total-heading"><span class="regulation-step" aria-hidden="true">02</span> 能力値・優先順位</h3>
                   <div class="stats-grid-wrapper">
                     <div id="stats-grid-container" class="stats-grid">
                       <!-- JSで内容を生成 -->
@@ -154,13 +167,14 @@
                       <label for="use-priority-check">優先順位で自動選択</label>
                     </div>
                     <div class="priority-note-wrapper">
-                      <span class="priority-note">(数字が低いほど優先度 高)</span>
+                      <span class="priority-note">小さい数字を優先します</span>
                       <button type="button" id="reset-priority-btn" class="small-button">
                         優先度をクリア
                       </button>
                     </div>
                   </div>
                   <div class="growth-summary-output-wrapper">
+                    <label for="growth-summary-output" class="growth-output-label">ゆとシート用の合算結果</label>
                     <textarea id="growth-summary-output" rows="1" readonly
                       placeholder="合算結果(クリックで選択,ゆとシート一括用)"></textarea>
                     <button type="button" id="export-growth-lines-btn" class="small-button">
@@ -171,7 +185,7 @@
 
                 <!-- カラム3: 成長結果リスト -->
                 <div class="panel-column">
-                  <h3>成長結果</h3>
+                  <h3><span class="regulation-step" aria-hidden="true">03</span> 成長結果</h3>
                   <div class="growth-export-actions"></div>
                   <div class="growth-results-wrapper">
                     <div class="growth-results-header">
@@ -188,16 +202,19 @@
               </div>
             </div>
 
-            <div id="panel-basic" class="form-panel">
+            <div id="panel-basic" class="form-panel sw25-workspace">
               <h3>キャラクター情報</h3>
+              <p class="workspace-lead">項目と内容を入力して、生成データをコピーできます。</p>
               <div id="personal-data-editor">
+                <section class="workspace-card personal-input-card" aria-label="キャラクター情報の入力">
                 <div id="personal-data-fields-container" class="dynamic-rows-container">
                   <!-- JSがここにキー・バリューの行を生成します -->
                 </div>
                 <button type="button" class="add-row-btn" data-template="template-personal-data-row">
                   <i class="fa fa-plus"></i> 項目を追加
                 </button>
-                <hr class="section-divider" />
+                </section>
+                <section class="workspace-card personal-output-card" aria-label="生成データ">
                 <div class="generated-data-header">
                   <h4><i class="fa-solid fa-file-alt"></i> 生成データ</h4>
                   <button type="button" id="copy-personal-data-btn" class="small-button copy-btn">
@@ -205,11 +222,13 @@
                   </button>
                 </div>
                 <textarea id="personal-data-output" rows="12" readonly></textarea>
+                </section>
               </div>
             </div>
 
-            <div id="panel-equipment-items" class="form-panel">
+            <div id="panel-equipment-items" class="form-panel sw25-workspace">
               <h3>装備・所持品</h3>
+              <p class="workspace-lead">武器・防具・所持品を登録して、所持品リストと収支履歴を作成します。</p>
               <div class="equipment-container">
                 <div class="equipment-header weapon-header">
                   <span><i class="fa-solid fa-gavel"></i>武器</span>
@@ -305,8 +324,9 @@
                 <textarea id="cashbook" rows="8"></textarea>
               </div>
             </div>
-            <div id="panel-general-skills" class="form-panel">
+            <div id="panel-general-skills" class="form-panel sw25-workspace">
               <h3>一般技能</h3>
+              <p class="workspace-lead">合計レベルを確認しながら、技能とレベル配分を設定します。</p>
               <div class="general-skill-header">
                 <div class="skill-level-progress">
                   <div id="general-skill-total-level" class="cost-display-circular">
@@ -348,7 +368,7 @@
               </div>
             </div>
             <!-- 敵強化パネル -->
-            <div id="panel-enemy-enhancement" class="form-panel">
+            <div id="panel-enemy-enhancement" class="form-panel sw25-workspace">
               <h3><i class="fa-solid fa-ghost"></i> 敵強化</h3>
               <div class="enemy-enhancement-howto">
                 <span class="enemy-howto-main">コマの <strong>「ココフォリア用コマデータ（クリップボードへコピー）」</strong> を貼る → 強化を適用 → 出力をコピー → ココフォリアで貼り付け</span>
@@ -530,7 +550,7 @@
             </div>
 
             <!-- エネミー即席制作パネル -->
-            <div id="panel-enemy-builder" class="form-panel">
+            <div id="panel-enemy-builder" class="form-panel sw25-workspace">
               <div class="enemy-builder-heading">
                 <div>
                   <h3><i class="fa-solid fa-skull-crossbones"></i> エネミー即席制作</h3>
@@ -735,7 +755,7 @@
             </div>
 
             <!-- キャラシ分析パネル -->
-            <div id="panel-character-analysis" class="form-panel">
+            <div id="panel-character-analysis" class="form-panel sw25-workspace">
               <h3><i class="fa-solid fa-chart-simple"></i> キャラシ分析</h3>
               <p class="analysis-lead">
                 ゆとシートⅡまたはキャラクター保管所のJSONをもとに、戦闘で参照しやすい代表値を概算します。SW2.5の全裁定を自動化するものではなく、CSVの効果概要から補助効果候補を抽出し、手動チェックで反映します。
@@ -1122,8 +1142,18 @@
   </datalist>
   <script src="./js/sw25_enemy_builder.js?v=20260808q"></script>
     <script src="./js/sw25_generator.js?v=20260718zzbc"></script>
+  <script src="./js/sw25_navigation.js?v=20260910c" defer></script>
   <!-- Cloudflare Web Analytics -->
-  <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6860c746c8204efd894e2e37fe7fbfcf"}'></script>
+  <script>
+    // Analytics runs only on the public site, never on local previews.
+    if (location.protocol === "https:" && location.hostname === "emplorj.github.io") {
+      const beacon = document.createElement("script");
+      beacon.src = "https://static.cloudflareinsights.com/beacon.min.js";
+      beacon.defer = true;
+      beacon.dataset.cfBeacon = JSON.stringify({ token: "6860c746c8204efd894e2e37fe7fbfcf" });
+      document.head.appendChild(beacon);
+    }
+  </script>
   <!-- End Cloudflare Web Analytics -->
 </body>
 
