@@ -43,7 +43,7 @@
   const locationDisplayNames = new Map();
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
 
-  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", alignmentOrder: "", alignmentMorality: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", publicSheetOpen: false, cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), publicSheetRequests: new Map(), publicSheets: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null };
+  const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", alignmentOrder: "", alignmentMorality: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", publicSheetOpen: false, cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), publicSheetRequests: new Map(), publicSheets: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null, characterLoadPromise: null };
   const grid = document.getElementById("character-grid");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
@@ -78,6 +78,8 @@
   let heroFaceSwapToken = 0;
   const detail = document.getElementById("character-detail");
   const toast = document.getElementById("catalog-toast");
+  const mergeToggle = document.getElementById("catalog-merge-toggle");
+  const mergePanel = document.getElementById("character-merge");
   const mergeInput = document.getElementById("character-merge-input");
   const mergeSelect = document.getElementById("character-merge-select");
   const mergeOutput = document.getElementById("character-merge-output");
@@ -2142,7 +2144,17 @@ function quoteSpotlightHtml(value) {
     return best;
   }
   async function runCharacterMerge() {
-    if (!state.characters.length) { mergeStatus.textContent = "名鑑データを読み込み中です。少し待ってください。"; return; }
+    // 初回表示でも、押し直しを要求せず一覧の到着を待ってそのまま統合する。
+    if (!state.characters.length && state.characterLoadPromise) {
+      mergeRun.disabled = true;
+      mergeStatus.textContent = "名鑑データを準備しています。届きしだい統合します…";
+      try { await state.characterLoadPromise; }
+      finally { mergeRun.disabled = false; }
+    }
+    if (!state.characters.length) {
+      mergeStatus.textContent = "名鑑データを読み込めませんでした。再読み込みしてから試してください。";
+      return;
+    }
     let selected = mergeSelectionForInput(mergeInput.value);
     if (selected?.variant?.hasDifference && !selected.variant.differenceJson) {
       mergeStatus.textContent = "差分を読み込んでいます…";
@@ -2434,6 +2446,15 @@ function quoteSpotlightHtml(value) {
     }, 150);
   });
   window.addEventListener("scroll", closeTagPopover, true);
+  mergeToggle.addEventListener("click", () => {
+    const opening = mergePanel.hidden;
+    mergePanel.hidden = !opening;
+    mergeToggle.setAttribute("aria-expanded", String(opening));
+    if (opening) {
+      mergeStatus.textContent = state.characters.length ? "" : "名鑑データを準備しています。名前やココフォリアJSONは先に入力できます。";
+      requestAnimationFrame(() => mergeInput.focus());
+    }
+  });
   mergeRun.addEventListener("click", runCharacterMerge);
   mergeCopy.addEventListener("click", () => { if (mergeOutput.value) copyText(mergeOutput.value); });
   mergeSelect.addEventListener("change", () => {
@@ -2918,5 +2939,5 @@ function quoteSpotlightHtml(value) {
     toggle.addEventListener("click", () => requestAnimationFrame(updateCapsule));
     updateCapsule();
   });
-  loadCharacters();
+  state.characterLoadPromise = loadCharacters();
 })();
