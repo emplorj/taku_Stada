@@ -169,16 +169,61 @@
   }
 
   async function fetchApiJson(url, init = null) {
-    const res = await fetch(url, init || undefined);
-    const data = await res.json().catch(() => null);
-    if (!res.ok) {
-      const msg = data && data.message ? data.message : `APIエラー (HTTP ${res.status})`;
-      throw new Error(msg);
+    const sourceInit = init && typeof init === "object" ? init : {};
+    const method = String(sourceInit.method || "GET").toUpperCase();
+    // 読み込みは一時的なGASエラーを吸収する。書き込みは呼び出し元が
+    // 冪等性を保証している場合だけ明示的に再試行回数を指定する。
+    const maxAttempts = Math.max(
+      1,
+      Number(sourceInit.apiMaxAttempts || (method === "GET" ? 3 : 1)) || 1,
+    );
+    const requestInit = { ...sourceInit };
+    delete requestInit.apiMaxAttempts;
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        const res = await fetch(url, {
+          ...requestInit,
+          cache: requestInit.cache || "no-store",
+        });
+        const text = await res.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch (_error) {
+          const preview = String(text || "").replace(/\s+/g, " ").trim().slice(0, 120);
+          const error = new Error(
+            `APIがJSONを返しませんでした${preview ? `: ${preview}` : ""}`,
+          );
+          error.retryable = true;
+          throw error;
+        }
+        if (!res.ok) {
+          const error = new Error(
+            (data && data.message) || `APIエラー (HTTP ${res.status})`,
+          );
+          error.retryable = res.status === 408 || res.status === 429 || res.status >= 500;
+          throw error;
+        }
+        if (!data || data.status === "error") {
+          const error = new Error((data && data.message) || "API応答が不正");
+          // GASは実行時エラーをHTTP 200のJSONとして返すため、短い再試行を許可する。
+          error.retryable = true;
+          throw error;
+        }
+        return data;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error || "APIエラー"));
+        // fetch() がネットワーク失敗時に投げる TypeError には状態コードがない。
+        if (lastError.retryable == null && lastError.name === "TypeError") {
+          lastError.retryable = true;
+        }
+        if (!lastError.retryable || attempt === maxAttempts) break;
+        await new Promise((resolve) => setTimeout(resolve, 350 * attempt));
+      }
     }
-    if (!data || data.status === "error") {
-      throw new Error((data && data.message) || "API応答が不正");
-    }
-    return data;
+    throw lastError || new Error("APIエラー");
   }
 
   function getByPath(obj, path, defaultValue = "") {

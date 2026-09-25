@@ -3131,10 +3131,13 @@ new Vue({
         this.isBusy = true;
         const enemy = this.buildDx3EnemyPayload();
         if (saveAs) enemy.ID = "";
+        const requestId = `dx3-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
         const data = await this.fetchDx3EnemyJson(this.buildDx3EnemyApiUrl("saveDX3Enemy"), {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ tool: "dx3enemy", action: "saveDX3Enemy", enemy }),
+          // 同じrequestIdを使うことで、通信だけ失敗した場合にも二重保存せず再試行できる。
+          apiMaxAttempts: 2,
+          body: JSON.stringify({ tool: "dx3enemy", action: "saveDX3Enemy", requestId, enemy }),
         });
         if (data.enemy) this.loadDx3Enemy(data.enemy);
         await this.loadDx3EnemyList();
