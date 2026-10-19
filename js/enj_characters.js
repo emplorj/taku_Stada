@@ -2156,6 +2156,17 @@ function quoteSpotlightHtml(value) {
       return;
     }
     let selected = mergeSelectionForInput(mergeInput.value);
+    // ブラウザ内の旧い一覧キャッシュには差分JSONがないことがある。
+    // すでに進行中の最新indexを先に待ち、同じキャラを取り直せば追加の詳細通信を避けられる。
+    if (selected?.variant?.hasDifference && !selected.variant.differenceJson && state.characterLoadPromise) {
+      mergeStatus.textContent = "最新の差分データを確認しています…";
+      try {
+        await state.characterLoadPromise;
+        const refreshedCharacter = state.characters.find((character) => character.id === selected.character.id);
+        const refreshedVariant = refreshedCharacter?.variants[selected.variantIndex];
+        if (refreshedCharacter && refreshedVariant) selected = { character: refreshedCharacter, variant: refreshedVariant, variantIndex: selected.variantIndex };
+      } catch (_error) { /* 下の個別詳細取得へフォールバックする。 */ }
+    }
     if (selected?.variant?.hasDifference && !selected.variant.differenceJson) {
       mergeStatus.textContent = "差分を読み込んでいます…";
       try {
