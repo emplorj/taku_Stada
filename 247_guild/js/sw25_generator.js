@@ -132,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // キャラシ分析用の状態
   let charAnalysisCsvRows = [];
+  let charAnalysisCsvPromise = null;
   let charAnalysisCurrent = null;
   let charAnalysisRawText = "";
   let charAnalysisCharacters = [];
@@ -2489,17 +2490,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function initializeCharAnalysisCsv() {
-    try {
-      const response = await fetch("data/SW_特技魔法.csv");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const csvText = await response.text();
-      charAnalysisCsvRows = parseCharAnalysisCsv(csvText);
-      setCharAnalysisStatus("特技・魔法CSVを読み込みました。", "success");
-    } catch (error) {
-      console.error("SW_特技魔法.csv の読み込みに失敗:", error);
-      charAnalysisCsvRows = [];
-      setCharAnalysisStatus("247_guild/data/SW_特技魔法.csv の読み込みに失敗しました。配置とパスを確認してください。", "error");
+    if (charAnalysisCsvRows.length) return;
+    if (!charAnalysisCsvPromise) {
+      charAnalysisCsvPromise = (async () => {
+        try {
+          const response = await fetch("data/SW_特技魔法.csv");
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const csvText = await response.text();
+          charAnalysisCsvRows = parseCharAnalysisCsv(csvText);
+          setCharAnalysisStatus("特技・魔法CSVを読み込みました。", "success");
+        } catch (error) {
+          console.error("SW_特技魔法.csv の読み込みに失敗:", error);
+          charAnalysisCsvRows = [];
+          setCharAnalysisStatus("247_guild/data/SW_特技魔法.csv の読み込みに失敗しました。配置とパスを確認してください。", "error");
+        } finally {
+          charAnalysisCsvPromise = null;
+        }
+      })();
     }
+    await charAnalysisCsvPromise;
   }
 
   function parseCharAnalysisCsv(csvText) {
@@ -8444,9 +8453,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }));
   }
 
+  let charAnalysisCapturePromise = null;
+
+  function loadCharAnalysisCaptureLibrary() {
+    if (typeof window.html2canvas === "function") return Promise.resolve();
+    if (!charAnalysisCapturePromise) {
+      charAnalysisCapturePromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "./js/vendor/dom_capture-1.4.1.min.js?v=1.4.1";
+        script.onload = () => {
+          if (typeof window.html2canvas === "function") resolve();
+          else reject(new Error("画像生成ライブラリを読み込めませんでした。"));
+        };
+        script.onerror = () => reject(new Error("画像生成ライブラリを読み込めませんでした。"));
+        document.head.appendChild(script);
+      }).catch((error) => {
+        charAnalysisCapturePromise = null;
+        document.querySelector('script[src="./js/vendor/dom_capture-1.4.1.min.js?v=1.4.1"]')?.remove();
+        throw error;
+      });
+    }
+    return charAnalysisCapturePromise;
+  }
+
   async function createCharAnalysisPlanExportImage() {
     if (!charAnalysisCurrent) throw new Error("出力できる戦闘プランがありません。");
-    if (typeof window.html2canvas !== "function") throw new Error("画像生成ライブラリを読み込めませんでした。");
+    await loadCharAnalysisCaptureLibrary();
     const adjusted = document.getElementById("char-analysis-adjusted");
     const sourceResult = adjusted?.querySelector(".analysis-action-result-box")
       || adjusted?.querySelector(".analysis-plan-layout")
@@ -9921,7 +9953,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupRecommendedItemsPanel(); // ★追加
     setupEventListeners();
     setupCharAnalysisEventListeners();
-    initializeCharAnalysisCsv();
     regulationSelect.dispatchEvent(new Event("change"));
     updateAllStatTotals();
     updateGrowthExportButtons();

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="css/247_guild_common.css">
   <link rel="stylesheet" href="css/247_guild.css?v=3.5.4">
+  <link rel="stylesheet" href="css/247_guild_renewal.css?v=4.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="../css/featured-character.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,8 +22,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+JP:wght@400;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" defer></script>
 </head>
 
 <body data-no-sidemenu="true" class="guild-background">
@@ -61,14 +62,14 @@
           <p class="hero-eyebrow">ハーヴェス南郊・冒険者ギルド本部登録済</p>
           <p class="hero-kicker">冒険者ギルド</p>
           <h1>帝国の鉢巻</h1>
-          <h2>お仕事はいつでもお待ちしております～</h2>
-          <p class="hero-lead">港湾都市ハーヴェス南郊、街の外れにある冒険者ギルドです。新人さんも熟練者さんも歓迎。依頼をこなして、有名になってみませんか？</p>
+          <h2>街の困りごとから、まだ見ぬ土地への旅まで。</h2>
+          <p class="hero-lead">ハーヴェス南郊を拠点に、依頼の仲介と冒険者の活動を支えています。調査、護衛、暮らしの手助け。一つひとつの仕事を、出発から帰還までお手伝いします。</p>
           <div class="hero-actions" aria-label="主要なご案内">
-            <a class="hero-button hero-button-primary" href="#visitor-guide">
-              <span>初めての方へ</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            <a class="hero-button hero-button-primary" href="#commission-guide">
+              <span>仕事を依頼したい方へ</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
             </a>
-            <a class="hero-button hero-button-secondary" href="#requests">
-              <span>依頼掲示板を見る</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            <a class="hero-button hero-button-secondary" href="#visitor-guide">
+              <span>冒険者として利用する</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
             </a>
           </div>
           <ul class="hero-trust-list" aria-label="ギルドの特徴">
@@ -77,6 +78,12 @@
             <li>遠征手配対応</li>
           </ul>
         </div>
+      </section>
+
+      <section id="commission-guide" class="content-section commission-guide" aria-labelledby="commission-title">
+        <div><p class="commission-eyebrow">REQUEST A SERVICE</p><h2 id="commission-title">お困りごとを、受付へ。</h2>
+          <p>調査・護衛・討伐から建物の修繕まで。まずは「何に困っているか」をお聞かせください。目的、場所、希望する期限、ご予算、分かっている危険を整理していただくと、ご相談が進めやすくなります。</p></div>
+        <div class="commission-actions"><a class="commission-button" href="request_form.html">依頼書を作成する <span aria-hidden="true">→</span></a><p>相談内容をまとめるための書式です。<br>受付で内容と条件を確認します。</p><a href="#access">所在地・周辺地図を見る</a></div>
       </section>
 
       <!-- 2. ギルド概要 -->
@@ -111,7 +118,7 @@
           中心街からは少し離れていますが、そのぶん広々としていて、大がかりな訓練や魔動機の整備にも便利なんですよ。「帝国」というのは、将来それくらい大きな存在になろう、という目標から付けた名前なんだそうです。「鉢巻」は、もちろんニシナさんのトレードマークですね。ギルドマスター「ミカ・ニシナ」さんの指揮のもと、ベテランから私みたいな新人まで、色々な冒険者さんが集まって、毎日いろんな依頼に挑んでいます。<br>
           蛮族討伐や魔物退治はもちろん、地下水道の調査や異端審問、時にはギルド直営の食堂のお手伝いまで、本当に幅広い依頼を扱っているんですよ。それに、他のギルドとの対抗戦にも積極的に参加するなど、結構武闘派な一面もあるみたいです。
           <br>
-          それに、最近はたくさんの新人冒険者さんが来てくれて、ギルドはとっても賑やかですねぇ。でもその一方で、ニシナさんのサービス精神が旺盛すぎて、経営はいつも赤字だって聞いてます…。大丈夫なんでしょうか、このギルド……。
+          新人支援の「卓スタダ」を通して、初仕事の紹介や道具の準備もお手伝いしています。所属するギルドを探している方も、まずは受付でご相談ください。仕事の選び方や、ここで活動する冒険者さんたちについてご案内します。
         </p>
         <div class="guild-history-note">
           <h3><i class="fa-solid fa-flag"></i>設立について</h3>
@@ -129,7 +136,7 @@
           </p>
         </div>
         <figure class="guild-exterior">
-          <img src="img/tatemono.png" alt="ハーヴェスの南郊に建つ冒険者ギルド「帝国の鉢巻」の外観">
+          <img src="img/tatemono.png" alt="ハーヴェスの南郊に建つ冒険者ギルド「帝国の鉢巻」の外観" loading="lazy" decoding="async">
           <figcaption>
             こちらが「帝国の鉢巻」の外観です。街の外れの開けた場所に建っているので、初めて来る方にも見つけやすいと思いますよ～。
           </figcaption>
@@ -221,7 +228,7 @@
           </li>
           <li class="rule-item">
             <h4>
-              <img src="../img/Jin.png" alt="要注意人物ジン" class="rule-icon-img">
+              <img src="../img/Jin.png" alt="要注意人物ジン" class="rule-icon-img" loading="lazy" decoding="async">
               特記事項：ジンについて
             </h4>
             <p>
@@ -378,7 +385,7 @@
             </div>
           </details>
         </div>
-        <div class="completed-requests-panel">
+        <div id="activity-archive" class="completed-requests-panel">
           <header class="regional-news-header completed-requests-header">
             <div>
               <p class="regional-news-kicker completed-requests-kicker">
@@ -390,7 +397,7 @@
           </header>
           <p class="section-desc">
             達成した依頼の報告書は、冒険者さんたちの功績がちゃんと目に見えるように、っていうニシナさんの方針でギルドの<a href="https://amzn.asia/d/hjhIeZu"
-              target="_blank">大きい青いファイル</a>にファイリングされています。ここではその一部を掲示しています。全ての報告書はギルドで閲覧できますので、興味のある方はお声がけくださいね～。
+              target="_blank" rel="noopener noreferrer">大きい青いファイル</a>にファイリングされています。ここではその一部を掲示しています。全ての報告書はギルドで閲覧できますので、興味のある方はお声がけくださいね～。
           </p>
           <a href="https://www.dropbox.com/scl/fo/lnuvslrnsqqyye3ka3dfa/APfMlkTTNNrt9Lgnx5sOOVA?rlkey=na6d29bfk2p7vpdz9g862o6fi&st=rremkhn3&dl=0"
             target="_blank" rel="noopener noreferrer" class="rich-link-card">
@@ -398,7 +405,7 @@
               <i class="fa-solid fa-folder-open"></i>
             </div>
             <div class="rich-link-content">
-              <div class="rich-link-title">ギルド内にあるファイルだ…</div>
+              <div class="rich-link-title">依頼記録の書庫</div>
               <div class="rich-link-description">過去の依頼や冒険の全記録はこちらから閲覧できます。（Dropbox）</div>
             </div>
             <div class="rich-link-arrow">
@@ -474,6 +481,11 @@
 
           <div id="completed-request-list"
             class="card-container request-list completed-request-list expandable-content completed-request-list-collapsed">
+            <div class="request-card" style="order: 83;">
+              <div class="request-card-header"><h3>ユーシズへの送迎</h3><span class="request-status unavailable">達成済</span></div>
+              <p class="request-meta"><strong>達成者:</strong> ペディ・バウハウス</p>
+              <p class="request-desc">サロメさんを魔動機バイクでユーシズへ送り届けた依頼です。当ギルドが依頼の紹介と旅費の負担を行い、帰還後の報告・精算まで完了しました。</p>
+            </div>
             <div class="request-card" style="order: 21;">
               <div class="request-card-header">
                 <h3>帝路追想 スターダストアビス</h3>
@@ -661,6 +673,12 @@
           </header>
 
           <div id="regional-news-list" class="regional-news-grid expandable-content regional-news-list-collapsed">
+            <article class="regional-news-article">
+              <div class="regional-news-labels"><span class="regional-news-region">エルゲ地方・ノ・クレタ</span><span class="regional-news-status resolved">護衛対象を救出</span></div>
+              <div class="regional-news-body"><p class="regional-news-source">遠方での冒険者の活動記録</p><h4>貴族家の対立に巻き込まれた二人を、街の外へ</h4>
+                <p>要人の護衛でノ・クレタを訪れた冒険者たちが、対立する両家の争いに直面しました。一行は非道な依頼を断り、サンディカさんとファッショさんの脱出を支援。二人とともに街を離れました。現地の対立そのものが解消したという報告ではありません。</p>
+              </div>
+            </article>
           <article class="regional-news-article">
             <div class="regional-news-labels">
               <span class="regional-news-region">コルガナ近海・ラクシア各地</span>
@@ -681,13 +699,13 @@
             <article class="regional-news-article">
               <div class="regional-news-labels">
                 <span class="regional-news-region">魔導の学府ユーシズ</span>
-                <span class="regional-news-status ongoing">続報待ち</span>
+                <span class="regional-news-status resolved">事件決着・復興中</span>
               </div>
               <div class="regional-news-body">
                 <p class="regional-news-source">「七色のマナ」関係者報告</p>
-                <h4>学園地下で奈落の魔域が相次いで発生、教師・学生らが対処</h4>
+                <h4>「七色のマナ」の一連の事件が決着、学園は復興へ</h4>
                 <p>
-                  魔導学園「七色のマナ」で、奈落の魔域の発生と学生の失踪が相次いでいます。調査にあたった学生たちは地下霊廟に隠された区画と計画の一端を発見。その後は教師や各地の冒険者も加わり、複数の魔域を破壊しました。ただし首謀者ローレル・トッドは逃走しており、校舎周辺でも新たな異変が確認されています。
+                  奈落の魔域と学生の失踪を巡る一連の事件は、教師・学生らがローレル・トッドを退けたことで決着しました。戦闘後には学園を覆っていた黒い霧も晴れ、大魔導公の指揮のもと復興が進められています。その後のユーシズへの送迎でも、学園が一時閉鎖して復興作業中であることが確認されました。訪問の際は、現地の受け入れ状況をご確認ください。
                 </p>
               </div>
             </article>
@@ -869,11 +887,11 @@
 
           <div class="start-dash-img-container">
             <div>
-              <img src="../img/taku_stada.png" alt="スタートダッシュキャンペーン ロゴ" class="start-dash-logo">
+              <img src="../img/taku_stada.png" alt="スタートダッシュキャンペーン ロゴ" class="start-dash-logo" loading="lazy" decoding="async">
               <p class="logo-caption">キャンペーンに対応している依頼には、このロゴが付いてるみたいなので、チェックしてみてくださいね！見逃しちゃダメですよ～！</p>
             </div>
             <div>
-              <img src="../img/Blackbox.png" alt="スタートダッシュキャンペーンの箱" class="start-dash-box">
+              <img src="../img/Blackbox.png" alt="スタートダッシュキャンペーンの箱" class="start-dash-box" loading="lazy" decoding="async">
               <p class="box-caption">こ、怖い…！何が出るかは開けてのお楽しみ、だそうです…。私、こういうの苦手なんですよねぇ。</p>
             </div>
           </div>
@@ -911,7 +929,7 @@
           <h3 class="news-headline">ギルド内で囁かれる噂…？</h3>
           <div class="news-content">
             <div class="flyer-image-container">
-              <img src="img/guild_reform_flyer.png" alt="ギルド改革を訴えるビラ" class="flyer-image special-size">
+              <img src="img/guild_reform_flyer.png" alt="ギルド改革を訴えるビラ" class="flyer-image special-size" loading="lazy" decoding="async">
             </div>
             <div class="caption">
               <h3>ギルドに貼られたビラ</h3>
@@ -935,7 +953,7 @@
             <div class="flyer-image-container">
               <img
                 src="https://storage.ccfolia-cdn.net/users/NeaHf2XCQ4RTWIb3r0EOKpcsQhF2/files/d5351f018e7417feb6e5dd47e104abeecea3bc192f7d401d49b84655878faa2e"
-                alt="ワルーサのアイコン" class="flyer-image">
+                alt="ワルーサのアイコン" class="flyer-image" loading="lazy" decoding="async">
             </div>
             <div class="caption">
               <h3>あの邪教神官が、また…？</h3>
@@ -946,7 +964,7 @@
           </div>
           <div class="news-content">
             <div class="flyer-image-container">
-              <img src="../img/portrait/nazono.png" alt="人斬りセーラーのイメージ画像" class="flyer-image">
+              <img src="../img/portrait/nazono.png" alt="人斬りセーラーのイメージ画像" class="flyer-image" loading="lazy" decoding="async">
             </div>
             <div class="caption">
               <h3>謎の「人斬りセーラー」出現</h3>
@@ -957,7 +975,7 @@
           </div>
           <div class="news-content">
             <div class="flyer-image-container">
-              <img src="../img/portrait/interview.png" alt="謎の記者探偵のウワサ" class="flyer-image">
+              <img src="../img/portrait/interview.png" alt="謎の記者探偵のウワサ" class="flyer-image" loading="lazy" decoding="async">
             </div>
             <div class="caption">
               <h3>神出鬼没の"記者探偵"？</h3>
@@ -1087,8 +1105,8 @@
       <section id="members" class="content-section">
         <h2><i class="fa-solid fa-shield-halved"></i>注目の冒険者さん</h2>
         <p class="section-desc">
-          当ギルドでは、普通の知名度や冒険者ランクとは別に、個人の戦闘能力や依頼達成への貢献度を総合的に評価する独自の指標（1～15段階）を設けているみたいです。これのおかげで、それぞれの実力に合った依頼を紹介しやすくなってるんですね。ちなみに、今ギルド内で最高段階に到達している冒険者さんはいるみたいですけど、まだ誰も到達したことがない16段階目に到達した人はいないそうです。いつか現れるんでしょうかねぇ…！<br>
-          最近特に活躍が目覚ましい冒険者さんたちを、ギルド受付のゾロメが独断と偏見でピックアップ！次なる伝説を作るのは、この中の誰かかも…？
+          当ギルドでは、知名度や冒険者ランクとは別に、戦闘能力と依頼への貢献度を総合した「レベル」を、依頼紹介の目安にしています。通常の範囲はレベル1～15です。レベル16・17の到達者も実在しますが、極めて稀な存在です。<br>
+          ここでは、冒険者さんたちのプロフィールをご紹介します。パーティ編成のご相談も受付で承ります。
         </p>
         <div class="card-container member-list">
           <!-- ここにJavaScriptでキャラクターカードが挿入されます -->
@@ -1098,10 +1116,15 @@
       <!-- 8. ギルドスタッフ -->
       <section id="staff" class="content-section">
         <h2><i class="fa-solid fa-users-gear"></i>ギルドスタッフ</h2>
+        <p class="section-desc">受付・契約・精算から、遠征の準備や日々の施設運営まで、職員が分担してお手伝いします。</p>
+        <details class="staff-support"><summary>外回り・裏方の職員紹介</summary>
+          <p><strong>トキワ・アベ＝アンティリーズさん</strong> — 人間／レベル2。卓スタダ用アイテムの取り寄せなど、外回りの物資調達を担当しています。勢いのある方ですが、仕入れの数量と予算は確認をお願いしますね。</p>
+          <p><strong>シンク・カイ＝ダークライターさん</strong> — 人間／レベル2。裏方の業務に加え、職員の食事も用意してくださいます。余った食材を活用するなど、日々の運営を丁寧に支えている方です。</p>
+        </details>
         <div class="card-container">
           <div class="member-card" data-adventurer-level="13"
             data-profile-sections="冒険者として|ギルドマスターとして|気前のよさと赤字|戦闘">
-            <img class="img-nishina" src="../img/portrait/ニシナ正面.png" alt="ニシナの画像">
+            <img class="img-nishina" src="../img/portrait/ニシナ正面.png" alt="ニシナの画像" loading="lazy" decoding="async">
             <h3 class="character-name">ミカ・ニシナ</h3>
             <p class="character-job">人間 / ギルドマスター</p>
             <p class="member-desc">
@@ -1115,7 +1138,7 @@
             data-profile-sections="来歴|工房と経営業務|人柄と戦闘">
             <img
               src="https://storage.ccfolia-cdn.net/users/lGj39L47sihBEN6Qi1CJVker2St2/files/2b42238d82d594a5172ad977edf44599788ae5c0237b2921c806d4b020165072?t=1761652688257"
-              alt="リリの画像">
+              alt="リリの画像" loading="lazy" decoding="async">
             <h3 class="character-name" style="font-size: 1.3rem;">ラズヒェル・リリベラード</h3>
             <p class="character-job">ナイトメア / 共同経営者・魔動機技師</p>
             <p class="member-desc">
@@ -1128,7 +1151,7 @@
             data-profile-sections="来歴|新人冒険者の案内|経営と戦闘">
             <img
               src="https://storage.ccfolia-cdn.net/users/YGq1iXldbNUeVeITyzT9ML9DROD3/files/744763fbfb27a2a6f336d7e1cc35f4af646542030638112c83aae465cda882d8?t=1761649547081"
-              alt="ポポロの画像">
+              alt="ポポロの画像" loading="lazy" decoding="async">
             <h3 class="character-name">ポポロ・リック</h3>
             <p class="character-job">グラスランナー / 共同経営者・先輩冒険者</p>
             <p class="member-desc">
@@ -1139,7 +1162,7 @@
           </div>
           <div class="member-card" data-adventurer-level="??"
             data-profile-sections="受付と依頼審査|知識と依頼説明|人柄と記録">
-            <img src="../img/portrait/ポラリス.png" alt="ポラリスの画像">
+            <img src="../img/portrait/ポラリス.png" alt="ポラリスの画像" loading="lazy" decoding="async">
             <h3 class="character-name">ポラリス</h3>
             <p class="character-job">ルーンフォーク？ / ギルド職員</p>
             <p class="member-desc">
@@ -1150,7 +1173,7 @@
           </div>
           <div class="member-card" data-adventurer-level="??"
             data-profile-sections="担当業務|魔動機と遠征支援|人柄">
-            <img src="../img/portrait/アルフィルク.png" alt="アルフィルクの画像">
+            <img src="../img/portrait/アルフィルク.png" alt="アルフィルクの画像" loading="lazy" decoding="async">
             <h3 class="character-name">アルフィルク</h3>
             <p class="character-job">ルーンフォーク？ / ギルド職員</p>
             <p class="member-desc">
@@ -1163,7 +1186,7 @@
             data-profile-sections="新人案内と冒険道具|人柄と仕事|受付で会えたら">
             <img
               src="https://storage.ccfolia-cdn.net/users/lGj39L47sihBEN6Qi1CJVker2St2/files/d6934c681f4660f145652f1f19462a9e2006ab7520f5391cd5d5f0edaef106ff"
-              alt="ネリーさんの画像">
+              alt="ネリーさんの画像" loading="lazy" decoding="async">
             <h3 class="character-name">ネリー</h3>
             <p class="character-job">メリア / ギルド職員</p>
             <p class="member-desc">
@@ -1172,22 +1195,22 @@
               ご本人は「結構レアキャラ」とおっしゃっていますので、受付で会えた方は少し運がいいのかもしれません。グミキノコ風の受付ということになっているらしいですが……親切に対応してくださいますよ。
             </p>
           </div>
-          <div class="member-card" data-adventurer-level="5"
+          <div class="member-card" data-adventurer-level="6"
             data-profile-sections="新卒事務員ゾロメ">
             <img
               src="https://storage.ccfolia-cdn.net/users/NeaHf2XCQ4RTWIb3r0EOKpcsQhF2/files/d280c0b260b17823a1100a212b759eed9e8736a3d810f70a542919c053e35ea2"
-              alt="ゾロメの画像">
+              alt="ゾロメの画像" loading="lazy" decoding="async">
             <h3 class="character-name">ゾロメ・ベストマン</h3>
             <p class="character-job">人間 / 事務員 (新卒)・天地使い</p>
             <p class="member-desc">
-              ギルドの事務員を務めております、ゾロメ・ベストマンです。魔法学園を卒業して、最近ギルドに入ったばかりの新卒です。依頼の受付や契約書、記録管理、報酬の支払いのほか、予算管理や物資調達も担当しております。最近、あのジンとかいう変なのに無理やり変な魔域探索に付き合わされて、冒険者デビューも果たしました…。実務経験はまだ浅いですが、精一杯頑張りますので、どうぞよろしくお願いいたします～。あ、あと、天地使い…ジオマンサーっていうのもやっています。まだまだ半人前ですけど、いつか皆さんのお役に立てるように頑張りますね！
+              ギルドの事務員、ゾロメ・ベストマンです。魔法学園を卒業した18歳の新卒で、受付、契約書、記録管理、報酬の精算、予算管理や物資調達を担当しています。会議の議事録や、鉢巻事務所との鑑定品の受け渡しも業務のひとつです。冒険者としてはレベル6。天地使い・妖精使いとして依頼や救援に加わることもありますが、普段のご相談は受付へお願いしますね。
             </p>
           </div>
           <div id="staff-mari" class="member-card" data-adventurer-level="??"
             data-profile-sections="担当業務|謎の多い一面">
             <img
               src="https://storage.ccfolia-cdn.net/users/3ACvJZrkC3drwGIMeHHAsAFz6uJ3/files/345528aacb576cf172d69d2655a0a093a5ad5ca7864e50b1dd710d33886710cd?t=1784643898428"
-              alt="まりちゃんの画像">
+              alt="まりちゃんの画像" loading="lazy" decoding="async">
             <h3 class="character-name">まりちゃん</h3>
             <p class="character-job">種族不明 / ギルド職員（アルバイト）</p>
             <p class="member-desc">
@@ -1199,7 +1222,7 @@
             data-profile-sections="ギルドでの仕事|戦闘と素性">
             <img
               src="https://storage.ccfolia-cdn.net/users%2FlGj39L47sihBEN6Qi1CJVker2St2%2Ffiles%2Fadb0103f071cd9791426b323bca6826be0b8eb3606018abc6258a9bf653ec121?alt=media&token=731be2ad-27f3-446b-ad11-b4ed94a9ab67"
-              alt="バイトさんの画像">
+              alt="バイトさんの画像" loading="lazy" decoding="async">
             <h3 class="character-name">バイトさん</h3>
             <p class="character-job">ウィークリング / ギルド職員 (バイト)</p>
             <p class="member-desc">
@@ -1209,7 +1232,7 @@
           </div>
           <div class="member-card" data-adventurer-level="???" data-role="その他"
             data-profile-sections="出所不明|意味不明な技能">
-            <img src="../img/portrait/JinFace.png" alt="ジンの画像">
+            <img src="../img/portrait/JinFace.png" alt="ジンの画像" loading="lazy" decoding="async">
             <h3 class="character-name">ジン (<a
                 href="https://jp.finalfantasyxiv.com/lodestone/character/53872646/"
                 class="jin-secret-link" target="_blank" rel="noopener noreferrer"
@@ -1229,7 +1252,7 @@
         </p>
         <div class="floor-plan-container">
           <div id="floor-plan-clickable" class="map-container-clickable">
-            <img src="img/hachimaki1F.png" alt="帝国の鉢巻 ギルド1階層" class="floor-plan-image">
+            <img src="img/hachimaki1F.png" alt="帝国の鉢巻 ギルド1階層" class="floor-plan-image" loading="lazy" decoding="async">
             <!-- 見取り図のホットスポット (リンク先を各施設に修正しました) -->
 
             <!-- 受付カウンター -->
@@ -1372,7 +1395,7 @@
         <div class="map-ui-container">
           <div id="map-container" class="map-container-clickable map-with-hotspots">
             <img src="https://pbs.twimg.com/media/ErxfHEOVoAMyj9D?format=jpg&name=medium" alt="ギルド周辺の地図"
-              class="map-image">
+              class="map-image" loading="lazy" decoding="async">
 
           </div>
         </div>
@@ -1572,6 +1595,7 @@
         <div id="update-log">
           <h4><i class="fa-solid fa-clock-rotate-left"></i> 更新履歴</h4>
           <div id="update-log-content" class="log-content expandable-content log-content-collapsed">
+            <p><strong>ver 4.0:</strong> 依頼相談の入口を新設。ユーシズへの送迎とノ・クレタの記録を掲載し、学園事件の続報と職員情報を更新しました。</p>
             <p><strong>ver 3.5:</strong> ギルドのある一日と卓スタダ初期の活動記録を追加し、ベネポレンスと各地から届いた時事短信を増補しました。</p>
             <p><strong>ver 3.4:</strong> 当ギルドの依頼実績とは別に、各地から届いた事件を紹介する「近隣・各地の時事」を追加しました。</p>
             <p><strong>ver 3.3:</strong> ニシナさんの職員紹介に、冒険者・経営と戦闘に関する記録を追記しました。</p>

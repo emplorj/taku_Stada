@@ -133,7 +133,7 @@
         <label>入力<textarea id="character-merge-input" rows="4" placeholder="キャラ名 または ココフォリアJSON"></textarea></label>
         <label>出力<textarea id="character-merge-output" rows="4" readonly></textarea></label>
       </div>
-      <div class="catalog-merge__actions"><button id="character-merge-run" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>統合する</button><button id="character-merge-copy" type="button" disabled><i class="fa-regular fa-copy" aria-hidden="true"></i>コピー</button></div>
+      <div class="catalog-merge__actions"><button id="character-merge-run" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>統合する</button><button id="character-merge-copy" type="button" disabled><i class="fa-regular fa-copy" aria-hidden="true"></i>コピー</button><button id="character-merge-portrait-copy" type="button"><i class="fa-regular fa-image" aria-hidden="true"></i>立ち絵URLをコピー</button></div>
       <p id="character-merge-status" class="catalog-merge__status" role="status"></p>
     </section>
 
@@ -216,6 +216,7 @@
 
 </div>
     <section id="character-grid" class="character-grid" aria-label="キャラクター一覧" aria-live="polite"></section>
+    <div id="catalog-load-sentinel" class="catalog-load-sentinel" aria-hidden="true" hidden></div>
   </main>
 
   <dialog id="character-dialog" class="character-dialog" aria-labelledby="detail-name">

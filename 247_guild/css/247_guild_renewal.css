@@ -1,0 +1,26 @@
+/* Service entrance. Existing fonts and map geometry are inherited unchanged. */
+#hero h1 { text-align: left; }
+#hero h2 { max-width: 30em; line-height: 1.7; }
+.commission-guide { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 3rem; padding: clamp(1.25rem, 3vw, 3rem); border-top: 3px solid #8b4513; }
+.commission-eyebrow { margin: 0 0 .5rem; color: #805936; font-size: .75rem; letter-spacing: .18em; font-weight: 700; }
+.commission-guide h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); margin: .5rem 0 1rem; }
+.commission-guide p { line-height: 1.9; }
+.commission-actions { align-self: center; text-align: center; }
+.commission-button { display: flex; gap: 1rem; justify-content: space-between; padding: 1rem 1.3rem; background: #54382e; color: #fff6e6; text-decoration: none; font-weight: 700; }
+.commission-actions p { font-size: .8rem; color: #655349; }
+.commission-actions > a:last-child { color: #57372b; text-underline-offset: .3em; font-size: .9rem; }
+.staff-support { font-size: .92rem; }
+.staff-support summary { padding: .65rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: .3em; }
+.staff-support[open] summary { margin-bottom: .5rem; }
+.staff-support p { margin: .7rem 0; }
+#commission-guide, #activity-archive { scroll-margin-top: 100px; }
+.commission-guide a:focus-visible { outline: 3px solid #bc853c; outline-offset: 5px; }
+@media (hover: hover) {
+  .staff-support summary:hover { text-decoration-thickness: 2px; }
+  .commission-button:hover { background: #714d3c; }
+}
+@media (max-width: 768px) {
+  .hero-actions { display: grid; grid-template-columns: 1fr; }
+  .hero-button { justify-content: space-between; padding: .8rem 1rem; }
+  .commission-guide { grid-template-columns: 1fr; gap: 1.5rem; }
+}

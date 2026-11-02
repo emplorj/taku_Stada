@@ -1,6 +1,6 @@
 // js/sutada_chara.js
 
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", function () {
   // 各スライドショーの情報を定義
   const slideshowConfigs = [
     {
@@ -73,11 +73,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (!slideshowsContainer) return;
 
   // 各設定に基づいてスライドショーを生成
+  const sections = [];
   for (const [index, config] of slideshowConfigs.entries()) {
-    const imagePaths = await getImagePaths(index);
+    const imagePaths = getImagePaths(index);
     if (imagePaths.length > 0) {
-      const slideshowHtml = generateSlideshowHtml(config, imagePaths, index);
-      slideshowsContainer.innerHTML += slideshowHtml;
+      sections.push(generateSlideshowHtml(config, imagePaths, index));
 
       // まとめ画像を追加
       const summaryInfo = summaryImageMap[index];
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           summaryInfo.path,
           summaryInfo.title,
         );
-        slideshowsContainer.innerHTML += summaryHtml;
+        sections.push(summaryHtml);
       }
     }
   }
@@ -96,21 +96,22 @@ document.addEventListener("DOMContentLoaded", async function () {
         <div class="character-summary-images all-characters">
 
             <h3 class="section-title start-title">卓スタダ全集合！</h3>
-            <img src="img/sutada_display/色相環+NC.png" alt="全キャラクター集合">
+            <img src="img/sutada_display/色相環+NC.png" alt="全キャラクター集合" loading="lazy" decoding="async">
 
             <h3 class="section-title start-title">卓スタダ-mini全集合！</h3>
             ちょっとまってね
 
         </div>
     `;
-  slideshowsContainer.innerHTML += allCharactersHtml;
+  sections.push(allCharactersHtml);
+  slideshowsContainer.innerHTML = sections.join("");
 
-  // すべてのHTMLが挿入された後にSwiperを初期化
-  slideshowConfigs.forEach((config, index) => {
-    const slideshowId = `.swiper-container-${index}`;
-    if (document.querySelector(slideshowId)) {
-      // ▼▼▼ Swiperの初期化設定をここに集約 ▼▼▼
-      new Swiper(slideshowId, {
+  // 画面に近づいたスライダーだけ動かす
+  const swipers = new Map();
+  const startSlideshow = (index) => {
+    let swiper = swipers.get(index);
+    if (!swiper) {
+      swiper = new Swiper(`.swiper-container-${index}`, {
         // --- 基本設定 ---
         loop: true, // ループさせる
         slidesPerView: 3, // スライドの幅を自動調整
@@ -132,9 +133,24 @@ document.addEventListener("DOMContentLoaded", async function () {
         allowTouchMove: true, // マウスやタッチでのドラッグ操作を許可する（デフォルトはtrue）
         freeMode: false, // freeModeはOFFにするのがポイント
       });
-      // ▲▲▲ Swiperの初期化設定 ▲▲▲
+      swipers.set(index, swiper);
+    } else {
+      swiper.autoplay.start();
     }
-  });
+  };
+  const slideshowWrappers = slideshowsContainer.querySelectorAll(".slideshow-wrapper");
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(({ target, isIntersecting }) => {
+        const index = Number(target.dataset.index);
+        if (isIntersecting) startSlideshow(index);
+        else swipers.get(index)?.autoplay.stop();
+      });
+    }, { rootMargin: "200px 0px" });
+    slideshowWrappers.forEach((wrapper) => observer.observe(wrapper));
+  } else {
+    slideshowWrappers.forEach((wrapper) => startSlideshow(Number(wrapper.dataset.index)));
+  }
 
   // トップへ戻るボタンのロジック
   const backToTopBtn = document.getElementById("backToTopBtn");
@@ -180,11 +196,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 function generateSlideshowHtml(config, imagePaths, index) {
   const slideshowId = `swiper-container-${index}`;
   const anchorAttr = config.anchorId ? ` id="${config.anchorId}"` : "";
-  const slides = [...imagePaths, ...imagePaths, ...imagePaths]
+  const slidePaths = [...imagePaths];
+  while (slidePaths.length % 3 !== 0) {
+    slidePaths.push(imagePaths[slidePaths.length % imagePaths.length]);
+  }
+  const slides = slidePaths
     .map(
       (path) => `
         <div class="swiper-slide">
-            <img src="${path}" alt="Character Image" loading="lazy" onclick="openModal(this.src)">
+            <img src="${path}" alt="Character Image" loading="lazy" decoding="async" onclick="openModal(this.src)">
         </div>
     `,
     )
@@ -208,14 +228,14 @@ function generateSummaryHtml(imagePath, title) {
         <details class="summary-image-details">
             <summary>${title}を表示</summary>
             <div class="summary-image-content">
-                <img src="${imagePath}" alt="${title}">
+                <img src="${imagePath}" alt="${title}" loading="lazy" decoding="async">
             </div>
         </details>
     `;
 }
 
-// サーバーサイドAPIがない場合のフォールバック関数
-async function getImagePaths(index) {
+// 登録済みの画像パスを返す（画像の存在確認で全件をダウンロードしない）
+function getImagePaths(index) {
   const basePath = "img/sutada_display/";
   const gameFolders = [
     "coc/",
@@ -465,25 +485,7 @@ async function getImagePaths(index) {
 
   const imageList = allImageData[index] || [];
   const folder = gameFolders[index] || "";
-  const candidatePaths = imageList.map((file) => basePath + folder + file);
-
-  // 実在する画像だけを表示（将来追加分の先行定義で404を出さないため）
-  const existenceChecks = await Promise.all(
-    candidatePaths.map((path) =>
-      imageExists(path).then((exists) => ({ path, exists })),
-    ),
-  );
-
-  return existenceChecks.filter((item) => item.exists).map((item) => item.path);
-}
-
-function imageExists(path) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = path;
-  });
+  return imageList.map((file) => basePath + folder + file);
 }
 
 // 画像をクリックしたときにモーダルを開く関数

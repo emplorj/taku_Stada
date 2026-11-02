@@ -1,3 +1,19 @@
+let hydraRankingRequest;
+function getHydraRankingData() {
+  if (!hydraRankingRequest) {
+    hydraRankingRequest = fetch("data/hydra_ranking.json")
+      .then((response) => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+      })
+      .catch((error) => {
+        hydraRankingRequest = null;
+        throw error;
+      });
+  }
+  return hydraRankingRequest;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   // --- ヘッダーのスクロールエフェクト ---
   const header = document.querySelector(".page-header");
@@ -367,13 +383,7 @@ document.addEventListener("DOMContentLoaded", function () {
      ヒドラスライドショー初期化
      =================================================== */
   // ヒドラ討伐ソロ！の画像パスリストとランキングデータをJSONから取得
-  fetch("data/hydra_ranking.json")
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
+  getHydraRankingData()
     .then((data) => {
       const hydraImagePaths = data.imagePaths; // JSONから画像パスを取得
       const hydraRanking = data.ranking; // JSONからランキングデータを取得

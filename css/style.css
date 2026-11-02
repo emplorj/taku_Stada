@@ -673,11 +673,30 @@ nav.side-menu li {
   margin-bottom: 30px; /* 下部のマージン */
 }
 
+.logo-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 45%;
+}
+
 /* 個々のロゴ画像のスタイル */
 .logo-image {
   max-width: 45%; /* ロゴの最大幅 */
   height: auto; /* 高さは自動調整 */
   cursor: pointer; /* マウスオーバー時にポインターを表示 */
+}
+
+.logo-item .logo-image {
+  display: block;
+  max-width: 100%;
+}
+
+.logo-original-link {
+  color: #87cefa;
+  font-size: 0.9em;
+  text-decoration: underline;
 }
 
 /* YouTube埋め込み動画コンテナ */

@@ -45,6 +45,7 @@
 
   const state = { characters: [], query: "", system: "", location: "", year: "", sex: "", alignmentOrder: "", alignmentMorality: "", sort: "id-desc", view: "list", catalogMode: "unique", tagFilters: new Map(), statFilter: null, selectedId: null, variantIndex: 0, detailImageMode: "normal", detailContentTab: "person", publicSheetOpen: false, cardVariantIndexes: new Map(), detailScrollPositions: new Map(), facePreviewLayouts: new Map(), facePreviewHidden: new Set(), expressionPaletteHidden: new Set(), revealedSpoilerTags: new Set(), mergeSelection: null, portraitAdjustMode: false, activePortraitAdjustment: null, catalogScrollY: 0, openedFromUrl: false, statsOpen: false, jobDetailMode: false, detailRequests: new Map(), publicSheetRequests: new Map(), publicSheets: new Map(), detailLoadingId: null, detailWarmupController: null, detailWarmupTimer: null, characterLoadPromise: null };
   const grid = document.getElementById("character-grid");
+  const cardLoadSentinel = document.getElementById("catalog-load-sentinel");
   const search = document.getElementById("character-search");
   const systemFilter = document.getElementById("system-filter");
   const locationFilter = document.getElementById("location-filter");
@@ -85,6 +86,7 @@
   const mergeOutput = document.getElementById("character-merge-output");
   const mergeRun = document.getElementById("character-merge-run");
   const mergeCopy = document.getElementById("character-merge-copy");
+  const mergePortraitCopy = document.getElementById("character-merge-portrait-copy");
   const mergeStatus = document.getElementById("character-merge-status");
   const portraitAdjustController = document.getElementById("portrait-adjust-controller");
   let toastTimer = null;
@@ -1244,6 +1246,24 @@ function quoteSpotlightHtml(value) {
       .sort(compareCatalogItems);
   }
 
+  const CARD_BATCH_SIZE = 36;
+  let pendingCardItems = [];
+  let renderedCardCount = 0;
+  const cardLoadObserver = "IntersectionObserver" in window
+    ? new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) appendCardBatch();
+    }, { rootMargin: "500px 0px" })
+    : null;
+  cardLoadObserver?.observe(cardLoadSentinel);
+
+  function appendCardBatch() {
+    if (renderedCardCount >= pendingCardItems.length) return;
+    const nextCount = Math.min(renderedCardCount + (cardLoadObserver ? CARD_BATCH_SIZE : pendingCardItems.length), pendingCardItems.length);
+    grid.insertAdjacentHTML("beforeend", pendingCardItems.slice(renderedCardCount, nextCount).map(renderCardHtml).join(""));
+    renderedCardCount = nextCount;
+    cardLoadSentinel.hidden = renderedCardCount >= pendingCardItems.length;
+  }
+
   function renderCards() {
     renderActiveTagFilters();
     const filterCount = [state.system, state.location, state.year, state.sex, state.alignmentOrder, state.alignmentMorality].filter(Boolean).length;
@@ -1251,8 +1271,20 @@ function quoteSpotlightHtml(value) {
     const items = filteredCatalogItems();
     count.textContent = `${items.length} ${state.catalogMode === "unique" ? "characters" : "variants"}`;
     grid.dataset.view = state.view;
-    if (!items.length) { grid.innerHTML = '<p class="catalog-empty">条件に合うキャラクターが見つかりませんでした。</p>'; renderStatistics(items); return; }
-    grid.innerHTML = items.map(({ character, variantIndex, variant, grouped }) => {
+    pendingCardItems = items;
+    renderedCardCount = 0;
+    grid.innerHTML = "";
+    if (!items.length) {
+      cardLoadSentinel.hidden = true;
+      grid.innerHTML = '<p class="catalog-empty">条件に合うキャラクターが見つかりませんでした。</p>';
+      renderStatistics(items);
+      return;
+    }
+    appendCardBatch();
+    renderStatistics(items);
+  }
+
+  function renderCardHtml({ character, variantIndex, variant, grouped }) {
       const imageCandidates = catalogImageCandidatesOf(character, variant), image = imageCandidates[0] || "";
       const displayName = variant.name || character.registrationName;
       const cardIcon = cardIconOf(character, variant);
@@ -1289,8 +1321,6 @@ function quoteSpotlightHtml(value) {
         ${cycleButton}
         ${adjustButton}
       </article>`;
-    }).join("");
-    renderStatistics(items);
   }
 
   function sortIndicatorOf(variant) {
@@ -2122,13 +2152,13 @@ function quoteSpotlightHtml(value) {
     toast.classList.add("is-visible");
     toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 1800);
   }
-  async function copyText(value) {
+  async function copyText(value, message = "ココフォリア表情をコピーしました") {
     try { await navigator.clipboard.writeText(value); }
     catch (_error) {
       const area = document.createElement("textarea"); area.value = value; area.style.position = "fixed"; area.style.opacity = "0";
       document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
     }
-    showToast("ココフォリア表情をコピーしました");
+    showToast(message);
   }
   function mergeSelectionForInput(input) {
     if (state.mergeSelection) return state.mergeSelection;
@@ -2225,6 +2255,9 @@ function quoteSpotlightHtml(value) {
     buildLocationDisplayNames();
     configureHeroFaces();
     if (!state.characters.length) {
+      pendingCardItems = [];
+      renderedCardCount = 0;
+      cardLoadSentinel.hidden = true;
       grid.innerHTML = '<div class="catalog-empty"><h2>表示できるキャラクターがいません</h2><p>条件を変えるか、スプレッドシートのデータを確認してください。</p></div>';
       count.textContent = "0 characters";
       return;
@@ -2467,7 +2500,22 @@ function quoteSpotlightHtml(value) {
     }
   });
   mergeRun.addEventListener("click", runCharacterMerge);
-  mergeCopy.addEventListener("click", () => { if (mergeOutput.value) copyText(mergeOutput.value); });
+  mergeCopy.addEventListener("click", () => { if (mergeOutput.value) copyText(mergeOutput.value, "統合したコマをコピーしました"); });
+  mergePortraitCopy.addEventListener("click", async () => {
+    if (!state.characters.length && state.characterLoadPromise) await state.characterLoadPromise;
+    const selected = mergeSelectionForInput(mergeInput.value);
+    if (!selected) {
+      mergeStatus.textContent = "名鑑からキャラクターを選ぶか、名前を入力してください。";
+      return;
+    }
+    const portraitUrl = String(selected.variant.fullBodyUrl || selected.variant["立ち絵"] || "").trim();
+    if (!portraitUrl) {
+      mergeStatus.textContent = `「${selected.variant.name || selected.character.registrationName}」の立ち絵列は空欄です。`;
+      return;
+    }
+    await copyText(portraitUrl, "立ち絵URLをコピーしました");
+    mergeStatus.textContent = `「${selected.variant.name || selected.character.registrationName}」の立ち絵列をコピーしました。`;
+  });
   mergeSelect.addEventListener("change", () => {
     state.mergeSelection = selectedMergeVariant(mergeSelect.value);
     if (!state.mergeSelection) return;

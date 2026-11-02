@@ -2570,6 +2570,24 @@ document.addEventListener("DOMContentLoaded", () => {
     fields.downloadLabel.textContent = labels.download;
   }
 
+  let outputUpdateTimer = null;
+
+  function scheduleOutputUpdate() {
+    window.clearTimeout(outputUpdateTimer);
+    outputUpdateTimer = window.setTimeout(() => {
+      outputUpdateTimer = null;
+      updateOutput();
+    }, 180);
+  }
+
+  function flushOutputUpdate() {
+    if (outputUpdateTimer !== null) {
+      window.clearTimeout(outputUpdateTimer);
+      outputUpdateTimer = null;
+    }
+    updateOutput();
+  }
+
   function showLocalNotice(message) {
     const toast = document.getElementById("result-message");
     if (!toast) return;
@@ -3007,10 +3025,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("enemy-builder-reset").addEventListener("click", () => { if (window.confirm("エネミー作成の入力内容をリセットしますか？")) resetBuilder(); });
   $("enemy-builder-copy").addEventListener("click", async () => {
+    flushOutputUpdate();
     try { await navigator.clipboard.writeText(fields.output.value); showLocalNotice("エネミーデータをコピーしました！"); }
     catch (error) { console.error(error); showLocalNotice("コピーできませんでした。"); }
   });
   $("enemy-builder-download").addEventListener("click", () => {
+    flushOutputUpdate();
     const blob = new Blob([fields.output.value], { type: "application/json;charset=utf-8" });
     const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
     link.download = `${(fields.name.value.trim() || "enemy").replace(/[\\/:*?\"<>|]/g, "_")}.json`; link.click();
@@ -3188,8 +3208,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target.matches(".enemy-builder-assist-power") && fixed) fixed.value = event.target.value === "" ? "" : fixedValue(event.target.value);
     if (row) updateMagicAbilityTitle(row);
   });
-  panel.addEventListener("input", (event) => { releaseEnemySuggestion(event.target); updateOutput(); });
-  panel.addEventListener("change", updateOutput);
+  panel.addEventListener("input", (event) => { releaseEnemySuggestion(event.target); scheduleOutputUpdate(); });
+  panel.addEventListener("change", flushOutputUpdate);
 
   initMultiChoiceField("language");
   initMultiChoiceField("habitat");

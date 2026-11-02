@@ -144,6 +144,8 @@
 .enj-catalog-page .character-grid[data-view="list"] { gap: 10px; }
 .enj-catalog-page .character-grid[data-view="list"] .character-card { content-visibility: auto; contain-intrinsic-size: auto 108px; }
 .enj-catalog-page .character-grid[data-view="grid"] .character-card { content-visibility: auto; contain-intrinsic-size: auto 220px; }
+.enj-catalog-page .character-card__alignment { padding: 2px 6px; font-size: .72rem; line-height: 1.15; }
+.catalog-load-sentinel { height: 1px; }
 .enj-catalog-page .character-grid[data-view="list"] .character-card__id { opacity: .12; }
 .catalog-utilities { display: flex; flex-direction: column; align-items: start; gap: 8px; max-width: 1120px; margin: 0 auto 18px; }
 .enj-catalog-page .catalog-alignment-guide { width: auto; margin: 0; border: 1px solid #334b78; border-radius: 10px; background: #102451; }
@@ -710,9 +712,24 @@
 }
 .enj-catalog-page .detail-portrayal .detail-richtext > :is(h1,h2,h3):first-child { margin-top: 0; }
 .enj-catalog-page .detail-portrayal .detail-richtext > p { margin: 0 0 14px; padding-left: 13px; }
-.enj-catalog-page .character-card__variant-label { max-width: 5.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.enj-catalog-page .character-card__variant-cycle > small { font: 700 .68rem/1 var(--font-latin-ui); opacity: .78; white-space: nowrap; }
+.enj-catalog-page .character-grid[data-view="list"] .character-card__variant-cycle { width: 100%; min-width: 0; max-width: 100%; padding-inline: 6px; gap: 4px; }
+.enj-catalog-page .character-card__variant-cycle > i,
+.enj-catalog-page .character-card__variant-cycle > small { flex: none; }
+.enj-catalog-page .character-card__variant-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.enj-catalog-page .character-card__variant-cycle > small { font: 400 .68rem/1 var(--font-latin-ui); opacity: .78; white-space: nowrap; }
 @media(max-width:640px) {
+  .enj-catalog-page .character-grid[data-view="list"] .character-card__variant-cycle {
+    position: absolute;
+    grid-column: auto;
+    grid-row: auto;
+    top: 50%;
+    right: 8px;
+    width: min(42%, 150px);
+    max-width: calc(100% - 16px);
+    padding-inline: 7px;
+    gap: 4px;
+    transform: translateY(-50%);
+  }
   .enj-catalog-page .detail-content-tabs__buttons { top: 0; }
   .enj-catalog-page .detail-fact-group--calling .detail-fact { padding-inline: 7px; }
 }

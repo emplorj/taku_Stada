@@ -1,11 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetch("data/hydra_ranking.json")
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
+  getHydraRankingData()
     .then((data) => {
       const rankingData = data.ranking; // JSONからランキングデータを取得
 
