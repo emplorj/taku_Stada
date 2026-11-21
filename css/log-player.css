@@ -2176,12 +2176,21 @@ summary.character-header h3 input[type="checkbox"] {
   border-top: none;
 }
 
+.discord-log-entry {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 4px;
+  align-items: start;
+}
+
 .discord-log-character {
   font-weight: bold;
   font-size: 0.9em;
+  white-space: nowrap;
 }
 
 .discord-log-message {
+  min-width: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
 }

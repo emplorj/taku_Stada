@@ -898,6 +898,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.fullLogData = fullLogData; // グローバルスコープに公開
   let filteredLogIndices = [];
   let activeTabs = new Set();
+  let historyListDirty = true;
 
   let currentFilteredIndex = 0;
   let currentSystemTheme = ""; // ★追加
@@ -950,12 +951,31 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // --- Vueアプリ連携用 ---
+  function analysisTabName(tab) {
+    switch (tab.trim().toLowerCase()) {
+      case "":
+      case "main":
+        return "メイン";
+      case "info":
+        return "情報";
+      case "other":
+        return "雑談";
+      default:
+        return tab.trim();
+    }
+  }
+
   function updateVueApp(logs, rawContent, isHtml) {
     if (window.logToolApp) {
+      // 新形式ログは顔アイコンのbase64画像をCSSに大量に含む。
+      // 解析済みデータだけを渡し、Vue側に元HTMLを保持させない。
+      const analysisContent = isHtml
+        ? logs.map((log) => `[${log.tab}] ${log.name} : ${log.text}`).join("\n")
+        : rawContent;
       // ログデータ形式の変換 (LogPlayer -> GrowthChecker)
       const convertedLogs = logs.map((log, index) => ({
         originalIndex: index,
-        tab: log.tab,
+        tab: analysisTabName(log.tab),
         character: log.name,
         message: log.text,
         // HTML形式ならそのまま、テキストなら改行を<br>に
@@ -963,9 +983,10 @@ document.addEventListener("DOMContentLoaded", () => {
           ? log.html || log.text.replace(/\n/g, "<br>")
           : log.text.replace(/\n/g, "<br>"),
         color: log.color,
+        displayColor: log.color,
       }));
 
-      window.logToolApp.setExternalLogs(convertedLogs, rawContent, isHtml);
+      window.logToolApp.setExternalLogs(convertedLogs, analysisContent, isHtml);
     }
   }
 
@@ -1207,8 +1228,42 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- パーサー ---
   function parseCcfoliaLog(html) {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
+    // 新形式のHTMLは顔アイコンを含む巨大なCSSを持つことがある。
+    // ログ解析にはスタイルが不要なので、DOM構築前に除外する。
+    const htmlWithoutStyles = html.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
+    const doc = parser.parseFromString(htmlWithoutStyles, "text/html");
     const parsedLogs = [];
+
+    // 新しいココフォリア出力形式:
+    // <article class="message" data-channel="..."><span class="speaker">…
+    // 顔アイコン (.avatar) には依存せず、発言に必要な要素だけを読む。
+    const messageArticles = doc.querySelectorAll("article.message");
+    if (messageArticles.length > 0) {
+      messageArticles.forEach((article) => {
+        const speakerEl = article.querySelector(".speaker");
+        const messageEl = article.querySelector(".message-text");
+        const channelEl = article.querySelector(".channel-name");
+        const rollResultEl = article.querySelector(".roll-result");
+        const name = speakerEl ? speakerEl.textContent.trim() : "";
+        const tab = (channelEl
+          ? channelEl.textContent.trim().replace(/^\[|\]$/g, "")
+          : article.dataset.channel || "Main").trim();
+        const color = speakerEl
+          ? speakerEl.style.getPropertyValue("--speaker-color").trim() ||
+            speakerEl.style.color ||
+            "#ffffff"
+          : "#888888";
+        const message = messageEl ? messageEl.innerHTML.replace(/<br\s*\/?>/gi, "\n") : "";
+        const rollResult = rollResultEl ? `\n${rollResultEl.textContent}` : "";
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = message;
+        const text = `${tempDiv.textContent}${rollResult}`.trim();
+
+        processLogItem(parsedLogs, tab, name, text, color);
+      });
+      return parsedLogs;
+    }
+
     const pTags = doc.querySelectorAll("p");
 
     pTags.forEach((p) => {
@@ -1224,7 +1279,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let rawText = spans[2].innerHTML.replace(/<br\s*\/?>/gi, "\n");
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = rawText;
-        text = tempDiv.textContent;
+        text = tempDiv.textContent.trim();
       } else {
         const fullText = p.textContent.trim();
         const tabMatch = fullText.match(/^\[(.*?)\]/);
@@ -1417,7 +1472,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (newPos !== -1) currentFilteredIndex = newPos;
     else currentFilteredIndex = 0;
 
-    generateHistoryList();
+    historyListDirty = true;
+    if (historyModal.style.display === "flex") generateHistoryList();
     displayLine(currentFilteredIndex);
   }
 
@@ -1775,6 +1831,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- 履歴・コピー ---
   btnHistory.addEventListener("click", () => {
     if (isAutoPlaying) toggleAutoPlay();
+    if (historyListDirty) generateHistoryList();
     historyModal.style.display = "flex";
     requestAnimationFrame(() => {
       const activeItem = historyListEl.querySelector(".history-item.active");
@@ -1836,6 +1893,7 @@ document.addEventListener("DOMContentLoaded", () => {
       fragment.appendChild(itemDiv);
     });
     historyListEl.appendChild(fragment);
+    historyListDirty = false;
   }
 
   function highlightHistory(realIndex) {
@@ -2240,7 +2298,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof window.GrowthCheckerConfig !== "undefined") {
     const config = Object.assign({}, window.GrowthCheckerConfig);
     config.el = "#log-tool-app";
-
     // データ初期値の上書き
     config.data = Object.assign({}, config.data, {
       currentAnalysisTab: "growth",
