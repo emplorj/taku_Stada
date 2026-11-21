@@ -104,14 +104,10 @@
   }
 
   function formatShortDate(dateStr) {
-    const sharedApi = getEnemiesShared();
-    if (typeof sharedApi.formatDateTime === "function") {
-      return sharedApi.formatDateTime(dateStr, {
-        emptyValue: "",
-        fallbackRawOnInvalid: true,
-      });
-    }
-    return String(dateStr || "");
+    return getEnemiesShared().formatDateTime(dateStr, {
+      emptyValue: "",
+      fallbackRawOnInvalid: true,
+    });
   }
 
   function escapeHtml(value) {
@@ -122,8 +118,10 @@
   }
 
   function getCreditLabel(author) {
-    const text = String(author || "").trim();
-    return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.getCreditLabel === "function"
+      ? sharedApi.getCreditLabel(author)
+      : "作者";
   }
   function autoResizeTextarea(textarea) {
     const sharedApi = getEnemiesShared();
@@ -1026,20 +1024,11 @@
   }
 
   async function requestSaveAsSameNameAction(currentName = "") {
-    const sharedApi = getEnemiesShared();
-    if (sharedApi && typeof sharedApi.requestSaveAsSameNameAction === "function") {
-      return await sharedApi.requestSaveAsSameNameAction(currentName);
-    }
-    return "cancel";
+    return getEnemiesShared().requestSaveAsSameNameAction(currentName);
   }
 
   function buildCopiedName(name) {
-    const sharedApi = getEnemiesShared();
-    if (typeof sharedApi.buildCopiedName === "function") {
-      return sharedApi.buildCopiedName(name);
-    }
-    const base = String(name || "").trim();
-    return `${base}（コピー）`;
+    return getEnemiesShared().buildCopiedName(name);
   }
 
   function setSaveButtonLabelBySheet(sheet) {
@@ -1114,17 +1103,11 @@
   }
 
   function buildEnemyShareUrl(enemyId) {
-    const sharedApi = getEnemiesShared();
-    return typeof sharedApi.buildEnemyViewUrl === "function"
-      ? sharedApi.buildEnemyViewUrl({ id: enemyId, removeParams: ["mode"] })
-      : "";
+    return getEnemiesShared().buildEnemyViewUrl({ id: enemyId, removeParams: ["mode"] });
   }
 
   function getSharedEnemyIdFromUrl() {
-    const sharedApi = getEnemiesShared();
-    return typeof sharedApi.getViewIdFromUrl === "function"
-      ? sharedApi.getViewIdFromUrl({ aliases: ["id", "enemy", "enemyId"] })
-      : "";
+    return getEnemiesShared().getViewIdFromUrl({ aliases: ["id", "enemy", "enemyId"] });
   }
 
   function shouldStartInViewMode() {

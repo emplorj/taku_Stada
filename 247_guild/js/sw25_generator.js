@@ -8757,7 +8757,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  let charAnalysisEventListenersReady = false;
+
   function setupCharAnalysisEventListeners() {
+    if (charAnalysisEventListenersReady) return;
+    charAnalysisEventListenersReady = true;
     const els = getCharAnalysisElements();
     const manualKeyBlocker = (event) => {
       const manualInput = event.target?.closest?.(".char-analysis-manual-input, .char-analysis-slot-manual-input");
@@ -9952,10 +9956,25 @@ document.addEventListener("DOMContentLoaded", () => {
     setupItemSetsPanel();
     setupRecommendedItemsPanel(); // ★追加
     setupEventListeners();
-    setupCharAnalysisEventListeners();
+    setupCharAnalysisWhenNeeded();
     regulationSelect.dispatchEvent(new Event("change"));
     updateAllStatTotals();
     updateGrowthExportButtons();
+  }
+
+  function setupCharAnalysisWhenNeeded() {
+    const panel = document.getElementById("panel-character-analysis");
+    if (!panel) return;
+    if (panel.classList.contains("active")) {
+      setupCharAnalysisEventListeners();
+      return;
+    }
+    const activate = (event) => {
+      if (event.detail?.panelId !== panel.id) return;
+      window.removeEventListener("sw25-panel-activated", activate);
+      setupCharAnalysisEventListeners();
+    };
+    window.addEventListener("sw25-panel-activated", activate);
   }
 
   function populateRegulations() {

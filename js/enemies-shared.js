@@ -110,6 +110,11 @@
     return !!fallback;
   }
 
+  function getCreditLabel(author) {
+    const text = String(author || "").trim();
+    return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
+  }
+
   function normalizeTimingText(timing) {
     return String(timing || "").trim();
   }
@@ -878,6 +883,7 @@
     nowIsoLocal,
     formatDateTime,
     normalizePublicFlag,
+    getCreditLabel,
     normalizeTimingText,
     isRepeatableTiming,
     canUseUsedStatusForTiming,

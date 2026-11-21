@@ -16,6 +16,54 @@ document.addEventListener("DOMContentLoaded", () => {
   let pendingFrame = 0;
   let settleTimer = 0;
   let pointerDown = false;
+  const lazyPanelScripts = {
+    "panel-enemy-builder": [
+      "./data/sw25_enemy_data.js?v=20261121a",
+      "./js/sw25_enemy_builder.js?v=20260808q",
+    ],
+  };
+  const lazyPanelScriptTasks = new Map();
+
+  function ensurePanelScript(panelId) {
+    const sources = lazyPanelScripts[panelId];
+    if (!sources) return Promise.resolve();
+    if (lazyPanelScriptTasks.has(panelId)) return lazyPanelScriptTasks.get(panelId);
+
+    const loadScript = (src, key) => new Promise((resolve, reject) => {
+      const selector = `script[data-sw25-panel-script="${key}"]`;
+      const existing = document.querySelector(selector);
+      if (existing) {
+        if (existing.dataset.loaded === "true") resolve();
+        else {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", reject, { once: true });
+        }
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = src;
+      script.async = true;
+      script.dataset.sw25PanelScript = key;
+      script.addEventListener("load", () => {
+        script.dataset.loaded = "true";
+        resolve();
+      }, { once: true });
+      script.addEventListener("error", () => {
+        reject(new Error(`Failed to load ${src}`));
+      }, { once: true });
+      document.head.appendChild(script);
+    });
+    const task = sources.reduce(
+      (chain, src, index) => chain.then(() => loadScript(src, `${panelId}-${index}`)),
+      Promise.resolve(),
+    ).catch((error) => {
+      lazyPanelScriptTasks.delete(panelId);
+      throw error;
+    });
+    lazyPanelScriptTasks.set(panelId, task);
+    return task;
+  }
 
   function panelStart(panel) {
     const padding = parseFloat(getComputedStyle(frame).paddingTop) || 0;
@@ -66,6 +114,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     select.value = panels[index].id;
     document.body.classList.toggle("sw25-money-relevant", index < 4);
+    window.dispatchEvent(new CustomEvent("sw25-panel-activated", {
+      detail: { panelId: panels[index].id },
+    }));
   }
 
   function readScroll() {
@@ -79,10 +130,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (index !== current) markCurrent(index);
   }
 
-  function navigate(index) {
+  async function navigate(index) {
+    const panel = panels[index];
+    if (!panel) return;
+    try {
+      await ensurePanelScript(panel.id);
+    } catch (error) {
+      console.error("SW2.5 panel script load failed:", error);
+    }
     markCurrent(index);
     if (desktop.matches) {
-      const offset = panelStart(panels[index]);
+      const offset = panelStart(panel);
       frame.scrollTo({ top: Math.max(0, offset), behavior: reducedMotion.matches ? "instant" : "smooth" });
     } else {
       moneyToggle.setAttribute("aria-expanded", "false");
@@ -101,6 +159,15 @@ document.addEventListener("DOMContentLoaded", () => {
     navigate(links.indexOf(link));
   }, true);
   select.addEventListener("change", () => navigate(panels.findIndex(panel => panel.id === select.value)));
+  const enemyBuilderPanel = document.getElementById("panel-enemy-builder");
+  if (enemyBuilderPanel && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some(entry => entry.isIntersecting)) return;
+      ensurePanelScript(enemyBuilderPanel.id).catch(error => console.error("SW2.5 panel script load failed:", error));
+      observer.disconnect();
+    }, { root: frame, rootMargin: "320px 0px" });
+    observer.observe(enemyBuilderPanel);
+  }
   frame.addEventListener("scroll", () => {
     if (!pendingFrame && desktop.matches) pendingFrame = requestAnimationFrame(readScroll);
     clearTimeout(settleTimer);

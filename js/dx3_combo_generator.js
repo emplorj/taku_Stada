@@ -449,7 +449,7 @@ new Vue({
       }
       this.generateShareUrl();
       if (this.appMode === "enemy") {
-        this.loadDx3EnemyList().then(() => {
+        this.ensureEnemiesShared().then(() => this.loadDx3EnemyList()).then(() => {
           if (this.enemySheet.ID) {
             const found = this.dx3EnemyList.find((enemy) => String(enemy.ID) === String(this.enemySheet.ID));
             if (found) this.loadDx3Enemy(found);
@@ -1462,6 +1462,19 @@ new Vue({
     getEnemiesSharedApi() {
       return (typeof window !== "undefined" && (window.EnemiesShared || window.NechronicaShared)) || {};
     },
+    ensureEnemiesShared() {
+      if (this.getEnemiesSharedApi().buildApiUrl) return Promise.resolve();
+      if (window.__dx3EnemiesSharedPromise) return window.__dx3EnemiesSharedPromise;
+      window.__dx3EnemiesSharedPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "js/enemies-shared.js";
+        script.async = true;
+        script.addEventListener("load", resolve, { once: true });
+        script.addEventListener("error", () => reject(new Error("共有エネミー機能の読み込みに失敗しました。")), { once: true });
+        document.head.appendChild(script);
+      });
+      return window.__dx3EnemiesSharedPromise;
+    },
     formatDx3EnemyListTime(value) {
       const shared = this.getEnemiesSharedApi();
       return shared && typeof shared.formatDateTime === "function"
@@ -1536,7 +1549,7 @@ new Vue({
       this.appMode = mode;
       if (mode === "enemy") {
         this.setupEnemyModeDefaults(false);
-        this.loadDx3EnemyList().catch((error) => {
+        this.ensureEnemiesShared().then(() => this.loadDx3EnemyList()).catch((error) => {
           console.warn("DX3 enemy list load failed", error);
         });
       } else {

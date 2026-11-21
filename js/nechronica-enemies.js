@@ -181,15 +181,14 @@ const el = {
 };
 
 function nowIsoLocal() {
-  const sharedApi = getEnemiesShared();
-  return typeof sharedApi.nowIsoLocal === "function"
-    ? sharedApi.nowIsoLocal()
-    : new Date().toLocaleString("ja-JP");
+  return getEnemiesShared().nowIsoLocal();
 }
 
 function getCreditLabel(author) {
-  const text = String(author || "").trim();
-  return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
+  const sharedApi = getEnemiesShared();
+  return typeof sharedApi.getCreditLabel === "function"
+    ? sharedApi.getCreditLabel(author)
+    : "作者";
 }
 
 function getRememberedAuthor() {
@@ -521,49 +520,27 @@ function message(key, params = {}) {
 }
 
 function requestSaveAsName(currentName = "") {
-  const sharedApi = getEnemiesShared();
-  if (sharedApi && typeof sharedApi.requestSaveAsName === "function") {
-    return sharedApi.requestSaveAsName(currentName);
-  }
-  return null;
+  return getEnemiesShared().requestSaveAsName(currentName);
 }
 
 async function requestSaveAsSameNameAction(currentName = "") {
-  const sharedApi = getEnemiesShared();
-  if (sharedApi && typeof sharedApi.requestSaveAsSameNameAction === "function") {
-    return await sharedApi.requestSaveAsSameNameAction(currentName);
-  }
-  return "cancel";
+  return getEnemiesShared().requestSaveAsSameNameAction(currentName);
 }
 
 function buildCopiedName(name) {
-  const sharedApi = getEnemiesShared();
-  if (typeof sharedApi.buildCopiedName === "function") {
-    return sharedApi.buildCopiedName(name);
-  }
-  const base = String(name || "").trim();
-  return `${base}（コピー）`;
+  return getEnemiesShared().buildCopiedName(name);
 }
 
 async function writeClipboardText(text) {
-  const sharedApi = getEnemiesShared();
-  if (typeof sharedApi.writeClipboardText === "function") {
-    await sharedApi.writeClipboardText(text);
-  }
+  await getEnemiesShared().writeClipboardText(text);
 }
 
 function getSharedEnemyIdFromUrl() {
-  const sharedApi = getEnemiesShared();
-  return typeof sharedApi.getViewIdFromUrl === "function"
-    ? sharedApi.getViewIdFromUrl({ aliases: ["id", "enemy", "enemyId"] })
-    : "";
+  return getEnemiesShared().getViewIdFromUrl({ aliases: ["id", "enemy", "enemyId"] });
 }
 
 function buildEnemyShareUrl(enemyId) {
-  const sharedApi = getEnemiesShared();
-  return typeof sharedApi.buildEnemyViewUrl === "function"
-    ? sharedApi.buildEnemyViewUrl({ id: enemyId, removeParams: ["mode"] })
-    : "";
+  return getEnemiesShared().buildEnemyViewUrl({ id: enemyId, removeParams: ["mode"] });
 }
 
 function shouldStartInViewMode() {

@@ -123,11 +123,7 @@
 
 
   function getUrlMode() {
-    try {
-      return String(new URLSearchParams(window.location.search).get("mode") || "").trim().toLowerCase();
-    } catch (_e) {
-      return "";
-    }
+    return getEnemiesShared().getUrlMode();
   }
 
   function shouldStartInViewMode() {
@@ -170,35 +166,18 @@
   }
 
   function requestSaveAsName(currentName = "") {
-    const sharedApi = getEnemiesShared();
-    if (typeof sharedApi.requestSaveAsName === "function") {
-      return sharedApi.requestSaveAsName(currentName);
-    }
-    const v = window.prompt(
-      "別名保存する名前を入力してください",
-      String(currentName || "").trim(),
-    );
-    return v == null ? null : String(v).trim();
+    return getEnemiesShared().requestSaveAsName(currentName);
   }
 
   async function requestSaveAsSameNameAction(currentName = "") {
-    const sharedApi = getEnemiesShared();
-    if (typeof sharedApi.requestSaveAsSameNameAction === "function") {
-      return sharedApi.requestSaveAsSameNameAction(currentName);
-    }
-    return "save";
+    return getEnemiesShared().requestSaveAsSameNameAction(currentName);
   }
 
   function buildCopiedName(name) {
-    const sharedApi = getEnemiesShared();
-    if (typeof sharedApi.buildCopiedName === "function") {
-      return sharedApi.buildCopiedName(name, {
-        fallbackName: "無題",
-        idempotent: true,
-      });
-    }
-    const raw = String(name || "").trim() || "無題";
-    return raw.includes("（コピー）") ? raw : `${raw}（コピー）`;
+    return getEnemiesShared().buildCopiedName(name, {
+      fallbackName: "無題",
+      idempotent: true,
+    });
   }
 
   function isUnsavedEnemy(enemy) {
@@ -296,17 +275,12 @@
   }
 
   function formatShortDate(value) {
-    const sharedApi = getEnemiesShared();
-    if (typeof sharedApi.formatDateTime === "function") {
-      return sharedApi.formatDateTime(value, {
-        emptyValue: "-",
-        fallbackRawOnInvalid: true,
-        defaultSeconds: "00",
-        ignoreInputSeconds: true,
-      });
-    }
-    const s = String(value || "").trim();
-    return s || "-";
+    return getEnemiesShared().formatDateTime(value, {
+      emptyValue: "-",
+      fallbackRawOnInvalid: true,
+      defaultSeconds: "00",
+      ignoreInputSeconds: true,
+    });
   }
 
   function isPublicEnemy(value) {
@@ -372,21 +346,11 @@
   }
 
   function getSharedEnemyIdFromUrl() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      return String(params.get("id") || params.get("enemy") || "").trim();
-    } catch (_e) {
-      return "";
-    }
+    return getEnemiesShared().getViewIdFromUrl({ aliases: ["id", "enemy"] });
   }
 
   function buildEnemyShareUrl(enemyId) {
-    const id = String(enemyId || "").trim();
-    if (!id) return "";
-    const url = new URL(window.location.href);
-    url.searchParams.set("id", id);
-    url.hash = "";
-    return url.toString();
+    return getEnemiesShared().buildEnemyViewUrl({ id: enemyId, removeParams: ["mode"] });
   }
 
 
@@ -2975,8 +2939,10 @@
 
 
   function getCreditLabel(author) {
-    const text = String(author || "").trim();
-    return /^公式(?:[-－ー]|$)/.test(text) ? "出典" : "作者";
+    const sharedApi = getEnemiesShared();
+    return typeof sharedApi.getCreditLabel === "function"
+      ? sharedApi.getCreditLabel(author)
+      : "作者";
   }
 
   function renderEnemyView() {

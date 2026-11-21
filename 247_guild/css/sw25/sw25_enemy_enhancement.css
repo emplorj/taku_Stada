@@ -117,7 +117,7 @@
   margin: 0;
 }
 
-#panel-enemy-enhancement .enhancement-column h4 {
+#char-sheet-form #panel-enemy-enhancement .enhancement-column h4 {
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
@@ -129,6 +129,12 @@
   color: var(--gold-color);
   font-size: 0.92rem;
   white-space: nowrap;
+  /* sw25-workspace h4 の汎用スタイル（縦積みセクション見出し用）をリセット。
+     sw25_workspace.css が後から読み込まれるため #char-sheet-form を追加して詳細度を上げて上書き。 */
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 #panel-enemy-enhancement textarea,
@@ -1150,6 +1156,27 @@
     flex: 1 1 100%;
     justify-content: center;
   }
+}
+
+/* Keep the compact desktop I/O row visually centered, independent of icon font metrics. */
+#panel-enemy-enhancement .enhancement-column h4,
+#panel-enemy-enhancement .input-actions,
+#panel-enemy-enhancement .output-actions,
+#panel-enemy-enhancement #apply-enemy-enhancement-btn,
+#panel-enemy-enhancement #copy-enemy-json-btn {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+#panel-enemy-enhancement .enhancement-column h4 i,
+#panel-enemy-enhancement #apply-enemy-enhancement-btn i,
+#panel-enemy-enhancement #copy-enemy-json-btn i {
+  display: flex;
+  align-items: center;
+  line-height: 1;
 }
 
 /* v79: スマホ時の入力/出力ボタンをカード内の下1行いっぱいに配置 */

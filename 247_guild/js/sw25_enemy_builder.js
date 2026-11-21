@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initializeSw25EnemyBuilder() {
   const panel = document.getElementById("panel-enemy-builder");
   if (!panel) return;
 
@@ -3218,4 +3218,10 @@ document.addEventListener("DOMContentLoaded", () => {
   syncPartCount(1, false);
   resetLootRows();
   if (!fields.abilities.children.length) addAbility();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeSw25EnemyBuilder, { once: true });
+} else {
+  initializeSw25EnemyBuilder();
+}
