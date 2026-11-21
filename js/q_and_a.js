@@ -1151,39 +1151,12 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Q&Aスクリプトの初期化を開始します。");
     try {
       setupCustomSelects();
-      const [
-        qandaResponse,
-        catalogResponse,
-        archiveResponse,
-        pulldownResponse,
-      ] = await Promise.all([
-        fetch(SPREADSHEET_URL, { cache: "no-cache" }),
-        fetch(CHAR_CATALOG_URL, { cache: "no-cache" }),
-        fetch(SCENARIO_ARCHIVE_URL, { cache: "no-cache" }),
-        fetch(PULLDOWN_SHEET_URL, { cache: "no-cache" }),
+      const [qandaCsv, catalogCsv, archiveCsv, pulldownCsv] = await Promise.all([
+        window.TAKU_CACHE.fetchText(SPREADSHEET_URL),
+        window.TAKU_CACHE.fetchText(CHAR_CATALOG_URL),
+        window.TAKU_CACHE.fetchText(SCENARIO_ARCHIVE_URL),
+        window.TAKU_CACHE.fetchText(PULLDOWN_SHEET_URL),
       ]);
-      if (!qandaResponse.ok)
-        throw new Error(`Q&Aデータの取得に失敗: ${qandaResponse.status}`);
-      if (!catalogResponse.ok)
-        throw new Error(
-          `キャラ名鑑データの取得に失敗: ${catalogResponse.status}`
-        );
-      if (!archiveResponse.ok)
-        throw new Error(
-          `シナリオアーカイブの取得に失敗: ${archiveResponse.status}`
-        );
-      if (!pulldownResponse.ok)
-        throw new Error(
-          `プルダウン用データの取得に失敗: ${pulldownResponse.status}`
-        );
-      const [qandaCsv, catalogCsv, archiveCsv, pulldownCsv] = await Promise.all(
-        [
-          qandaResponse.text(),
-          catalogResponse.text(),
-          archiveResponse.text(),
-          pulldownResponse.text(),
-        ]
-      );
       allCharacters = parseQandA(qandaCsv);
       characterCatalog = parseCharacterCatalog(catalogCsv);
       scenarioArchive = parseScenarioArchive(archiveCsv);

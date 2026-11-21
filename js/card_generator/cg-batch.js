@@ -63,6 +63,7 @@
 
     processBatchDownload: async () => {
       if (S.batchData.length === 0) return;
+      await window.CG_DEPS.ensure("html2canvas", "jszip");
       const zip = new JSZip();
       UI.batchDownloadBtn.disabled = true;
       UI.batchProgress.style.display = "block";

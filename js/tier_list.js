@@ -353,10 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function buildAllTierLists() {
     try {
       mainContainer.innerHTML = "<p>リストを生成中...</p>";
-      const response = await fetch(TIER_LIST_CSV_URL, { cache: "no-cache" });
-      if (!response.ok) throw new Error("Tierリストデータの取得に失敗");
-
-      const csvText = await response.text();
+      const csvText = await window.TAKU_CACHE.fetchText(TIER_LIST_CSV_URL);
       const allRows = parseCsvToArray(csvText); // 修正されたCSVパーサーを使用
 
       // ヘッダー行が空、または必須項目が欠けている場合はエラー

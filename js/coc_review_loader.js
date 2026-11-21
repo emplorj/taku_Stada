@@ -582,10 +582,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function init() {
     try {
-      const response = await fetch(CSV_URL);
-      if (!response.ok)
-        throw new Error(`Network response was not ok: ${response.statusText}`);
-      const csvText = await response.text();
+      const csvText = await window.TAKU_CACHE.fetchText(CSV_URL);
       allScenarios = parseCsvAndPreprocess(csvText);
       setupControls();
       loadFiltersFromLocalStorage(); // フィルター状態をロード

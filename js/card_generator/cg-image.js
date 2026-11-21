@@ -351,6 +351,7 @@
       previewPanel.style.transform = "none";
 
       try {
+        await window.CG_DEPS.ensure("html2canvas");
         // Canvas描画に切替済みのため、DOMテキストの再調整は不要
 
         await Promise.all([
@@ -409,6 +410,7 @@
       previewPanel.style.transform = "none";
 
       try {
+        await window.CG_DEPS.ensure("html2canvas", "upng");
         // レイアウトを再計算してDOMの更新を待つ
         RENDERER.updatePreview();
         // Canvas描画のため、DOMテキストの再調整は不要

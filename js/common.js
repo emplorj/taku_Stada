@@ -17,6 +17,15 @@
     { href: baseFontPath + "HigashiOme-Gothic-C.woff2", type: "font/woff2" },
     { href: baseFontPath + "ExcelsiorSans.woff2",       type: "font/woff2" }
   ];
+  var hasSideMenu =
+    document.getElementById("header-placeholder") &&
+    !(document.body && document.body.dataset.noSidemenu);
+  if (hasSideMenu) {
+    fonts.push({
+      href: baseFontPath + "Corporate-Logo-Bold-ver3.woff2",
+      type: "font/woff2"
+    });
+  }
   var head = document.head || document.getElementsByTagName("head")[0];
   for (var j = 0; j < fonts.length; j++) {
     var link = document.createElement("link");
@@ -29,15 +38,6 @@
   }
 })();
 
-// Adobe Fonts Typekit
-(function(d) {
-  var config = {
-    kitId: 'wia6iii',
-    scriptTimeout: 3000,
-    async: true
-  },
-  h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
-})(document);
 // ==========================================================================
 // TRPGシステムごとのカラーコード定義
 // ==========================================================================
@@ -58,7 +58,36 @@ const TRPG_SYSTEM_COLORS = {
   銀剣: "#0788bb", // 仮色
   default: "#007bff",
 };
-(function (d) {
+
+// 公開CSVは短時間だけ端末内に保持する。投稿・保存系のAPIには使わない。
+window.TAKU_CACHE = {
+  fetchText: async (url, { maxAgeMs = 5 * 60 * 1000 } = {}) => {
+    const key = "taku-cache:text:" + url;
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (
+          cached &&
+          typeof cached.text === "string" &&
+          Date.now() - Number(cached.savedAt || 0) < maxAgeMs
+        ) {
+          return cached.text;
+        }
+      }
+    } catch (_) {}
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const text = await response.text();
+    try {
+      localStorage.setItem(key, JSON.stringify({ savedAt: Date.now(), text }));
+    } catch (_) {}
+    return text;
+  },
+};
+if (!document.querySelector('script[src*="use.typekit.net/wia6iii.js"]')) {
+  (function (d) {
   var config = {
       kitId: "wia6iii",
       scriptTimeout: 3000,
@@ -85,7 +114,8 @@ const TRPG_SYSTEM_COLORS = {
     } catch (e) {}
   };
   s.parentNode.insertBefore(tk, s);
-})(document);
+  })(document);
+}
 
 // ==========================================================================
 // 1. グローバルスコープの関数と定数
@@ -283,11 +313,20 @@ document.addEventListener("DOMContentLoaded", function () {
         sideMenu.classList.toggle("is-open", isOpen);
         overlay.classList.toggle("is-open", isOpen);
         document.body.classList.toggle("no-scroll", isOpen);
+        hamburger.setAttribute("aria-expanded", String(isOpen));
+        sideMenu.setAttribute("aria-hidden", String(!isOpen));
+        sideMenu.inert = !isOpen;
       };
 
       // 既存のリスナーを削除して再登録（クローン置換）
       const newHamburger = hamburger.cloneNode(true);
       hamburger.parentNode.replaceChild(newHamburger, hamburger);
+      newHamburger.setAttribute("aria-controls", "tableOfContents");
+      newHamburger.setAttribute("aria-expanded", "false");
+      if (window.matchMedia("(max-width: 1080px)").matches) {
+        sideMenu.setAttribute("aria-hidden", "true");
+        sideMenu.inert = true;
+      }
       newHamburger.addEventListener("click", () =>
         toggleMenu(!sideMenu.classList.contains("is-open")),
       );
@@ -295,21 +334,37 @@ document.addEventListener("DOMContentLoaded", function () {
       const newOverlay = overlay.cloneNode(true);
       overlay.parentNode.replaceChild(newOverlay, overlay);
       newOverlay.addEventListener("click", () => toggleMenu(false));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && sideMenu.classList.contains("is-open")) {
+          toggleMenu(false);
+          newHamburger.focus();
+        }
+      });
     }
   }
 
   // ★追加: サブメニューの初期化関数
   function initializeSubMenu() {
     const submenuTriggers = document.querySelectorAll(".submenu-trigger");
-    submenuTriggers.forEach((trigger) => {
+    submenuTriggers.forEach((trigger, index) => {
       const newTrigger = trigger.cloneNode(true);
       trigger.parentNode.replaceChild(newTrigger, trigger);
+      const submenu = newTrigger.nextElementSibling;
+      if (submenu && submenu.classList.contains("submenu")) {
+        const submenuId = "side-submenu-" + (index + 1);
+        submenu.id = submenuId;
+        newTrigger.setAttribute("aria-controls", submenuId);
+        newTrigger.setAttribute("aria-expanded", "true");
+      }
 
       newTrigger.addEventListener("click", function (e) {
         e.preventDefault();
         this.classList.toggle("active");
         const submenu = this.nextElementSibling;
         if (submenu && submenu.classList.contains("submenu")) {
+          const isOpen =
+            !submenu.style.maxHeight || submenu.style.maxHeight === "0px";
+          this.setAttribute("aria-expanded", String(isOpen));
           if (submenu.style.maxHeight && submenu.style.maxHeight !== "0px") {
             submenu.style.maxHeight = submenu.scrollHeight + "px";
             requestAnimationFrame(() => {
@@ -337,6 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
       submenu.style.maxHeight = "none";
       if (submenu.previousElementSibling) {
         submenu.previousElementSibling.classList.add("active");
+        submenu.previousElementSibling.setAttribute("aria-expanded", "true");
       }
     });
   }
@@ -579,7 +635,8 @@ const canvas = document.getElementById("particleCanvas");
 if (canvas) {
   const ctx = canvas.getContext("2d");
   let particles = [];
-  const particleCount = 80,
+  let animationFrameId = null;
+  const particleCount = window.matchMedia("(max-width: 768px)").matches ? 48 : 80,
     particleSize = 1.5,
     particleColor = "rgba(255, 255, 255, 0.4)";
   function resizeCanvas() {
@@ -619,14 +676,21 @@ if (canvas) {
     for (let i = 0; i < particleCount; i++) particles.push(new Particle());
   }
   function animateParticles() {
-    (requestAnimationFrame(animateParticles),
-      ctx.clearRect(0, 0, canvas.width, canvas.height));
+    if (document.hidden) {
+      animationFrameId = null;
+      return;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < particles.length; i++)
       (particles[i].update(), particles[i].draw());
+    animationFrameId = requestAnimationFrame(animateParticles);
   }
   (window.addEventListener("load", () => {
     (resizeCanvas(), animateParticles());
   }),
-    window.addEventListener("resize", resizeCanvas));
+    window.addEventListener("resize", resizeCanvas),
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && animationFrameId === null) animateParticles();
+    }));
 }
 

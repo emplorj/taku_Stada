@@ -187,6 +187,34 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   // --- ダウンロード処理 ---
+  const ensureHtml2Canvas = () => {
+    if (window.html2canvas) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(
+        'script[data-request-form-html2canvas="true"]',
+      );
+      if (existing) {
+        existing.addEventListener("load", resolve, { once: true });
+        existing.addEventListener("error", reject, { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      script.async = true;
+      script.dataset.requestFormHtml2canvas = "true";
+      script.addEventListener("load", resolve, { once: true });
+      script.addEventListener(
+        "error",
+        () => reject(new Error("画像出力ライブラリの読み込みに失敗しました。")),
+        { once: true },
+      );
+      document.head.appendChild(script);
+    });
+  };
+
   const generateAndDownloadImage = async (filename) => {
     const originalTransform = requestFormPaper.style.transform;
     const originalPanelHeight = previewPanel.style.height;
@@ -197,6 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     previewPanel.style.height = "auto";
     requestFormPaper.classList.add("output-format");
 
+    await ensureHtml2Canvas();
     await document.fonts.ready;
     await new Promise((resolve) => setTimeout(resolve, 100));
 

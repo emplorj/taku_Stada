@@ -1412,6 +1412,7 @@
         showCustomAlert("カードが選択されていません。");
         return;
       }
+      await window.CG_DEPS.ensure("html2canvas", "jszip");
 
       const btn = document.getElementById("db-batch-generate-btn");
       const originalText = btn.textContent;
