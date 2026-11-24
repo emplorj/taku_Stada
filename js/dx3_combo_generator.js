@@ -1304,7 +1304,10 @@ new Vue({
     appMode(value) {
       if (value === "enemy") this.setupEnemyModeDefaults(false);
       if (value === "pc") this.effectFieldsEditable = false;
-      this.$nextTick(() => this.applyDx3EnemyViewMode());
+      this.$nextTick(() => {
+        this.applyDx3EnemyViewMode();
+        this.updateDocumentMetadata();
+      });
     },
     dx3EnemyViewMode() {
       this.$nextTick(() => this.applyDx3EnemyViewMode());
@@ -1319,6 +1322,7 @@ new Vue({
       handler() {
         this.setDataDirty();
         try { localStorage.setItem("dx3EnemiesAuthor", String(this.enemySheet.author || "").trim()); } catch (_e) {}
+        this.updateDocumentMetadata();
       },
       deep: true,
     },
@@ -1326,7 +1330,10 @@ new Vue({
       this.dx3EnemyPage = 1;
     },
     enemyData: { handler: "setDataDirty", deep: true },
-    characterName: { handler: "setDataDirty", deep: true },
+    characterName() {
+      this.setDataDirty();
+      this.updateDocumentMetadata();
+    },
     characterSyndromes: { handler: "setDataDirty", deep: true },
     characterAbilities: { handler: "setDataDirty", deep: true },
     pcScenarioCounterValues: { handler: "setDataDirty", deep: true },
@@ -1459,6 +1466,20 @@ new Vue({
     });
   },
   methods: {
+    updateDocumentMetadata() {
+      if (typeof document === "undefined") return;
+      const isEnemy = this.appMode === "enemy";
+      const name = String(isEnemy ? this.enemySheet?.name : this.characterName || "").trim();
+      const baseTitle = isEnemy ? "DX3 エネミーシート - 卓スタダ" : "DX3 コンボジェネレーター - 卓スタダ";
+      const title = name ? `${name} - ${baseTitle}` : baseTitle;
+      document.title = title;
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute("content", title);
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      if (ogDescription && name) {
+        ogDescription.setAttribute("content", isEnemy ? `${name}のDX3エネミーシートです。` : `${name}のDX3コンボジェネレーターです。`);
+      }
+    },
     getEnemiesSharedApi() {
       return (typeof window !== "undefined" && (window.EnemiesShared || window.NechronicaShared)) || {};
     },
@@ -6243,8 +6264,14 @@ new Vue({
         } catch (e) {
           shortUrl = encodeURIComponent(this.characterSheetUrl);
         }
-        const baseUrl = window.location.origin + window.location.pathname;
-        this.shareUrl = `${baseUrl}?url=${shortUrl}`;
+        const shareParams = new URLSearchParams({
+          tool: "comboGenerator",
+          action: "share",
+          url: shortUrl,
+        });
+        const savedId = this.normalizeCharacterSheetUrl(this.characterSheetUrl);
+        if (savedId) shareParams.set("id", savedId);
+        this.shareUrl = `${this.gasWebAppUrl}?${shareParams.toString()}`;
       } else {
         this.shareUrl = "";
       }

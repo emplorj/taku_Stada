@@ -689,12 +689,12 @@
     function updatePageTitle() {
       const pcName = document.querySelector('input[name="pc_name"]')?.value.trim();
       const baseTitle = 'シンジュクロウラー 探索者シート - 卓スタダ';
-
-      if (pcName) {
-        document.title = `${pcName} - ${baseTitle}`;
-      } else {
-        document.title = baseTitle;
-      }
+      const title = pcName ? `${pcName} - ${baseTitle}` : baseTitle;
+      document.title = title;
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', title);
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      if (ogDescription && pcName) ogDescription.setAttribute('content', `${pcName}のシンジュクロウラー探索者シートです。`);
     }
 
     // JSON出力用: データを読み込んでJSON表示
@@ -1059,9 +1059,11 @@
     document.getElementById('btn-share').addEventListener('click', () => {
       const id = idInput.value.trim();
       if (!id) return alert('IDを入力してください');
-      const url = `${location.protocol}//${location.host}${location.pathname}?id=${encodeURIComponent(id)}`;
+      const url = `${GAS_API_URL}?tool=shinjuku&action=share&id=${encodeURIComponent(id)}`;
       navigator.clipboard.writeText(url).then(() => alert('コピーしました: ' + url));
     });
+
+    document.querySelector('input[name="pc_name"]')?.addEventListener('input', updatePageTitle);
 
     document.getElementById('btn-reset').addEventListener('click', () => {
       if (!confirm('リセットしますか？')) return;
