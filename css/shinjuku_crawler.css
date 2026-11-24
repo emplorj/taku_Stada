@@ -474,6 +474,9 @@
   word-break: break-all;
   transition: width 0.1s, height 0.1s, top 0.1s, left 0.1s;
 }
+.puzzle-item.is-dragging {
+  transition: none;
+}
 .puzzle-item:active {
   cursor: grabbing;
   opacity: 0.9;

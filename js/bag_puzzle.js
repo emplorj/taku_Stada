@@ -78,8 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // テキストエリアの自動調整設定
     const ta = tr.querySelector('textarea[name="item_note"]');
     if (ta) {
-      ta.addEventListener("input", () => autoResizeTextarea(ta));
-      setTimeout(() => autoResizeTextarea(ta), 0);
+      if (window.queueTextareaAutoResize) {
+        window.queueTextareaAutoResize(ta);
+      } else {
+        ta.addEventListener("input", () => autoResizeTextarea(ta));
+        setTimeout(() => autoResizeTextarea(ta), 0);
+      }
     }
 
     // 削除ボタン生成
@@ -253,6 +257,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let isDragging = false;
     let startX, startY;
     let initialLeft, initialTop;
+    let nextLeft, nextTop;
+    let dragFrame = 0;
 
     el.addEventListener("mousedown", dragStart);
     el.addEventListener("touchstart", dragStart, { passive: false });
@@ -267,7 +273,11 @@ document.addEventListener("DOMContentLoaded", () => {
       startY = clientY;
       initialLeft = parseInt(el.style.left || 0);
       initialTop = parseInt(el.style.top || 0);
+      nextLeft = initialLeft;
+      nextTop = initialTop;
       el.style.zIndex = 1000;
+      el.style.willChange = "transform";
+      el.classList.add("is-dragging");
       document.addEventListener("mousemove", dragMove);
       document.addEventListener("touchmove", dragMove, { passive: false });
       document.addEventListener("mouseup", dragEnd);
@@ -279,23 +289,32 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
       const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
-      el.style.left = initialLeft + (clientX - startX) + "px";
-      el.style.top = initialTop + (clientY - startY) + "px";
+      nextLeft = initialLeft + (clientX - startX);
+      nextTop = initialTop + (clientY - startY);
+      if (dragFrame) return;
+      dragFrame = requestAnimationFrame(() => {
+        el.style.transform = `translate3d(${nextLeft - initialLeft}px, ${nextTop - initialTop}px, 0)`;
+        dragFrame = 0;
+      });
     }
 
     function dragEnd(e) {
       if (!isDragging) return;
       isDragging = false;
       el.style.zIndex = "";
+      el.style.willChange = "";
       document.removeEventListener("mousemove", dragMove);
       document.removeEventListener("touchmove", dragMove);
       document.removeEventListener("mouseup", dragEnd);
       document.removeEventListener("touchend", dragEnd);
 
-      const currentLeft = parseInt(el.style.left || 0);
-      const currentTop = parseInt(el.style.top || 0);
-      let gridX = Math.round(currentLeft / CELL_SIZE);
-      let gridY = Math.round(currentTop / CELL_SIZE);
+      if (dragFrame) {
+        cancelAnimationFrame(dragFrame);
+        dragFrame = 0;
+      }
+      el.style.transform = "";
+      let gridX = Math.round(nextLeft / CELL_SIZE);
+      let gridY = Math.round(nextTop / CELL_SIZE);
 
       if (gridX < 0) gridX = 0;
       if (gridX + itemData.w > GRID_COLS) gridX = GRID_COLS - itemData.w;
@@ -307,6 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
       itemData.y = gridY;
 
       updateElementPosition(el, gridX, gridY);
+      requestAnimationFrame(() => el.classList.remove("is-dragging"));
       updatePenalty();
       savePositionsToHidden();
     }
@@ -412,11 +432,15 @@ document.addEventListener("DOMContentLoaded", () => {
       updatePenalty();
       hiddenInput.value = jsonString;
 
-      setTimeout(() => {
-        document
-          .querySelectorAll("textarea")
-          .forEach((ta) => autoResizeTextarea(ta));
-      }, 10);
+      if (window.queueTextareaAutoResize) {
+        window.queueTextareaAutoResize(document);
+      } else {
+        setTimeout(() => {
+          document
+            .querySelectorAll("textarea")
+            .forEach((ta) => autoResizeTextarea(ta));
+        }, 10);
+      }
     } catch (e) {
       console.error("Restore Error", e);
     }
