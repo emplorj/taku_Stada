@@ -101,8 +101,9 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
     }
 
     tr.innerHTML = `
+            <td class="item-reorder-cell"><button type="button" class="item-drag-handle" aria-label="所持品の行を並び替え" title="ドラッグで並び替え（↑↓キーでも移動）"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button></td>
             <td><div class="item-name-controls">
-              <input type="text" name="item_name" class="sync-trigger" placeholder="所持品名（自由入力）" aria-label="所持品名">
+              <input type="text" name="item_name" class="sync-trigger" placeholder="所持品名" aria-label="所持品名">
               <span class="item-preset-trigger">
                 <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
                 <select class="item-preset" aria-label="所持品の選択" title="所持品の選択"></select>
@@ -142,10 +143,6 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
       }
       select.appendChild(group);
     }
-    const custom = document.createElement("option");
-    custom.value = "custom";
-    custom.textContent = "自由入力";
-    select.appendChild(custom);
     let previousName = field("name").value;
     function applyPreset(name) {
       const preset = itemCatalog.get(name);
@@ -161,8 +158,7 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
     select.addEventListener("change", () => {
       const choice = select.value;
       select.value = "";
-      if (choice === "custom") field("name").focus();
-      else applyPreset(choice);
+      applyPreset(choice);
     });
     field("name").addEventListener("change", () => {
       if (field("name").value !== previousName) applyPreset(field("name").value.trim());
@@ -209,6 +205,13 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
     });
 
     tr.querySelector(".delete-cell").appendChild(delBtn);
+    window.ShinjukuInputs.attach(field("name"), select);
+    window.ShinjukuInputs.reorder(tr.querySelector(".item-drag-handle"), tr, () => {
+      // Change list order without moving the existing pieces in the bag.
+      const order = new Map(Array.from(itemListBody.rows, (row, index) => [row.dataset.id, index]));
+      items.sort((left, right) => order.get(left.id) - order.get(right.id));
+      savePositionsToHidden();
+    });
 
     return tr;
   }

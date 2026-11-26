@@ -16,7 +16,7 @@
   <meta property="og:title" content="シンジュクロウラー 探索者シート - 卓スタダ">
   <meta property="og:description" content="シンジュクロウラーの探索者シートを作成・管理し、所持品やカバン配置を整理できる支援ページです。">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/shinjuku_crawler.css?v=20261126-items1">
+  <link rel="stylesheet" href="css/shinjuku_crawler.css?v=20261127-pickers1">
   <link rel="stylesheet" href="css/loading_overlay.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
@@ -85,14 +85,6 @@
             <button type="button" id="creation-reroll" class="add-row-btn small" title="体力・やる気を振り直す">振る</button>
           </div>
           <p class="small-help creation-guide">数値を調整すると、背景と所持品が切り替わります。</p>
-          <fieldset id="creation-extra" hidden>
-            <legend>追加所持品 <small>体力＋やる気が5以下</small></legend>
-            <div class="creation-dice-controls">
-              <label>出目1 <input type="number" id="creation-extra-stamina" min="1" max="6" inputmode="numeric"></label>
-              <label>出目2 <input type="number" id="creation-extra-spirit" min="1" max="6" inputmode="numeric"></label>
-              <button type="button" id="creation-extra-roll" class="add-row-btn small">追加の出目を振る</button>
-            </div>
-          </fieldset>
           <div class="creation-result">
             <div class="creation-background">
               <span class="creation-caption">背景</span>
@@ -103,11 +95,19 @@
               <span class="creation-caption">初期所持品</span>
               <ul id="creation-items"></ul>
             </div>
+          </div>
+          <fieldset id="creation-extra" hidden>
+            <legend>追加所持品 <small>体力＋やる気が5以下</small></legend>
+            <div class="creation-dice-controls">
+              <label>出目1 <input type="number" id="creation-extra-stamina" min="1" max="6" inputmode="numeric"></label>
+              <label>出目2 <input type="number" id="creation-extra-spirit" min="1" max="6" inputmode="numeric"></label>
+              <button type="button" id="creation-extra-roll" class="add-row-btn small">追加の出目を振る</button>
+            </div>
             <div class="creation-inventory creation-bonus" id="creation-bonus" hidden>
               <span class="creation-caption">追加所持品</span>
               <ul id="creation-bonus-items"></ul>
             </div>
-          </div>
+          </fieldset>
           <div class="creation-footer">
             <label><input type="checkbox" id="creation-auto-equip" checked> 武器・防具を空いている装備欄に入れる</label>
             <p id="creation-preview" role="status" class="small-help">体力・やる気を入力するか、ダイスを振ってください。</p>
@@ -259,11 +259,12 @@
               <button type="button" id="btn-sync-puzzle" class="sync-btn"><i class="fa-solid fa-arrows-rotate"></i>
                 積む</button>
             </div>
-            <p class="small-help">▼から道具を選ぶと価格・サイズ・効果を入力します。「積む」でカバンの下から詰め直します。</p>
+            <p class="small-help">名前を入力するか▼で候補を表示。↑↓で移動・Enterで決定します。左端の持ち手で行を並び替え、「積む」でカバンの下から詰め直します。</p>
 
             <div class="table-scroll">
               <table class="crawler-table item-table" id="item-list">
                 <colgroup>
+                  <col style="width: 28px;">
                   <!-- 左側合計: 35% -->
                   <col style="width: 35%;"> <!-- 名前: 37% -> 35% -->
 
@@ -277,6 +278,7 @@
                 </colgroup>
                 <thead>
                   <tr>
+                    <th aria-label="並び替え"></th>
                     <th>名前</th>
                     <th>価格</th>
                     <th style="font-size:0.7rem;">無料</th>
@@ -493,7 +495,8 @@
   <script src="js/common.js"></script>
   <!-- パズル処理用スクリプト -->
   <script src="js/shinjuku_items.js?v=20261126-items1"></script>
-  <script src="js/bag_puzzle.js?v=20261126-items1"></script>
+  <script src="js/shinjuku_inputs.js?v=20261127-pickers1"></script>
+  <script src="js/bag_puzzle.js?v=20261127-pickers1"></script>
 
   <script>
     // ★GASのウェブアプリURL
@@ -638,20 +641,20 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><div class="fame-name-controls">
-          <input type="text" name="fame_name" placeholder="技能名（自由入力）" aria-label="技能名">
+          <input type="text" name="fame_name" placeholder="技能名" aria-label="技能名">
           <span class="fame-preset-trigger">
             <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
             <select class="fame-preset" aria-label="名声技能の選択・操作" title="名声技能の選択・操作"></select>
           </span>
         </div></td>
-        <td><textarea name="fame_effect" rows="2" placeholder="効果（自由入力）" aria-label="名声技能の効果"></textarea></td>
+        <td><textarea name="fame_effect" rows="2" placeholder="効果" aria-label="名声技能の効果"></textarea></td>
       `;
       const select = tr.querySelector('.fame-preset');
       const name = tr.querySelector('[name="fame_name"]');
       const effect = tr.querySelector('[name="fame_effect"]');
       name.value = data.name ?? '';
       effect.value = data.effect ?? '';
-      for (const [value, label] of [['', '公式技能を選択'], ...FAME_PRESETS.map(s => [s.name, s.name]), ['custom', '自由入力'], ['add-tags', '器用人のタグを追加'], ['clear', '技能をクリア']]) {
+      for (const [value, label] of [['', '公式技能を選択'], ...FAME_PRESETS.map(s => [s.name, s.name]), ['add-tags', '器用人のタグを追加'], ['clear', '技能をクリア']]) {
         const option = document.createElement('option');
         option.value = value;
         option.textContent = label;
@@ -672,7 +675,6 @@
           return;
         }
         if (action === 'clear') {
-          if (!confirm('この技能名・効果をクリアしますか？')) return;
           name.value = '';
           effect.value = '';
           syncPreset();
@@ -682,12 +684,6 @@
         }
         const preset = FAME_PRESETS.find(s => s.name === action);
         if (!preset) { name.focus(); return; }
-        if ((name.value.trim() || effect.value.trim()) &&
-            (name.value !== preset.name || effect.value !== preset.effect) &&
-            !confirm('現在の技能名・効果を選択した公式技能に置き換えますか？')) {
-          syncPreset();
-          return;
-        }
         name.value = preset.name;
         effect.value = preset.effect;
         syncPreset();
@@ -697,6 +693,7 @@
       name.addEventListener('input', () => { syncPreset(); refreshFameCount(); });
       effect.addEventListener('input', syncPreset);
       fameBody.appendChild(tr);
+      window.ShinjukuInputs.attach(name, select);
       setupTextareaAutoResize(tr);
     }
 

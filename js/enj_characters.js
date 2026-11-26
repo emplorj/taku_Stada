@@ -2307,57 +2307,66 @@ function quoteSpotlightHtml(value) {
     return Number.isFinite(time) ? time : 0;
   }
 
+  async function fetchLatestCharacterIndex() {
+    // The stable URL lets Vercel share the public index between visitors.
+    // Local previews and failed deployments keep working through the GAS API.
+    if (location.hostname === "taku-stada.vercel.app" || location.hostname.endsWith(".vercel.app")) {
+      try {
+        return await fetchCharacterPayload("/api/character-index");
+      } catch (error) {
+        console.warn("Cached catalog index is unavailable; trying GAS directly.", error);
+      }
+    }
+    return fetchCharacterPayload(`${CHARACTER_INDEX_API_URL}&_=${Date.now()}`, { cache: "no-store" });
+  }
+
   async function loadCharacters() {
     status.hidden = false;
     status.textContent = "キャラクターを読み込んでいます…";
-    // 公開版には静的一覧ファイルを配置していない。そこで存在しない控えの 404 を
-    // 待ってから API を反映することがないよう、控えはローカル表示時だけ読む。
-    // 公開版はブラウザ内控え → 最新 index API の順で即時表示する。
+    // 初回もビルド時の公開 index を先に表示する。両方を並行して読み、
+    // 控えの遅延・404 が最新 API の表示を妨げないようにする。
     const useLocalPreview = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-    const previewRequest = useLocalPreview
-      ? fetchCharacterPayload(LOCAL_PREVIEW_URL, { cache: "no-cache" })
-      : Promise.resolve(null);
-    // 一覧用は軽い index だけ取得する。詳細本文・表情JSONは開いた時にだけ取得する。
-    const apiRequest = fetchCharacterPayload(`${CHARACTER_INDEX_API_URL}&_=${Date.now()}`, { cache: "no-store" });
     const savedPreview = readCachedCharacterPayload();
     let renderedPreview = false;
-    if (savedPreview) {
-      applyCharacterPayload(savedPreview, { openInitial: true });
+    let liveApplied = false;
+    let renderedCharacters = null;
+    let apiError = null;
+    const initialId = new URLSearchParams(location.search).get("id");
+    let initialCharacterPending = true;
+    const display = (payload) => {
+      const signature = JSON.stringify(payload.characters);
+      // 中身が同じならカードやスクロール位置を作り直さない。
+      if (signature !== renderedCharacters) {
+        applyCharacterPayload(payload, { openInitial: initialCharacterPending });
+        // 新規キャラが控えにまだなくても、最新一覧の到着後に共有URLを開く。
+        initialCharacterPending = Boolean(initialId && !payload.characters.some((character) =>
+          String(character.id) === initialId && character.variants?.length));
+        renderedCharacters = signature;
+      }
       renderedPreview = true;
       status.hidden = true;
+    };
+    if (savedPreview) {
+      display(savedPreview);
     }
-    try {
-      const preview = await previewRequest;
-      if (!preview) throw new Error("Local preview is not used on this host.");
-      // ブラウザ控えより新しい静的控えだけを採用する。通常は API がすぐ上書きするが、
-      // ここで古い控えを描画し直さないことが「開幕でタグが消える」対策になる。
-      if (!savedPreview || payloadGeneratedAt(preview) > payloadGeneratedAt(savedPreview)) {
-        applyCharacterPayload(preview, { openInitial: !renderedPreview });
-        renderedPreview = true;
-        status.hidden = true;
-      }
-    } catch (error) {
+    const previewUrl = useLocalPreview ? LOCAL_PREVIEW_URL : "data/enj_characters.index.json";
+    const previewRequest = fetchCharacterPayload(previewUrl, { cache: "no-cache" }).then((preview) => {
+      // 遅れて届いた控えで最新情報や、より新しいブラウザ控えを巻き戻さない。
+      if (!liveApplied && (!savedPreview || payloadGeneratedAt(preview) > payloadGeneratedAt(savedPreview))) display(preview);
+    }).catch((error) => {
       if (useLocalPreview) console.warn("Character preview could not be loaded.", error);
-      // ブラウザ内控えがあれば、API が応答するまでそのまま表示を続ける。
-      if (savedPreview) {
-        renderedPreview = true;
-        status.hidden = true;
-      }
-    }
-    try {
-      const latest = await apiRequest;
+    });
+    // 詳細本文・表情JSONは従来どおり、キャラを開いた時だけ取得する。
+    const apiRequest = fetchLatestCharacterIndex().then((latest) => {
+      liveApplied = true;
       saveCachedCharacterPayload(latest);
-      applyCharacterPayload(latest, { openInitial: !renderedPreview });
-      status.hidden = true;
-
-    } catch (error) {
+      display(latest);
+    }).catch((error) => {
+      apiError = error;
       console.warn("Character API could not be loaded.", error);
-      if (renderedPreview) {
-        console.info("最新のキャラクターデータは取得できなかったため、ローカル控えを表示しています。");
-        status.hidden = true;
-
-        return;
-      }
+    });
+    await Promise.all([previewRequest, apiRequest]);
+    if (apiError && !renderedPreview) {
       status.textContent = "キャラクターデータを読み込めませんでした。少し待ってから再読み込みしてください。";
       count.textContent = "0 characters";
     }
