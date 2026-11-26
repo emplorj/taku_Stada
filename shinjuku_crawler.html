@@ -613,34 +613,49 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><div class="fame-name-controls">
-          <select class="fame-preset" aria-label="公式名声技能を選択"></select>
           <input type="text" name="fame_name" placeholder="技能名（自由入力）" aria-label="技能名">
-          <button type="button" class="add-row-btn small fame-add-tags" hidden>タグを追加</button>
+          <span class="fame-preset-trigger">
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <select class="fame-preset" aria-label="名声技能の選択・操作" title="名声技能の選択・操作"></select>
+          </span>
         </div></td>
-        <td><textarea name="fame_effect" rows="2" placeholder="効果（自由入力）" aria-label="名声技能の効果"></textarea>
-          <button type="button" class="fame-clear" aria-label="この技能をクリア">クリア</button>
-        </td>
+        <td><textarea name="fame_effect" rows="2" placeholder="効果（自由入力）" aria-label="名声技能の効果"></textarea></td>
       `;
       const select = tr.querySelector('.fame-preset');
       const name = tr.querySelector('[name="fame_name"]');
       const effect = tr.querySelector('[name="fame_effect"]');
-      const tagButton = tr.querySelector('.fame-add-tags');
       name.value = data.name ?? '';
       effect.value = data.effect ?? '';
-      for (const [value, label] of [['', '公式技能を選択'], ...FAME_PRESETS.map(s => [s.name, s.name]), ['custom', '自由入力']]) {
+      for (const [value, label] of [['', '公式技能を選択'], ...FAME_PRESETS.map(s => [s.name, s.name]), ['custom', '自由入力'], ['add-tags', '器用人のタグを追加'], ['clear', '技能をクリア']]) {
         const option = document.createElement('option');
         option.value = value;
         option.textContent = label;
         select.appendChild(option);
       }
       function syncPreset() {
-        select.value = FAME_PRESETS.some(s => s.name === name.value.trim())
-          ? name.value.trim() : (name.value.trim() || effect.value.trim() ? 'custom' : '');
-        tagButton.hidden = name.value.trim() !== '器用人';
+        select.value = '';
+        const tagOption = select.querySelector('option[value="add-tags"]');
+        tagOption.hidden = tagOption.disabled = name.value.trim() !== '器用人';
+        select.querySelector('option[value="clear"]').disabled = !name.value.trim() && !effect.value.trim();
       }
       syncPreset();
       select.addEventListener('change', () => {
-        const preset = FAME_PRESETS.find(s => s.name === select.value);
+        const action = select.value;
+        syncPreset();
+        if (action === 'add-tags') {
+          if (name.value.trim() === '器用人') appendDexterousTags();
+          return;
+        }
+        if (action === 'clear') {
+          if (!confirm('この技能名・効果をクリアしますか？')) return;
+          name.value = '';
+          effect.value = '';
+          syncPreset();
+          calculateTotal();
+          setupTextareaAutoResize(tr);
+          return;
+        }
+        const preset = FAME_PRESETS.find(s => s.name === action);
         if (!preset) { name.focus(); return; }
         if ((name.value.trim() || effect.value.trim()) &&
             (name.value !== preset.name || effect.value !== preset.effect) &&
@@ -656,15 +671,6 @@
       });
       name.addEventListener('input', () => { syncPreset(); refreshFameCount(); });
       effect.addEventListener('input', syncPreset);
-      tagButton.addEventListener('click', appendDexterousTags);
-      tr.querySelector('.fame-clear').addEventListener('click', () => {
-        if ((name.value.trim() || effect.value.trim()) && !confirm('この技能名・効果をクリアしますか？')) return;
-        name.value = '';
-        effect.value = '';
-        syncPreset();
-        calculateTotal();
-        setupTextareaAutoResize(tr);
-      });
       fameBody.appendChild(tr);
       setupTextareaAutoResize(tr);
     }
