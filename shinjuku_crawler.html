@@ -1107,7 +1107,7 @@
     document.getElementById('btn-share').addEventListener('click', () => {
       const id = idInput.value.trim();
       if (!id) return alert('IDを入力してください');
-      const url = `${GAS_API_URL}?tool=shinjuku&action=share&id=${encodeURIComponent(id)}`;
+      const url = `https://taku-stada.vercel.app/api/share?tool=shinjuku&id=${encodeURIComponent(id)}`;
       navigator.clipboard.writeText(url).then(() => alert('コピーしました: ' + url));
     });
 

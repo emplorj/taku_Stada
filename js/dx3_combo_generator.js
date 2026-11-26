@@ -6266,12 +6266,11 @@ new Vue({
         }
         const shareParams = new URLSearchParams({
           tool: "comboGenerator",
-          action: "share",
           url: shortUrl,
         });
         const savedId = this.normalizeCharacterSheetUrl(this.characterSheetUrl);
         if (savedId) shareParams.set("id", savedId);
-        this.shareUrl = `${this.gasWebAppUrl}?${shareParams.toString()}`;
+        this.shareUrl = `https://taku-stada.vercel.app/api/share?${shareParams.toString()}`;
       } else {
         this.shareUrl = "";
       }
