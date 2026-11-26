@@ -696,41 +696,45 @@
   accent-color: var(--crawl-accent);
 }
 .fame-name-controls {
-  display: grid;
-  gap: 5px;
+  display: flex;
+  align-items: stretch;
   min-width: 0;
+  min-height: 28px;
+}
+.fame-name-controls input[name="fame_name"] {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  height: auto;
+}
+.fame-preset-trigger {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  color: #bbb;
+  border-left: 1px solid var(--crawl-border);
+}
+.fame-preset-trigger:hover,
+.fame-preset-trigger:focus-within {
+  color: #eee;
+  background: rgba(255, 255, 255, 0.08);
+}
+.fame-preset-trigger:focus-within {
+  outline: 1px solid var(--crawl-accent);
+  outline-offset: -1px;
 }
 .fame-preset {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 5px;
-  color: #eee;
-  background: var(--crawl-bg-panel);
-  border: 1px solid var(--crawl-border);
-  border-radius: 3px;
-  font: inherit;
-}
-.fame-preset:focus-visible,
-.fame-clear:focus-visible {
-  outline: 1px solid var(--crawl-accent);
-}
-.fame-clear {
-  display: block;
-  margin: 3px 0 3px auto;
-  background: transparent;
-  color: #bbb;
-  border: 0;
+  height: 100%;
+  opacity: 0;
   cursor: pointer;
-  font: inherit;
-  font-size: 0.8rem;
 }
-.fame-clear:hover {
+.fame-preset option {
+  background: var(--crawl-bg-panel);
   color: #eee;
-  text-decoration: underline;
-}
-.fame-add-tags[hidden] {
-  display: none;
 }
 #fame-skills-table {
   table-layout: fixed;
