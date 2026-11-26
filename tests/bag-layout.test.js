@@ -78,3 +78,15 @@ test("dense sets never stack, including overflow and oversized input", () => {
     assertValid(arrange(JSON.parse(JSON.stringify(result))));
   }
 });
+
+test("the pack button fills the bottom row before moving upwards", () => {
+  const packed = arrange([piece("tall", 1, 2), piece("small", 1, 1), piece("wide", 2, 1)], new Set());
+  assert.deepEqual(packed.map(i => [i.x, i.y]), [[0, 4], [1, 5], [2, 5]]);
+  assertValid(packed);
+});
+
+test("packing moves existing items down, while restoring preserves legal manual coordinates", () => {
+  const source = [piece("manual", 2, 2, 4, 0)];
+  assert.deepEqual(arrange(source), source);
+  assert.equal(arrange(source, new Set())[0].y, 4);
+});

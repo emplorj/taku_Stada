@@ -12,7 +12,7 @@ const ShinjukuBagLayout = (() => {
   }
 
   function findEmptyPosition(item, others) {
-    for (let y = 0; y <= ROWS - item.h; y++) {
+    for (let y = ROWS - item.h; y >= 0; y--) {
       for (let x = 0; x <= COLS - item.w; x++) {
         if (canPlace(item, x, y, others)) return { x, y };
       }
@@ -67,6 +67,7 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
   const pendingSection = document.getElementById("bag-unplaced");
   const pendingLayer = document.getElementById("bag-unplaced-items");
   const placementStatus = document.getElementById("bag-placement-status");
+  const itemCatalog = window.ShinjukuItems;
 
   let items = []; // {id, x, y, w, h, name, rawW, rawH}
 
@@ -74,7 +75,8 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
   function autoResizeTextarea(el) {
     if (!el) return;
     el.style.height = "auto"; // 一旦リセット
-    el.style.height = el.scrollHeight + "px"; // 内容に合わせて設定
+    const border = getComputedStyle(el).boxSizing === "border-box" ? el.offsetHeight - el.clientHeight : 0;
+    el.style.height = el.scrollHeight + border + "px"; // 内容に合わせて設定
   }
 
   // --- 所持品リストの行生成 ---
@@ -99,30 +101,74 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
     }
 
     tr.innerHTML = `
-            <td><input type="text" name="item_name" value="${
-              data.name || ""
-            }" class="sync-trigger"></td>
-            <td><input type="number" name="item_price" value="${
-              data.price || ""
-            }" placeholder="0" class="calc-trigger"></td>
-            <td style="text-align:center;"><input type="checkbox" name="item_free" class="calc-trigger" ${
-              data.isFree ? "checked" : ""
-            }></td>
+            <td><div class="item-name-controls">
+              <input type="text" name="item_name" class="sync-trigger" placeholder="所持品名（自由入力）" aria-label="所持品名">
+              <span class="item-preset-trigger">
+                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                <select class="item-preset" aria-label="所持品の選択" title="所持品の選択"></select>
+              </span>
+            </div></td>
+            <td><input type="number" name="item_price" placeholder="0" class="calc-trigger"></td>
+            <td style="text-align:center;"><input type="checkbox" name="item_free" class="calc-trigger"></td>
             <td>
                 <div class="size-input-group">
-                    <input type="number" name="item_w" value="${w}" min="1">
+                    <input type="number" name="item_w" min="1">
                     <span>×</span>
-                    <input type="number" name="item_h" value="${h}" min="1">
+                    <input type="number" name="item_h" min="1">
                 </div>
             </td>
-            <td><input type="number" name="item_count" value="${
-              data.count || ""
-            }" placeholder="-"></td>
-            <td><textarea name="item_note" rows="1">${
-              data.note || ""
-            }</textarea></td>
+            <td><input type="number" name="item_count" placeholder="-"></td>
+            <td><textarea name="item_note" rows="1"></textarea></td>
             <td class="delete-cell"></td>
         `;
+
+    const field = key => tr.querySelector(`[name="item_${key}"]`);
+    for (const [key, value] of Object.entries({ name: data.name ?? "", price: data.price ?? "",
+      w, h, count: data.count ?? "", note: data.note ?? "" })) field(key).value = value;
+    field("free").checked = Boolean(data.isFree);
+    const select = tr.querySelector(".item-preset");
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "道具を選択";
+    select.appendChild(placeholder);
+    for (const category of ["武器", "防具", "その他の道具"]) {
+      const group = document.createElement("optgroup");
+      group.label = category;
+      for (const item of itemCatalog.all.filter(item => item.category === category)) {
+        const option = document.createElement("option");
+        option.value = item.name;
+        option.textContent = item.name;
+        group.appendChild(option);
+      }
+      select.appendChild(group);
+    }
+    const custom = document.createElement("option");
+    custom.value = "custom";
+    custom.textContent = "自由入力";
+    select.appendChild(custom);
+    let previousName = field("name").value;
+    function applyPreset(name) {
+      const preset = itemCatalog.get(name);
+      if (!preset) return;
+      for (const [key, value] of Object.entries({ name: preset.name, price: preset.price,
+        w: preset.w, h: preset.h, count: preset.count, note: itemCatalog.describe(preset.name) })) field(key).value = value;
+      previousName = field("name").value;
+      if (window.queueTextareaAutoResize) window.queueTextareaAutoResize(field("note"));
+      else autoResizeTextarea(field("note"));
+      savePositionsToHidden();
+      window.calculateTotal?.();
+    }
+    select.addEventListener("change", () => {
+      const choice = select.value;
+      select.value = "";
+      if (choice === "custom") field("name").focus();
+      else applyPreset(choice);
+    });
+    field("name").addEventListener("change", () => {
+      if (field("name").value !== previousName) applyPreset(field("name").value.trim());
+      previousName = field("name").value;
+    });
+    tr.addEventListener("input", savePositionsToHidden);
 
     // ★修正: calc-triggerへのイベント付与を関数内に移動
     tr.querySelectorAll(".calc-trigger").forEach((el) => {
@@ -184,7 +230,6 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
     const rows = itemListBody.querySelectorAll("tr");
     const existingItems = new Map(items.map((i) => [i.id, i]));
     const desired = [];
-    const preserveIds = new Set();
 
     rows.forEach((row) => {
       const id = row.dataset.id;
@@ -202,14 +247,13 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
 
       const old = existingItems.get(id);
       const unchanged = old && old.rawW === w && old.rawH === h;
-      if (unchanged) preserveIds.add(id);
       desired.push({ ...old, id, name, x: old?.x ?? 0, y: old?.y ?? 0,
         w: unchanged ? old.w : w, h: unchanged ? old.h : h, rawW: w, rawH: h });
     });
 
     const activeIds = new Set(desired.map(i => i.id));
     for (const old of items) if (!activeIds.has(old.id)) document.getElementById(old.id + "-puzzle")?.remove();
-    items = ShinjukuBagLayout.arrange(desired, preserveIds).map(next => {
+    items = ShinjukuBagLayout.arrange(desired, new Set()).map(next => {
       const current = existingItems.get(next.id);
       return current ? Object.assign(current, next) : next;
     });
@@ -221,7 +265,7 @@ if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded
 
     updatePenalty();
     savePositionsToHidden();
-    placementStatus.textContent = items.some(i => i.unplaced) ? "入りきらないアイテムは未配置欄にあります。" : "重ならない位置に反映しました。";
+    placementStatus.textContent = items.some(i => i.unplaced) ? "入りきらないアイテムは未配置欄にあります。" : "下から重ならない位置に積みました。";
   }
 
   function renderPuzzleElement(el, itemData) {

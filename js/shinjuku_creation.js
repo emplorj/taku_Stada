@@ -41,50 +41,7 @@
      "自衛官|自制心・不動の姿勢|ロープの束（5m）,包帯,傘"],
   ];
 
-  // Sample v1.1, pp. 20–23. [price, width, height].
-  const items = {
-    "木刀": [50, 1, 4], "金属バット": [65, 1, 4], "木製バット": [65, 1, 4],
-    "包丁": [70, 1, 3], "特殊警棒": [100, 1, 4], "大バール": [80, 1, 5],
-    "金属パイプ": [60, 1, 5], "木材": [60, 1, 5], "傘": [50, 6, 6],
-    "スタンガン": [150, 1, 2], "マグライト": [110, 1, 3], "斧": [170, 1, 5],
-    "スレッジハンマー": [200, 1, 6], "厚手の服": [30, 3, 4],
-    "防刃ベスト（通販）": [70, 3, 4], "防刃ベスト（警察）": [120, 3, 4],
-    "野球プロテクター": [50, 4, 5], "剣道の防具": [60, 4, 5],
-    "ホッケープロテクター": [90, 4, 6], "タブレット（端末）": [200, 2, 2],
-    "クリーチャーエナジー": [20, 1, 2], "カロリーフレンド": [20, 1, 1],
-    "懐中電灯": [80, 1, 2], "オイルライター": [50, 1, 1],
-    "タロットカード": [40, 1, 1], "藁人形": [5, 1, 2],
-    "モバイルバッテリー": [60, 1, 1], "分厚い辞書": [40, 2, 3],
-    "缶チューハイ": [15, 1, 2], "週刊漫画雑誌": [20, 2, 3],
-    "G＆Gルールブック": [120, 2, 3], "携帯型ラジオ": [40, 1, 1],
-    "ブレスケアキャンディ": [10, 1, 1], "ビデオカメラ": [150, 1, 1],
-    "ロープの束（5m）": [40, 1, 3], "頭痛薬": [10, 1, 1],
-    "スポーツシューズ": [50, 2, 2], "裁縫セット": [25, 1, 2],
-    "ペットボトル（2L）": [25, 1, 4], "ペットボトル（500ml）": [15, 1, 2],
-    "『7つの中間』": [10, 2, 1], "包帯": [15, 1, 1],
-  };
-
-  // Mechanical effects from pp. 20–23; flavor text is left to the book.
-  const equipment = {
-    "木刀": { weapon: "1d3", note: "両手：1d3+2" },
-    "木製バット": { weapon: "1d4", note: "両手：1d4+1" },
-    "金属バット": { weapon: "1d4", note: "両手：1d4+1" },
-    "包丁": { weapon: "1d4" }, "大バール": { weapon: "1d6" },
-    "特殊警棒": { weapon: "1d6", note: "畳むと1×2" },
-    "金属パイプ": { weapon: "1d3+1" }, "木材": { weapon: "1d3+1" },
-    "傘": { weapon: "1d3", note: "畳むと1×1" },
-    "マグライト": { weapon: "1d6+1", note: "ライトとして使用可" },
-    "スタンガン": { weapon: "1d8", note: "〈なれ果て〉へのダメージ：1d4" },
-    "斧": { weapon: "1d8", note: "片手で持つと不利ダイス" },
-    "スレッジハンマー": { weapon: "1d10", note: "攻撃の成功値9。片手で持つと不利ダイス" },
-    "厚手の服": { armor: "1", note: "畳むと2×2" },
-    "野球プロテクター": { armor: "3" }, "剣道の防具": { armor: "4" },
-    "防刃ベスト（通販）": { armor: "5", note: "畳むと2×2" },
-    "ホッケープロテクター": { armor: "6" }, "防刃ベスト（警察）": { armor: "8" },
-    "週刊漫画雑誌": { armor: "2" },
-    "分厚い辞書": { armor: "3", weapon: "1d3" },
-    "G＆Gルールブック": { weapon: "2" },
-  };
+  const itemCatalog = window.ShinjukuItems;
 
   // Sample v1.1, pp. 18–19, in d66 order (11–16, 21–26, ...).
   const motives = [
@@ -136,7 +93,7 @@
   }
 
   function addInitialItem(name, table, addButton) {
-    const [price, width, height] = items[name];
+    const { price, w: width, h: height, count } = itemCatalog.get(name);
     let row = Array.from(table.rows).find(candidate => {
       const field = key => candidate.querySelector(`[name="item_${key}"]`);
       return ["name", "price", "count", "note"].every(key => !field(key).value)
@@ -147,9 +104,8 @@
       addButton.click();
       row = table.rows[table.rows.length - 1];
     }
-    const effect = equipment[name] || {};
-    const note = [effect.weapon && `ダメージ：${effect.weapon}`, effect.armor && `耐久：${effect.armor}`, effect.note].filter(Boolean).join("。 ");
-    for (const [key, value] of Object.entries({ name, price, w: width, h: height, note })) {
+    const note = itemCatalog.describe(name);
+    for (const [key, value] of Object.entries({ name, price, w: width, h: height, count, note })) {
       row.querySelector(`[name="item_${key}"]`).value = value;
     }
     row.querySelector('[name="item_free"]').checked = true;
@@ -159,8 +115,10 @@
   const panel = document.getElementById("shinjuku-creation");
   if (!panel || new URLSearchParams(location.search).get("mode") === "json") return;
   const form = document.getElementById("shinjuku-sheet");
-  const stamina = document.querySelector('[name="stamina"]');
-  const spirit = document.querySelector('[name="spirit"]');
+  const sheetStamina = document.querySelector('[name="stamina"]');
+  const sheetSpirit = document.querySelector('[name="spirit"]');
+  const stamina = panel.querySelector("#creation-stamina");
+  const spirit = panel.querySelector("#creation-spirit");
   const extra = panel.querySelector("#creation-extra");
   const extraStamina = panel.querySelector("#creation-extra-stamina");
   const extraSpirit = panel.querySelector("#creation-extra-spirit");
@@ -168,6 +126,50 @@
   const apply = document.getElementById("creation-apply");
   const d6 = input => Number.isInteger(input.valueAsNumber) && input.valueAsNumber >= 1 && input.valueAsNumber <= 6;
   let draft;
+  let draftTouched = false;
+  let savedSheetState = null;
+  let allowNavigation = false;
+
+  // Compare only when leaving the page; bag moves and programmatic edits are
+  // included without serializing the whole sheet on every keystroke.
+  function captureSheetState() {
+    return JSON.stringify(Array.from(document.querySelectorAll(
+      '#shinjuku-sheet input, #shinjuku-sheet textarea, #shinjuku-sheet select, .header-status input'
+    )).map(input => [input.name || input.id, input.type,
+      input.type === "checkbox" || input.type === "radio" ? input.checked : input.value]));
+  }
+  window.shinjukuChanges = {
+    capture: captureSheetState,
+    markSaved(state = captureSheetState()) { savedSheetState = state; },
+    isDirty() { return draftTouched || (savedSheetState !== null && captureSheetState() !== savedSheetState); },
+  };
+  window.addEventListener("beforeunload", event => {
+    if (allowNavigation || !window.shinjukuChanges.isDirty()) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
+  window.addEventListener("DOMContentLoaded", () => {
+    if (savedSheetState === null) window.shinjukuChanges.markSaved();
+  });
+  window.addEventListener("pageshow", () => { allowNavigation = false; });
+  document.querySelectorAll("a[data-new-shinjuku]").forEach(link => {
+    link.addEventListener("click", event => {
+      if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      if (!window.shinjukuChanges.isDirty()) return;
+      if (!window.confirm("保存されていない変更があります。保存せずに新しい探索者シートを開きますか？")) {
+        event.preventDefault();
+      } else allowNavigation = true;
+    });
+  });
+
+  function showItems(id, names) {
+    const entries = names.map(name => {
+      const li = document.createElement("li");
+      li.textContent = name;
+      return li;
+    });
+    panel.querySelector(`#${id}`).replaceChildren(...entries);
+  }
 
   function positionPanel() {
     const top = Math.ceil(document.querySelector(".crawler-header").getBoundingClientRect().bottom) + 8;
@@ -182,34 +184,58 @@
     const hasStats = d6(stamina) && d6(spirit);
     const needsExtra = hasStats && stamina.valueAsNumber + spirit.valueAsNumber <= 5;
     extra.hidden = !needsExtra;
+    panel.querySelector("#creation-bonus").hidden = true;
+    showItems("creation-bonus-items", []);
     if (!hasStats) {
+      panel.querySelector("#creation-background-name").textContent = "未確定";
+      panel.querySelector("#creation-background-tags").textContent = "";
+      showItems("creation-items", []);
       preview.textContent = "体力とやる気に1〜6を入力すると、背景・タグ・初期所持品を確認できます。";
       return;
     }
     const background = readBackground(stamina.valueAsNumber, spirit.valueAsNumber);
-    const base = `${background.name}／${background.tags}。初期所持品：${background.equipment.join("、")}`;
+    panel.querySelector("#creation-background-name").textContent = background.name;
+    panel.querySelector("#creation-background-tags").textContent = background.tags;
+    showItems("creation-items", background.equipment);
     if (needsExtra && (!d6(extraStamina) || !d6(extraSpirit))) {
-      preview.textContent = base + "。追加所持品の出目も入力してください。";
+      preview.textContent = "追加所持品の出目も入力するか、ダイスを振ってください。";
       return;
     }
     const bonus = needsExtra ? readBackground(extraStamina.valueAsNumber, extraSpirit.valueAsNumber).equipment : [];
-    preview.textContent = base + (bonus.length ? `。追加所持品：${bonus.join("、")}` : "");
+    panel.querySelector("#creation-bonus").hidden = !bonus.length;
+    showItems("creation-bonus-items", bonus);
+    preview.textContent = "この内容をシートに反映できます。";
     draft = { background, stamina: stamina.value, spirit: spirit.value, equipment: [...background.equipment, ...bonus] };
     apply.disabled = false;
   }
 
-  panel.addEventListener("input", updatePreview);
-  for (const stat of [stamina, spirit]) stat.addEventListener("input", updatePreview);
-  document.getElementById("creation-roll").addEventListener("click", () => {
+  panel.addEventListener("input", () => {
+    draftTouched = true;
+    updatePreview();
+  });
+  function rollCreation() {
+    draftTouched = true;
     stamina.value = rollD6();
     spirit.value = rollD6();
     extraStamina.value = "";
     extraSpirit.value = "";
     updatePreview();
+  }
+  document.getElementById("creation-roll").addEventListener("click", () => {
+    rollCreation();
     positionPanel();
     panel.showPopover();
   });
+  panel.querySelector("#creation-reroll").addEventListener("click", rollCreation);
+  document.getElementById("creation-review").addEventListener("click", () => {
+    if (!stamina.value && !spirit.value) {
+      stamina.value = sheetStamina.value;
+      spirit.value = sheetSpirit.value;
+      updatePreview();
+    }
+  });
   panel.querySelector("#creation-extra-roll").addEventListener("click", () => {
+    draftTouched = true;
     extraStamina.value = rollD6();
     extraSpirit.value = rollD6();
     updatePreview();
@@ -231,16 +257,14 @@
   }
 
   function equipInitialItem(name) {
-    const effect = equipment[name];
+    const effect = itemCatalog.get(name);
     if (!effect) return false;
     const slot = effect.armor && isEmptySlot("b") ? "b"
       : effect.weapon ? ["r", "l"].find(isEmptySlot) : null;
     if (!slot) return false;
-    const [price, w, h] = items[name];
+    const { price, w, h } = effect;
     const stat = slot === "b" ? effect.armor : effect.weapon;
-    const alternate = slot === "b" && effect.weapon ? `武器として使用時のダメージ：${effect.weapon}`
-      : slot !== "b" && effect.armor ? `防具として使用時の耐久：${effect.armor}` : "";
-    for (const [key, value] of Object.entries({ name, stat, price, w, h, note: [effect.note, alternate].filter(Boolean).join("。 ") })) {
+    for (const [key, value] of Object.entries({ name, stat, price, w, h, note: itemCatalog.describe(name, slot) })) {
       form.elements[`equip_${slot}_${key}`].value = value;
     }
     form.elements[`equip_${slot}_free`].checked = true;
@@ -255,8 +279,8 @@
     const hasExisting = backgroundField.value || tagsField.value || ["r", "l", "b"].some(slot => !isEmptySlot(slot)) ||
       Array.from(table.querySelectorAll('[name="item_name"]')).some(input => input.value.trim());
     if (hasExisting && !window.confirm("体力・やる気・背景・タグを置き換え、現在の所持品に初期所持品を追加しますか？")) return;
-    stamina.value = draft.stamina;
-    spirit.value = draft.spirit;
+    sheetStamina.value = draft.stamina;
+    sheetSpirit.value = draft.spirit;
     backgroundField.value = draft.background.name;
     tagsField.value = draft.background.tags;
     const addButton = document.getElementById("add-item-row");
@@ -269,6 +293,7 @@
     document.getElementById("btn-sync-puzzle").click();
     window.calculateTotal();
     draft = null;
+    draftTouched = false;
     apply.disabled = true;
     preview.textContent = "初期所持品を無料で反映しました。装備とカバンの中身を確認して保存してください。";
     panel.hidePopover();

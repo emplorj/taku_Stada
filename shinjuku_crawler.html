@@ -16,7 +16,7 @@
   <meta property="og:title" content="シンジュクロウラー 探索者シート - 卓スタダ">
   <meta property="og:description" content="シンジュクロウラーの探索者シートを作成・管理し、所持品やカバン配置を整理できる支援ページです。">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/shinjuku_crawler.css">
+  <link rel="stylesheet" href="css/shinjuku_crawler.css?v=20261126-items1">
   <link rel="stylesheet" href="css/loading_overlay.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
@@ -38,7 +38,10 @@
     <header class="main-header crawler-header">
       <div class="crawler-logo-area">
         <p class="catch-copy">わくわくバイトはダイミー！</p>
-        <h1>シンジュクロウラー <span class="sub">探索者シート</span></h1>
+        <div class="crawler-title-row">
+          <h1><a href="shinjuku_crawler" data-new-shinjuku title="新しい探索者シートを作成">シンジュクロウラー</a> <span class="sub">探索者シート</span></h1>
+          <a class="crawler-new-sheet" href="shinjuku_crawler" data-new-shinjuku>＋新規作成</a>
+        </div>
       </div>
       <div class="header-controls">
         <div class="creation-actions" id="creation-actions" hidden>
@@ -76,20 +79,40 @@
           <button type="button" class="creation-close" popovertarget="shinjuku-creation" popovertargetaction="hide" aria-label="作成メニューを閉じる">×</button>
         </div>
         <div class="creation-content">
-          <p class="small-help">体力・やる気を振るか、ヘッダーに数値を入力して確認します。</p>
+          <div class="creation-dice-controls">
+            <label for="creation-stamina">体力<input type="number" id="creation-stamina" min="1" max="6" inputmode="numeric" placeholder="1〜6"></label>
+            <label for="creation-spirit">やる気<input type="number" id="creation-spirit" min="1" max="6" inputmode="numeric" placeholder="1〜6"></label>
+            <button type="button" id="creation-reroll" class="add-row-btn small" title="体力・やる気を振り直す">振る</button>
+          </div>
+          <p class="small-help creation-guide">数値を調整すると、背景と所持品が切り替わります。</p>
           <fieldset id="creation-extra" hidden>
             <legend>追加所持品 <small>体力＋やる気が5以下</small></legend>
-            <div class="creation-rolls">
+            <div class="creation-dice-controls">
               <label>出目1 <input type="number" id="creation-extra-stamina" min="1" max="6" inputmode="numeric"></label>
               <label>出目2 <input type="number" id="creation-extra-spirit" min="1" max="6" inputmode="numeric"></label>
               <button type="button" id="creation-extra-roll" class="add-row-btn small">追加の出目を振る</button>
             </div>
           </fieldset>
           <div class="creation-result">
-            <p id="creation-preview" role="status">出目を入力するかダイスを振ると、背景・タグ・初期所持品が表示されます。</p>
-            <label><input type="checkbox" id="creation-auto-equip" checked> 武器・防具を空いている装備欄に入れる</label>
+            <div class="creation-background">
+              <span class="creation-caption">背景</span>
+              <strong id="creation-background-name">未確定</strong>
+              <p id="creation-background-tags"></p>
+            </div>
+            <div class="creation-inventory">
+              <span class="creation-caption">初期所持品</span>
+              <ul id="creation-items"></ul>
+            </div>
+            <div class="creation-inventory creation-bonus" id="creation-bonus" hidden>
+              <span class="creation-caption">追加所持品</span>
+              <ul id="creation-bonus-items"></ul>
+            </div>
           </div>
-          <button type="button" id="creation-apply" class="add-row-btn small" disabled>この内容をシートに反映</button>
+          <div class="creation-footer">
+            <label><input type="checkbox" id="creation-auto-equip" checked> 武器・防具を空いている装備欄に入れる</label>
+            <p id="creation-preview" role="status" class="small-help">体力・やる気を入力するか、ダイスを振ってください。</p>
+            <button type="button" id="creation-apply" class="sync-btn" disabled>シートに反映</button>
+          </div>
         </div>
       </div>
 
@@ -133,7 +156,7 @@
             <p id="bag-placement-status" class="small-help" role="status"></p>
             <div id="bag-unplaced" class="bag-unplaced" hidden>
               <h4>未配置のアイテム（カバン外）</h4>
-              <p class="small-help">空きマスへドラッグするか、所持品リストの「カバンに反映」で再配置できます。</p>
+              <p class="small-help">空きマスへドラッグするか、所持品リストの「積む」で再配置できます。</p>
               <div id="bag-unplaced-items" class="bag-unplaced-items"></div>
             </div>
             <div class="puzzle-help">
@@ -234,9 +257,9 @@
             <div class="panel-header">
               <h3>所持品リスト</h3>
               <button type="button" id="btn-sync-puzzle" class="sync-btn"><i class="fa-solid fa-arrows-rotate"></i>
-                カバンに反映</button>
+                積む</button>
             </div>
-            <p class="small-help">サイズを入力して「反映」でアイテムが出現します。</p>
+            <p class="small-help">▼から道具を選ぶと価格・サイズ・効果を入力します。「積む」でカバンの下から詰め直します。</p>
 
             <div class="table-scroll">
               <table class="crawler-table item-table" id="item-list">
@@ -469,7 +492,8 @@
   <button onclick="topFunction()" id="backToTopBtn">▲</button>
   <script src="js/common.js"></script>
   <!-- パズル処理用スクリプト -->
-  <script src="js/bag_puzzle.js"></script>
+  <script src="js/shinjuku_items.js?v=20261126-items1"></script>
+  <script src="js/bag_puzzle.js?v=20261126-items1"></script>
 
   <script>
     // ★GASのウェブアプリURL
@@ -494,13 +518,14 @@
       el.style.height = 'auto';
       const newHeight = el.scrollHeight;
       if (newHeight > 0) {
-        el.style.height = newHeight + 'px';
+        const border = getComputedStyle(el).boxSizing === 'border-box' ? el.offsetHeight - el.clientHeight : 0;
+        el.style.height = newHeight + border + 'px';
       }
     }
 
     function setupTextareaAutoResize(scope) {
       if (!scope) return;
-      const targets = scope.querySelectorAll ? scope.querySelectorAll('textarea') : [scope];
+      const targets = scope.matches?.('textarea') ? [scope] : scope.querySelectorAll ? scope.querySelectorAll('textarea') : [scope];
       targets.forEach(ta => {
         if (!ta.dataset.autoResizeBound) {
           ta.addEventListener('input', () => autoResizeTextarea(ta));
@@ -857,6 +882,7 @@
 
       // 初期表示時にタブタイトルを更新
       updatePageTitle();
+      window.shinjukuChanges?.markSaved();
 
     });
 
@@ -1104,11 +1130,13 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 保存中...';
 
       try {
+        const savedState = window.shinjukuChanges?.capture();
         await fetch(GAS_API_URL, {
           method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ tool: "shinjuku", action: "save", id: charId, data: getFormDataAsJson(), isPrivate })
         });
+        window.shinjukuChanges?.markSaved(savedState);
         alert('保存しました');
 
         // ★追加: URLパラメータを更新してリロードなしでURL変更
@@ -1258,6 +1286,7 @@
             // ★追加: 読み込み成功時にURLを更新する
             const newUrl = `${window.location.pathname}?id=${encodeURIComponent(charId)}`;
             window.history.pushState({ path: newUrl }, '', newUrl);
+            window.shinjukuChanges?.markSaved();
           }
         } else {
           if (!isAuto) alert(json.message);
@@ -1445,7 +1474,7 @@
       return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
   </script>
-  <script defer src="js/shinjuku_creation.js"></script>
+  <script defer src="js/shinjuku_creation.js?v=20261126-items1"></script>
   <!-- Cloudflare Web Analytics -->
   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6860c746c8204efd894e2e37fe7fbfcf"}'></script>
   <!-- End Cloudflare Web Analytics -->

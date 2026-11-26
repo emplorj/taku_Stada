@@ -6,22 +6,29 @@ const fs = require("node:fs");
 // Exercise the real click/input handlers without network saves or a browser.
 function sheet(search = "") {
   class Control {
-    constructor(value = "") { this.value = value; this.checked = false; this.events = {}; this.style = {}; }
+    constructor(value = "") { this.value = value; this.type = "text"; this.checked = false; this.events = {}; this.style = {}; }
     get valueAsNumber() { return this.value === "" ? NaN : Number(this.value); }
     addEventListener(type, fn) { (this.events[type] ||= []).push(fn); }
     dispatchEvent(event) { for (const fn of this.events[event.type] || []) fn(event); }
-    click() { if (!this.disabled) this.dispatchEvent({ type: "click" }); }
+    click() {
+      const event = { type: "click", button: 0, prevented: false, preventDefault() { this.prevented = true; } };
+      if (!this.disabled) this.dispatchEvent(event);
+      return event;
+    }
     focus() {}
     setAttribute(name, value) { this[name] = value; }
     showPopover() { this.isOpen = true; }
     hidePopover() { this.isOpen = false; }
+    replaceChildren(...children) { this.children = children; this.textContent = children.map(child => child.textContent).join("\n"); }
   }
   const controls = {};
   const element = id => controls[id] ||= new Control();
   const fields = {};
-  for (const name of ["stamina", "spirit", "background", "tags", "pc_name", "motivation"]) fields[name] = new Control();
+  for (const name of ["stamina", "spirit", "background", "tags", "pc_name", "motivation", "puzzle_positions"]) fields[name] = new Control();
+  fields.stamina.value = fields.spirit.value = "1";
   for (const slot of ["r", "l", "b"]) for (const key of ["name", "stat", "price", "free", "w", "h", "note"]) {
     fields[`equip_${slot}_${key}`] = new Control(["w", "h"].includes(key) ? "1" : "");
+    if (key === "free") fields[`equip_${slot}_${key}`].type = "checkbox";
   }
   const nameIn = selector => selector.match(/name="([^"]+)"/)[1];
   const table = {
@@ -31,6 +38,7 @@ function sheet(search = "") {
   function addRow() {
     const row = { fields: {}, dataset: { id: `row-${table.rows.length}` }, querySelector(selector) { return this.fields[nameIn(selector)]; } };
     for (const key of ["name", "price", "free", "w", "h", "count", "note"]) row.fields[`item_${key}`] = new Control(["w", "h"].includes(key) ? "1" : "");
+    row.fields.item_free.type = "checkbox";
     table.rows.push(row);
   }
   addRow();
@@ -40,23 +48,44 @@ function sheet(search = "") {
   element("creation-auto-equip").checked = true;
   const form = { elements: fields, querySelector: () => table, style: {} };
   const document = {
+    createElement() { return new Control(); },
+    querySelectorAll(selector) {
+      if (selector === "a[data-new-shinjuku]") return [element("title-new-sheet"), element("new-sheet")];
+      return [...Object.values(fields), ...table.rows.flatMap(row => Object.values(row.fields))];
+    },
     getElementById(id) { return id === "shinjuku-sheet" ? form : id.startsWith("row-") && id.endsWith("-puzzle") ? null : element(id); },
     querySelector(selector) { return selector === ".crawler-header" ? { getBoundingClientRect: () => ({ bottom: 82 }) } : fields[nameIn(selector)]; },
   };
   let confirms = 0, totalCalls = 0;
   const randoms = [];
+  const windowEvents = {};
+  let confirmResult = true;
+  const browserWindow = {
+    ShinjukuItems: require("../js/shinjuku_items.js"),
+    confirm() { confirms++; return confirmResult; }, calculateTotal() { totalCalls++; },
+    addEventListener(type, handler) { windowEvents[type] = handler; },
+  };
   vm.runInNewContext(fs.readFileSync("js/shinjuku_creation.js", "utf8"), {
     document, location: { search }, URLSearchParams,
     Math: Object.assign(Object.create(Math), { random: () => randoms.shift() ?? 0 }),
     Event: class { constructor(type) { this.type = type; } },
-    window: { confirm() { confirms++; return true; }, calculateTotal() { totalCalls++; }, addEventListener() {} },
+    window: browserWindow,
   });
+  browserWindow.shinjukuChanges.markSaved();
   return {
     fields, table, element, randoms,
+    changes: browserWindow.shinjukuChanges,
+    setConfirm(value) { confirmResult = value; },
+    pageShow() { windowEvents.pageshow(); },
+    leave() {
+      const event = { prevented: false, preventDefault() { this.prevented = true; } };
+      windowEvents.beforeunload(event);
+      return event;
+    },
     get confirms() { return confirms; }, get totalCalls() { return totalCalls; },
     setStats(stamina, spirit, bonus = [6, 5]) {
-      fields.stamina.value = String(stamina); fields.spirit.value = String(spirit);
-      fields.spirit.dispatchEvent({ type: "input" });
+      element("creation-stamina").value = String(stamina);
+      element("creation-spirit").value = String(spirit);
       for (const [index, key] of ["creation-extra-stamina", "creation-extra-spirit"].entries()) element(key).value = String(bonus[index]);
       panel.dispatchEvent({ type: "input" });
     },
@@ -92,6 +121,7 @@ test("all 36 backgrounds resolve catalog sizes and prices, with auto equip disab
     s.element("creation-apply").click();
     assert.equal(s.bag().length, counts[stamina - 1][spirit - 1] + (stamina + spirit <= 5 ? 1 : 0));
     assert.ok(s.bag().every(row => Number(row.item_price.value) > 0 && Number(row.item_w.value) > 0 && Number(row.item_h.value) > 0 && row.item_free.checked));
+    assert.ok(s.bag().every(row => row.item_note.value.trim()), "initial items include effects and remarks");
     assert.equal(s.fields.equip_r_name.value, "");
   }
 });
@@ -136,17 +166,111 @@ test("all d66 motives directly fill the field without modifying equipment", () =
   assert.equal(s.bag().length, 0);
 });
 
-test("header roll updates status numbers and opens the adjacent review popover", () => {
+test("roll, edit, preview and apply commit draft stats only when confirmed", () => {
   const s = sheet();
   s.randoms.push(3.5 / 6, 5.5 / 6);
   s.element("creation-roll").click();
-  assert.equal(Number(s.fields.stamina.value), 4);
-  assert.equal(Number(s.fields.spirit.value), 6);
+  assert.equal(Number(s.element("creation-stamina").value), 4);
+  assert.equal(Number(s.element("creation-spirit").value), 6);
+  assert.equal(s.fields.stamina.value, "1");
+  assert.equal(s.fields.spirit.value, "1");
   assert.equal(s.element("shinjuku-creation").isOpen, true);
   assert.equal(s.element("shinjuku-creation").style.top, "90px");
   assert.equal(s.fields.background.value, "");
+  assert.equal(s.element("creation-background-name").textContent, "ホスト or ホステス");
+  s.setStats(5, 5);
+  assert.equal(s.element("creation-background-name").textContent, "土木作業員");
+  assert.match(s.element("creation-items").textContent, /大バール/);
+  assert.equal(s.fields.background.value, "");
+  assert.equal(s.fields.stamina.value, "1");
   s.element("creation-apply").click();
-  assert.equal(s.fields.background.value, "ホスト or ホステス");
+  assert.equal(s.fields.background.value, "土木作業員");
+  assert.equal(s.fields.stamina.value, "5");
+  assert.equal(s.fields.spirit.value, "5");
   assert.equal(s.element("shinjuku-creation").isOpen, false);
   assert.equal(s.element("creation-apply").disabled, true);
+});
+
+test("review starts from sheet stats and closing the draft does not change the sheet", () => {
+  const s = sheet();
+  s.fields.stamina.value = "3";
+  s.fields.spirit.value = "6";
+  s.fields.background.value = "保存済みの背景";
+  s.element("creation-review").click();
+  assert.equal(s.element("creation-stamina").value, "3");
+  assert.equal(s.element("creation-background-name").textContent, "転売屋");
+  s.randoms.push(4.5 / 6, 5.5 / 6);
+  s.element("creation-reroll").click();
+  assert.equal(s.element("creation-background-name").textContent, "動画投稿者");
+  s.element("shinjuku-creation").hidePopover();
+  assert.equal(s.fields.stamina.value, "3");
+  assert.equal(s.fields.spirit.value, "6");
+  assert.equal(s.fields.background.value, "保存済みの背景");
+  assert.equal(s.bag().length, 0);
+});
+
+test("untouched sheets keep creation closed, including old create links", () => {
+  for (const query of ["", "?create=1", "?id=existing&create=1"]) {
+    const s = sheet(query);
+    assert.notEqual(s.element("shinjuku-creation").isOpen, true);
+    assert.equal(s.fields.background.value, "");
+    assert.equal(s.bag().length, 0);
+    assert.equal(s.leave().prevented, false);
+  }
+});
+
+test("leaving warns only for unsaved changes, including free flags and bag positions", () => {
+  const s = sheet();
+  assert.equal(s.leave().prevented, false);
+  s.fields.pc_name.value = "未保存の探索者";
+  assert.equal(s.leave().prevented, true);
+  s.fields.pc_name.value = "";
+  assert.equal(s.leave().prevented, false);
+  s.fields.equip_r_free.checked = true;
+  assert.equal(s.leave().prevented, true);
+  s.changes.markSaved();
+  assert.equal(s.leave().prevented, false);
+  s.fields.puzzle_positions.value = '[{"x":1,"y":0}]';
+  assert.equal(s.leave().prevented, true);
+});
+
+test("saving a sent snapshot still warns for edits made while the request is in flight", () => {
+  const s = sheet();
+  s.fields.pc_name.value = "保存中";
+  const sentState = s.changes.capture();
+  s.fields.pc_name.value = "保存中に追記";
+  s.changes.markSaved(sentState);
+  assert.equal(s.leave().prevented, true);
+  s.changes.markSaved();
+  assert.equal(s.leave().prevented, false);
+});
+
+test("unapplied creation dice also warn before leaving", () => {
+  const s = sheet();
+  s.element("creation-review").click();
+  assert.equal(s.leave().prevented, false);
+  s.setStats(5, 5);
+  assert.equal(s.leave().prevented, true);
+  s.element("creation-apply").click();
+  assert.equal(s.leave().prevented, true);
+  s.changes.markSaved();
+  assert.equal(s.leave().prevented, false);
+});
+
+test("new-sheet click can cancel unsaved edits, while middle and modified clicks stay native", () => {
+  const s = sheet();
+  assert.equal(s.element("new-sheet").click().prevented, false);
+  assert.equal(s.confirms, 0);
+  s.fields.pc_name.value = "編集中";
+  s.setConfirm(false);
+  assert.equal(s.element("title-new-sheet").click().prevented, true);
+  assert.equal(s.leave().prevented, true);
+  s.element("new-sheet").dispatchEvent({ type: "click", button: 1 });
+  s.element("new-sheet").dispatchEvent({ type: "click", button: 0, ctrlKey: true });
+  assert.equal(s.confirms, 1);
+  s.setConfirm(true);
+  assert.equal(s.element("new-sheet").click().prevented, false);
+  assert.equal(s.leave().prevented, false, "do not show a second dialog after confirmation");
+  s.pageShow();
+  assert.equal(s.leave().prevented, true, "returning from history restores protection");
 });
