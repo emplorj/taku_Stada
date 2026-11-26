@@ -14,6 +14,7 @@ Thumbs.db
 .gemini/
 .env
 .vercel
+_pages-redirects/
 
 # Local reference assets (do not commit)
 reference/

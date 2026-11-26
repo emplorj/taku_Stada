@@ -1,7 +1,7 @@
 // Discord reads the outer HTML. GAS HtmlService wraps user HTML in an iframe,
 // so fetch saved JSON from GAS here and render metadata directly on Vercel.
 const { escapeHtml, loadShareData } = require("../lib/share-metadata.js");
-const SITE_URL = "https://emplorj.github.io/taku_Stada/";
+const SITE_URL = "https://taku-stada.vercel.app/";
 const SHARE_URL = "https://taku-stada.vercel.app/api/share";
 
 module.exports = async function handler(req, res) {

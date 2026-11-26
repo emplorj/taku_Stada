@@ -1,3 +1,13 @@
+// Cached GitHub Pages documents also move to the primary site.
+(function () {
+  if (location.hostname !== "emplorj.github.io") return;
+  var pathname = location.pathname;
+  if (pathname !== "/taku_Stada" && pathname.indexOf("/taku_Stada/") !== 0) return;
+  pathname = pathname.slice("/taku_Stada".length) || "/";
+  if (pathname === "/shinjuku_crawler.html") pathname = "/shinjuku";
+  location.replace("https://taku-stada.vercel.app" + pathname + location.search + location.hash);
+})();
+
 // ==========================================================================
 // 0. フォント Preload（即時実行 — DOMContentLoaded を待たない）
 // ==========================================================================
@@ -159,9 +169,6 @@ function parseCsvToArray(csvText) {
 // 2. ページ読み込み時の共通処理
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", function () {
-  const isLocal =
-    window.location.hostname === "127.0.0.1" ||
-    window.location.hostname === "localhost";
   const basePath = window.location.hostname === "emplorj.github.io" ? "/taku_Stada" : "";
 
   // --- Faviconを動的に挿入する ---
@@ -231,6 +238,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         placeholder.innerHTML = html;
+        // header.html is shared by root and nested pages. Resolve its relative
+        // links against the site root, not the current page's directory.
+        const headerBase = new URL(`${basePath}/`, window.location.origin);
+        placeholder.querySelectorAll('[href], [src]').forEach(element => {
+          ['href', 'src'].forEach(attribute => {
+            const value = element.getAttribute(attribute);
+            if (!value || /^(?:#|\/|[a-z][a-z\d+.-]*:)/i.test(value)) return;
+            element.setAttribute(attribute, new URL(value, headerBase).href);
+          });
+        });
 
         // DOMの準備が整うのを待ってから初期化処理を実行
         setTimeout(() => {
