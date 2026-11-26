@@ -1,6 +1,13 @@
 {
   "version": 2,
+  "functions": {
+    "api/shinjuku-page.js": { "includeFiles": "shinjuku_crawler.html" }
+  },
   "rewrites": [
+    {
+      "source": "/shinjuku_crawler.html",
+      "destination": "/api/shinjuku-page"
+    },
     {
       "source": "/koma-maker",
       "destination": "/koma-maker.html"

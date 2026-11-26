@@ -5,6 +5,13 @@
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Browsers move to the server-rendered sheet so copying the address bar
+    // shares the character-specific preview as well.
+    if (location.hostname === 'emplorj.github.io') {
+      location.replace('https://taku-stada.vercel.app/shinjuku_crawler.html' + location.search + location.hash);
+    }
+  </script>
   <title>シンジュクロウラー 探索者シート - 卓スタダ</title>
   <meta property="og:title" content="シンジュクロウラー 探索者シート - 卓スタダ">
   <meta property="og:description" content="シンジュクロウラーの探索者シートを作成・管理し、所持品やカバン配置を整理できる支援ページです。">
@@ -717,10 +724,22 @@
     }
 
     // JSON出力用: データを読み込んでJSON表示
+    async function fetchShinjukuData(charId) {
+      const initialElement = document.getElementById('shinjuku-initial-data');
+      if (initialElement) {
+        const initial = JSON.parse(initialElement.textContent);
+        if (initial.id === charId) {
+          initialElement.remove();
+          return initial.result;
+        }
+      }
+      const res = await fetch(`${GAS_API_URL}?tool=shinjuku&action=load&id=${encodeURIComponent(charId)}`);
+      return res.json();
+    }
+
     async function loadFromServerAsJson(charId) {
       try {
-        const res = await fetch(`${GAS_API_URL}?tool=shinjuku&action=load&id=${encodeURIComponent(charId)}`);
-        const json = await res.json();
+        const json = await fetchShinjukuData(charId);
 
         if (json.status === 'success') {
           const data = json.data;
@@ -1083,8 +1102,7 @@
       if (loadingOverlay) loadingOverlay.style.display = 'flex';
 
       try {
-        const res = await fetch(`${GAS_API_URL}?tool=shinjuku&action=load&id=${encodeURIComponent(charId)}`);
-        const json = await res.json();
+        const json = await fetchShinjukuData(charId);
         if (json.status === 'success') {
           if (isAuto || confirm('読み込みますか？')) {
             applyDataToSheet(json.data);
@@ -1107,7 +1125,7 @@
     document.getElementById('btn-share').addEventListener('click', () => {
       const id = idInput.value.trim();
       if (!id) return alert('IDを入力してください');
-      const url = `https://taku-stada.vercel.app/api/share?tool=shinjuku&id=${encodeURIComponent(id)}`;
+      const url = `https://taku-stada.vercel.app/shinjuku_crawler.html?id=${encodeURIComponent(id)}`;
       navigator.clipboard.writeText(url).then(() => alert('コピーしました: ' + url));
     });
 

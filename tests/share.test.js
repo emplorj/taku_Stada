@@ -35,7 +35,7 @@ test("share HTML has outer-head metadata, escapes names, and preserves destinati
       assert.match(head, tool === "shinjuku" ? /名前&quot;&lt;script&gt;/ : /コンボ名/);
       const target = JSON.parse(res.body.match(/window.location.replace\((.*)\);/)[1]);
       const destination = new URL(target);
-      assert.equal(destination.hostname, "emplorj.github.io");
+      assert.equal(destination.hostname, tool === "shinjuku" ? "taku-stada.vercel.app" : "emplorj.github.io");
       assert.equal(destination.searchParams.get(tool === "shinjuku" ? "id" : "url"), tool === "shinjuku" ? id : "v-123");
     }
     global.fetch = () => { throw new Error("invalid requests must not fetch"); };

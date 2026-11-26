@@ -1,14 +1,8 @@
 // Discord reads the outer HTML. GAS HtmlService wraps user HTML in an iframe,
 // so fetch saved JSON from GAS here and render metadata directly on Vercel.
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxMR7f_pOi14SsAuKvu7YxKVBQZ69dn-TeQpMBxyYzo_pwZmICNZ06cSb8BKQYCM0GuGg/exec";
+const { escapeHtml, loadShareData } = require("../lib/share-metadata.js");
 const SITE_URL = "https://emplorj.github.io/taku_Stada/";
 const SHARE_URL = "https://taku-stada.vercel.app/api/share";
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  })[char]);
-}
 
 module.exports = async function handler(req, res) {
   if (req.method !== "GET" && req.method !== "HEAD") {
@@ -23,6 +17,7 @@ module.exports = async function handler(req, res) {
   }
   const isShinjuku = tool === "shinjuku";
   const destination = new URL(isShinjuku ? "shinjuku_crawler.html" : "dx3_combo_generator.html", SITE_URL);
+  if (isShinjuku) destination.href = "https://taku-stada.vercel.app/shinjuku_crawler.html";
   destination.searchParams.set(isShinjuku ? "id" : "url", isShinjuku ? id : (source || id));
   const shareUrl = new URL(SHARE_URL);
   shareUrl.searchParams.set("tool", tool);
@@ -32,13 +27,7 @@ module.exports = async function handler(req, res) {
   let name = "";
   let loaded = false;
   try {
-    const apiUrl = new URL(GAS_URL);
-    apiUrl.searchParams.set("tool", tool);
-    apiUrl.searchParams.set("action", "load");
-    apiUrl.searchParams.set("id", id);
-    const response = await fetch(apiUrl, { signal: AbortSignal.timeout(12000) });
-    if (!response.ok) throw new Error("GAS load failed");
-    const result = await response.json();
+    const result = await loadShareData(tool, id);
     if (result.status === "success" && result.data) {
       name = String(result.data[isShinjuku ? "pc_name" : "characterName"] || "").trim();
       loaded = true;

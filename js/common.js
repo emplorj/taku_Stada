@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const isLocal =
     window.location.hostname === "127.0.0.1" ||
     window.location.hostname === "localhost";
-  const basePath = isLocal ? "" : "/taku_Stada";
+  const basePath = window.location.hostname === "emplorj.github.io" ? "/taku_Stada" : "";
 
   // --- Faviconを動的に挿入する ---
   function injectFaviconLinks() {

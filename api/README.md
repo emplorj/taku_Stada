@@ -16,7 +16,14 @@ not be added there.
 
 `/api/share?tool=shinjuku&id=...` and
 `/api/share?tool=comboGenerator&id=...&url=...` return server-rendered OGP
-using saved GAS JSON. Browsers redirect to the GitHub Pages editor; link
+using saved GAS JSON. Browsers redirect to the editor; link
 crawlers receive metadata directly in the HTML head (no iframe or meta refresh).
 Share buttons use this endpoint. Existing GitHub Pages `?id=` links retain
-their static preview, so copy a new URL with the share button.
+their static preview.
+
+`/shinjuku_crawler.html?id=...` is rewritten to `shinjuku-page.js`, which
+renders the full editor with character-specific metadata. The static HTML is
+bundled with the function via `includeFiles`. Saved JSON is safely embedded
+for first-load reuse, and the response is never cached. GitHub Pages visitors
+are moved to this Vercel sheet so copying the address bar shares the right URL.
+Already-posted GitHub Pages URLs still have static previews.
