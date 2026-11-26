@@ -433,19 +433,22 @@
           <table class="list-table">
             <thead>
               <tr>
-                <th>PC名</th>
-                <th>PL名</th>
-                <th>更新日時</th>
-                <th>参照</th>
+                <th scope="col">PC名</th>
+                <th scope="col">PL名</th>
+                <th scope="col">背景</th>
+                <th scope="col">名声点</th>
+                <th scope="col">タグ</th>
+                <th scope="col">更新日時</th>
               </tr>
             </thead>
             <tbody id="character-list-body">
               <tr>
-                <td colspan="4" style="text-align:center;">読み込み中...</td>
+                <td colspan="6" style="text-align:center;">読み込み中...</td>
               </tr>
             </tbody>
           </table>
         </div>
+        <p id="character-list-status" class="small-help" role="status" hidden></p>
       </details>
 
     </form>
@@ -1179,38 +1182,115 @@
     // --- 一覧取得機能 ---
     document.getElementById('btn-refresh-list').addEventListener('click', () => fetchCharacterList(true));
 
+    function formatCharacterTags(value) {
+      const raw = Array.isArray(value) ? value.join(' ') : String(value ?? '');
+      return [...new Set(raw.split(/[\s,，、;；]+/u)
+        .map(tag => tag.replace(/^[#＃\[\]【】〈〉［］]+|[\[\]【】〈〉［］]+$/gu, '').trim())
+        .filter(Boolean))].map(tag => '#' + tag).join(' ');
+    }
+
+    function listText(value) {
+      return value == null || String(value).trim() === '' ? '—' : String(value);
+    }
+
+    function fillCharacterListRow(row, summary) {
+      const cells = row.cells;
+      const background = listText(summary.background);
+      const fame = summary.fame_points == null || String(summary.fame_points).trim() === ''
+        ? '—' : Number.isFinite(Number(summary.fame_points))
+          ? Number(summary.fame_points).toLocaleString('ja-JP') : '—';
+      const tags = formatCharacterTags(summary.tags) || '—';
+      for (const [index, value] of [[2, background], [3, fame], [4, tags]]) {
+        cells[index].textContent = value;
+        cells[index].title = value;
+      }
+    }
+
     async function fetchCharacterList(force = false) {
       if (characterListLoading || (characterListLoaded && !force)) return;
       const tbody = document.getElementById('character-list-body');
+      const status = document.getElementById('character-list-status');
       if (!tbody) return;
       characterListLoading = true;
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">読み込み中...</td></tr>';
+      if (status) { status.hidden = true; status.textContent = ''; }
 
+      function showMessage(message) {
+        tbody.replaceChildren();
+        const cell = tbody.insertRow().insertCell();
+        cell.colSpan = 6;
+        cell.style.textAlign = 'center';
+        cell.textContent = message;
+      }
+
+      showMessage('読み込み中...');
       try {
-        const url = `${GAS_API_URL}?tool=shinjuku&action=list`;
-        const response = await fetch(url);
+        const response = await fetch(GAS_API_URL + '?tool=shinjuku&action=list');
         const json = await response.json();
-
-        if (json.status === 'success') {
-          const list = json.data;
-          characterListLoaded = true;
-          if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">データなし</td></tr>';
-            return;
-          }
-          tbody.innerHTML = '';
-          list.forEach(c => {
-            const tr = document.createElement('tr');
-            const link = `?id=${encodeURIComponent(c.id)}`;
-            tr.innerHTML = `<td><b>${escapeHtml(c.pc_name)}</b></td><td>${escapeHtml(c.player_name)}</td><td>${c.updated}</td><td style="text-align:center;"><a href="${link}" class="crawler-btn load" style="padding:2px 8px;font-size:0.8em">見る</a></td>`;
-            tbody.appendChild(tr);
-          });
-        } else {
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:red;">${json.message}</td></tr>`;
+        if (!response.ok || json.status !== 'success' || !Array.isArray(json.data)) {
+          throw new Error(json.message || '一覧を取得できませんでした');
         }
+
+        const list = [...json.data].sort((a, b) =>
+          String(b.updated ?? '').localeCompare(String(a.updated ?? '')));
+        tbody.replaceChildren();
+        if (!list.length) {
+          showMessage('データなし');
+          characterListLoaded = true;
+          return;
+        }
+
+        // Only IDs returned by the public list are eligible for detail lookup.
+        // If the list API already provides summary fields, no detail request is needed.
+        const pending = [];
+        for (const character of list) {
+          const row = tbody.insertRow();
+          for (let i = 0; i < 6; i++) row.insertCell();
+          const link = document.createElement('a');
+          link.href = '?id=' + encodeURIComponent(character.id);
+          link.textContent = listText(character.pc_name);
+          link.title = link.textContent;
+          row.cells[0].appendChild(link);
+          row.cells[1].textContent = listText(character.player_name);
+          row.cells[1].title = row.cells[1].textContent;
+          row.cells[5].textContent = listText(character.updated);
+          row.cells[5].title = row.cells[5].textContent;
+          fillCharacterListRow(row, character);
+          if (['background', 'fame_points', 'tags'].some(key =>
+            !Object.prototype.hasOwnProperty.call(character, key))) {
+            pending.push({ character, row });
+          }
+        }
+
+        if (pending.length && status) {
+          status.textContent = '背景・名声点・タグを取得中...';
+          status.hidden = false;
+        }
+        let failures = 0;
+        let next = 0;
+        async function loadSummary() {
+          while (next < pending.length) {
+            const { character, row } = pending[next++];
+            try {
+              const detailResponse = await fetch(GAS_API_URL + '?tool=shinjuku&action=load&id='
+                + encodeURIComponent(character.id), { signal: AbortSignal.timeout(20000) });
+              const detail = await detailResponse.json();
+              if (!detailResponse.ok || detail.status !== 'success' || !detail.data) throw new Error('detail unavailable');
+              fillCharacterListRow(row, { ...character, ...detail.data });
+            } catch (e) {
+              failures++;
+            }
+          }
+        }
+        await Promise.all(Array.from({ length: Math.min(3, pending.length) }, loadSummary));
+        if (status) {
+          status.textContent = failures ? '一部の追加情報を取得できませんでした。更新で再試行できます。' : '';
+          status.hidden = !failures;
+        }
+        characterListLoaded = true;
       } catch (e) {
         console.error(e);
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">エラー</td></tr>';
+        characterListLoaded = false;
+        showMessage('一覧の取得に失敗しました。更新で再試行できます。');
       } finally {
         characterListLoading = false;
       }
