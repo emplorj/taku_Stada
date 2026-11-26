@@ -961,35 +961,84 @@
   margin-bottom: 10px;
 }
 .list-container {
-  overflow-x: auto;
+  min-width: 0;
+  overflow: hidden;
 }
 .list-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.9rem;
   background-color: #1a1a1a;
 }
-.list-table th {
-  background-color: #333;
-  padding: 8px;
-  border: 1px solid #555;
-  color: #ddd;
-  white-space: nowrap;
-}
+.list-table th,
 .list-table td {
   padding: 8px;
   border: 1px solid #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.list-table th {
+  background-color: #333;
+  color: #ddd;
+}
+.list-table td {
   color: #eee;
+}
+.list-table th:nth-child(1) { width: 20%; }
+.list-table th:nth-child(2) { width: 13%; }
+.list-table th:nth-child(3) { width: 15%; }
+.list-table th:nth-child(4) { width: 9%; }
+.list-table th:nth-child(5) { width: 27%; }
+.list-table th:nth-child(6) { width: 16%; }
+.list-table td:nth-child(4),
+.list-table td:nth-child(6) {
+  font-family: var(--font-latin-ui);
+  font-variant-numeric: tabular-nums;
+}
+.list-table td:nth-child(4) {
+  text-align: right;
+  font-weight: bold;
 }
 .list-table tr:hover {
   background-color: #2a2a2a;
 }
-.list-table a {
+.list-table a,
+.list-table td:nth-child(5) {
   color: #87cefa;
-  text-decoration: none;
 }
-.list-table a:hover {
+.list-table a {
+  font-weight: bold;
   text-decoration: underline;
+}
+@media (max-width: 680px) {
+  .list-table {
+    font-size: 0.8rem;
+  }
+  .list-table th,
+  .list-table td {
+    padding: 6px 4px;
+  }
+  .list-table th:nth-child(3),
+  .list-table td:nth-child(3) {
+    display: none;
+  }
+  .list-table th:nth-child(1) { width: 24%; }
+  .list-table th:nth-child(2) { width: 17%; }
+  .list-table th:nth-child(4) { width: 13%; }
+  .list-table th:nth-child(5) { width: 27%; }
+  .list-table th:nth-child(6) { width: 19%; }
+}
+@media (max-width: 440px) {
+  .list-table th:nth-child(2),
+  .list-table td:nth-child(2) {
+    display: none;
+  }
+  .list-table th:nth-child(1) { width: 30%; }
+  .list-table th:nth-child(4) { width: 15%; }
+  .list-table th:nth-child(5) { width: 34%; }
+  .list-table th:nth-child(6) { width: 21%; }
 }
 
 /* キャラクター一覧の矢印等 */
