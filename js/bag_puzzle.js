@@ -1,4 +1,57 @@
-document.addEventListener("DOMContentLoaded", () => {
+const ShinjukuBagLayout = (() => {
+  const COLS = 6, ROWS = 6;
+  const size = value => Number.isFinite(Number(value)) ? Math.max(1, Math.floor(Number(value))) : 1;
+
+  function canPlace(item, x, y, others) {
+    if (!Number.isInteger(item.w) || !Number.isInteger(item.h) || item.w < 1 || item.h < 1
+      || !Number.isInteger(x) || !Number.isInteger(y) || item.w > COLS
+      || x < 0 || x + item.w > COLS || y + item.h > ROWS || y + item.h <= 0) return false;
+    return !others.some(other => other.id !== item.id && !other.unplaced
+      && x < other.x + other.w && x + item.w > other.x
+      && y < other.y + other.h && y + item.h > other.y);
+  }
+
+  function findEmptyPosition(item, others) {
+    for (let y = 0; y <= ROWS - item.h; y++) {
+      for (let x = 0; x <= COLS - item.w; x++) {
+        if (canPlace(item, x, y, others)) return { x, y };
+      }
+    }
+    // Above the bag is legal only while part of the item remains inside it.
+    const levels = [...new Set([Math.min(-1, ROWS - item.h), ...others.filter(o => !o.unplaced).map(o => o.y - item.h)])]
+      .filter(y => y < 0 && y + item.h > 0).sort((a, b) => b - a);
+    for (const y of levels) for (let x = 0; x <= COLS - item.w; x++) {
+      if (canPlace(item, x, y, others)) return { x, y };
+    }
+    return null;
+  }
+
+  function arrange(source, preserveIds = new Set(source.filter(i => !i.unplaced).map(i => i.id))) {
+    const result = source.map(item => ({ ...item, w: size(item.w), h: size(item.h) }));
+    const placed = [], waiting = [];
+    for (const item of result) {
+      if (preserveIds.has(item.id) && !item.unplaced && canPlace(item, item.x, item.y, placed)) placed.push(item);
+      else waiting.push(item);
+    }
+    for (const item of waiting) {
+      let best = null;
+      for (const [w, h] of [[item.w, item.h], [item.h, item.w]]) {
+        const pos = findEmptyPosition({ ...item, w, h }, placed);
+        if (pos && (!best || Math.max(0, -pos.y) * w < Math.max(0, -best.y) * best.w)) best = { ...pos, w, h };
+      }
+      if (best) {
+        Object.assign(item, best, { unplaced: false });
+        placed.push(item);
+      } else Object.assign(item, { x: 0, y: 0, unplaced: true });
+    }
+    return result;
+  }
+  return { canPlace, arrange };
+})();
+
+if (typeof module !== "undefined" && module.exports) module.exports = ShinjukuBagLayout;
+
+if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded", () => {
   const CELL_SIZE = 40; // cssと合わせる
   const GRID_COLS = 6;
   const SAFE_ROWS = 6;
@@ -11,6 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const syncBtn = document.getElementById("btn-sync-puzzle");
   const addRowBtn = document.getElementById("add-item-row");
   const hiddenInput = document.getElementById("puzzle_positions");
+  const pendingSection = document.getElementById("bag-unplaced");
+  const pendingLayer = document.getElementById("bag-unplaced-items");
+  const placementStatus = document.getElementById("bag-placement-status");
 
   let items = []; // {id, x, y, w, h, name, rawW, rawH}
 
@@ -127,7 +183,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function syncPuzzleFromList() {
     const rows = itemListBody.querySelectorAll("tr");
     const existingItems = new Map(items.map((i) => [i.id, i]));
-    const activeIds = new Set();
+    const desired = [];
+    const preserveIds = new Set();
 
     rows.forEach((row) => {
       const id = row.dataset.id;
@@ -138,81 +195,46 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = nameInput.value;
       if (!name) return;
 
-      activeIds.add(id);
-
       let w = parseInt(wInput.value) || 1;
       let h = parseInt(hInput.value) || 1;
       if (w < 1) w = 1;
       if (h < 1) h = 1;
 
-      let itemData = existingItems.get(id);
-
-      if (itemData) {
-        if (itemData.rawW !== w || itemData.rawH !== h) {
-          itemData.w = w;
-          itemData.h = h;
-          itemData.rawW = w;
-          itemData.rawH = h;
-
-          const el = document.getElementById(id + "-puzzle");
-          if (el) {
-            el.style.width = w * CELL_SIZE + "px";
-            el.style.height = h * CELL_SIZE + "px";
-          }
-        }
-        itemData.name = name;
-        const el = document.getElementById(id + "-puzzle");
-        if (el) el.querySelector("span").textContent = name;
-      } else {
-        const pos = findEmptyPosition(w, h, items);
-        itemData = {
-          id: id,
-          name: name,
-          x: pos.x,
-          y: pos.y,
-          w: w,
-          h: h,
-          rawW: w,
-          rawH: h,
-        };
-        items.push(itemData);
-        createPuzzleElement(itemData);
-      }
+      const old = existingItems.get(id);
+      const unchanged = old && old.rawW === w && old.rawH === h;
+      if (unchanged) preserveIds.add(id);
+      desired.push({ ...old, id, name, x: old?.x ?? 0, y: old?.y ?? 0,
+        w: unchanged ? old.w : w, h: unchanged ? old.h : h, rawW: w, rawH: h });
     });
 
-    items = items.filter((i) => {
-      if (!activeIds.has(i.id)) {
-        const el = document.getElementById(i.id + "-puzzle");
-        if (el) el.remove();
-        return false;
-      }
-      return true;
+    const activeIds = new Set(desired.map(i => i.id));
+    for (const old of items) if (!activeIds.has(old.id)) document.getElementById(old.id + "-puzzle")?.remove();
+    items = ShinjukuBagLayout.arrange(desired, preserveIds).map(next => {
+      const current = existingItems.get(next.id);
+      return current ? Object.assign(current, next) : next;
     });
+    for (const item of items) {
+      const el = document.getElementById(item.id + "-puzzle");
+      if (el) renderPuzzleElement(el, item);
+      else createPuzzleElement(item);
+    }
 
     updatePenalty();
     savePositionsToHidden();
+    placementStatus.textContent = items.some(i => i.unplaced) ? "入りきらないアイテムは未配置欄にあります。" : "重ならない位置に反映しました。";
   }
 
-  // 空きスペース探索
-  function findEmptyPosition(w, h, currentItems) {
-    for (let y = 0; y < SAFE_ROWS; y++) {
-      for (let x = 0; x < GRID_COLS; x++) {
-        if (x + w > GRID_COLS || y + h > SAFE_ROWS) continue;
-        let collision = false;
-        for (const other of currentItems) {
-          if (isOverlap(x, y, w, h, other.x, other.y, other.w, other.h)) {
-            collision = true;
-            break;
-          }
-        }
-        if (!collision) return { x, y };
-      }
-    }
-    return { x: 0, y: 0 };
-  }
-
-  function isOverlap(x1, y1, w1, h1, x2, y2, w2, h2) {
-    return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
+  function renderPuzzleElement(el, itemData) {
+    const parent = itemData.unplaced ? pendingLayer : itemLayer;
+    if (el.parentElement !== parent) parent.appendChild(el);
+    el.style.position = "";
+    el.style.width = itemData.w * CELL_SIZE + "px";
+    el.style.height = itemData.h * CELL_SIZE + "px";
+    el.dataset.size = `${itemData.w}×${itemData.h}`;
+    el.querySelector("span").textContent = itemData.name;
+    if (itemData.unplaced) {
+      el.style.left = el.style.top = "";
+    } else updateElementPosition(el, itemData.x, itemData.y);
   }
 
   function createPuzzleElement(itemData) {
@@ -236,16 +258,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     el.addEventListener("dblclick", (e) => {
       e.preventDefault();
-      const temp = itemData.w;
-      itemData.w = itemData.h;
-      itemData.h = temp;
-      el.style.width = itemData.w * CELL_SIZE + "px";
-      el.style.height = itemData.h * CELL_SIZE + "px";
+      const rotated = { ...itemData, w: itemData.h, h: itemData.w };
+      if (!itemData.unplaced && !ShinjukuBagLayout.canPlace(rotated, rotated.x, rotated.y, items)) {
+        placementStatus.textContent = "重なるかカバンからはみ出すため、ここでは回転できません。";
+        return;
+      }
+      Object.assign(itemData, rotated);
+      renderPuzzleElement(el, itemData);
+      placementStatus.textContent = "回転しました。";
       updatePenalty();
       savePositionsToHidden();
     });
 
-    itemLayer.appendChild(el);
+    renderPuzzleElement(el, itemData);
   }
 
   function updateElementPosition(el, gridX, gridY) {
@@ -255,8 +280,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setupDrag(el, itemData) {
     let isDragging = false;
+    let didMove = false;
     let startX, startY;
     let initialLeft, initialTop;
+    let initialWidth, initialHeight;
     let nextLeft, nextTop;
     let dragFrame = 0;
 
@@ -264,15 +291,20 @@ document.addEventListener("DOMContentLoaded", () => {
     el.addEventListener("touchstart", dragStart, { passive: false });
 
     function dragStart(e) {
+      if (e.type === "mousedown" && e.button !== 0) return;
       isDragging = true;
+      didMove = false;
       const clientX =
         e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
       const clientY =
         e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
       startX = clientX;
       startY = clientY;
-      initialLeft = parseInt(el.style.left || 0);
-      initialTop = parseInt(el.style.top || 0);
+      const rect = el.getBoundingClientRect();
+      initialLeft = rect.left;
+      initialTop = rect.top;
+      initialWidth = rect.width;
+      initialHeight = rect.height;
       nextLeft = initialLeft;
       nextTop = initialTop;
       el.style.zIndex = 1000;
@@ -282,6 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("touchmove", dragMove, { passive: false });
       document.addEventListener("mouseup", dragEnd);
       document.addEventListener("touchend", dragEnd);
+      document.addEventListener("touchcancel", dragEnd);
     }
 
     function dragMove(e) {
@@ -291,6 +324,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
       nextLeft = initialLeft + (clientX - startX);
       nextTop = initialTop + (clientY - startY);
+      if (!didMove && Math.abs(clientX - startX) + Math.abs(clientY - startY) > 3) {
+        didMove = true;
+        el.style.width = initialWidth + "px";
+        el.style.height = initialHeight + "px";
+        document.body.appendChild(el);
+        el.style.position = "fixed";
+        el.style.left = initialLeft + "px";
+        el.style.top = initialTop + "px";
+      }
+      if (!didMove) return;
       if (dragFrame) return;
       dragFrame = requestAnimationFrame(() => {
         el.style.transform = `translate3d(${nextLeft - initialLeft}px, ${nextTop - initialTop}px, 0)`;
@@ -307,25 +350,29 @@ document.addEventListener("DOMContentLoaded", () => {
       document.removeEventListener("touchmove", dragMove);
       document.removeEventListener("mouseup", dragEnd);
       document.removeEventListener("touchend", dragEnd);
+      document.removeEventListener("touchcancel", dragEnd);
 
       if (dragFrame) {
         cancelAnimationFrame(dragFrame);
         dragFrame = 0;
       }
       el.style.transform = "";
-      let gridX = Math.round(nextLeft / CELL_SIZE);
-      let gridY = Math.round(nextTop / CELL_SIZE);
+      const bagRect = puzzleArea.getBoundingClientRect();
+      let gridX = Math.round((nextLeft - bagRect.left) / CELL_SIZE);
+      let gridY = Math.round((nextTop - bagRect.top) / CELL_SIZE);
 
-      if (gridX < 0) gridX = 0;
-      if (gridX + itemData.w > GRID_COLS) gridX = GRID_COLS - itemData.w;
+      gridX = Math.max(0, Math.min(GRID_COLS - itemData.w, gridX));
       if (gridY + itemData.h > SAFE_ROWS) {
         gridY = SAFE_ROWS - itemData.h;
       }
 
-      itemData.x = gridX;
-      itemData.y = gridY;
-
-      updateElementPosition(el, gridX, gridY);
+      if (didMove) {
+        if (e.type !== "touchcancel" && ShinjukuBagLayout.canPlace(itemData, gridX, gridY, items)) {
+          Object.assign(itemData, { x: gridX, y: gridY, unplaced: false });
+          placementStatus.textContent = "配置しました。";
+        } else placementStatus.textContent = "重なる場所やカバンの範囲外には置けません。";
+      }
+      renderPuzzleElement(el, itemData);
       requestAnimationFrame(() => el.classList.remove("is-dragging"));
       updatePenalty();
       savePositionsToHidden();
@@ -336,16 +383,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function updatePenalty() {
     let penaltyCount = 0;
     let minGridY = 0;
+    pendingSection.hidden = !items.some(item => item.unplaced);
 
     items.forEach((item) => {
+      if (item.unplaced) return;
       if (item.y < minGridY) minGridY = item.y;
-      // はみ出たマス数で計算
-      for (let py = 0; py < item.h; py++) {
-        const currentY = item.y + py;
-        if (currentY < 0) {
-          penaltyCount += item.w;
-        }
-      }
+      penaltyCount += item.w * Math.min(item.h, Math.max(0, -item.y));
     });
 
     if (penaltyCount > 0) {
@@ -392,6 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
         h: i.h,
         rawW: i.rawW,
         rawH: i.rawH,
+        unplaced: Boolean(i.unplaced),
         name: i.name,
         note: note,
         price: price,
@@ -409,9 +453,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const savedItems = JSON.parse(jsonString);
       itemListBody.innerHTML = "";
       itemLayer.innerHTML = "";
+      pendingLayer.innerHTML = "";
       items = [];
 
-      savedItems.forEach((item) => {
+      const arranged = ShinjukuBagLayout.arrange(savedItems);
+      arranged.forEach((item) => {
         const tr = createItemRow(0, {
           rowId: item.id,
           name: item.name,
@@ -430,7 +476,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       updatePenalty();
-      hiddenInput.value = jsonString;
+      savePositionsToHidden();
+      placementStatus.textContent = items.some(i => i.unplaced) ? "入りきらないアイテムは未配置欄にあります。" : "";
 
       if (window.queueTextareaAutoResize) {
         window.queueTextareaAutoResize(document);

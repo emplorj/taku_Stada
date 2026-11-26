@@ -114,7 +114,7 @@
   color: #fff;
   font-size: 1.5rem;
   text-align: center;
-  font-weight: bold;
+  font-weight: normal;
   height: 30px;
   width: 100%;
 }
@@ -146,6 +146,9 @@
 
 /* 共通パネルスタイル */
 .section-panel {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
   background-color: var(--crawl-bg-panel);
   border: 1px solid var(--crawl-border);
   padding: 10px;
@@ -155,6 +158,8 @@
 
 .panel-header {
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
@@ -183,23 +188,24 @@
   height: 26px;
 }
 
-/* 横並び入力行（2つのフィールドを1行に配置） */
+/* パネルの幅に合わせて年齢・身長・性別を折り返す */
 .input-row-double {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  gap: 2px 10px;
   margin-bottom: 1px;
   align-items: flex-end;
 }
 
 .input-row-double .input-row {
-  flex: 1;
+  min-width: 0;
   margin-bottom: 0;
 }
 
-/* 横並びフィールド内のinputは短く（2-3文字想定） */
 .input-row-double .input-row input {
-  max-width: 72px;
-  flex-shrink: 1;
+  box-sizing: border-box;
+  width: 0;
+  flex: 1 1 0;
 }
 
 .input-row label,
@@ -261,6 +267,12 @@
   border-collapse: collapse;
   font-size: 0.85rem;
   table-layout: fixed;
+}
+
+/* 画面全体ではなく各表の内側だけをスクロールさせる */
+.equipment .crawler-table,
+.crawler-table.item-table {
+  min-width: 760px;
 }
 
 .crawler-table th {
@@ -376,6 +388,7 @@
 
 .puzzle-area {
   position: relative;
+  flex: none;
   width: calc(var(--cell-size) * 6);
   height: calc(var(--cell-size) * 6);
   transition: margin-top 0.3s ease;
@@ -477,6 +490,38 @@
 .puzzle-item.is-dragging {
   transition: none;
 }
+
+.bag-unplaced {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px dashed #dba34b;
+  border-radius: 4px;
+}
+
+.bag-unplaced h4 {
+  margin: 0;
+  font-size: .85rem;
+  color: #efc47c;
+}
+
+.bag-unplaced-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bag-unplaced-items .puzzle-item {
+  position: relative;
+  width: 110px !important;
+  height: 64px !important;
+  background: #705323;
+}
+
+.bag-unplaced-items .puzzle-item::after {
+  content: attr(data-size);
+  margin-top: 4px;
+  color: #ffe3b4;
+}
 .puzzle-item:active {
   cursor: grabbing;
   opacity: 0.9;
@@ -511,7 +556,9 @@
    所持品リスト・サイズ入力
    ========================================================================== */
 .size-input-group {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr);
+  min-width: 100px;
   align-items: center;
   justify-content: center;
   height: 100%;
@@ -519,16 +566,18 @@
   font-family: inherit;
 }
 
-.size-input-group input {
-  width: 35px;
+.crawler-table .size-input-group input {
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
   height: 100%;
   border: none;
   background: transparent;
   color: #fff;
-  text-align: right;
+  text-align: center;
   font-weight: bold;
-  padding: 0;
-  font-size: 1rem !important;
+  padding: 0 2px;
+  font-size: 1rem;
   line-height: 1;
   font-family: inherit;
 }
@@ -648,6 +697,9 @@
 }
 
 .table-scroll {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
   margin-bottom: 10px;
 }
@@ -997,6 +1049,18 @@ footer {
 /* ==========================================================================
    レスポンシブ設定
    ========================================================================== */
+@media (max-width: 1400px) {
+  .sheet-layout {
+    flex-direction: column;
+  }
+  .left-column,
+  .right-column {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 @media (max-width: 1080px) {
   .crawler-header {
     left: 0;
@@ -1025,15 +1089,6 @@ footer {
   #shinjuku-sheet {
     padding-top: 180px; /* スマホはヘッダーが高くなる */
   }
-  .sheet-layout {
-    flex-direction: column;
-  }
-  .left-column,
-  .right-column {
-    width: 100%;
-    min-width: auto;
-  }
-
   /* スマホ向けテーブル調整 */
   .table-scroll {
     width: 100%;
@@ -1051,14 +1106,156 @@ footer {
   .crawler-table td {
     padding: 2px;
   }
-  .size-input-group input {
-    font-size: 0.8rem !important;
-    width: 25px;
+}
+
+/* 探索者作成 */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.creation-actions:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.creation-actions button {
+  margin: 0;
+}
+
+.motivation-row {
+  gap: 6px;
+}
+
+.motivation-row button {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.motivation-roll-result {
+  flex-shrink: 0;
+  font-size: .8rem;
+  color: var(--crawl-accent);
+}
+
+.motivation-roll-result:empty {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .header-controls {
+    width: 100%;
+    flex-wrap: wrap;
   }
-  /* スマホではヘッダーの折り返しを調整 */
-  .panel-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+  .creation-actions:not([hidden]) {
+    width: 100%;
+    flex-direction: row;
   }
+  .header-status {
+    flex: 1;
+    min-width: 0;
+    gap: 4px;
+  }
+  .header-status .status-box {
+    width: 50px;
+  }
+  .header-status .status-box.wide {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.creation-popover {
+  position: fixed;
+  inset: 90px 20px auto auto;
+  box-sizing: border-box;
+  width: min(460px, calc(100vw - 24px));
+  max-height: calc(100dvh - 110px);
+  overflow-y: auto;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--crawl-accent);
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  box-shadow: 0 8px 25px #0009;
+}
+
+@media (max-width: 600px) {
+  .creation-popover {
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+}
+
+.creation-popover-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.creation-close {
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: #ddd;
+  font: inherit;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.creation-popover small {
+  margin-inline-start: .5rem;
+  font-weight: normal;
+}
+
+.creation-content {
+  display: grid;
+  gap: .75rem;
+  margin-top: .75rem;
+}
+
+.creation-content fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: .5rem .75rem .75rem;
+  border: 1px solid var(--crawl-border);
+  border-radius: .25rem;
+}
+
+.creation-rolls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1rem;
+}
+
+.creation-rolls input {
+  width: 4rem;
+  padding: .35rem;
+  color: inherit;
+  background: #232323;
+  border: 1px solid var(--crawl-border);
+  border-radius: .25rem;
+}
+
+.creation-result {
+  padding: .75rem;
+  border-inline-start: 2px solid var(--crawl-accent);
+  background: #222;
+}
+
+.creation-result p {
+  margin: 0 0 .5rem;
+}
+
+.creation-popover button:disabled,
+.creation-actions button:disabled {
+  opacity: .55;
+  cursor: default;
 }

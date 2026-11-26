@@ -1,3 +1,4 @@
 {
-  "livePreview.defaultPreviewPath": "/header.html"
+  "livePreview.defaultPreviewPath": "/header.html",
+  "livePreview.portNumber": 3001
 }

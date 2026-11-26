@@ -25,3 +25,12 @@ localStorage / IndexedDB 等の端末内データはドメイン別なので、�
 
 確認: `node --test tests/site-migration.test.js tests/share.test.js tests/shinjuku-page.test.js`
 転送成果物の生成: `node tools/build-github-redirects.js _pages-redirects`
+
+## ローカルプレビュー
+
+`node tools/dev-server.js` で http://127.0.0.1:3000/ を起動する。
+IDE の「タスクの実行 → 卓スタダ: ローカルプレビュー」からも起動できる。
+`/shinjuku_crawler` などの拡張子なし URL、従来の `.html`、画像・CSS・JS を配信する。
+ローカルでは元の HTML を直接使い、保存・読込は従来の GAS に接続する。
+本番の動的 OGP は Vercel 側で確認する。自動リロードはしない。
+Live Preview 拡張自体は拡張子なしに対応しないため、併用時は3001番とする。

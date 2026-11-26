@@ -40,7 +40,12 @@
         <p class="catch-copy">わくわくバイトはダイミー！</p>
         <h1>シンジュクロウラー <span class="sub">探索者シート</span></h1>
       </div>
-      <div class="header-status">
+      <div class="header-controls">
+        <div class="creation-actions" id="creation-actions" hidden>
+          <button type="button" id="creation-roll" class="add-row-btn small" aria-controls="shinjuku-creation" title="体力・やる気の1d6をそれぞれ振る">振る</button>
+          <button type="button" id="creation-review" class="add-row-btn small" popovertarget="shinjuku-creation">確認・反映</button>
+        </div>
+        <div class="header-status">
         <!-- 所持金 (幅広) -->
         <div class="status-box wide">
           <label>所持金 (裏円)</label>
@@ -61,8 +66,32 @@
           <label>やる気</label>
           <input type="number" name="spirit" min="0" max="20" value="1">
         </div>
+        </div>
       </div>
     </header>
+
+      <div class="creation-popover" id="shinjuku-creation" popover="auto" role="dialog" aria-labelledby="creation-title" hidden>
+        <div class="creation-popover-heading">
+          <strong id="creation-title">探索者を作る</strong>
+          <button type="button" class="creation-close" popovertarget="shinjuku-creation" popovertargetaction="hide" aria-label="作成メニューを閉じる">×</button>
+        </div>
+        <div class="creation-content">
+          <p class="small-help">体力・やる気を振るか、ヘッダーに数値を入力して確認します。</p>
+          <fieldset id="creation-extra" hidden>
+            <legend>追加所持品 <small>体力＋やる気が5以下</small></legend>
+            <div class="creation-rolls">
+              <label>出目1 <input type="number" id="creation-extra-stamina" min="1" max="6" inputmode="numeric"></label>
+              <label>出目2 <input type="number" id="creation-extra-spirit" min="1" max="6" inputmode="numeric"></label>
+              <button type="button" id="creation-extra-roll" class="add-row-btn small">追加の出目を振る</button>
+            </div>
+          </fieldset>
+          <div class="creation-result">
+            <p id="creation-preview" role="status">出目を入力するかダイスを振ると、背景・タグ・初期所持品が表示されます。</p>
+            <label><input type="checkbox" id="creation-auto-equip" checked> 武器・防具を空いている装備欄に入れる</label>
+          </div>
+          <button type="button" id="creation-apply" class="add-row-btn small" disabled>この内容をシートに反映</button>
+        </div>
+      </div>
 
     <form id="shinjuku-sheet">
 
@@ -81,7 +110,7 @@
             </div>
             <div class="input-row"><label>背景</label><input type="text" name="background"></div>
             <div class="input-row"><label>タグ</label><input type="text" name="tags"></div>
-            <div class="input-row"><label>動機</label><input type="text" name="motivation"></div>
+            <div class="input-row motivation-row"><label for="motivation">動機</label><button type="button" id="creation-motive-roll" class="add-row-btn small" title="動機表のd66を振って入力">振る</button><output id="creation-motive-result" class="motivation-roll-result" aria-live="polite"></output><input type="text" id="motivation" name="motivation"></div>
             <div class="input-area">
               <label>メモ</label>
               <textarea name="memo" rows="3"></textarea>
@@ -100,6 +129,12 @@
                 <div id="item-layer"></div>
                 <div class="safe-zone-label">SAFE ZONE (6x6)</div>
               </div>
+            </div>
+            <p id="bag-placement-status" class="small-help" role="status"></p>
+            <div id="bag-unplaced" class="bag-unplaced" hidden>
+              <h4>未配置のアイテム（カバン外）</h4>
+              <p class="small-help">空きマスへドラッグするか、所持品リストの「カバンに反映」で再配置できます。</p>
+              <div id="bag-unplaced-items" class="bag-unplaced-items"></div>
             </div>
             <div class="puzzle-help">
               <p><i class="fa-solid fa-arrow-pointer"></i> ドラッグで移動 | <i class="fa-solid fa-rotate"></i>
@@ -1219,6 +1254,7 @@
       return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
   </script>
+  <script defer src="js/shinjuku_creation.js"></script>
   <!-- Cloudflare Web Analytics -->
   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6860c746c8204efd894e2e37fe7fbfcf"}'></script>
   <!-- End Cloudflare Web Analytics -->
