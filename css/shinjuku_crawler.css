@@ -994,12 +994,12 @@
 .list-table th:nth-child(6) { width: 16%; }
 .list-table td:nth-child(4),
 .list-table td:nth-child(6) {
-  font-family: var(--font-latin-ui);
+  font-family: inherit;
+  font-weight: normal;
   font-variant-numeric: tabular-nums;
 }
 .list-table td:nth-child(4) {
   text-align: right;
-  font-weight: bold;
 }
 .list-table tr:hover {
   background-color: #2a2a2a;
