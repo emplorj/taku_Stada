@@ -124,6 +124,8 @@ input[type="datetime-local"],
 .updated-at,
 .enemy-list-time-tag {
   font-family: var(--font-latin-ui);
+  font-weight: var(--font-latin-ui-weight);
+  font-synthesis: none;
   font-variant-numeric: tabular-nums;
 }
 

@@ -64,7 +64,7 @@
         <!-- やる気 -->
         <div class="status-box">
           <label>やる気</label>
-          <input type="number" name="spirit" min="0" max="20" value="1">
+          <input type="number" name="spirit" min="0" max="6" value="1">
         </div>
         </div>
       </div>
@@ -274,8 +274,7 @@
       <!-- アフタープレイ・履歴エリア (折りたたみ) -->
       <details class="section-panel bottom-details">
         <summary>
-          <h3><i class="fa-solid fa-book"></i> 名声技能・履歴データ <span
-              style="font-size:0.8rem; font-weight:normal;">(クリックで開閉)</span></h3>
+          <h3><i class="fa-solid fa-book"></i> 名声技能・探索履歴</h3>
         </summary>
 
         <div class="bottom-content-wrapper two-column-layout">
@@ -287,10 +286,15 @@
                 style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #444; margin-bottom:5px;">
                 <h4 style="color:#d500f9; border:none; margin:0;">名声技能</h4>
                 <div style="font-size:0.8rem; color:#bbb;">
-                  取得数: <span id="fame-count">0</span> / <span id="fame-max">0</span>
+                  取得済み：<span id="fame-count">0</span> / <span id="fame-max">0</span>
                 </div>
               </div>
-              <div class="table-scroll">
+              <div class="fame-progress">
+                <span id="fame-next" aria-live="polite"></span>
+                <progress id="fame-progress" max="200" value="0" aria-label="次の名声技能までの進捗"></progress>
+              </div>
+              <p class="small-help" id="fame-help">公式技能を選ぶか、技能名・効果を自由に入力できます。</p>
+              <div class="table-scroll fame-table-scroll">
                 <table class="crawler-table" id="fame-skills-table">
                   <colgroup>
                     <col style="width: 35%;"> <!-- 名前 -->
@@ -304,7 +308,7 @@
                   </thead>
                   <tbody></tbody>
                 </table>
-                <!-- 手動追加ボタンは自動管理のため削除 -->
+                <p id="fame-empty" class="small-help" hidden>名声点200で最初の技能枠が解放されます。</p>
               </div>
             </div>
           </div>
@@ -329,7 +333,8 @@
               </div>
 
               <!-- セッション履歴 -->
-              <h5 style="color:#bbb; margin:10px 0 5px;">セッション履歴<small>（プラスで収入、マイナスで支出）</small></h5>
+              <details class="history-disclosure" open>
+              <summary>セッション履歴 <small>（プラスで収入、マイナスで支出）</small></summary>
               <div class="table-scroll">
                 <table class="crawler-table history-table" id="session-history">
                   <colgroup>
@@ -355,8 +360,10 @@
                 <button type="button" id="add-session-row" class="add-row-btn small">+ 行を追加</button>
               </div>
 
+              </details>
               <!-- 購入/支出履歴 -->
-              <h5 style="color:#bbb; margin:15px 0 5px;">購入・支出履歴</h5>
+              <details class="history-disclosure" open>
+              <summary>購入・支出履歴</summary>
               <div class="table-scroll">
                 <table class="crawler-table history-table" id="purchase-history">
                   <colgroup>
@@ -377,6 +384,7 @@
                 </table>
                 <button type="button" id="add-purchase-row" class="add-row-btn small">+ 行を追加</button>
               </div>
+              </details>
             </div>
           </div>
         </div>
@@ -433,19 +441,22 @@
           <table class="list-table">
             <thead>
               <tr>
-                <th>PC名</th>
-                <th>PL名</th>
-                <th>更新日時</th>
-                <th>参照</th>
+                <th scope="col">PC名</th>
+                <th scope="col">PL名</th>
+                <th scope="col">背景</th>
+                <th scope="col">名声点</th>
+                <th scope="col">タグ</th>
+                <th scope="col">更新日時</th>
               </tr>
             </thead>
             <tbody id="character-list-body">
               <tr>
-                <td colspan="4" style="text-align:center;">読み込み中...</td>
+                <td colspan="6" style="text-align:center;">読み込み中...</td>
               </tr>
             </tbody>
           </table>
         </div>
+        <p id="character-list-status" class="small-help" role="status" hidden></p>
       </details>
 
     </form>
@@ -539,13 +550,127 @@
       setupTextareaAutoResize(tr);
     }
 
+    // Official skill presets: rulebook v1.1 p.49 (summarized).
+    const FAME_PRESETS = [
+      { name: 'あぶなーーーい！', effect: 'ダメージを受ける直前に使用し、そのダメージを0にする。生涯1回。再取得するともう1回使用できる。' },
+      { name: '静かなる大物', effect: '集中が必要な不安定な状況・環境では周囲の影響を受けない。それ以外の環境なら判定に有利ダイスを得る。1探索1回。' },
+      { name: '器用人', effect: 'タグに［超器用］［ハンドメイド］を追加する。' },
+      { name: '私、いつか……', effect: 'やる気の上限を7に変更する。' },
+      { name: 'ダンジョンランナー', effect: '移動時のターン経過を0にする。1探索1回。' },
+      { name: 'もうワンチャン', effect: '道具を手に入れるためのダイスロール（判定ではない）を2個で行い、好きな出目を採用する。1探索1回。' }
+    ];
+
+    function fameProgress(points) {
+      const fame = Math.max(0, Number(points) || 0);
+      let max = 0, previous = 0, next = 200;
+      for (const threshold of [200, 700, 1000, 1500]) {
+        if (fame < threshold) { next = threshold; return { max, previous, next }; }
+        max++;
+        previous = threshold;
+      }
+      const extra = Math.floor((fame - 1500) / 500);
+      return { max: 4 + extra, previous: 1500 + extra * 500, next: 2000 + extra * 500 };
+    }
+
+    function spiritMaxForSkills(skills) {
+      return skills.some(skill => String(skill.name ?? '').trim() === '私、いつか……') ? 7 : 6;
+    }
+
+    function getFameRows() {
+      return fameBody ? Array.from(fameBody.rows, row => ({
+        name: row.querySelector('[name="fame_name"]').value,
+        effect: row.querySelector('[name="fame_effect"]').value
+      })) : [];
+    }
+
+    function refreshFameCount() {
+      const skills = getFameRows();
+      const count = skills.filter(skill => skill.name.trim()).length;
+      const max = fameProgress(fameInput?.value).max;
+      if (fameCountSpan) {
+        fameCountSpan.textContent = count;
+        fameCountSpan.style.color = count > max ? '#ff5555' : '';
+      }
+      const spirit = document.querySelector('input[name="spirit"]');
+      if (spirit) spirit.max = spiritMaxForSkills(skills);
+    }
+
+    function appendDexterousTags() {
+      const input = form?.elements.tags;
+      if (!input) return;
+      const current = input.value.trim();
+      const existing = new Set(current.split(/[\s,，、;；]+/u).map(tag =>
+        tag.replace(/^[#＃\[\]【】〈〉［］]+|[\[\]【】〈〉［］]+$/gu, '')));
+      const additional = ['超器用', 'ハンドメイド'].filter(tag => !existing.has(tag));
+      if (additional.length) {
+        input.value = [current, ...additional].filter(Boolean).join('、');
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+
     function addFameRow(data = {}) {
       if (!fameBody) return;
       const tr = document.createElement('tr');
       tr.innerHTML = `
-            <td><input type="text" name="fame_name" value="${data.name || ''}" placeholder="技能名"></td>
-            <td><textarea name="fame_effect" rows="1" placeholder="効果">${data.effect || ''}</textarea></td>
-        `;
+        <td><div class="fame-name-controls">
+          <input type="text" name="fame_name" placeholder="技能名（自由入力）" aria-label="技能名">
+          <span class="fame-preset-trigger">
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <select class="fame-preset" aria-label="名声技能の選択・操作" title="名声技能の選択・操作"></select>
+          </span>
+        </div></td>
+        <td><textarea name="fame_effect" rows="2" placeholder="効果（自由入力）" aria-label="名声技能の効果"></textarea></td>
+      `;
+      const select = tr.querySelector('.fame-preset');
+      const name = tr.querySelector('[name="fame_name"]');
+      const effect = tr.querySelector('[name="fame_effect"]');
+      name.value = data.name ?? '';
+      effect.value = data.effect ?? '';
+      for (const [value, label] of [['', '公式技能を選択'], ...FAME_PRESETS.map(s => [s.name, s.name]), ['custom', '自由入力'], ['add-tags', '器用人のタグを追加'], ['clear', '技能をクリア']]) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        select.appendChild(option);
+      }
+      function syncPreset() {
+        select.value = '';
+        const tagOption = select.querySelector('option[value="add-tags"]');
+        tagOption.hidden = tagOption.disabled = name.value.trim() !== '器用人';
+        select.querySelector('option[value="clear"]').disabled = !name.value.trim() && !effect.value.trim();
+      }
+      syncPreset();
+      select.addEventListener('change', () => {
+        const action = select.value;
+        syncPreset();
+        if (action === 'add-tags') {
+          if (name.value.trim() === '器用人') appendDexterousTags();
+          return;
+        }
+        if (action === 'clear') {
+          if (!confirm('この技能名・効果をクリアしますか？')) return;
+          name.value = '';
+          effect.value = '';
+          syncPreset();
+          calculateTotal();
+          setupTextareaAutoResize(tr);
+          return;
+        }
+        const preset = FAME_PRESETS.find(s => s.name === action);
+        if (!preset) { name.focus(); return; }
+        if ((name.value.trim() || effect.value.trim()) &&
+            (name.value !== preset.name || effect.value !== preset.effect) &&
+            !confirm('現在の技能名・効果を選択した公式技能に置き換えますか？')) {
+          syncPreset();
+          return;
+        }
+        name.value = preset.name;
+        effect.value = preset.effect;
+        syncPreset();
+        setupTextareaAutoResize(tr);
+        refreshFameCount();
+      });
+      name.addEventListener('input', () => { syncPreset(); refreshFameCount(); });
+      effect.addEventListener('input', syncPreset);
       fameBody.appendChild(tr);
       setupTextareaAutoResize(tr);
     }
@@ -610,38 +735,27 @@
       if (totalRewardsSpan) totalRewardsSpan.textContent = totalMoney;
       if (totalFameSpan) totalFameSpan.textContent = totalFame;
 
-      // 名声技能枠計算
-      let maxSkills = 0;
-      if (totalFame >= 1500) maxSkills = 4 + Math.floor((totalFame - 1500) / 500);
-      else if (totalFame >= 1000) maxSkills = 3;
-      else if (totalFame >= 700) maxSkills = 2;
-      else if (totalFame >= 200) maxSkills = 1;
-
+      // 名声技能枠計算：入力済み技能は名声が減っても削除しない。
+      const { max: maxSkills, previous, next } = fameProgress(totalFame);
       if (fameMaxSpan) fameMaxSpan.textContent = maxSkills;
-
-      const currentCount = fameBody.querySelectorAll('tr').length;
-      if (fameCountSpan) fameCountSpan.textContent = currentCount;
-
-      // 枠調整
-      if (currentCount < maxSkills) {
-        const diff = maxSkills - currentCount;
-        for (let i = 0; i < diff; i++) addFameRow();
-      } else if (currentCount > maxSkills) {
-        const rows = Array.from(fameBody.querySelectorAll('tr'));
-        for (let i = rows.length - 1; i >= maxSkills; i--) {
-          const row = rows[i];
-          const name = row.querySelector('input[name="fame_name"]').value.trim();
-          const effect = row.querySelector('textarea[name="fame_effect"]').value.trim();
-          if (!name && !effect) row.remove();
-        }
+      const nextLabel = document.getElementById('fame-next');
+      if (nextLabel) nextLabel.textContent = '次の技能枠まであと' + (next - Math.max(0, totalFame)).toLocaleString('ja-JP') + '点（' + next.toLocaleString('ja-JP') + '点で解放）';
+      const progress = document.getElementById('fame-progress');
+      if (progress) {
+        progress.max = next - previous;
+        progress.value = Math.max(0, totalFame - previous);
       }
-
-      // 赤字判定
-      if (fameCountSpan) {
-        const finalCount = fameBody.querySelectorAll('tr').length;
-        fameCountSpan.textContent = finalCount;
-        fameCountSpan.style.color = (finalCount > maxSkills) ? '#ff5555' : '#fff';
+      const rows = Array.from(fameBody.rows);
+      for (const row of rows.slice().reverse()) {
+        if (fameBody.rows.length <= maxSkills) break;
+        const name = row.querySelector('[name="fame_name"]').value.trim();
+        const effect = row.querySelector('[name="fame_effect"]').value.trim();
+        if (!name && !effect) row.remove();
       }
+      while (fameBody.rows.length < maxSkills) addFameRow();
+      const empty = document.getElementById('fame-empty');
+      if (empty) empty.hidden = fameBody.rows.length > 0;
+      refreshFameCount();
     }
 
     // --- ヘルパー: tbody取得 (なければ作る) ---
@@ -1035,7 +1149,7 @@
 
       const statusList = [
         { label: "体力", value: stamina, max: 6 },
-        { label: "やる気", value: spirit, max: 6 },
+        { label: "やる気", value: spirit, max: spiritMaxForSkills(formData.fame_skills_list || []) },
         { label: "所持金", value: money },
         { label: "ペナルティ", value: penaltyAbs }
       ];
@@ -1179,38 +1293,115 @@
     // --- 一覧取得機能 ---
     document.getElementById('btn-refresh-list').addEventListener('click', () => fetchCharacterList(true));
 
+    function formatCharacterTags(value) {
+      const raw = Array.isArray(value) ? value.join(' ') : String(value ?? '');
+      return [...new Set(raw.split(/[\s,，、;；]+/u)
+        .map(tag => tag.replace(/^[#＃\[\]【】〈〉［］]+|[\[\]【】〈〉［］]+$/gu, '').trim())
+        .filter(Boolean))].map(tag => '#' + tag).join(' ');
+    }
+
+    function listText(value) {
+      return value == null || String(value).trim() === '' ? '—' : String(value);
+    }
+
+    function fillCharacterListRow(row, summary) {
+      const cells = row.cells;
+      const background = listText(summary.background);
+      const fame = summary.fame_points == null || String(summary.fame_points).trim() === ''
+        ? '—' : Number.isFinite(Number(summary.fame_points))
+          ? Number(summary.fame_points).toLocaleString('ja-JP') : '—';
+      const tags = formatCharacterTags(summary.tags) || '—';
+      for (const [index, value] of [[2, background], [3, fame], [4, tags]]) {
+        cells[index].textContent = value;
+        cells[index].title = value;
+      }
+    }
+
     async function fetchCharacterList(force = false) {
       if (characterListLoading || (characterListLoaded && !force)) return;
       const tbody = document.getElementById('character-list-body');
+      const status = document.getElementById('character-list-status');
       if (!tbody) return;
       characterListLoading = true;
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">読み込み中...</td></tr>';
+      if (status) { status.hidden = true; status.textContent = ''; }
 
+      function showMessage(message) {
+        tbody.replaceChildren();
+        const cell = tbody.insertRow().insertCell();
+        cell.colSpan = 6;
+        cell.style.textAlign = 'center';
+        cell.textContent = message;
+      }
+
+      showMessage('読み込み中...');
       try {
-        const url = `${GAS_API_URL}?tool=shinjuku&action=list`;
-        const response = await fetch(url);
+        const response = await fetch(GAS_API_URL + '?tool=shinjuku&action=list');
         const json = await response.json();
-
-        if (json.status === 'success') {
-          const list = json.data;
-          characterListLoaded = true;
-          if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">データなし</td></tr>';
-            return;
-          }
-          tbody.innerHTML = '';
-          list.forEach(c => {
-            const tr = document.createElement('tr');
-            const link = `?id=${encodeURIComponent(c.id)}`;
-            tr.innerHTML = `<td><b>${escapeHtml(c.pc_name)}</b></td><td>${escapeHtml(c.player_name)}</td><td>${c.updated}</td><td style="text-align:center;"><a href="${link}" class="crawler-btn load" style="padding:2px 8px;font-size:0.8em">見る</a></td>`;
-            tbody.appendChild(tr);
-          });
-        } else {
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:red;">${json.message}</td></tr>`;
+        if (!response.ok || json.status !== 'success' || !Array.isArray(json.data)) {
+          throw new Error(json.message || '一覧を取得できませんでした');
         }
+
+        const list = [...json.data].sort((a, b) =>
+          String(b.updated ?? '').localeCompare(String(a.updated ?? '')));
+        tbody.replaceChildren();
+        if (!list.length) {
+          showMessage('データなし');
+          characterListLoaded = true;
+          return;
+        }
+
+        // Only IDs returned by the public list are eligible for detail lookup.
+        // If the list API already provides summary fields, no detail request is needed.
+        const pending = [];
+        for (const character of list) {
+          const row = tbody.insertRow();
+          for (let i = 0; i < 6; i++) row.insertCell();
+          const link = document.createElement('a');
+          link.href = '?id=' + encodeURIComponent(character.id);
+          link.textContent = listText(character.pc_name);
+          link.title = link.textContent;
+          row.cells[0].appendChild(link);
+          row.cells[1].textContent = listText(character.player_name);
+          row.cells[1].title = row.cells[1].textContent;
+          row.cells[5].textContent = listText(character.updated);
+          row.cells[5].title = row.cells[5].textContent;
+          fillCharacterListRow(row, character);
+          if (['background', 'fame_points', 'tags'].some(key =>
+            !Object.prototype.hasOwnProperty.call(character, key))) {
+            pending.push({ character, row });
+          }
+        }
+
+        if (pending.length && status) {
+          status.textContent = '背景・名声点・タグを取得中...';
+          status.hidden = false;
+        }
+        let failures = 0;
+        let next = 0;
+        async function loadSummary() {
+          while (next < pending.length) {
+            const { character, row } = pending[next++];
+            try {
+              const detailResponse = await fetch(GAS_API_URL + '?tool=shinjuku&action=load&id='
+                + encodeURIComponent(character.id), { signal: AbortSignal.timeout(20000) });
+              const detail = await detailResponse.json();
+              if (!detailResponse.ok || detail.status !== 'success' || !detail.data) throw new Error('detail unavailable');
+              fillCharacterListRow(row, { ...character, ...detail.data });
+            } catch (e) {
+              failures++;
+            }
+          }
+        }
+        await Promise.all(Array.from({ length: Math.min(3, pending.length) }, loadSummary));
+        if (status) {
+          status.textContent = failures ? '一部の追加情報を取得できませんでした。更新で再試行できます。' : '';
+          status.hidden = !failures;
+        }
+        characterListLoaded = true;
       } catch (e) {
         console.error(e);
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">エラー</td></tr>';
+        characterListLoaded = false;
+        showMessage('一覧の取得に失敗しました。更新で再試行できます。');
       } finally {
         characterListLoading = false;
       }
