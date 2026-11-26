@@ -633,23 +633,23 @@
   padding: 10px;
 }
 
-.bottom-details summary {
+.bottom-details > summary {
   cursor: pointer;
   outline: none;
   list-style: none;
 }
-.bottom-details summary::-webkit-details-marker {
+.bottom-details > summary::-webkit-details-marker {
   display: none;
 }
 
-.bottom-details summary h3 {
+.bottom-details > summary h3 {
   display: inline-block;
   border-left: none;
   padding-left: 0;
   margin: 0;
   width: 100%;
 }
-.bottom-details summary h3::before {
+.bottom-details > summary h3::before {
   content: "▶";
   display: inline-block;
   margin-right: 5px;
@@ -657,7 +657,7 @@
   transition: transform 0.2s;
   color: var(--crawl-accent);
 }
-.bottom-details[open] summary h3::before {
+.bottom-details[open] > summary h3::before {
   transform: rotate(90deg);
 }
 
@@ -680,6 +680,73 @@
 .bottom-col-right {
   flex: 1 1 60%;
   min-width: 0;
+}
+
+/* 名声技能 */
+.fame-progress {
+  display: grid;
+  gap: 5px;
+  margin: 8px 0;
+  font-size: 0.8rem;
+  color: #bbb;
+}
+.fame-progress progress {
+  width: 100%;
+  height: 7px;
+  accent-color: var(--crawl-accent);
+}
+.fame-name-controls {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.fame-preset {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 5px;
+  color: #eee;
+  background: var(--crawl-bg-panel);
+  border: 1px solid var(--crawl-border);
+  border-radius: 3px;
+  font: inherit;
+}
+.fame-preset:focus-visible,
+.fame-clear:focus-visible {
+  outline: 1px solid var(--crawl-accent);
+}
+.fame-clear {
+  display: block;
+  margin: 3px 0 3px auto;
+  background: transparent;
+  color: #bbb;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+}
+.fame-clear:hover {
+  color: #eee;
+  text-decoration: underline;
+}
+.fame-add-tags[hidden] {
+  display: none;
+}
+#fame-skills-table {
+  table-layout: fixed;
+  min-width: 0;
+}
+.history-disclosure {
+  margin: 10px 0;
+}
+.history-disclosure > summary {
+  cursor: pointer;
+  color: #bbb;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+.history-disclosure > summary small {
+  font-weight: normal;
 }
 
 /* 履歴テーブル */
