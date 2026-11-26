@@ -10,9 +10,13 @@ Deploy from a branch に戻すと、通常 HTML の公開と転送公開が競�
 元の HTML は書き換えない。ページの階層、クエリ、ハッシュを保って転送し、
 画像・CSS・JS 等の旧アセット URL は引き続き利用できる。
 
-シンジュクロウラーは `/shinjuku?id=...` が本体。
+公開URLは `cleanUrls: true` により `.html` なし。ソースの HTML ファイル名は従来どおり。
+シンジュクロウラーは `/shinjuku_crawler?id=...` が本体。
 旧 `shinjuku_crawler.html` は同じ ID を保ってこちらへ移る。
 Vercel の動的ページが名前入り OGP とシート本体を返す。
+Vercel のビルドは `tools/build-vercel-static.js` で静的配信ファイルを準備する。
+シートの元 HTML は関数のテンプレートとして使い、静的配信からだけ除外する。
+これにより `/shinjuku_crawler` も静的ファイルに遮られず動的 OGP を返せる。
 
 サーバー保存先（GAS・スプレッドシート）は変更なし。
 localStorage / IndexedDB 等の端末内データはドメイン別なので、旧サイトの

@@ -15,6 +15,7 @@ Thumbs.db
 .env
 .vercel
 _pages-redirects/
+_vercel-static/
 
 # Local reference assets (do not commit)
 reference/

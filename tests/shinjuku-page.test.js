@@ -17,7 +17,7 @@ test("sheet URL returns editor, escaped metadata and reusable saved JSON", async
       setHeader(key, value) { this.headers[key] = value; return this; },
       send(html) { this.html = html; return this; },
     };
-    await handler({ method: "GET", url: "/shinjuku?id=" + encodeURIComponent("保存&ID") }, res);
+    await handler({ method: "GET", url: "/shinjuku_crawler?id=" + encodeURIComponent("保存&ID") }, res);
     assert.equal(res.code, 200);
     assert.equal(calls, 1);
     assert.equal(res.headers["Cache-Control"], "no-store");

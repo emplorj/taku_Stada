@@ -8,9 +8,11 @@ test("legacy redirects retain nested paths, encoded queries and fragments", () =
     ["/taku_Stada", "/"],
     ["/taku_Stada/", "/"],
     ["/taku_Stada/247_guild/", "/247_guild/"],
-    ["/taku_Stada/247_guild/sw25_generator.html", "/247_guild/sw25_generator.html"],
-    ["/taku_Stada/shinjuku_crawler.html", "/shinjuku"],
-    ["/taku_Stada/CoC_Q%26A.html", "/CoC_Q%26A.html"],
+    ["/taku_Stada/247_guild/sw25_generator.html", "/247_guild/sw25_generator"],
+    ["/taku_Stada/index.html", "/"],
+    ["/taku_Stada/247_guild/index.html", "/247_guild/"],
+    ["/taku_Stada/shinjuku_crawler.html", "/shinjuku_crawler"],
+    ["/taku_Stada/CoC_Q%26A.html", "/CoC_Q%26A"],
   ]) {
     let actual;
     const html = redirectHtml("index.html");

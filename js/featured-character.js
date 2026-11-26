@@ -118,6 +118,8 @@ function createMainPageCharacterCard(character) {
   const currentPath = window.location.pathname;
   const isGuildPage =
     currentPath.endsWith("247_guild/") ||
+    currentPath.endsWith("/247_guild") ||
+    currentPath.endsWith("247_guild/index") ||
     currentPath.endsWith("247_guild/index.html");
 
   const jobOrRaceHtml = isGuildPage
@@ -217,12 +219,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   if (
     currentPath.endsWith("247_guild/") ||
+    currentPath.endsWith("/247_guild") ||
+    currentPath.endsWith("247_guild/index") ||
     currentPath.endsWith("247_guild/index.html")
   ) {
     containerSelector = "#members .member-list";
     loadAndDisplayGuildCharacters(containerSelector);
   } else if (
     currentPath.endsWith("/") ||
+    currentPath.endsWith("/index") ||
     currentPath.endsWith("/index.html") ||
     currentPath.endsWith("/taku_Stada/")
   ) {

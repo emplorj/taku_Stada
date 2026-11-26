@@ -4,7 +4,8 @@
   var pathname = location.pathname;
   if (pathname !== "/taku_Stada" && pathname.indexOf("/taku_Stada/") !== 0) return;
   pathname = pathname.slice("/taku_Stada".length) || "/";
-  if (pathname === "/shinjuku_crawler.html") pathname = "/shinjuku";
+  if (/^\/shinjuku_crawler(?:\.html)?$/.test(pathname)) pathname = "/shinjuku_crawler";
+  else pathname = pathname.replace(/\/index(?:\.html)?$/, "/").replace(/\.html$/, "");
   location.replace("https://taku-stada.vercel.app" + pathname + location.search + location.hash);
 })();
 
@@ -220,7 +221,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const placeholder = document.getElementById("header-placeholder");
     if (!placeholder) return;
     try {
-      const response = await fetch(`${basePath}/header.html`);
+      const headerPath = window.location.hostname === "taku-stada.vercel.app" ? "header" : "header.html";
+      const response = await fetch(`${basePath}/${headerPath}`);
       if (response.ok) {
         let html = await response.text();
 

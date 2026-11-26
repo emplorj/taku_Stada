@@ -1,19 +1,20 @@
 {
   "version": 2,
+  "cleanUrls": true,
+  "buildCommand": "node tools/build-vercel-static.js",
+  "outputDirectory": "_vercel-static",
   "functions": {
     "api/shinjuku-page.js": { "includeFiles": "shinjuku_crawler.html" }
   },
   "redirects": [
-    { "source": "/shinjuku_crawler.html", "destination": "/shinjuku", "permanent": false }
+    { "source": "/shinjuku_crawler.html", "destination": "/shinjuku_crawler", "permanent": false },
+    { "source": "/shinjuku", "destination": "/shinjuku_crawler", "permanent": false },
+    { "source": "/shinjuku-crawler", "destination": "/shinjuku_crawler", "permanent": false }
   ],
   "rewrites": [
     {
-      "source": "/shinjuku",
+      "source": "/shinjuku_crawler",
       "destination": "/api/shinjuku-page"
-    },
-    {
-      "source": "/koma-maker",
-      "destination": "/koma-maker.html"
     }
   ]
 }

@@ -5,7 +5,7 @@ const { execFileSync } = require("node:child_process");
 const PUBLIC_ORIGIN = "https://taku-stada.vercel.app";
 
 function destinationForPath(relativePath) {
-  const pathname = relativePath === "shinjuku_crawler.html" ? "shinjuku" : relativePath;
+  const pathname = relativePath.replace(/(^|\/)index(?:\.html)?$/, "$1").replace(/\.html$/, "");
   return PUBLIC_ORIGIN + "/" + pathname.split("/").map(encodeURIComponent).join("/");
 }
 
@@ -23,7 +23,7 @@ function redirectHtml(relativePath) {
   var pathname = location.pathname;
   if (pathname === prefix) pathname = '/';
   else if (pathname.indexOf(prefix + '/') === 0) pathname = pathname.slice(prefix.length);
-  if (pathname === '/shinjuku_crawler.html') pathname = '/shinjuku';
+  pathname = pathname.replace(/\\/index(?:\\.html)?$/, '/').replace(/\\.html$/, '');
   location.replace('${PUBLIC_ORIGIN}' + pathname + location.search + location.hash);
 })();
 </script></head><body>

@@ -21,11 +21,12 @@ crawlers receive metadata directly in the HTML head (no iframe or meta refresh).
 Share buttons use this endpoint. Existing GitHub Pages `?id=` links retain
 their static preview.
 
-`/shinjuku?id=...` is rewritten to `shinjuku-page.js`, which
+`/shinjuku_crawler?id=...` is rewritten to `shinjuku-page.js`, which
 renders the full editor with character-specific metadata. The static HTML is
 bundled with the function via `includeFiles`. Saved JSON is safely embedded
 for first-load reuse, and the response is never cached. GitHub Pages visitors
 are moved to this Vercel sheet so copying the address bar shares the right URL.
 Already-posted GitHub Pages URLs still have static previews.
-On Vercel, `/shinjuku_crawler.html` redirects to `/shinjuku` to avoid the
-static HTML file taking precedence over the dynamic route.
+Vercel builds static output using `tools/build-vercel-static.js`, excluding
+the root sheet template from static hosting while bundling it with the function.
+Old `/shinjuku` and `.html` URLs redirect to `/shinjuku_crawler`.
