@@ -9,7 +9,7 @@
     // Browsers move to the server-rendered sheet so copying the address bar
     // shares the character-specific preview as well.
     if (location.hostname === 'emplorj.github.io') {
-      location.replace('https://taku-stada.vercel.app/shinjuku_crawler.html' + location.search + location.hash);
+      location.replace('https://taku-stada.vercel.app/shinjuku' + location.search + location.hash);
     }
   </script>
   <title>シンジュクロウラー 探索者シート - 卓スタダ</title>
@@ -1125,7 +1125,7 @@
     document.getElementById('btn-share').addEventListener('click', () => {
       const id = idInput.value.trim();
       if (!id) return alert('IDを入力してください');
-      const url = `https://taku-stada.vercel.app/shinjuku_crawler.html?id=${encodeURIComponent(id)}`;
+      const url = `https://taku-stada.vercel.app/shinjuku?id=${encodeURIComponent(id)}`;
       navigator.clipboard.writeText(url).then(() => alert('コピーしました: ' + url));
     });
 

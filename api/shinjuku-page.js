@@ -23,7 +23,7 @@ module.exports = async function handler(req, res) {
   const baseTitle = "シンジュクロウラー 探索者シート - 卓スタダ";
   const title = escapeHtml(name ? `${name} - ${baseTitle}` : baseTitle);
   const description = escapeHtml(name ? `${name} の探索者シートです。` : "シンジュクロウラーの探索者シートを作成・管理する支援ページです。");
-  const canonical = new URL("https://taku-stada.vercel.app/shinjuku_crawler.html");
+  const canonical = new URL("https://taku-stada.vercel.app/shinjuku");
   if (id) canonical.searchParams.set("id", id);
   let html = template
     .replace(/<title>[^<]*<\/title>/, () => `<title>${title}</title>`)

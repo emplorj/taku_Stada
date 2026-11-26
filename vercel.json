@@ -3,9 +3,12 @@
   "functions": {
     "api/shinjuku-page.js": { "includeFiles": "shinjuku_crawler.html" }
   },
+  "redirects": [
+    { "source": "/shinjuku_crawler.html", "destination": "/shinjuku", "permanent": false }
+  ],
   "rewrites": [
     {
-      "source": "/shinjuku_crawler.html",
+      "source": "/shinjuku",
       "destination": "/api/shinjuku-page"
     },
     {

@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
   }
   const isShinjuku = tool === "shinjuku";
   const destination = new URL(isShinjuku ? "shinjuku_crawler.html" : "dx3_combo_generator.html", SITE_URL);
-  if (isShinjuku) destination.href = "https://taku-stada.vercel.app/shinjuku_crawler.html";
+  if (isShinjuku) destination.href = "https://taku-stada.vercel.app/shinjuku";
   destination.searchParams.set(isShinjuku ? "id" : "url", isShinjuku ? id : (source || id));
   const shareUrl = new URL(SHARE_URL);
   shareUrl.searchParams.set("tool", tool);
