@@ -16,7 +16,7 @@
   <meta property="og:title" content="シンジュクロウラー 探索者シート - 卓スタダ">
   <meta property="og:description" content="シンジュクロウラーの探索者シートを作成・管理し、所持品やカバン配置を整理できる支援ページです。">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/shinjuku_crawler.css?v=20261127-pickers1">
+  <link rel="stylesheet" href="css/shinjuku_crawler.css?v=20261127-tags-touch1">
   <link rel="stylesheet" href="css/loading_overlay.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
@@ -132,7 +132,7 @@
               <div class="input-row"><label>性別</label><input type="text" name="gender"></div>
             </div>
             <div class="input-row"><label>背景</label><input type="text" name="background"></div>
-            <div class="input-row"><label>タグ</label><input type="text" name="tags"></div>
+            <div class="input-row tag-row"><label for="tags">タグ</label><div class="tags-field"><input type="text" id="tags" name="tags" aria-describedby="tags-help"><p id="tags-help">「,」・スペースで区切り、追加／Enter／Tabで確定。空欄のTabで次の項目へ。</p></div></div>
             <div class="input-row motivation-row"><label for="motivation">動機</label><button type="button" id="creation-motive-roll" class="add-row-btn small" title="動機表のd66を振って入力">振る</button><output id="creation-motive-result" class="motivation-roll-result" aria-live="polite"></output><input type="text" id="motivation" name="motivation"></div>
             <div class="input-area">
               <label>メモ</label>
@@ -496,6 +496,7 @@
   <!-- パズル処理用スクリプト -->
   <script src="js/shinjuku_items.js?v=20261126-items1"></script>
   <script src="js/shinjuku_inputs.js?v=20261127-pickers1"></script>
+  <script src="js/shinjuku_tags.js?v=20261127-tags-touch1"></script>
   <script src="js/bag_puzzle.js?v=20261127-pickers1"></script>
 
   <script>
@@ -626,12 +627,13 @@
     function appendDexterousTags() {
       const input = form?.elements.tags;
       if (!input) return;
+      window.ShinjukuTags?.commit();
       const current = input.value.trim();
       const existing = new Set(current.split(/[\s,，、;；]+/u).map(tag =>
         tag.replace(/^[#＃\[\]【】〈〉［］]+|[\[\]【】〈〉［］]+$/gu, '')));
       const additional = ['超器用', 'ハンドメイド'].filter(tag => !existing.has(tag));
       if (additional.length) {
-        input.value = [current, ...additional].filter(Boolean).join('、');
+        input.value = window.ShinjukuTags.format([current, ...additional]);
         input.dispatchEvent(new Event('input', { bubbles: true }));
       }
     }
@@ -958,6 +960,7 @@
 
     // --- データ取得 ---
     function getFormDataAsJson() {
+      window.ShinjukuTags?.commit();
       const formData = new FormData(form);
       const data = {};
 
@@ -1108,6 +1111,7 @@
       });
 
       if (window.restorePuzzle && data['puzzle_positions']) window.restorePuzzle(data['puzzle_positions']);
+      window.ShinjukuTags?.refresh();
 
       calculateTotal();
       updatePageTitle(); // タブタイトルを更新
@@ -1127,6 +1131,7 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 保存中...';
 
       try {
+        window.ShinjukuTags?.commit();
         const savedState = window.shinjukuChanges?.capture();
         await fetch(GAS_API_URL, {
           method: 'POST', mode: 'no-cors',
@@ -1320,10 +1325,7 @@
     document.getElementById('btn-refresh-list').addEventListener('click', () => fetchCharacterList(true));
 
     function formatCharacterTags(value) {
-      const raw = Array.isArray(value) ? value.join(' ') : String(value ?? '');
-      return [...new Set(raw.split(/[\s,，、;；]+/u)
-        .map(tag => tag.replace(/^[#＃\[\]【】〈〉［］]+|[\[\]【】〈〉［］]+$/gu, '').trim())
-        .filter(Boolean))].map(tag => '#' + tag).join(' ');
+      return window.ShinjukuTags.parse(value).map(tag => '#' + tag).join(' ');
     }
 
     function listText(value) {
@@ -1471,7 +1473,7 @@
       return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
   </script>
-  <script defer src="js/shinjuku_creation.js?v=20261126-items1"></script>
+  <script defer src="js/shinjuku_creation.js?v=20261127-tags1"></script>
   <!-- Cloudflare Web Analytics -->
   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6860c746c8204efd894e2e37fe7fbfcf"}'></script>
   <!-- End Cloudflare Web Analytics -->

@@ -89,7 +89,7 @@
 
   function readBackground(stamina, spirit) {
     const [name, tags, equipment] = backgrounds[stamina - 1][spirit - 1].split("|");
-    return { name, tags, equipment: equipment.split(",") };
+    return { name, tags: tags.split("・").join(", "), equipment: equipment.split(",") };
   }
 
   function addInitialItem(name, table, addButton) {
@@ -283,6 +283,7 @@
     sheetSpirit.value = draft.spirit;
     backgroundField.value = draft.background.name;
     tagsField.value = draft.background.tags;
+    tagsField.dispatchEvent(new Event("input", { bubbles: true }));
     const addButton = document.getElementById("add-item-row");
     for (const entry of draft.equipment) {
       const [name, quantity = "1"] = entry.split("×");

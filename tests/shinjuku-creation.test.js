@@ -98,7 +98,7 @@ test("PDF example: base and bonus equipment keep all quantities and free flags",
   s.setStats(3, 2, [6, 1]);
   s.element("creation-apply").click();
   assert.equal(s.fields.background.value, "売れないミュージシャン");
-  assert.equal(s.fields.tags.value, "楽器演奏・表現力");
+  assert.equal(s.fields.tags.value, "楽器演奏, 表現力");
   assert.equal(s.fields.equip_r_name.value, "金属バット");
   assert.equal(s.fields.equip_l_name.value, "大バール");
   assert.equal(s.fields.equip_b_stat.value, "1");
